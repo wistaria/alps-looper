@@ -1,3 +1,7 @@
+2004-07-09  Synge Todo  <wistaria@comp-phys.org>
+
+	* Fixed random_choice class template.
+	
 2004-06-25  Synge Todo  <wistaria@comp-phys.org>
 
 	* Added alternating_tensor (Levi-Civita or permutation symbol)

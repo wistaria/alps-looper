@@ -31,7 +31,7 @@ namespace looper {
 
 template<class T> T sqr(T t) { return t * t; }
 
-inline 
+inline
 int alternating_tensor(int i, int j, int k)
 {
   switch (i) {
@@ -68,7 +68,7 @@ int alternating_tensor(int i, int j, int k)
   return 0;
 }
 
-inline 
+inline
 int alternating_tensor(const boost::tuple<int, int, int>& x)
 {
   return alternating_tensor(x.get<0>(), x.get<1>(), x.get<2>());

@@ -92,9 +92,9 @@ inline void diagonalize(Matrix& a, Vector& w, bool need_eigenvectors = true)
 
   // size check
   assert(matrix_helper<matrix_type>::size1(a) ==
-	 matrix_helper<matrix_type>::size2(a));
+         matrix_helper<matrix_type>::size2(a));
   assert(matrix_helper<matrix_type>::size1(a) ==
-	 vector_helper<vector_type>::size(w));
+         vector_helper<vector_type>::size(w));
 
   char jobz;
   if (need_eigenvectors) {
@@ -118,9 +118,9 @@ inline void diagonalize(boost::numeric::ublas::matrix<std::complex<T>,R,A>& a, V
 
   // size check
   assert(matrix_helper<matrix_type>::size1(a) ==
-	 matrix_helper<matrix_type>::size2(a));
+         matrix_helper<matrix_type>::size2(a));
   assert(matrix_helper<matrix_type>::size1(a) ==
-	 vector_helper<vector_type>::size(w));
+         vector_helper<vector_type>::size(w));
 
   char jobz;
   if (need_eigenvectors) {

@@ -35,10 +35,10 @@ try {
     int i = l / 9;
     int j = (l / 3) % 3;
     int k = l % 3;
-    std::cout << '(' << i << ',' << j << ',' << k << ") = " 
-	      << looper::alternating_tensor(i,j,k) << std::endl;
+    std::cout << '(' << i << ',' << j << ',' << k << ") = "
+              << looper::alternating_tensor(i,j,k) << std::endl;
   }
-	  
+
 #ifndef BOOST_NO_EXCEPTIONS
 }
 catch (const std::exception& excp) {

@@ -91,8 +91,8 @@ public:
     typename std::vector<std::pair<RealType, result_type> >::iterator
       pos_p = array.end();
     for (result_type i = 0; i < n_; ++i) {
-      RealType b = norm * weights[i] - RealType(1);
-      if (b < RealType(0)) {
+      RealType b = norm * weights[i] - RealType(1.);
+      if (b < RealType(0.)) {
         *neg_p = std::make_pair(b, i);
         ++neg_p;
       } else {
@@ -106,10 +106,15 @@ public:
 
     // Assign alias and cutoff values
     for (neg_p = array.begin(); neg_p != array.end(); ++neg_p) {
-      cutoff(neg_p->second) = 1 + neg_p->first;
-      alias(neg_p->second) = pos_p->second;
-      pos_p->first += neg_p->first;
-      if (pos_p->first < 0) ++pos_p;
+      if (pos_p != array.end()) {
+        cutoff(neg_p->second) = RealType(1.) + neg_p->first;
+        alias(neg_p->second) = pos_p->second;
+        pos_p->first += neg_p->first;
+        if (pos_p->first <= RealType(0.)) ++pos_p;
+      } else {
+        cutoff(neg_p->second) = RealType(1.);
+        alias(neg_p->second) = 0; // never referred
+      }
     }
   }
 
