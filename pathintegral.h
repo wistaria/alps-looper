@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: pathintegral.h 431 2003-10-16 09:24:06Z wistaria $
+* $Id: pathintegral.h 432 2003-10-16 13:24:54Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -37,7 +37,13 @@
 #ifndef LOOPER_PATHINTEGRAL_H
 #define LOOPER_PATHINTEGRAL_H
 
+#include "amida.h"
 #include "graph.h"
+#include "loop.h"
+#include "permutation.h"
+#include "unionfind.h"
+#include "weight.h"
+#include <boost/integer_traits.hpp>
 #include <boost/throw_exception.hpp>
 #include <cmath>
 #include <stdexcept>
@@ -50,7 +56,7 @@ template<class M, class G>
 double energy_offset(const M& model, const G& graph)
 {
   typedef typename boost::graph_traits<G>::edge_iterator edge_iterator;
-
+  
   double offset = 0;
   typename alps::property_map<alps::bond_type_t, G, int>::const_type
     bond_type(alps::get_or_default(alps::bond_type_t(), graph, 0));
@@ -59,49 +65,370 @@ double energy_offset(const M& model, const G& graph)
     offset += model.bond(bond_type[*ei]).C;
   return offset;
 }
-
-class weight
+  
+struct weight
 {
-public:
-  static double range_01(double x)
-  {
-    return std::min(std::max(x, double(0.)), double(1.));
-  }
-    
+  double density;
+  double p_freeze;
+  double p_accept_para;
+  double p_accept_anti;
+  double p_reflect;
+  
+  weight() {}
   template<class P>
   weight(const P& p)
   {
     double Jxy = std::abs(p.Jxy); // ignore negative signs
     double Jz = p.Jz;
-    if (Jxy == 0 && Jz == 0)
-      boost::throw_exception(std::invalid_argument("Invalid values for coupling constants"));
-    
-    density_ = std::max(std::abs(Jz) / 2, (Jxy + std::abs(Jz)) / 4);
-    freeze_ = range_01(1 - Jxy / std::abs(Jz));
-    accept_p_ = range_01((Jxy + Jz) / (Jxy + std::abs(Jz)));
-    accept_a_ = range_01((Jxy - Jz) / (Jxy + std::abs(Jz)));
-    reflect_ = range_01((Jxy - Jz) / (2 * Jxy));
+    if (Jxy == 0 && Jz == 0) {
+      density = 0;
+    } else {
+      density = std::max(std::abs(Jz) / 2, (Jxy + std::abs(Jz)) / 4);
+      p_freeze = range_01(1 - Jxy / std::abs(Jz));
+      p_accept_para = range_01((Jxy + Jz) / (Jxy + std::abs(Jz)));
+      p_accept_anti = range_01((Jxy - Jz) / (Jxy + std::abs(Jz)));
+      p_reflect = range_01((Jxy - Jz) / (2 * Jxy));
+    }
   }
-
-  double density() const { return density_; }
-  double freeze() const { return freeze_; }
-  double accept_p() const { return accept_p_; }
-  double accept_a() const { return accept_a_; }
-  double accept(int c0, int c1) const {
-    return (c0 ^ c1) ? accept_a_ : accept_p_;
+  
+  double p_accept(int c0, int c1) const {
+    return (c0 ^ c1) ? p_accept_anti : p_accept_para;
   }
-  double reflect() const { return reflect_; }
-
-private:
-  double density_;
-  double freeze_;
-  double accept_p_;
-  double accept_a_;
-  double reflect_;
+  
+protected:
+  static double range_01(double x)
+  {
+    return std::min(std::max(x, double(0.)), double(1.));
+  }
 };
 
-} // end namespace path_integral
+template<class U = uint32_t>
+class node_flag
+{
+public:
+  typedef U uint_type;
+  
+  BOOST_STATIC_CONSTANT(uint_type, B_ADDD = 0);
+  BOOST_STATIC_CONSTANT(uint_type, B_REFL = 1);
+  BOOST_STATIC_CONSTANT(uint_type, B_FREZ = 2);
+  BOOST_STATIC_CONSTANT(uint_type, B_ANTI = 3); // only for XYZ
+  BOOST_STATIC_CONSTANT(uint_type, B_CONF = 4);
+  
+  // set for newly-added node
+  BOOST_STATIC_CONSTANT(uint_type, M_ADDD = 1 << B_ADDD);
+  
+  BOOST_STATIC_CONSTANT(uint_type, M_REFL = 1 << B_REFL); 
+  BOOST_STATIC_CONSTANT(uint_type, M_FREZ = 1 << B_FREZ);
+  BOOST_STATIC_CONSTANT(uint_type, M_ANTI = 1 << B_ANTI); // only for XYZ
+  BOOST_STATIC_CONSTANT(uint_type, M_CONF = 1 << B_CONF);
+  
+  // bit mask for clear()
+  BOOST_STATIC_CONSTANT(uint_type, M_CLEAR = M_ANTI | M_CONF);
+  
+private:
+  BOOST_STATIC_ASSERT((boost::integer_traits<uint_type>::is_integral));
+  BOOST_STATIC_ASSERT((boost::integer_traits<uint_type>::const_min == 0));
+};
 
-} // end namespace looper
+template<class U = uint32_t>
+class node_type : private node_flag<U>
+{
+public:
+  typedef U uint_type;
+  
+  node_type() : type_(0) {}
+  
+  bool is_refl() const { return type_ & M_REFL; }
+  bool is_frozen() const { return type_ & M_FREZ; }
+  bool is_new_node() const { return type_ & M_ADDD; }
+  bool is_old_node() const { return !is_new_node(); }
+  
+  uint_type refl() const { return ( type_ >> B_REFL ) & 1; }
+  uint_type frozen() const { return ( type_ >> B_FREZ ) & 1; }
+  uint_type new_node() const { return ( type_ >> B_ADDD ) & 1; }
+  uint_type old_node() const { return 1 ^ (( type_ >> B_ADDD ) & 1); }
+  
+  uint_type phase() const { return ( type_ >> B_ANTI ) & 1; }
+  uint_type conf() const { return (type_ >> B_CONF) & 1; }
+  
+  void set_type(uint_type t) { type_ = t; }
+  void clear() { type_ &= M_CLEAR; }
+  
+  void set_conf(uint_type c) {
+    type_ = ((0xffffffff ^ M_CONF) & type_) | (c << B_CONF); }
+  void flip_conf(uint_type c = 1) { type_ ^= (c << B_CONF); }
+  
+  void set_new(uint_type is_refl, uint_type is_frozen, uint_type conf,
+	       uint_type phase) {
+    type_ = M_ADDD | (is_refl << B_REFL) | (is_frozen << B_FREZ) 
+      | (conf << B_CONF) | (phase << B_ANTI);
+  }
+  void set_old(uint_type is_refl, uint_type is_frozen) {
+    type_ |= (is_refl << B_REFL) | (is_frozen << B_FREZ);
+  }
+  
+  void output(std::ostream& os) const {
+    os << "refl = " << refl()
+       << " frozen = " << frozen()
+       << " new_node = " << new_node()
+       << " phase = " << phase()
+       << " conf = " << conf();
+  }
+  
+  void save(alps::ODump& od) const { od << type_; }
+  void load(alps::IDump& id) { id >> type_; }
+  
+private:
+  BOOST_STATIC_ASSERT((boost::integer_traits<uint_type>::is_integral));
+  BOOST_STATIC_ASSERT((boost::integer_traits<uint_type>::const_min == 0));
+  
+  uint_type type_;
+};
+
+
+template<bool HasCTime = false, class U = uint32_t> class node;
+
+template<class U>
+class node<false, U> : public node_type<U>
+{
+private:
+  typedef node_type<U> base_type;
+  typedef looper::unionfind::node<looper::loop_segment> segment_type;
+  
+public:
+  typedef double time_type;
+  static const bool has_ctime = false;
+  
+  node() : base_type(), time_(0), bond_(0), segment0_(), segment1_() {}
+  
+  time_type time() const { return time_; }
+  uint32_t bond() const { return bond_; }
+  
+  void set_bond(uint32_t b) { bond_ = b; }
+  void set_time(time_type t) { time_ = t; }
+  
+  void set_new(uint32_t b, uint32_t is_refl, uint32_t is_frozen,
+	       uint32_t conf, uint32_t phase) {
+    base_type::set_new(is_refl, is_frozen, conf, phase);
+    bond_ = b;
+  }
+  
+  segment_type& loop_segment(int i) {
+    return (i == 0 ? segment0_ : segment1_);
+  }
+  const segment_type& loop_segment(int i) const {
+    return (i == 0 ? segment0_ : segment1_);
+  }
+  int loop_index(int i) const { return loop_segment(i).root()->index; }
+  
+  void clear() {
+    base_type::clear();
+    segment0_.reset();
+    segment1_.reset();
+  }
+  
+  void output(std::ostream& os) const {
+    base_type::output(os);
+    os << " time = " << time_ << " bond = " << bond_ ;
+  }
+  
+  void save(alps::ODump& od) const {
+    base_type::save(od);
+    od << time_ << bond_;
+    // segment[01]_ are not saved
+  }
+  void load(alps::IDump& id) {
+    base_type::load(id);
+    id >> time_ >> bond_;
+    // segment[01]_ are not restored
+  }
+  
+private:
+  time_type time_;
+  uint32_t bond_;
+  segment_type segment0_;
+  segment_type segment1_;
+};
+
+template<class U>
+class node<true, U> : public node<false, U>
+{
+public:
+  static const bool has_ctime = true;
+  
+  typedef node<false>::time_type time_type;
+  typedef std::complex<time_type> ctime_type;
+  
+  ctime_type ctime() const { return _ctime; }
+  void set_time(time_type t) {
+    node<false>::set_time(t);
+#ifdef M_PI
+    _ctime = std::exp(2 * M_PI * t);
+#else
+    _ctime = std::exp(2 * 3.1415926535897932385 * t);
+#endif
+  }
+  
+  void output(std::ostream& os) const {
+    node<false>::output(os);
+    os << " ctime = " << _ctime;
+  }
+  
+  void save(alps::ODump& od) const {
+    node<false>::save(od);
+    od << _ctime;
+  }
+  void load(alps::IDump& id) {
+    node<false>::load(id);
+    id >> _ctime;
+  }
+  
+private:
+  ctime_type _ctime;
+};
+
+// initialize
+template<class N, class VG, class VM>
+void initialize(amida<N>& config, const VG& vg, const VM&)
+{
+  typedef typename boost::graph_traits<VG>::vertex_iterator vertex_iterator;
+  
+  config.init(boost::num_vertices(vg));
+  
+  vertex_iterator vi_end = boost::vertices(vg).second;
+  for (vertex_iterator vi = boost::vertices(vg).first; vi != vi_end; ++vi) {
+    config.series(*vi).first ->set_time(0.);
+    config.series(*vi).second->set_time(1.);
+    config.series(*vi).first ->set_conf(0);
+    config.series(*vi).second->set_conf(0);
+  }
+}
+
+template<class N, class VG, class VM, class M, class RNG, class WEIGHT>
+void do_labeling(amida<N>& config, const VG& vg, const VM& vm,
+		 const M& model, double beta, RNG& uniform_01,
+		 const WEIGHT& weight)
+{
+  typedef typename amida<N>::iterator iterator;
+  typedef typename amida<N>::value_type node_type;
+  typedef typename boost::graph_traits<VG>::vertex_iterator
+    vertex_iterator;
+  typedef typename boost::graph_traits<VG>::edge_iterator
+    edge_iterator;
+  typedef WEIGHT weight_type;
+  
+  //
+  // labeling
+  //
+  
+  edge_iterator ei_end = boost::edges(vg).second;
+  for (edge_iterator ei = boost::edges(vg).first; ei != ei_end; ++ei) {
+    
+    int bond = boost::get(edge_index_t(), vg, *ei); // bond index
+    
+    // setup iterators
+    iterator itr0 = config.series(boost::source(*ei, vg)).first;
+    iterator itr1 = config.series(boost::target(*ei, vg)).first;
+    int c0 = itr0->conf();    
+    int c1 = itr1->conf();
+    
+    // setup bond weight
+    weight_type weight(model.bond(boost::get(edge_type_t(), vg, *ei)));
+    std::vector<double> trials;
+    fill_duration(uniform_01, trials, beta * weight.density, 1.);
+    
+    // iteration up to t = 1
+    std::vector<double>::const_iterator ti_end = trials.end();
+    for (std::vector<double>::const_iterator ti = trials.begin();
+	 ti != ti_end; ++ti) {
+      while (itr0->time() < *ti) { 
+	if (itr0->bond() == bond) {
+	  // labeling existing link
+	  itr0->set_old((uniform_01() < weight.p_reflect ? 1 : 0), 0);
+	}
+	if (itr0->is_old_node()) c0 ^= 1;
+	++itr0;
+      }
+      while (itr1->time() < *ti) {
+	if (itr1->is_old_node()) c1 ^= 1;
+	++itr1;
+      }
+      if (uniform_01() < weight.p_accept(c0, c1)) {
+	// insert new link
+	iterator itr_new =
+	  config.insert_link_prev(node_type(), itr0, itr1).first;
+	bool fz = (uniform_01() < weight.p_freeze);
+	itr_new->set_time(*ti);
+	itr_new->set_new(boost::get(edge_index_t(), vg, *ei), c0 ^ c1,
+			 (fz ? 1 : 0), 0, 0);
+	if (fz) unionfind::unify(itr_new->loop_segment(0),
+				 itr_new->loop_segment(0));
+      }
+    }
+    while (!itr0.at_top()) { 
+      if (itr0->bond() == bond) {
+	// labeling existing link
+	itr0->set_old((uniform_01() < weight.p_reflect ? 1 : 0), 0);
+      }
+      ++itr0;
+    }
+  }
+  std::cout << "labeling done.\n";
+  
+  //
+  // cluster identification using union-find algorithm
+  //
+  
+  vertex_iterator vi_end = boost::vertices(vg).second;
+  for (vertex_iterator vi = boost::vertices(vg).first; vi != vi_end; ++vi) {
+    
+    // setup iterators
+    iterator itrD = config.series(*vi).first;
+    iterator itrU = itrD + 1;
+    
+    // iteration up to t = 1
+    while (!itrU.at_top()) {
+      // connect loop segments // FIXME
+      itrD = itrU++;
+    }
+  }
+  
+  std::vector<int> r;
+  std::vector<int> c0;
+  std::vector<int> c1;
+  for (int i = 0; i < vm.num_groups(); ++i) {
+    int s2 = vm.num_virtual_vertices(i);
+    int offset = *(vm.virtual_vertices(i).first);
+    r.resize(s2);
+    c0.resize(s2);
+    c1.resize(s2);
+    vertex_iterator vi_end = vm.virtual_vertices(i).second;
+    for (vertex_iterator vi = vm.virtual_vertices(i).first;
+	 vi != vi_end; ++vi) {
+      r[*vi - offset] = *vi - offset;
+      c0[*vi - offset] = config.series(*vi).first->conf();
+      c1[*vi - offset] = config.series(*vi).second->conf();
+    }
+    restricted_random_shuffle(r.begin(), r.end(),
+			      c0.begin(), c0.end(),
+			      c1.begin(), c1.end(),
+			      uniform_01);
+    for (vertex_iterator vi = vm.virtual_vertices(i).first;
+	 vi != vi_end; ++vi)
+      unionfind::unify(
+        config.series(*vi            ).first ->loop_segment(0),
+        config.series(r[*vi - offset]).second->loop_segment(0));
+  }
+  std::cout << "identification done.\n";
+}
+
+template<class N, class VG, class VM, class M, class RNG>
+void do_labeling(amida<N>& config, const VG& vg, const VM& vm,
+		 const M& model, double beta, RNG& uniform_01)
+{ do_labeling(config, vg, vm, model, beta, uniform_01, weight()); }
+
+} // namespace path_integral
+
+} // namespace looper
 
 #endif // LOOPER_PATHINTEGRAL_H
