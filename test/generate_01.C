@@ -41,7 +41,8 @@ void generate(RNG& uniform_01)
 
   std::vector<int>::const_iterator itr_end = array.end();
   for (std::vector<int>::const_iterator itr = array.begin(); itr != itr_end;
-       ++itr) std::cout << *itr << std::endl;
+       ++itr) std::cout << *itr << ' ';
+  std::cout << std::endl;
 }
 
 int main()

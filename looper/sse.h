@@ -441,10 +441,19 @@ struct sse<virtual_graph<G>, M, W, N>
     typedef RNG rng_type;
 
     std::vector<int> flip(config.num_loops);
-    std::generate(flip.begin(), flip.end(),
-                  boost::variate_generator<rng_type&,
-                                           boost::uniform_smallint<> >(
-                    uniform_01, boost::uniform_smallint<>(0, 1)));
+    {
+      boost::variate_generator<rng_type&, boost::uniform_smallint<> >
+        uniform_int01(uniform_01, boost::uniform_smallint<>(0, 1));
+      std::vector<int>::iterator itr = flip.begin();
+      std::vector<int>::iterator itr_end = flip.end();
+      for (; itr != itr_end; ++itr) *itr = uniform_int01();
+    }
+    // Intel C++ (icc) 8.0 does not understand the following lines
+    // correctly when -xW vectorized option is specified.  -- ST 2004.04.01
+    //
+    // std::generate(flip.begin(), flip.end(),
+    //   boost::variate_generator<rng_type&, boost::uniform_smallint<> >(
+    //   uniform_01, boost::uniform_smallint<>(0, 1)));
 
     // flip spins
     {

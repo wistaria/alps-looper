@@ -1,5 +1,13 @@
-2004-03-23  Synge Todo  <wistaria@comp-phys.org>
+2004-04-01  Synge Todo  <wistaria@comp-phys.org>
 
+	* Add new test generate_01, in which icc 8.0 with -xW fails, and
+	changed looper/path_integral.h as a workaround for this bug.
+	
+	* Changed looper/path_integral.h as a workaround for a bug in icc
+	8.0 with -O1 or higher.
+	
+2004-03-23  Synge Todo  <wistaria@comp-phys.org>
+	
         * Changed looper/graph.h so that the generate_graph function uses
           ALPS/Lattice Library.
 
