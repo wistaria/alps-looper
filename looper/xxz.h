@@ -392,8 +392,7 @@ public:
         bool success;
         xxz_parameter p;
         boost::tie(success, p) =
-          fit2xxz(hd.bond_term(bt).
-                  template matrix<double>(hd.basis().site_basis(st0),
+          fit2xxz(alps::get_matrix(0.,hd.bond_term(bt),hd.basis().site_basis(st0),
                                           hd.basis().site_basis(st1),
                                           ops, params));
         if (!success)
