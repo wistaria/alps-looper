@@ -2,6 +2,10 @@
 
 	* Added wrapper and test program for linear least squares solver
 	(gels) in LAPACK.
+
+	* Replaced internal matrix representation in xxz_matrix by
+	boost::multiarray<>.  Improved fitting algorithm in fit2xxz by
+	using the linear least squares solver.
 	
 2004-04-07  Synge Todo  <wistaria@comp-phys.org>
 

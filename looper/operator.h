@@ -33,7 +33,8 @@ typedef alps::SiteBasisDescriptor<short> site_basis_descriptor;
 typedef std::map<std::string, alps::OperatorDescriptor<short> >
   operator_map_type;
 
-site_basis_descriptor spin_basis(const alps::half_integer<short>& s = 0.5)
+template<class I>
+site_basis_descriptor spin_basis(const alps::half_integer<I>& s = 0.5)
 {
   alps::Parameters p;
   p["S"] = s;
@@ -42,6 +43,9 @@ site_basis_descriptor spin_basis(const alps::half_integer<short>& s = 0.5)
   sb.set_parameters(alps::Parameters()); // required for re-evaluation
   return sb;
 }
+
+inline site_basis_descriptor spin_basis(double s)
+{ return spin_basis(alps::half_integer<short>(s)); }
 
 inline operator_map_type spin_operators()
 {
@@ -162,7 +166,7 @@ void add_to_matrix(MATRIX& matrix,
                                  basis_states.basis().get_site_basis(s0),
                                  basis_states.basis().get_site_basis(s1),
                                  ops,
-                                   params));
+                                 params));
 
   for (int i = 0; i < dim; ++i) {
     typename basis_state_type::value_type state = basis_states[i];

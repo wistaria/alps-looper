@@ -25,6 +25,9 @@
 #ifndef LOOPER_XXZ_H
 #define LOOPER_XXZ_H
 
+#include <looper/lapack.h>
+#include <looper/operator.h>
+
 #include <alps/parameters.h>
 #include <alps/lattice.h>
 #include <alps/model.h>
@@ -33,19 +36,6 @@
 #include <boost/numeric/ublas/io.hpp>
 
 namespace looper {
-
-namespace detail {
-
-template<class I>
-I index(const alps::half_integer<I>& s0,
-        const alps::half_integer<I>& s1,
-        const alps::half_integer<I>& sz0,
-        const alps::half_integer<I>& sz1)
-{
-  return s0.distance(sz0) * (s1.get_twice()+1) + s1.distance(sz1);
-}
-
-} // end namespace detail
 
 template<class I = int>
 class site_parameter
@@ -82,6 +72,7 @@ private:
   double c_, hx_, hz_;
 };
 
+
 class xxz_parameter
 {
 public:
@@ -97,6 +88,13 @@ public:
   double jz() const { return jz_; }
   double& jz() { return jz_; }
 
+  bool operator==(const xxz_parameter& rhs) const {
+    return (c_ == rhs.c_) && (jxy_ == rhs.jxy_) && (jz_ == rhs.jz_);
+  }
+  bool operator!=(const xxz_parameter& rhs) const {
+    return !operator==(rhs);
+  }
+
 private:
   double c_;
   double jxy_;
@@ -104,12 +102,34 @@ private:
 };
 
 
-template <class T = double, class M = boost::numeric::ublas::matrix<T> >
+template<class T, class U>
+inline void flatten_matrix(const boost::multi_array<T, 4>& m_in,
+                           boost::numeric::ublas::matrix<U>& m_out)
+{
+#ifndef NDEBUG
+  assert(m_in.shape()[0] == m_in.shape()[2]);
+  assert(m_in.shape()[1] == m_in.shape()[3]);
+#endif
+
+  int d0 = m_in.shape()[0];
+  int d1 = m_in.shape()[1];
+  int dim = d0 * d1;
+
+  m_out.resize(dim, dim);
+  for (int i0 = 0; i0 < d0; ++i0)
+    for (int i1 = 0; i1 < d1; ++i1)
+      for (int j0 = 0; j0 < d0; ++j0)
+        for (int j1 = 0; j1 < d1; ++j1)
+          m_out(i0 * d1 + i1, j0 * d1 + j1) = m_in[i0][i1][j0][j1];
+}
+
+
+template <class T = double>
 class xxz_matrix
 {
 public:
   typedef T value_type;
-  typedef M matrix_type;
+  typedef boost::multi_array<value_type, 4> matrix_type;
   typedef typename matrix_type::size_type size_type;
 
   xxz_matrix() : matrix_() {}
@@ -127,20 +147,6 @@ public:
   matrix_type& matrix() { return matrix_; }
   const matrix_type& matrix() const { return matrix_; }
 
-  // access to to rows
-  typename matrix_type::matrix_row_type operator[](size_type i) {
-    return matrix_[i];
-  }
-  typename matrix_type::const_matrix_row_type operator[](size_type i) const {
-    return matrix_[i];
-  }
-
-  // sccess to elements
-  value_type& operator()(size_type i, size_type j)
-  { return matrix_(i, j); }
-  const value_type& operator()(size_type i, size_type j) const
-  { return matrix_(i, j); }
-
   template<class I>
   void build(const alps::half_integer<I>& s0, const alps::half_integer<I>& s1,
              double e0, double jxy, double jz)
@@ -149,17 +155,20 @@ public:
     typedef alps::half_integer<integer_type> half_integer_type;
 
     // set matrix dimension
-    int dim = (s0.get_twice()+1) * (s1.get_twice()+1);
-    matrix_.resize(dim, dim);
-    for (int i = 0; i < dim; ++i)
-      for (int j = 0; j < dim; ++j)
-        matrix_(i,j) = value_type(0);
+    int d0 = s0.get_twice()+1;
+    int d1 = s1.get_twice()+1;
+    matrix_.resize(boost::extents[d0][d1][d0][d1]);
+    for (int i0 = 0; i0 < d0; ++i0)
+      for (int i1 = 0; i1 < d1; ++i1)
+        for (int j0 = 0; j0 < d0; ++j0)
+          for (int j1 = 0; j1 < d1; ++j1)
+            matrix_[i0][i1][j0][j1] = value_type(0);
 
     // diagonal elements: jz sz0 sz1
     for (half_integer_type sz0 = s0; sz0 >= -s0; --sz0) {
       for (half_integer_type sz1 = s1; sz1 >= -s1; --sz1) {
-        matrix_(detail::index(s0, s1, sz0, sz1),
-                detail::index(s0, s1, sz0, sz1)) =
+        matrix_[s0.distance(sz0)][s1.distance(sz1)]
+          [s0.distance(sz0)][s1.distance(sz1)] =
           e0 - jz * double(sz0) * double(sz1);
       }
     }
@@ -167,8 +176,8 @@ public:
     // off-diagonal elements: jxy s0+ s1- / 2
     for (half_integer_type sz0 = s0-1; sz0 >= -s0; --sz0) {
       for (half_integer_type sz1 = s1; sz1 >= -s1+1; --sz1) {
-        matrix_(detail::index(s0, s1, sz0+1, sz1-1),
-                detail::index(s0, s1, sz0, sz1)) =
+        matrix_[s0.distance(sz0+1)][s1.distance(sz1-1)]
+          [s0.distance(sz0)][s1.distance(sz1)] =
           - 0.5 * jxy *
           std::sqrt(double(s0-sz0) * double(s0+sz0+1)) *
           std::sqrt(double(s1+sz1) * double(s1-sz1+1));
@@ -178,8 +187,8 @@ public:
     // off-diagonal elements: jxy s0- s1+ / 2
     for (half_integer_type sz0 = s0; sz0 >= -s0 + 1; --sz0) {
       for (half_integer_type sz1 = s1-1; sz1 >= -s1; --sz1) {
-        matrix_(detail::index(s0, s1, sz0-1, sz1+1),
-                detail::index(s0, s1, sz0, sz1)) =
+        matrix_[s0.distance(sz0-1)][s1.distance(sz1+1)]
+          [s0.distance(sz0)][s1.distance(sz1)] =
           - 0.5 * jxy *
           std::sqrt(double(s0+sz0) * double(s0-sz0+1)) *
           std::sqrt(double(s1-sz1) * double(s1+sz1+1));
@@ -192,80 +201,92 @@ private:
 };
 
 
-template <class T, class M>
-inline std::ostream& operator<<(std::ostream& os, const xxz_matrix<T, M>& m)
-{
-  os << m.matrix();
-  return os;
-}
-
 //
 // fitting a matrix to xxz_matrix
 //
 
-template <class I, class M>
-inline boost::tuple<bool, typename M::value_type, typename M::value_type,
-                    typename M::value_type>
-fit2xxz(const site_parameter<I>& s0, const site_parameter<I>& s1,
-        const M& mat, typename M::value_type tol = 1.0e-10)
+template <class T>
+std::pair<bool, xxz_parameter>
+fit2xxz(const boost::multi_array<T, 4>& mat, T tol = 1.0e-10)
 {
-  typedef M matrix_type;
-  typedef typename M::value_type value_type;
+#ifndef NDEBUG
+  assert(mat.shape()[0] == mat.shape()[2]);
+  assert(mat.shape()[1] == mat.shape()[3]);
+#endif
 
-  int dim = (s0.s().get_twice()+1) * (s1.s().get_twice()+1);
-  xxz_matrix<value_type> m1(s0, s1, 0, 1, 1);
+  typedef T value_type;
 
-  // e0
-  value_type e0 = 0.;
-  for (int i = 0; i < dim; ++i) e0 += mat(i,i);
-  e0 /= dim;
+  int d0 = mat.shape()[0];
+  int d1 = mat.shape()[1];
+  int dim = d0 * d1;
+  int m = dim * dim;
+  int n = 3;
 
-  // jz
-  value_type jz = (mat(0,0) - e0) / m1(0,0);
+  alps::SiteBasisDescriptor<short> basis0(spin_basis((double)(d0 - 1)/2.));
+  alps::SiteBasisDescriptor<short> basis1(spin_basis((double)(d1 - 1)/2.));
 
-  // jxy
-  double jxy = 0;
-  for (int i = 0; i < dim; ++i) {
-    for (int j = 0; j < dim; ++j) {
-      if ((i != j) && (m1(i,j) != 0)) {
-        jxy = mat(i,j) / m1(i,j);
-        break;
+  boost::multi_array<value_type, 4> mat_c(
+    alps::get_matrix(value_type(),
+                     alps::BondTermDescriptor<short>("1"),
+                     basis0, basis1, spin_operators(), alps::Parameters()));
+  boost::multi_array<value_type, 4> mat_jxy(
+    alps::get_matrix(value_type(),
+                     alps::BondTermDescriptor<short>(
+                       "-(Splus(i)*Sminus(j)+Sminus(i)*Splus(j))/2"),
+                     basis0, basis1, spin_operators(), alps::Parameters()));
+  boost::multi_array<value_type, 4> mat_jz(
+    alps::get_matrix(value_type(),
+                     alps::BondTermDescriptor<short>("-Sz(i)*Sz(j)"),
+                     basis0, basis1, spin_operators(), alps::Parameters()));
+
+  boost::numeric::ublas::matrix<value_type> a(m, n);
+  boost::numeric::ublas::vector<value_type> b(m);
+  boost::numeric::ublas::vector<value_type> x(n);
+  for (int i0 = 0; i0 < d0; ++i0) {
+    for (int i1 = 0; i1 < d1; ++i1) {
+      for (int j0 = 0; j0 < d0; ++j0) {
+        for (int j1 = 0; j1 < d1; ++j1) {
+          int k = dim * (i0 * d1 + i1) + (j0 * d1 + j1);
+          b(k) = mat[i0][i1][j0][j1];
+          a(k, 0) = mat_c[i0][i1][j0][j1];
+          a(k, 1) = mat_jxy[i0][i1][j0][j1];
+          a(k, 2) = mat_jz[i0][i1][j0][j1];
+        }
       }
     }
-    if (jxy != 0) break;
   }
+
+  // call linear least sqaure problem solver in LAPACK
+  solve_llsp(a, b, x);
+
+  value_type e0 = ((std::abs(x(0)) > tol) ? x(0) : 0.);
+  value_type jxy = ((std::abs(x(1)) > tol) ? x(1) : 0.);
+  value_type jz = ((std::abs(x(2)) > tol) ? x(2) : 0.);
 
   // check
   bool success = true;
-  xxz_matrix<value_type> m(s0, s1, e0, jxy, jz);
-  for (int i = 0; i < dim; ++i) {
-    for (int j = 0; j < dim; ++j) {
-      if (std::abs(mat(i,j) - m(i,j)) > tol) success = false;
+  for (int i0 = 0; i0 < d0; ++i0) {
+    for (int i1 = 0; i1 < d1; ++i1) {
+      for (int j0 = 0; j0 < d0; ++j0) {
+        for (int j1 = 0; j1 < d1; ++j1) {
+          if (std::abs(mat[i0][i1][j0][j1] -
+                       (e0 * mat_c[i0][i1][j0][j1] +
+                        jxy * mat_jxy[i0][i1][j0][j1] +
+                        jz * mat_jz[i0][i1][j0][j1])) > tol) success = false;
+        }
+      }
     }
   }
 
-  return boost::make_tuple(success, e0, jxy, jz);
+  return std::make_pair(success, xxz_parameter(e0, jxy, jz));
 }
 
-template <class I, class T>
-inline boost::tuple<bool, T, T, T>
-fit2xxz(const site_parameter<I>& s0, const site_parameter<I>& s1,
-        const boost::multi_array<T, 4>& mat, T tol = 1.0e-10)
+
+template <class T>
+std::pair<bool, xxz_parameter>
+fit2xxz(const xxz_matrix<T>& mat, T tol = 1.0e-10)
 {
-  typedef T value_type;
-
-  int d0 = s0.s().get_twice()+1;
-  int d1 = s1.s().get_twice()+1;
-  int dim = d0 * d1;
-
-  boost::numeric::ublas::matrix<value_type> m(dim, dim);
-  for (int i0 = 0; i0 < d0; ++i0)
-    for (int i1 = 0; i1 < d1; ++i1)
-      for (int j0 = 0; j0 < d0; ++j0)
-        for (int j1 = 0; j1 < d1; ++j1)
-          m(i0 * d1 + i1, j0 * d1 + j1) = mat[i0][i1][j0][j1];
-
-  return fit2xxz(s0, s1, m, tol);
+  return fit2xxz(mat.matrix(), tol);
 }
 
 
@@ -368,24 +389,22 @@ public:
       type_type st1 = site_type[boost::target(*ei, graph)];
       if (!bond_visited[boost::make_tuple(bt, st0, st1)]) {
         bond_visited[boost::make_tuple(bt, st0, st1)] = true;
-        boost::multi_array<double ,4> bm =
-          hd.bond_term(bt).
-            template matrix<double>(hd.basis().site_basis(st0),
-                                    hd.basis().site_basis(st1),
-                                    ops, params);
-        boost::tuple<bool, double, double, double>
-          fit = fit2xxz(site_[st0], site_[st1], bm);
-        if (!fit.template get<0>())
-          boost::throw_exception(std::runtime_error("fitting to XXZ model failed"));
+        bool success;
+        xxz_parameter p;
+        boost::tie(success, p) =
+          fit2xxz(hd.bond_term(bt).
+                  template matrix<double>(hd.basis().site_basis(st0),
+                                          hd.basis().site_basis(st1),
+                                          ops, params));
+        if (!success)
+          boost::throw_exception(std::runtime_error("fitting to XXZ model "
+                                                    "failed"));
         if (!bond_.count(bt)) {
-          bond_[bt] = xxz_parameter(fit.template get<1>(),
-                                    fit.template get<2>(),
-                                    fit.template get<3>());
+          bond_[bt] = p;
         } else {
-          if (bond_[bt].c() != fit.template get<1>() ||
-              bond_[bt].jxy() != fit.template get<2>() ||
-              bond_[bt].jz() != fit.template get<3>())
-            boost::throw_exception(std::runtime_error("inconsistent bond parameter(s)"));
+          if (bond_[bt] != p)
+            boost::throw_exception(std::runtime_error("inconsistent bond "
+                                                      "parameter(s)"));
         }
       }
     }
@@ -444,6 +463,16 @@ namespace looper {
 std::ostream& operator<<(std::ostream& os, const looper::xxz_parameter& p)
 {
   os << "C = " << p.c() << ", Jxy = " << p.jxy() << ", Jz = " << p.jz();
+  return os;
+}
+
+template <class T>
+inline std::ostream& operator<<(std::ostream& os,
+                                const looper::xxz_matrix<T>& m)
+{
+  boost::numeric::ublas::matrix<T> mat;
+  flatten_matrix(m.matrix(), mat);
+  os << mat;
   return os;
 }
 

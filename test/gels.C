@@ -33,7 +33,7 @@ int main()
 {
   // random number generator
   boost::variate_generator<boost::mt19937, boost::uniform_real<> >
-    rng(boost::mt19937(), boost::uniform_real<>(-.5, .5));
+    rng(boost::mt19937(4357), boost::uniform_real<>(-.5, .5));
   for (int i = 0; i < 1000; ++i) rng();
 
   int m, n;
