@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-dnl $Id: configure.in 555 2003-11-12 02:58:33Z wistaria $
+dnl $Id: configure.in 556 2003-11-12 03:03:47Z wistaria $
 
 dnl 
 dnl Initialization
@@ -11,6 +11,9 @@ define([AC_CACHE_SAVE], )dnl
 AC_PREREQ(2.57)
 AC_INIT([looper], [3.0b3])
 AC_PREFIX_DEFAULT([$HOME/ALPS])
+
+AC_SUBST(PACKAGE_DATE)
+PACKAGE_DATE="2003/11/12"
 
 dnl
 dnl check for ALPS library
