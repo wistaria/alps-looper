@@ -1970,8 +1970,8 @@ fi
 
 
 
-{ echo "$as_me:$LINENO: starting configuration for ALPS/looper version 3.0b6 (2004/06/03)" >&5
-echo "$as_me: starting configuration for ALPS/looper version 3.0b6 (2004/06/03)" >&6;}
+{ echo "$as_me:$LINENO: starting configuration for ALPS/looper version 3.0 (2004/06/11)" >&5
+echo "$as_me: starting configuration for ALPS/looper version 3.0 (2004/06/11)" >&6;}
 
 
 

@@ -1,5 +1,9 @@
-2004-06-08  Synge Todo  <wistaria@comp-phys.org>
+2004-06-11  Synge Todo  <wistaria@comp-phys.org>
 
+        * version 3.0 released.
+
+2004-06-08  Synge Todo  <wistaria@comp-phys.org>
+	
 	* Turned off maintainer mode for GNU autotools.
 	
 2004-06-03  Synge Todo  <wistaria@comp-phys.org>

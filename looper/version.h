@@ -26,9 +26,9 @@
 #define LOOPER_VERSION_H
 
 /* Define the version of ALPS/looper */
-#define LOOPER_VERSION "3.0b6"
+#define LOOPER_VERSION "3.0"
 
 /* Define the published date of ALPS/looper */
-#define LOOPER_DATE "2004/06/03"
+#define LOOPER_DATE "2004/06/11"
 
 #endif /* ! LOOPER_VERSION_H */

@@ -1,6 +1,6 @@
 ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 
-Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
+Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
 
 This software is published under the ALPS Application License; you can use,
 redistribute and/or modify this software under the terms of the license,
@@ -23,14 +23,6 @@ DEALINGS IN THE SOFTWARE.
 * Documentation
 
   See doc/index.html
-
-* Developers
-
-  version 1        Synge Todo
-  version 2.0-2.2  Synge Todo and Kiyoshi Kato
-  version 2.3      Synge Todo, Kiyoshi Kato, and Shigeru Koikegami
-
-  version 2.9,3.0- Synge Todo <wistaria@comp-phys.org>
 
 * History
 
@@ -56,6 +48,10 @@ DEALINGS IN THE SOFTWARE.
     2003/06/26  version 3.0a   Based on ALPS framework
     2003/11/05          3.0b1
     2003/11/06          3.0b2
+    2003/11/14          3.0b3
+    2003/11/20          3.0b4
+    2003/04/07          3.0b5
+    2003/06/11          3.0
 
 * Developers
 
@@ -67,3 +63,4 @@ DEALINGS IN THE SOFTWARE.
 * Contact
 
   Synge Todo <wistaria@comp-phys.org>
+  http://wistaria.comp-phys.org/alps-looper/
