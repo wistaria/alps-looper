@@ -3,9 +3,9 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: xxz.h 402 2003-10-09 15:28:14Z wistaria $
+* $Id: xxz.h 408 2003-10-10 09:34:54Z wistaria $
 *
-* Copyright (C) 2001-2003 by Synge Todo <wistaria@comp-phys.org>,
+* Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
 * Permission is hereby granted, free of charge, to any person or organization 
 * obtaining a copy of the software covered by this license (the "Software") 

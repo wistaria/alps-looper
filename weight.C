@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: virtualgraph.C 408 2003-10-10 09:34:54Z wistaria $
+* $Id: weight.C 408 2003-10-10 09:34:54Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -34,50 +34,40 @@
 *
 **************************************************************************/
 
-#include "graph.h"
-#include "virtualgraph.h"
-#include <alps/model.h>
+#include "weight.h"
+#include <alps/parameterlist.h>
 #include <iostream>
 
-#ifdef BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
-using namespace alps;
-#endif
-
-int main() {
-
+int main()
+{
 #ifndef BOOST_NO_EXCEPTIONS
 try {
 #endif
 
-  typedef looper::graph_type graph_type;
-  typedef graph_type::vertex_iterator vertex_iterator;
-  typedef graph_type::edge_iterator edge_iterator;
+  alps::ParameterList params;
+  std::cin >> params;
 
-  // real graph
-  looper::simple_hypercubic_graph_descriptor<> shgd(2, 2);
-  graph_type rg;
-  looper::generate_graph(shgd, rg);
-  boost::put(looper::vertex_type_t(), rg, *(boost::vertices(rg).first), 1);
-  std::cout << rg;
+  for (alps::ParameterList::iterator p = params.begin(); p != params.end();
+       ++p) {
+    looper::path_integral_weight w((*p)["Jxy"], (*p)["Jz"]);
+    std::cout << "Jxy = " << (*p)["Jxy"]
+	      << ", Jz = " << (*p)["Jz"]
+	      << " : r = " << w.density()
+	      << ", P_f = " << w.freeze()
+	      << ", P_p = " << w.accept_p()
+	      << ", P_a = " << w.accept_a()
+	      << std::endl;
+  }
   
-  // virtual graph
-  looper::virtual_graph_type<graph_type>::graph_type vg;
-  looper::virtual_graph_type<graph_type>::mapping_type mp;
-  std::vector<alps::half_integer<int> > spin(2);
-  spin[0] = 1; spin[1] = 3./2;
-  looper::generate_virtual_graph(rg, spin, vg, mp);
-
-  std::cout << vg;
-  std::cout << mp;
-
 #ifndef BOOST_NO_EXCEPTIONS
-} 
-catch (const std::exception& excp) {
-  std::cerr << excp.what() << std::endl;
-  std::exit(-1); }
+}
+catch (std::exception& exc) {
+  std::cerr << exc.what() << "\n";
+  return -1;
+}
 catch (...) {
-  std::cerr << "Unknown exception occurred!" << std::endl;
-  std::exit(-1); }
+  std::cerr << "Fatal Error: Unknown Exception!\n";
+  return -2;
+}
 #endif
-
 }
