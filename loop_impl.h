@@ -48,7 +48,7 @@ public:
 
   template<class G, class MDL>
   qmc_worker(const G& rg, const MDL& model, double beta,
-             alps::ObservableSet& m, bool is_singed = false) :
+             alps::ObservableSet& m) :
     param_(rg, model, beta), config_()
   {
     e_offset_ = looper::energy_offset(param_);
@@ -56,10 +56,10 @@ public:
     qmc::initialize(config_, param_);
 
     // measurements
-    //    if (is_signed) {
-    //      m << alps::RealObservable("Sign");
-    //      m << alps::RealObservable("Sign (improved)");
-    //    }
+    if (model.is_signed()) {
+      m << alps::RealObservable("Sign");
+      m << alps::RealObservable("Sign (improved)");
+    }
     m << alps::RealObservable("Energy");
     m << alps::RealObservable("Energy Density");
     m << alps::RealObservable("Energy Density^2");
@@ -195,11 +195,11 @@ public:
 
   worker(const alps::ProcessList& w, const alps::Parameters& p, int n) :
     alps::scheduler::LatticeModelMCRun<>(w, p, n),
-    mdl_(p, graph(), operators(), model()), mcs_(0),
+    mdl_(p, graph(), operators(), model(), has_sign_problem()), mcs_(0),
     therm_(static_cast<unsigned int>(p["THERMALIZATION"])),
     total_(therm_ + static_cast<unsigned int>(p["SWEEPS"])),
     qmc_worker_(graph(), mdl_, 1.0 / static_cast<double>(p["T"]),
-                measurements, has_sign_problem()) {}
+                measurements) {}
   virtual ~worker() {}
 
   virtual void dostep() {

@@ -80,11 +80,11 @@ try {
   alps::ModelLibrary models(params);
 
   // construct from model library
-  looper::model_parameter<> m0(params, graph, models);
+  looper::model_parameter<> m0(params, graph, models, false);
   output(graph, m0);
 
   // construct from parameters
-  looper::model_parameter<> m1(-2, -1, alps::half_integer<int>(1.5), graph);
+  looper::model_parameter<> m1(-2, -1, alps::half_integer<int>(1.5), graph, false);
   output(graph, m1);
 
 #ifndef BOOST_NO_EXCEPTIONS

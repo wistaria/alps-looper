@@ -273,9 +273,8 @@ public:
 
   bond_matrix() : matrix_() {}
   bond_matrix(const bond_matrix& m) : matrix_(m.matrix_) {}
-  template<typename IntType>
-  bond_matrix(const alps::half_integer<IntType>& s0,
-              const alps::half_integer<IntType>& s1,
+  template<typename I>
+  bond_matrix(const alps::half_integer<I>& s0, const alps::half_integer<I>& s1,
               value_type e0, value_type jxy, value_type jz) : matrix_()
   { build(s0, s1, e0, jxy, jz); }
   template<typename SITE_P>
@@ -359,26 +358,131 @@ public:
   typedef std::map<type_type, bond_parameter_type> bond_map_type;
   typedef typename site_parameter_type::spin_type spin_type;
 
-  template<typename IntType, typename G>
-  model_parameter(double Jxy, double Jz,
-                  const alps::half_integer<IntType>& spin, const G& graph) :
-    sites_(), bonds_()
+  template<typename I, typename G>
+  model_parameter(double Jxy, double Jz, const alps::half_integer<I>& spin,
+                  const G& graph)
+    : sites_(), bonds_(), signed_()
   { set_parameters(Jxy, Jz, spin, graph); }
-  template<typename G, typename IntType>
+  template<typename I, typename G>
+  model_parameter(double Jxy, double Jz, const alps::half_integer<I>& spin,
+                  const G& graph, bool is_signed)
+    : sites_(), bonds_(), signed_()
+  { set_parameters(Jxy, Jz, spin, graph, is_signed); }
+  template<typename G, typename I>
   model_parameter(const alps::Parameters params, const G& graph,
-            const alps::ModelLibrary::OperatorDescriptorMap& ops,
-            const alps::HamiltonianDescriptor<IntType>& hd)
-    : sites_(), bonds_()
+		  const alps::ModelLibrary::OperatorDescriptorMap& ops,
+		  const alps::HamiltonianDescriptor<I>& hd)
+    : sites_(), bonds_(), signed_()
   { set_parameters(params, graph, ops, hd); }
+  template<typename G, typename I>
+  model_parameter(const alps::Parameters params, const G& graph,
+		  const alps::ModelLibrary::OperatorDescriptorMap& ops,
+		  const alps::HamiltonianDescriptor<I>& hd,
+		  bool is_signed)
+    : sites_(), bonds_(), signed_()
+  { set_parameters(params, graph, ops, hd, is_signed); }
   template<typename G>
   model_parameter(const alps::Parameters params, const G& graph,
-            const alps::ModelLibrary& models) : sites_(), bonds_()
+ 		  const alps::ModelLibrary& models)
+    : sites_(), bonds_(), signed_()
   { set_parameters(params, graph, models); }
+  template<typename G>
+  model_parameter(const alps::Parameters params, const G& graph,
+ 		  const alps::ModelLibrary& models, bool is_signed)
+    : sites_(), bonds_(), signed_()
+  { set_parameters(params, graph, models, is_signed); }
 
-  template<typename IntType, typename G>
-  void set_parameters(double Jxy, double Jz,
-                      const alps::half_integer<IntType>& spin,
-                      const G& graph)
+  // set_parameters
+
+  template<typename I, typename G>
+  void set_parameters(double Jxy, double Jz, const alps::half_integer<I>& spin,
+		      const G& graph)
+  {
+    set_parameters_impl(Jxy, Jz, spin, graph);
+    signed_ = check_sign(graph);
+  }
+  template<typename I, typename G>
+  void set_parameters(double Jxy, double Jz, const alps::half_integer<I>& spin,
+		      const G& graph, bool is_signed)
+  {
+    set_parameters_impl(Jxy, Jz, spin, graph);
+    signed_ = is_signed;
+  }
+  template<typename G, typename I>
+  void set_parameters(alps::Parameters params, const G& graph,
+                      const alps::ModelLibrary::OperatorDescriptorMap& ops,
+                      const alps::HamiltonianDescriptor<I>& hd)
+  {
+    set_parameters_impl(params, graph, ops, hd);
+    signed_ = check_sign(graph);
+  }
+  template<typename G, typename I>
+  void set_parameters(alps::Parameters params, const G& graph,
+                      const alps::ModelLibrary::OperatorDescriptorMap& ops,
+                      const alps::HamiltonianDescriptor<I>& hd,
+		      bool is_signed)
+  {
+    set_parameters_impl(params, graph, ops, hd);
+    signed_ = is_signed;
+  }
+  template<typename G>
+  void set_parameters(const alps::Parameters params, const G& graph,
+		      const alps::ModelLibrary& models)
+  {
+    // get Hamilton operator from ModelLibrary
+    alps::HamiltonianDescriptor<short>
+      hd(models.get_hamiltonian(params["MODEL"]));
+    alps::Parameters p(params);
+    p.copy_undefined(hd.default_parameters());
+    hd.set_parameters(p);
+    set_parameters(p, graph, models.operators(), hd);
+  }
+  template<typename G>
+  void set_parameters(const alps::Parameters params,
+		      const G& graph,
+		      const alps::ModelLibrary& models,
+		      bool is_signed)
+  {
+    // get Hamilton operator from ModelLibrary
+    alps::HamiltonianDescriptor<short>
+      hd(models.get_hamiltonian(params["MODEL"]));
+    alps::Parameters p(params);
+    p.copy_undefined(hd.default_parameters());
+    hd.set_parameters(p);
+    set_parameters(p, graph, models.operators(), hd, is_signed);
+  }
+
+  int num_site_types() const { return sites_.size(); }
+  bool is_uniform_site() const { return num_site_types() == 1; }
+  site_parameter_type site(type_type t) const
+  { return sites_.find(t)->second; }
+  site_parameter_type uniform_site() const
+  {
+#ifndef NDEBUG
+    assert(is_uniform_site());
+#endif
+    return sites_.begin()->second;
+  }
+
+  int num_bond_types() const { return bonds_.size(); }
+  bool is_uniform_bond() const { return num_bond_types() == 1; }
+  bond_parameter_type bond(type_type t) const
+    { return bonds_.find(t)->second; }
+  bond_parameter_type uniform_bond() const
+  {
+#ifndef NDEBUG
+    assert(is_uniform_bond());
+#endif
+    return bonds_.begin()->second;
+  }
+
+  bool is_signed() const { return signed_; }
+
+protected:
+  template<typename I, typename G>
+  void set_parameters_impl(double Jxy, double Jz,
+			   const alps::half_integer<I>& spin,
+			   const G& graph)
   {
     typedef G graph_type;
     typedef typename boost::graph_traits<graph_type>::vertex_iterator
@@ -410,10 +514,10 @@ public:
     }
   }
 
-  template<typename G, typename IntType>
-  void set_parameters(alps::Parameters params, const G& graph,
-                      const alps::ModelLibrary::OperatorDescriptorMap& ops,
-                      const alps::HamiltonianDescriptor<IntType>& hd)
+  template<typename G, typename I>
+  void set_parameters_impl(alps::Parameters params, const G& graph,
+    const alps::ModelLibrary::OperatorDescriptorMap& ops,
+    const alps::HamiltonianDescriptor<I>& hd)
   {
     typedef G graph_type;
     typedef typename boost::graph_traits<graph_type>::vertex_iterator
@@ -465,46 +569,17 @@ public:
   }
 
   template<typename G>
-  void set_parameters(const alps::Parameters params,
-                      const G& graph,
-                      const alps::ModelLibrary& models)
+  bool check_sign(const G& graph) const
   {
-    // get Hamilton operator from ModelLibrary
-    alps::HamiltonianDescriptor<short>
-      hd(models.get_hamiltonian(params["MODEL"]));
-    alps::Parameters p(params);
-    p.copy_undefined(hd.default_parameters());
-    hd.set_parameters(p);
-    set_parameters(p, graph, models.operators(), hd);
-  }
-
-  int num_site_types() const { return sites_.size(); }
-  bool is_uniform_site() const { return num_site_types() == 1; }
-  site_parameter_type site(type_type t) const
-  { return sites_.find(t)->second; }
-  site_parameter_type uniform_site() const
-  {
-#ifndef NDEBUG
-    assert(is_uniform_site());
-#endif
-    return sites_.begin()->second;
-  }
-
-  int num_bond_types() const { return bonds_.size(); }
-  bool is_uniform_bond() const { return num_bond_types() == 1; }
-  bond_parameter_type bond(type_type t) const
-    { return bonds_.find(t)->second; }
-  bond_parameter_type uniform_bond() const
-  {
-#ifndef NDEBUG
-    assert(is_uniform_bond());
-#endif
-    return bonds_.begin()->second;
+    // to be implemented
+    boost::throw_exception(std::logic_error("check_sign not implemented"));
+    return false;
   }
 
 private:
   site_map_type sites_;
   bond_map_type bonds_;
+  bool signed_;
 };
 
 
