@@ -252,36 +252,32 @@ struct sse<virtual_graph<G>, M, W, N>
           // identity operator
           int b = bc.choose(uniform_01);
           edge_iterator ei = boost::edges(vg.graph).first + b;
-          if (uniform_01() <
-              bc.global_weight() * beta *
-              bc.weight(b).p_accept(curr_conf[boost::source(*ei, vg.graph)],
-                                    curr_conf[boost::target(*ei, vg.graph)]) /
+	  int r = curr_conf[boost::source(*ei, vg.graph)] ^
+	    curr_conf[boost::target(*ei, vg.graph)];
+          if (uniform_01() < bc.global_weight() * beta *
+	      bc.weight(b).p_accept(r) /
               double(config.os.size() - config.num_operators)) {
             // insert diagonal operator
             oi->identity_to_diagonal();
             oi->set_bond(b);
             ++config.num_operators;
-            oi->set_new((curr_conf[boost::source(*ei, vg.graph)] ^
-                         curr_conf[boost::target(*ei, vg.graph)]),
-                        (uniform_01() < bc.weight(b).p_freeze()));
+            oi->set_new(r, (uniform_01() < bc.weight(b).p_freeze(r)));
           } else { /* nothing to be done */ }
         } else if (oi->is_diagonal()) {
           // diagonal operator
           int b = oi->bond();
           edge_iterator ei = boost::edges(vg.graph).first + b;
+	  int r = curr_conf[boost::source(*ei, vg.graph)] ^
+	    curr_conf[boost::target(*ei, vg.graph)];
           if (uniform_01() <
               double(config.os.size() - config.num_operators + 1) /
-              (bc.global_weight() * beta *
-               bc.weight(b).
-                 p_accept(curr_conf[boost::source(*ei, vg.graph)],
-                          curr_conf[boost::target(*ei, vg.graph)]))) {
+              (bc.global_weight() * beta * bc.weight(b).p_accept(r))) {
             // remove diagonal operator
             oi->diagonal_to_identity();
             --config.num_operators;
           } else {
             // remain as diagonal operator
-            oi->set_old((curr_conf[boost::source(*ei, vg.graph)] ^
-                         curr_conf[boost::target(*ei, vg.graph)]));
+            oi->set_old(r);
           }
         } else {
           // off-diagonal operator

@@ -305,7 +305,8 @@ struct path_integral<virtual_graph<G>, M, W, N>
               config.wl.insert_link_prev(node_type(), itr0, itr1).first;
             itr_new->set_time(*ti);
             itr_new->set_bond(bond);
-            itr_new->set_new(c0 ^ c1, (uniform_01() < weight.p_freeze()));
+            itr_new->set_new((c0 ^ c1), 
+			     (uniform_01() < weight.p_freeze(c0 ^ c1)));
           }
         }
         while (!itr0.at_top()) {

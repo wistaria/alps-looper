@@ -158,8 +158,8 @@ try {
 #endif
 
   options opts(argc, argv);
-  looper::print_copyright(std::cout);
-  alps::print_copyright(std::cout);
+  looper::print_copyright(std::cerr);
+  alps::print_copyright(std::cerr);
   std::cout <<
     "qmc_cmd: a command-line QMC program for simple hypercubic lattices\n\n";
 

@@ -13,6 +13,7 @@ check_PROGRAMS = \
 	permutation \
 	postorder \
 	random_choice \
+	site_matrix \
 	syev \
 	union_find \
 	virtual_graph \
@@ -35,6 +36,7 @@ dist_noinst_DATA = \
 	permutation.op \
 	postorder.ip postorder.op \
 	random_choice.op \
+	site_matrix.ip site_matrix.op \
 	syev.op \
 	union_find.op \
 	virtual_graph.op \
@@ -59,6 +61,7 @@ llsp_SOURCES = llsp.C
 permutation_SOURCES = permutation.C
 postorder_SOURCES = postorder.C
 random_choice_SOURCES = random_choice.C
+site_matrix_SOURCES = site_matrix.C
 syev_SOURCES = syev.C
 union_find_SOURCES = union_find.C
 virtual_graph_SOURCES = virtual_graph.C

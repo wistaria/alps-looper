@@ -47,25 +47,46 @@ site_basis_descriptor spin_basis(const alps::half_integer<I>& s = 0.5)
 inline site_basis_descriptor spin_basis(double s)
 { return spin_basis(alps::half_integer<short>(s)); }
 
-inline operator_map_type spin_operators()
+inline operator_map_type spin_operators(const std::set<std::string>& suffixes = std::set<std::string>())
 {
   operator_map_type ops;
 
   // identity operator
   // ops["Identity"] = alps::OperatorDescriptor<short>("Identity", "1");
 
-  // Sz
-  ops["Sz"] = alps::OperatorDescriptor<short>("Sz", "Sz");
+  if (suffixes.empty()) {
+    // Sz
+    ops["Sz"] = alps::OperatorDescriptor<short>("Sz", "Sz");
 
-  // S+
-  alps::OperatorDescriptor<short> splus("Splus", "sqrt(S*(S+1)-Sz*(Sz+1))");
-  splus["Sz"] = 1;
-  ops["Splus"] = splus;
+    // S+
+    alps::OperatorDescriptor<short> splus("Splus", "sqrt(S*(S+1)-Sz*(Sz+1))");
+    splus["Sz"] = 1;
+    ops["Splus"] = splus;
 
-  // S-
-  alps::OperatorDescriptor<short> sminus("Sminus", "sqrt(S*(S+1)-Sz*(Sz-1))");
-  sminus["Sz"] = -1;
-  ops["Sminus"] = sminus;
+    // S-
+    alps::OperatorDescriptor<short> sminus("Sminus", "sqrt(S*(S+1)-Sz*(Sz-1))");
+    sminus["Sz"] = -1;
+    ops["Sminus"] = sminus;
+  } else {
+    std::set<std::string>::const_iterator itr_end = suffixes.end();
+    for (std::set<std::string>::const_iterator itr = suffixes.begin();
+	 itr != itr_end; ++itr) {
+      std::string es2 = "S" + *itr + "*(S" + *itr + "+1)";
+
+      // Sz
+      ops["Sz" + *itr] = alps::OperatorDescriptor<short>("Sz" + *itr, "Sz");
+
+      // S+
+      alps::OperatorDescriptor<short> splus("Splus" + *itr, "sqrt(" + es2 + "-Sz*(Sz+1))");
+      splus["Sz"] = 1;
+      ops["Splus" + *itr] = splus;
+
+      // S-
+      alps::OperatorDescriptor<short> sminus("Sminus" + *itr, "sqrt(" + es2 + "-Sz*(Sz-1))");
+      sminus["Sz"] = -1;
+      ops["Sminus" + *itr] = sminus;
+    }
+  }
 
   return ops;
 }

@@ -14,7 +14,7 @@
 
 @SET_MAKE@
 
-SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) $(edge_type_SOURCES) $(fill_duration_SOURCES) $(filtered_graph_SOURCES) $(find_bridges_SOURCES) $(generate_01_SOURCES) $(gesvd_SOURCES) $(hypercubic_SOURCES) $(index_helper_SOURCES) $(llsp_SOURCES) $(permutation_SOURCES) $(postorder_SOURCES) $(random_choice_SOURCES) $(syev_SOURCES) $(union_find_SOURCES) $(virtual_graph_SOURCES) $(weight_SOURCES) $(xxz_matrix_SOURCES) $(xxz_model_SOURCES)
+SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) $(edge_type_SOURCES) $(fill_duration_SOURCES) $(filtered_graph_SOURCES) $(find_bridges_SOURCES) $(generate_01_SOURCES) $(gesvd_SOURCES) $(hypercubic_SOURCES) $(index_helper_SOURCES) $(llsp_SOURCES) $(permutation_SOURCES) $(postorder_SOURCES) $(random_choice_SOURCES) $(site_matrix_SOURCES) $(syev_SOURCES) $(union_find_SOURCES) $(virtual_graph_SOURCES) $(weight_SOURCES) $(xxz_matrix_SOURCES) $(xxz_model_SOURCES)
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -42,9 +42,9 @@ check_PROGRAMS = alternating_tensor$(EXEEXT) amida$(EXEEXT) \
 	filtered_graph$(EXEEXT) find_bridges$(EXEEXT) \
 	generate_01$(EXEEXT) gesvd$(EXEEXT) hypercubic$(EXEEXT) \
 	index_helper$(EXEEXT) llsp$(EXEEXT) permutation$(EXEEXT) \
-	postorder$(EXEEXT) random_choice$(EXEEXT) syev$(EXEEXT) \
-	union_find$(EXEEXT) virtual_graph$(EXEEXT) weight$(EXEEXT) \
-	xxz_matrix$(EXEEXT) xxz_model$(EXEEXT)
+	postorder$(EXEEXT) random_choice$(EXEEXT) site_matrix$(EXEEXT) \
+	syev$(EXEEXT) union_find$(EXEEXT) virtual_graph$(EXEEXT) \
+	weight$(EXEEXT) xxz_matrix$(EXEEXT) xxz_model$(EXEEXT)
 subdir = test
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/xxz_model.ip.in
@@ -113,6 +113,10 @@ am_random_choice_OBJECTS = random_choice.$(OBJEXT)
 random_choice_OBJECTS = $(am_random_choice_OBJECTS)
 random_choice_LDADD = $(LDADD)
 random_choice_DEPENDENCIES =
+am_site_matrix_OBJECTS = site_matrix.$(OBJEXT)
+site_matrix_OBJECTS = $(am_site_matrix_OBJECTS)
+site_matrix_LDADD = $(LDADD)
+site_matrix_DEPENDENCIES =
 am_syev_OBJECTS = syev.$(OBJEXT)
 syev_OBJECTS = $(am_syev_OBJECTS)
 syev_LDADD = $(LDADD)
@@ -149,7 +153,8 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/index_helper.Po ./$(DEPDIR)/llsp.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/permutation.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/postorder.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/random_choice.Po ./$(DEPDIR)/syev.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/random_choice.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/site_matrix.Po ./$(DEPDIR)/syev.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/union_find.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/virtual_graph.Po ./$(DEPDIR)/weight.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/xxz_matrix.Po ./$(DEPDIR)/xxz_model.Po
@@ -166,17 +171,19 @@ SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) \
 	$(filtered_graph_SOURCES) $(find_bridges_SOURCES) \
 	$(generate_01_SOURCES) $(gesvd_SOURCES) $(hypercubic_SOURCES) \
 	$(index_helper_SOURCES) $(llsp_SOURCES) $(permutation_SOURCES) \
-	$(postorder_SOURCES) $(random_choice_SOURCES) $(syev_SOURCES) \
-	$(union_find_SOURCES) $(virtual_graph_SOURCES) \
-	$(weight_SOURCES) $(xxz_matrix_SOURCES) $(xxz_model_SOURCES)
+	$(postorder_SOURCES) $(random_choice_SOURCES) \
+	$(site_matrix_SOURCES) $(syev_SOURCES) $(union_find_SOURCES) \
+	$(virtual_graph_SOURCES) $(weight_SOURCES) \
+	$(xxz_matrix_SOURCES) $(xxz_model_SOURCES)
 DIST_SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) \
 	$(edge_type_SOURCES) $(fill_duration_SOURCES) \
 	$(filtered_graph_SOURCES) $(find_bridges_SOURCES) \
 	$(generate_01_SOURCES) $(gesvd_SOURCES) $(hypercubic_SOURCES) \
 	$(index_helper_SOURCES) $(llsp_SOURCES) $(permutation_SOURCES) \
-	$(postorder_SOURCES) $(random_choice_SOURCES) $(syev_SOURCES) \
-	$(union_find_SOURCES) $(virtual_graph_SOURCES) \
-	$(weight_SOURCES) $(xxz_matrix_SOURCES) $(xxz_model_SOURCES)
+	$(postorder_SOURCES) $(random_choice_SOURCES) \
+	$(site_matrix_SOURCES) $(syev_SOURCES) $(union_find_SOURCES) \
+	$(virtual_graph_SOURCES) $(weight_SOURCES) \
+	$(xxz_matrix_SOURCES) $(xxz_model_SOURCES)
 DATA = $(dist_noinst_DATA)
 ETAGS = etags
 CTAGS = ctags
@@ -309,6 +316,7 @@ dist_noinst_DATA = \
 	permutation.op \
 	postorder.ip postorder.op \
 	random_choice.op \
+	site_matrix.ip site_matrix.op \
 	syev.op \
 	union_find.op \
 	virtual_graph.op \
@@ -332,6 +340,7 @@ llsp_SOURCES = llsp.C
 permutation_SOURCES = permutation.C
 postorder_SOURCES = postorder.C
 random_choice_SOURCES = random_choice.C
+site_matrix_SOURCES = site_matrix.C
 syev_SOURCES = syev.C
 union_find_SOURCES = union_find.C
 virtual_graph_SOURCES = virtual_graph.C
@@ -422,6 +431,9 @@ postorder$(EXEEXT): $(postorder_OBJECTS) $(postorder_DEPENDENCIES)
 random_choice$(EXEEXT): $(random_choice_OBJECTS) $(random_choice_DEPENDENCIES) 
 	@rm -f random_choice$(EXEEXT)
 	$(CXXLINK) $(random_choice_LDFLAGS) $(random_choice_OBJECTS) $(random_choice_LDADD) $(LIBS)
+site_matrix$(EXEEXT): $(site_matrix_OBJECTS) $(site_matrix_DEPENDENCIES) 
+	@rm -f site_matrix$(EXEEXT)
+	$(CXXLINK) $(site_matrix_LDFLAGS) $(site_matrix_OBJECTS) $(site_matrix_LDADD) $(LIBS)
 syev$(EXEEXT): $(syev_OBJECTS) $(syev_DEPENDENCIES) 
 	@rm -f syev$(EXEEXT)
 	$(CXXLINK) $(syev_LDFLAGS) $(syev_OBJECTS) $(syev_LDADD) $(LIBS)
@@ -461,6 +473,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/permutation.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/postorder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/random_choice.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/site_matrix.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/syev.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/union_find.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/virtual_graph.Po@am__quote@

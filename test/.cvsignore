@@ -7,13 +7,15 @@ edge_type
 fill_duration
 filtered_graph
 find_bridges
-gels
 generate_01
+gesvd
 hypercubic
 index_helper
+llsp
 permutation
 postorder
 random_choice
+site_matrix
 syev
 union_find
 virtual_graph

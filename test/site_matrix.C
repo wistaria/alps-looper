@@ -28,23 +28,22 @@
 int main()
 {
   while (true) {
-    double s0_in, s1_in, c, jxy, jz;
-    std::cin >> s0_in >> s1_in >> c >> jxy >> jz;
+    double s_in, c, hx, hz;
+    std::cin >> s_in >> c >> hx >> hz;
     if (!std::cin) break;
 
-    looper::site_parameter<> s0(s0_in);
-    looper::site_parameter<> s1(s1_in);
-    looper::xxz_matrix<> xxz(s0, s1, c, jxy, jz);
+    looper::site_parameter<> s(s_in, c, hx, hz);
+    looper::site_matrix<> site(s);
 
-    std::cout << "input parameters: S0 = " << s0.s() << ", S1 = " << s1.s()
-              << ", C = " << c << ", Jxy = " << jxy << ", Jz = " << jz
-              << std::endl << xxz << std::endl;
+    std::cout << "input parameters: S = " << s.s()
+              << ", C = " << c << ", Hx = " << hx << ", Hz = " << hz
+              << std::endl << site << std::endl;
 
-    looper::xxz_parameter p;
-    bool success = looper::fit2xxz(xxz, p);
+    looper::site_parameter<> p;
+    bool success = looper::fit2site(site, p);
 
     assert(success);
-    assert(p == looper::xxz_parameter(c, jxy, jz));
+    assert(p == s);
     std::cout << "fitting result: " << p << std::endl;
   }
 }

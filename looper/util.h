@@ -25,14 +25,23 @@
 #ifndef LOOPER_UTIL_H
 #define LOOPER_UTIL_H
 
+#include <boost/call_traits.hpp>
+#include <boost/multi_array.hpp>
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/utility/enable_if.hpp>
+#include <boost/throw_exception.hpp>
 #include <boost/tuple/tuple.hpp>
+#include <boost/type_traits/is_arithmetic.hpp>
+#include <complex>
+#include <stdexcept>
 
 namespace looper {
 
-template<class T> T sqr(T t) { return t * t; }
+//
+// function alternating_tensor
+//
 
-inline
-int alternating_tensor(int i, int j, int k)
+inline int alternating_tensor(int i, int j, int k)
 {
   switch (i) {
   case 0 :
@@ -68,10 +77,120 @@ int alternating_tensor(int i, int j, int k)
   return 0;
 }
 
-inline
-int alternating_tensor(const boost::tuple<int, int, int>& x)
+inline int alternating_tensor(const boost::tuple<int, int, int>& x)
 {
   return alternating_tensor(x.get<0>(), x.get<1>(), x.get<2>());
+}
+
+
+//
+// function flatten_matrix
+//
+
+template<typename T, typename U>
+void flatten_matrix(const boost::multi_array<T, 4>& m_in,
+		    boost::numeric::ublas::matrix<U>& m_out)
+{
+#ifndef NDEBUG
+  assert(m_in.shape()[0] == m_in.shape()[2]);
+  assert(m_in.shape()[1] == m_in.shape()[3]);
+#endif
+
+  int d0 = m_in.shape()[0];
+  int d1 = m_in.shape()[1];
+  int dim = d0 * d1;
+
+  m_out.resize(dim, dim);
+  for (int i0 = 0; i0 < d0; ++i0)
+    for (int i1 = 0; i1 < d1; ++i1)
+      for (int j0 = 0; j0 < d0; ++j0)
+        for (int j1 = 0; j1 < d1; ++j1)
+          m_out(i0 * d1 + i1, j0 * d1 + j1) = m_in[i0][i1][j0][j1];
+}
+
+
+//
+// function nearly_equal
+//
+
+inline bool nearly_equal(double x, double y, double tol = 1.0e-10)
+{
+  return std::abs(x - y) < tol;
+}
+
+//
+// function numeric_cast
+//
+
+namespace detail {
+
+template<typename U, typename T>
+struct numeric_cast_helper {
+  static U value(typename boost::call_traits<T>::param_type x)
+  {
+    return x;
+  }
+};
+
+template<typename U, typename T>
+struct numeric_cast_helper<U, std::complex<T> > {
+  static U value(const std::complex<T>& x) {
+    if (x.imag() != 0)
+      boost::throw_exception(std::runtime_error("can not convert complex number into real one"));
+    return x.real();
+  }
+};
+
+} // end namespace detail
+
+template<typename U, typename T>
+U numeric_cast(T x, typename boost::enable_if<boost::is_arithmetic<T> >::type* = 0)
+{
+  return detail::numeric_cast_helper<U,T>::value(x);
+}
+
+template<typename U, typename T>
+U numeric_cast(const T& x, typename boost::disable_if<boost::is_arithmetic<T> >::type* = 0)
+{
+  return detail::numeric_cast_helper<U,T>::value(x);
+}
+
+
+//
+// function range_01
+//
+
+template<typename T>
+T range_01(T x, typename boost::enable_if<boost::is_arithmetic<T> >::type* = 0)
+{
+  typedef T value_type;
+  using std::min; using std::max;
+  return min(max(x, value_type(0)), value_type(1));
+}
+
+template<typename T>
+T range_01(const T& x, typename boost::disable_if<boost::is_arithmetic<T> >::type* = 0)
+{
+  typedef T value_type;
+  using std::min; using std::max;
+  return min(max(x, value_type(0)), value_type(1));
+}
+
+
+//
+// function sqr
+//
+
+template<typename T>
+T sqr(T t, typename boost::enable_if<boost::is_arithmetic<T> >::type* = 0)
+{
+  return t * t;
+}
+
+template<typename T>
+T sqr(const T& t, typename boost::disable_if<boost::is_arithmetic<T> >::type* = 0)
+{
+  return t * t;
 }
 
 } // end namespace looper

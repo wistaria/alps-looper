@@ -1,0 +1,24 @@
+input parameters: S = 1/2, C = 0.5, Hx = 0, Hz = 0
+{{0.5, -0},
+{-0, 0.5}};
+fitting result: C = 0.5, Hx = 0, Hz = 0
+input parameters: S = 1/2, C = 0, Hx = 0.1, Hz = 0
+{{0, -0.05},
+{-0.05, 0}};
+fitting result: C = 0, Hx = 0.1, Hz = 0
+input parameters: S = 1/2, C = 0, Hx = 0, Hz = 0.3
+{{0.15, -0},
+{-0, -0.15}};
+fitting result: C = 0, Hx = 0, Hz = 0.3
+input parameters: S = 1, C = 0.1, Hx = 0.23, Hz = 0.37
+{{0.47, -0.162635, 0},
+{-0.162635, 0.1, -0.162635},
+{0, -0.162635, -0.27}};
+fitting result: C = 0.1, Hx = 0.23, Hz = 0.37
+input parameters: S = 2, C = 0.1, Hx = 0.23, Hz = 0.37
+{{0.84, -0.23, 0, 0, 0},
+{-0.23, 0.47, -0.281691, 0, 0},
+{0, -0.281691, 0.1, -0.281691, 0},
+{0, 0, -0.281691, -0.27, -0.23},
+{0, 0, 0, -0.23, -0.64}};
+fitting result: C = 0.1, Hx = 0.23, Hz = 0.37

@@ -22,10 +22,43 @@
 *
 *****************************************************************************/
 
+#include <looper/util.h>
 #include <looper/xxz.h>
 #include <looper/weight.h>
 #include <alps/parameterlist.h>
 #include <iostream>
+
+template<typename W>
+void output(const alps::Parameters& param, const W& weight)
+{
+  using looper::range_01;
+
+  assert(weight.p_freeze_para() == weight.p_freeze(0,0) &&
+	 weight.p_freeze_para() == weight.p_freeze(1,1));
+  assert(weight.p_freeze_anti() == weight.p_freeze(0,1) &&
+	 weight.p_freeze_anti() == weight.p_freeze(1,0));
+  assert(weight.p_accept_para() == weight.p_accept(0,0) &&
+	 weight.p_accept_para() == weight.p_accept(1,1));
+  assert(weight.p_accept_anti() == weight.p_accept(0,1) &&
+	 weight.p_accept_anti() == weight.p_accept(1,0));
+  assert(weight.sign() == 1 || weight.sign() == -1);
+
+  std::cout << "Jxy = " << param["Jxy"]
+	    << ", Jz = " << param["Jz"]
+	    << " : r = " << weight.density();
+  if (weight.density() > 0) {
+    std::cout << ", parallel: accept = " << range_01(weight.p_accept_para());
+    if (weight.p_accept_para() > 0)
+      std::cout << ", freeze = " << range_01(weight.p_freeze_para());
+    std::cout << ", antiparallel: accept = "
+	      << range_01(weight.p_accept_anti());
+    if (weight.p_accept_anti() > 0)
+      std::cout << ", freeze = " << range_01(weight.p_freeze_anti());
+    std::cout << ", P_r = " << range_01(weight.p_reflect())
+	      << ", sign = " << weight.sign();
+  }
+  std::cout << std::endl;
+}
 
 int main()
 {
@@ -40,14 +73,7 @@ try {
        p != params.end(); ++p) {
     looper::xxz_parameter xxz(0, (*p)["Jxy"], (*p)["Jz"]);
     looper::default_weight w(xxz);
-    std::cout << "Jxy = " << (*p)["Jxy"]
-              << ", Jz = " << (*p)["Jz"]
-              << " : r = " << w.density()
-              << ", P_f = " << w.p_freeze()
-              << ", P_p = " << w.p_accept_para()
-              << ", P_a = " << w.p_accept_anti()
-              << ", P_r = " << w.p_reflect()
-              << std::endl;
+    output(*p, w);
   }
 
 #ifndef BOOST_NO_EXCEPTIONS
