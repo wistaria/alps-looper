@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: pathintegral.h 445 2003-10-18 04:14:07Z wistaria $
+* $Id: pathintegral.h 446 2003-10-18 04:19:20Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -57,6 +57,7 @@ namespace looper {
 
 template<bool HasCTime = false> class pi_node;
   
+template<>
 class pi_node<false> : public node_property
 {
 public:
@@ -110,7 +111,8 @@ private:
   segment_type segment0_;
   segment_type segment1_;
 };
-  
+
+template<>  
 class pi_node<true> : public pi_node<false>
 {
 public:
