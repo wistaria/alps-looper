@@ -1,4 +1,14 @@
 2003-11-20  Synge Todo  <wistaria@comp-phys.org>
+	
+	* version 3.0b4 released.
+
+	- prerequisites: boost-ss-20031116, boost-ss-20031116.patch,
+	alps-20031116
+
+	- TODO: optimization, more measurements, license issue.  Bug fixes
+	for some mesurements (specific heat in path integral?)...
+	
+2003-11-20  Synge Todo  <wistaria@comp-phys.org>
 
 	* Fixed susceptibility calculation by means of improved estimator
 	in SSE representation.
