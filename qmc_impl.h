@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: qmc_impl.h 577 2003-11-16 00:20:47Z wistaria $
+// $Id: qmc_impl.h 602 2004-01-16 07:23:15Z wistaria $
 // qmc_impl.h - implementation of worker for QMC simulation
 
 #ifndef QMC_IMPL_H
@@ -307,7 +307,8 @@ public:
   }
   bool is_thermalized() const { return mcs_ >= therm_; }
   virtual double work_done() const {
-    return double(mcs_ - therm_) / (total_ - therm_);
+    return is_thermalized() ?
+      double(mcs_ - therm_) / (total_ - therm_) : 0.0;
   }
   
   virtual void save(alps::ODump& od) const {
