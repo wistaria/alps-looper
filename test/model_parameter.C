@@ -65,12 +65,12 @@ try {
 
   // construct from model library
   looper::model_parameter<> m0(params, gh.graph(), gh.disordered_sites(),
-			       gh.disordered_bonds(), mh);
+                               gh.disordered_bonds(), mh);
   output(gh, m0);
 
   // construct from parameters
   looper::model_parameter<> m1(gh.graph(), alps::half_integer<int>(1.5),
-			       -2, -1);
+                               -2, -1);
   output(gh, m1);
 
 #ifndef BOOST_NO_EXCEPTIONS

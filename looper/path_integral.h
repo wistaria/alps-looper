@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2005 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -137,16 +137,18 @@ struct path_integral
     {
       // if (model.is_signed() || model.is_classically_frustrated())
       //   fs = std::max(fs, 0.1);
-      if (model.is_classically_frustrated()) fs = std::max(fs, 0.1);
+      if (base_type::model.is_classically_frustrated()) fs = std::max(fs, 0.1);
 
       edge_iterator rei, rei_end;
-      for (boost::tie(rei, rei_end) = boost::edges(rgraph);
+      for (boost::tie(rei, rei_end) = boost::edges(base_type::rgraph);
            rei != rei_end; ++rei) {
         edge_iterator vei, vei_end;
-        for (boost::tie(vei, vei_end) = vmap.virtual_edges(rgraph, *rei);
+        for (boost::tie(vei, vei_end) =
+               base_type::vmap.virtual_edges(base_type::rgraph, *rei);
              vei != vei_end; ++vei) {
-          weight.push_back(weight_type(model.bond(*rei, rgraph), fs));
-          ez_offset += model.bond(*rei, rgraph).c();
+          weight.push_back(weight_type(
+            base_type::model.bond(*rei, base_type::rgraph), fs));
+          ez_offset += base_type::model.bond(*rei, base_type::rgraph).c();
         }
       }
     }

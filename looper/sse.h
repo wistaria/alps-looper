@@ -68,18 +68,20 @@ struct sse
     {
       // if (model.is_signed() || model.is_classically_frustrated())
       //   fs = std::max(fs, 0.1);
-      if (model.is_classically_frustrated()) fs = std::max(fs, 0.1);
+      if (base_type::model.is_classically_frustrated()) fs = std::max(fs, 0.1);
 
-      chooser.init(rgraph, vgraph, vmap, model, fs);
+      chooser.init(base_type::rgraph, base_type::vgraph, base_type::vmap,
+                   base_type::model, fs);
 
       edge_iterator rei, rei_end;
-      for (boost::tie(rei, rei_end) = boost::edges(rgraph);
+      for (boost::tie(rei, rei_end) = boost::edges(base_type::rgraph);
            rei != rei_end; ++rei) {
         edge_iterator vei, vei_end;
-        for (boost::tie(vei, vei_end) = vmap.virtual_edges(rgraph, *rei);
+        for (boost::tie(vei, vei_end) =
+               base_type::vmap.virtual_edges(base_type::rgraph, *rei);
              vei != vei_end; ++vei) {
-          ez_offset += model.bond(*rei, rgraph).c() -
-            chooser.weight(bond_index(*vei, vgraph)).offset();
+          ez_offset += base_type::model.bond(*rei, base_type::rgraph).c() -
+            chooser.weight(bond_index(*vei, base_type::vgraph)).offset();
         }
       }
     }

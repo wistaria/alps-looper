@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2005 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -228,25 +228,25 @@ public:
   bond_chooser() : weight_(), rc_(), gw_(0) {}
   template<class G, class M>
   bond_chooser(const G& rg, const G& vg, const virtual_mapping<G>& vm,
-	       const M& m, double fs = 0)
+               const M& m, double fs = 0)
     : weight_(), rc_(), gw_(0)
   { init (rg, vg, vm, m, fs); }
 
   template<class G, class M>
   void init(const G& rg, const G& vg, const virtual_mapping<G>& vm,
-	    const M& m, double fs = 0)
+            const M& m, double fs = 0)
   {
     weight_.clear();
     gw_ = 0.0;
     if (boost::num_edges(vg) > 0) {
       typename boost::graph_traits<G>::edge_iterator rei, rei_end;
       for (boost::tie(rei, rei_end) = boost::edges(rg);
-	   rei != rei_end; ++rei) {
-	typename boost::graph_traits<G>::edge_iterator vei, vei_end;
-	for (boost::tie(vei, vei_end) = vm.virtual_edges(rg, *rei);
-	     vei != vei_end; ++vei) {
-	  weight_.push_back(weight_type(m.bond(*rei, rg), fs));
-	}
+           rei != rei_end; ++rei) {
+        typename boost::graph_traits<G>::edge_iterator vei, vei_end;
+        for (boost::tie(vei, vei_end) = vm.virtual_edges(rg, *rei);
+             vei != vei_end; ++vei) {
+          weight_.push_back(weight_type(m.bond(*rei, rg), fs));
+        }
       }
 
       std::vector<double> w(0);

@@ -416,7 +416,7 @@ inline void generate_virtual_graph(const RealGraph& rg,
   {
     typename boost::graph_traits<rgraph_type>::edge_iterator rei, rei_end;
     for (boost::tie(rei, rei_end) = boost::edges(rg);
-	 rei != rei_end; ++rei) {
+         rei != rei_end; ++rei) {
       typename boost::graph_traits<rgraph_type>::vertex_descriptor
         rs = boost::source(*rei, rg);
       typename boost::graph_traits<rgraph_type>::vertex_descriptor
@@ -446,13 +446,13 @@ inline void generate_virtual_graph(const RealGraph& rg,
     typename boost::graph_traits<vgraph_type>::edge_iterator
       vei_last = vei_first;
     for (boost::tie(rei, rei_end) = boost::edges(rg);
-	 rei != rei_end; ++rei) {
+         rei != rei_end; ++rei) {
       typename boost::graph_traits<vgraph_type>::vertex_descriptor
-	v0 = boost::source(*rei, rg);
+        v0 = boost::source(*rei, rg);
       typename boost::graph_traits<vgraph_type>::vertex_descriptor
-	v1 = boost::target(*rei, rg);
+        v1 = boost::target(*rei, rg);
       vei_last += model.site(v0, rg).s().get_twice() *
-	model.site(v1, rg).s().get_twice();
+        model.site(v1, rg).s().get_twice();
       vm.add_edge(rg, *rei, vei_first, vei_last);
       vei_first = vei_last;
     }

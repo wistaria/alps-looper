@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2005 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -134,8 +134,8 @@ struct energy_helper<path_integral<G, M, W, N> >
       for (boost::tie(vei, vei_end) =
              param.vmap.virtual_edges(param.rgraph, *rei);
            vei != vei_end; ++vei) {
-	ez -= param.model.bond(*rei, param.rgraph).jz() *
-	  qmc_type::static_correlation(config,
+        ez -= param.model.bond(*rei, param.rgraph).jz() *
+          qmc_type::static_correlation(config,
             boost::source(*vei, param.vgraph),
             boost::target(*vei, param.vgraph));
       }
@@ -337,16 +337,16 @@ inline double energy_z_imp(const C& config, const P& param)
          rei != rei_end; ++rei) {
       typename qmc_type::edge_iterator vei, vei_end;
       for (boost::tie(vei, vei_end) =
-	     param.vmap.virtual_edges(param.rgraph, *rei);
-	   vei != vei_end; ++vei) {
-	typename qmc_type::vertex_descriptor v0 =
-	  boost::source(*vei, param.vgraph);
-	typename qmc_type::vertex_descriptor v1 =
-	  boost::target(*vei, param.vgraph);
-	if (qmc_type::loop_index_0(v0, config) ==
-	    qmc_type::loop_index_0(v1, config))
-	  ene -= param.model.bond(*rei, param.rgraph).jz() *
-	    qmc_type::static_sz(v0, config) * qmc_type::static_sz(v1, config);
+             param.vmap.virtual_edges(param.rgraph, *rei);
+           vei != vei_end; ++vei) {
+        typename qmc_type::vertex_descriptor v0 =
+          boost::source(*vei, param.vgraph);
+        typename qmc_type::vertex_descriptor v1 =
+          boost::target(*vei, param.vgraph);
+        if (qmc_type::loop_index_0(v0, config) ==
+            qmc_type::loop_index_0(v1, config))
+          ene -= param.model.bond(*rei, param.rgraph).jz() *
+            qmc_type::static_sz(v0, config) * qmc_type::static_sz(v1, config);
       }
     }
   } else if (config.num_merons == 2 && config.num_merons0 == 2) {
@@ -355,18 +355,18 @@ inline double energy_z_imp(const C& config, const P& param)
          rei != rei_end; ++rei) {
       typename qmc_type::edge_iterator vei, vei_end;
       for (boost::tie(vei, vei_end) =
-	     param.vmap.virtual_edges(param.rgraph, *rei);
-	   vei != vei_end; ++vei) {
-	typename qmc_type::vertex_descriptor v0 =
-	  boost::source(*vei, param.vgraph);
-	typename qmc_type::vertex_descriptor v1 =
-	  boost::target(*vei, param.vgraph);
-	if (qmc_type::loop_index_0(v0, config) !=
-	    qmc_type::loop_index_0(v1, config) &&
-	    config.loop_sign[qmc_type::loop_index_0(v0, config)] == -1 &&
-	    config.loop_sign[qmc_type::loop_index_0(v1, config)] == -1)
-	  ene -= param.model.bond(*rei, param.rgraph).jz() *
-	    qmc_type::static_sz(v0, config) * qmc_type::static_sz(v1, config);
+             param.vmap.virtual_edges(param.rgraph, *rei);
+           vei != vei_end; ++vei) {
+        typename qmc_type::vertex_descriptor v0 =
+          boost::source(*vei, param.vgraph);
+        typename qmc_type::vertex_descriptor v1 =
+          boost::target(*vei, param.vgraph);
+        if (qmc_type::loop_index_0(v0, config) !=
+            qmc_type::loop_index_0(v1, config) &&
+            config.loop_sign[qmc_type::loop_index_0(v0, config)] == -1 &&
+            config.loop_sign[qmc_type::loop_index_0(v1, config)] == -1)
+          ene -= param.model.bond(*rei, param.rgraph).jz() *
+            qmc_type::static_sz(v0, config) * qmc_type::static_sz(v1, config);
       }
     }
   }

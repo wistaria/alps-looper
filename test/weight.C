@@ -30,17 +30,18 @@
 template<typename W, typename BOND_P>
 void output(const alps::Parameters& param, const W& weight, const BOND_P&)
 {
+  using looper::equal;
   typedef BOND_P bond_parameter_type;
 
-  assert(weight.p_freeze_para() == weight.p_freeze(0,0) &&
-         weight.p_freeze_para() == weight.p_freeze(1,1));
-  assert(weight.p_freeze_anti() == weight.p_freeze(0,1) &&
-         weight.p_freeze_anti() == weight.p_freeze(1,0));
-  assert(weight.p_accept_para() == weight.p_accept(0,0) &&
-         weight.p_accept_para() == weight.p_accept(1,1));
-  assert(weight.p_accept_anti() == weight.p_accept(0,1) &&
-         weight.p_accept_anti() == weight.p_accept(1,0));
-  assert(weight.sign() == 1 || weight.sign() == -1);
+  assert(equal(weight.p_freeze_para(), weight.p_freeze(0,0)) &&
+         equal(weight.p_freeze_para(), weight.p_freeze(1,1)));
+  assert(equal(weight.p_freeze_anti(), weight.p_freeze(0,1)) &&
+         equal(weight.p_freeze_anti(), weight.p_freeze(1,0)));
+  assert(equal(weight.p_accept_para(), weight.p_accept(0,0)) &&
+         equal(weight.p_accept_para(), weight.p_accept(1,1)));
+  assert(equal(weight.p_accept_anti(), weight.p_accept(0,1)) &&
+         equal(weight.p_accept_anti(), weight.p_accept(1,0)));
+  assert(equal(std::abs(weight.sign()), 1.));
 
   std::cout << "Jxy = " << param["Jxy"]
             << ", Jz = " << param["Jz"]

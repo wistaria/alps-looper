@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2005 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -49,7 +49,7 @@ struct options
 };
 
 
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
 
 #ifndef BOOST_NO_EXCEPTIONS
@@ -127,7 +127,7 @@ try {
 
   // model & inverse temperature
   typedef looper::model_parameter<> model_type;
-  model_type model(-opts.jxy, -opts.jz, spin, g, false);
+  model_type model(g, spin, -opts.jxy, -opts.jz);
   double beta = 1./opts.temp;
 
   // measurements
