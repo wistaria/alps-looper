@@ -148,7 +148,7 @@ public:
     double sign_imp = 1.;
     if (is_signed()) {
       // calculate improved sign
-
+      // sign = looper::sign_imp(config_, param_);
       m["Sign (improved)"] << sign_imp;
     }
 
@@ -183,7 +183,7 @@ public:
     double sign = 1.;
     if (is_signed()) {
       // calculate unimproved sign
-
+      sign = looper::sign(config_, param_);
       m["Sign"] << sign;
     }
 

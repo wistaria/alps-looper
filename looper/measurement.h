@@ -33,6 +33,65 @@ namespace looper {
 // unimproved estimators
 //
 
+// sign
+
+namespace {
+
+template<class Q> struct sign_helper;
+
+template<class G, class M, class W, class N>
+struct sign_helper<path_integral<G, M, W, N> >
+{
+  typedef path_integral<G, M, W, N> qmc_type;
+  static double
+  calc(const typename qmc_type::config_type& config,
+       const typename qmc_type::parameter_type& param)
+  {
+    double sign = 1.0;
+    typename qmc_type::vertex_iterator vi, vi_end;
+    for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
+	 vi != vi_end; ++vi) {
+      // setup iterator
+      typename qmc_type::config_type::iterator
+	itr = boost::next(config.wl.series(*vi).first);
+      // iterate until t = 1
+      while (!itr.at_top()) {
+	if (itr.leg() == 0 && param.weight(itr->bond()).sign() < 0)
+	  sign = -sign;
+	++itr;
+      }
+    }
+    return sign;
+  }
+};
+
+template<class G, class M, class W, class N>
+struct sign_helper<sse<G, M, W, N> >
+{
+  typedef sse<G, M, W, N> qmc_type;
+  static double
+  calc(const typename qmc_type::config_type& config,
+       const typename qmc_type::parameter_type& param)
+  {
+    double sign = 1.0;
+    typename qmc_type::config_type::const_iterator oi_end = config.os.end();
+    for (typename qmc_type::config_type::const_iterator oi = config.os.begin();
+	 oi != oi_end; ++oi)
+      if (param.chooser.weight(oi->bond()).sign() < 0) sign = -sign;
+    return sign;
+  }
+};
+
+} // end namespace
+
+template<class C, class P>
+inline double
+sign(const C& config, const P& param)
+{
+  return sign_helper<typename C::qmc_type>::calc(config, param);
+}
+
+
 // energy offset
 
 template<class P>
@@ -230,6 +289,48 @@ inline double staggered_susceptibility(const C& config, const P& param)
 //
 // improved estimators
 //
+
+// sign
+
+namespace {
+
+template<class Q> struct sign_imp_helper;
+
+template<class G, class M, class W, class N>
+struct sign_imp_helper<path_integral<G, M, W, N> >
+{
+  typedef path_integral<G, M, W, N> qmc_type;
+  static double
+  calc(const typename qmc_type::config_type& config,
+       const typename qmc_type::parameter_type& param)
+  {
+    // to be implemented
+    return 1;
+  }
+};
+
+template<class G, class M, class W, class N>
+struct sign_imp_helper<sse<G, M, W, N> >
+{
+  typedef sse<G, M, W, N> qmc_type;
+  static double
+  calc(const typename qmc_type::config_type& config,
+       const typename qmc_type::parameter_type& param)
+  {
+    // to be implemented
+    return 1;
+  }
+};
+
+} // end namespace
+
+template<class C, class P>
+inline double
+sign_imp(const C& config, const P& param)
+{
+  return sign_imp_helper<typename C::qmc_type>::calc(config, param);
+}
+
 
 // diagonal energy
 
