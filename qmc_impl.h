@@ -22,19 +22,22 @@
 *
 *****************************************************************************/
 
-// $Id: qmc_impl.h 564 2003-11-13 08:08:07Z wistaria $
+// $Id: qmc_impl.h 565 2003-11-13 08:20:59Z wistaria $
 // qmc_impl.h - implementation of worker for QMC simulation
 
 #ifndef QMC_IMPL_H
 #define QMC_IMPL_H
 
+#include <looper/config.h>
 #include <looper/copyright.h>
 #include <looper/model.h>
 #include <looper/path_integral.h>
 #include <looper/sse.h>
 #include <looper/measurement.h>
 
-#include <looper/exact_diag.h>
+#ifdef HAVE_LAPACK
+# include <looper/exact_diag.h>
+#endif
 
 #include <alps/alea.h>
 #include <alps/scheduler.h>
@@ -178,6 +181,7 @@ private:
   double                       e_offset_;
 };
 
+#ifdef HAVE_LAPACK
 
 template<class ED>
 class ed_worker
@@ -268,6 +272,7 @@ private:
   bool                        done_;
 };
 
+#endif // HAVE_LAPACK
 
 template<class QMC_WORKER>
 class worker : public alps::scheduler::LatticeModelMCRun<>
@@ -338,10 +343,12 @@ class factory : public alps::scheduler::Factory
       return new worker<qmc_worker<looper::sse<
                           looper::virtual_graph<looper::parity_graph_type>,
 	                  looper::xxz_model> > >(w, p, n);
+#ifdef HAVE_LAPACK
     } else if (p["representation"] == "exact diagonalization") {
       return new worker<ed_worker<looper::exact_diagonalization<
                           looper::parity_graph_type,
 	                  looper::xxz_model> > >(w, p, n);
+#endif // HAVE_LAPACK
     } else {
       boost::throw_exception(std::invalid_argument("unknwon representation"));
     }
