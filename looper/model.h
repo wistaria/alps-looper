@@ -83,7 +83,7 @@ public:
   {
     bool success = fit2site(mat, *this);
     if (!success)
-      boost::throw_exception(std::runtime_error("fitting to site_parameter_hxz failed"));
+      boost::throw_exception(std::runtime_error("Error: fitting to site_parameter_hxz failed.  This model is not supported by the current looper code."));
   }
 
   bool operator==(const site_parameter_hxz& rhs) const
@@ -138,7 +138,7 @@ public:
     site_parameter_hxz p;
     bool success = fit2site(mat, p);
     if (!(success && nearly_equal(p.hx(), 0) && nearly_equal(p.hz(), 0)))
-      boost::throw_exception(std::runtime_error("fitting to site_parameter_noh failed"));
+      boost::throw_exception(std::runtime_error("Error: fitting to site_parameter_noh failed.  This model is not supported by the current looper code."));
     s_ = p.s();
     c_ = p.c();
   }
@@ -174,7 +174,7 @@ public:
   {
     bool success = fit2bond(mat, *this);
     if (!success)
-      boost::throw_exception(std::runtime_error("fitting to bond_parameter_xxz failed"));
+      boost::throw_exception(std::runtime_error("Error: fitting to bond_parameter_xxz failed.  This model is not supported by the corrent looper code."));
   }
 
   double c() const { return c_; }
