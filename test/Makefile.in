@@ -56,7 +56,7 @@ am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(mkdir_p)
-CONFIG_HEADER = $(top_builddir)/looper/config.h
+CONFIG_HEADER = $(top_builddir)/config/config.h
 CONFIG_CLEAN_FILES = model_parameter.ip sign.ip
 am_alternating_tensor_OBJECTS = alternating_tensor.$(OBJEXT)
 alternating_tensor_OBJECTS = $(am_alternating_tensor_OBJECTS)

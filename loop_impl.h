@@ -27,11 +27,11 @@
 #ifndef LOOP_IMPL_H
 #define LOOP_IMPL_H
 
-#include <looper/copyright.h>
 #include <looper/model.h>
 #include <looper/path_integral.h>
 #include <looper/sse.h>
 #include <looper/measurement.h>
+#include <looper/version.h>
 #include <alps/scheduler.h>
 
 template<class QMC>

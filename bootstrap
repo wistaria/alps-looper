@@ -21,7 +21,7 @@ if test "$have_autotools" = yes; then
   aclocal -I config
   libtoolize --force --copy
   # autoheader
-  test -f looper/config.h.in && touch looper/config.h.in
+  test -f config/config.h.in && touch config/config.h.in
   automake --foreign --add-missing --copy
   autoconf
   rm -rf autom4te.cache

@@ -47,7 +47,7 @@ noinst_PROGRAMS = loop$(EXEEXT) loop_evaluate$(EXEEXT) \
 DIST_COMMON = README $(am__configure_deps) $(dist_noinst_DATA) \
 	$(dist_noinst_SCRIPTS) $(pkginclude_HEADERS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(top_srcdir)/configure $(top_srcdir)/looper/config.h.in \
+	$(top_srcdir)/config/config.h.in $(top_srcdir)/configure \
 	ChangeLog config/config.guess config/config.sub config/depcomp \
 	config/install-sh config/ltmain.sh config/missing
 subdir = .
@@ -60,7 +60,7 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno configure.status.lineno
 mkinstalldirs = $(mkdir_p)
-CONFIG_HEADER = $(top_builddir)/looper/config.h
+CONFIG_HEADER = $(top_builddir)/config/config.h
 CONFIG_CLEAN_FILES =
 @HAVE_MPI_TRUE@am__EXEEXT_1 = loop_mpi$(EXEEXT)
 @HAVE_PVM_TRUE@am__EXEEXT_2 = loop_pvm$(EXEEXT)
@@ -118,10 +118,9 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	pdf-recursive ps-recursive uninstall-info-recursive \
 	uninstall-recursive
 DATA = $(dist_noinst_DATA)
-am__installdirs = "$(DESTDIR)$(pkgincludedir)" "$(DESTDIR)$(pkgincludedir)"
-nodist_pkgincludeHEADERS_INSTALL = $(INSTALL_HEADER)
+am__installdirs = "$(DESTDIR)$(pkgincludedir)"
 pkgincludeHEADERS_INSTALL = $(INSTALL_HEADER)
-HEADERS = $(nodist_pkginclude_HEADERS) $(pkginclude_HEADERS)
+HEADERS = $(pkginclude_HEADERS)
 ETAGS = etags
 CTAGS = ctags
 DIST_SUBDIRS = $(SUBDIRS)
@@ -250,10 +249,8 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 SUBDIRS = doc test ed check .
 distdir = alps-looper-$(VERSION)
-nodist_pkginclude_HEADERS = looper/config.h
 pkginclude_HEADERS = \
 	looper/amida.h \
-	looper/copyright.h \
 	looper/exact_diag.h \
 	looper/fill_duration.h \
 	looper/find_bridges.h \
@@ -326,22 +323,22 @@ $(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	cd $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 
-looper/config.h: looper/stamp-h1
+config/config.h: config/stamp-h1
 	@if test ! -f $@; then \
-	  rm -f looper/stamp-h1; \
-	  $(MAKE) looper/stamp-h1; \
+	  rm -f config/stamp-h1; \
+	  $(MAKE) config/stamp-h1; \
 	else :; fi
 
-looper/stamp-h1: $(top_srcdir)/looper/config.h.in $(top_builddir)/config.status
-	@rm -f looper/stamp-h1
-	cd $(top_builddir) && $(SHELL) ./config.status looper/config.h
-$(top_srcdir)/looper/config.h.in: @MAINTAINER_MODE_TRUE@ $(am__configure_deps) 
+config/stamp-h1: $(top_srcdir)/config/config.h.in $(top_builddir)/config.status
+	@rm -f config/stamp-h1
+	cd $(top_builddir) && $(SHELL) ./config.status config/config.h
+$(top_srcdir)/config/config.h.in: @MAINTAINER_MODE_TRUE@ $(am__configure_deps) 
 	cd $(top_srcdir) && $(AUTOHEADER)
-	rm -f looper/stamp-h1
+	rm -f config/stamp-h1
 	touch $@
 
 distclean-hdr:
-	-rm -f looper/config.h looper/stamp-h1
+	-rm -f config/config.h config/stamp-h1
 
 clean-noinstPROGRAMS:
 	@list='$(noinst_PROGRAMS)'; for p in $$list; do \
@@ -458,23 +455,6 @@ clean-libtool:
 distclean-libtool:
 	-rm -f libtool
 uninstall-info-am:
-install-nodist_pkgincludeHEADERS: $(nodist_pkginclude_HEADERS)
-	@$(NORMAL_INSTALL)
-	test -z "$(pkgincludedir)" || $(mkdir_p) "$(DESTDIR)$(pkgincludedir)"
-	@list='$(nodist_pkginclude_HEADERS)'; for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " $(nodist_pkgincludeHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(pkgincludedir)/$$f'"; \
-	  $(nodist_pkgincludeHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(pkgincludedir)/$$f"; \
-	done
-
-uninstall-nodist_pkgincludeHEADERS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(nodist_pkginclude_HEADERS)'; for p in $$list; do \
-	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " rm -f '$(DESTDIR)$(pkgincludedir)/$$f'"; \
-	  rm -f "$(DESTDIR)$(pkgincludedir)/$$f"; \
-	done
 install-pkgincludeHEADERS: $(pkginclude_HEADERS)
 	@$(NORMAL_INSTALL)
 	test -z "$(pkgincludedir)" || $(mkdir_p) "$(DESTDIR)$(pkgincludedir)"
@@ -758,7 +738,7 @@ check: check-recursive
 all-am: Makefile $(PROGRAMS) $(SCRIPTS) $(DATA) $(HEADERS)
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(pkgincludedir)" "$(DESTDIR)$(pkgincludedir)"; do \
+	for dir in "$(DESTDIR)$(pkgincludedir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
 	done
 install: install-recursive
@@ -807,8 +787,7 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-nodist_pkgincludeHEADERS \
-	install-pkgincludeHEADERS
+install-data-am: install-pkgincludeHEADERS
 
 install-exec-am:
 
@@ -838,8 +817,7 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-info-am uninstall-nodist_pkgincludeHEADERS \
-	uninstall-pkgincludeHEADERS
+uninstall-am: uninstall-info-am uninstall-pkgincludeHEADERS
 
 uninstall-info: uninstall-info-recursive
 
@@ -853,13 +831,12 @@ uninstall-info: uninstall-info-recursive
 	distuninstallcheck dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am install-exec \
 	install-exec-am install-info install-info-am install-man \
-	install-nodist_pkgincludeHEADERS install-pkgincludeHEADERS \
-	install-strip installcheck installcheck-am installdirs \
-	installdirs-am maintainer-clean maintainer-clean-generic \
-	maintainer-clean-recursive mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool mostlyclean-recursive \
-	pdf pdf-am ps ps-am tags tags-recursive uninstall uninstall-am \
-	uninstall-info-am uninstall-nodist_pkgincludeHEADERS \
+	install-pkgincludeHEADERS install-strip installcheck \
+	installcheck-am installdirs installdirs-am maintainer-clean \
+	maintainer-clean-generic maintainer-clean-recursive \
+	mostlyclean mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool mostlyclean-recursive pdf pdf-am ps ps-am \
+	tags tags-recursive uninstall uninstall-am uninstall-info-am \
 	uninstall-pkgincludeHEADERS
 
 
@@ -869,8 +846,8 @@ test tests :
 
 .PHONY : update-preamble
 update-preamble:
-	if test -f config/update_preamble; then \
-	  find . -type f -name '*\.h' -or -name '*\.C' -or -name '*\.hpp' -or -name '*\.h\.in' | xargs ./config/update_preamble; \
+	if test -x "$(top_srcdir)/config/update_preamble"; then \
+	  find $(top_srcdir) -type f -name '*\.h' -or -name '*\.C' -or -name '*\.hpp' -or -name '*\.h\.in' | xargs $(top_srcdir)/config/update_preamble; \
 	fi
 
 .PHONY : release snapshot

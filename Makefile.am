@@ -10,10 +10,8 @@ if HAVE_PVM
 noinst_PROGRAMS += loop_pvm
 endif
 
-nodist_pkginclude_HEADERS = looper/config.h
 pkginclude_HEADERS = \
 	looper/amida.h \
-	looper/copyright.h \
 	looper/exact_diag.h \
 	looper/fill_duration.h \
 	looper/find_bridges.h \
@@ -58,8 +56,8 @@ test tests :
 
 .PHONY : update-preamble
 update-preamble:
-	if test -f config/update_preamble; then \
-	  find . -type f -name '*\.h' -or -name '*\.C' -or -name '*\.hpp' -or -name '*\.h\.in' | xargs ./config/update_preamble; \
+	if test -x "$(top_srcdir)/config/update_preamble"; then \
+	  find $(top_srcdir) -type f -name '*\.h' -or -name '*\.C' -or -name '*\.hpp' -or -name '*\.h\.in' | xargs $(top_srcdir)/config/update_preamble; \
 	fi
 
 .PHONY : release snapshot
