@@ -30,6 +30,7 @@
 #include <looper/graph.h>
 #include <looper/node.h>
 #include <looper/permutation.h>
+#include <looper/qmc.h>
 #include <looper/sign.h>
 #include <looper/union_find.h>
 #include <looper/weight.h>
@@ -124,26 +125,16 @@ struct path_integral
   typedef typename boost::graph_traits<graph_type>::vertex_descriptor
                                                     vertex_descriptor;
 
-  struct parameter_type
+  struct parameter_type : public qmc_parameter_base<G, M>
   {
+    typedef qmc_parameter_base<G, M>  base_type
     typedef path_integral<G, M, W, N> qmc_type;
-
-    typedef G                           graph_type;
-    typedef virtual_mapping<graph_type> mapping_type;
-    typedef M                           model_type;
-    typedef W                           weight_type;
+    typedef W                         weight_type;
 
     parameter_type(const graph_type& g, const model_type& m,
                    double b, double fs)
-      : rgraph(g), model(m), vgraph(), vmap(), 
-        /* num_real_vertices(boost::num_vertices(g), */
-        /* num_real_edges(boost::num_edges(g), */
-        beta(b), sz_conserved(true), is_bipartite(false), weight(),
-        ez_offset(0.0)
+      : base_type(g, m, b), weight(), ez_offset(0.0)
     {
-      generate_virtual_graph(g, model, vgraph, vmap);
-      is_bipartite = alps::set_parity(vgraph);
-
       // if (model.is_signed() || model.is_classically_frustrated())
       //   fs = std::max(fs, 0.1);
       if (model.is_classically_frustrated()) fs = std::max(fs, 0.1);
@@ -160,15 +151,6 @@ struct path_integral
       }
     }
 
-    const graph_type&        rgraph;
-    const model_type&        model;
-    graph_type               vgraph;
-    mapping_type             vmap;
-    // unsigned int             num_real_vertices;
-    // unsigned int             num_real_edges;
-    double                   beta;
-    bool                     sz_conserved;
-    bool                     is_bipartite;
     std::vector<weight_type> weight;
     double                   ez_offset;
   };

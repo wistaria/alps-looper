@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2005 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -22,29 +22,34 @@
 *
 *****************************************************************************/
 
-#include <looper/model.h>
-#include <iostream>
+#ifndef LOOPER_QMCL_H
+#define LOOPER_QMC_H
 
-int main()
+namespace looper {
+
+tempalte<class G, class MP>
+struct qmc_parameter_base
 {
-  while (true) {
-    double s0_in, s1_in, c, jxy, jz;
-    std::cin >> s0_in >> s1_in >> c >> jxy >> jz;
-    if (!std::cin) break;
+  typedef G                           graph_type;
+  typedef virtual_mapping<graph_type> mapping_type;
+  typedef MP                          model_parameter_type;
 
-    alps::half_integer<int> s0(s0_in);
-    alps::half_integer<int> s1(s1_in);
-    looper::bond_matrix<> xxz(s0, s1, looper::bond_parameter_xxz(c, jxy, jz));
-
-    std::cout << "input parameters: S0 = " << s0 << ", S1 = " << s1
-              << ", C = " << c << ", Jxy = " << jxy << ", Jz = " << jz
-              << std::endl << xxz << std::endl;
-
-    looper::bond_parameter_xxz p;
-    bool success = looper::fit2bond(xxz.matrix(), p);
-
-    assert(success);
-    std::cout << "fitting result: " << p << std::endl;
-    assert(p == looper::bond_parameter_xxz(c, jxy, jz));
+  qmc_parameter_base(const graph_type& g, const model_parameter_type& mp,
+		     double b)
+    : rgraph(g), model(m), vgraph(), vmap(), beta(b),
+      sz_conserved(true), is_bipartite(false)
+  {
+    generate_virtual_graph(g, mp, vgraph, vmap);
+    is_bipartite = alps::set_parity(vgraph);
   }
-}
+
+  const graph_type&        rgraph;
+  const model_type&        model;
+  graph_type               vgraph;
+  mapping_type             vmap;
+  double                   beta;
+  bool                     sz_conserved;
+  bool                     is_bipartite;
+};
+
+#endif // LOOPER_QMC_H

@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2005 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -27,6 +27,7 @@
 
 #include <looper/graph.h>
 #include <looper/permutation.h>
+#include <looper/qmc.h>
 #include <looper/sign.h>
 #include <looper/union_find.h>
 #include <looper/weight.h>
@@ -55,26 +56,16 @@ struct sse
   typedef typename boost::graph_traits<graph_type>::vertex_descriptor
                                                     vertex_descriptor;
 
-  struct parameter_type
+  struct parameter_type : public qmc_parameter_base<G, M>
   {
-    typedef sse<G, M, W, N> qmc_type;
-
-    typedef G                           graph_type;
-    typedef virtual_mapping<graph_type> mapping_type;
-    typedef M                           model_type;
-    typedef W                           weight_type;
+    typedef qmc_parameter_base<G, M> base_type
+    typedef sse<G, M, W, N>          qmc_type;
+    typedef W                        weight_type;
 
     parameter_type(const graph_type& g, const model_type& m,
 		   double b, double fs)
-      : rgraph(g), model(m), vgraph(), vmap(),
-        /* num_real_vertices(boost::num_vertices(g)), */
-        /* num_real_edges(boost::num_edges(g)), */
-        beta(b), sz_conserved(true), is_bipartite(false), chooser(),
-        ez_offset(0.0)
+      : base_type(g, m, b), chooser(), ez_offset(0.0)
     {
-      generate_virtual_graph(g, model, vgraph, vmap);
-      is_bipartite = alps::set_parity(vgraph);
-
       // if (model.is_signed() || model.is_classically_frustrated())
       //   fs = std::max(fs, 0.1);
       if (model.is_classically_frustrated()) fs = std::max(fs, 0.1);
@@ -93,15 +84,6 @@ struct sse
       }
     }
 
-    const graph_type&         rgraph;
-    const model_type&         model;
-    graph_type                vgraph;
-    mapping_type              vmap;
-    /* unsigned int              num_real_vertices; */
-    /* unsigned int              num_real_edges; */
-    double                    beta;
-    bool                      sz_conserved;
-    bool                      is_bipartite;
     bond_chooser<weight_type> chooser;
     double                    ez_offset;
   };
