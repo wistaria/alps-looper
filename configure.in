@@ -8,7 +8,7 @@ dnl disable saving cache
 define([AC_CACHE_SAVE], )dnl
 
 AC_PREREQ(2.57)
-AC_INIT([looper], [3.0b2])
+AC_INIT([looper], [3.0b3])
 AC_PREFIX_DEFAULT([$HOME/ALPS])
 
 dnl
@@ -32,9 +32,24 @@ dnl
 AC_MSG_CHECKING([for MPI library])
 AC_SUBST(PROGRAM_MPI)
 AC_SUBST(EXAMPLE_MPI)
-if test "$ac_cv_have_mpi" = yes; then
+if test "$ac_cv_alps_have_mpi" = yes; then
   PROGRAM_MPI='$(PROGRAM_MPI)'
   EXAMPLE_MPI='$(EXAMPLE_MPI)'
+  AC_MSG_RESULT([yes])
+else
+  AC_MSG_RESULT([no])
+fi
+
+dnl
+dnl check for PVM library
+dnl
+
+AC_MSG_CHECKING([for PVM library])
+AC_SUBST(PROGRAM_PVM)
+AC_SUBST(EXAMPLE_PVM)
+if test "$ac_cv_alps_have_pvm" = yes; then
+  PROGRAM_PVM='$(PROGRAM_PVM)'
+  EXAMPLE_PVM='$(EXAMPLE_PVM)'
   AC_MSG_RESULT([yes])
 else
   AC_MSG_RESULT([no])
