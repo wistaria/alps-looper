@@ -1,5 +1,7 @@
 AC_DEFUN([AC_LAPACK],
   [
+  AC_REQUIRE([AC_CANONICAL_HOST])
+
   AC_SUBST(LAPACK_CPPFLAGS)
   AC_SUBST(LAPACK_LDFLAGS)
   AC_SUBST(LAPACK_LIBS)
@@ -91,10 +93,14 @@ AC_DEFUN([AC_LAPACK],
           ;;
         *)
           mkl=yes
-          mkl_proc="p4"
+          mkl_proc=
       esac
     fi
     ]
+  )
+  AC_ARG_WITH(mkl-dir,
+    AC_HELP_STRING([--with-mkl-dir=DIR],[MKL lib directory]),
+    [mkl_dir=`echo "$withval" | sed 's,//*,/,g' | sed 's,/$,,'`]
   )
 
   AC_ARG_WITH(scsl,
@@ -129,6 +135,34 @@ AC_DEFUN([AC_LAPACK],
     fi
     ]
   )
+
+  if test -n "$atlas_dir"; then
+    if test "x$atlas" = xno; then
+      AC_MSG_ERROR([inconsistent options for ATLAS library.])
+    fi
+    atlas=yes
+  fi
+
+  if test -n "$blas_dir"; then
+    if test "x$blas" = xno; then
+      AC_MSG_ERROR([inconsistent options for BLAS library.])
+    fi
+    blas=yes
+  fi
+
+  if test -n "$lapack_dir"; then
+    if test "x$lapack" = xno; then
+      AC_MSG_ERROR([inconsistent options for LAPACK library.])
+    fi
+    lapack=yes
+  fi
+
+  if test -n "$mkl_dir"; then
+    if test "x$mkl" = xno; then
+      AC_MSG_ERROR([inconsistent options for MKL library.])
+    fi
+    mkl=yes
+  fi
 
   if test "x$atlas" = xyes; then
     if test "x$blas" = xyes; then
@@ -216,118 +250,143 @@ AC_DEFUN([AC_LAPACK],
     if test "x$mkl" != xno; then
 
       AC_MSG_NOTICE([checking for Math Kernel Library])
-      mkl_basedir=
-      if test -d "/opt/intel/mkl61"; then
-        mkl_basedir=/opt/intel/mkl61
-        AC_MSG_CHECKING([MKL directory])
-        AC_MSG_RESULT([$mkl_basedir])
-      elif test -d "/opt/intel/mkl"; then
-        mkl_basedir=/opt/intel/mkl
-        AC_MSG_CHECKING([MKL directory])
-        AC_MSG_RESULT([$mkl_basedir])
+      AC_MSG_CHECKING([MKL directory])
+      if test -z "$mkl_dir"; then
+        if test -d "/opt/intel/mkl70"; then
+          mkl_dir=/opt/intel/mkl70
+          AC_MSG_RESULT([$mkl_dir])
+        elif test -d "/opt/intel/mkl61"; then
+          mkl_dir=/opt/intel/mkl61
+          AC_MSG_RESULT([$mkl_dir])
+        elif test -d "/opt/intel/mkl"; then
+          mkl_dir=/opt/intel/mkl
+          AC_MSG_RESULT([$mkl_dir])
+        else
+          AC_MSG_RESULT([not found])
+        fi
+      else
+        if test -d "$mkl_dir"; then
+          AC_MSG_RESULT([$mkl_dir])
+        else
+          AC_MSG_RESULT([$not found])
+          AC_MSG_ERROR([MKL directory not found.])
+        fi
       fi
 
+      if test -z "$mkl_proc"; then
+        case "x$host_cpu" in
+        xi686)
+          mkl_proc="p4"
+          ;;
+        xia64)
+          mkl_proc="itp"
+          ;;
+        *)
+          ;;
+        esac
+      fi
+
+      AC_MSG_CHECKING([for processor type])
       case "x$mkl_proc" in
       xp3)
         mkl_procname="Pentium 3"
-        mkl_dir="32"
+        mkl_bits="32"
         mkl_lib="mkl_p3"
-        AC_MSG_CHECKING([for processor type])
         AC_MSG_RESULT([$mkl_procname])
         ;;
       xp4)
         mkl_procname="Pentium 4"
-        mkl_dir="32"
+        mkl_bits="32"
         mkl_lib="mkl_p4"
-        AC_MSG_CHECKING([for processor type])
         AC_MSG_RESULT([$mkl_procname])
         ;;
       xitp)
         mkl_procname="Itanium"
-        mkl_dir="64"
+        mkl_bits="64"
         mkl_lib="mkl_itp"
-        AC_MSG_CHECKING([for processor type])
         AC_MSG_RESULT([$mkl_procname])
         ;;
       *)
-        mkl_procname="Pentium 4"
-        mkl_dir="32"
-        mkl_lib="mkl_p4"
+        mkl_proc=
+        AC_MSG_RESULT([unknown processor type])
       esac
-      if test "$mkl_dir" = "32"; then
-        if test -f "$mkl_basedir/lib/$mkl_dir/libmkl_ia32.a"; then
-          # version 6
-          mkl_lib="mkl_ia32"
+
+      if test -n "$mkl_proc"; then
+        if test "$mkl_bits" = "32"; then
+          if test -f "$mkl_dir/lib/$mkl_bits/libmkl_ia32.a"; then
+            # version 6.1 & 7
+            mkl_lib="mkl_ia32"
+          fi
         fi
-      fi
-      if test "$mkl_dir" = "64"; then
-        if test -f "$mkl_basedir/lib/$mkl_dir/libmkl_ipf.a"; then
-          # version 6
-          mkl_lib="mkl_ipf"
+        if test "$mkl_bits" = "64"; then
+          if test -f "$mkl_dir/lib/$mkl_bits/libmkl_ipf.a"; then
+            # version 6.1 & 7
+            mkl_lib="mkl_ipf"
+          fi
         fi
-      fi
 
-      if test -d "$mkl_basedir/lib/$mkl_dir"; then
-        mkl_ldflags="-L$mkl_basedir/lib/$mkl_dir"
-      else
-        mkl_ldflags=
-      fi
-      LDFLAGS="$mkl_ldflags $ac_save_LDFLAGS"
+        if test -d "$mkl_dir/lib/$mkl_bits"; then
+          mkl_ldflags="-L$mkl_dir/lib/$mkl_bits"
+        else
+          mkl_ldflags=
+        fi
+        LDFLAGS="$mkl_ldflags $ac_save_LDFLAGS"
 
-      mkl_libs=
-      found=no
+        mkl_libs=
+        found=no
 
-      if test "$mkl_proc" != "itp"; then
-        AC_CHECK_FUNC(d_abs,,
-          [AC_CHECK_LIB(g2c, d_abs, 
-            [mkl_libs="-lg2c"; LIBS="$mkl_libs $ac_save_LIBS"],
-            [AC_CHECK_LIB(F90, d_abs, 
-              [mkl_libs="-lF90 $mkl_libs"; LIBS="$mkl_libs $ac_save_LIBS"])
-            ])
-          ]
-        )
-        AC_CHECK_LIB(guide, omp_in_parallel_, 
-          [mkl_libs="-lguide $mkl_libs"
-           LIBS="$mkl_libs $ac_save_LIBS"
-           AC_CHECK_LIB($mkl_lib, dgemm_, 
-            [mkl_libs="-l$mkl_lib $mkl_libs"
+        if test "$mkl_proc" != "itp"; then
+          AC_CHECK_FUNC(d_abs,,
+            [AC_CHECK_LIB(g2c, d_abs, 
+              [mkl_libs="-lg2c"; LIBS="$mkl_libs $ac_save_LIBS"],
+              [AC_CHECK_LIB(F90, d_abs, 
+                [mkl_libs="-lF90 $mkl_libs"; LIBS="$mkl_libs $ac_save_LIBS"])
+              ])
+            ]
+          )
+          AC_CHECK_LIB(guide, omp_in_parallel_, 
+            [mkl_libs="-lguide $mkl_libs"
              LIBS="$mkl_libs $ac_save_LIBS"
-             AC_CHECK_LIB(mkl_lapack, dsyev_,
-              [mkl_libs="-lmkl_lapack $mkl_libs"; found=yes])
-            ])
-          ]
-        )
-      else
-        AC_CHECK_FUNC(d_abs,,
-          [AC_CHECK_LIB(g2c, d_abs, 
-            [mkl_libs="-lg2c $mkl_libs"; LIBS="$mkl_libs $ac_save_LIBS"],
-            [AC_CHECK_LIB(F90, d_abs, 
-              [mkl_libs="-lF90 $mkl_libs"; LIBS="$mkl_libs $ac_save_LIBS"])
-            ])
-          ]
-        )
-        AC_CHECK_FUNC(f_concat,,
-          [AC_CHECK_LIB(IEPCF90, f_concat, 
-            [mkl_libs="-lIEPCF90 $mkl_libs"; LIBS="$mkl_libs $ac_save_LIBS"])
-          ]
-        )
-        AC_CHECK_LIB(guide, omp_in_parallel_, 
-          [mkl_libs="-lguide $mkl_libs"
-           LIBS="$mkl_libs $ac_save_LIBS"
-           AC_CHECK_LIB($mkl_lib, dgemm_, 
-            [mkl_libs="-l$mkl_lib $mkl_libs"
+             AC_CHECK_LIB($mkl_lib, dgemm_, 
+              [mkl_libs="-l$mkl_lib $mkl_libs"
+               LIBS="$mkl_libs $ac_save_LIBS"
+               AC_CHECK_LIB(mkl_lapack, dsyev_,
+                [mkl_libs="-lmkl_lapack $mkl_libs"; found=yes])
+              ])
+            ]
+          )
+        else
+          AC_CHECK_FUNC(d_abs,,
+            [AC_CHECK_LIB(g2c, d_abs, 
+              [mkl_libs="-lg2c $mkl_libs"; LIBS="$mkl_libs $ac_save_LIBS"],
+              [AC_CHECK_LIB(F90, d_abs, 
+                [mkl_libs="-lF90 $mkl_libs"; LIBS="$mkl_libs $ac_save_LIBS"])
+              ])
+            ]
+          )
+          AC_CHECK_FUNC(f_concat,,
+            [AC_CHECK_LIB(IEPCF90, f_concat, 
+              [mkl_libs="-lIEPCF90 $mkl_libs"; LIBS="$mkl_libs $ac_save_LIBS"])
+            ]
+          )
+          AC_CHECK_LIB(guide, omp_in_parallel_, 
+            [mkl_libs="-lguide $mkl_libs"
              LIBS="$mkl_libs $ac_save_LIBS"
-             AC_CHECK_LIB(mkl_lapack, dsyev_,
-              [mkl_libs="-lmkl_lapack $mkl_libs"; found=yes])
-            ])
-          ]
-        )
-      fi
-      if test "$found" = yes; then
-        LAPACK_LDFLAGS="$mkl_ldflags"
-        LAPACK_LIBS="$mkl_libs"
-        found_blas=yes
-        found_lapack=yes
+             AC_CHECK_LIB($mkl_lib, dgemm_, 
+              [mkl_libs="-l$mkl_lib $mkl_libs"
+               LIBS="$mkl_libs $ac_save_LIBS"
+               AC_CHECK_LIB(mkl_lapack, dsyev_,
+                [mkl_libs="-lmkl_lapack $mkl_libs"; found=yes])
+              ])
+            ]
+          )
+        fi
+        if test "$found" = yes; then
+          LAPACK_LDFLAGS="$mkl_ldflags"
+          LAPACK_LIBS="$mkl_libs"
+          found_blas=yes
+          found_lapack=yes
+        fi
       fi
     fi
     if test "x$mkl" = xyes; then
