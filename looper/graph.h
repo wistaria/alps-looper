@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: graph.h 604 2004-01-16 08:35:21Z wistaria $
+// $Id: graph.h 661 2004-03-04 12:06:59Z wistaria $
 
 #ifndef LOOPER_GRAPH_H__
 #define LOOPER_GRAPH_H__
@@ -219,7 +219,7 @@ void generate_graph(const hypercubic_graph_generator<D, S, E>& desc,
           vertex_iterator vti = boost::vertices(g).first +
             helper_type::neighbor(desc.extent(), base, i, d, 1);
           edge_descriptor ed = boost::add_edge(*vsi, *vti, g).first;
-          boost::put(edge_index_t(), g, ed, boost::num_edges(g));
+          boost::put(edge_index_t(), g, ed, boost::num_edges(g) - 1);
           boost::put(edge_type_t(), g, ed, d);
         }
       }

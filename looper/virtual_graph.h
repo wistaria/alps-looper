@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: virtual_graph.h 604 2004-01-16 08:35:21Z wistaria $
+// $Id: virtual_graph.h 661 2004-03-04 12:06:59Z wistaria $
 
 #ifndef LOOPER_VIRTUAL_GRAPH_H
 #define LOOPER_VIRTUAL_GRAPH_H
@@ -182,7 +182,8 @@ inline void generate_virtual_graph(const RG& rg, const MDL& model,
 	  boost::add_edge(*vvsi, *vvti, vg.graph).first;
 	  
 	// setup edge properties
-	boost::put(edge_index_t(), vg.graph, ved, boost::num_edges(vg.graph));
+	boost::put(edge_index_t(), vg.graph, ved,
+		   boost::num_edges(vg.graph) - 1);
 	alps::copy_property(edge_type_t(), rg, *rei, vg.graph, ved);
       }
     }
