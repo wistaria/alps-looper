@@ -10,7 +10,6 @@ endif
 dist_noinst_DATA = amida.op fill_duration.ip fill_duration.op hypercubic.ip hypercubic.op index_helper.op permutation.op random_choice.op syev.op union_find.op virtual_graph.op weight.ip weight.op xxz_matrix.ip xxz_matrix.op xxz_model.ip xxz_model.op
 
 TESTS = $(check_PROGRAMS)
-
 TESTS_ENVIRONMENT = $(top_srcdir)/run-test $(srcdir)
 
 amida_SOURCES = amida.C

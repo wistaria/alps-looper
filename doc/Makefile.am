@@ -1,2 +1,2 @@
-pkgdatadir = @prefix@/doc/@PACKAGE_NAME@
+datadir = $(prefix)/doc
 dist_pkgdata_DATA = index.html
