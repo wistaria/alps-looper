@@ -1732,6 +1732,14 @@ echo $ECHO_N "checking for ALPS version... $ECHO_C" >&6
 echo "$as_me:$LINENO: result: $ac_cv_alps_version" >&5
 echo "${ECHO_T}$ac_cv_alps_version" >&6
 
+if test "$ac_cv_alps_type" = "full"; then :; else
+  { echo "$as_me:$LINENO: ALPS Light Libraries are detected." >&5
+echo "$as_me: ALPS Light Libraries are detected." >&6;}
+  { { echo "$as_me:$LINENO: error: ALPS/looper requies the full version of ALPS Libraries." >&5
+echo "$as_me: error: ALPS/looper requies the full version of ALPS Libraries." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+
 
 
 

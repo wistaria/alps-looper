@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-dnl $Id: configure.ac 670 2004-03-07 14:02:24Z wistaria $
+dnl $Id: configure.ac 702 2004-03-17 13:56:51Z wistaria $
 
 dnl 
 dnl Initialization
@@ -36,6 +36,11 @@ fi
 
 AC_MSG_CHECKING([for ALPS version])
 AC_MSG_RESULT([$ac_cv_alps_version])
+
+if test "$ac_cv_alps_type" = "full"; then :; else
+  AC_MSG_NOTICE([ALPS Light Libraries are detected.])
+  AC_MSG_ERROR([ALPS/looper requies the full version of ALPS Libraries.])
+fi
 
 dnl
 dnl check for LAPACK
