@@ -1,0 +1,1 @@
+xxz_matrix.o xxz_matrix_mpi.o xxz_matrix_pvm.o xxz_matrix xxz_matrix_mpi xxz_matrix_pvm: $(srcdir)/xxz_matrix.h

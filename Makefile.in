@@ -16,7 +16,7 @@ libs_program_mpi = -lalps -lcomm-mpi $(HDF5_LIBS) $(XML_LIBS) $(MPI_LIBS) $(BASE
 OBJ_PROGRAM =
 OBJ_PROGRAM_MPI = $(OBJ_PROGRAM)
 PROGRAM_MPI =
-PROGRAM = @PROGRAM_MPI@
+PROGRAM = xxz_matrix @PROGRAM_MPI@
 
 include $(RULES_MK)
 include $(srcdir)/Makefile.dep
