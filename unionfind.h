@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: unionfind.h 408 2003-10-10 09:34:54Z wistaria $
+* $Id: unionfind.h 441 2003-10-17 10:28:53Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -93,18 +93,18 @@ public:
     return r;
   }
   const node* root() const {
-    node* r = this;
+    const node* r = this;
     while (!r->is_root()) r = r->parent();
-    node* n = this;
+    const node* n = this;
     while (n != r) {
-      node* p = n->parent();
+      const node* p = n->parent();
       n->set_parent(r);
       n = p;
     }
     return r;
   }
 
-  void set_parent(node* p) { parent_ = p; }
+  void set_parent(const node* p) const { parent_ = const_cast<node*>(p); }
   node* parent() { return parent_; }
   const node* parent() const { return parent_; }
  

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: amida.C 427 2003-10-16 05:23:18Z wistaria $
+* $Id: amida.C 441 2003-10-17 10:28:53Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -53,14 +53,6 @@ using namespace looper;
 #endif
 
 template<class T>
-int index(const looper::amida<T>& a,
-	  const looper::amida<std::size_t>::iterator& itr)
-{
-  return looper::index_helper<>::index(a.base(),
-    static_cast<looper::amida_node<T> *>(itr.node_));
-}
-
-template<class T>
 void erase(looper::amida<T>& a, int n)
 {
   looper::amida_node<T> * ptr =
@@ -68,67 +60,6 @@ void erase(looper::amida<T>& a, int n)
   typename looper::amida<T>::iterator itr(ptr, ptr->series[0]);
   a.erase(itr);
 }
-
-template<class T>
-void output_serial(const looper::amida<T>& a, std::ostream& os = std::cout)
-{
-  os << "[amida Information]\n";
-  for (std::size_t i = 0; i != a.base().size(); ++i) {
-    looper::amida_node<T> * p =
-      const_cast<looper::amida_node<T> *>(&(a.base()[i]));
-    typename looper::amida<T>::iterator s0(p, p->series[0]);
-    typename looper::amida<T>::iterator s1(p, p->series[1]);
-    if (!p->is_vacant()) {
-      if (p->at_boundary()) {
-        if (p->at_bottom()) {
-          os << index(a, s0) << '\t' << "root at " << s0.ser_;
-          os << " :\t" << "next node is "
-             << index(a, s0 + 1);
-          os << "  ";
-	  os << "node: " << index(a, s0) << ", contents: " << p->data_;
-          os << std::endl;
-        } else {
-          os << index(a, s0) << '\t' << "goal at " << s0.ser_;
-          os << " :\t" << "prev node is " 
-             << index(a, s0 - 1);
-          os << "  ";
-	  os << "node: " << index(a, s0) << ", contents: " << p->data_;
-          os << std::endl;
-        }
-      } else {
-        os << index(a, s0) << '\t' << "node connecting "
-           << s0.ser_ << " and " << s1.ser_;
-        os << " :\t" << index(a, s0 + 1);
-        os << ' ' << index(a, s0 - 1);
-        os << ' ' << index(a, s1 + 1);
-        os << ' ' << index(a, s1 - 1);
-        os << '\t';
-	os << "node: " << index(a, s0) << ", contents: " << p->data_;
-        os << std::endl;
-      }
-    }
-  }
-}
-
-template<class T>
-void output_stack(const looper::amida<T>& a, std::ostream& os = std::cout)
-{
-  os << "[amida Stack Information]\n";
-  for (looper::amida_node_base * s =
-	 const_cast<looper::amida_node_base *>(a.vacant()); s != 0;
-       s = s->next[0]) {
-    typename looper::amida<T>::iterator
-      itr(static_cast<typename looper::amida<T>::node_type *>(s),
-	  s->series[0]);
-    os << index(a, itr) << "->";
-  }
-  os << "NULL\n";
-}
-
-template<class T>
-std::ostream& operator<<(std::ostream& os, const looper::amida<T>& a)
-{ output_serial(a, os); output_stack(a, os); return os; }
-
 
 int main() {
 

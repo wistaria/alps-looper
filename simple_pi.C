@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: simple_pi.C 438 2003-10-17 03:56:37Z wistaria $
+* $Id: simple_pi.C 441 2003-10-17 10:28:53Z wistaria $
 *
 * Copyright (C) 2001-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -181,23 +181,38 @@ try {
   std::vector<alps::half_integer<int> > spin(opts.dim, opts.spin);
   looper::generate_virtual_graph(g, spin, vg);
 
-  // model
+  // model & inverse temperature
   looper::xxz_model model(opts.Jxy, opts.Jz, opts.spin, g);
-
-  // world line configration
-  looper::amida<looper::path_integral::node<> > config;
-  looper::path_integral::initialize(config, vg);
-
-  // energy offset
-  double e_offset = looper::path_integral::energy_offset(vg, model);
-  std::cout << e_offset << std::endl;
+  double beta = 1./opts.temp;
 
   // measurements
   alps::ObservableSet measurements;
 
-  int num_loops0, num_loops;
-  boost::tie(num_loops0, num_loops) =
-    looper::path_integral::do_update(config, vg, model, 1./opts.temp, rng);
+  if (true) {
+    // path-integral representation
+
+    // world line configration
+    looper::path_integral::types<>::config_type config;
+    looper::path_integral::initialize(config, vg);
+    
+    // energy offset
+    double e_offset = looper::path_integral::energy_offset(vg, model);
+    std::cout << e_offset << std::endl;
+    
+    for (int mcs = 0; mcs < opts.step_t + opts.step_m; ++mcs) {
+      if (mcs == opts.step_t) measurements.reset(true);
+      
+      int num_loops0, num_loops;
+      boost::tie(num_loops0, num_loops) =
+	looper::path_integral::generate_loops(config, vg, model, beta, rng);
+      std::cout << num_loops0 << ' ' << num_loops << std::endl;
+      looper::path_integral::flip_and_cleanup(config, vg, rng, num_loops);
+      std::cout << config;
+    }
+  } else {
+    // SSE representation
+
+  }
 
   // output results
   std::cout << measurements;

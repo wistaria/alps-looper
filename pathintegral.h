@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: pathintegral.h 439 2003-10-17 06:19:43Z wistaria $
+* $Id: pathintegral.h 441 2003-10-17 10:28:53Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -38,7 +38,6 @@
 #define LOOPER_PATHINTEGRAL_H
 
 #include "amida.h"
-#include "loop.h"
 #include "node.h"
 #include "permutation.h"
 #include "unionfind.h"
@@ -79,20 +78,17 @@ inline double energy_offset(const virtual_graph<G>& vg, const M& model)
 }
 
   
-template<bool HasCTime = false, class U = uint32_t> class node;
+template<bool HasCTime = false> class node;
 
-template<class U>
-class node<false, U> : public node_type
+class node<false> : public node_property
 {
-private:
-  typedef node_type base_type;
-  typedef looper::unionfind::node<looper::loop_segment> segment_type;
-  
 public:
+  typedef looper::unionfind::node<looper::loop_segment> segment_type;
   typedef double time_type;
-  static const bool has_ctime = false;
+
+  BOOST_STATIC_CONSTANT(bool, has_ctime = false);
   
-  node() : base_type(), time_(0), bond_(0), segment0_(), segment1_() {}
+  node() : node_property(), time_(0), bond_(0), segment0_(), segment1_() {}
   
   time_type time() const { return time_; }
   uint32_t bond() const { return bond_; }
@@ -100,42 +96,33 @@ public:
   void set_bond(uint32_t b) { bond_ = b; }
   void set_time(time_type t) { time_ = t; }
   
-//   void set_new(uint32_t b, uint32_t is_refl, uint32_t is_frozen) {
-//     base_type::set_new(is_refl, is_frozen);
-//     bond_ = b;
-//   }
-//   void set_new(uint32_t b, uint32_t is_refl, uint32_t is_frozen,
-// 	       uint32_t is_anti) {
-//     base_type::set_new(is_refl, is_frozen, is_anti);
-//     bond_ = b;
-//   }
-  
   segment_type& loop_segment(int i) {
     return (i == 0 ? segment0_ : segment1_);
   }
   const segment_type& loop_segment(int i) const {
     return (i == 0 ? segment0_ : segment1_);
   }
+  int& loop_index(int i) { return loop_segment(i).root()->index; }
   int loop_index(int i) const { return loop_segment(i).root()->index; }
   
   void clear() {
-    base_type::clear();
+    node_property::clear_graph();
     segment0_.reset();
     segment1_.reset();
   }
   
   void output(std::ostream& os) const {
-    base_type::output(os);
+    node_property::output(os);
     os << " time = " << time_ << " bond = " << bond_ ;
   }
   
   void save(alps::ODump& od) const {
-    base_type::save(od);
+    node_property::save(od);
     od << time_ << bond_;
     // segment[01]_ are not saved
   }
   void load(alps::IDump& id) {
-    base_type::load(id);
+    node_property::load(id);
     id >> time_ >> bond_;
     // segment[01]_ are not restored
   }
@@ -147,42 +134,62 @@ private:
   segment_type segment1_;
 };
 
-template<class U>
-class node<true, U> : public node<false, U>
+class node<true> : public node<false>
 {
 public:
-  static const bool has_ctime = true;
-  
-  typedef node<false>::time_type time_type;
+  typedef node<false> base_type;
+  typedef base_type::segment_type segment_type;
+  typedef base_type::time_type time_type;
   typedef std::complex<time_type> ctime_type;
+
+  BOOST_STATIC_CONSTANT(bool, has_ctime = true);
+
+  node() : base_type(), ctime_() {}
   
-  ctime_type ctime() const { return _ctime; }
+  ctime_type ctime() const { return ctime_; }
+
   void set_time(time_type t) {
-    node<false>::set_time(t);
+    base_type::set_time(t);
 #ifdef M_PI
-    _ctime = std::exp(2 * M_PI * t);
+    ctime_ = std::exp(2 * M_PI * t);
 #else
-    _ctime = std::exp(2 * 3.1415926535897932385 * t);
+    ctime_ = std::exp(2 * 3.1415926535897932385 * t);
 #endif
   }
   
   void output(std::ostream& os) const {
-    node<false>::output(os);
-    os << " ctime = " << _ctime;
+    base_type::output(os);
+    os << " ctime = " << ctime_;
   }
   
   void save(alps::ODump& od) const {
-    node<false>::save(od);
-    od << _ctime;
+    base_type::save(od);
+    od << ctime_;
   }
   void load(alps::IDump& id) {
-    node<false>::load(id);
-    id >> _ctime;
+    base_type::load(id);
+    id >> ctime_;
   }
   
 private:
-  ctime_type _ctime;
+  ctime_type ctime_;
 };
+
+
+//
+// struct types
+//
+
+template<bool HasCTime = false>
+struct types
+{
+  typedef amida<node<HasCTime> > config_type;
+};
+
+
+//
+// update functions
+//
 
 // initialize
 template<class N, class G>
@@ -204,8 +211,8 @@ inline void initialize(amida<N>& config, const virtual_graph<G>& vg)
 
 template<class N, class G, class M, class RNG, class W>
 inline std::pair<int, int>
-do_update(amida<N>& config, const virtual_graph<G>& vg, const M& model,
-	  double beta, RNG& uniform_01, const W& /* weight */)
+generate_loops(amida<N>& config, const virtual_graph<G>& vg, const M& model,
+	       double beta, RNG& uniform_01, const W& /* weight */)
 {
   typedef typename amida<N>::iterator           iterator;
   typedef typename amida<N>::value_type         node_type;
@@ -266,42 +273,29 @@ do_update(amida<N>& config, const virtual_graph<G>& vg, const M& model,
     }
   }
   std::cout << "labeling done.\n";
+  std::cout << "num_links " << config.num_links() << std::endl;
   
   //
   // cluster identification using union-find algorithm
   //
   
   vertex_iterator vi_end = boost::vertices(vg.graph).second;
-  for (vertex_iterator vi = boost::vertices(vg.graph).first; vi != vi_end; ++vi) {
-    
+  for (vertex_iterator vi = boost::vertices(vg.graph).first;
+       vi != vi_end; ++vi) {
     // setup iterators
     iterator itrD = config.series(*vi).first;
-    iterator itrU = itrD + 1;
+    iterator itrU = boost::next(itrD);
     
     // iteration up to t = 1
-    while (true) {
-      if (itrU.at_top()) {
-	if (itrD.at_bottom())
-	  unionfind::unify(itrU->loop_segment(0),
-			   itrD->loop_segment(0));
-	else
-	  unionfind::unify(itrU->loop_segment(0),
-			   itrD->loop_segment(1^(itrD.leg()|itrD->is_refl())));
-	break; // finish
-      } else {
-	if (itrU.leg() == 0 && itrU->is_frozen()) // frozen link
-	  unionfind::unify(itrU->loop_segment(0), itrU->loop_segment(0));
-	if (itrD.at_bottom())
-	  unionfind::unify(itrU->loop_segment(itrU.leg()|itrU->is_refl()),
-			   itrD->loop_segment(0));
-	else
-	  unionfind::unify(itrU->loop_segment(itrU.leg()|itrU->is_refl()),
-			   itrD->loop_segment(1^(itrD.leg()|itrD->is_refl())));
-	itrD = itrU++; // next
-      }
+    for (;; itrD = itrU++) {
+      unionfind::unify(segment_d(itrU), segment_u(itrD));
+      if (itrU.leg() == 0 && itrU->is_frozen()) // frozen link
+	unionfind::unify(itrU->loop_segment(0), itrU->loop_segment(1));
+      if (itrU.at_top()) break; // finish
     }
   }
-  
+
+  // connect bottom and top with random permutation
   std::vector<int> r, c0, c1;
   for (int i = 0; i < vg.mapping.num_groups(); ++i) {
     int s2 = vg.mapping.num_virtual_vertices(i);
@@ -317,16 +311,17 @@ do_update(amida<N>& config, const virtual_graph<G>& vg, const M& model,
       c1[*vi - offset] = config.series(*vi).second->conf();
     }
     restricted_random_shuffle(r.begin(), r.end(),
-			      c0.begin(), c0.end(),
-			      c1.begin(), c1.end(),
-			      uniform_01);
-    for (vertex_iterator vi = vg.mapping.virtual_vertices(i).first;
-	 vi != vi_end; ++vi)
+ 			      c0.begin(), c0.end(),
+ 			      c1.begin(), c1.end(),
+ 			      uniform_01);
+    for (int j = 0; j < s2; ++j) {
       unionfind::unify(
-        config.series(*vi            ).first ->loop_segment(0),
-        config.series(r[*vi - offset]).second->loop_segment(0));
+         config.series(offset +   j ).first ->loop_segment(0),
+         config.series(offset + r[j]).second->loop_segment(0));
+    }
   }
 
+  // counting and indexing loops
   int num_loops0 = 0;
   vi_end = boost::vertices(vg.graph).second;
   for (vertex_iterator vi = boost::vertices(vg.graph).first;
@@ -339,9 +334,8 @@ do_update(amida<N>& config, const virtual_graph<G>& vg, const M& model,
   vi_end = boost::vertices(vg.graph).second;
   for (vertex_iterator vi = boost::vertices(vg.graph).first;
        vi != vi_end; ++vi) {
-    
-    // setup iterators
-    iterator itr = ++config.series(*vi).first;
+    // setup iterator
+    iterator itr = boost::next(config.series(*vi).first);
     
     // iteration up to t = 1
     while (!itr.at_top()) {
@@ -356,6 +350,26 @@ do_update(amida<N>& config, const virtual_graph<G>& vg, const M& model,
       ++itr;
     }
   }
+
+  // writing loop indices
+  vi_end = boost::vertices(vg.graph).second;
+  for (vertex_iterator vi = boost::vertices(vg.graph).first;
+       vi != vi_end; ++vi) {
+    // setup iterator
+    iterator itr = config.series(*vi).first;
+    
+    // iteration up to t = 1
+    while (true) {
+      if (itr.at_boundary()) {
+	itr->loop_segment(0).index = itr->loop_segment(0).root()->index;
+      } else {
+	itr->loop_segment(1).index = itr->loop_segment(1).root()->index;
+	itr->loop_segment(1).index = itr->loop_segment(1).root()->index;
+      }
+      if (itr.at_top()) break;
+      ++itr;
+    }
+  }
   std::cout << "identification done.\n";
 
   return std::make_pair(num_loops0, num_loops); // return number of loops
@@ -364,14 +378,88 @@ do_update(amida<N>& config, const virtual_graph<G>& vg, const M& model,
 template<class N, class G, class M, class RNG>
 inline
 std::pair<int, int>
-do_update(amida<N>& config, const virtual_graph<G>& vg, const M& model,
-	  double beta, RNG& uniform_01)
+generate_loops(amida<N>& config, const virtual_graph<G>& vg, const M& model,
+	       double beta, RNG& uniform_01)
 {
-  return do_update(config, vg, model, beta, uniform_01, default_weight());
+  return generate_loops(config, vg, model, beta, uniform_01, default_weight());
+}
+
+template<class N, class G, class RNG>
+inline void
+flip_and_cleanup(amida<N>& config, const virtual_graph<G>& vg,
+		 RNG& uniform_01, int num_loops)
+{
+  typedef typename amida<N>::iterator           iterator;
+  typedef typename amida<N>::value_type         node_type;
+  typedef typename virtual_graph<G>::graph_type graph_type;
+  typedef typename boost::graph_traits<graph_type>::vertex_iterator
+    vertex_iterator;
+  typedef typename boost::graph_traits<graph_type>::edge_iterator
+    edge_iterator;
+
+  std::vector<int> flip(num_loops);
+  for (std::vector<int>::iterator itr = flip.begin(); itr != flip.end(); ++itr)
+    *itr = ((uniform_01() < 0.5) ? 0 : 1);
+
+  // flip spins
+  vertex_iterator vi_end = boost::vertices(vg.graph).second;
+  for (vertex_iterator vi = boost::vertices(vg.graph).first;
+       vi != vi_end; ++vi) {
+    iterator itrB, itrT;
+    boost::tie(itrB, itrT) = config.series(*vi);
+    if (flip[itrB->loop_segment(0).index] == 1) itrB->flip_conf();
+    if (flip[itrT->loop_segment(0).index] == 1) itrT->flip_conf();
+
+    std::cout << itrT->conf() << ' ';
+  }
+  std::cout << std::endl;
+
+  // upating links
+  vi_end = boost::vertices(vg.graph).second;
+  for (vertex_iterator vi = boost::vertices(vg.graph).first;
+       vi != vi_end; ++vi) {
+    // setup iterator
+    iterator itr = boost::next(config.series(*vi).first);
+    
+    // iteration up to t = 1
+    while (!itr.at_top()) {
+      if (itr.leg() == 0) {
+	if (itr->is_new() ^
+	    (flip[itr->loop_segment(0).index] ^
+	     flip[itr->loop_segment(1).index] == 0)) {
+	  ++itr;
+	  std::cout << "erase!\n";
+	  config.erase(boost::prior(itr));
+	} else {
+	  itr->clear();
+	  ++itr;
+	}
+      } else {
+	++itr;
+      }
+    }
+  }
 }
 
 } // namespace path_integral
 
 } // namespace looper
+
+#ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
+namespace looper {
+namespace path_integral {
+#endif
+
+template<bool HasCTime>
+std::ostream& operator<<(std::ostream& os,
+			 const looper::path_integral::node<HasCTime>& n) {
+  n.output(os);
+  return os;
+}
+
+#ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
+} // namespace path_integral
+} // namespace looper
+#endif
 
 #endif // LOOPER_PATHINTEGRAL_H

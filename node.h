@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: node.h 440 2003-10-17 06:33:05Z wistaria $
+* $Id: node.h 441 2003-10-17 10:28:53Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -71,89 +71,134 @@ struct bits
 
 } // end namespace detail
 
-class node_type
+class node_property
 {
 public:
   typedef detail::bits bits;
   typedef std::bitset<bits::N> bitset;
   typedef bitset::reference reference;
 
-  node_type() : type_(0) {}
-  void reset() { type_.reset(); }
-  void clear_graph() { type_ &= bitset(bits::M_CLEAR); }
+  node_property() : prop_(0) {}
+  void reset() { prop_.reset(); }
+  void clear_graph() { prop_ &= bitset(bits::M_CLEAR); }
 
-  reference conf() { return type_[bits::CONF]; }
-  bool conf() const { return type_[bits::CONF]; }
-  void flip_conf() { type_.flip(bits::CONF); }
+  reference conf() { return prop_[bits::CONF]; }
+  bool conf() const { return prop_[bits::CONF]; }
+  void flip_conf() { prop_.flip(bits::CONF); }
   
-  bool is_refl() const { return type_.test(bits::REFL); }
-  bool is_frozen() const { return type_.test(bits::FREZ); }
-  bool is_anti() const { return type_.test(bits::ANTI); }
-
-  
-  // void set_conf(unsigned int c) { type_.set(bits::CONF, c); }
+  bool is_refl() const { return prop_.test(bits::REFL); }
+  bool is_frozen() const { return prop_.test(bits::FREZ); }
+  bool is_anti() const { return prop_.test(bits::ANTI); }
 
   // for path integral
-  bool is_new() const { return type_.test(bits::ADDD); }
+  bool is_new() const { return prop_.test(bits::ADDD); }
   bool is_old() const { return !is_new(); }
-  void set_new(unsigned int is_refl, unsigned int is_frozen)
-  {
-    type_.reset().set(bits::REFL, is_refl).set(bits::FREZ, is_frozen)
+  void set_new(unsigned int is_refl, unsigned int is_frozen) {
+    prop_.reset().set(bits::REFL, is_refl).set(bits::FREZ, is_frozen)
       .set(bits::ADDD);
   }
   void set_new(unsigned int is_refl, unsigned int is_frozen,
-	       unsigned int is_anti)
-  {
+	       unsigned int is_anti) {
     set_new(is_refl, is_frozen);
-    type_.set(bits::ANTI, is_anti);
+    prop_.set(bits::ANTI, is_anti);
   }
-  void set_old(unsigned int is_refl) { type_.set(bits::REFL, is_refl); }
-  void set_old(unsigned int is_refl, unsigned int is_frozen)
-  { set_old(is_refl); type_.set(bits::FREZ, is_frozen); }
+  void set_old(unsigned int is_refl) { prop_.set(bits::REFL, is_refl); }
+  void set_old(unsigned int is_refl, unsigned int is_frozen) {
+    set_old(is_refl);
+    prop_.set(bits::FREZ, is_frozen);
+  }
   
   // for SSE
-  bool is_identity() const { return type_[bits::IDNT]; }
-  bool is_diagonal() const { return type_[bits::DIAG]; }
+  bool is_identity() const { return prop_[bits::IDNT]; }
+  bool is_diagonal() const { return prop_[bits::DIAG]; }
   bool is_offdiagonal() const { return !is_identity() && !is_diagonal(); }
   void identity_to_diagonal() {
 #ifndef NDEBUG
     assert(is_identity());
 #endif
-    type_.reset(bits::IDNT).set(bits::DIAG);
+    prop_.reset(bits::IDNT).set(bits::DIAG);
   }
   void diagonal_to_identity() {
 #ifndef NDEBUG
     assert(is_diagonal());
 #endif
-    type_.reset(bits::DIAG).set(bits::IDNT);
+    prop_.reset(bits::DIAG).set(bits::IDNT);
   }
   void diagonal_to_offdiagonal() {
 #ifndef NDEBUG
     assert(is_diagonal());
 #endif
-    type_.reset(bits::DIAG);
+    prop_.reset(bits::DIAG);
   }
   void offdiagonal_to_diagonal() {
 #ifndef NDEBUG
     assert(is_offdiagonal());
 #endif
-    type_.set(bits::DIAG);
+    prop_.set(bits::DIAG);
   }
   void flip_operator() {
 #ifndef NDEBUG
     assert(!is_identity());
 #endif
-    type_.flip(bits::DIAG);
+    prop_.flip(bits::DIAG);
   }
 
-  void save(alps::ODump& od) const
-  { uint32_t b = type_.to_ulong(); od << b; }
-  void load(alps::IDump& id)
-  { uint32_t b; id >> b; type_ = bitset(b); }
+  void output(std::ostream& os) const {
+    os << "node_property = " << prop_;
+  }
+  void save(alps::ODump& od) const {
+    uint32_t b = prop_.to_ulong();
+    od << b;
+  }
+  void load(alps::IDump& id) {
+    uint32_t b; id >> b;
+    prop_ = bitset(b);
+  }
   
 private:
-  bitset type_;
+  bitset prop_;
 };
+
+struct loop_segment
+{
+  BOOST_STATIC_CONSTANT(int, undefined = -1);
+  loop_segment() : index(undefined) {}
+  int index;
+
+  // member functions required for unionfind node
+  void reset() { index = undefined; }
+  loop_segment& operator+=(const loop_segment&) { return *this; }
+};
+
+template<class Itr>
+inline
+typename Itr::value_type::segment_type& segment_d(const Itr& itr)
+{
+  if (itr.at_boundary()) {
+    return itr->loop_segment(0);
+  } else {
+    if (itr->is_refl()) {
+      return itr->loop_segment(1);
+    } else {
+      return itr->loop_segment(itr.leg());
+    }
+  }
+}
+
+template<class Itr>
+inline
+typename Itr::value_type::segment_type& segment_u(const Itr& itr)
+{
+  if (itr.at_boundary()) {
+    return itr->loop_segment(0);
+  } else {
+    if (itr->is_refl()) {
+      return itr->loop_segment(0);
+    } else {
+      return itr->loop_segment(1-itr.leg());
+    }
+  }
+}
 
 } // end namespace looper
 

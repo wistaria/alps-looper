@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: sse.h 438 2003-10-17 03:56:37Z wistaria $
+* $Id: sse.h 441 2003-10-17 10:28:53Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -37,7 +37,6 @@
 #ifndef LOOPER_SSE_H
 #define LOOPER_SSE_H
 
-#include "loop.h"
 #include "permutation.h"
 #include "unionfind.h"
 #include "virtualgraph.h"

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: amida.h 437 2003-10-17 01:23:36Z wistaria $
+* $Id: amida.h 441 2003-10-17 10:28:53Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -41,6 +41,7 @@
 
 #include <alps/osiris.h>
 #include <boost/throw_exception.hpp>
+#include <boost/utility.hpp>
 #include <deque>
 #include <iterator>
 #include <stdexcept>
@@ -170,17 +171,14 @@ struct amida_series_iterator_base
   bool at_bottom() const { return node_->at_bottom(); }
   bool at_top() const { return node_->at_top(); }
 
-  void incr()
-  {
+  void incr() {
     node_ = node_->next[leg_];
     if (node_->series[0] == ser_)
       leg_ = 0;
     else
       leg_ = 1;
   }
-
-  void decr()
-  {
+  void decr() {
     node_ = node_->prev[leg_];
     if (node_->series[0] == ser_)
       leg_ = 0;
@@ -223,18 +221,18 @@ struct amida_series_iterator : public amida_series_iterator_base
   self_ operator--() { this->decr(); return *this; }
   self_ operator--(int) { self_ tmp = *this; this->decr(); return tmp; }
 
-  self_ operator+(int n) const
-  {
+#if false 
+  self_ operator+(int n) const {
     self_ temp = *this;
     for (int i = 0; i < n; ++i) ++temp;
     return temp;
   }
-  self_ operator-(int n) const
-  {
+  self_ operator-(int n) const {
     self_ temp = *this;
     for (int i = 0; i < n; ++i) --temp;
     return temp;
   }
+#endif
 };
 
 
@@ -366,29 +364,33 @@ public:
   }
 
   std::pair<iterator, iterator>
-  insert_link_next(const T& t, const iterator& prev0, const iterator& prev1)
-  { return insert_link(t, prev0, prev1, prev0 + 1, prev1 + 1); }
+  insert_link_next(const T& t, const iterator& prev0, const iterator& prev1) {
+    return insert_link(t, prev0, prev1,
+		       boost::next(prev0), boost::next(prev1));
+  }
     
   std::pair<iterator, iterator>
-  insert_link_prev(const T& t, const iterator& next0, const iterator& next1)
-  { return insert_link(t, next0 - 1, next1 - 1, next0, next1); }
+  insert_link_prev(const T& t, const iterator& next0, const iterator& next1) {
+    return insert_link(t, boost::prior(next0), boost::prior(next1),
+		       next0, next1);
+  }
 
   void erase(iterator itr)
   {
     if (itr.node_->is_link()) {
       iterator prev0, next0, prev1, next1;
       if (itr.ser_ == 0) {
-	prev0 = itr - 1;
-	next0 = itr + 1;
+	prev0 = boost::prior(itr);
+	next0 = boost::next(itr);
 	itr.jump();
-	prev1 = itr - 1;
-	next1 = itr + 1;
+	prev1 = boost::prior(itr);
+	next1 = boost::next(itr);
       } else {
-	prev1 = itr - 1;
-	next1 = itr + 1;
+	prev1 = boost::prior(itr);
+	next1 = boost::next(itr);
 	itr.jump();
-	prev0 = itr - 1;
-	next0 = itr + 1;
+	prev0 = boost::prior(itr);
+	next0 = boost::next(itr);
       }
       prev0.node_->next[prev0.leg_] = next0.node_;
       prev1.node_->next[prev1.leg_] = next1.node_;
@@ -396,8 +398,8 @@ public:
       next1.node_->prev[next1.leg_] = prev1.node_;
       --num_links_;
     } else if (itr.node_->is_cut()) {
-      iterator prev = itr - 1;
-      iterator next = itr + 1;
+      iterator prev = boost::prior(itr);
+      iterator next = boost::next(itr);
       prev.node_->next[prev.leg_] = next.node_;
       next.node_->prev[next.leg_] = prev.node_;
       --num_cuts_;
@@ -469,7 +471,7 @@ private:
 
 } // end namespace looper
 
-#ifdef BOOST_NO_OPERATORS_IN_NAMESPACE
+#ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
 namespace looper {
 #endif
 
@@ -483,8 +485,96 @@ alps::IDump& operator>>(alps::IDump& id, looper::amida<T>& c) {
   c.load(id); return id;
 }
 
-#ifdef BOOST_NO_OPERATORS_IN_NAMESPACE
+#ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
 } // end namespace looper
 #endif
+
+
+#ifndef NDEBUG
+
+//
+// only for debugging
+//
+
+namespace looper {
+
+template<class T>
+int index(const amida<T>& a, const typename amida<T>::iterator& itr)
+{
+  return index_helper<>::index(a.base(),
+    static_cast<amida_node<T> *>(itr.node_));
+}
+
+template<class T>
+void output_serial(const amida<T>& a, std::ostream& os = std::cout)
+{
+  os << "[amida Information]\n";
+  for (std::size_t i = 0; i != a.base().size(); ++i) {
+    amida_node<T> * p =
+      const_cast<amida_node<T> *>(&(a.base()[i]));
+    typename amida<T>::iterator s0(p, p->series[0]);
+    typename amida<T>::iterator s1(p, p->series[1]);
+    if (!p->is_vacant()) {
+      if (p->at_boundary()) {
+        if (p->at_bottom()) {
+          os << index(a, s0) << '\t' << "root at " << s0.ser_;
+          os << " :\t" << "next node is "
+             << index(a, boost::next(s0));
+          os << "  ";
+          os << "node: " << index(a, s0) << ", contents: " << p->data_;
+          os << std::endl;
+        } else {
+          os << index(a, s0) << '\t' << "goal at " << s0.ser_;
+          os << " :\t" << "prev node is " 
+             << index(a, boost::prior(s0));
+          os << "  ";
+          os << "node: " << index(a, s0) << ", contents: " << p->data_;
+          os << std::endl;
+        }
+      } else {
+        os << index(a, s0) << '\t' << "node connecting "
+           << s0.ser_ << " and " << s1.ser_;
+        os << " :\t" << index(a, boost::next(s0));
+        os << ' ' << index(a, boost::prior(s0));
+        os << ' ' << index(a, boost::next(s1));
+        os << ' ' << index(a, boost::prior(s1));
+        os << '\t';
+        os << "node: " << index(a, s0) << ", contents: " << p->data_;
+        os << std::endl;
+      }
+    }
+  }
+}
+
+template<class T>
+void output_stack(const amida<T>& a, std::ostream& os = std::cout)
+{
+  os << "[amida Stack Information]\n";
+  for (amida_node_base * s =
+         const_cast<amida_node_base *>(a.vacant()); s != 0;
+       s = s->next[0]) {
+    typename amida<T>::iterator
+      itr(static_cast<typename amida<T>::node_type *>(s),
+          s->series[0]);
+    os << index(a, itr) << "->";
+  }
+  os << "NULL\n";
+}
+
+} // end namespace looper
+
+#ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
+namespace looper {
+#endif
+
+template<class T>
+std::ostream& operator<<(std::ostream& os, const looper::amida<T>& a)
+{ looper::output_serial(a, os); looper::output_stack(a, os); return os; }
+
+#ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
+} // namespace looper
+#endif
+
+#endif // NDEBUG
 
 #endif // LOOPER_AMIDA_H
