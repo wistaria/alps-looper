@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: exact_diag.h 561 2003-11-12 15:53:43Z wistaria $
+// $Id: exact_diag.h 562 2003-11-13 03:00:53Z wistaria $
 
 #ifndef LOOPER_EXACT_DIAG_H
 #define LOOPER_EXACT_DIAG_H
@@ -71,6 +71,8 @@ struct exact_diagonalization
     std::vector<std::pair<int, int> > basis;
     matrix_type hamiltonian;
     vector_type eigenvalues;
+    mutable vector_type mtab;
+    mutable vector_type stab;
   };
 
   // helper functions
@@ -79,18 +81,56 @@ struct exact_diagonalization
   { return s0 * d1 + s1; }
   static int sz2(int s, int i, const config_type& config)
   { return (s / config.basis[i].second) % config.basis[i].first; }
+  static double sz(int s, int i, const config_type& config)
+  { return ((double)config.basis[i].first - 1) / 2 - sz2(s, i, config); }
   static int up(int s, int i, const config_type& config)
   {
-    return (s > 0 && sz2(s, i, config) != config.basis[i].first - 1) ?
+    return (s >= 0 && sz2(s, i, config) != config.basis[i].first - 1) ?
       (s + config.basis[i].second) : -1;
   }
   static int down(int s, int i, const config_type& config)
   {
-    return (s > 0 && sz2(s, i, config) != 0) ?
+    return (s >= 0 && sz2(s, i, config) != 0) ?
       (s - config.basis[i].second) : -1;
   }
 
-  static generate_matrix(const parameter_type& param, config_type& config)
+  static void generate_mtab(const parameter_type& param,
+			    const config_type& config)
+  {
+    if (config.mtab.size() == 0) {
+      config.mtab.resize(config.dimension);
+      vertex_iterator vi, vi_end;
+      for (boost::tie(vi, vi_end) = boost::vertices(param.graph);
+	   vi != vi_end; ++vi) {
+	typename vector_type::iterator s = config.mtab.begin();
+	typename vector_type::iterator s_end = config.mtab.end();
+	int state = 0;
+	for (; s != s_end; ++s, ++state) {
+	  *s += sz(state, *vi, config);
+	}
+      }
+    }
+  }
+
+  static void generate_stab(const parameter_type& param, 
+			    const config_type& config)
+  {
+    if (param.is_bipartite && config.stab.size() == 0) {
+      config.stab.resize(config.dimension);
+      vertex_iterator vi, vi_end;
+      for (boost::tie(vi, vi_end) = boost::vertices(param.graph);
+	   vi != vi_end; ++vi) {
+	typename vector_type::iterator s = config.mtab.begin();
+	typename vector_type::iterator s_end = config.mtab.end();
+	int state = 0;
+	for (; s != s_end; ++s, ++state) {
+	  *s += gauge(*vi, param.graph) * sz(state, *vi, config);
+	}
+      }
+    }
+  }
+
+  static void generate_matrix(const parameter_type& param, config_type& config)
   {
     // setup basis
     config.dimension = 0;
@@ -127,10 +167,12 @@ struct exact_diagonalization
 	  // diagonal element
 	  config.hamiltonian(s, s) +=
 	    m[index(s0, s1, d0, d1)][index(s0, s1, d0, d1)];
+	  //// std::cout << "diag: " << s << std::endl;
 	}
 	{
 	  // up-down
 	  int t = down(up(s, v0, config), v1, config);
+	  //// std::cout << "offdiag 1: " << s << ' ' << t << std::endl;
 	  if (t > 0) {
 	    int t0 = sz2(t, v0, config);
 	    int t1 = sz2(t, v1, config);
@@ -141,6 +183,7 @@ struct exact_diagonalization
 	{
 	  // down-up
 	  int t = up(down(s, v0, config), v1, config);
+	  //// std::cout << "offdiag 2: " << s << ' ' << t << std::endl;
 	  if (t > 0) {
 	    int t0 = sz2(t, v0, config);
 	    int t1 = sz2(t, v1, config);
@@ -152,9 +195,12 @@ struct exact_diagonalization
     }
 
     config.eigenvalues.resize(config.dimension);
+
+    //// std::cout << config.hamiltonian;
   }
 
-  static void diagonalize(const parameter_type& param, config_type& config)
+  static void diagonalize(const parameter_type& /* param */,
+			  config_type& config)
   {
     looper::diagonalize(config.hamiltonian, config.eigenvalues, true);
   }
@@ -166,12 +212,12 @@ struct exact_diagonalization
     double ene = 0.;
     double ene2 = 0.;
     double gs_ene = config.eigenvalues(0);
-    std::cout << gs_ene << std::endl;
+    //// std::cout << gs_ene << std::endl;
     typename vector_type::const_reverse_iterator ev_end =
       config.eigenvalues.rend();
     for (typename vector_type::const_reverse_iterator ev =
 	   config.eigenvalues.rbegin(); ev != ev_end; ++ev) {
-      std::cout << *ev << std::endl;
+      //// std::cout << *ev << std::endl;
       // Boltzman weight
       double weight;
       weight = std::exp(-param.beta * (*ev - gs_ene));
@@ -191,7 +237,155 @@ struct exact_diagonalization
     ene2 /= boost::num_vertices(param.graph);
     c /= boost::num_vertices(param.graph);
     
-    boost::make_tuple(ene, ene2, c);
+    return boost::make_tuple(ene, ene2, c);
+  }
+
+  static boost::tuple<double, double, double, double>
+  magnetization(const parameter_type& param, const config_type& config)
+  {
+    generate_mtab(param, config);
+    generate_stab(param, config);
+
+    double part = 0.;
+    double gs_ene = config.eigenvalues(0);
+    double umag2 = 0.;
+    double smag2 = 0.;
+    double usus = 0.;
+    double ssus = 0.;
+
+    typename vector_type::const_reverse_iterator ev =
+      config.eigenvalues.rbegin();
+    typename vector_type::const_reverse_iterator ev_end =
+      config.eigenvalues.rend();
+    typename matrix_type::const_reverse_iterator1 evec =
+      config.hamiltonian.rbegin1();
+    for (; ev != ev_end; ++ev, ++evec) {
+      // Boltzman weight
+      double weight;
+      weight = std::exp(-param.beta * (*ev - gs_ene));
+
+      // partition function
+      part += weight;
+    
+      // uniform and staggered magnetization
+      if (param.is_bipartite) {
+	double m2 = 0.;
+	double s2 = 0.;
+	typename matrix_type::const_iterator2 j = evec.begin();
+	typename vector_type::const_iterator itr_m = config.mtab.begin();
+	typename vector_type::const_iterator itr_s = config.stab.begin();
+	for (; j != evec.end(); ++j, ++itr_m, ++itr_s) {
+	  double w = std::pow(*j, 2);
+	  m2 += std::pow(*itr_m, 2) * w;
+	  s2 += std::pow(*itr_s, 2) * w;
+	}
+	umag2 += m2 * weight;
+	smag2 += s2 * weight;
+      } else {
+	double m2 = 0.;
+	typename matrix_type::const_iterator2 j = evec.begin();
+	typename vector_type::const_iterator itr_m = config.mtab.begin();
+	typename vector_type::const_iterator itr_s = config.stab.begin();
+	for (; j != evec.end(); ++j, ++itr_m, ++itr_s) {
+	  double w = std::pow(*j, 2);
+	  m2 += std::pow(*itr_m, 2) * w;
+	}
+	umag2 += m2 * weight;
+      }
+
+      // uniform and staggered susceptibility
+      if (param.is_bipartite) {
+	typename matrix_type::const_reverse_iterator1 evec_j =
+	  config.hamiltonian.rbegin1();
+	typename vector_type::const_reverse_iterator ev_j =
+	  config.eigenvalues.rbegin();
+	for (; evec_j != evec; ++evec_j, ++ev_j) {
+	  // for evec_j != evec
+	  double mu = 0.;
+	  double su = 0.;
+	  typename matrix_type::const_iterator2 j = evec_j.begin();
+	  typename vector_type::const_iterator itr_m = config.mtab.begin();
+	  typename vector_type::const_iterator itr_s = config.stab.begin();
+	  for (typename matrix_type::const_iterator2 k = evec.begin();
+	       k != evec.end(); ++k, ++j, ++itr_m, ++itr_s) {
+	    mu += (*k) * (*itr_m) * (*j);
+	    su += (*k) * (*itr_s) * (*j);
+	  }
+	  double wij;
+	  if (std::abs(*ev - *ev_j) > 1.e-12) {
+	    wij = - (weight - exp(-param.beta * (*ev_j - gs_ene)))
+	      / (*ev - *ev_j);
+	  } else {
+	    wij = param.beta * weight;
+	  }
+	  usus += 2 * std::pow(mu, 2) * wij;
+	  ssus += 2 * std::pow(su, 2) * wij;
+	}
+	{
+	  // for evec_j = evec
+	  double mu = 0.;
+	  double su = 0.;
+	  typename matrix_type::const_iterator2 j = evec_j.begin();
+	  typename vector_type::const_iterator itr_m = config.mtab.begin();
+	  typename vector_type::const_iterator itr_s = config.stab.begin();
+	  for (typename matrix_type::const_iterator2 k = evec.begin();
+	       k != evec.end(); ++k, ++j, ++itr_m, ++itr_s) {
+	    mu += (*k) * (*itr_m) * (*j);
+	    su += (*k) * (*itr_s) * (*j);
+	  }
+	  double wij = param.beta * weight;
+	  usus += std::pow(mu, 2) * wij;
+	  ssus += std::pow(su, 2) * wij;
+	}
+      } else {
+	typename matrix_type::const_reverse_iterator1 evec_j =
+	  config.hamiltonian.rbegin1();
+	typename vector_type::const_reverse_iterator ev_j =
+	  config.eigenvalues.rbegin();
+	for (; evec_j != evec; ++evec_j, ++ev_j) {
+	  // for evec_j != evec
+	  double mu = 0.;
+	  typename matrix_type::const_iterator2 j = evec_j.begin();
+	  typename vector_type::const_iterator itr_m = config.mtab.begin();
+	  for (typename matrix_type::const_iterator2 k = evec.begin();
+	       k != evec.end(); ++k, ++j, ++itr_m) {
+	    mu += (*k) * (*itr_m) * (*j);
+	  }
+	  double wij;
+	  if (std::abs(*ev - *ev_j) > 1.e-12) {
+	    wij = - (weight - exp(-param.beta * (*ev_j - gs_ene)))
+	      / (*ev - *ev_j);
+	  } else {
+	    wij = param.beta * weight;
+	  }
+	  usus += 2 * std::pow(mu, 2) * wij;
+	}
+	{
+	  // for evec_j = evec
+	  double mu = 0.;
+	  typename matrix_type::const_iterator2 j = evec_j.begin();
+	  typename vector_type::const_iterator itr_m = config.mtab.begin();
+	  for (typename matrix_type::const_iterator2 k = evec.begin();
+	       k != evec.end(); ++k, ++j, ++itr_m) {
+	    mu += (*k) * (*itr_m) * (*j);
+	  }
+	  double wij = param.beta * weight;
+	  usus += std::pow(mu, 2) * wij;
+	}
+      }
+    }
+
+    umag2 /= part;
+    usus /= part;
+    smag2 /= part;
+    ssus /= part;
+
+    umag2 /= boost::num_vertices(param.graph);
+    usus /= boost::num_vertices(param.graph);
+    smag2 /= boost::num_vertices(param.graph);
+    ssus /= boost::num_vertices(param.graph);
+
+    return boost::make_tuple(umag2, usus, smag2, ssus);
   }
 };
 

@@ -255,8 +255,13 @@ try {
     ed_type::diagonalize(param, config);
     double e, e2, c;
     boost::tie(e, e2, c) = ed_type::energy(param, config);
+    double umag2, usus, smag2, ssus;
+    boost::tie(umag2, usus, smag2, ssus) =
+      ed_type::magnetization(param, config);
     opts.output();
-    std::cout << ' ' << e << ' ' << e2 << ' ' << c << std::endl;
+    std::cout << ' ' << e << ' ' << e2 << ' ' << c << ' '
+	      << umag2 << ' ' << usus << ' ' << smag2 << ' ' << ssus
+	      << std::endl;
   }
 
 #ifndef BOOST_NO_EXCEPTIONS
