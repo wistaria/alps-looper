@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2005 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -439,10 +439,9 @@ public:
   {
     // get Hamilton operator from ModelLibrary
     alps::HamiltonianDescriptor<short>
-      hd(models.get_hamiltonian(params["MODEL"]));
+      hd(models.get_hamiltonian(params["MODEL"]), params);
     alps::Parameters p(params);
     p.copy_undefined(hd.default_parameters());
-    hd.set_parameters(p);
     set_parameters(p, graph, hd);
   }
   template<typename G>
@@ -453,10 +452,9 @@ public:
   {
     // get Hamilton operator from ModelLibrary
     alps::HamiltonianDescriptor<short>
-      hd(models.get_hamiltonian(params["MODEL"]));
+      hd(models.get_hamiltonian(params["MODEL"]), params);
     alps::Parameters p(params);
     p.copy_undefined(hd.default_parameters());
-    hd.set_parameters(p);
     set_parameters(p, graph, hd, is_signed);
   }
 
@@ -648,15 +646,15 @@ bool fit2site(const boost::multi_array<T, 2>& mat, site_parameter_hxz& param,
   alps::SiteBasisDescriptor<short> basis(spin_basis(s));
   boost::multi_array<value_type, 2> mat_c(
     alps::get_matrix(value_type(),
-                     alps::SiteTermDescriptor<short>("1"),
+                     alps::SiteTermDescriptor("1"),
                      basis, alps::Parameters()));
   boost::multi_array<value_type, 2> mat_hx(
     alps::get_matrix(value_type(),
-                     alps::SiteTermDescriptor<short>("-(Splus+Sminus)/2"),
+                     alps::SiteTermDescriptor("-(Splus+Sminus)/2"),
                      basis, alps::Parameters()));
   boost::multi_array<value_type, 2> mat_hz(
     alps::get_matrix(value_type(),
-                     alps::SiteTermDescriptor<short>("-Sz"),
+                     alps::SiteTermDescriptor("-Sz"),
                      basis, alps::Parameters()));
 
   boost::numeric::ublas::matrix<value_type,
@@ -718,16 +716,16 @@ bool fit2bond(const boost::multi_array<T, 4>& mat, bond_parameter_xxz& param,
 
   boost::multi_array<value_type, 4> mat_c(
     alps::get_matrix(value_type(),
-                     alps::BondTermDescriptor<short>("1"),
+                     alps::BondTermDescriptor("1"),
                      basis0, basis1));
   boost::multi_array<value_type, 4> mat_jxy(
     alps::get_matrix(value_type(),
-                     alps::BondTermDescriptor<short>(
+                     alps::BondTermDescriptor(
                        "-(Splus(i)*Sminus(j)+Sminus(i)*Splus(j))/2"),
                      basis0, basis1));
   boost::multi_array<value_type, 4> mat_jz(
     alps::get_matrix(value_type(),
-                     alps::BondTermDescriptor<short>("-Sz(i)*Sz(j)"),
+                     alps::BondTermDescriptor("-Sz(i)*Sz(j)"),
                      basis0, basis1));
 
   boost::numeric::ublas::matrix<value_type,

@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2003-2004 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 2003-2005 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -75,7 +75,7 @@ inline site_basis_descriptor spin_basis(double s = 0.5)
 template<class MATRIX, class I, class GRAPH>
 void add_to_matrix(
   MATRIX& matrix,
-  const alps::SiteTermDescriptor<I>& term,
+  const alps::SiteTermDescriptor& term,
   const alps::basis_states<I>& basis_states,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd,
   const GRAPH& graph,
@@ -109,7 +109,7 @@ void add_to_matrix(
 template<class VECTOR, class I, class GRAPH>
 void apply_to_vector(
   const VECTOR& vec_in, VECTOR& vec_out,
-  const alps::SiteTermDescriptor<I>& term,
+  const alps::SiteTermDescriptor& term,
   const alps::basis_states<I>& basis_states,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd,
   const GRAPH& graph,
@@ -143,7 +143,7 @@ void apply_to_vector(
 template<class MATRIX, class I, class GRAPH>
 void add_to_matrix(
   MATRIX& matrix,
-  const alps::BondTermDescriptor<I>& term,
+  const alps::BondTermDescriptor& term,
   const alps::basis_states<I>& basis_states,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd0,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd1,
@@ -187,7 +187,7 @@ void add_to_matrix(
 template<class VECTOR, class I, class GRAPH>
 void apply_to_vector(
   const VECTOR& vec_in, VECTOR& vec_out,
-  const alps::BondTermDescriptor<I>& term,
+  const alps::BondTermDescriptor& term,
   const alps::basis_states<I>& basis_states,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd0,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd1,
@@ -232,7 +232,7 @@ void apply_to_vector(
 template<class VECTOR, class I, class GRAPH>
 void add_to_diagonal_matrix(
   VECTOR& vector,
-  const alps::SiteTermDescriptor<I>& term,
+  const alps::SiteTermDescriptor& term,
   const alps::basis_states<I>& basis_states,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd,
   const GRAPH& graph,
@@ -267,7 +267,7 @@ void add_to_diagonal_matrix(
 template<class VECTOR, class I, class GRAPH>
 void apply_diagonal_to_vector(
   const VECTOR& vec_in, VECTOR& vec_out,
-  const alps::SiteTermDescriptor<I>& term,
+  const alps::SiteTermDescriptor& term,
   const alps::basis_states<I>& basis_states,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd,
   const GRAPH& graph,
@@ -302,7 +302,7 @@ void apply_diagonal_to_vector(
 template<class VECTOR, class I, class GRAPH>
 void add_to_diagonal_matrix(
   VECTOR& vector,
-  const alps::BondTermDescriptor<I>& term,
+  const alps::BondTermDescriptor& term,
   const alps::basis_states<I>& basis_states,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd0,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd1,
@@ -349,7 +349,7 @@ void add_to_diagonal_matrix(
 template<class VECTOR, class I, class GRAPH>
 void apply_diagonal_to_vector(
   const VECTOR& vec_in, VECTOR& vec_out,
-  const alps::BondTermDescriptor<I>& term,
+  const alps::BondTermDescriptor& term,
   const alps::basis_states<I>& basis_states,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd0,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd1,
