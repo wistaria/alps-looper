@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2003-2004 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -22,41 +22,27 @@
 *
 *****************************************************************************/
 
-// evaluate.C - tool for evaluating QMC results
+// loop.C - main program for QMC simulations
 
 #include "loop_impl.h"
-#include <boost/filesystem/operations.hpp>
-
-void evaluate(const boost::filesystem::path& p) {
-  alps::ProcessList nowhere;
-  alps::scheduler::MCSimulation sim(nowhere,p);
-  accumulate(sim);
-  sim.checkpoint(p);
-}
+#include <alps/osiris/comm.h>
 
 int main(int argc, char** argv)
 {
 #ifndef BOOST_NO_EXCEPTIONS
-try {
+  try {
 #endif
-
-  alps::scheduler::SimpleMCFactory<alps::scheduler::DummyMCRun> factory;
-  alps::scheduler::init(factory);
-
-  if (argc != 2) {
-    std::cerr << "Usage: " << argv[0] << " inputfile\n";
-    std::exit(-1);
-  }
-  boost::filesystem::path p =
-    boost::filesystem::complete(boost::filesystem::path(argv[1]));
-  evaluate(p);
-
+    return alps::scheduler::start(argc, argv, factory());
 #ifndef BOOST_NO_EXCEPTIONS
-}
-catch (std::exception& e)
-{
-  std::cerr << "Caught exception: " << e.what() << "\n";
-  std::exit(-5);
-}
+  }
+  catch (std::exception& exc) {
+    std::cerr << exc.what() << "\n";
+    alps::comm_exit(true);
+    return -1;
+  }
+  catch (...) {
+    std::cerr << "Fatal Error: Unknown Exception!\n";
+    return -2;
+  }
 #endif
 }

@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-#include "qmc_impl.h"
+#include "loop_impl.h"
 
 #include <alps/alea.h>
 #include <boost/random.hpp>

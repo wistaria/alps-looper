@@ -22,12 +22,11 @@
 *
 *****************************************************************************/
 
-// qmc_impl.h - implementation of worker for QMC simulation
+// loop_impl.h - implementation of worker for QMC simulation
 
-#ifndef QMC_IMPL_H
-#define QMC_IMPL_H
+#ifndef LOOP_IMPL_H
+#define LOOP_IMPL_H
 
-#include <looper/config.h>
 #include <looper/copyright.h>
 #include <looper/model.h>
 #include <looper/path_integral.h>
@@ -249,4 +248,4 @@ class factory : public alps::scheduler::Factory
   { looper::print_copyright(os); }
 };
 
-#endif // QMC_IMPL_H
+#endif // LOOP_IMPL_H

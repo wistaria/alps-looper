@@ -9,15 +9,9 @@ define([AC_CACHE_SAVE], )dnl
 
 AC_PREREQ(2.59)
 AC_INIT([looper], 3.0b5)              dnl check here for release!
-looper_date="2004/04/07"              dnl check here for release!
 AM_INIT_AUTOMAKE
 
 AC_PREFIX_DEFAULT([$HOME/ALPS])
-
-AC_DEFINE_UNQUOTED(LOOPER_VERSION, "$PACKAGE_VERSION",
-                   [Define the version of ALPS/looper])
-AC_DEFINE_UNQUOTED(LOOPER_DATE, "$looper_date",
-                   [Define the published date of ALPS/looper])
 
 AC_MSG_NOTICE([starting configuration for ALPS/looper version $PACKAGE_VERSION ($looper_date)])
 

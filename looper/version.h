@@ -22,27 +22,15 @@
 *
 *****************************************************************************/
 
-// qmc.C - main program for QMC simulations
+#ifndef LOOPER_VERSION_H
+#define LOOPER_VERSION_H
 
-#include "qmc_impl.h"
-#include <alps/osiris/comm.h>
+#ifndef LOOPER_VERSION
+#define LOOPER_VERSION "3.0b5"
+#endif
 
-int main(int argc, char** argv)
-{
-#ifndef BOOST_NO_EXCEPTIONS
-  try {
+#ifndef LOOPER_DATE
+#define LOOPER_DATE "2004/04/07"
 #endif
-    return alps::scheduler::start(argc, argv, factory());
-#ifndef BOOST_NO_EXCEPTIONS
-  }
-  catch (std::exception& exc) {
-    std::cerr << exc.what() << "\n";
-    alps::comm_exit(true);
-    return -1;
-  }
-  catch (...) {
-    std::cerr << "Fatal Error: Unknown Exception!\n";
-    return -2;
-  }
-#endif
-}
+
+#endif // LOOPER_VERSION_H
