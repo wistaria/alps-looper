@@ -16,7 +16,7 @@ dnl
 dnl Initialization ----------------------------------------------------------
 dnl
 
-AC_INIT([looper], lopper_version)
+AC_INIT([looper], looper_version)
 AC_CONFIG_AUX_DIR([config])
 AM_INIT_AUTOMAKE
 AC_PREFIX_DEFAULT([$HOME/ALPS])
