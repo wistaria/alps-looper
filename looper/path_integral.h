@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: path_integral.h 465 2003-10-23 22:37:19Z wistaria $
+* $Id: path_integral.h 469 2003-10-28 01:41:10Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -402,7 +402,7 @@ struct path_integral<virtual_graph<G>, M, W>
       bond_type(alps::get_or_default(alps::bond_type_t(), vg.graph, 0));
     edge_iterator ei_end = boost::edges(vg.graph).second;
     for (edge_iterator ei = boost::edges(vg.graph).first; ei != ei_end; ++ei)
-      offset += model.bond(bond_type[*ei]).C;
+      offset += model.bond(bond_type[*ei]).c();
     return offset / double(vg.num_real_edges);
   }
   
@@ -421,7 +421,7 @@ struct path_integral<virtual_graph<G>, M, W>
 	itr0 = config.wl.series(boost::source(*ei, vg.graph)).first;
       const_iterator
 	itr1 = config.wl.series(boost::target(*ei, vg.graph)).first;
-      ene += model.bond(bond_type[*ei]).Jz *
+      ene += model.bond(bond_type[*ei]).jz() *
 	(0.5 - double(itr0->conf())) * (0.5 - double(itr1->conf()));
     }
     return ene / double(vg.num_real_vertices);
@@ -443,7 +443,7 @@ struct path_integral<virtual_graph<G>, M, W>
       const_iterator
 	itr1 = config.wl.series(boost::target(*ei, vg.graph)).first;
       if (itr0->loop_segment(0).index == itr1->loop_segment(0).index) {
-	ene += model.bond(bond_type[*ei]).Jz *
+	ene += model.bond(bond_type[*ei]).jz() *
 	  (0.5 - double(itr0->conf())) * (0.5 - double(itr1->conf()));
       }
     }

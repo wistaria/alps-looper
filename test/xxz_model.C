@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: xxz_model.C 454 2003-10-22 00:41:25Z wistaria $
+* $Id: xxz_model.C 469 2003-10-28 01:41:10Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -65,9 +65,9 @@ void output(const G& graph, const looper::xxz_model& m)
   // bond parameters
   std::cout << "number of bond types = " << m.num_bond_types() << std::endl;
   if (m.is_uniform_bond()) {
-    std::cout << "C = " << m.uniform_bond().C
-	      << ", Jxy = " << m.uniform_bond().Jxy
-	      << ", Jz = " << m.uniform_bond().Jz
+    std::cout << "C = " << m.uniform_bond().c()
+	      << ", Jxy = " << m.uniform_bond().jxy()
+	      << ", Jz = " << m.uniform_bond().jz()
 	      << std::endl;
   }
   typename alps::property_map<alps::bond_type_t, graph_type, int>::const_type
@@ -76,9 +76,9 @@ void output(const G& graph, const looper::xxz_model& m)
   for (edge_iterator ei = boost::edges(graph).first; ei != ei_end; ++ei) {
     int t = bond_type[*ei];
     std::cout << "bond " << *ei << ": type = " << t
-	      << ", C = " << m.bond(t).C
-	      << ", Jxy = " << m.bond(t).Jxy
-	      << ", Jz = " << m.bond(t).Jz
+	      << ", C = " << m.bond(t).c()
+	      << ", Jxy = " << m.bond(t).jxy()
+	      << ", Jz = " << m.bond(t).jz()
 	      << std::endl;
   }
 }

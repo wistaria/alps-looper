@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: xxz.h 455 2003-10-22 01:04:57Z wistaria $
+* $Id: xxz.h 469 2003-10-28 01:41:10Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -212,11 +212,25 @@ fit2xxz(const alps::half_integer<I>& s0, const alps::half_integer<I>& s1,
 }
 
 
-struct xxz_parameter
+class xxz_parameter
 {
-  xxz_parameter() : C(), Jxy(), Jz() {}
-  xxz_parameter(double c, double jxy, double jz) : C(c), Jxy(jxy), Jz(jz) {}
-  double C, Jxy, Jz;
+public:
+  xxz_parameter() : c_(), jxy_(), jz_() {}
+  xxz_parameter(double c, double jxy, double jz) : c_(c), jxy_(jxy), jz_(jz) {}
+
+  double c() const { return c_; }
+  double& c() { return c_; }
+  
+  double jxy() const { return jxy_; }
+  double& jxy() { return jxy_; }
+
+  double jz() const { return jz_; }
+  double& jz() { return jz_; }
+
+private:
+  double c_;
+  double jxy_;
+  double jz_;
 };
 
 
@@ -327,9 +341,9 @@ public:
 				    fit.template get<2>(),
 				    fit.template get<3>());
 	} else {
-	  if (bond_[bt].C != fit.template get<1>() ||
-	      bond_[bt].Jxy != fit.template get<2>() ||
-	      bond_[bt].Jz != fit.template get<3>())
+	  if (bond_[bt].c() != fit.template get<1>() ||
+	      bond_[bt].jxy() != fit.template get<2>() ||
+	      bond_[bt].jz() != fit.template get<3>())
 	    boost::throw_exception(std::runtime_error("inconsistent bond parameter(s)"));
 	}
       }
