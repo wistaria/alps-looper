@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: graph.h 489 2003-10-31 02:48:35Z wistaria $
+* $Id: graph.h 491 2003-10-31 11:19:49Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -245,7 +245,8 @@ gauge(typename boost::graph_traits<
         vertex_descriptor vd,
       const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g)
 {
-  return 1 - 2 * (int)boost::get(parity_t(), g, vd);
+  return (boost::get(parity_t(), g, vd) == alps::parity::white) ? 1 : -1;
+  // return 1 - 2 * (int)boost::get(parity_t(), g, vd);
 }
 
 template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>

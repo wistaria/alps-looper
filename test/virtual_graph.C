@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: virtual_graph.C 460 2003-10-22 12:50:20Z wistaria $
+* $Id: virtual_graph.C 491 2003-10-31 11:19:49Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -50,7 +50,7 @@ int main() {
 try {
 #endif
 
-  typedef looper::graph_type graph_type;
+  typedef looper::parity_graph_type graph_type;
   typedef graph_type::vertex_iterator vertex_iterator;
   typedef graph_type::edge_iterator edge_iterator;
 
@@ -59,19 +59,32 @@ try {
   graph_type rg;
   looper::generate_graph(gen, rg);
   boost::put(looper::vertex_type_t(), rg, *(boost::vertices(rg).first), 1);
+  alps::set_parity(rg);
   std::cout << rg;
+  for (vertex_iterator vi = boost::vertices(rg).first;
+       vi != boost::vertices(rg).second; ++vi) {
+    std::cout << looper::gauge(*vi, rg) << ' ';
+  }
+  std::cout << std::endl;
   
   // virtual graph
   looper::virtual_graph<graph_type> vg;
   std::vector<alps::half_integer<int> > spins(2);
   spins[0] = 1; spins[1] = 3./2;
   looper::generate_virtual_graph(rg, spins, vg);
+  alps::set_parity(vg);
 
   std::cout << "number of original real vertices = " << vg.num_real_vertices
 	    << std::endl;
   std::cout << "number of original real edges = " << vg.num_real_edges
 	    << std::endl;
   std::cout << vg.graph;
+  for (vertex_iterator vi = boost::vertices(vg.graph).first;
+       vi != boost::vertices(vg.graph).second; ++vi) {
+    std::cout << looper::gauge(*vi, vg.graph) << ' ';
+    //    std::cout << (boost::get(looper::parity_t(), vg.graph, *vi) == alps::parity::black ? 0 : 1) << ' ';
+  }
+  std::cout << std::endl;
   std::cout << vg.mapping;
 
 #ifndef BOOST_NO_EXCEPTIONS

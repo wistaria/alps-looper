@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: path_integral.h 489 2003-10-31 02:48:35Z wistaria $
+* $Id: path_integral.h 491 2003-10-31 11:19:49Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -218,8 +218,8 @@ struct path_integral<virtual_graph<G>, M, W>
     //
 
     {
-      edge_iterator ei_end = boost::edges(vg.graph).second;
-      for (edge_iterator ei = boost::edges(vg.graph).first;
+      edge_iterator ei, ei_end;
+      for (boost::tie(ei, ei_end) = boost::edges(vg.graph);
 	   ei != ei_end; ++ei) {
 	int bond = boost::get(edge_index_t(), vg.graph, *ei); // bond index
 	

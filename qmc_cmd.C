@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: qmc_cmd.C 490 2003-10-31 09:31:45Z wistaria $
+* $Id: qmc_cmd.C 491 2003-10-31 11:19:49Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -180,7 +180,7 @@ try {
   graph_type g;
   looper::generate_graph(
     looper::hypercubic_graph_generator<>(opts.dim, opts.lsize), g);
-  assert(alps::set_parity(g));
+  alps::set_parity(g);
 
   // virtual graph
   typedef looper::virtual_graph<graph_type> vg_type;
