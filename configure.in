@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-dnl $Id: configure.in 581 2003-11-20 10:11:45Z wistaria $
+dnl $Id: configure.in 591 2003-12-15 09:35:34Z wistaria $
 
 dnl 
 dnl Initialization
@@ -35,18 +35,6 @@ INCLUDE_MK="$ac_cv_alps_include_mk"
 
 AC_MSG_CHECKING([for ALPS version])
 AC_MSG_RESULT([$ac_cv_alps_version])
-
-dnl
-dnl setup C++ compiler
-dnl
-
-CXX="$ac_cv_alps_CXX"
-CPPFLAGS="$ac_cv_alps_CPPFLAGS"
-CXXFLAGS="$ac_cv_alps_CXXFLAGS"
-LDFLAGS="$ac_cv_alps_LDFLAGS"
-AC_PROG_CXX
-AC_PROG_CXXCPP
-AC_LANG_CPLUSPLUS
 
 dnl
 dnl check for LAPACK
