@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: percolation_impl.h 604 2004-01-16 08:35:21Z wistaria $
+// $Id: percolation_impl.h 605 2004-01-16 08:39:29Z wistaria $
 // percolation_impl.h - implementation of worker for percolation simulation
 
 #ifndef PERCOLATION_IMPL_H
@@ -107,8 +107,7 @@ struct percolation
   class worker_base
   {
   public:
-    typedef alps::BasicSimpleObservable<double, alps::NoBinning<double> >
-    measurement_type;
+    typedef alps::SimpleRealObservable measurement_type;
     
     template<class G>
     worker_base(const G& g, double p, bool bp) :

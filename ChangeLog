@@ -2,7 +2,7 @@
 
 	* Fixed worker<QMC_WORKER>::work_done() function.
 
-	* Changed measurement type in qmc_impl.h.
+	* Changed measurement type in qmc_impl.h and percolation_impl.h.
 	
 2003-11-20  Synge Todo  <wistaria@comp-phys.org>
 
