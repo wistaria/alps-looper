@@ -53,6 +53,11 @@ loop_cmd_CPPFLAGS = $(CPPFLAGS_SGL)
 loop_cmd_LDFLAGS = $(LDFLAGS_SGL)
 loop_cmd_LDADD = $(LIBS_SGL)
 
+.PHONY : test tests
+test tests :
+	$(MAKE) -C test check
+
+.PHONY : update-preamble
 update-preamble:
 	if test -f config/update_preamble; then \
 	  find . -type f -name '*\.h' -or -name '*\.C' -or -name '*\.hpp' -or -name '*\.h\.in' | xargs ./config/update_preamble; \

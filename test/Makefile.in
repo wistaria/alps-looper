@@ -664,6 +664,7 @@ uninstall-am: uninstall-info-am
 	tags uninstall uninstall-am uninstall-info-am
 
 
+test tests : check
 clean-local :
 	rm -f amida.xdr
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

@@ -24,5 +24,6 @@ weight_SOURCES = weight.C
 xxz_matrix_SOURCES = xxz_matrix.C
 xxz_model_SOURCES = xxz_model.C
 
+test tests : check
 clean-local :
 	rm -f amida.xdr
