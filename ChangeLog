@@ -1,3 +1,8 @@
+2004-04-14  Synge Todo  <wistaria@comp-phys.org>
+
+	* Added wrapper and test program for linear least squares solver
+	(gels) in LAPACK.
+	
 2004-04-07  Synge Todo  <wistaria@comp-phys.org>
 
         * version 3.0b5 released.

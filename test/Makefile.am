@@ -4,7 +4,7 @@ LDADD = @LAPACK_LIBS@ @LIBS_SGL@
 
 check_PROGRAMS = amida fill_duration generate_01 hypercubic index_helper permutation random_choice union_find virtual_graph weight xxz_matrix xxz_model
 if HAVE_LAPACK
-check_PROGRAMS += syev
+check_PROGRAMS += syev gels
 endif
 
 dist_noinst_DATA = amida.op fill_duration.ip fill_duration.op generate_01.op hypercubic.ip hypercubic.op index_helper.op permutation.op random_choice.op syev.op union_find.op virtual_graph.op weight.ip weight.op xxz_matrix.ip xxz_matrix.op xxz_model.ip xxz_model.op
@@ -24,6 +24,7 @@ virtual_graph_SOURCES = virtual_graph.C
 weight_SOURCES = weight.C
 xxz_matrix_SOURCES = xxz_matrix.C
 xxz_model_SOURCES = xxz_model.C
+gels_SOURCES = gels.C
 syev_SOURCES = syev.C
 
 clean: clean-am clean-extra

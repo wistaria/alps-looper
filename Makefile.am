@@ -51,4 +51,6 @@ qmc_cmd_LDFLAGS = $(LDFLAGS_SGL)
 qmc_cmd_LDADD = $(LIBS_SGL)
 
 update-preamble:
-	find . -type f -name '*\.h' -or -name '*\.C' -or -name '*\.hpp' -or -name '*\.h\.in' | xargs ./update_preamble.pl
+	if test -x update_preamble.pl; then \
+	  find . -type f -name '*\.h' -or -name '*\.C' -or -name '*\.hpp' -or -name '*\.h\.in' | xargs ./update_preamble.pl; \
+	fi
