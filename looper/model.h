@@ -760,12 +760,14 @@ std::ostream& operator<<(std::ostream& os, const looper::bond_matrix<T>& m)
   return os;
 }
 
+inline
 std::ostream& operator<<(std::ostream& os, const looper::site_parameter_hxz& p)
 {
   os << "C = " << p.c() << ", Hx = " << p.hx() << ", Hz = " << p.hz();
   return os;
 }
 
+inline
 std::ostream& operator<<(std::ostream& os, const looper::bond_parameter_xxz& p)
 {
   os << "C = " << p.c() << ", Jxy = " << p.jxy() << ", Jz = " << p.jz();
