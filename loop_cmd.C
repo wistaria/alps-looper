@@ -40,12 +40,12 @@ struct options {
   uint32_t step_t;              // -m MCS for thermalization
   uint32_t step_m;              // -n MCS for measurement
   std::string representation;   // -e use SSE instead of path integral
-                                // -g use exact diagonalization
+  double fs;                    // -c ration of scattering (hidden)
 
   options(int argc, char *argv[]) :
     // default options
     seed(2837), dim(1), lsize(16), spin(0.5), Jxy(-1.), Jz(-1.), temp(1.),
-    step_t(1024), step_m(8192), representation("path integral")
+    step_t(1024), step_m(8192), representation("path integral"), fs(0.)
   {
     parse(argc, argv);
   }
@@ -113,6 +113,10 @@ struct options {
           break;
         case 'e' :
           representation = "SSE";
+          break;
+        case 'c' :
+          if (i + 1 == argc) usage(1);
+          fs = std::atof(argv[++i]);
           break;
         case 'h' :
           usage(0);
@@ -201,7 +205,7 @@ try {
     if (opts.representation == "path integral") {
       // path-integral representation
       qmc_worker<looper::path_integral<looper::virtual_graph<graph_type>,
-        model_type> > worker(g, model, beta, measurements);
+        model_type> > worker(g, model, beta, opts.fs, measurements);
 
       for (int mcs = 0; mcs < opts.step_t + opts.step_m; ++mcs) {
         if (mcs == opts.step_t) measurements.reset(true);
@@ -216,7 +220,7 @@ try {
     } else {
       // SSE representation
       qmc_worker<looper::sse<looper::virtual_graph<graph_type>,
-        model_type> > worker(g, model, beta, measurements);
+        model_type> > worker(g, model, beta, opts.fs, measurements);
 
       for (int mcs = 0; mcs < opts.step_t + opts.step_m; ++mcs) {
         if (mcs == opts.step_t) measurements.reset(true);

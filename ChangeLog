@@ -1,3 +1,7 @@
+2004-09-13  Synge Todo <wistaria@comp-phys.org>
+
+	* Fixed energy offset for SSE with "ergodic" loop solutions.
+
 2004-08-25  Synge Todo <wistaria@comp-phys.org>
 
 	* Fixed xxz.h for systems with different spin sizes.

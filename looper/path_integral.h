@@ -131,25 +131,32 @@ struct path_integral<virtual_graph<G>, M, W, N>
   {
     typedef path_integral<virtual_graph<G>, M, W, N> qmc_type;
 
-    typedef virtual_graph<G> vg_type;
-    typedef typename vg_type::graph_type graph_type;
+    typedef virtual_graph<G>               vg_type;
+    typedef typename vg_type::graph_type   graph_type;
     typedef typename vg_type::mapping_type mapping_type;
-    typedef M model_type;
-    typedef W weight_type;
-
+    typedef M                              model_type;
+    typedef W                              weight_type;
 
     template<class RG>
-    parameter_type(const RG& rg, const model_type& m, double b)
-      : virtual_graph(), model(m), beta(b), is_bipartite(false)
+    parameter_type(const RG& rg, const model_type& m, double b, double fs)
+      : virtual_graph(), model(m), beta(b), is_bipartite(false), weight()
     {
       generate_virtual_graph(virtual_graph, rg, model);
       is_bipartite = alps::set_parity(virtual_graph.graph);
+      
+      edge_iterator ei, ei_end;
+      for (boost::tie(ei, ei_end) = boost::edges(virtual_graph.graph);
+           ei != ei_end; ++ei) {
+        weight.push_back(weight_type(
+          model.bond(bond_type(*ei, virtual_graph.graph)), fs));
+      }
     }
 
-    vg_type           virtual_graph;
-    const model_type& model;
-    double            beta;
-    bool              is_bipartite;
+    vg_type                  virtual_graph;
+    const model_type&        model;
+    double                   beta;
+    bool                     is_bipartite;
+    std::vector<weight_type> weight;
   };
 
   struct config_type
@@ -257,6 +264,7 @@ struct path_integral<virtual_graph<G>, M, W, N>
   template<class RNG>
   static void generate_loops(config_type& config, const vg_type& vg,
                              const model_type& model, double beta,
+                             const std::vector<weight_type>& weight,
                              RNG& uniform_01)
   {
     typedef typename config_type::iterator  iterator;
@@ -280,10 +288,8 @@ struct path_integral<virtual_graph<G>, M, W, N>
         ++itr0;
         ++itr1;
 
-        // setup bond weight
-        weight_type weight(model.bond(bond_type(*ei, vg.graph)));
         std::vector<double> trials;
-        fill_duration(uniform_01, trials, beta * weight.density());
+        fill_duration(uniform_01, trials, beta * weight[bond].density());
 
         // iteration up to t = 1
         std::vector<double>::const_iterator ti_end = trials.end();
@@ -291,7 +297,7 @@ struct path_integral<virtual_graph<G>, M, W, N>
              ti != ti_end; ++ti) {
           while (itr0->time() < *ti) {
             if (itr0->bond() == bond) // labeling existing link
-              itr0->set_old(uniform_01() < weight.p_reflect());
+              itr0->set_old(uniform_01() < weight[bond].p_reflect());
             if (itr0->is_old()) c0 ^= 1;
             ++itr0;
           }
@@ -299,19 +305,19 @@ struct path_integral<virtual_graph<G>, M, W, N>
             if (itr1->is_old()) c1 ^= 1;
             ++itr1;
           }
-          if (uniform_01() < weight.p_accept(c0, c1)) {
+          if (uniform_01() < weight[bond].p_accept(c0, c1)) {
             // insert new link
             iterator itr_new =
               config.wl.insert_link_prev(node_type(), itr0, itr1).first;
             itr_new->set_time(*ti);
             itr_new->set_bond(bond);
             itr_new->set_new((c0 ^ c1), 
-                             (uniform_01() < weight.p_freeze(c0 ^ c1)));
+                             (uniform_01() < weight[bond].p_freeze(c0 ^ c1)));
           }
         }
         while (!itr0.at_top()) {
           if (itr0->bond() == bond)        // labeling existing link
-            itr0->set_old(uniform_01() < weight.p_reflect());
+            itr0->set_old(uniform_01() < weight[bond].p_reflect());
           ++itr0;
         }
       }
@@ -431,7 +437,10 @@ struct path_integral<virtual_graph<G>, M, W, N>
   static void generate_loops(config_type& config,
                              const parameter_type& p,
                              RNG& uniform_01)
-  { generate_loops(config, p.virtual_graph, p.model, p.beta, uniform_01); }
+  {
+    generate_loops(config, p.virtual_graph, p.model, p.beta, p.weight,
+                   uniform_01);
+  }
 
   template<class RNG>
   static void flip_and_cleanup(config_type& config,

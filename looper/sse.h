@@ -69,25 +69,15 @@ struct sse<virtual_graph<G>, M, W, N>
     typedef W weight_type;
 
     template<class RG>
-    parameter_type(const RG& rg, const model_type& m, double b)
+    parameter_type(const RG& rg, const model_type& m, double b, double fs)
       : virtual_graph(), model(m), beta(b), is_bipartite(false),
         chooser(), ez_offset(0.)
     {
       looper::generate_virtual_graph(virtual_graph, rg, model);
       is_bipartite = alps::set_parity(virtual_graph.graph);
-      chooser.init(virtual_graph, model);
-      update_offset();
-    }
-
-    void update_offset()
-    {
-      typename boost::graph_traits<graph_type>::edge_iterator ei, ei_end;
-      ez_offset = 0.;
-      for (boost::tie(ei, ei_end) = boost::edges(virtual_graph.graph);
-           ei != ei_end; ++ei)
-        ez_offset +=
-          weight_type(model.bond(bond_type(*ei, virtual_graph.graph))).
-            offset();
+      chooser.init(virtual_graph, model, fs);
+      for (int i = 0; i < boost::num_edges(virtual_graph.graph); ++i)
+        ez_offset += chooser.weight(i).offset();
     }
 
     vg_type                   virtual_graph;

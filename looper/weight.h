@@ -125,7 +125,7 @@ public:
       pf_para_ = (w11+w13>0) ? w11/(w11+w13) : 0;
       pf_anti_ = (w22+w23>0) ? w22/(w22+w23) : 0;
       p_reflect_ = (w13+w23>0) ? w23/(w13+w23) : 0;
-      offset_ = -std::max(std::abs(Jz)/4., Jxy/4);
+      offset_ = Jz/4. - (w11+w13);
       sign_ = (p.jxy() >= 0 ? 1 : -1);
     }
   }
@@ -172,35 +172,41 @@ P check(const W& w)
   double jxy = 2 * (w13 + w23) * w.sign();
   double jz = 4 * (w12 + w11 + w13);
 
+  // for sse
+  assert(nearly_equal(w.offset() + w11 + w13, jz/4));
+  assert(nearly_equal(w.offset() + w22 + w23, -jz/4));
+  assert(nearly_equal(w.sign() * (w13 + w23), jxy/2));
+
   return P(0, jxy, jz);
 }
 
 } // end namespace weight
 
 
-template<class W>
+template<class WEIGHT>
 class uniform_bond_chooser
 {
 public:
-  typedef W weight_type;
+  typedef WEIGHT weight_type;
 
   uniform_bond_chooser() : n_(), weight_(), gw_() {}
-  template<class G, class M>
-  uniform_bond_chooser(const G& vg, const M& m) : n_(), weight_(), gw_()
-  { init(vg, m); }
-  template<class P>
-  uniform_bond_chooser(const P& p) : n_(), weight_(), gw_() { init(p); }
+  template<class GRAPH, class MODEL>
+  uniform_bond_chooser(const GRAPH& vg, const MODEL& m, double fs = 0)
+    : n_(), weight_(), gw_()
+  { init(vg, m, fs); }
+  // template<class P>
+  // uniform_bond_chooser(const P& p) : n_(), weight_(), gw_() { init(p); }
 
-  template<class G, class M>
-  void init(const G& vg, const M& m)
+  template<class GRAPH, class MODEL>
+  void init(const GRAPH& vg, const MODEL& m, double fs = 0)
   {
     assert(m.num_bond_types() == 1);
     n_ = double(boost::num_edges(vg.graph));
-    weight_ = weight_type(m.uniform_bond());
+    weight_ = weight_type(m.uniform_bond(), fs);
     gw_ = n_ * weight_.weight();
   }
-  template<class P>
-  void init(const P& p) { init(p.virtual_graph, p.model); }
+  // template<class P>
+  // void init(const P& p) { init(p.virtual_graph, p.model); }
 
   template<class RNG>
   int choose(RNG& rng) const { return n_ * rng(); }
@@ -217,31 +223,33 @@ private:
   double gw_;
 };
 
-template<class W>
+template<class WEIGHT>
 class bond_chooser
 {
 public:
-  typedef W weight_type;
+  typedef WEIGHT weight_type;
 
   bond_chooser() : weight_(), rc_(), gw_(0) {}
-  template<class G, class M>
-  bond_chooser(const G& vg, const M& m) : weight_(), rc_(), gw_(0)
-  { init (vg, m); }
-  template<class P>
-  bond_chooser(const P& p) : weight_(), rc_(), gw_(0) { init(p); }
+  template<class GRAPH, class MODEL>
+  bond_chooser(const GRAPH& vg, const MODEL& m, double fs = 0)
+    : weight_(), rc_(), gw_(0)
+  { init (vg, m, fs); }
+  // template<class P>
+  // bond_chooser(const P& p) : weight_(), rc_(), gw_(0) { init(p); }
 
-  template<class G, class M>
-  void init(const G& vg, const M& m)
+  template<class GRAPH, class MODEL>
+  void init(const GRAPH& vg, const MODEL& m, double fs = 0)
   {
     weight_.clear();
     gw_ = 0.0;
     if (boost::num_edges(vg.graph) > 0) {
-      typename boost::graph_traits<typename G::graph_type>::edge_iterator
+      typename boost::graph_traits<typename GRAPH::graph_type>::edge_iterator
         ei, ei_end;
       for (boost::tie(ei, ei_end) = boost::edges(vg.graph);
            ei != ei_end; ++ei)
         weight_.push_back(
-          weight_type(m.bond(boost::get(alps::edge_type_t(), vg.graph, *ei))));
+          weight_type(m.bond(boost::get(alps::edge_type_t(), vg.graph, *ei)),
+                      fs));
 
       std::vector<double> w(0);
       typename std::vector<weight_type>::iterator itr_end = weight_.end();
@@ -253,8 +261,8 @@ public:
       rc_.init(w);
     }
   }
-  template<class P>
-  void init(const P& p) { init(p.virtual_graph, p.model); }
+  // template<class P>
+  // void init(const P& p) { init(p.virtual_graph, p.model); }
 
   template<class RNG>
   int choose(RNG& rng) const { return rc_(rng); }
