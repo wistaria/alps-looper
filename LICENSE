@@ -1,6 +1,13 @@
-ALPS APPLICATION LICENSE version 1.0
 
-The Software covered by this License uses portions or the whole of the 
+ALPS APPLICATION LICENSE version 1.0
+Copyright (C) 2003-2004 Ian McCulloch.  Everyone is permitted to copy and
+distribute this license document.
+
+This License applies to any software containing a notice placed by the copyright
+holder saying that it may be distributed under the terms of the ALPS Application
+License version 1.0.  Such software is herein referred to as the "Software".
+
+The Software covered by this License may use portions or the whole of the 
 ALPS Library.  The ALPS Library is an independent work covered by its own 
 license.  This License is designed so that by complying with this License you 
 are automatically in compliance with the ALPS Library License for the Library 
@@ -8,12 +15,10 @@ components of this Software.  However that the ALPS Library License may provide
 for additional rights with respect to the Library portions of this Software, 
 which do not apply to this Software as a whole.
 
-Permission is hereby granted, free of charge, to any person or organization 
-obtaining a copy of the software covered by this license 
-(the "Software") to use, reproduce, display, distribute, execute and transmit 
-the Software, and to prepare derivative works of the Software, and to permit 
-others to do so for non-commercial academic use, all subject to the following
-conditions:
+This license grants permission to use, reproduce, display, distribute, execute 
+and transmit the Software, and to prepare derivative works of the Software, and to 
+permit others to do so for non-commercial academic use, all subject to the 
+following conditions:
 
 1. In any scientific publication based wholly or in part on the Software, the 
 use of the Software must be acknowledged and the publications listed in the 
@@ -21,8 +26,8 @@ accompanying CITATIONS.TXT document must be cited.
 
 2. You may copy and distribute verbatim copies of the Software in the form that
 you received it, as long as all copyright notices and references to this 
-license and warranty disclaimer are kept intact, and all recipients also
-receive a copy of this license and warranty disclaimer.
+license and warranty disclaimer are kept intact, and all recipients also receive
+a copy of this license and warranty disclaimer.
 
 3. You may modify your copy or copies of the Software, thus forming a work 
 based on the Software, and use, copy or distribute such modified works under 
@@ -68,8 +73,10 @@ object code or executable form, provided that you meet all of these conditions:
 	code at no cost (for example, a hyper-text link).
 
 5. If you wish to incorporate parts of the Software into other programs whose 
-distribution conditions are incompatible with these, write to the author to ask
-for permission.
+distribution conditions are incompatible with these, please write to the author 
+and ask for permission to use under a different license.  In particular,
+components that are useful beyond a single application may benefit from the
+ALPS Library License.
 
 THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 

@@ -263,7 +263,7 @@ struct path_integral<virtual_graph<G>, M, W, N>
 
   template<class RNG>
   static void generate_loops(config_type& config, const vg_type& vg,
-                             const model_type& model, double beta,
+                             double beta,
                              const std::vector<weight_type>& weight,
                              RNG& uniform_01)
   {
@@ -438,8 +438,7 @@ struct path_integral<virtual_graph<G>, M, W, N>
                              const parameter_type& p,
                              RNG& uniform_01)
   {
-    generate_loops(config, p.virtual_graph, p.model, p.beta, p.weight,
-                   uniform_01);
+    generate_loops(config, p.virtual_graph, p.beta, p.weight, uniform_01);
   }
 
   template<class RNG>

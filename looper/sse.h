@@ -212,7 +212,7 @@ struct sse<virtual_graph<G>, M, W, N>
 
   template<class RNG>
   static void generate_loops(config_type& config, const vg_type& vg,
-                             const model_type& /* model */, double beta,
+                             double beta,
                              const bond_chooser<weight_type>& bc,
                              RNG& uniform_01)
   {
@@ -415,8 +415,7 @@ struct sse<virtual_graph<G>, M, W, N>
   static void generate_loops(config_type& config, parameter_type& p,
                              RNG& uniform_01)
   {
-    generate_loops(config, p.virtual_graph, p.model, p.beta, p.chooser,
-                   uniform_01);
+    generate_loops(config, p.virtual_graph, p.beta, p.chooser, uniform_01);
   }
 
   template<class RNG>
