@@ -39,6 +39,9 @@ top_builddir = ./@top_builddir@
 
 include @INCLUDE_MK@
 
+version = @PACKAGE_VERSION@
+distdir = @PACKAGE_NAME@-@PACKAGE_VERSION@
+
 cppflags = $(CPPFLAGS) -I$(top_srcdir)
 cppflags_mpi = $(CPPFLAGS_MPI) -I$(top_srcdir)
 cxxflags = $(CXXFLAGS)
@@ -49,6 +52,9 @@ libs_program_mpi = -lalps -lcomm-mpi $(HDF5_LIBS) $(XML_LIBS) $(MPI_LIBS) $(BASE
 
 LOCAL_CONFIG = lattices.xml models.xml percolation-params qmc-params
 EXAMPLE = percolation percolation_cmd qmc qmc_cmd
+
+SCRIPTS = configure
+ERASE =
 
 default all : $(EXAMPLE)
 
@@ -76,6 +82,30 @@ distclean-test :
 bootstrap :
 	autoconf --force
 	rm -rf autom4te*.cache
+
+release dist check snapshot : Makefile
+	@root=`cat $(top_srcdir)/CVS/Root`; \
+	repository=`cat $(top_srcdir)/CVS/Repository`; \
+	tag=`echo release_$(version) | sed 's/\./_/g'`; \
+	if test "$@" = "check"; then tag='HEAD'; fi; \
+	if test "$@" = "snapshot"; then tag='HEAD'; fi; \
+	version=$(version); \
+	if test "$@" = "snapshot"; then version=`date +%Y%m%d`; fi; \
+	distdir=@PACKAGE_NAME@-$$version; \
+	echo version = $$version; \
+	echo tag = $$tag; \
+	echo root = $$root; \
+	echo repository = $$repository; \
+	echo cvs -d $$root -Q export -r $$tag $$repository; \
+	cvs -d $$root -Q export -r $$tag $$repository; \
+	(cd $$repository && rm -rf $(ERASE)); \
+	find $$repository -name .cvsignore | xargs rm -f; \
+	find $$repository -type f | xargs chmod 644; \
+	find $$repository -type d | xargs chmod 755; \
+	(cd $$repository && chmod 755 $(SCRIPTS)); \
+	mv -f $$repository $$distdir; \
+	tar chof - $$distdir | gzip -c > $$distdir.tar.gz; \
+	rm -rf $$distdir
 
 # dependency for inputs
 

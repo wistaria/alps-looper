@@ -1,0 +1,123 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <title>ALPS/looper</title>
+   <style type="text/css">
+     body {
+       color: #333;
+       margin-left: 2em;
+       margin-right: 2em;
+       margin-top: 2em;
+       margin-bottom: 2em;
+     }
+   </style>
+</head>
+<body>
+
+<h1>ALPS/looper</h1>
+
+The <tt>ALPS/looper</tt> package is one of the applications of the <a
+href="http://alps.comp-phys.org">ALPS project</a>.  It provides
+multi-cluster quantum Monte Carlo algorithms for generic spin systems
+in the path-integral or SSE representations.
+
+<p>
+
+The applications supports the ferromagnetic and non-frustrated
+antiferromagnetic XXZ models on arbitrary lattices.  Since it supports
+so-called <i>freezing graphs</i>, models with easy-axis (Ising-like)
+anisotropy can also be simulated very efficiently.
+
+<h2>Compiling programs</h2>
+
+<h3>Download</h3>
+
+<h3>Prerequisites</h3>
+
+<ul>
+<li>Boost library (snapshot 20031102 or later)
+<li>ALPS library (snapshot 20031105 or later)
+</ul>
+
+<h3>Compilation</h3>
+
+<blockquote>
+<pre>
+./configure
+make
+</pre>
+</blockquote>
+
+In case that the ALPS library is installed under a directory other
+than the default one (<tt>$HOME/ALPS</tt>), please specify its
+location to the configure script by <tt>--prefix</tt> option.
+
+<h2>Running a simulation</h2>
+
+<H3>Input parameters</H3>
+In addition to the general input parameters of the <A HREF="http://alps.comp-phys.org/ALPS/doc/scheduler/running.html">ALPS scheduler library</A> the <tt>spinmc</tt> application takes the following input parameters:</P>
+
+<table border="2">
+<thead>
+<tr><td><B>Name</B></td><td><B>Default</B></td><td><B>Description</B></td></tr>
+</THEAD>
+<TBODY>
+<tr><td>LATTICE_LIBRARY</td><td><tt>lattices.xml</tt></td><td>path to a file containing lattice descriptions</td></tr>
+<tr><td>LATTICE</td><td></td><td>name of the lattice</td></tr>
+<tr><td>MODEL_LIBRARY</td><td><tt>models.xml</tt></td><td>path to a file containing model descriptions</td></tr>
+<tr><td>MODEL</td><td></td><td>name of the model</td></tr>
+<tr><td>representation</td><td><tt>path integral</tt></td><td>the type of representatioin, either &quot;<tt>path integral</tt>&quot; or &quot;<tt>SSE</tt>&quot;</td></tr>
+<tr><td>temperature</td><td></td><td>the temperature</td></tr>
+<tr><td>MCS</td><td></td><td>the total Monte Carlo steps (including steps for thermalization)</td></tr>
+<tr><td>thermalization</td><td></td><td>the Monte Carlo steps for thermalization</td></tr>
+</TBODY>
+</TABLE>
+
+<p>
+
+In addition, the lattice (model) description can require further
+parameters (e.g. <TT>L</tt> or <TT>W</tt>) as specified in the lattice
+(model) description file.
+
+<H3>Measurements</H3>
+<P>The following observables are measured by the <tt>spinmc</tt> application:</P>
+<TABLE border="2">
+
+<THEAD>
+<tr><td><B>Name</B></td><td><B>Description</B></td></tr>
+</THEAD>
+<TBODY>
+<tr><td>Energy</td><td>the total energy of the system</td></tr>
+<tr><td>Magnetization</td><td>the <i>z</i>-component of the magnetization</td></tr>
+<tr><td>|Magnetization|</td><td>absolute value of the <i>z</i>-component of the magnetization</td></tr>
+<tr><td>Magnetization^2</td><td>square of the <i>z</i>-component of the magnetization</td></tr>
+<tr><td>Staggered Magnetization</td><td>the <i>z</i>-component of the staggered magnetization (only on bipartite lattices)</td></tr>
+<tr><td>Staggered Magnetization^2</td><td>square of the <i>z</i>-component of the staggered magnetization (only on bipartite lattices)</td></tr>
+<tr><td>Susceptibility</td><td>the uniform susceptibility</td></tr>
+<tr><td>Cluster size</td><td>the mean cluster size as a fraction of the lattice volume (only for cluster updates)</td></tr>
+</TBODY>
+</TABLE>
+
+<H2>License</H2> The license allows the use of the applications for
+non-commercial scientific use provided that the use of the ALPS
+applications and libraries is acknowledged and referenced in any
+scientific publication, as discussed in this <a
+href="http://alps.comp-phys.org/license.html">license file</a>.
+
+<h2>Questions and request for support</h2>
+can be addressed to <a href="mailto:wistaria@comp-phys.org">Synge Todo</a>.
+
+<h2>Contributions and feature requests</H2>
+
+We appreciate hearing your requests for additional features and also
+welcome any contributions to the ALPS project.
+
+<hr>
+
+<address>
+Copyright (c) 1997-2003 by <a
+href="mailto:wistaria@comp-phys.org">Synge Todo</a></address>
+
+</body>
+</html>
