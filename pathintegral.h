@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: pathintegral.h 444 2003-10-18 03:42:48Z wistaria $
+* $Id: pathintegral.h 445 2003-10-18 04:14:07Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -158,10 +158,10 @@ template<class G, class M, class W = default_weight> struct path_integral;
 template<class G, class M, class W>
 struct path_integral<virtual_graph<G>, M, W>
 {
-  typedef virtual_graph<G>             vg_type;
-  typedef virtual_graph<G>::graph_type graph_type;
-  typedef M                            model_type;
-  typedef W                            weight_type;
+  typedef virtual_graph<G>                      vg_type;
+  typedef typename virtual_graph<G>::graph_type graph_type;
+  typedef M                                     model_type;
+  typedef W                                     weight_type;
 
   typedef typename boost::graph_traits<graph_type>::edge_iterator
     edge_iterator;
@@ -277,8 +277,8 @@ struct path_integral<virtual_graph<G>, M, W>
 	++itr0;
       }
     }
-    std::cout << "labeling done.\n";
-    std::cout << "num_links " << config.wl.num_links() << std::endl;
+    //// std::cout << "labeling done.\n";
+    //// std::cout << "num_links " << config.wl.num_links() << std::endl;
     
     //
     // cluster identification using union-find algorithm
@@ -331,15 +331,16 @@ struct path_integral<virtual_graph<G>, M, W>
     vi_end = boost::vertices(vg.graph).second;
     for (vertex_iterator vi = boost::vertices(vg.graph).first;
 	 vi != vi_end; ++vi) {
-      iterator itr = config.wl.series(*vi).first;
-      if (itr->loop_segment(0).root()->index == loop_segment::undefined) {
-	itr->loop_segment(0).root()->index = config.num_loops0;
-	itr->loop_segment(0).index = config.num_loops0;
-	++(config.num_loops0);
-      } else {
-	itr->loop_segment(0).index = itr->loop_segment(0).root()->index;
-      }
+      iterator itrB, itrT;
+      boost::tie(itrB, itrT) = config.wl.series(*vi);
+      if (itrB->loop_segment(0).root()->index == loop_segment::undefined)
+	itrB->loop_segment(0).root()->index = (config.num_loops0)++;
+      itrB->loop_segment(0).index = itrB->loop_segment(0).root()->index;
+      if (itrT->loop_segment(0).root()->index == loop_segment::undefined)
+	itrT->loop_segment(0).root()->index = (config.num_loops0)++;
+      itrT->loop_segment(0).index = itrT->loop_segment(0).root()->index;
     }
+
     config.num_loops = config.num_loops0;
     vi_end = boost::vertices(vg.graph).second;
     for (vertex_iterator vi = boost::vertices(vg.graph).first;
@@ -368,7 +369,7 @@ struct path_integral<virtual_graph<G>, M, W>
 	++itr;
       }
     }
-    std::cout << "identification done.\n";
+    //// std::cout << "identification done.\n";
   }
 
   template<bool HasCTime, class RNG>
@@ -392,10 +393,9 @@ struct path_integral<virtual_graph<G>, M, W>
       itrB->clear();
       if (flip[itrT->loop_segment(0).index] == 1) itrT->flip_conf();
       itrT->clear();
-      
-      std::cout << itrT->conf() << ' ';
+      //// std::cout << itrT->conf() << ' ';
     }
-    std::cout << std::endl;
+    //// std::cout << std::endl;
     
     // upating links
     vi_end = boost::vertices(vg.graph).second;
@@ -411,7 +411,7 @@ struct path_integral<virtual_graph<G>, M, W>
 	      (flip[itr->loop_segment(0).index] ^
 	       flip[itr->loop_segment(1).index] == 0)) {
 	    ++itr;
-	    std::cout << "erase!\n";
+	    //// std::cout << "erase!\n";
 	    config.wl.erase(boost::prior(itr));
 	  } else {
 	    itr->clear();

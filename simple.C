@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: simple_pi.C 444 2003-10-18 03:42:48Z wistaria $
+* $Id: simple.C 445 2003-10-18 04:14:07Z wistaria $
 *
 * Copyright (C) 2001-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -36,7 +36,7 @@
 
 #include "model.h"
 #include "pathintegral.h"
-// #include "sse.h"
+#include "sse.h"
 
 #include <alps/alea.h>
 #include <boost/random.hpp>
@@ -52,11 +52,12 @@ struct Options {
   double temp;                  // -t temperature
   uint32_t step_t;              // -m MCS for thermalization
   uint32_t step_m;              // -n MCS for measurement
+  bool sse;                     // -e use SSE
   
   Options(int argc, char *argv[]) : 
     // default options
     seed(2837), dim(1), lsize(16), spin(0.5), Jxy(-1.), Jz(-1.), temp(1.),
-    step_t(1024), step_m(8192)
+    step_t(1024), step_m(8192), sse(false)
   {
     parse(argc, argv);
   }
@@ -72,6 +73,7 @@ struct Options {
        << "  -t double  temperature\n"
        << "  -m int     MCS for thermalization\n"
        << "  -n int     MCS for measurement\n"
+       << "  -e         use SSE representation instead of path-integral one\n"
        << "  -h         this help\n\n";
     if (status) {
       boost::throw_exception(std::invalid_argument("Invalid command line option(s)"));
@@ -121,6 +123,9 @@ struct Options {
 	  if (i + 1 == argc) usage(1);
           step_m = std::atoi(argv[++i]);
           break;
+        case 'e' :
+          sse = true;
+          break;
 	case 'h' :
 	  usage(0);
 	  break;
@@ -159,6 +164,8 @@ try {
 	    << "t: temperature            : " << opts.temp << std::endl
 	    << "m: MCS for thermalization : " << opts.step_t << std::endl
 	    << "n: MCS for measurement    : " << opts.step_m << std::endl
+	    << "e: representation         : "
+	    << (opts.sse ? "SSE" : "path integral") << std::endl
 	    << std::endl;
 
   // random number generator
@@ -187,29 +194,30 @@ try {
   // measurements
   alps::ObservableSet measurements;
 
-  if (true) {
+  if (!opts.sse) {
     // path-integral representation
     typedef looper::path_integral<vg_type, model_type> qmc;
+
+    // energy offset
+    double e_offset = qmc::energy_offset(vg, model);
 
     // world line configration
     qmc::config_type<> config;
     qmc::initialize(config, vg);
     
-    // energy offset
-    double e_offset = qmc::energy_offset(vg, model);
-    std::cout << e_offset << std::endl;
-    
     for (int mcs = 0; mcs < opts.step_t + opts.step_m; ++mcs) {
       if (mcs == opts.step_t) measurements.reset(true);
       
       qmc::generate_loops(config, vg, model, beta, rng);
-      std::cout << config.num_loops0 << ' ' << config.num_loops << std::endl;
+      //// std::cout << config.num_loops0 << ' ' << config.num_loops << std::endl;
       qmc::flip_and_cleanup(config, vg, rng);
-      // std::cout << config;
     }
   } else {
     // SSE representation
+    typedef looper::sse<vg_type, model_type> qmc;
 
+    // energy offset
+    double e_offset = qmc::energy_offset(vg, model);
   }
 
   // output results

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: sse.h 441 2003-10-17 10:28:53Z wistaria $
+* $Id: sse.h 445 2003-10-18 04:14:07Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -47,34 +47,39 @@
 
 namespace looper {
 
-namespace SSE {
+class sse_node;
+
+template<class G, class M, class W = default_weight> struct sse;
 
 template<class G, class M, class W>
-double energy_offset(const virtual_graph<G>& vg, const M& model,
-		     const W& /* weight*/)
+struct sse<virtual_graph<G>, M, W>
 {
+  typedef virtual_graph<G>                      vg_type;
   typedef typename virtual_graph<G>::graph_type graph_type;
+  typedef M                                     model_type;
+  typedef W                                     weight_type;
+
   typedef typename boost::graph_traits<graph_type>::edge_iterator
     edge_iterator;
-  typedef W weight_type;
-  
-  double offset = 0;
-  typename alps::property_map<alps::bond_type_t, graph_type, int>::const_type
-    bond_type(alps::get_or_default(alps::bond_type_t(), vg.graph, 0));
-  edge_iterator ei_end = boost::edges(vg.graph).second;
-  for (edge_iterator ei = boost::edges(vg.graph).first; ei != ei_end; ++ei)
-    offset += model.bond(bond_type[*ei]).C +
-      weight(model.bond(bond_type[*ei])).offset;
-  return offset;
-}
+  typedef typename boost::graph_traits<graph_type>::edge_descriptor
+    edge_descriptor;
+  typedef typename boost::graph_traits<graph_type>::vertex_iterator
+    vertex_iterator;
+  typedef typename boost::graph_traits<graph_type>::vertex_descriptor
+    vertex_descriptor;
 
-template<class G, class M>
-double energy_offset(const virtual_graph<G>& vg, const M& model)
-{
-  return energy_offset(vg, model, default_weight());
-}
-  
-} // end namespace SSE
+  static double energy_offset(const vg_type& vg, const model_type& model)
+  {
+    double offset = 0;
+    typename alps::property_map<alps::bond_type_t, graph_type, int>::const_type
+      bond_type(alps::get_or_default(alps::bond_type_t(), vg.graph, 0));
+    edge_iterator ei_end = boost::edges(vg.graph).second;
+    for (edge_iterator ei = boost::edges(vg.graph).first; ei != ei_end; ++ei)
+      offset += model.bond(bond_type[*ei]).C +
+	weight_type(model.bond(bond_type[*ei])).offset;
+    return offset;
+  }
+}; // struct sse
 
 } // end namespace looper
 
