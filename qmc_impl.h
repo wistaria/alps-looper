@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 * 
-* Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
 * 
 * This software is published under the ALPS Application License; you can use,
 * redistribute and/or modify this software under the terms of the license,
@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: qmc_impl.h 602 2004-01-16 07:23:15Z wistaria $
+// $Id: qmc_impl.h 604 2004-01-16 08:35:21Z wistaria $
 // qmc_impl.h - implementation of worker for QMC simulation
 
 #ifndef QMC_IMPL_H
@@ -51,8 +51,7 @@ public:
   typedef QMC                      qmc;
   typedef typename qmc::graph_type graph_type;
   typedef typename qmc::model_type model_type;
-  typedef alps::BasicSimpleObservable<double, alps::SimpleBinning<double> >
-    measurement_type;
+  typedef alps::RealObservable     measurement_type;
   typedef alps::RealObsevaluator   evaluator_type;
 
   template<class G, class MDL>

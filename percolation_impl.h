@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 * 
-* Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
 * 
 * This software is published under the ALPS Application License; you can use,
 * redistribute and/or modify this software under the terms of the license,
@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: percolation_impl.h 554 2003-11-12 02:36:24Z wistaria $
+// $Id: percolation_impl.h 604 2004-01-16 08:35:21Z wistaria $
 // percolation_impl.h - implementation of worker for percolation simulation
 
 #ifndef PERCOLATION_IMPL_H

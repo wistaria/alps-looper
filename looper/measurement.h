@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 * 
-* Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
 * 
 * This software is published under the ALPS Application License; you can use,
 * redistribute and/or modify this software under the terms of the license,
@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: measurement.h 580 2003-11-20 08:37:16Z wistaria $
+// $Id: measurement.h 604 2004-01-16 08:35:21Z wistaria $
 
 #ifndef LOOPER_MEASUREMENT_H
 #define LOOPER_MEASUREMENT_H
