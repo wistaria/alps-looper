@@ -105,7 +105,7 @@ public:
     if (!nearly_zero(Jxy + std::abs(Jz))) {
       if (Jxy + Jz > 2 * a * Jxy) {
         // standard solutions
-        w12 = std::min(-std::abs(Jz)/4, -Jxy/4);
+        w12 = std::min(-std::abs(Jz)/4., -Jxy/4);
         w11 = std::max((Jz - Jxy)/2, 0.);
         w13 = std::max(std::min(Jxy/2, (Jz + Jxy)/4), 0.);
         w22 = std::max(-(Jz + Jxy)/2, 0.);
@@ -125,7 +125,7 @@ public:
       pf_para_ = (w11+w13>0) ? w11/(w11+w13) : 0;
       pf_anti_ = (w22+w23>0) ? w22/(w22+w23) : 0;
       p_reflect_ = (w13+w23>0) ? w23/(w13+w23) : 0;
-      offset_ = -std::max(std::abs(Jz)/4, Jxy/4);
+      offset_ = -std::max(std::abs(Jz)/4., Jxy/4);
       sign_ = (p.jxy() >= 0 ? 1 : -1);
     }
   }
