@@ -31,8 +31,8 @@
 #include <iostream>
 
 struct Options {
-  uint32_t n;        // -n dimension of matrix
-  uint32_t seed;     // -r seed
+  int n;        // -n dimension of matrix
+  int seed;     // -r seed
 
   Options(int argc, char *argv[]) :
     // default options
@@ -94,7 +94,8 @@ int main(int argc, char ** argv)
 
   // random number generator
   boost::variate_generator<boost::mt19937, boost::uniform_real<> >
-    rng(boost::mt19937(opts.seed), boost::uniform_real<>(-.5, .5));
+    rng(boost::mt19937(boost::mt19937::result_type(opts.seed)),
+        boost::uniform_real<>(-.5, .5));
   for (int i = 0; i < 1000; ++i) rng();
 
   const int n = opts.n;

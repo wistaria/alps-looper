@@ -195,7 +195,8 @@ try {
 
   // random number generator
   boost::variate_generator<boost::mt19937, boost::uniform_real<> >
-    rng(boost::mt19937(opts.seed), boost::uniform_real<>());
+    rng(boost::mt19937(boost::mt19937::result_type(opts.seed)),
+        boost::uniform_real<>());
   for (int i = 0; i < 19844; ++i) rng();
 
   // hypercubic lattice (real lattice)
