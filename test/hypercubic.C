@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: hypercubic_graph_generator.C 554 2003-11-12 02:36:24Z wistaria $
+// $Id: hypercubic.C 560 2003-11-12 14:25:05Z wistaria $
 
 #include <looper/graph.h>
 #include <iostream>

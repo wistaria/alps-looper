@@ -22,7 +22,7 @@
 #
 ##############################################################################
 
-# $Id: Makefile.in 557 2003-11-12 12:33:19Z wistaria $
+# $Id: Makefile.in 560 2003-11-12 14:25:05Z wistaria $
 # Makefile for test programs
 
 srcdir = @srcdir@
@@ -45,7 +45,7 @@ libs_program = -lalps -lcomm-sgl $(LAPACK_LIBS) $(HDF5_LIBS) $(XML_LIBS) $(BASE_
 libs_program_mpi = -lalps -lcomm-mpi $(LAPACK_LIBS) $(HDF5_LIBS) $(XML_LIBS) $(MPI_LIBS) $(BASE_LIBS)
 
 LOCAL_CONFIG = lattices.xml models.xml amida.xdr
-TESTOK = amida.ok fill_duration.ok hypercubic_graph_generator.ok index_helper.ok permutation.ok random_choice.ok syev.ok union_find.ok virtual_graph.ok weight.ok xxz_matrix.ok xxz_model.ok
+TESTOK = amida.ok fill_duration.ok hypercubic.ok index_helper.ok permutation.ok random_choice.ok syev.ok union_find.ok virtual_graph.ok weight.ok xxz_matrix.ok xxz_model.ok
 
 default: tests
 
@@ -54,13 +54,18 @@ include $(srcdir)/Makefile.dep
 
 # dependency for tests
 
-amida.ok : $(srcdir)/amida.output
-fill_duration.ok : $(srcdir)/fill_duration.input $(srcdir)/fill_duration.output
-hypercubic_graph_generator.ok : $(srcdir)/hypercubic_graph_generator.input $(srcdir)/hypercubic_graph_generator.output
-index_helper.ok : $(srcdir)/index_helper.output
-permutation.ok :  $(srcdir)/permutation.output
-xxz_model.ok : $(srcdir)/xxz_model.input $(srcdir)/xxz_model.output models.xml lattices.xml
-xxz_matrix.ok : $(srcdir)/xxz_matrix.input $(srcdir)/xxz_matrix.output
+amida.ok : $(srcdir)/amida.op
+fill_duration.ok : $(srcdir)/fill_duration.ip $(srcdir)/fill_duration.op
+hypercubic.ok : $(srcdir)/hypercubic.ip $(srcdir)/hypercubic.op
+index_helper.ok : $(srcdir)/index_helper.op
+permutation.ok :  $(srcdir)/permutation.op
+random_choice.ok :  $(srcdir)/random_choice.op
+syev.ok :  $(srcdir)/syev.op
+union_find.ok :  $(srcdir)/union_find.op
+virtual_graph.ok :  $(srcdir)/virtual_graph.op
+weight.ok : $(srcdir)/weight.ip $(srcdir)/weight.op
+xxz_model.ok : $(srcdir)/xxz_model.ip $(srcdir)/xxz_model.op models.xml lattices.xml
+xxz_matrix.ok : $(srcdir)/xxz_matrix.ip $(srcdir)/xxz_matrix.op
 
 # dependency for inputs
 

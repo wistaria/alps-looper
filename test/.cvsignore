@@ -1,7 +1,7 @@
 Makefile
 amida
 fill_duration
-hypercubic_graph_generator
+hypercubic
 index_helper
 permutation
 random_choice
