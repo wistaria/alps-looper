@@ -26,6 +26,7 @@
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>
+#include <cmath>
 #include <boost/random.hpp>
 
 #include <cmath>

@@ -26,6 +26,7 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>
+#include <cmath>
 #include <boost/random.hpp>
 #include <cstdlib>
 #include <iostream>

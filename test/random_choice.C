@@ -28,7 +28,7 @@
 /* #define USE_INIT_WALKER1977 */
 
 #include <looper/random_choice.h>
-
+#include <cmath>
 #include <boost/random.hpp>
 #include <vector>
 

@@ -25,6 +25,7 @@
 
 #include <looper/find_bridges.h>
 #include <boost/graph/connected_components.hpp>
+#include <cmath>
 #include <boost/random.hpp>
 
 struct bridge_visitor

@@ -26,6 +26,7 @@
 #include <looper/find_bridges.h>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/connected_components.hpp>
+#include <cmath>
 #include <boost/random.hpp>
 
 int main(int , char**)

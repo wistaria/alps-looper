@@ -370,25 +370,25 @@ public:
   { set_parameters(Jxy, Jz, spin, graph, is_signed); }
   template<typename G, typename I>
   model_parameter(const alps::Parameters params, const G& graph,
-		  const alps::ModelLibrary::OperatorDescriptorMap& ops,
-		  const alps::HamiltonianDescriptor<I>& hd)
+                  const alps::ModelLibrary::OperatorDescriptorMap& ops,
+                  const alps::HamiltonianDescriptor<I>& hd)
     : sites_(), bonds_(), signed_()
   { set_parameters(params, graph, ops, hd); }
   template<typename G, typename I>
   model_parameter(const alps::Parameters params, const G& graph,
-		  const alps::ModelLibrary::OperatorDescriptorMap& ops,
-		  const alps::HamiltonianDescriptor<I>& hd,
-		  bool is_signed)
+                  const alps::ModelLibrary::OperatorDescriptorMap& ops,
+                  const alps::HamiltonianDescriptor<I>& hd,
+                  bool is_signed)
     : sites_(), bonds_(), signed_()
   { set_parameters(params, graph, ops, hd, is_signed); }
   template<typename G>
   model_parameter(const alps::Parameters params, const G& graph,
- 		  const alps::ModelLibrary& models)
+                   const alps::ModelLibrary& models)
     : sites_(), bonds_(), signed_()
   { set_parameters(params, graph, models); }
   template<typename G>
   model_parameter(const alps::Parameters params, const G& graph,
- 		  const alps::ModelLibrary& models, bool is_signed)
+                   const alps::ModelLibrary& models, bool is_signed)
     : sites_(), bonds_(), signed_()
   { set_parameters(params, graph, models, is_signed); }
 
@@ -396,14 +396,14 @@ public:
 
   template<typename I, typename G>
   void set_parameters(double Jxy, double Jz, const alps::half_integer<I>& spin,
-		      const G& graph)
+                      const G& graph)
   {
     set_parameters_impl(Jxy, Jz, spin, graph);
     signed_ = check_sign(graph);
   }
   template<typename I, typename G>
   void set_parameters(double Jxy, double Jz, const alps::half_integer<I>& spin,
-		      const G& graph, bool is_signed)
+                      const G& graph, bool is_signed)
   {
     set_parameters_impl(Jxy, Jz, spin, graph);
     signed_ = is_signed;
@@ -420,14 +420,14 @@ public:
   void set_parameters(alps::Parameters params, const G& graph,
                       const alps::ModelLibrary::OperatorDescriptorMap& ops,
                       const alps::HamiltonianDescriptor<I>& hd,
-		      bool is_signed)
+                      bool is_signed)
   {
     set_parameters_impl(params, graph, ops, hd);
     signed_ = is_signed;
   }
   template<typename G>
   void set_parameters(const alps::Parameters params, const G& graph,
-		      const alps::ModelLibrary& models)
+                      const alps::ModelLibrary& models)
   {
     // get Hamilton operator from ModelLibrary
     alps::HamiltonianDescriptor<short>
@@ -439,9 +439,9 @@ public:
   }
   template<typename G>
   void set_parameters(const alps::Parameters params,
-		      const G& graph,
-		      const alps::ModelLibrary& models,
-		      bool is_signed)
+                      const G& graph,
+                      const alps::ModelLibrary& models,
+                      bool is_signed)
   {
     // get Hamilton operator from ModelLibrary
     alps::HamiltonianDescriptor<short>
@@ -481,8 +481,8 @@ public:
 protected:
   template<typename I, typename G>
   void set_parameters_impl(double Jxy, double Jz,
-			   const alps::half_integer<I>& spin,
-			   const G& graph)
+                           const alps::half_integer<I>& spin,
+                           const G& graph)
   {
     typedef G graph_type;
     typedef typename boost::graph_traits<graph_type>::vertex_iterator

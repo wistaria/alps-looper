@@ -23,6 +23,7 @@
 *****************************************************************************/
 
 #include <looper/union_find.h>
+#include <cmath>
 #include <boost/random.hpp>
 #include <iostream>
 #include <valarray>

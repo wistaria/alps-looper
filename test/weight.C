@@ -33,28 +33,28 @@ void output(const alps::Parameters& param, const W& weight, const BOND_P&)
   typedef BOND_P bond_parameter_type;
 
   assert(weight.p_freeze_para() == weight.p_freeze(0,0) &&
-	 weight.p_freeze_para() == weight.p_freeze(1,1));
+         weight.p_freeze_para() == weight.p_freeze(1,1));
   assert(weight.p_freeze_anti() == weight.p_freeze(0,1) &&
-	 weight.p_freeze_anti() == weight.p_freeze(1,0));
+         weight.p_freeze_anti() == weight.p_freeze(1,0));
   assert(weight.p_accept_para() == weight.p_accept(0,0) &&
-	 weight.p_accept_para() == weight.p_accept(1,1));
+         weight.p_accept_para() == weight.p_accept(1,1));
   assert(weight.p_accept_anti() == weight.p_accept(0,1) &&
-	 weight.p_accept_anti() == weight.p_accept(1,0));
+         weight.p_accept_anti() == weight.p_accept(1,0));
   assert(weight.sign() == 1 || weight.sign() == -1);
 
   std::cout << "Jxy = " << param["Jxy"]
-	    << ", Jz = " << param["Jz"]
-	    << " : r = " << weight.density();
+            << ", Jz = " << param["Jz"]
+            << " : r = " << weight.density();
   if (weight.density() > 0) {
     std::cout << ", parallel: accept = " << weight.p_accept_para();
     if (weight.p_accept_para() > 0)
       std::cout << ", freeze = " << weight.p_freeze_para();
     std::cout << ", antiparallel: accept = "
-	      << weight.p_accept_anti();
+              << weight.p_accept_anti();
     if (weight.p_accept_anti() > 0)
       std::cout << ", freeze = " << weight.p_freeze_anti();
     std::cout << ", P_r = " << weight.p_reflect()
-	      << ", sign = " << weight.sign();
+              << ", sign = " << weight.sign();
   }
   std::cout << std::endl;
 
