@@ -329,7 +329,9 @@ struct path_integral<virtual_graph<G>, M, W, N>
         iterator itrU = boost::next(itrD);
 
         // iteration up to t = 1
-        for (;; itrD = itrU++) {
+        for (;; itrD = itrU, ++itrU) {
+          // Intel C++ (icc) 8.0 does not understand (;; itrD = itrU++)
+          // correctly when -O1 or higher is specified.  -- ST 2004.04.01
           union_find::unify(segment_d(itrU), segment_u(itrD));
           if (itrU.at_top()) break; // finish
           if (itrU.leg() == 0 && itrU->is_frozen()) // frozen link
