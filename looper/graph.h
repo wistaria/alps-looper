@@ -40,6 +40,7 @@ typedef alps::coordinate_t        coordinate_t;
 typedef alps::parity_t            parity_t;
 typedef boost::edge_index_t       edge_index_t;
 typedef alps::edge_type_t         edge_type_t;
+typedef alps::edge_vector_t       edge_vector_t;
 typedef alps::boundary_crossing_t boundary_crossing_t;
 
 // NOTE: We use adjacency_list with EdgeListS=vecS, which will be less
@@ -47,32 +48,30 @@ typedef alps::boundary_crossing_t boundary_crossing_t;
 // However, the former allows us random access to edges, which is
 // required for QMC in SSE representation.
 
-typedef boost::adjacency_list<boost::vecS,
-                              boost::vecS,
-                              boost::undirectedS,
-                              boost::property<coordinate_t,
-                                              alps::coordinate_type,
-                                boost::property<vertex_type_t, int > >,
-                              boost::property<edge_type_t, int,
-                                boost::property<edge_index_t, int,
-                                  boost::property<boundary_crossing_t, alps::boundary_crossing> > >,
-                              boost::property<dimension_t, std::size_t,
-                                boost::property<graph_name_t, std::string > >,
-                              boost::vecS> graph_type;
+typedef boost::adjacency_list<
+  boost::vecS, boost::vecS, boost::undirectedS,
+  boost::property<coordinate_t, alps::coordinate_type,
+    boost::property<vertex_type_t, int > >,
+  boost::property<edge_type_t, int,
+    boost::property<edge_index_t, int,
+      boost::property<boundary_crossing_t, alps::boundary_crossing,
+        boost::property<edge_vector_t, alps::coordinate_type> > > >,
+  boost::property<dimension_t, std::size_t,
+    boost::property<graph_name_t, std::string > >,
+  boost::vecS> graph_type;
 
-typedef boost::adjacency_list<boost::vecS,
-                              boost::vecS,
-                              boost::undirectedS,
-                              boost::property<coordinate_t,
-                                              alps::coordinate_type,
-                                boost::property<parity_t, int,
-                                boost::property<vertex_type_t, int> > >,
-                              boost::property<edge_type_t, int,
-                                boost::property<edge_index_t, int,
-                                  boost::property<boundary_crossing_t, alps::boundary_crossing> > >,
-                              boost::property<dimension_t, std::size_t,
-                                boost::property<graph_name_t, std::string > >,
-                              boost::vecS> parity_graph_type;
+typedef boost::adjacency_list<
+  boost::vecS, boost::vecS, boost::undirectedS,
+  boost::property<coordinate_t, alps::coordinate_type,
+    boost::property<parity_t, int,
+      boost::property<vertex_type_t, int> > >,
+  boost::property<edge_type_t, int,
+    boost::property<edge_index_t, int,
+      boost::property<boundary_crossing_t, alps::boundary_crossing,
+        boost::property<edge_vector_t, alps::coordinate_type> > > >,
+  boost::property<dimension_t, std::size_t,
+    boost::property<graph_name_t, std::string > >,
+  boost::vecS> parity_graph_type;
 
 template <class G>
 struct graph_traits
@@ -118,14 +117,27 @@ void generate_graph(G& g, const hypercubic_graph_generator<D, S, E>& desc)
   typedef alps::hypercubic_lattice<
     alps::coordinate_lattice<alps::simple_lattice<alps::GraphUnitCell> > >
     lattice_type;
+  typedef alps::lattice_traits<lattice_type>::unit_cell_type unit_cell_type;
 
   // unit cell
-  alps::lattice_traits<lattice_type>::unit_cell_type uc(dim);
-  uc.add_vertex(0, alps::lattice_traits<lattice_type>::unit_cell_type::
-                coordinate_type(dim, 0.0));
+  unit_cell_type uc(dim);
+  uc.add_vertex(0, unit_cell_type::coordinate_type(dim, 0.0));
   alps::lattice_traits<lattice_type>::offset_type so(dim, 0), to(dim, 0);
   for (std::size_t d = 0; d < dim; ++d) {
     to[d] = 1; uc.add_edge(d, 1, so, 1, to); to[d] = 0;
+  }
+
+  // edge_vectors
+  if (alps::has_property<edge_vector_t,unit_cell_type::graph_type>
+        ::edge_property) {
+    std::vector<double> b(dim, 0.0);
+    int d = 0;
+    boost::graph_traits<unit_cell_type::graph_type>::edge_iterator ei, ei_end;
+    for (boost::tie(ei, ei_end) = boost::edges(uc.graph());
+         ei != ei_end; ++ei, ++d) {
+      b[d] = 1.; alps::get_or_default(edge_vector_t(),uc.graph(),
+                   alps::coordinate_type())[*ei] = b; b[d] = 0.;
+    }
   }
 
   // basis vectors

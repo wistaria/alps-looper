@@ -183,6 +183,7 @@ inline void generate_virtual_graph(virtual_graph<G>& vg, const RG& rg,
         boost::put(edge_index_t(), vg.graph, ved,
                    boost::num_edges(vg.graph) - 1);
         alps::copy_property(edge_type_t(), rg, *rei, vg.graph, ved);
+        alps::copy_property(edge_vector_t(), rg, *rei, vg.graph, ved);
       }
     }
   }
