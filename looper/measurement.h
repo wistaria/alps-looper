@@ -26,7 +26,7 @@
 #define LOOPER_MEASUREMENT_H
 
 #include <looper/util.h>
-
+#
 namespace looper {
 
 //

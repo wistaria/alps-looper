@@ -44,7 +44,7 @@ int main()
     bool success = looper::fit2bond(xxz.matrix(), p);
 
     assert(success);
-    assert(p == looper::bond_parameter_xxz(c, jxy, jz));
     std::cout << "fitting result: " << p << std::endl;
+    assert(p == looper::bond_parameter_xxz(c, jxy, jz));
   }
 }

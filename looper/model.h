@@ -89,7 +89,7 @@ public:
 
   bool operator==(const site_parameter_hxz& rhs) const
   {
-    return nearly_equal(s(), rhs.s()) && nearly_equal(c(), rhs.c()) &&
+    return (s() == rhs.s()) && nearly_equal(c(), rhs.c()) &&
       nearly_equal(hx(), rhs.hx()) && nearly_equal(hz(), rhs.hz());
   }
 
@@ -146,7 +146,7 @@ public:
 
   bool operator==(const site_parameter_noh& rhs) const
   {
-    return nearly_equal(s(), rhs.s()) && nearly_equal(c(), rhs.c());
+    return (s() == rhs.s()) && nearly_equal(c(), rhs.c());
   }
 
   bool operator!=(const site_parameter_noh& rhs) const
@@ -233,6 +233,8 @@ public:
   void build(const alps::half_integer<I>& s, value_type c, value_type hx,
              value_type hz)
   {
+    using std::sqrt; using alps::to_double;
+
     typedef I                                integer_type;
     typedef alps::half_integer<integer_type> half_integer_type;
 
@@ -245,17 +247,17 @@ public:
 
     // diagonal elements: c - hz sz
     for (half_integer_type sz = -s; sz <= s; ++sz)
-      matrix_[sz.distance(-s)][sz.distance(-s)] = c - hz * value_type(sz);
+      matrix_[sz.distance(-s)][sz.distance(-s)] = c - hz * to_double(sz);
 
     // off-diagonal elements: hx s+ / 2
     for (half_integer_type sz = -s; sz <= s-1; ++sz)
       matrix_[sz.distance(-s)+1][sz.distance(-s)] =
-        - 0.5 * hx * std::sqrt(value_type(s-sz) * value_type(s+sz+1));
+        - 0.5 * hx * sqrt(to_double(s-sz) * to_double(s+sz+1));
 
     // off-diagonal elements: hx s- / 2
     for (half_integer_type sz = -s+1; sz <= s; ++sz)
       matrix_[sz.distance(-s)-1][sz.distance(-s)] = 
-        - 0.5 * hx * std::sqrt(value_type(s+sz) * value_type(s-sz+1));
+        - 0.5 * hx * sqrt(to_double(s+sz) * to_double(s-sz+1));
   }
 
 private:
@@ -293,6 +295,8 @@ public:
   void build(const alps::half_integer<I>& s0, const alps::half_integer<I>& s1,
              value_type c, value_type jxy, value_type jz)
   {
+    using std::sqrt; using alps::to_double;
+
     typedef I                                integer_type;
     typedef alps::half_integer<integer_type> half_integer_type;
 
@@ -311,7 +315,7 @@ public:
       for (half_integer_type sz1 = -s1; sz1 <= s1; ++sz1) {
         matrix_[sz0.distance(-s0)][sz1.distance(-s1)]
           [sz0.distance(-s0)][sz1.distance(-s1)] =
-          c - jz * value_type(sz0) * value_type(sz1);
+          c - jz * to_double(sz0) * to_double(sz1);
       }
     }
 
@@ -321,8 +325,8 @@ public:
         matrix_[sz0.distance(-s0)+1][sz1.distance(-s1)-1]
           [sz0.distance(-s0)][sz1.distance(-s1)] =
           - 0.5 * jxy *
-          std::sqrt(value_type(s0-sz0) * value_type(s0+sz0+1)) *
-          std::sqrt(value_type(s1+sz1) * value_type(s1-sz1+1));
+          sqrt(to_double(s0-sz0) * to_double(s0+sz0+1)) *
+          sqrt(to_double(s1+sz1) * to_double(s1-sz1+1));
       }
     }
 
@@ -332,8 +336,8 @@ public:
         matrix_[sz0.distance(-s0)-1][sz1.distance(-s1)+1]
           [sz0.distance(-s0)][sz1.distance(-s1)] =
           - 0.5 * jxy *
-          std::sqrt(value_type(s0+sz0) * value_type(s0-sz0+1)) *
-          std::sqrt(value_type(s1-sz1) * value_type(s1+sz1+1));
+          sqrt(to_double(s0+sz0) * to_double(s0-sz0+1)) *
+          sqrt(to_double(s1-sz1) * to_double(s1+sz1+1));
       }
     }
   }
@@ -577,7 +581,7 @@ protected:
     typename boost::graph_traits<GRAPH>::edge_iterator ei, ei_end;
     for (boost::tie(ei, ei_end) = boost::edges(graph); ei != ei_end; ++ei)
       w[boost::get(boost::edge_index, graph, *ei)] =
-	bond(boost::get(alps::edge_type_t(), graph, *ei)).jxy();
+        bond(boost::get(alps::edge_type_t(), graph, *ei)).jxy();
     return alps::is_frustrated(graph,
       boost::make_iterator_property_map(w.begin(),
         boost::get(boost::edge_index, graph)));
@@ -640,11 +644,11 @@ bool fit2site(const boost::multi_array<T, 2>& mat, site_parameter_hxz& param, T 
   // call linear least sqaure problem solver
   bool success = (solve_llsp(a, b, x) < tol);
 
-  value_type c = numeric_cast<value_type>(x(0));
+  value_type c = alps::expression::numeric_cast<value_type>(x(0));
   if (std::abs(c) < tol) c = 0;
-  value_type hx = numeric_cast<value_type>(x(1));
+  value_type hx = alps::expression::numeric_cast<value_type>(x(1));
   if (std::abs(hx) < tol) hx = 0;
-  value_type hz = numeric_cast<value_type>(x(2));
+  value_type hz = alps::expression::numeric_cast<value_type>(x(2));
   if (std::abs(hz) < tol) hz = 0;
 
   if (success) param = site_parameter_hxz(s, c, hx, hz);
@@ -724,11 +728,11 @@ bool fit2bond(const boost::multi_array<T, 4>& mat, bond_parameter_xxz& param, T 
   // call linear least sqaure problem solver
   bool success = (solve_llsp(a, b, x) < tol);
 
-  value_type c = numeric_cast<value_type>(x(0));
+  value_type c = alps::expression::numeric_cast<value_type>(x(0));
   if (std::abs(c) < tol) c = 0;
-  value_type jxy = numeric_cast<value_type>(x(1));
+  value_type jxy = alps::expression::numeric_cast<value_type>(x(1));
   if (std::abs(jxy) < tol) jxy = 0;
-  value_type jz = numeric_cast<value_type>(x(2));
+  value_type jz = alps::expression::numeric_cast<value_type>(x(2));
   if (std::abs(jz) < tol) jz = 0;
 
   if (success) param = bond_parameter_xxz(c, jxy, jz);

@@ -34,7 +34,7 @@ typedef std::map<std::string, alps::OperatorDescriptor<short> >
   operator_map_type;
 
 template<class I>
-site_basis_descriptor spin_basis(const alps::half_integer<I>& s = 0.5)
+site_basis_descriptor spin_basis(const alps::half_integer<I>& s)
 {
   alps::Parameters p;
   p["S"] = s;
@@ -44,7 +44,7 @@ site_basis_descriptor spin_basis(const alps::half_integer<I>& s = 0.5)
   return sb;
 }
 
-inline site_basis_descriptor spin_basis(double s)
+inline site_basis_descriptor spin_basis(double s = 0.5)
 { return spin_basis(alps::half_integer<short>(s)); }
 
 inline operator_map_type spin_operators(const std::set<std::string>& suffixes = std::set<std::string>())

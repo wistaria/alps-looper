@@ -77,9 +77,27 @@ inline int alternating_tensor(int i, int j, int k)
   return 0;
 }
 
-inline int alternating_tensor(const boost::tuple<int, int, int>& x)
+inline
+int alternating_tensor(const boost::tuple<int, int, int>& x)
 {
   return alternating_tensor(x.get<0>(), x.get<1>(), x.get<2>());
+}
+
+
+//
+// function sqr
+//
+
+template<typename T>
+T sqr(T t, typename boost::enable_if<boost::is_arithmetic<T> >::type* = 0)
+{
+  return t * t;
+}
+
+template<typename T>
+T sqr(const T& t, typename boost::disable_if<boost::is_arithmetic<T> >::type* = 0)
+{
+  return t * t;
 }
 
 
@@ -113,10 +131,22 @@ void flatten_matrix(const boost::multi_array<T, 4>& m_in,
 // function nearly_equal
 //
 
-inline bool nearly_equal(double x, double y, double tol = 1.0e-10)
+inline bool nearly_equal(double x, double y, double tol = 1.0e-12)
 {
-  return std::abs(x - y) < tol;
+  return (std::abs(x-y) < tol * std::abs(x)) ||
+    (std::abs(x) < tol && std::abs(y) < tol);
 }
+
+
+//
+// function nearly_zero
+//
+
+inline bool nearly_zero(double x, double tol = 1.0e-12)
+{
+  return std::abs(x) < tol;
+}
+
 
 //
 // function numeric_cast
@@ -143,18 +173,6 @@ struct numeric_cast_helper<U, std::complex<T> > {
 
 } // end namespace detail
 
-template<typename U, typename T>
-U numeric_cast(T x, typename boost::enable_if<boost::is_arithmetic<T> >::type* = 0)
-{
-  return detail::numeric_cast_helper<U,T>::value(x);
-}
-
-template<typename U, typename T>
-U numeric_cast(const T& x, typename boost::disable_if<boost::is_arithmetic<T> >::type* = 0)
-{
-  return detail::numeric_cast_helper<U,T>::value(x);
-}
-
 
 //
 // function range_01
@@ -176,22 +194,6 @@ T range_01(const T& x, typename boost::disable_if<boost::is_arithmetic<T> >::typ
   return min(max(x, value_type(0)), value_type(1));
 }
 
-
-//
-// function sqr
-//
-
-template<typename T>
-T sqr(T t, typename boost::enable_if<boost::is_arithmetic<T> >::type* = 0)
-{
-  return t * t;
-}
-
-template<typename T>
-T sqr(const T& t, typename boost::disable_if<boost::is_arithmetic<T> >::type* = 0)
-{
-  return t * t;
-}
 
 } // end namespace looper
 

@@ -36,6 +36,34 @@
 #include <alps/alea.h>
 #include <alps/scheduler.h>
 
+inline double mean(const alps::Observable& o)
+{
+  if (dynamic_cast<const alps::AbstractSimpleObservable<double>*>(&o)) {
+    return dynamic_cast<const alps::AbstractSimpleObservable<double>*>(&o)
+      ->mean();
+  } else if (dynamic_cast<const alps::AbstractSimpleObservable<float>*>(&o)) {
+    return dynamic_cast<const alps::AbstractSimpleObservable<float>*>(&o)
+      ->mean();
+  } else {
+    boost::throw_exception(std::runtime_error("dynamic cast failed"));
+  }
+  return 0.; // dummy
+}
+
+inline double error(const alps::Observable& o)
+{
+  if (dynamic_cast<const alps::AbstractSimpleObservable<double>*>(&o)) {
+    return dynamic_cast<const alps::AbstractSimpleObservable<double>*>(&o)
+      ->error();
+  } else if (dynamic_cast<const alps::AbstractSimpleObservable<float>*>(&o)) {
+    return dynamic_cast<const alps::AbstractSimpleObservable<float>*>(&o)
+      ->error();
+  } else {
+    boost::throw_exception(std::runtime_error("dynamic cast failed"));
+  }
+  return 0.; // dummy
+}
+
 template<class QMC>
 class qmc_worker
 {
@@ -51,28 +79,57 @@ public:
              alps::ObservableSet& m) :
     param_(rg, model, beta), config_()
   {
+    using alps::RealObservable;
+    using alps::make_observable;
+
     e_offset_ = looper::energy_offset(param_);
 
     qmc::initialize(config_, param_);
 
+    //
     // measurements
-    if (model.is_signed()) {
-      m << alps::RealObservable("Sign");
-      m << alps::RealObservable("Sign (improved)");
+    //
+
+    if (is_signed()) {
+      m << RealObservable("Sign")
+        << RealObservable("Sign (improved)");
     }
-    m << alps::RealObservable("Energy");
-    m << alps::RealObservable("Energy Density");
-    m << alps::RealObservable("Energy Density^2");
-    m << alps::RealObservable("beta * Energy / sqrt(N)");
-    m << alps::RealObservable("beta * Energy^2");
-    m << alps::RealObservable("Magnetization^2");
-    m << alps::RealObservable("Susceptibility");
-    m << alps::RealObservable("Staggered Magnetization^2");
-    m << alps::RealObservable("Staggered Susceptibility");
-    m << alps::RealObservable("Uniform Generalized Magnetization^2");
-    m << alps::RealObservable("Uniform Generalized Susceptibility");
-    m << alps::RealObservable("Staggered Generalized Magnetization^2");
-    m << alps::RealObservable("Staggered Generalized Susceptibility");
+
+    // unimproved measurements
+    m << make_observable(
+           RealObservable("Energy"), is_signed())
+      << make_observable(
+           RealObservable("Energy Density"), is_signed())
+      << make_observable(
+           RealObservable("Energy Density^2"), is_signed())
+      << make_observable(
+           RealObservable("beta * Energy / sqrt(N)"), is_signed())
+      << make_observable(
+           RealObservable("beta * Energy^2"), is_signed())
+      << make_observable(
+           RealObservable("Susceptibility"), is_signed())
+      << make_observable(
+           RealObservable("Staggered Susceptibility"), is_signed());
+
+    // improved measurements
+    m << make_observable(
+           RealObservable("Magnetization^2"),
+           "Sign (improved)", double(), is_signed())
+      << make_observable(
+           RealObservable("Staggered Magnetization^2"),
+           "Sign (improved)", double(), is_signed())
+      << make_observable(
+           RealObservable("Uniform Generalized Magnetization^2"),
+           "Sign (improved)", double(), is_signed())
+      << make_observable(
+           RealObservable("Uniform Generalized Susceptibility"),
+           "Sign (improved)", double(), is_signed())
+      << make_observable(
+           RealObservable("Staggered Generalized Magnetization^2"),
+           "Sign (improved)", double(), is_signed())
+      << make_observable(
+           RealObservable("Staggered Generalized Susceptibility"),
+           "Sign (improved)", double(), is_signed());
   }
 
   template<class RNG>
@@ -88,23 +145,30 @@ public:
     // measure improved quantities below
     //
 
-    m.template get<alps::RealObservable>("Magnetization^2") <<
-      looper::uniform_sz2_imp(config_, param_);
+    double sign_imp = 1.;
+    if (is_signed()) {
+      // calculate improved sign
 
-    m.template get<alps::RealObservable>("Staggered Magnetization^2") <<
-      looper::staggered_sz2_imp(config_, param_);
+      m["Sign (improved)"] << sign_imp;
+    }
+
+    m["Magnetization^2"] <<
+      sign_imp * looper::uniform_sz2_imp(config_, param_);
+
+    m["Staggered Magnetization^2"] <<
+      sign_imp * looper::staggered_sz2_imp(config_, param_);
 
     double gm2, gs;
     boost::tie(gm2, gs) =
       looper::uniform_generalized_susceptibility_imp(config_, param_);
-    m.template get<alps::RealObservable>("Uniform Generalized Magnetization^2") << gm2;
-    m.template get<alps::RealObservable>("Uniform Generalized Susceptibility") << gs;
+    m["Uniform Generalized Magnetization^2"] << sign_imp * gm2;
+    m["Uniform Generalized Susceptibility"] << sign_imp * gs;
 
     double sgm2, sgs;
     boost::tie(sgm2, sgs) =
       looper::staggered_generalized_susceptibility_imp(config_, param_);
-    m.template get<alps::RealObservable>("Staggered Generalized Magnetization^2") << sgm2;
-    m.template get<alps::RealObservable>("Staggered Generalized Susceptibility") << sgs;
+    m["Staggered Generalized Magnetization^2"] << sign_imp * sgm2;
+    m["Staggered Generalized Susceptibility"] << sign_imp * sgs;
 
     //
     // flip clusters
@@ -116,57 +180,72 @@ public:
     // measure unimproved quantities below
     //
 
+    double sign = 1.;
+    if (is_signed()) {
+      // calculate unimproved sign
+
+      m["Sign"] << sign;
+    }
+
     double ez, exy, e2;
     boost::tie(ez, exy, e2) = looper::energy(config_, param_);
     ez += e_offset_;
-    m.template get<alps::RealObservable>("Energy") <<
-      param_.virtual_graph.num_real_vertices * (ez + exy);
-    m.template get<alps::RealObservable>("Energy Density") << ez + exy;
-    m.template get<alps::RealObservable>("Energy Density^2") << e2;
+    m["Energy"] << sign * param_.virtual_graph.num_real_vertices * (ez + exy);
+    m["Energy Density"] << sign * (ez + exy);
+    m["Energy Density^2"] << sign * e2;
 
-    m.template get<alps::RealObservable>("beta * Energy / sqrt(N)") <<
-      std::sqrt((double)param_.virtual_graph.num_real_vertices) *
+    m["beta * Energy / sqrt(N)"] <<
+      sign * std::sqrt((double)param_.virtual_graph.num_real_vertices) *
       param_.beta * (ez + exy);
-    m.template get<alps::RealObservable>("beta * Energy^2") <<
-      (double)param_.virtual_graph.num_real_vertices *
+    m["beta * Energy^2"] <<
+      sign * (double)param_.virtual_graph.num_real_vertices *
       looper::sqr(param_.beta) * e2;
 
     double m2 = param_.virtual_graph.num_real_vertices *
       looper::sqr(looper::uniform_sz(config_, param_));
-    m.template get<alps::RealObservable>("Susceptibility") << param_.beta * m2;
+    m["Susceptibility"] << sign * param_.beta * m2;
 
-    m.template get<alps::RealObservable>("Staggered Susceptibility") <<
-      looper::staggered_susceptibility(config_, param_);
+    m["Staggered Susceptibility"] <<
+      sign * looper::staggered_susceptibility(config_, param_);
   }
 
-  static void output_results(std::ostream& os, alps::ObservableSet& m)
+  void output_results(std::ostream& os, alps::ObservableSet& m)
   {
-    os << m.template get<alps::RealObservable>("Energy").mean() << ' '
-       << m.template get<alps::RealObservable>("Energy").error() << ' '
-       << m.template get<alps::RealObservable>("Energy Density").mean() << ' '
-       << m.template get<alps::RealObservable>("Energy Density").error() << ' '
-       << m.template get<alps::RealObsevaluator>("Specific Heat").mean() << ' '
-       << m.template get<alps::RealObsevaluator>("Specific Heat").error() << ' '
-       << m.template get<alps::RealObservable>("Magnetization^2").mean() << ' '
-       << m.template get<alps::RealObservable>("Magnetization^2").error() << ' '
-       << m.template get<alps::RealObservable>("Susceptibility").mean() << ' '
-       << m.template get<alps::RealObservable>("Susceptibility").error() << ' '
-       << m.template get<alps::RealObservable>("Staggered Magnetization^2").mean() << ' '
-       << m.template get<alps::RealObservable>("Staggered Magnetization^2").error() << ' '
-       << m.template get<alps::RealObservable>("Staggered Susceptibility").mean() << ' '
-       << m.template get<alps::RealObservable>("Staggered Susceptibility").error() << ' '
-       << m.template get<alps::RealObservable>("Uniform Generalized Magnetization^2").mean() << ' '
-       << m.template get<alps::RealObservable>("Uniform Generalized Magnetization^2").error() << ' '
-       << m.template get<alps::RealObservable>("Uniform Generalized Susceptibility").mean() << ' '
-       << m.template get<alps::RealObservable>("Uniform Generalized Susceptibility").error() << ' '
-       << m.template get<alps::RealObservable>("Staggered Generalized Magnetization^2").mean() << ' '
-       << m.template get<alps::RealObservable>("Staggered Generalized Magnetization^2").error() << ' '
-       << m.template get<alps::RealObservable>("Staggered Generalized Susceptibility").mean() << ' '
-       << m.template get<alps::RealObservable>("Staggered Generalized Susceptibility").error() << ' ';
+    if (is_signed()) {
+      os << mean(m["Sign"]) << ' '
+         << error(m["Sign"]) << ' '
+         << mean(m["Sign (improved)"]) << ' '
+         << error(m["Sign (improved)"]) << ' ';
+    }
+    os << mean(m["Energy"]) << ' '
+       << error(m["Energy"]) << ' '
+       << mean(m["Energy Density"]) << ' '
+       << error(m["Energy Density"]) << ' '
+       << mean(m["Specific Heat"]) << ' '
+       << error(m["Specific Heat"]) << ' '
+       << mean(m["Magnetization^2"]) << ' '
+       << error(m["Magnetization^2"]) << ' '
+       << mean(m["Susceptibility"]) << ' '
+       << error(m["Susceptibility"]) << ' '
+       << mean(m["Staggered Magnetization^2"]) << ' '
+       << error(m["Staggered Magnetization^2"]) << ' '
+       << mean(m["Staggered Susceptibility"]) << ' '
+       << error(m["Staggered Susceptibility"]) << ' '
+       << mean(m["Uniform Generalized Magnetization^2"]) << ' '
+       << error(m["Uniform Generalized Magnetization^2"]) << ' '
+       << mean(m["Uniform Generalized Susceptibility"]) << ' '
+       << error(m["Uniform Generalized Susceptibility"]) << ' '
+       << mean(m["Staggered Generalized Magnetization^2"]) << ' '
+       << error(m["Staggered Generalized Magnetization^2"]) << ' '
+       << mean(m["Staggered Generalized Susceptibility"]) << ' '
+       << error(m["Staggered Generalized Susceptibility"]) << ' ';
   }
 
   void save(alps::ODump& od) const { config_.save(od); }
   void load(alps::IDump& id) { config_.load(id); }
+
+protected:
+  bool is_signed() const { return param_.model.is_signed(); }
 
 private:
   typename qmc::parameter_type param_;
