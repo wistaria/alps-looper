@@ -5,9 +5,12 @@ LDADD = @LAPACK_LIBS@ @LIBS_SGL@
 check_PROGRAMS = diag
 
 TESTS = $(check_PROGRAMS)
-TESTS_ENVIRONMENT = $(top_srcdir)/run-test $(srcdir)
+TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
 
 diag_SOURCES = diag.C
+
+dist_noinst_SCRIPT = extract.sh run-diag.sh
+dist_noinst_DATA = diag.op heisenberg.dat heisenberg.ip ising-x.ip ising-z.ip ising.dat lattices.xml models.xml xy-x.ip xy-z.ip xy.dat
 
 clean: clean-am clean-extra
 clean-extra:

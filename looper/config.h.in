@@ -1,7 +1,35 @@
-/* looper/config.h.in.  Generated from configure.ac by autoheader.  */
+/*****************************************************************************
+*
+* ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
+*
+* Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+*
+* This software is published under the ALPS Application License; you
+* can use, redistribute it and/or modify it under the terms of the
+* license, either version 1 or (at your option) any later version.
+* 
+* You should have received a copy of the ALPS Application License
+* along with this software; see the file LICENSE. If not, the license
+* is also available from http://alps.comp-phys.org/.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+* FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT 
+* SHALL THE COPYRIGHT HOLDERS OR ANYONE DISTRIBUTING THE SOFTWARE BE LIABLE 
+* FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE, 
+* ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+* DEALINGS IN THE SOFTWARE.
+*
+*****************************************************************************/
 
-/* Define if you have uBLAS LAPACK bindings. */
-#undef HAVE_BINDINGS
+#ifndef LOOPER_CONFIG_H
+#define LOOPER_CONFIG_H
+
+/* Define the version of ALPS/looper */
+#undef LOOPER_VERSION
+
+/* Define the published date of ALPS/looper */
+#undef LOOPER_DATE
 
 /* Define if you have a BLAS library. */
 #undef HAVE_BLAS
@@ -9,23 +37,7 @@
 /* Define if you have a LAPACK library. */
 #undef HAVE_LAPACK
 
-/* Name of package */
-#undef PACKAGE
+/* Define if you have uBLAS LAPACK bindings. */
+#undef HAVE_BINDINGS
 
-/* Define to the address where bug reports for this package should be sent. */
-#undef PACKAGE_BUGREPORT
-
-/* Define to the full name of this package. */
-#undef PACKAGE_NAME
-
-/* Define to the full name and version of this package. */
-#undef PACKAGE_STRING
-
-/* Define to the one symbol short name of this package. */
-#undef PACKAGE_TARNAME
-
-/* Define to the version of this package. */
-#undef PACKAGE_VERSION
-
-/* Version number of package */
-#undef VERSION
+#endif /* ! LOOPER_CONFIG_H */

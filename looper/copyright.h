@@ -25,7 +25,7 @@
 #ifndef LOOPER_COPYRIGHT_H
 #define LOOPER_COPYRIGHT_H
 
-#include <looper/version.h>
+#include <looper/config.h>
 #include <alps/copyright.h>
 #include <iostream>
 

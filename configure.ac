@@ -18,13 +18,15 @@ AC_PREFIX_DEFAULT([$HOME/ALPS])
 
 AC_MSG_NOTICE([starting configuration for ALPS/looper version $PACKAGE_VERSION ($looper_date)])
 
+AC_DEFINE_UNQUOTED(LOOPER_VERSION, "$PACKAGE_VERSION")
+AC_DEFINE_UNQUOTED(LOOPER_DATE, "$looper_date")
 
 dnl
 dnl check for ALPS libraries
 dnl
 
 AC_MSG_CHECKING([for ALPS Libraries])
-if test -f "$ac_cv_alps_include_mk"; then
+if test -f "$ac_cv_alps_includedir/alps/config.h"; then
   AC_MSG_RESULT([OK])
 else
   AC_MSG_RESULT([not found])
@@ -39,14 +41,16 @@ if test "$ac_cv_alps_type" = "full"; then :; else
   AC_MSG_ERROR([ALPS/looper requies the full version of ALPS Libraries])
 fi
 
+AC_PROG_CXX
+
 CPPFLAGS="$ac_cv_alps_cppflags"
 CXXFLAGS="$ac_cv_alps_cxxflags"
 LDFLAGS="$ac_cv_alps_ldflags"
 LIBS="$ac_cv_alps_libs"
 
-AC_PROG_CXX
-
 AC_LANG_CPLUSPLUS
+
+AC_PROG_LIBTOOL
 
 dnl
 dnl check for LAPACK

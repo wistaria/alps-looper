@@ -48,13 +48,13 @@ extern "C" {
 #endif
 
 void dsyev_ (const char& jobz, const char& uplo, const int& n,
-	     double a[], const int& lda, double w[], double work[], const int& lwork,
-	     int& info);
+             double a[], const int& lda, double w[], double work[], const int& lwork,
+             int& info);
 
 
 void dgels_ (const char& trans, const int& m, const int& n, const int& nrhs,
-	     double a[], const int& lda, double b[], const int& ldb,
-	     double work[], const int& lwork, int& info);
+             double a[], const int& lda, double b[], const int& ldb,
+             double work[], const int& lwork, int& info);
 
 #if defined(c_plusplus) || defined(__cplusplus)
 }
@@ -161,15 +161,15 @@ inline void diagonalize(Matrix& a, Vector& w, bool need_eigenvectors = true)
   int info;
 
   // call dispatcher
-#ifdef HAVE_BINDINGS  
+#ifdef HAVE_BINDINGS
   info = boost::numeric::bindings::lapack::syev(jobz, uplo, a, w);
 #else
   lapack::syev(jobz, uplo,
-	       vector_helper<Vector>::size(w),
-	       matrix_helper<Matrix>::begin_ptr(a),
-	       vector_helper<Vector>::size(w),
-	       vector_helper<Vector>::begin_ptr(w),
-	       info);
+               vector_helper<Vector>::size(w),
+               matrix_helper<Matrix>::begin_ptr(a),
+               vector_helper<Vector>::size(w),
+               vector_helper<Vector>::begin_ptr(w),
+               info);
 #endif
   if (info != 0) throw std::runtime_error("failed in syev");
 }
@@ -191,26 +191,26 @@ inline void solve_llsp(Matrix& a, Vector& b, Vector& x)
     if (m >= n) {
 #ifdef HAVE_BINDINGS
       info = boost::numeric::bindings::lapack::gels(trans, m, n, 1,
-	       matrix_helper<Matrix>::begin_ptr(a), m,
+               matrix_helper<Matrix>::begin_ptr(a), m,
                vector_helper<Vector>::begin_ptr(b), m);
 #else
       lapack::gels(trans, m, n, 1,
-		   matrix_helper<Matrix>::begin_ptr(a), m,
-		   vector_helper<Vector>::begin_ptr(b), m,
-		   info);
+                   matrix_helper<Matrix>::begin_ptr(a), m,
+                   vector_helper<Vector>::begin_ptr(b), m,
+                   info);
 #endif
       std::copy(b.begin(), b.begin() + n, x.begin());
     } else {
       std::copy(b.begin(), b.begin() + m, x.begin());
 #ifdef HAVE_BINDINGS
       info = boost::numeric::bindings::lapack::gels(trans, m, n, 1,
-	       matrix_helper<Matrix>::begin_ptr(a), m,
+               matrix_helper<Matrix>::begin_ptr(a), m,
                vector_helper<Vector>::begin_ptr(x), n);
 #else
       lapack::gels(trans, m, n, 1,
-		   matrix_helper<Matrix>::begin_ptr(a), m,
-		   vector_helper<Vector>::begin_ptr(x), n,
-		   info);
+                   matrix_helper<Matrix>::begin_ptr(a), m,
+                   vector_helper<Vector>::begin_ptr(x), n,
+                   info);
 #endif
     }
   } else {
@@ -218,26 +218,26 @@ inline void solve_llsp(Matrix& a, Vector& b, Vector& x)
     if (m >= n) {
 #ifdef HAVE_BINDINGS
       info = boost::numeric::bindings::lapack::gels(trans, n, m, 1,
-	       matrix_helper<Matrix>::begin_ptr(a), n,
+               matrix_helper<Matrix>::begin_ptr(a), n,
                vector_helper<Vector>::begin_ptr(b), m);
 #else
       lapack::gels(trans, n, m, 1,
-		   matrix_helper<Matrix>::begin_ptr(a), n,
-		   vector_helper<Vector>::begin_ptr(b), m,
-		   info);
+                   matrix_helper<Matrix>::begin_ptr(a), n,
+                   vector_helper<Vector>::begin_ptr(b), m,
+                   info);
 #endif
       std::copy(b.begin(), b.begin() + n, x.begin());
     } else {
       std::copy(b.begin(), b.begin() + m, x.begin());
 #ifdef HAVE_BINDINGS
       info = boost::numeric::bindings::lapack::gels(trans, n, m, 1,
-	       matrix_helper<Matrix>::begin_ptr(a), n,
+               matrix_helper<Matrix>::begin_ptr(a), n,
                vector_helper<Vector>::begin_ptr(x), n);
 #else
       lapack::gels(trans, n, m, 1,
-		   matrix_helper<Matrix>::begin_ptr(a), n,
-		   vector_helper<Vector>::begin_ptr(x), n,
-		   info);
+                   matrix_helper<Matrix>::begin_ptr(a), n,
+                   vector_helper<Vector>::begin_ptr(x), n,
+                   info);
 #endif
     }
   }
