@@ -1,9 +1,12 @@
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<!DOCTYPE doctype PUBLIC "-//w3c//dtd html 4.0 transitional//en">
 <html>
 <head>
-   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <title>ALPS/looper</title>
-   <style type="text/css">
+    
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <title>ALPS/looper</title>
+        
+  <style type="text/css">
      body {
        color: #333;
        margin-left: 2em;
@@ -13,123 +16,258 @@
      }
    </style>
 </head>
-<body>
-
+  <body>
+  
 <h1>ALPS/looper</h1>
-
-The <tt>ALPS/looper</tt> package is one of the applications of the <a
-href="http://alps.comp-phys.org">ALPS project</a>.  It provides
-multi-cluster quantum Monte Carlo algorithms for generic spin systems
-in the path-integral or SSE representations.
-
-<p>
-
-The applications supports the ferromagnetic and non-frustrated
-antiferromagnetic XXZ models on arbitrary lattices.  Since it supports
-so-called <i>freezing graphs</i>, models with easy-axis (Ising-like)
-anisotropy can also be simulated very efficiently.
-
+  The <tt>ALPS/looper</tt> package is one of the applications of the <a
+ href="http://alps.comp-phys.org">ALPS project</a>.  It provides multi-cluster
+quantum Monte Carlo algorithms for generic spin systems in the path-integral
+or SSE representations.  
+<p>  The applications supports the ferromagnetic and non-frustrated antiferromagnetic
+XXZ models on arbitrary lattices.  Since it supports so-called <i>freezing
+graphs</i>, models with easy-axis (Ising-like) anisotropy can also be simulated
+very efficiently.  </p>
 <h2>Compiling programs</h2>
-
+  
 <h3>Download</h3>
-
+  
 <h3>Prerequisites</h3>
-
+  
 <ul>
-
-<li>The <a href="http://www.boost.org/">C++ Boost</a> library --
-version 1.31.0 or later
-
-<li>The <a href="http://alps.comp-phys.org/">ALPS</a> libraries --
-snapshot at 2004/06/02 or later
-
-<li>The <a href="http://www.netlib.org/lapack/">LAPACK</a> library
-
-<li>The uBlas LAPACK bindlings in <a
-href="http://sourceforge.net/projects/boost-sandbox/">Boost
-Sandbox</a>
-
+  <li>The <a href="http://www.boost.org/">C++ Boost</a> library -- version
+1.31.0 or later  </li>
+  <li>The <a href="http://alps.comp-phys.org/">ALPS</a> libraries -- snapshot
+at 2004/06/02 or later  </li>
+  <li>The <a href="http://www.netlib.org/lapack/">LAPACK</a> library  </li>
+  <li>The uBlas LAPACK bindlings in <a
+ href="http://sourceforge.net/projects/boost-sandbox/">Boost Sandbox</a>  
+  </li>
 </ul>
-
+  
 <h3>Compilation</h3>
-
-<blockquote>
-<pre>
-./configure
-make
-</pre>
-</blockquote>
-
-In case that the ALPS library is installed under a directory other
-than the default one (<tt>$HOME/ALPS</tt>), please specify its
-location to the configure script by <tt>--prefix</tt> option.
-
+  
+<blockquote> 
+  <pre>./configure<br>make<br></pre>
+ </blockquote>
+  In case that the ALPS library is installed under a directory other than
+the default one (<tt>$HOME/ALPS</tt>), please specify its location to the
+configure script by <tt>--prefix</tt> option.  
 <h2>Running a simulation</h2>
-
-<H3>Input parameters</H3>
-
-In addition to the general input parameters of the <A
-HREF="http://alps.comp-phys.org/ALPS/doc/scheduler/running.html">ALPS
-scheduler library</A> the <tt>qmc</tt> application takes the following
-input parameters:</P>
-
+  
+<h3>Input parameters</h3>
+  In addition to the general input parameters of the <a
+ href="http://alps.comp-phys.org/ALPS/doc/scheduler/running.html">ALPS scheduler
+library</a> the <tt>loop</tt> application takes the following input parameters:
+<p></p>
+  
 <table border="2">
-<thead>
-<tr><td><B>Name</B></td><td><B>Default</B></td><td><B>Description</B></td></tr>
-</THEAD>
-<TBODY>
-<tr><td>LATTICE_LIBRARY</td><td><tt>lattices.xml</tt></td><td>path to a file containing lattice descriptions</td></tr>
-<tr><td>LATTICE</td><td></td><td>name of the lattice</td></tr>
-<tr><td>MODEL_LIBRARY</td><td><tt>models.xml</tt></td><td>path to a file containing model descriptions</td></tr>
-<tr><td>MODEL</td><td></td><td>name of the model</td></tr>
-<tr><td>REPRESENTATION</td><td><tt>path integral</tt></td><td>the type of representatioin, either &quot;<tt>path integral</tt>&quot; or &quot;<tt>SSE</tt>&quot;</td></tr>
-<tr><td>T</td><td></td><td>the temperature</td></tr>
-<tr><td>SWEEPS</td><td></td><td>Monte Carlo steps after thermalization</td></tr>
-<tr><td>THERMALIZATION</td><td></td><td>Monte Carlo steps for thermalization</td></tr>
-</TBODY>
-</TABLE>
-
-<p>
-
-In addition, the lattice/model descriptions can require further
-parameters (e.g. <TT>L</tt> or <TT>W</tt>) as specified in the lattice
-(model) description file.
-
-<H3>Measurements</H3>
-<P>The following observables are measured by the <tt>qmc</tt> application:</P>
-<TABLE border="2">
-
-<THEAD>
-<tr><td><B>Name</B></td><td><B>Description</B></td></tr>
-</THEAD>
-<TBODY>
-<tr><td>Energy</td><td>total energy</td></tr>
-<tr><td>Energy Density</td><td>energy per spin</td></tr>
-<tr><td>Energy Density^2</td><td>energy squared per spin</td></tr>
-<tr><td>Uniform Magnetization^2</td><td>square of uniform magnetization</td></tr>
-<tr><td>Uniform Susceptibility</td><td>uniform susceptibility</td></tr>
-<tr><td>Staggered Magnetization^2</td><td>square of staggered magnetization</td></tr>
-<tr><td>Staggered Susceptibility</td><td>staggered susceptibility</td></tr>
-<tr><td>Generalized Magnetization^2</td><td>square of generalized magnetization</td></tr>
-<tr><td>Generalized Susceptibility</td><td>generalized susceptibility</td></tr>
-</TBODY>
-</TABLE>
-
-<H2>License</H2> The license allows the use of the applications for
-non-commercial scientific use provided that the use of the ALPS
-applications and libraries is acknowledged and referenced in any
-scientific publication, as discussed in this <a
-href="http://alps.comp-phys.org/software/applications/LICENSE.txt">license
-file</a>.
-
+ <thead> <tr>
+    <td><b>Name</b></td>
+    <td><b>Default</b></td>
+    <td><b>Description</b></td>
+  </tr>
+ </thead> <tbody>
+ <tr>
+      <td>LATTICE_LIBRARY</td>
+      <td><tt>lattices.xml</tt></td>
+      <td>path to a file containing lattice descriptions</td>
+    </tr>
+ <tr>
+      <td>LATTICE</td>
+      <td><br>
+      </td>
+      <td>name of the lattice</td>
+    </tr>
+ <tr>
+      <td>MODEL_LIBRARY</td>
+      <td><tt>models.xml</tt></td>
+      <td>path to a file containing model descriptions</td>
+    </tr>
+ <tr>
+      <td>MODEL</td>
+      <td><br>
+      </td>
+      <td>name of the model</td>
+    </tr>
+ <tr>
+      <td>REPRESENTATION</td>
+      <td><tt>path integral</tt></td>
+      <td>the type of representatioin, either "<tt>path integral</tt>" or
+"<tt>SSE</tt>"</td>
+    </tr>
+ <tr>
+      <td>T</td>
+      <td><br>
+      </td>
+      <td>the temperature</td>
+    </tr>
+ <tr>
+      <td>SWEEPS</td>
+      <td><br>
+      </td>
+      <td>Monte Carlo steps after thermalization</td>
+    </tr>
+ <tr>
+      <td>THERMALIZATION</td>
+      <td><br>
+      </td>
+      <td>Monte Carlo steps for thermalization</td>
+    </tr>
+ 
+  </tbody> 
+</table>
+  
+<p>  In addition, the lattice/model descriptions can require further parameters
+(e.g. <tt>L</tt> or <tt>W</tt>) as specified in the lattice (model) description
+file.  </p>
+<h3>Measurements</h3>
+ 
+<p>The following observables are measured by the <tt>loop</tt> application:</p>
+ 
+<table border="2">
+  <thead> <tr>
+    <td><b>Name</b></td>
+    <td><b>Description</b></td>
+  </tr>
+ </thead> <tbody>
+ <tr>
+      <td>Energy</td>
+      <td>total energy</td>
+    </tr>
+ <tr>
+      <td>Energy Density</td>
+      <td>energy per spin</td>
+    </tr>
+ <tr>
+      <td>Energy Density^2</td>
+      <td>energy squared per spin</td>
+    </tr>
+ <tr>
+      <td>Uniform Magnetization^2</td>
+      <td>square of uniform magnetization</td>
+    </tr>
+ <tr>
+      <td>Uniform Susceptibility</td>
+      <td>uniform susceptibility</td>
+    </tr>
+ <tr>
+      <td>Staggered Magnetization^2</td>
+      <td>square of staggered magnetization</td>
+    </tr>
+ <tr>
+      <td>Staggered Susceptibility</td>
+      <td>staggered susceptibility</td>
+    </tr>
+ <tr>
+      <td>Uniform Generalized Magnetization^2</td>
+      <td>square of uniform generalized magnetization</td>
+    </tr>
+ <tr>
+      <td>Uniform Generalized Susceptibility</td>
+      <td>uniform generalized susceptibility</td>
+    </tr>
+    <tr>
+      <td valign="top">Staggered Generalized Magnetization^2<br>
+      </td>
+      <td valign="top">square of staggered generalized magnetization<br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top">Staggered Generalized Susceptibility<br>
+      </td>
+      <td valign="top">staggered generalized susceptibility<br>
+      </td>
+    </tr>
+ 
+  </tbody> 
+</table>
+<br>
+A few remarks concerning the generalized susceptibilities :<br>
+The general idea is that the uniform generalized susceptibility is the susceptibility
+for the magnetic order supposed to be stronger. <br>
+The staggered generalized susceptibility is the staggered susceptibility
+of this specific order.<br>
+To be more precise, we have the following correspondance :<br>
+<br>
+<table cellpadding="2" cellspacing="2" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td valign="top"><br>
+      </td>
+      <td valign="top">Uniform Generalized Susceptibility</td>
+      <td valign="top">Staggered Generalized Susceptibility<br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top">Ferromagnetic model with Ising anisotropy (in the
+z axis)<br>
+      </td>
+      <td valign="top">Uniform z-z susceptibility<br>
+      </td>
+      <td valign="top">Staggered z-z susceptibility<br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top">Ferromagnetic model (Heisenberg point)<br>
+      </td>
+      <td valign="top">Uniform z-z (or x-x) susceptibility<br>
+      </td>
+      <td valign="top">Staggered z-z (or x-x) susceptibility<br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top">Ferromagnetic model with XY anisotropy (in the xy
+plane)<br>
+      </td>
+      <td valign="top">Uniform x-x susceptibility<br>
+      </td>
+      <td valign="top">Staggered&nbsp; x-x susceptibility<br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top">Antiferromagnetic model with XY anisotropy (in the
+xy plane)<br>
+      </td>
+      <td valign="top">Staggered&nbsp; x-x susceptibility<br>
+      </td>
+      <td valign="top">Uniform x-x susceptibility<br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top">Antiferromagnetic model (Heisenberg point)<br>
+      </td>
+      <td valign="top">Staggered z-z (or x-x) susceptibility<br>
+      </td>
+      <td valign="top">Uniform z-z (or x-x) susceptibility<br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top">Antiferromagnetic model with Ising anisotropy (in
+the z axis)<br>
+      </td>
+      <td valign="top">Staggered z-z susceptibility<br>
+      </td>
+      <td valign="top">Uniform z-z susceptibility<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+Same considerations apply for the uniform and staggered magnetization to
+the square.<br>
+  
+<h2>License</h2>
+ The license allows the use of the applications for non-commercial scientific
+use provided that the use of the ALPS applications and libraries is acknowledged
+and referenced in any scientific publication, as discussed in this <a
+ href="http://alps.comp-phys.org/software/applications/LICENSE.txt">license 
+file</a>.  
 <h2>Questions and request for support</h2>
-can be addressed to <a href="mailto:wistaria@comp-phys.org">Synge Todo</a>.
-
-<hr>
-
-<address>
-Copyright (c) 1997-2004 by <a
-href="mailto:wistaria@comp-phys.org">Synge Todo</a></address>
-
+ can be addressed to <a href="mailto:wistaria@comp-phys.org">Synge Todo</a>. 
+ 
+<hr>  
+<address> Copyright (c) 1997-2004 by <a
+ href="mailto:wistaria@comp-phys.org">Synge Todo</a></address>
+  <br>
 </body>
 </html>
