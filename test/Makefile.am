@@ -2,18 +2,19 @@ AM_CPPFLAGS = @CPPFLAGS_SGL@ @LAPACK_CPPFLAGS@
 AM_LDFLAGS = -L$(top_builddir) @LDFLAGS_SGL@ @LAPACK_LDFLAGS@
 LDADD = @LAPACK_LIBS@ @LIBS_SGL@
 
-check_PROGRAMS = amida fill_duration hypercubic index_helper permutation random_choice union_find virtual_graph weight xxz_matrix xxz_model
+check_PROGRAMS = amida fill_duration generate_01 hypercubic index_helper permutation random_choice union_find virtual_graph weight xxz_matrix xxz_model
 if HAVE_LAPACK
 check_PROGRAMS += syev
 endif
 
-dist_noinst_DATA = amida.op fill_duration.ip fill_duration.op hypercubic.ip hypercubic.op index_helper.op permutation.op random_choice.op syev.op union_find.op virtual_graph.op weight.ip weight.op xxz_matrix.ip xxz_matrix.op xxz_model.ip xxz_model.op
+dist_noinst_DATA = amida.op fill_duration.ip fill_duration.op generate_01.op hypercubic.ip hypercubic.op index_helper.op permutation.op random_choice.op syev.op union_find.op virtual_graph.op weight.ip weight.op xxz_matrix.ip xxz_matrix.op xxz_model.ip xxz_model.op
 
 TESTS = $(check_PROGRAMS)
 TESTS_ENVIRONMENT = $(top_srcdir)/run-test $(srcdir)
 
 amida_SOURCES = amida.C
 fill_duration_SOURCES = fill_duration.C
+generate_01_SOURCES = generate_01.C
 hypercubic_SOURCES = hypercubic.C
 index_helper_SOURCES = index_helper.C
 permutation_SOURCES = permutation.C

@@ -2,6 +2,7 @@
 Makefile
 amida
 fill_duration
+generate_01
 hypercubic
 index_helper
 permutation
