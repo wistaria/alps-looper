@@ -56,7 +56,11 @@ location to the configure script by <tt>--prefix</tt> option.
 <h2>Running a simulation</h2>
 
 <H3>Input parameters</H3>
-In addition to the general input parameters of the <A HREF="http://alps.comp-phys.org/ALPS/doc/scheduler/running.html">ALPS scheduler library</A> the <tt>spinmc</tt> application takes the following input parameters:</P>
+
+In addition to the general input parameters of the <A
+HREF="http://alps.comp-phys.org/ALPS/doc/scheduler/running.html">ALPS
+scheduler library</A> the <tt>qmc</tt> application takes the following
+input parameters:</P>
 
 <table border="2">
 <thead>
@@ -67,16 +71,16 @@ In addition to the general input parameters of the <A HREF="http://alps.comp-phy
 <tr><td>LATTICE</td><td></td><td>name of the lattice</td></tr>
 <tr><td>MODEL_LIBRARY</td><td><tt>models.xml</tt></td><td>path to a file containing model descriptions</td></tr>
 <tr><td>MODEL</td><td></td><td>name of the model</td></tr>
-<tr><td>representation</td><td><tt>path integral</tt></td><td>the type of representatioin, either &quot;<tt>path integral</tt>&quot; or &quot;<tt>SSE</tt>&quot;</td></tr>
-<tr><td>temperature</td><td></td><td>the temperature</td></tr>
-<tr><td>MCS</td><td></td><td>the total Monte Carlo steps (including steps for thermalization)</td></tr>
-<tr><td>thermalization</td><td></td><td>the Monte Carlo steps for thermalization</td></tr>
+<tr><td>REPRESENTATION</td><td><tt>path integral</tt></td><td>the type of representatioin, either &quot;<tt>path integral</tt>&quot; or &quot;<tt>SSE</tt>&quot;</td></tr>
+<tr><td>T</td><td></td><td>the temperature</td></tr>
+<tr><td>SWEEPS</td><td></td><td>Monte Carlo steps after thermalization</td></tr>
+<tr><td>THERMALIZATION</td><td></td><td>Monte Carlo steps for thermalization</td></tr>
 </TBODY>
 </TABLE>
 
 <p>
 
-In addition, the lattice (model) description can require further
+In addition, the lattice/model descriptions can require further
 parameters (e.g. <TT>L</tt> or <TT>W</tt>) as specified in the lattice
 (model) description file.
 
@@ -88,13 +92,15 @@ parameters (e.g. <TT>L</tt> or <TT>W</tt>) as specified in the lattice
 <tr><td><B>Name</B></td><td><B>Description</B></td></tr>
 </THEAD>
 <TBODY>
-<tr><td>energy</td><td>energy per spin</td></tr>
-<tr><td>uniform magnetization^2</td><td>square of uniform magnetization</td></tr>
-<tr><td>uniform susceptibility</td><td>uniform susceptibility</td></tr>
-<tr><td>staggered magnetization^2</td><td>square of staggered magnetization</td></tr>
-<tr><td>staggered susceptibility</td><td>staggered susceptibility</td></tr>
-<tr><td>generalized magnetization^2</td><td>square of generalized magnetization</td></tr>
-<tr><td>generalized susceptibility</td><td>generalized susceptibility</td></tr>
+<tr><td>Energy</td><td>total energy</td></tr>
+<tr><td>Energy Density</td><td>energy per spin</td></tr>
+<tr><td>Energy Density^2</td><td>energy squared per spin</td></tr>
+<tr><td>Uniform Magnetization^2</td><td>square of uniform magnetization</td></tr>
+<tr><td>Uniform Susceptibility</td><td>uniform susceptibility</td></tr>
+<tr><td>Staggered Magnetization^2</td><td>square of staggered magnetization</td></tr>
+<tr><td>Staggered Susceptibility</td><td>staggered susceptibility</td></tr>
+<tr><td>Generalized Magnetization^2</td><td>square of generalized magnetization</td></tr>
+<tr><td>Generalized Susceptibility</td><td>generalized susceptibility</td></tr>
 </TBODY>
 </TABLE>
 
@@ -110,7 +116,7 @@ can be addressed to <a href="mailto:wistaria@comp-phys.org">Synge Todo</a>.
 <hr>
 
 <address>
-Copyright (c) 1997-2003 by <a
+Copyright (c) 1997-2004 by <a
 href="mailto:wistaria@comp-phys.org">Synge Todo</a></address>
 
 </body>

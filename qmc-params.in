@@ -3,33 +3,33 @@ MODEL = "spin"
 L  = 16
 J  = 1
 Jz = -1
-MCS = 11000
-thermalization = 1000
+SWEEPS = 10000
+THERMALIZATION = 1000
 
-representation = "path integral"
+REPRESENTATION = "path integral"
 {
-temperature = 0.1
+T = 0.1
 }
 {
-temperature = 0.2
+T = 0.2
 }
 {
-temperature = 0.5
+T = 0.5
 }
 {
-temperature = 1.0
+T = 1.0
 }
 
-representation = "SSE"
+REPRESENTATION = "SSE"
 {
-temperature = 0.1
+T = 0.1
 }
 {
-temperature = 0.2
+T = 0.2
 }
 {
-temperature = 0.5
+T = 0.5
 }
 {
-temperature = 1.0
+T = 1.0
 }

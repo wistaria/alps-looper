@@ -1,97 +1,102 @@
+2004-03-04  Synge Todo  <wistaria@comp-phys.org>
+
+        * Adopted parameter and measurement names to the new 
+          ALPS/QMC standard.  (See applications/qmc/sse/conventions.txt)
+        
 2004-02-29  Matthias Troyer <troyer@comp-phys.org>
 
-	* Added support for default parameters in Hamiltonian
-	
+        * Added support for default parameters in Hamiltonian
+        
 2004-02-19  Synge Todo  <wistaria@comp-phys.org>
 
-	* Supported installing headers etc.
-	
+        * Supported installing headers etc.
+        
 2004-01-16  Synge Todo  <wistaria@comp-phys.org>
-	
-	* Fixed worker<QMC_WORKER>::work_done() function.
+        
+        * Fixed worker<QMC_WORKER>::work_done() function.
 
-	* Changed measurement type in qmc_impl.h and percolation_impl.h.
-	
+        * Changed measurement type in qmc_impl.h and percolation_impl.h.
+        
 2003-11-20  Synge Todo  <wistaria@comp-phys.org>
 
-	* version 3.0b4 released.
+        * version 3.0b4 released.
 
-	- prerequisites: boost-ss-20031116, boost-ss-20031116.patch,
-	alps-20031116
+        - prerequisites: boost-ss-20031116, boost-ss-20031116.patch,
+          alps-20031116
 
-	- TODO: optimization, more measurements, license issue.  Bug fixes
-	for some mesurements (specific heat in path integral?)...
-	
+        - TODO: optimization, more measurements, license issue.  Bug fixes
+          for some mesurements (specific heat in path integral?)...
+        
 2003-11-20  Synge Todo  <wistaria@comp-phys.org>
 
-	* Fixed susceptibility calculation by means of improved estimator
-	in SSE representation.
-	
+        * Fixed susceptibility calculation by means of improved estimator
+          in SSE representation.
+        
 2003-11-16  Synge Todo  <wistaria@comp-phys.org>
 
-	* Fixed specific heat calculation in SSE representation.
-	
+        * Fixed specific heat calculation in SSE representation.
+        
 2003-11-14  Synge Todo  <wistaria@comp-phys.org>
-	
-	* version 3.0b3 released.
+        
+        * version 3.0b3 released.
 
-	- prerequisites: boost-ss-20031109, boost-ss-20031109.patch,
-	alps-20031114
+        - prerequisites: boost-ss-20031109, boost-ss-20031109.patch,
+          alps-20031114
 
-	- TODO: optimization, improved estimators, more measurements,
-	license issue.  Bug fixes for some mesurements...
+        - TODO: optimization, improved estimators, more measurements,
+          license issue.  Bug fixes for some mesurements...
 
 2003-11-13  Synge Todo  <wistaria@comp-phys.org>
-	
-	* Added check directory, which contains sample parameter for
-	qmc (qmc_mpi) for checking results.
-	
+        
+        * Added check directory, which contains sample parameter for
+          qmc (qmc_mpi) for checking results.
+        
 2003-11-12  Synge Todo  <wistaria@comp-phys.org>
-	
-	* Updated copyright and file headers and added program `copyright'.
+        
+        * Updated copyright and file headers and added program `copyright'.
 
-	* Added exact diagonalization code (from dpQLM) for checking QMC
-	results.
-	
+        * Added exact diagonalization code (from dpQLM) for checking QMC
+          results.
+        
 2003-11-07  Synge Todo  <wistaria@comp-phys.org>
-	
-	* Added improved estimators for uniform/staggered magnetization^2,
-	etc.
-	
+        
+        * Added improved estimators for uniform/staggered magnetization^2,
+          etc.
+        
 2003-11-06  Synge Todo  <wistaria@comp-phys.org>
-	
-	* version 3.0b2 released.
+        
+        * version 3.0b2 released.
 
-	- prerequisites: boost-ss-20031102, boost-ss-20031102.patch,
-	alps-20031105
+        - prerequisites: boost-ss-20031102, boost-ss-20031102.patch,
+          alps-20031105
 
-	- TODO: optimization, improved estimators, more measurements,
-	license issue.
+        - TODO: optimization, improved estimators, more measurements,
+          license issue.
 
 2003-11-06  Synge Todo  <wistaria@comp-phys.org>
-	
-	* Moved measurements into looper/measuerment.h
+        
+        * Moved measurements into looper/measuerment.h
 
-	* Added is_bipartite member in [path_integral,sse]::parameter_type.
+        * Added is_bipartite member in [path_integral,sse]::parameter_type.
 
-	* Removed check_and_resize from path_integral.h.
+        * Removed check_and_resize from path_integral.h.
 
-	* Added specific heat measurement.
+        * Added specific heat measurement.
 
-	* Fixed staggered susceptibility measurement.
-	
+        * Fixed staggered susceptibility measurement.
+        
 2003-11-05  Synge Todo  <wistaria@comp-phys.org>
-	
-	* Modified Makefile.in so that MPI version of programs (qmc_mpi,
-	percolation_mpi) will also be built.
+        
+        * Modified Makefile.in so that MPI version of programs (qmc_mpi,
+          percolation_mpi) will also be built.
 
-	* Added measurement for staggered susceptibility (unimproved
-	estimator).  (SSE output seems still incorrect.)
-	
+        * Added measurement for staggered susceptibility (unimproved
+          estimator).  (SSE output seems still incorrect.)
+        
 2003-11-05  Synge Todo  <wistaria@comp-phys.org>
-	
-	* version 3.0b1 released.
+        
+        * version 3.0b1 released.
 
-	- prerequisites: boost-ss-20031102, boost-ss-20031102.patch,
-	alps-20031105
+        - prerequisites: boost-ss-20031102, boost-ss-20031102.patch,
+          alps-20031105
 

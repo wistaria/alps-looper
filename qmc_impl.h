@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: qmc_impl.h 604 2004-01-16 08:35:21Z wistaria $
+// $Id: qmc_impl.h 660 2004-03-04 10:58:14Z wistaria $
 // qmc_impl.h - implementation of worker for QMC simulation
 
 #ifndef QMC_IMPL_H
@@ -64,22 +64,17 @@ public:
     qmc::initialize(config_, param_);
 
     // measurements
-    m << measurement_type("diagonal energy");
-    m << measurement_type("diagonal energy (improved)");
-    m << measurement_type("off-diagonal energy");
-    m << measurement_type("energy");
-    m << measurement_type("energy^2");
-    m << measurement_type("uniform magnetization^2");
-    m << measurement_type("uniform magnetization^2 (improved)");
-    m << measurement_type("uniform susceptibility");
-    m << measurement_type("staggered magnetization^2");
-    m << measurement_type("staggered magnetization^2 (improved)");
-    m << measurement_type("staggered susceptibility");
-    m << measurement_type("staggered susceptibility (improved)");
-    m << measurement_type("generalized magnetization^2 (improved)");
-    m << measurement_type("generalized susceptibility (improved)");
+    m << measurement_type("Energy");
+    m << measurement_type("Energy Density");
+    m << measurement_type("Energy Density^2");
+    m << measurement_type("Magnetization^2");
+    m << measurement_type("Susceptibility");
+    m << measurement_type("Staggered Magnetization^2");
+    m << measurement_type("Staggered Susceptibility");
+    m << measurement_type("Generalized Magnetization^2");
+    m << measurement_type("Generalized Susceptibility");
 
-    m << evaluator_type("specific heat");
+    m << evaluator_type("Specific Heat");
   }
     
   template<class RNG>
@@ -95,25 +90,17 @@ public:
     // measure improved quantities below
     //
 
-    m.template
-      get<measurement_type>("diagonal energy (improved)") <<
-      looper::energy_z_imp(config_, param_);
-
-    m.template
-      get<measurement_type>("uniform magnetization^2 (improved)") << 
+    m.template get<measurement_type>("Magnetization^2") << 
       looper::uniform_sz2_imp(config_, param_);
 
-    m.template
-      get<measurement_type>("staggered magnetization^2 (improved)") << 
+    m.template get<measurement_type>("Staggered Magnetization^2") << 
       looper::staggered_sz2_imp(config_, param_);
 
     double gm2, gs;
     boost::tie(gm2, gs) =
       looper::generalized_susceptibility_imp(config_, param_);
-    m.template
-      get<measurement_type>("generalized magnetization^2 (improved)") << gm2;
-    m.template
-      get<measurement_type>("generalized susceptibility (improved)") << gs;
+    m.template get<measurement_type>("Generalized Magnetization^2") << gm2;
+    m.template get<measurement_type>("Generalized Susceptibility") << gs;
 
     //
     // flip clusters
@@ -128,55 +115,49 @@ public:
     double ez, exy, e2;
     boost::tie(ez, exy, e2) = looper::energy(config_, param_);
     ez += e_offset_;
-    m.template get<measurement_type>("diagonal energy") << ez;
-    m.template get<measurement_type>("off-diagonal energy") << exy;
-    m.template get<measurement_type>("energy") << ez + exy;
-    m.template get<measurement_type>("energy^2") << e2;
+    m.template get<measurement_type>("Energy") << 
+      param_.virtual_graph.num_real_vertices * (ez + exy);
+    m.template get<measurement_type>("Energy Density") << ez + exy;
+    m.template get<measurement_type>("Energy Density^2") << e2;
 
     double m2 = param_.virtual_graph.num_real_vertices *
       looper::sqr(looper::uniform_sz(config_, param_));
-    m.template get<measurement_type>("uniform magnetization^2") << m2;
-    m.template get<measurement_type>("uniform susceptibility") <<
-      param_.beta * m2;
+    m.template get<measurement_type>("Susceptibility") << param_.beta * m2;
 
-    m.template get<measurement_type>("staggered magnetization^2") <<
-      param_.virtual_graph.num_real_vertices *
-      looper::sqr(looper::staggered_sz(config_, param_));
-    m.template get<measurement_type>("staggered susceptibility") << 
+    m.template get<measurement_type>("Staggered Susceptibility") << 
       looper::staggered_susceptibility(config_, param_);
   }
 
   void accumulate(alps::ObservableSet& m)
   {
-    evaluator_type obse_e = m.template get<measurement_type>("energy");
-    evaluator_type obse_e2 = m.template get<measurement_type>("energy^2");
-    m.template get<evaluator_type>("specific heat") = 
+    evaluator_type obse_e = m.template get<measurement_type>("Energy Density");
+    evaluator_type obse_e2 =
+      m.template get<measurement_type>("Energy Density^2");
+    m.template get<evaluator_type>("Specific Heat") = 
       (double)param_.virtual_graph.num_real_vertices *
       looper::sqr(param_.beta) * (obse_e2 - obse_e * obse_e);
   }
 
   static void output_results(std::ostream& os, alps::ObservableSet& m)
   {
-    os << m.template get<measurement_type>("energy").mean() << ' '
-       << m.template get<measurement_type>("energy").error() << ' '
-       << m.template get<evaluator_type>("specific heat").mean() << ' '
-       << m.template get<evaluator_type>("specific heat").error() << ' '
-       << m.template get<measurement_type>("uniform magnetization^2").mean() << ' '
-       << m.template get<measurement_type>("uniform magnetization^2").error() << ' '
-       << m.template get<measurement_type>("uniform magnetization^2 (improved)").mean() << ' '
-       << m.template get<measurement_type>("uniform magnetization^2 (improved)").error() << ' '
-       << m.template get<measurement_type>("uniform susceptibility").mean() << ' '
-       << m.template get<measurement_type>("uniform susceptibility").error() << ' '
-       << m.template get<measurement_type>("staggered magnetization^2").mean() << ' '
-       << m.template get<measurement_type>("staggered magnetization^2").error() << ' '
-       << m.template get<measurement_type>("staggered magnetization^2 (improved)").mean() << ' '
-       << m.template get<measurement_type>("staggered magnetization^2 (improved)").error() << ' '
-       << m.template get<measurement_type>("staggered susceptibility").mean() << ' '
-       << m.template get<measurement_type>("staggered susceptibility").error() << ' '
-       << m.template get<measurement_type>("generalized magnetization^2 (improved)").mean() << ' '
-       << m.template get<measurement_type>("generalized magnetization^2 (improved)").error() << ' '
-       << m.template get<measurement_type>("generalized susceptibility (improved)").mean() << ' '
-       << m.template get<measurement_type>("generalized susceptibility (improved)").error() << ' ';
+    os << m.template get<measurement_type>("Energy").mean() << ' '
+       << m.template get<measurement_type>("Energy").error() << ' '
+       << m.template get<measurement_type>("Energy Density").mean() << ' '
+       << m.template get<measurement_type>("Energy Density").error() << ' '
+       << m.template get<evaluator_type>("Specific Heat").mean() << ' '
+       << m.template get<evaluator_type>("Specific Heat").error() << ' '
+       << m.template get<measurement_type>("Magnetization^2").mean() << ' '
+       << m.template get<measurement_type>("Magnetization^2").error() << ' '
+       << m.template get<measurement_type>("Susceptibility").mean() << ' '
+       << m.template get<measurement_type>("Susceptibility").error() << ' '
+       << m.template get<measurement_type>("Staggered Magnetization^2").mean() << ' '
+       << m.template get<measurement_type>("Staggered Magnetization^2").error() << ' '
+       << m.template get<measurement_type>("Staggered Susceptibility").mean() << ' '
+       << m.template get<measurement_type>("Staggered Susceptibility").error() << ' '
+       << m.template get<measurement_type>("Generalized Magnetization^2").mean() << ' '
+       << m.template get<measurement_type>("Generalized Magnetization^2").error() << ' '
+       << m.template get<measurement_type>("Generalized Susceptibility").mean() << ' '
+       << m.template get<measurement_type>("Generalized Susceptibility").error() << ' ';
   }
 
   void save(alps::ODump& od) const { config_.save(od); }
@@ -209,15 +190,15 @@ public:
     param_(rg, model, beta), config_(), done_(false)
   {
     // measurements
-    m << measurement_type("energy");
-    m << measurement_type("energy^2");
-    m << measurement_type("specific heat");
-    m << measurement_type("uniform magnetization^2");
-    m << measurement_type("uniform susceptibility");
-    m << measurement_type("staggered magnetization^2");
-    m << measurement_type("staggered susceptibility");
-
-    m << evaluator_type("specific heat");
+    m << measurement_type("Energy");
+    m << measurement_type("Energy Density");
+    m << measurement_type("Energy Density^2");
+    m << measurement_type("Magnetization^2");
+    m << measurement_type("Susceptibility");
+    m << measurement_type("Staggered Magnetization^2");
+    m << measurement_type("Staggered Susceptibility");
+    
+    m << evaluator_type("Specific Heat");
   }
     
   template<class RNG>
@@ -237,40 +218,44 @@ public:
     double umag2, usus, smag2, ssus;
     boost::tie(umag2, usus, smag2, ssus) = ed::magnetization(param_, config_);
 
-    m.template get<measurement_type>("energy") << e;
-    m.template get<measurement_type>("energy^2") << e2;
-    m.template get<measurement_type>("uniform magnetization^2") << umag2;
-    m.template get<measurement_type>("uniform susceptibility") << usus;
-    m.template get<measurement_type>("staggered magnetization^2") << smag2;
-    m.template get<measurement_type>("staggered susceptibility") << ssus;
+    m.template get<measurement_type>("Energy") <<
+      (double)boost::num_vertices(param_.graph) * e;
+    m.template get<measurement_type>("Energy Density") << e;
+    m.template get<measurement_type>("Energy Density^2") << e2;
+    m.template get<measurement_type>("Magnetization^2") << umag2;
+    m.template get<measurement_type>("Susceptibility") << usus;
+    m.template get<measurement_type>("Staggered Magnetization^2") << smag2;
+    m.template get<measurement_type>("Staggered Susceptibility") << ssus;
 
     done_ = true;
   }
 
   void accumulate(alps::ObservableSet& m)
   {
-    evaluator_type obse_e = m.template get<measurement_type>("energy");
-    evaluator_type obse_e2 = m.template get<measurement_type>("energy^2");
-//     m.template get<evaluator_type>("specific heat") = 
-//       (double)boost::num_vertices(param_.graph) *
-//       looper::sqr(param_.beta) * (obse_e2 - obse_e * obse_e);
-    m.template get<evaluator_type>("specific heat") = 
+    evaluator_type obse_e = m.template get<measurement_type>("Energy Density");
+    evaluator_type obse_e2 =
+      m.template get<measurement_type>("Energy Density^2");
+    m.template get<evaluator_type>("Specific Heat") = 
       (double)boost::num_vertices(param_.graph) *
       looper::sqr(param_.beta) * (obse_e2 - obse_e * obse_e);
   }
 
   static void output_results(std::ostream& os, alps::ObservableSet& m)
   {
-    os << m.template get<measurement_type>("energy").mean() << ' '
-       << m.template get<measurement_type>("energy").error() << ' '
-       << m.template get<evaluator_type>("specific heat").mean() << ' '
-       << m.template get<evaluator_type>("specific heat").error() << ' '
-       << m.template get<measurement_type>("uniform susceptibility").mean() << ' '
-       << m.template get<measurement_type>("uniform susceptibility").error() << ' '
-       << m.template get<measurement_type>("staggered magnetization^2").mean() << ' '
-       << m.template get<measurement_type>("staggered magnetization^2").error() << ' '
-       << m.template get<measurement_type>("staggered susceptibility").mean() << ' '
-       << m.template get<measurement_type>("staggered susceptibility").error() << ' ';
+    os << m.template get<measurement_type>("Energy").mean() << ' '
+       << m.template get<measurement_type>("Energy").error() << ' '
+       << m.template get<measurement_type>("Energy Density").mean() << ' '
+       << m.template get<measurement_type>("Energy Density").error() << ' '
+       << m.template get<evaluator_type>("Specific Heat").mean() << ' '
+       << m.template get<evaluator_type>("Specific Heat").error() << ' '
+       << m.template get<measurement_type>("Magnetization^2").mean() << ' '
+       << m.template get<measurement_type>("Magnetization^2").error() << ' '
+       << m.template get<measurement_type>("Susceptibility").mean() << ' '
+       << m.template get<measurement_type>("Susceptibility").error() << ' '
+       << m.template get<measurement_type>("Staggered Magnetization^2").mean() << ' '
+       << m.template get<measurement_type>("Staggered Magnetization^2").error() << ' '
+       << m.template get<measurement_type>("Staggered Susceptibility").mean() << ' '
+       << m.template get<measurement_type>("Staggered Susceptibility").error() << ' ';
   }
 
   void save(alps::ODump& /* od */) const {}
@@ -293,9 +278,9 @@ public:
   worker(const alps::ProcessList& w, const alps::Parameters& p, int n) :
     alps::scheduler::LatticeModelMCRun<>(w, p, n),
     mdl_(p, graph(), simple_operators(), model()),
-    mcs_(0), therm_(static_cast<unsigned int>(p["thermalization"])), 
-    total_(static_cast<unsigned int>(p["MCS"])),
-    qmc_worker_(graph(), mdl_, 1.0 / static_cast<double>(p["temperature"]),
+    mcs_(0), therm_(static_cast<unsigned int>(p["THERMALIZATION"])), 
+    total_(therm_ + static_cast<unsigned int>(p["SWEEPS"])),
+    qmc_worker_(graph(), mdl_, 1.0 / static_cast<double>(p["T"]),
 		measurements) {}
   virtual ~worker() {}
     
@@ -342,17 +327,17 @@ class factory : public alps::scheduler::Factory
   alps::scheduler::MCRun* make_worker(const alps::ProcessList& w,
 				      const alps::Parameters& p, int n) const
   {
-    if (!p.defined("representation") ||
-	p["representation"] == "path integral") {
+    if (!p.defined("REPRESENTATION") ||
+	p["REPRESENTATION"] == "path integral") {
       return new worker<qmc_worker<looper::path_integral<
                           looper::virtual_graph<looper::parity_graph_type>,
                           looper::xxz_model> > >(w, p, n);
-    } else if (p["representation"] == "SSE") {
+    } else if (p["REPRESENTATION"] == "SSE") {
       return new worker<qmc_worker<looper::sse<
                           looper::virtual_graph<looper::parity_graph_type>,
 	                  looper::xxz_model> > >(w, p, n);
 #ifdef HAVE_LAPACK
-    } else if (p["representation"] == "exact diagonalization") {
+    } else if (p["REPRESENTATION"] == "exact diagonalization") {
       return new worker<ed_worker<looper::exact_diagonalization<
                           looper::parity_graph_type,
 	                  looper::xxz_model> > >(w, p, n);

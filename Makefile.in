@@ -22,7 +22,7 @@
 #
 ##############################################################################
 
-# $Id: Makefile.in 625 2004-02-25 09:42:22Z wistaria $
+# $Id: Makefile.in 660 2004-03-04 10:58:14Z wistaria $
 # top-level Makefile
 
 srcdir = @srcdir@
@@ -115,7 +115,7 @@ lattices.xml : $(srcdir)/lattices.xml.in
 
 percolation-params : $(srcdir)/percolation-params.in
 	./config.status percolation-params
-percolatioin-params.in.xml : percolation-params
+percolation-params.in.xml : percolation-params
 	$(bindir)/convert2xml percolation-params
 
 qmc-params : $(srcdir)/qmc-params.in

@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: percolation_impl.h 605 2004-01-16 08:39:29Z wistaria $
+// $Id: percolation_impl.h 660 2004-03-04 10:58:14Z wistaria $
 // percolation_impl.h - implementation of worker for percolation simulation
 
 #ifndef PERCOLATION_IMPL_H
@@ -118,10 +118,10 @@ struct percolation
       bond_p_(bp), vertices_(boost::num_vertices(g)), prob_(p)
     {
       // setup measurements
-      m << measurement_type("number of clusters");
-      m << measurement_type("percolation probability");
-      m << measurement_type("disconnected susceptiblity");
-      m << measurement_type("connected susceptiblity");
+      m << measurement_type("Number of Clusters");
+      m << measurement_type("Percolation Probability");
+      m << measurement_type("Disconnected Susceptiblity");
+      m << measurement_type("Connected Susceptiblity");
       m.reset(true);
     }
     
@@ -161,25 +161,25 @@ struct percolation
       }
       
       double nv = double(boost::num_vertices(g));
-      m.template get<measurement_type>("number of clusters") <<
+      m.template get<measurement_type>("Number of Clusters") <<
 	double(num_clusters) / nv;
-      m.template get<measurement_type>("percolation probability") <<
+      m.template get<measurement_type>("Percolation Probability") <<
 	max_weight / nv;
-      m.template get<measurement_type>("disconnected susceptiblity") <<
+      m.template get<measurement_type>("Disconnected Susceptiblity") <<
 	sc / nv;
-      m.template get<measurement_type>("connected susceptiblity") <<
+      m.template get<measurement_type>("Connected Susceptiblity") <<
 	(sc - max_weight * max_weight) / nv;
     }
 
     void output_results(std::ostream& os, alps::ObservableSet& m) const {
-      os << m.get<measurement_type>("number of clusters").mean() << ' '
-	 << m.get<measurement_type>("number of clusters").error() << ' '
-	 << m.get<measurement_type>("percolation probability").mean() << ' '
-	 << m.get<measurement_type>("percolation probability").error() << ' '
-	 << m.get<measurement_type>("disconnected susceptiblity").mean() << ' '
-	 << m.get<measurement_type>("disconnected susceptiblity").error() << ' '
-	 << m.get<measurement_type>("connected susceptiblity").mean() << ' '
-	 << m.get<measurement_type>("connected susceptiblity").error();
+      os << m.get<measurement_type>("Number of Clusters").mean() << ' '
+	 << m.get<measurement_type>("Number of Clusters").error() << ' '
+	 << m.get<measurement_type>("Percolation Probability").mean() << ' '
+	 << m.get<measurement_type>("Percolation Probability").error() << ' '
+	 << m.get<measurement_type>("Disconnected Susceptiblity").mean() << ' '
+	 << m.get<measurement_type>("Disconnected Susceptiblity").error() << ' '
+	 << m.get<measurement_type>("Connected Susceptiblity").mean() << ' '
+	 << m.get<measurement_type>("Connected Susceptiblity").error();
     }
   private:
     bool bond_p_;
@@ -193,9 +193,9 @@ struct percolation
   public:
     worker(const alps::ProcessList& w, const alps::Parameters& p, int n) :
       alps::scheduler::LatticeMCRun<>(w, p, n),
-      prob_(double(p["probability"])),
-      samples_(int(p["samples"])), samples_done_(0),
-      wb_(graph(), prob_, (p["type"] == "bond"), measurements) {}
+      prob_(double(p["P"])),
+      samples_(int(p["SAMPLES"])), samples_done_(0),
+      wb_(graph(), prob_, (p["TYPE"] == "bond"), measurements) {}
     virtual ~worker() {}
     
     virtual void dostep() {
