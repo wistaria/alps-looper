@@ -138,16 +138,15 @@ struct exact_diagonalization
     vertex_iterator vi, vi_end;
     for (boost::tie(vi, vi_end) = boost::vertices(param.graph);
          vi != vi_end; ++vi) {
-      int d =
-        param.model.site(site_type(*vi, param.graph)).s().get_twice() +        1;
+      int d = param.model.site(site_type(*vi, param.graph)).s().get_twice()+1;
       if (config.basis.size() == 0) config.dimension = 1;
       config.basis.push_back(std::make_pair(d, config.dimension));
       config.dimension *= d;
     }
 
     // fill Hamiltonian matrix
-    config.hamiltonian.clear();
     config.hamiltonian.resize(config.dimension, config.dimension);
+    config.hamiltonian.clear();
     edge_iterator ei, ei_end;
     for (boost::tie(ei, ei_end) = boost::edges(param.graph);
          ei != ei_end; ++ei) {
