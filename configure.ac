@@ -41,6 +41,15 @@ if test "$ac_cv_alps_type" = "full"; then :; else
   AC_MSG_ERROR([ALPS/looper requies the full version of ALPS Libraries])
 fi
 
+CPPFLAGS="$ac_cv_alps_cppflags"
+CXXFLAGS="$ac_cv_alps_cxxflags"
+LDFLAGS="$ac_cv_alps_ldflags"
+LIBS="$ac_cv_alps_libs"
+
+AC_PROG_CXX
+
+AC_LANG_CPLUSPLUS
+
 dnl
 dnl check for LAPACK
 dnl
