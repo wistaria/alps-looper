@@ -1,4 +1,4 @@
-SUBDIRS = doc test ed
+SUBDIRS = doc test ed .
 
 CPPFLAGS_SGL = @CPPFLAGS_SGL@ @LAPACK_CPPFLAGS@
 LDFLAGS_SGL = -L$(top_builddir) @LDFLAGS_SGL@ @LAPACK_LDFLAGS@
