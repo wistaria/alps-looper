@@ -31,6 +31,7 @@
 
 #include <alps/bindings/gels.hpp>
 #include <alps/bindings/syev.hpp>
+#include <alps/bindings/heev.hpp>
 #include <boost/numeric/bindings/traits/ublas_matrix.hpp>
 #include <boost/numeric/bindings/traits/ublas_vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
@@ -86,9 +87,14 @@ namespace looper {
 template <class Matrix, class Vector>
 inline void diagonalize(Matrix& a, Vector& w, bool need_eigenvectors = true)
 {
+  typedef Matrix matrix_type;
+  typedef Vector vector_type;
+
   // size check
-  assert(matrix_helper<Matrix>::size1(a) == matrix_helper<Matrix>::size2(a));
-  assert(matrix_helper<Matrix>::size1(a) == vector_helper<Vector>::size(w));
+  assert(matrix_helper<matrix_type>::size1(a) ==
+	 matrix_helper<matrix_type>::size2(a));
+  assert(matrix_helper<matrix_type>::size1(a) ==
+	 vector_helper<vector_type>::size(w));
 
   char jobz;
   if (need_eigenvectors) {
@@ -102,6 +108,32 @@ inline void diagonalize(Matrix& a, Vector& w, bool need_eigenvectors = true)
   // call dispatcher
   info = boost::numeric::bindings::lapack::syev(jobz, uplo, a, w);
   if (info != 0) throw std::runtime_error("failed in syev");
+}
+
+template <class T, class R, class A, class Vector>
+inline void diagonalize(boost::numeric::ublas::matrix<std::complex<T>,R,A>& a, Vector& w, bool need_eigenvectors = true)
+{
+  typedef boost::numeric::ublas::matrix<std::complex<T>,R,A> matrix_type;
+  typedef Vector                                             vector_type;
+
+  // size check
+  assert(matrix_helper<matrix_type>::size1(a) ==
+	 matrix_helper<matrix_type>::size2(a));
+  assert(matrix_helper<matrix_type>::size1(a) ==
+	 vector_helper<vector_type>::size(w));
+
+  char jobz;
+  if (need_eigenvectors) {
+    jobz = 'V';
+  } else {
+    jobz = 'N';
+  }
+  char uplo = 'L';
+  int info;
+
+  // call dispatcher
+  info = boost::numeric::bindings::lapack::heev(jobz, uplo, a, w);
+  if (info != 0) throw std::runtime_error("failed in heev");
 }
 
 template <class Matrix, class Vector>

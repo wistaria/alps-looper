@@ -25,7 +25,6 @@
 #ifndef LOOPER_EXACT_DIAG_H
 #define LOOPER_EXACT_DIAG_H
 
-#include <looper/config.h>
 #include <looper/lapack.h>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>
