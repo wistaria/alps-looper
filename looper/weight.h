@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: weight.h 480 2003-10-29 15:13:08Z wistaria $
+* $Id: weight.h 481 2003-10-29 15:18:42Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -96,45 +96,42 @@ private:
 };
   
 
+template<class W>
 class uniform_bond_chooser
 {
 public:
-  uniform_bond_chooser() : n_(), w_(), gw_() {}
+  typedef W weight_type;
+
+  uniform_bond_chooser() : n_(), weight_(), gw_() {}
   template<class G, class M>
-  uniform_bond_chooser(const G& vg, const M& m) : n_(), w_(), gw_()
+  uniform_bond_chooser(const G& vg, const M& m) : n_(), weight_(), gw_()
   { init(vg, m); }
-  template<class G, class M, class W>
-  uniform_bond_chooser(const G& vg, const M& m, const W& w) : n_(), w_(), gw_()
-  { init(vg, m, w); }
   template<class P>
-  uniform_bond_chooser(const P& p) : n_(), w_(), gw_() { init(p); }
+  uniform_bond_chooser(const P& p) : n_(), weight_(), gw_() { init(p); }
 
   template<class G, class M>
-  void init(const G& vg, const M& m) { init(vg, m, default_weight()); }
-  template<class G, class M, class W>
-  void init(const & vg, const M& m, const W&)
+  void init(const G& vg, const M& m)
   {
-    typedef W weight_type;
     assert(m.num_bond_types() == 1);
     n_ = double(boost::num_edges(vg.graph));
-    w_ = weight_type(m.uniform_bond()).weight();
-    gw_ = n_ * w_;
+    weight_ = weight_type(m.uniform_bond());
+    gw_ = n_ * weight_.weight();
   }
   template<class P>
-  void init(const P& p) 
-  { init(p.virtual_graph, p.model, P::weight_type()); }
+  void init(const P& p) { init(p.virtual_graph, p.model); }
 
   template<class RNG>
   int choose(RNG& rng) const { return n_ * rng(); }
   template<class RNG>
   int operator()(RNG& rng) const { return choose(rng); }
 
-  double weight(int) const { return w_; }
+  weight_type& weight(int) { return w_; }
+  const weight_type& weight(int) const { return w_; }
   double global_weight() const { return gw_; }
 
 private:
   double n_;
-  double w_;
+  weight_type weight_;
   double gw_;
 };
 
@@ -164,8 +161,8 @@ public:
 
     gw_ = 0.0;
     std::vector<double> w(0);
-    std::vector<weight_type>::iterator itr_end = weight_.end();
-    for (std::vector<weight_type>::iterator itr = weight_.begin();
+    typename std::vector<weight_type>::iterator itr_end = weight_.end();
+    for (typename std::vector<weight_type>::iterator itr = weight_.begin();
 	 itr != itr_end; ++itr) {
       w.push_back(itr->weight());
       gw_ += itr->weight();
@@ -180,7 +177,7 @@ public:
   template<class RNG>
   int operator()(RNG& rng) const { return choose(rng); }
 
-  weight_type weight(int i) { return weight_[i]; }
+  weight_type& weight(int i) { return weight_[i]; }
   const weight_type& weight(int i) const { return weight_[i]; }
   double global_weight() const { return gw_; }
 

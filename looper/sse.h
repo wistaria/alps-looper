@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: sse.h 480 2003-10-29 15:13:08Z wistaria $
+* $Id: sse.h 481 2003-10-29 15:18:42Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -165,7 +165,7 @@ struct sse<virtual_graph<G>, M, W>
 	int b = bc.choose(uniform_01);
 	edge_iterator ei = boost::edges(vg.graph).first + b;
 	if (uniform_01() <
-	    bc.global_weight() *
+	    bc.global_weight() * beta *
 	    bc.weight(b).p_accept(curr[boost::source(*ei, vg.graph)],
 				  curr[boost::target(*ei, vg.graph)]) /
 	    double(config.os.size() - config.num_operators)) {
@@ -184,7 +184,7 @@ struct sse<virtual_graph<G>, M, W>
 	edge_iterator ei = boost::edges(vg.graph).first + b;
 	if (uniform_01() <
 	    double(config.os.size() - config.num_operators + 1) / 
-	    (bc.global_weight() *
+	    (bc.global_weight() * beta *
 	     bc.weight(b).p_accept(curr[boost::source(*ei, vg.graph)],
 				   curr[boost::target(*ei, vg.graph)]))) {
 	  // remove diagonal operator
