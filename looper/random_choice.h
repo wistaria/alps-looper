@@ -22,15 +22,15 @@
 *
 *****************************************************************************/
 
-// $Id: random_choice.h 604 2004-01-16 08:35:21Z wistaria $
+// $Id: random_choice.h 669 2004-03-07 13:51:40Z wistaria $
 
 #ifndef LOOPER_RANDOM_CHOICE_H
 #define LOOPER_RANDOM_CHOICE_H
 
+#include <cstdlib>
 #include <cassert>
 #include <cmath>
 #include <cstddef>
-#include <cstdlib>
 #include <iostream>
 #include <vector>
 #include <boost/config.hpp>

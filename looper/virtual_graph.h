@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: virtual_graph.h 661 2004-03-04 12:06:59Z wistaria $
+// $Id: virtual_graph.h 669 2004-03-07 13:51:40Z wistaria $
 
 #ifndef LOOPER_VIRTUAL_GRAPH_H
 #define LOOPER_VIRTUAL_GRAPH_H
@@ -212,7 +212,7 @@ struct const_spin_wrapper
 
 template<class G, class IntType>
 inline void generate_virtual_graph(const G& rg,
-				   alps::half_integer<IntType> s,
+				   const alps::half_integer<IntType>& s,
 				   virtual_graph<G>& vg)
 {
   generate_virtual_graph(rg,
@@ -221,7 +221,7 @@ inline void generate_virtual_graph(const G& rg,
 
 template<class G, class IntType>
 inline void generate_virtual_graph(const G& rg,
-				   std::vector<alps::half_integer<IntType> > v,
+				   const std::vector<alps::half_integer<IntType> >& v,
 				   virtual_graph<G>& vg)
 {
   generate_virtual_graph(rg,
