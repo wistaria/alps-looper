@@ -22,7 +22,7 @@
 #
 ##############################################################################
 
-# $Id: Makefile.in 617 2004-02-19 08:16:39Z wistaria $
+# $Id: Makefile.in 625 2004-02-25 09:42:22Z wistaria $
 # Makefile for test programs
 
 srcdir = @srcdir@
@@ -37,8 +37,8 @@ cppflags_mpi = $(CPPFLAGS_MPI) $(LAPACK_CPPFLAGS) -I$(top_builddir) -I$(top_srcd
 cxxflags = $(CXXFLAGS)
 ldflags = $(LDFLAGS) $(LAPACK_LDFLAGS)
 ldflags_mpi = $(LDFLAGS_MPI) $(LAPACK_LDFLAGS)
-libs_program = -lalps -lcomm-sgl $(LAPACK_LIBS) $(HDF5_LIBS) $(XML_LIBS) $(BASE_LIBS)
-libs_program_mpi = -lalps -lcomm-mpi $(LAPACK_LIBS) $(HDF5_LIBS) $(XML_LIBS) $(MPI_LIBS) $(BASE_LIBS)
+libs_program = $(LIBS)
+libs_program_mpi = $(LIBS_MPI)
 
 LOCAL_CONFIG = lattices.xml models.xml amida.xdr
 TESTOK_LAPACK = syev.ok

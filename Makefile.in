@@ -22,7 +22,7 @@
 #
 ##############################################################################
 
-# $Id: Makefile.in 617 2004-02-19 08:16:39Z wistaria $
+# $Id: Makefile.in 625 2004-02-25 09:42:22Z wistaria $
 # top-level Makefile
 
 srcdir = @srcdir@
@@ -40,8 +40,8 @@ cppflags_mpi = $(CPPFLAGS_MPI) $(LAPACK_CPPFLAGS) -I$(top_builddir) -I$(top_srcd
 cxxflags = $(CXXFLAGS)
 ldflags = $(LDFLAGS) $(LAPACK_LDFLAGS)
 ldflags_mpi = $(LDFLAGS_MPI) $(LAPACK_LDFLAGS)
-libs_program = -lalps -lcomm-sgl $(LAPACK_LIBS) $(HDF5_LIBS) $(XML_LIBS) $(BASE_LIBS)
-libs_program_mpi = -lalps -lcomm-mpi $(LAPACK_LIBS) $(HDF5_LIBS) $(XML_LIBS) $(MPI_LIBS) $(BASE_LIBS)
+libs_program = $(LAPACK_LIBS) $(LIBS)
+libs_program_mpi = $(LAPACK_LIBS) $(LIBS_MPI)
 
 pkgincludedir = $(includedir)
 pkgdatadir = $(datadir)/@PACKAGE_NAME@
