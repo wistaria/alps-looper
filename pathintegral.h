@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: pathintegral.h 434 2003-10-16 14:45:06Z wistaria $
+* $Id: pathintegral.h 435 2003-10-16 14:45:07Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -66,42 +66,6 @@ double energy_offset(const M& model, const G& graph)
   return offset;
 }
   
-struct weight
-{
-  double density;
-  double p_freeze;
-  double p_accept_para;
-  double p_accept_anti;
-  double p_reflect;
-  
-  weight() {}
-  template<class P>
-  weight(const P& p)
-  {
-    double Jxy = std::abs(p.Jxy); // ignore negative signs
-    double Jz = p.Jz;
-    if (Jxy == 0 && Jz == 0) {
-      density = 0;
-    } else {
-      density = std::max(std::abs(Jz) / 2, (Jxy + std::abs(Jz)) / 4);
-      p_freeze = range_01(1 - Jxy / std::abs(Jz));
-      p_accept_para = range_01((Jxy + Jz) / (Jxy + std::abs(Jz)));
-      p_accept_anti = range_01((Jxy - Jz) / (Jxy + std::abs(Jz)));
-      p_reflect = range_01((Jxy - Jz) / (2 * Jxy));
-    }
-  }
-  
-  double p_accept(int c0, int c1) const {
-    return (c0 ^ c1) ? p_accept_anti : p_accept_para;
-  }
-  
-protected:
-  static double range_01(double x)
-  {
-    return std::min(std::max(x, double(0.)), double(1.));
-  }
-};
-
 template<class U = uint32_t>
 class node_flag
 {
@@ -306,7 +270,7 @@ void initialize(amida<N>& config, const VG& vg, const VM&)
 
 template<class N, class VG, class VM, class M, class RNG, class W>
 int do_update(amida<N>& config, const VG& vg, const VM& vm, const M& model,
-	     double beta, RNG& uniform_01, const W&)
+	      double beta, RNG& uniform_01, const W& /* weight */)
 {
   typedef typename amida<N>::iterator iterator;
   typedef typename amida<N>::value_type node_type;
@@ -458,8 +422,11 @@ int do_update(amida<N>& config, const VG& vg, const VM& vm, const M& model,
 
 template<class N, class VG, class VM, class M, class RNG>
 int do_update(amida<N>& config, const VG& vg, const VM& vm, const M& model,
-	     double beta, RNG& uniform_01)
-{ return do_update(config, vg, vm, model, beta, uniform_01, weight()); }
+	      double beta, RNG& uniform_01)
+{
+  return do_update(config, vg, vm, model, beta, uniform_01,
+		   default_weight());
+}
 
 } // namespace path_integral
 
