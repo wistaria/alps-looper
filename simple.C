@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: simple.C 445 2003-10-18 04:14:07Z wistaria $
+* $Id: simple.C 452 2003-10-21 05:51:28Z wistaria $
 *
 * Copyright (C) 2001-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -175,10 +175,12 @@ try {
   for (int i = 0; i < 19844; ++i) rng();
 
   // hypercubic lattice
-  typedef looper::graph_type graph_type;
+  typedef looper::parity_graph_type graph_type;
   looper::simple_hypercubic_graph_descriptor<> shgd(opts.dim, opts.lsize);
   graph_type g;
   looper::generate_graph(shgd, g);
+  bool is_bipartite = alps::set_parity(g);
+  std::cout << "is_bipartite " << is_bipartite << std::endl;
 
   // virtual graph
   typedef looper::virtual_graph<graph_type> vg_type;

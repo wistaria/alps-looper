@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: amida.h 445 2003-10-18 04:14:07Z wistaria $
+* $Id: amida.h 452 2003-10-21 05:51:28Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -492,8 +492,6 @@ alps::IDump& operator>>(alps::IDump& id, looper::amida<T>& c) {
 #endif
 
 
-#ifndef NDEBUG
-
 //
 // only for debugging
 //
@@ -576,7 +574,5 @@ std::ostream& operator<<(std::ostream& os, const looper::amida<T>& a)
 #ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
 } // namespace looper
 #endif
-
-#endif // NDEBUG
 
 #endif // LOOPER_AMIDA_H
