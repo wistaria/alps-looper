@@ -380,16 +380,22 @@ public:
   { set_parameters(g, spin, Jxy, Jz); }
   template<typename G, typename I>
   model_parameter(const alps::Parameters& params,
-                  const G& g, bool inhomogeneous_sites, bool inhomogeneous_bond,
+                  const G& g,
+                  bool inhomogeneous_sites,
+                  bool inhomogeneous_bond,
                   const alps::model_helper<I>& mh)
     : sites_(), bonds_()
   { set_parameters(params, g, inhomogeneous_sites, inhomogeneous_bond, mh); }
   template<typename G, typename I>
   model_parameter(const alps::Parameters& params,
-                  const G& g, bool inhomogeneous_sites, bool inhomogeneous_bond,
-                  const alps::model_helper<I>& mh, bool is_signed)
+                  const G& g,
+                  bool inhomogeneous_sites,
+                  bool inhomogeneous_bond,
+                  const alps::model_helper<I>& mh,
+                  bool is_signed)
     : sites_(), bonds_()
-  { set_parameters(params, g, inhomogeneous_sites, inhomogeneous_bond,
+  {
+    set_parameters(params, g, inhomogeneous_sites, inhomogeneous_bond,
                    mh, is_signed);
   }
 
@@ -405,21 +411,26 @@ public:
   }
   template<typename G, typename I>
   void set_parameters(const alps::Parameters& params,
-                      const G& g, bool inhomogeneous_sites,
+                      const G& g,
+                      bool inhomogeneous_sites,
                       bool inhomogeneous_bond,
                       const alps::model_helper<I>& mh)
   {
-    set_parameters_impl(params, g, inhomogeneous_sites, inhomogeneous_bond, mh);
+    set_parameters_impl(params, g, inhomogeneous_sites, inhomogeneous_bond,
+                        mh);
     signed_ = check_sign(g);
     frustrated_ = check_classical_frustration(g);
   }
   template<typename G, typename I>
   void set_parameters(const alps::Parameters& params,
-                      const G& g, bool inhomogeneous_sites,
+                      const G& g,
+                      bool inhomogeneous_sites,
                       bool inhomogeneous_bond,
-                      const alps::model_helper<I>& mh, bool is_signed)
+                      const alps::model_helper<I>& mh,
+                      bool is_signed)
   {
-    set_parameters_impl(params, g, inhomogeneous_sites, inhomogeneous_bond, mh);
+    set_parameters_impl(params, g, inhomogeneous_sites, inhomogeneous_bond,
+                        mh);
     signed_ = is_signed;
     frustrated_ = check_classical_frustration(g);
   }
