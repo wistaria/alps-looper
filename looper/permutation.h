@@ -22,11 +22,12 @@
 *
 *****************************************************************************/
 
-// $Id: permutation.h 604 2004-01-16 08:35:21Z wistaria $
+// $Id: permutation.h 608 2004-01-21 00:33:41Z wistaria $
 
 #ifndef LOOPER_PERMUTATION_H
 #define LOOPER_PERMUTATION_H
 
+#include <iostream>
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <algorithm> // for std::iter_swap, std::random_shuffle

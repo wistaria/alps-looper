@@ -22,11 +22,12 @@
 *
 *****************************************************************************/
 
-// $Id: fill_duration.h 604 2004-01-16 08:35:21Z wistaria $
+// $Id: fill_duration.h 608 2004-01-21 00:33:41Z wistaria $
 
 #ifndef LOOPER_FILL_DURATION_H
 #define LOOPER_FILL_DURATION_H
 
+#include <iostream>
 #include <boost/random/exponential_distribution.hpp>
 #include <boost/throw_exception.hpp>
 #include <stdexcept>
