@@ -1,6 +1,6 @@
-2005-03-31  Synge Todo <wistaria@comp-phys.org>
+2005-04-01  Synge Todo <wistaria@comp-phys.org>
 
-	* Added simple loop code (not tested yet)
+	* Added simple and self-contained loop code (alps-looper/simple/)
 	
 2005-02-23  Synge Todo <wistaria@comp-phys.org>
 
