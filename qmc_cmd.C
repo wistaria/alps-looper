@@ -256,6 +256,7 @@ try {
 #ifdef HAVE_LAPACK
   } else {
     // exact diagonalization
+    measurements.reset(true);
     ed_worker<looper::exact_diagonalization<graph_type, model_type> >
       worker(g, model, beta, measurements);
     worker.step(rng, measurements);

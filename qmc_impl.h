@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: qmc_impl.h 565 2003-11-13 08:20:59Z wistaria $
+// $Id: qmc_impl.h 572 2003-11-14 09:24:47Z wistaria $
 // qmc_impl.h - implementation of worker for QMC simulation
 
 #ifndef QMC_IMPL_H
@@ -46,6 +46,8 @@ template<class QMC>
 class qmc_worker
 {
 public:
+  BOOST_STATIC_CONSTANT(bool, is_qmc = true);
+
   typedef QMC                      qmc;
   typedef typename qmc::graph_type graph_type;
   typedef typename qmc::model_type model_type;
@@ -187,6 +189,8 @@ template<class ED>
 class ed_worker
 {
 public:
+  BOOST_STATIC_CONSTANT(bool, is_qmc = false);
+
   typedef ED                      ed;
   typedef typename ed::graph_type graph_type;
   typedef typename ed::model_type model_type;
@@ -209,8 +213,6 @@ public:
     m << measurement_type("staggered susceptibility");
 
     m << evaluator_type("specific heat");
-
-    m.reset(true); // no thermalization is needed
   }
     
   template<class RNG>
@@ -290,16 +292,13 @@ public:
   virtual ~worker() {}
     
   virtual void dostep() {
+    if (QMC_WORKER::is_qmc || is_thermalized())
+      qmc_worker_.step(random_01, measurements);
     ++mcs_;
-    qmc_worker_.step(random_01, measurements);
   }
   bool is_thermalized() const { return mcs_ >= therm_; }
   virtual double work_done() const {
-    if (is_thermalized()) {
-      return double(mcs_ - therm_) / (total_ - therm_);
-    } else {
-      return 0.;
-    }
+    return double(mcs_ - therm_) / (total_ - therm_);
   }
   
   virtual void save(alps::ODump& od) const {
