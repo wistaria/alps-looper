@@ -570,8 +570,6 @@ protected:
       }
     }
 
-    std::cout << use_bond_index_ << std::endl;
-
     // generate bond matrices and set bond parameters
     if (use_bond_index_) {
       alps::Parameters p(params);
