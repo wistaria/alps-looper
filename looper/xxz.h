@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: xxz.h 635 2004-02-29 10:59:51Z troyer $
+// $Id: xxz.h 652 2004-03-02 16:32:25Z wistaria $
 
 #ifndef LOOPER_XXZ_H
 #define LOOPER_XXZ_H
@@ -48,7 +48,6 @@ I index(const alps::half_integer<I>& s0,
 }
 
 } // end namespace detail
-
 
 class xxz_parameter
 {
