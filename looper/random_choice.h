@@ -25,9 +25,9 @@
 #ifndef LOOPER_RANDOM_CHOICE_H
 #define LOOPER_RANDOM_CHOICE_H
 
+#include <cmath>
 #include <cstdlib>
 #include <cassert>
-#include <cmath>
 #include <cstddef>
 #include <iostream>
 #include <vector>

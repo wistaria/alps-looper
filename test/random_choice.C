@@ -72,9 +72,9 @@ try {
   for (unsigned int i = 0; i < n; ++i) {
     double diff = std::abs((weights[i] / tw) - (accum[i] / samples));
     double sigma = std::sqrt(accum[i]) / samples;
-    std::cout << i << "\t" << (weights[i] / tw) << "    \t" << (accum[i] / samples)
-              << "    \t" << diff << "    \t" << sigma << "    \t" << (diff / sigma)
-              << std::endl;
+    std::cout << i << "\t" << (weights[i] / tw) << "    \t"
+              << (accum[i] / samples) << "    \t" << diff << "    \t"
+              << sigma << "    \t" << (diff / sigma) << std::endl;
   }
 
 #ifndef BOOST_NO_EXCEPTIONS

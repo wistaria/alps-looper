@@ -28,7 +28,7 @@
 #include <valarray>
 
 #ifdef BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
-using namespace looper;
+using namespace looper::union_find;
 #endif
 
 const int n = 100;

@@ -49,12 +49,12 @@ public:
     double Jxy = abs(p.jxy()); // ignore negative signs
     double Jz = p.jz();
     if (Jxy + abs(Jz) > 1.0e-10) {
-      density_ = max(abs(Jz) / 2, (Jxy + abs(Jz)) / 4);
+      density_ = max(abs(Jz) / 2., (Jxy + abs(Jz)) / 4.);
       p_freeze_ = range_01(1 - Jxy / abs(Jz));
       pa_para_ = range_01((Jxy + Jz) / (Jxy + abs(Jz)));
       pa_anti_ = range_01((Jxy - Jz) / (Jxy + abs(Jz)));
       p_reflect_ = range_01((Jxy - Jz) / (2 * Jxy));
-      offset_ = -max(abs(Jz) / 4, Jxy / 4);
+      offset_ = -max(abs(Jz) / 4., Jxy / 4.);
     }
   }
 

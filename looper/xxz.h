@@ -159,7 +159,7 @@ public:
     for (half_integer_type sz0 = s0; sz0 >= -s0; --sz0) {
       for (half_integer_type sz1 = s1; sz1 >= -s1; --sz1) {
         matrix_(detail::index(s0, s1, sz0, sz1),
-		detail::index(s0, s1, sz0, sz1)) =
+                detail::index(s0, s1, sz0, sz1)) =
           e0 - jz * double(sz0) * double(sz1);
       }
     }
@@ -168,7 +168,7 @@ public:
     for (half_integer_type sz0 = s0-1; sz0 >= -s0; --sz0) {
       for (half_integer_type sz1 = s1; sz1 >= -s1+1; --sz1) {
         matrix_(detail::index(s0, s1, sz0+1, sz1-1),
-		detail::index(s0, s1, sz0, sz1)) =
+                detail::index(s0, s1, sz0, sz1)) =
           - 0.5 * jxy *
           std::sqrt(double(s0-sz0) * double(s0+sz0+1)) *
           std::sqrt(double(s1+sz1) * double(s1-sz1+1));
@@ -179,7 +179,7 @@ public:
     for (half_integer_type sz0 = s0; sz0 >= -s0 + 1; --sz0) {
       for (half_integer_type sz1 = s1-1; sz1 >= -s1; --sz1) {
         matrix_(detail::index(s0, s1, sz0-1, sz1+1),
-		detail::index(s0, s1, sz0, sz1)) =
+                detail::index(s0, s1, sz0, sz1)) =
           - 0.5 * jxy *
           std::sqrt(double(s0+sz0) * double(s0-sz0+1)) *
           std::sqrt(double(s1-sz1) * double(s1+sz1+1));

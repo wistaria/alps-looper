@@ -125,7 +125,7 @@ inline void syev(const char & jobz, const char& uplo, const int& n,
   std::complex<float>* work  = new std::complex<float>[1];
   float* rwork = new float[std::max(1, 3*n-2)];
   LOOPER_FCALL(cheev,CHEEV)(jobz, uplo, n, a, lda, w, work, lwork, rwork, info);
-  lwork = static_cast<int>(real(work[0]));
+  lwork = static_cast<int>(std::real(work[0]));
   delete [] work;
 
   // do real work
@@ -143,7 +143,7 @@ inline void syev(const char & jobz, const char& uplo, const int& n,
   std::complex<double>* work  = new std::complex<double>[1];
   double* rwork = new double[std::max(1, 3*n-2)];
   LOOPER_FCALL(zheev,ZHEEV)(jobz, uplo, n, a, lda, w, work, lwork, rwork, info);
-  lwork = static_cast<int>(real(work[0]));
+  lwork = static_cast<int>(std::real(work[0]));
   delete [] work;
 
   // do real work
