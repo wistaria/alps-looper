@@ -82,10 +82,9 @@ public:
            RealObservable("beta * Energy^2"), is_signed())
       << make_observable(
            RealObservable("Susceptibility"), is_signed());
-    if (is_bipartite()) {
+    if (is_bipartite())
       m << make_observable(
              RealObservable("Staggered Susceptibility"), is_signed());
-    }
 
     // improved measurements
     m << make_observable(
