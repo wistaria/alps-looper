@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: xxz.h 604 2004-01-16 08:35:21Z wistaria $
+// $Id: xxz.h 635 2004-02-29 10:59:51Z troyer $
 
 #ifndef LOOPER_XXZ_H
 #define LOOPER_XXZ_H
@@ -287,7 +287,7 @@ public:
   }
   
   template<class G, class IntType>
-  void set_parameters(const alps::Parameters params, const G& graph,
+  void set_parameters(alps::Parameters params, const G& graph,
 		      const alps::ModelLibrary::OperatorDescriptorMap& ops,
 		      const alps::HamiltonianDescriptor<IntType>& hd)
   {
@@ -297,6 +297,9 @@ public:
     typedef typename boost::graph_traits<graph_type>::edge_iterator
       edge_iterator;
     
+	// get default couplings
+	params.copy_undefined(hd.default_parameters());
+	
     // get site parameters
     typename alps::property_map<alps::site_type_t, graph_type,
                                 type_type>::const_type

@@ -1,3 +1,7 @@
+2004-02-29  Matthias Troyer <troyer@comp-phys.org>
+
+	* Added support for default parameters in Hamiltonian
+	
 2004-02-19  Synge Todo  <wistaria@comp-phys.org>
 
 	* Supported installing headers etc.
