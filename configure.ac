@@ -1,4 +1,3 @@
-dnl configuration script for ALPS/looper
 dnl Process this file with autoconf to produce a configure script.
 
 dnl disable saving cache
@@ -9,23 +8,28 @@ dnl
 dnl Version Section ---------------------------------------------------------
 dnl
 
-define([looper_version], [esyscmd(config/extract_version.sh)])
-define([looper_date], [esyscmd(config/extract_date.sh)])
+dnl name of package
+define([package_name], [looper])
+
+dnl version of package
+define([package_version], [esyscmd(config/extract_version.sh)])
+define([package_date], [esyscmd(config/extract_date.sh)])
 
 dnl 
 dnl Initialization ----------------------------------------------------------
 dnl
 
-AC_INIT([looper], looper_version)
+AC_INIT(package_name, package_version)
 AC_CONFIG_AUX_DIR([config])
 AM_INIT_AUTOMAKE
 AC_PREFIX_DEFAULT([$HOME/ALPS])
 AM_MAINTAINER_MODE
 
-AC_MSG_NOTICE([starting configuration for ALPS/looper version looper_version (looper_date)])
+AC_MSG_NOTICE([starting configuration for ALPS/looper version package_version (package_date)])
 
-undefine([looper_version])
-undefine([looper_date])
+undefine([package_name])
+undefine([package_version])
+undefine([package_date])
 
 dnl
 dnl check for ALPS library --------------------------------------------------
@@ -44,7 +48,14 @@ AC_MSG_RESULT([$ac_cv_alps_version])
 
 if test "$ac_cv_alps_type" = "full"; then :; else
   AC_MSG_NOTICE([detected ALPS Light Libraries])
-  AC_MSG_ERROR([ALPS/looper requies the full version of ALPS Libraries])
+  AC_MSG_ERROR([The full version of ALPS Libraries is required.])
+fi
+
+if test -z "${enable_shared+set}" && test -n "$ac_cv_enable_shared"; then
+  enable_shared="$ac_cv_enable_shared"
+fi
+if test -z "${enable_static+set}" && test -n "$ac_cv_enable_static"; then
+  enable_static="$ac_cv_enable_static"
 fi
 
 AC_PROG_CC
