@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-/* $Id: graph.h 693 2004-03-16 15:48:04Z wistaria $ */
+/* $Id: graph.h 708 2004-03-19 04:01:27Z wistaria $ */
 
 #ifndef LOOPER_GRAPH_H__
 #define LOOPER_GRAPH_H__
@@ -225,6 +225,17 @@ void generate_graph(const hypercubic_graph_generator<D, S, E>& desc,
       }
     }
   }
+
+  // // simple unitcell
+  // alps::GraphUnitCell unit_cell("simple unitcell", desc.dimension());
+  // unit_cell.add_vertex(0, coordinate_type(desc.dimension(),
+  //                                         coordinate_type::value_type(0)));
+  // alps::GraphUnitCell::offset_type so(desc.dimension(), 0);
+  // for (std::size_t d = 0; d < desc.dimension(); ++d) {
+  //   alps::GraphUnitCell::offset_type to(desc.dimension(), 0);
+  //   to[d] = 1;
+  //   unit_cell.add_edge(d, 1, so, 1, to);
+  // }
 }
 
 template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
