@@ -23,6 +23,7 @@
 *****************************************************************************/
 
 #include "qmc_impl.h"
+#include <looper/exact_diag.h>
 
 #include <alps/alea.h>
 #include <boost/random.hpp>
@@ -248,10 +249,14 @@ try {
   } else {
     // exact diagonalization
     typedef looper::exact_diagonalization<graph_type, model_type> ed_type;
-    ed_type::parameter_type p(g, model, 1./opts.temp);
-    ed_type::config_type c;
-    ed_type::generate_matrix(p, c);
-    ed_type::diagonalize(p, c);
+    ed_type::parameter_type param(g, model, 1./opts.temp);
+    ed_type::config_type config;
+    ed_type::generate_matrix(param, config);
+    ed_type::diagonalize(param, config);
+    double e, e2, c;
+    boost::tie(e, e2, c) = ed_type::energy(param, config);
+    opts.output();
+    std::cout << ' ' << e << ' ' << e2 << ' ' << c << std::endl;
   }
 
 #ifndef BOOST_NO_EXCEPTIONS

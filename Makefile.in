@@ -22,7 +22,7 @@
 #
 ##############################################################################
 
-# $Id: Makefile.in 557 2003-11-12 12:33:19Z wistaria $
+# $Id: Makefile.in 561 2003-11-12 15:53:43Z wistaria $
 # top-level Makefile
 
 srcdir = @srcdir@
@@ -35,13 +35,17 @@ include @INCLUDE_MK@
 version = @PACKAGE_VERSION@
 distdir = @PACKAGE_NAME@-@PACKAGE_VERSION@
 
-cppflags = $(CPPFLAGS) -I$(top_srcdir)
-cppflags_mpi = $(CPPFLAGS_MPI) -I$(top_srcdir)
+LAPACK_CPPFLAGS = @LAPACK_CPPFLAGS@
+LAPACK_LDFLAGS = @LAPACK_LDFLAGS@
+LAPACK_LIBS = @LAPACK_LIBS@
+
+cppflags = $(CPPFLAGS) $(LAPACK_CPPFLAGS) -I$(top_srcdir)
+cppflags_mpi = $(CPPFLAGS_MPI) $(LAPACK_CPPFLAGS) -I$(top_srcdir)
 cxxflags = $(CXXFLAGS)
-ldflags = $(LDFLAGS)
-ldflags_mpi = $(LDFLAGS_MPI)
-libs_program = -lalps -lcomm-sgl $(HDF5_LIBS) $(XML_LIBS) $(BASE_LIBS)
-libs_program_mpi = -lalps -lcomm-mpi $(HDF5_LIBS) $(XML_LIBS) $(MPI_LIBS) $(BASE_LIBS)
+ldflags = $(LDFLAGS) $(LAPACK_LDFLAGS)
+ldflags_mpi = $(LDFLAGS_MPI) $(LAPACK_LDFLAGS)
+libs_program = -lalps -lcomm-sgl $(LAPACK_LIBS) $(HDF5_LIBS) $(XML_LIBS) $(BASE_LIBS)
+libs_program_mpi = -lalps -lcomm-mpi $(LAPACK_LIBS) $(HDF5_LIBS) $(XML_LIBS) $(MPI_LIBS) $(BASE_LIBS)
 
 LOCAL_CONFIG = looper/config.h lattices.xml models.xml percolation-params qmc-params
 PROGRAM_MPI =

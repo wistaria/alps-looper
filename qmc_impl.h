@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: qmc_impl.h 558 2003-11-12 14:02:13Z wistaria $
+// $Id: qmc_impl.h 561 2003-11-12 15:53:43Z wistaria $
 // qmc_impl.h - implementation of worker for QMC simulation
 
 #ifndef QMC_IMPL_H
@@ -33,7 +33,6 @@
 #include <looper/path_integral.h>
 #include <looper/sse.h>
 #include <looper/measurement.h>
-#include <looper/exact_diagonalization.h>
 
 #include <alps/alea.h>
 #include <alps/scheduler.h>

@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: graph.h 554 2003-11-12 02:36:24Z wistaria $
+// $Id: graph.h 561 2003-11-12 15:53:43Z wistaria $
 
 #ifndef LOOPER_GRAPH_H__
 #define LOOPER_GRAPH_H__
@@ -234,8 +234,19 @@ gauge(typename boost::graph_traits<
         vertex_descriptor vd,
       const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g)
 {
-  return (boost::get(parity_t(), g, vd) == alps::parity::white) ? 1 : -1;
-  // return 1 - 2 * (int)boost::get(parity_t(), g, vd);
+  BOOST_STATIC_ASSERT(alps::parity::white == 0);
+  BOOST_STATIC_ASSERT(alps::parity::black == 1);
+  return 1 - 2 * (int)boost::get(parity_t(), g, vd);
+}
+
+template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
+inline int
+site_type(typename boost::graph_traits<
+            boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
+            vertex_descriptor vd,
+          const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g)
+{
+  return boost::get(alps::site_type_t(), g, vd);
 }
 
 template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>

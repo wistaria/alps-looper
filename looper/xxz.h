@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: xxz.h 554 2003-11-12 02:36:24Z wistaria $
+// $Id: xxz.h 561 2003-11-12 15:53:43Z wistaria $
 
 #ifndef LOOPER_XXZ_H
 #define LOOPER_XXZ_H
@@ -49,6 +49,29 @@ I index(const alps::half_integer<I>& s0,
 
 } // end namespace detail
 
+
+class xxz_parameter
+{
+public:
+  xxz_parameter() : c_(), jxy_(), jz_() {}
+  xxz_parameter(double c, double jxy, double jz) : c_(c), jxy_(jxy), jz_(jz) {}
+
+  double c() const { return c_; }
+  double& c() { return c_; }
+  
+  double jxy() const { return jxy_; }
+  double& jxy() { return jxy_; }
+
+  double jz() const { return jz_; }
+  double& jz() { return jz_; }
+
+private:
+  double c_;
+  double jxy_;
+  double jz_;
+};
+
+
 template <class T = double, class M = boost::numeric::ublas::matrix<T> >
 class xxz_matrix
 {
@@ -63,6 +86,10 @@ public:
   xxz_matrix(const alps::half_integer<I>& s0, const alps::half_integer<I>& s1,
 	     double e0, double jxy, double jz) : matrix_()
   { build(s0, s1, e0, jxy, jz); }
+  template<class I>
+  xxz_matrix(const alps::half_integer<I>& s0, const alps::half_integer<I>& s1,
+	     const xxz_parameter& p) : matrix_()
+  { build(s0, s1, p.c(), p.jxy(), p.jz()); }
   
   // access to matrix
   matrix_type& matrix() { return matrix_; }
@@ -124,6 +151,7 @@ public:
 private:
   matrix_type matrix_;
 };
+
 
 template <class T, class M>
 inline std::ostream& operator<<(std::ostream& os, const xxz_matrix<T, M>& m)
@@ -200,28 +228,6 @@ fit2xxz(const alps::half_integer<I>& s0, const alps::half_integer<I>& s1,
 
   return fit2xxz(s0, s1, m, tol);
 }
-
-
-class xxz_parameter
-{
-public:
-  xxz_parameter() : c_(), jxy_(), jz_() {}
-  xxz_parameter(double c, double jxy, double jz) : c_(c), jxy_(jxy), jz_(jz) {}
-
-  double c() const { return c_; }
-  double& c() { return c_; }
-  
-  double jxy() const { return jxy_; }
-  double& jxy() { return jxy_; }
-
-  double jz() const { return jz_; }
-  double& jz() { return jz_; }
-
-private:
-  double c_;
-  double jxy_;
-  double jz_;
-};
 
 
 class xxz_model
