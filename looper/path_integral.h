@@ -304,7 +304,7 @@ struct path_integral<virtual_graph<G>, M, W, N>
             iterator itr_new =
               config.wl.insert_link_prev(node_type(), itr0, itr1).first;
             itr_new->set_time(*ti);
-            itr_new->set_bond(boost::get(edge_index_t(), vg.graph, *ei));
+            itr_new->set_bond(bond);
             itr_new->set_new(c0 ^ c1, (uniform_01() < weight.p_freeze()));
           }
         }

@@ -1,6 +1,7 @@
 Makefile
 .deps
 .libs
+alternating_tensor
 amida
 fill_duration
 gels
