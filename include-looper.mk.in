@@ -22,9 +22,11 @@
 #
 ##############################################################################
 
-# $Id: include-looper.mk.in 617 2004-02-19 08:16:39Z wistaria $
+# $Id: include-looper.mk.in 618 2004-02-19 10:04:35Z wistaria $
 
 include @INCLUDE_MK@
+
+looper_version = @PACKAGE_VERSION@
 
 LAPACK_CPPFLAGS = @LAPACK_CPPFLAGS@
 LAPACK_LDFLAGS = @LAPACK_LDFLAGS@
