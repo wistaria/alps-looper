@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: path_integral.h 464 2003-10-23 15:49:10Z wistaria $
+* $Id: path_integral.h 465 2003-10-23 22:37:19Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -56,7 +56,7 @@
 namespace looper {
 
 template<bool HasCTime = false> class pi_node;
-  
+
 template<>
 class pi_node<false> : public qmc_node
 {
@@ -79,11 +79,6 @@ public:
   ctime_type ctime() const { return std::exp(two_pi * time_); }
   void set_time(time_type t) { time_ = t; }
   
-  void clear() {
-    base_type::clear();
-    time_ = time_type(0.);
-  }
-  
   std::ostream& output(std::ostream& os) const {
     return base_type::output(os) << " time = " << time_;
   }
@@ -102,18 +97,17 @@ template<>
 class pi_node<true> : public pi_node<false>
 {
 public:
-  typedef pi_node<false> base_type;
-  typedef base_type::time_type time_type;
+  typedef pi_node<false>          base_type;
+  typedef base_type::time_type    time_type;
   typedef std::complex<time_type> ctime_type;
   BOOST_STATIC_CONSTANT(bool, has_ctime = true);
   
   pi_node() : base_type(), ctime_() {}
   
   ctime_type ctime() const { return ctime_; }
-  
   void set_time(time_type t) {
     base_type::set_time(t);
-    ctime_ = std::exp(two_pi * t);
+  ctime_ = std::exp(two_pi * t);
   }
   
   std::ostream& output(std::ostream& os) const {
@@ -366,9 +360,9 @@ struct path_integral<virtual_graph<G>, M, W>
       iterator itrB, itrT;
       boost::tie(itrB, itrT) = config.wl.series(*vi);
       if (flip[itrB->loop_segment(0).index] == 1) itrB->flip_conf();
-      itrB->clear();
+      itrB->clear_graph();
       if (flip[itrT->loop_segment(0).index] == 1) itrT->flip_conf();
-      itrT->clear();
+      itrT->clear_graph();
       //// std::cout << itrT->conf() << ' ';
     }
     //// std::cout << std::endl;
@@ -386,9 +380,10 @@ struct path_integral<virtual_graph<G>, M, W>
 	  if (itr->is_new() ^
 	      (flip[itr->loop_segment(0).index] ^
 	       flip[itr->loop_segment(1).index] == 0)) {
-	    config.wl.erase(boost::prior(++itr));
+	    ++itr;
+	    config.wl.erase(boost::prior(itr));
 	  } else {
-	    itr->clear();
+	    itr->clear_graph();
 	    ++itr;
 	  }
 	} else {

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: node.h 464 2003-10-23 15:49:10Z wistaria $
+* $Id: node.h 465 2003-10-23 22:37:19Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -190,7 +190,7 @@ public:
   int& loop_index(int i) { return loop_segment(i).root()->index; }
   int loop_index(int i) const { return loop_segment(i).root()->index; }
   
-  void clear() {
+  void clear_graph() {
     node_property::clear_graph();
     segment0_.reset();
     segment1_.reset();
