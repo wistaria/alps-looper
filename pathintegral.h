@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: pathintegral.h 441 2003-10-17 10:28:53Z wistaria $
+* $Id: pathintegral.h 442 2003-10-18 03:00:15Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -241,7 +241,7 @@ generate_loops(amida<N>& config, const virtual_graph<G>& vg, const M& model,
     // setup bond weight
     weight_type weight(model.bond(boost::get(edge_type_t(), vg.graph, *ei)));
     std::vector<double> trials;
-    fill_duration(uniform_01, trials, beta * weight.density, 1.);
+    fill_duration(uniform_01, trials, beta * weight.density);
     
     // iteration up to t = 1
     std::vector<double>::const_iterator ti_end = trials.end();
@@ -327,8 +327,13 @@ generate_loops(amida<N>& config, const virtual_graph<G>& vg, const M& model,
   for (vertex_iterator vi = boost::vertices(vg.graph).first;
        vi != vi_end; ++vi) {
     iterator itr = config.series(*vi).first;
-    if (itr->loop_segment(0).root()->index == loop_segment::undefined)
-      itr->loop_segment(0).root()->index = num_loops0++;
+    if (itr->loop_segment(0).root()->index == loop_segment::undefined) {
+      itr->loop_segment(0).root()->index = num_loops0;
+      itr->loop_segment(0).index = num_loops0;
+      ++num_loops0;
+    } else {
+      itr->loop_segment(0).index = itr->loop_segment(0).root()->index;
+    }
   }
   int num_loops = num_loops0;
   vi_end = boost::vertices(vg.graph).second;
@@ -340,33 +345,21 @@ generate_loops(amida<N>& config, const virtual_graph<G>& vg, const M& model,
     // iteration up to t = 1
     while (!itr.at_top()) {
       if (itr.leg() == 0) {
-	if (itr->loop_segment(0).is_root() &&
-	    itr->loop_segment(0).index == loop_segment::undefined)
-	  itr->loop_segment(0).index = num_loops++;
-	if (itr->loop_segment(1).is_root() &&
-	    itr->loop_segment(1).index == loop_segment::undefined)
-	  itr->loop_segment(1).index = num_loops++;
+	if (itr->loop_segment(0).root()->index == loop_segment::undefined) {
+	  itr->loop_segment(0).root()->index = num_loops;
+	  itr->loop_segment(0).index = num_loops;
+	  ++num_loops;
+	} else {
+	  itr->loop_segment(0).index = itr->loop_segment(0).root()->index;
+	}
+	if (itr->loop_segment(1).root()->index == loop_segment::undefined) {
+	  itr->loop_segment(1).root()->index = num_loops;
+	  itr->loop_segment(1).index = num_loops;
+	  ++num_loops;
+	} else {
+	  itr->loop_segment(1).index = itr->loop_segment(1).root()->index;
+	}
       }
-      ++itr;
-    }
-  }
-
-  // writing loop indices
-  vi_end = boost::vertices(vg.graph).second;
-  for (vertex_iterator vi = boost::vertices(vg.graph).first;
-       vi != vi_end; ++vi) {
-    // setup iterator
-    iterator itr = config.series(*vi).first;
-    
-    // iteration up to t = 1
-    while (true) {
-      if (itr.at_boundary()) {
-	itr->loop_segment(0).index = itr->loop_segment(0).root()->index;
-      } else {
-	itr->loop_segment(1).index = itr->loop_segment(1).root()->index;
-	itr->loop_segment(1).index = itr->loop_segment(1).root()->index;
-      }
-      if (itr.at_top()) break;
       ++itr;
     }
   }
@@ -398,8 +391,9 @@ flip_and_cleanup(amida<N>& config, const virtual_graph<G>& vg,
     edge_iterator;
 
   std::vector<int> flip(num_loops);
-  for (std::vector<int>::iterator itr = flip.begin(); itr != flip.end(); ++itr)
-    *itr = ((uniform_01() < 0.5) ? 0 : 1);
+  std::generate(flip.begin(), flip.end(),
+		boost::variate_generator<RNG, boost::uniform_smallint<> >(
+		  uniform_01, boost::uniform_smallint<>(0, 1)));
 
   // flip spins
   vertex_iterator vi_end = boost::vertices(vg.graph).second;
@@ -408,7 +402,9 @@ flip_and_cleanup(amida<N>& config, const virtual_graph<G>& vg,
     iterator itrB, itrT;
     boost::tie(itrB, itrT) = config.series(*vi);
     if (flip[itrB->loop_segment(0).index] == 1) itrB->flip_conf();
+    itrB->clear();
     if (flip[itrT->loop_segment(0).index] == 1) itrT->flip_conf();
+    itrT->clear();
 
     std::cout << itrT->conf() << ' ';
   }
