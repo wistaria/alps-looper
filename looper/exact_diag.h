@@ -139,7 +139,8 @@ struct exact_diagonalization
     vertex_iterator vi, vi_end;
     for (boost::tie(vi, vi_end) = boost::vertices(param.graph);
          vi != vi_end; ++vi) {
-      int d = param.model.spin(site_type(*vi, param.graph)).get_twice() + 1;
+      int d =
+        param.model.site(site_type(*vi, param.graph)).s().get_twice() +        1;
       if (config.basis.size() == 0) config.dimension = 1;
       config.basis.push_back(std::make_pair(d, config.dimension));
       config.dimension *= d;
@@ -157,8 +158,8 @@ struct exact_diagonalization
       int d1 = config.basis[v1].first;
 
       xxz_matrix<value_type, matrix_type>
-        m(param.model.spin(site_type(v0, param.graph)),
-          param.model.spin(site_type(v1, param.graph)),
+        m(param.model.site(site_type(v0, param.graph)),
+          param.model.site(site_type(v1, param.graph)),
           param.model.bond(bond_type(*ei, param.graph)));
 
       for (int s = 0; s < config.dimension; ++s) {

@@ -1,3 +1,7 @@
+2004-04-03  Synge Todo  <wistaria@comp-phys.org>
+
+	* Introduced site_parameter<T> class template.
+	
 2004-04-01  Synge Todo  <wistaria@comp-phys.org>
 
 	* Add new test generate_01, in which icc 8.0 with -xW fails, and

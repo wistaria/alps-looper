@@ -25,8 +25,8 @@
 #include <looper/xxz.h>
 #include <iostream>
 
-template<class G>
-void output(const G& graph, const looper::xxz_model& m)
+template<class G, class I>
+void output(const G& graph, const looper::xxz_model<I>& m)
 {
   typedef G graph_type;
   typedef typename boost::graph_traits<graph_type>::vertex_iterator
@@ -35,9 +35,9 @@ void output(const G& graph, const looper::xxz_model& m)
     edge_iterator;
 
   // site parameters
-  std::cout << "number of spin types = " << m.num_spin_types() << std::endl;
-  if (m.is_uniform_spin()) {
-    std::cout << "S = " << m.uniform_spin() << std::endl;
+  std::cout << "number of site types = " << m.num_site_types() << std::endl;
+  if (m.is_uniform_site()) {
+    std::cout << "S = " << m.uniform_site().s() << std::endl;
   }
   typename alps::property_map<alps::site_type_t, graph_type, int>::const_type
     site_type(alps::get_or_default(alps::site_type_t(), graph, 0));
@@ -45,8 +45,8 @@ void output(const G& graph, const looper::xxz_model& m)
   for (vertex_iterator vi = boost::vertices(graph).first; vi != vi_end;
        ++vi) {
     int t = site_type[*vi];
-    std::cout << "site " << *vi << ": type = " << t << ", S = " << m.spin(t)
-              << std::endl;
+    std::cout << "site " << *vi << ": type = " << t << ", S = "
+              << m.site(t).s() << std::endl;
   }
 
   // bond parameters
@@ -58,7 +58,7 @@ void output(const G& graph, const looper::xxz_model& m)
   for (edge_iterator ei = boost::edges(graph).first; ei != ei_end; ++ei) {
     int t = bond_type[*ei];
     std::cout << "bond " << *ei << ": type = " << t << ", " << m.bond(t)
-	      << std::endl;
+              << std::endl;
   }
 }
 
@@ -72,19 +72,19 @@ try {
   std::cin >> params;
 
   // get graph
-  typedef alps::graph_factory<>::graph_type graph_type;
-  alps::graph_factory<graph_type> gf(params);
-  const graph_type& graph = gf.graph();
+  typedef alps::graph_helper<>::graph_type graph_type;
+  alps::graph_helper<> gh(params);
+  const graph_type& graph = gh.graph();
 
   // get model
   alps::ModelLibrary models(params);
 
   // construct from model library
-  looper::xxz_model m0(params, graph, models);
+  looper::xxz_model<> m0(params, graph, models);
   output(graph, m0);
 
   // construct from parameters
-  looper::xxz_model m1(-2, -1, alps::half_integer<short>(1.5), graph);
+  looper::xxz_model<> m1(-2, -1, looper::xxz_model<>::spin_type(1.5), graph);
   output(graph, m1);
 
 #ifndef BOOST_NO_EXCEPTIONS

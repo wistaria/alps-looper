@@ -1,4 +1,4 @@
-number of spin types = 1
+number of site types = 1
 S = 1/2
 site 0: type = 0, S = 1/2
 site 1: type = 0, S = 1/2
@@ -18,7 +18,7 @@ bond (4,5): type = 0, C = 0, Jxy = 2, Jz = -0.6
 bond (5,6): type = 0, C = 0, Jxy = 2, Jz = -0.6
 bond (6,7): type = 0, C = 0, Jxy = 2, Jz = -0.6
 bond (7,0): type = 0, C = 0, Jxy = 2, Jz = -0.6
-number of spin types = 1
+number of site types = 1
 S = 3/2
 site 0: type = 0, S = 3/2
 site 1: type = 0, S = 3/2

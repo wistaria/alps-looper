@@ -140,7 +140,7 @@ inline void generate_virtual_graph(virtual_graph<G>& vg, const RG& rg,
   typename rgraph_type::vertex_iterator rvi, rvi_end;
   for (boost::tie(rvi, rvi_end) = boost::vertices(rg); rvi != rvi_end; ++rvi) {
     int t = boost::get(vertex_type_t(), rg, *rvi);
-    for (int i = 0; i < model.spin(t).get_twice(); ++i) {
+    for (int i = 0; i < model.site(t).s().get_twice(); ++i) {
       // add vertices to virtual graph
       typename vgraph_type::vertex_descriptor
         vvd = boost::add_vertex(vg.graph);
@@ -158,7 +158,7 @@ inline void generate_virtual_graph(virtual_graph<G>& vg, const RG& rg,
   typename vgraph_type::vertex_iterator vvi_last = vvi_first;
   for (boost::tie(rvi, rvi_end) = boost::vertices(rg); rvi != rvi_end; ++rvi) {
     int t = boost::get(vertex_type_t(), rg, *rvi);
-    for (int i = 0; i < model.spin(t).get_twice(); ++i)
+    for (int i = 0; i < model.site(t).s().get_twice(); ++i)
       ++vvi_last;
     vg.mapping.add(vvi_first, vvi_last);
     vvi_first = vvi_last;
@@ -191,10 +191,18 @@ inline void generate_virtual_graph(virtual_graph<G>& vg, const RG& rg,
 namespace vg_detail {
 
 template<class T>
+struct spin_wrapper
+{
+  spin_wrapper(const T& v) : val_(v) {}
+  const T& s() const { return val_; }
+  const T& val_;
+};
+
+template<class T>
 struct vector_spin_wrapper
 {
   vector_spin_wrapper(const std::vector<T>& v) : vec_(v) {}
-  const T& spin(int i) const { return vec_[i]; }
+  spin_wrapper<T> site(int i) const { return spin_wrapper<T>(vec_[i]); }
   const std::vector<T>& vec_;
 };
 
@@ -202,7 +210,7 @@ template<class T>
 struct const_spin_wrapper
 {
   const_spin_wrapper(const T& t) : t_(t) {}
-  const T& spin(int) const { return t_; }
+  spin_wrapper<T> site(int) const { return spin_wrapper<T>(t_); }
   const T& t_;
 };
 

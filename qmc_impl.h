@@ -330,16 +330,16 @@ class factory : public alps::scheduler::Factory
         p["REPRESENTATION"] == "path integral") {
       return new worker<qmc_worker<looper::path_integral<
                           looper::virtual_graph<looper::parity_graph_type>,
-                          looper::xxz_model> > >(w, p, n);
+                          looper::xxz_model<> > > >(w, p, n);
     } else if (p["REPRESENTATION"] == "SSE") {
       return new worker<qmc_worker<looper::sse<
                           looper::virtual_graph<looper::parity_graph_type>,
-                          looper::xxz_model> > >(w, p, n);
+                          looper::xxz_model<> > > >(w, p, n);
 #ifdef HAVE_LAPACK
     } else if (p["REPRESENTATION"] == "exact diagonalization") {
       return new worker<ed_worker<looper::exact_diagonalization<
                           looper::parity_graph_type,
-                          looper::xxz_model> > >(w, p, n);
+                          looper::xxz_model<> > > >(w, p, n);
 #endif // HAVE_LAPACK
     } else {
       boost::throw_exception(std::invalid_argument("unknwon representation"));

@@ -205,7 +205,7 @@ try {
     looper::hypercubic_graph_generator<>(opts.dim, opts.lsize));
 
   // model & inverse temperature
-  typedef looper::xxz_model model_type;
+  typedef looper::xxz_model<> model_type;
   model_type model(opts.Jxy, opts.Jz, opts.spin, g);
   double beta = 1./opts.temp;
 

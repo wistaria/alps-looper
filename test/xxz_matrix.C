@@ -32,8 +32,8 @@ int main()
   for (int i = 0; i < n; ++i) {
     double s0_in, s1_in, e0, jxy, jz;
     std::cin >> s0_in >> s1_in >> e0 >> jxy >> jz;
-    looper::site_parameter s0(s0_in);
-    looper::site_parameter s1(s1_in);
+    looper::site_parameter<> s0(s0_in);
+    looper::site_parameter<> s1(s1_in);
     looper::xxz_matrix<> xxz(s0, s1, e0, jxy, jz);
 
     std::cout << "input parameters: S0 = " << s0.s() << ", S1 = " << s1.s()
