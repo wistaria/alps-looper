@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: random.h 443 2003-10-18 03:00:16Z wistaria $
+* $Id: weight.h 455 2003-10-22 01:04:57Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -34,47 +34,56 @@
 *
 **************************************************************************/
 
-#ifndef LOOPER_RANDOM_H
-#define LOOPER_RANDOM_H
+#ifndef LOOPER_WEIGHT_H
+#define LOOPER_WEIGHT_H
 
-#include <boost/random/exponential_distribution.hpp>
-#include <boost/throw_exception.hpp>
-#include <stdexcept>
+#include <algorithm> // for std::max, std::min
+#include <cmath> // for std::abs
 
 namespace looper {
 
-// fill duration [0,tmax] uniformly with density r
+//
+// default graph weights for path-integral and SSE loop algorithms
+//
 
-template<class RNG, class C>
-void fill_duration(RNG& uniform_01, C& array, 
-		   typename C::value_type r, typename C::value_type tmax)
+struct default_weight
 {
-  typedef typename C::value_type value_type;
-
-  if (tmax < value_type(0.))
-    boost::throw_exception(std::invalid_argument("invalid argument"));
-
-  array.clear();
-  if (r <= value_type(0.)) return;
-
-  boost::exponential_distribution<value_type> exp_rng(r);
-  value_type t(value_type(0.));
-  while (true) {
-    t += exp_rng(uniform_01);
-    if (t >= tmax) break;
-    array.push_back(t);
+  double density;
+  double p_freeze;
+  double p_accept_para;
+  double p_accept_anti;
+  double p_reflect;
+  double offset;
+  
+  default_weight() : density(0), p_freeze(0), p_accept_para(0),
+		     p_accept_anti(0), p_reflect(0), offset(0) {}
+  template<class P>
+  default_weight(const P& p) : density(0), p_freeze(0), p_accept_para(0),
+			       p_accept_anti(0), p_reflect(0), offset(0)
+  {
+    using std::abs; using std::max;
+    double Jxy = abs(p.Jxy); // ignore negative signs
+    double Jz = p.Jz;
+    if (Jxy + abs(Jz) > 1.0e-10) {
+      density = max(abs(Jz) / 2, (Jxy + abs(Jz)) / 4);
+      p_freeze = range_01(1 - Jxy / abs(Jz));
+      p_accept_para = range_01((Jxy + Jz) / (Jxy + abs(Jz)));
+      p_accept_anti = range_01((Jxy - Jz) / (Jxy + abs(Jz)));
+      p_reflect = range_01((Jxy - Jz) / (2 * Jxy));
+      offset = max(abs(Jz) / 4, Jxy / 4);
+    }
   }
-}
+  
+  double p_accept(int c0, int c1) const {
+    return (c0 ^ c1) ? p_accept_anti : p_accept_para;
+  }
+  
+protected:
+  double range_01(double x) const {
+    return std::min(std::max(x, 0.), 1.);
+  }
+};
+  
+} // namespace looper
 
-// fill duration [0,1] uniformly with density r
-
-template<class RNG, class C>
-void fill_duration(RNG& uniform_01, C& array, typename C::value_type r)
-{
-  typedef typename C::value_type value_type;
-  fill_duration(uniform_01, array, r, value_type(1.));
-}
-
-} // end namespace looper
-
-#endif // LOOPER_RANDOM_H
+#endif // LOOPER_WEIGHT_H

@@ -39,18 +39,18 @@ top_builddir = ./@top_builddir@
 
 include @INCLUDE_MK@
 
-cppflags = $(CPPFLAGS)
-cppflags_mpi = $(CPPFLAGS_MPI)
+cppflags = $(CPPFLAGS) -I$(top_builddir)
+cppflags_mpi = $(CPPFLAGS_MPI) -I$(top_builddir)
 cxxflags = $(CXXFLAGS)
 ldflags = $(LDFLAGS)
 ldflags_mpi = $(LDFLAGS_MPI)
 libs_program = -lalps -lcomm-sgl $(HDF5_LIBS) $(XML_LIBS) $(BASE_LIBS)
 libs_program_mpi = -lalps -lcomm-mpi $(HDF5_LIBS) $(XML_LIBS) $(MPI_LIBS) $(BASE_LIBS)
 
-LOCAL_CONFIG = lattices.xml models.xml
-EXAMPLE = simple
+LOCAL_CONFIG = lattices.xml models.xml percolation-params
+EXAMPLE = qmc_cmd percolation percolation_cmd
 
-default all : simple
+default all : $(EXAMPLE)
 
 # rules for tests
 
@@ -83,6 +83,12 @@ models.xml : $(srcdir)/models.xml.in
 	$(top_builddir)config.status models.xml
 lattices.xml : $(srcdir)/lattices.xml.in
 	$(top_builddir)config.status lattices.xml
+
+percolation : percolation-params
+percolation-params : $(srcdir)/percolation-params.in
+	./config.status percolation-params
+percolatioin-params.in.xml : percolation-params
+	$(bindir)/convert2xml percolation-params
 
 include $(RULES_MK)
 include $(srcdir)/Makefile.dep

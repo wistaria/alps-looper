@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: model.h 453 2003-10-21 06:07:38Z wistaria $
+* $Id: fill_duration.h 455 2003-10-22 01:04:57Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -34,11 +34,47 @@
 *
 **************************************************************************/
 
-#ifndef LOOPER_MODEL_H
-#define LOOPER_MODEL_H
+#ifndef LOOPER_FILL_DURATION_H
+#define LOOPER_FILL_DURATION_H
 
-#include "graph.h"
-#include "virtual_graph.h"
-#include "xxz.h"
+#include <boost/random/exponential_distribution.hpp>
+#include <boost/throw_exception.hpp>
+#include <stdexcept>
 
-#endif // LOOPER_MODEL_H
+namespace looper {
+
+// fill duration [0,tmax] uniformly with density r
+
+template<class RNG, class C>
+void fill_duration(RNG& uniform_01, C& array, 
+		   typename C::value_type r, typename C::value_type tmax)
+{
+  typedef typename C::value_type value_type;
+
+  if (tmax < value_type(0.))
+    boost::throw_exception(std::invalid_argument("invalid argument"));
+
+  array.clear();
+  if (r <= value_type(0.)) return;
+
+  boost::exponential_distribution<value_type> exp_rng(r);
+  value_type t(value_type(0.));
+  while (true) {
+    t += exp_rng(uniform_01);
+    if (t >= tmax) break;
+    array.push_back(t);
+  }
+}
+
+// fill duration [0,1] uniformly with density r
+
+template<class RNG, class C>
+void fill_duration(RNG& uniform_01, C& array, typename C::value_type r)
+{
+  typedef typename C::value_type value_type;
+  fill_duration(uniform_01, array, r, value_type(1.));
+}
+
+} // end namespace looper
+
+#endif // LOOPER_FILL_DURATION_H

@@ -1,0 +1,7 @@
+{
+LATTICE = "square lattice"
+L = 16
+type = site
+probability = 0.5
+samples = 100
+}
