@@ -1,11 +1,8 @@
-AM_CPPFLAGS = @CPPFLAGS_SGL@ @LAPACK_CPPFLAGS@
+AM_CPPFLAGS = @CPPFLAGS_SGL@ @LAPACK_CPPFLAGS@ @BINDINGS_CPPFLAGS@
 AM_LDFLAGS = -L$(top_builddir) @LDFLAGS_SGL@ @LAPACK_LDFLAGS@
 LDADD = @LAPACK_LIBS@ @LIBS_SGL@
 
-check_PROGRAMS = amida fill_duration generate_01 hypercubic index_helper permutation random_choice union_find virtual_graph weight xxz_matrix xxz_model
-if HAVE_LAPACK
-check_PROGRAMS += syev gels
-endif
+check_PROGRAMS = amida fill_duration gels generate_01 hypercubic index_helper permutation random_choice syev union_find virtual_graph weight xxz_matrix xxz_model
 
 dist_noinst_DATA = amida.op fill_duration.ip fill_duration.op generate_01.op hypercubic.ip hypercubic.op index_helper.op permutation.op random_choice.op syev.op union_find.op virtual_graph.op weight.ip weight.op xxz_matrix.ip xxz_matrix.op xxz_model.ip xxz_model.op
 

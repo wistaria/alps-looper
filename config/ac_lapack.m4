@@ -570,6 +570,7 @@ AC_DEFUN([AC_LAPACK],
   if test "$found_blas" = yes; then
     ac_cv_have_blas=yes
     AC_MSG_NOTICE([enabling BLAS support])
+    AC_DEFINE(HAVE_BLAS, [], [Define if you have a BLAS library.])
   else
     ac_cv_have_blas=no
     AC_MSG_NOTICE([disabling BLAS support])
@@ -578,6 +579,7 @@ AC_DEFUN([AC_LAPACK],
   if test "$found_lapack" = yes; then
     ac_cv_have_lapack=yes
     AC_MSG_NOTICE([enabling LAPACK support])
+    AC_DEFINE(HAVE_LAPACK, [], [Define if you have a LAPACK library.])
   else
     ac_cv_have_lapack=no
     AC_MSG_NOTICE([disabling LAPACK support])

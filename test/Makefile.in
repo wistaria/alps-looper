@@ -36,24 +36,23 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-check_PROGRAMS = amida$(EXEEXT) fill_duration$(EXEEXT) \
+check_PROGRAMS = amida$(EXEEXT) fill_duration$(EXEEXT) gels$(EXEEXT) \
 	generate_01$(EXEEXT) hypercubic$(EXEEXT) index_helper$(EXEEXT) \
-	permutation$(EXEEXT) random_choice$(EXEEXT) \
+	permutation$(EXEEXT) random_choice$(EXEEXT) syev$(EXEEXT) \
 	union_find$(EXEEXT) virtual_graph$(EXEEXT) weight$(EXEEXT) \
-	xxz_matrix$(EXEEXT) xxz_model$(EXEEXT) $(am__EXEEXT_1)
-@HAVE_LAPACK_TRUE@am__append_1 = syev gels
+	xxz_matrix$(EXEEXT) xxz_model$(EXEEXT)
 subdir = test
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/xxz_model.ip.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
+	$(top_srcdir)/config/ac_bindings.m4 \
 	$(top_srcdir)/config/ac_lapack.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(mkdir_p)
 CONFIG_HEADER = $(top_builddir)/looper/config.h
 CONFIG_CLEAN_FILES = xxz_model.ip
-@HAVE_LAPACK_TRUE@am__EXEEXT_1 = syev$(EXEEXT) gels$(EXEEXT)
 am_amida_OBJECTS = amida.$(OBJEXT)
 amida_OBJECTS = $(am_amida_OBJECTS)
 amida_LDADD = $(LDADD)
@@ -151,6 +150,7 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BINDINGS_CPPFLAGS = @BINDINGS_CPPFLAGS@
 CPPFLAGS = @CPPFLAGS@
 CPPFLAGS_MPI = @CPPFLAGS_MPI@
 CPPFLAGS_PVM = @CPPFLAGS_PVM@
@@ -166,6 +166,8 @@ ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EXEEXT = @EXEEXT@
+HAVE_BINDINGS_FALSE = @HAVE_BINDINGS_FALSE@
+HAVE_BINDINGS_TRUE = @HAVE_BINDINGS_TRUE@
 HAVE_LAPACK_FALSE = @HAVE_LAPACK_FALSE@
 HAVE_LAPACK_TRUE = @HAVE_LAPACK_TRUE@
 HAVE_MPI_FALSE = @HAVE_MPI_FALSE@
@@ -229,7 +231,7 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-AM_CPPFLAGS = @CPPFLAGS_SGL@ @LAPACK_CPPFLAGS@
+AM_CPPFLAGS = @CPPFLAGS_SGL@ @LAPACK_CPPFLAGS@ @BINDINGS_CPPFLAGS@
 AM_LDFLAGS = -L$(top_builddir) @LDFLAGS_SGL@ @LAPACK_LDFLAGS@
 LDADD = @LAPACK_LIBS@ @LIBS_SGL@
 dist_noinst_DATA = amida.op fill_duration.ip fill_duration.op generate_01.op hypercubic.ip hypercubic.op index_helper.op permutation.op random_choice.op syev.op union_find.op virtual_graph.op weight.ip weight.op xxz_matrix.ip xxz_matrix.op xxz_model.ip xxz_model.op

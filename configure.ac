@@ -53,7 +53,17 @@ dnl check for LAPACK
 dnl
 
 AC_LAPACK
-AM_CONDITIONAL(HAVE_LAPACK, test "$ac_cv_have_lapack" = yes)
+AM_CONDITIONAL(HAVE_LAPACK, test "$ac_cv_alps_have_lapack" = yes)
+if test "$ac_cv_have_lapack" = no; then
+  AC_MSG_ERROR([LAPACK Library not found.])
+fi
+
+dnl
+dnl check for uBLAS LAPACK bindings
+dnl
+
+AC_BINDINGS
+AM_CONDITIONAL(HAVE_BINDINGS, test "$ac_cv_alps_have_bindings" = yes)
 
 dnl
 dnl check for MPI library

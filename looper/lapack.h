@@ -25,93 +25,36 @@
 #ifndef LOOPER_LAPACK_H
 #define LOOPER_LAPACK_H
 
-#include <looper/fortran.h>
-
-#include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/vector.hpp>
+#include <looper/config.h>
 
 #include <algorithm>
 #include <complex>
 #include <stdexcept>
 
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/vector.hpp>
+
+#ifdef HAVE_BINDINGS
+
+#include <alps/bindings/gels.hpp>
+#include <alps/bindings/syev.hpp>
+#include <boost/numeric/bindings/traits/ublas_matrix.hpp>
+#include <boost/numeric/bindings/traits/ublas_vector.hpp>
+
+#else
+
 #if defined(c_plusplus) || defined(__cplusplus)
 extern "C" {
 #endif
 
-//
-// Simple Driver Routines for Eigenvalue Problems for Symmetric/Hermitian
-// Matrixes
-//
+void dsyev_ (const char& jobz, const char& uplo, const int& n,
+	     double a[], const int& lda, double w[], double work[], const int& lwork,
+	     int& info);
 
-// ?SYEV: Computes all eigenvalues and, optionally, eigenvectors of a
-// real symmetric/complex Hermite matrix
 
-void LOOPER_FCALL(ssyev,SSYEV)(const char& jobz, const char& uplo,
-                               const int& n,
-                               float a[], const int& lda,
-                               float w[],
-                               float work[], const int& lwork,
-                               int& info);
-
-void LOOPER_FCALL(dsyev,DSYEV)(const char& jobz, const char& uplo,
-                               const int& n,
-                               double a[], const int& lda,
-                               double w[],
-                               double work[], const int& lwork,
-                               int& info);
-
-void LOOPER_FCALL(cheev,CHEEV)(const char& jobz, const char& uplo,
-                               const int& n,
-                               std::complex<float> a[], const int& lda,
-                               float w[],
-                               std::complex<float> work[], const int& lwork,
-                               float rwork[],
-                               int& info);
-
-void LOOPER_FCALL(zheev,ZHEEV)(const char& jobz, const char& uplo,
-                               const int& n,
-                               std::complex<double> a[], const int& lda,
-                               double w[],
-                               std::complex<double> work[], const int& lwork,
-                               double rwork[],
-                               int& info);
-
-//
-// Simple Driver Routines for Solving Least Squares Problems
-//
-
-// ?GELS: Computes the least squares solution to an over-determined system
-// of linear equations, A X=B or A**H X=B, or the minimum norm solution of
-// an under-determined system, where A is a general rectangular matrix of
-// full rank, using a QR or LQ factorization of A.
-
-void LOOPER_FCALL(sgels,SGELS)(const char& trans, const int& m, const int& n,
-                               const int& nrhs,
-                               float a[], const int& lda,
-                               float b[], const int& ldb,
-                               float work[], const int& lwork,
-                               int& info);
-
-void LOOPER_FCALL(dgels,DGELS)(const char& trans, const int& m, const int& n,
-                               const int& nrhs,
-                               double a[], const int& lda,
-                               double b[], const int& ldb,
-                               double work[], const int& lwork,
-                               int& info);
-
-void LOOPER_FCALL(cgels,CGELS)(const char& trans, const int& m, const int& n,
-                               const int& nrhs,
-                               std::complex<float> a[], const int& lda,
-                               std::complex<float> b[], const int& ldb,
-                               std::complex<float> work[], const int& lwork,
-                               int& info);
-
-void LOOPER_FCALL(zgels,ZGELS)(const char& trans, const int& m, const int& n,
-                               const int& nrhs,
-                               std::complex<double> a[], const int& lda,
-                               std::complex<double> b[], const int& ldb,
-                               std::complex<double> work[], const int& lwork,
-                               int& info);
+void dgels_ (const char& trans, const int& m, const int& n, const int& nrhs,
+	     double a[], const int& lda, double b[], const int& ldb,
+	     double work[], const int& lwork, int& info);
 
 #if defined(c_plusplus) || defined(__cplusplus)
 }
@@ -119,23 +62,7 @@ void LOOPER_FCALL(zgels,ZGELS)(const char& trans, const int& m, const int& n,
 
 namespace looper {
 
-namespace lapack_dispatch {
-
-inline void syev(const char& jobz, const char& uplo, const int& n,
-                 float a[], const int& lda, float w[],
-                 int& info) {
-  // check optimal size of lwork
-  int lwork = -1;
-  float* work  = new float[1];
-  LOOPER_FCALL(ssyev,SSYEV)(jobz, uplo, n, a, lda, w, work, lwork, info);
-  lwork = static_cast<int>(work[0]);
-  delete [] work;
-
-  // do real work
-  work  = new float[lwork];
-  LOOPER_FCALL(ssyev,SSYEV)(jobz, uplo, n, a, lda, w, work, lwork, info);
-  delete [] work;
-}
+namespace lapack {
 
 inline void syev(const char& jobz, const char& uplo, const int& n,
                  double a[], const int& lda, double w[],
@@ -143,61 +70,13 @@ inline void syev(const char& jobz, const char& uplo, const int& n,
   // check optimal size of lwork
   int lwork = -1;
   double* work  = new double[1];
-  LOOPER_FCALL(dsyev,DSYEV)(jobz, uplo, n, a, lda, w, work, lwork, info);
+  dsyev_(jobz, uplo, n, a, lda, w, work, lwork, info);
   lwork = static_cast<int>(work[0]);
   delete [] work;
 
   // do real work
   work  = new double[lwork];
-  LOOPER_FCALL(dsyev,DSYEV)(jobz, uplo, n, a, lda, w, work, lwork, info);
-  delete [] work;
-}
-
-inline void syev(const char& jobz, const char& uplo, const int& n,
-                 std::complex<float> a[], const int& lda, float w[],
-                 int& info) {
-  // check optimal size of lwork
-  int lwork = -1;
-  std::complex<float>* work  = new std::complex<float>[1];
-  float* rwork = new float[std::max(1, 3*n-2)];
-  LOOPER_FCALL(cheev,CHEEV)(jobz, uplo, n, a, lda, w, work, lwork, rwork, info);
-  lwork = static_cast<int>(std::real(work[0]));
-  delete [] work;
-
-  // do real work
-  work  = new std::complex<float>[lwork];
-  LOOPER_FCALL(cheev,CHEEV)(jobz, uplo, n, a, lda, w, work, lwork, rwork, info);
-  delete [] rwork;
-  delete [] work;
-}
-
-inline void syev(const char& jobz, const char& uplo, const int& n,
-                 std::complex<double> a[], const int& lda, double w[],
-                 int& info) {
-  // check optimal size of lwork
-  int lwork = -1;
-  std::complex<double>* work  = new std::complex<double>[1];
-  double* rwork = new double[std::max(1, 3*n-2)];
-  LOOPER_FCALL(zheev,ZHEEV)(jobz, uplo, n, a, lda, w, work, lwork, rwork, info);
-  lwork = static_cast<int>(std::real(work[0]));
-  delete [] work;
-
-  // do real work
-  work  = new std::complex<double>[lwork];
-  LOOPER_FCALL(zheev,ZHEEV)(jobz, uplo, n, a, lda, w, work, lwork, rwork, info);
-  delete [] rwork;
-  delete [] work;
-}
-
-inline void gels(const char& trans, const int& m, const int& n,
-                 const int& nrhs,
-                 float a[], const int& lda,
-                 float b[], const int& ldb,
-                 int& info) {
-  int lwork = std::min(m,n) + std::max(std::max(1,m), std::max(n,nrhs)) * 64;
-  float* work  = new float[lwork];
-  LOOPER_FCALL(sgels,SGELS)(trans, m, n, nrhs, a, lda, b, ldb,
-                            work, lwork,info);
+  dsyev_(jobz, uplo, n, a, lda, w, work, lwork, info);
   delete [] work;
 }
 
@@ -208,12 +87,15 @@ inline void gels(const char& trans, const int& m, const int& n,
                  int& info) {
   int lwork = std::min(m,n) + std::max(std::max(1,m), std::max(n,nrhs)) * 64;
   double* work  = new double[lwork];
-  LOOPER_FCALL(dgels,DGELS)(trans, m, n, nrhs, a, lda, b, ldb,
-                            work, lwork,info);
+  dgels_(trans, m, n, nrhs, a, lda, b, ldb, work, lwork,info);
   delete [] work;
 }
 
-} // namespace lapack_dispatch
+} // namespace lapack
+
+} // namespace looper
+
+#endif
 
 namespace {
 
@@ -260,6 +142,8 @@ struct matrix_helper<
 
 }
 
+namespace looper {
+
 template <class Matrix, class Vector>
 inline void diagonalize(Matrix& a, Vector& w, bool need_eigenvectors = true)
 {
@@ -277,12 +161,16 @@ inline void diagonalize(Matrix& a, Vector& w, bool need_eigenvectors = true)
   int info;
 
   // call dispatcher
-  lapack_dispatch::syev(jobz, uplo,
-                        vector_helper<Vector>::size(w),
-                        matrix_helper<Matrix>::begin_ptr(a),
-                        vector_helper<Vector>::size(w),
-                        vector_helper<Vector>::begin_ptr(w),
-                        info);
+#ifdef HAVE_BINDINGS  
+  info = boost::numeric::bindings::lapack::syev(jobz, uplo, a, w);
+#else
+  lapack::syev(jobz, uplo,
+	       vector_helper<Vector>::size(w),
+	       matrix_helper<Matrix>::begin_ptr(a),
+	       vector_helper<Vector>::size(w),
+	       vector_helper<Vector>::begin_ptr(w),
+	       info);
+#endif
   if (info != 0) throw std::runtime_error("failed in syev");
 }
 
@@ -301,32 +189,56 @@ inline void solve_llsp(Matrix& a, Vector& b, Vector& x)
   if (matrix_helper<Matrix>::is_column_major) {
     trans = 'N';
     if (m >= n) {
-      lapack_dispatch::gels(trans, m, n, 1,
-                            matrix_helper<Matrix>::begin_ptr(a), m,
-                            vector_helper<Vector>::begin_ptr(b), m,
-                            info);
+#ifdef HAVE_BINDINGS
+      info = boost::numeric::bindings::lapack::gels(trans, m, n, 1,
+	       matrix_helper<Matrix>::begin_ptr(a), m,
+               vector_helper<Vector>::begin_ptr(b), m);
+#else
+      lapack::gels(trans, m, n, 1,
+		   matrix_helper<Matrix>::begin_ptr(a), m,
+		   vector_helper<Vector>::begin_ptr(b), m,
+		   info);
+#endif
       std::copy(b.begin(), b.begin() + n, x.begin());
     } else {
       std::copy(b.begin(), b.begin() + m, x.begin());
-      lapack_dispatch::gels(trans, m, n, 1,
-                            matrix_helper<Matrix>::begin_ptr(a), m,
-                            vector_helper<Vector>::begin_ptr(x), n,
-                            info);
+#ifdef HAVE_BINDINGS
+      info = boost::numeric::bindings::lapack::gels(trans, m, n, 1,
+	       matrix_helper<Matrix>::begin_ptr(a), m,
+               vector_helper<Vector>::begin_ptr(x), n);
+#else
+      lapack::gels(trans, m, n, 1,
+		   matrix_helper<Matrix>::begin_ptr(a), m,
+		   vector_helper<Vector>::begin_ptr(x), n,
+		   info);
+#endif
     }
   } else {
     trans = 'T';
     if (m >= n) {
-      lapack_dispatch::gels(trans, n, m, 1,
-                            matrix_helper<Matrix>::begin_ptr(a), n,
-                            vector_helper<Vector>::begin_ptr(b), m,
-                            info);
+#ifdef HAVE_BINDINGS
+      info = boost::numeric::bindings::lapack::gels(trans, n, m, 1,
+	       matrix_helper<Matrix>::begin_ptr(a), n,
+               vector_helper<Vector>::begin_ptr(b), m);
+#else
+      lapack::gels(trans, n, m, 1,
+		   matrix_helper<Matrix>::begin_ptr(a), n,
+		   vector_helper<Vector>::begin_ptr(b), m,
+		   info);
+#endif
       std::copy(b.begin(), b.begin() + n, x.begin());
     } else {
       std::copy(b.begin(), b.begin() + m, x.begin());
-      lapack_dispatch::gels(trans, n, m, 1,
-                            matrix_helper<Matrix>::begin_ptr(a), n,
-                            vector_helper<Vector>::begin_ptr(x), n,
-                            info);
+#ifdef HAVE_BINDINGS
+      info = boost::numeric::bindings::lapack::gels(trans, n, m, 1,
+	       matrix_helper<Matrix>::begin_ptr(a), n,
+               vector_helper<Vector>::begin_ptr(x), n);
+#else
+      lapack::gels(trans, n, m, 1,
+		   matrix_helper<Matrix>::begin_ptr(a), n,
+		   vector_helper<Vector>::begin_ptr(x), n,
+		   info);
+#endif
     }
   }
   if (info != 0) throw std::runtime_error("failed in gels");

@@ -272,7 +272,7 @@ PACKAGE_STRING='looper 3.0b5'
 PACKAGE_BUGREPORT=''
 
 ac_default_prefix=$HOME/ALPS
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE LAPACK_CPPFLAGS LAPACK_LDFLAGS LAPACK_LIBS HAVE_LAPACK_TRUE HAVE_LAPACK_FALSE HAVE_MPI_TRUE HAVE_MPI_FALSE HAVE_PVM_TRUE HAVE_PVM_FALSE DEFAULT_INCLUDES CPPFLAGS_SGL LDFLAGS_SGL LIBS_SGL CPPFLAGS_MPI LDFLAGS_MPI LIBS_MPI CPPFLAGS_PVM LDFLAGS_PVM LIBS_PVM LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE LAPACK_CPPFLAGS LAPACK_LDFLAGS LAPACK_LIBS HAVE_LAPACK_TRUE HAVE_LAPACK_FALSE BINDINGS_CPPFLAGS HAVE_BINDINGS_TRUE HAVE_BINDINGS_FALSE HAVE_MPI_TRUE HAVE_MPI_FALSE HAVE_PVM_TRUE HAVE_PVM_FALSE DEFAULT_INCLUDES CPPFLAGS_SGL LDFLAGS_SGL LIBS_SGL CPPFLAGS_MPI LDFLAGS_MPI LIBS_MPI CPPFLAGS_PVM LDFLAGS_PVM LIBS_PVM LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -822,6 +822,7 @@ Optional Packages:
   --with-mkl=PROC         use Intel Math Kernel Library (PROC=p3, p4, itp)
   --with-scsl             use SGI SCSL Scientific Library
   --with-veclib           use vecLib framework on Mac OS X
+  --with-bindings=DIR     path to Boost uBLAS bindings root directory
 
 Some influential environment variables:
   CXX         C++ compiler command
@@ -4954,6 +4955,11 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
     ac_cv_have_blas=yes
     { echo "$as_me:$LINENO: enabling BLAS support" >&5
 echo "$as_me: enabling BLAS support" >&6;}
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_BLAS
+_ACEOF
+
   else
     ac_cv_have_blas=no
     { echo "$as_me:$LINENO: disabling BLAS support" >&5
@@ -4964,6 +4970,11 @@ echo "$as_me: disabling BLAS support" >&6;}
     ac_cv_have_lapack=yes
     { echo "$as_me:$LINENO: enabling LAPACK support" >&5
 echo "$as_me: enabling LAPACK support" >&6;}
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_LAPACK
+_ACEOF
+
   else
     ac_cv_have_lapack=no
     { echo "$as_me:$LINENO: disabling LAPACK support" >&5
@@ -4973,12 +4984,97 @@ echo "$as_me: disabling LAPACK support" >&6;}
 
 
 
-if test "$ac_cv_have_lapack" = yes; then
+if test "$ac_cv_alps_have_lapack" = yes; then
   HAVE_LAPACK_TRUE=
   HAVE_LAPACK_FALSE='#'
 else
   HAVE_LAPACK_TRUE='#'
   HAVE_LAPACK_FALSE=
+fi
+
+if test "$ac_cv_have_lapack" = no; then
+  { { echo "$as_me:$LINENO: error: LAPACK Library not found." >&5
+echo "$as_me: error: LAPACK Library not found." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+
+
+
+
+
+
+# Check whether --with-bindings or --without-bindings was given.
+if test "${with_bindings+set}" = set; then
+  withval="$with_bindings"
+
+    if test "x$withval" = xno; then
+      bindings=no
+    else
+      bindings=yes
+      if test "x$withval" != xyes; then
+        bindings_dir=`echo "$withval" | sed 's,//*,/,g' | sed 's,/$,,'`
+      fi
+    fi
+
+
+fi;
+
+  found=no
+
+  if test "x$bindings" != xno; then
+    echo "$as_me:$LINENO: checking for Boost uBLAS bindings library" >&5
+echo $ECHO_N "checking for Boost uBLAS bindings library... $ECHO_C" >&6
+    if test -n "$bindings_dir"; then
+      if test -f "$bindings_dir/boost/numeric/bindings/lapack/lapack.hpp"; then
+        found=yes
+      else
+        bindings_dir=no
+      fi
+    else
+      bindings_dir=no
+      for d in $HOME $HOME/src $prefix $prefix/src /usr/local /usr/local/src
+      do
+        for s in bindings ublas_bindings boost-sandbox bindings_2003_09_11
+        do
+          if test -f "$d/$s/boost/numeric/bindings/lapack/lapack.hpp"; then
+            found=yes
+            bindings_dir="$d/$s"
+            break
+          fi
+        done
+        if test "$found" = yes; then
+          break
+        fi
+      done
+    fi
+    echo "$as_me:$LINENO: result: $bindings_dir" >&5
+echo "${ECHO_T}$bindings_dir" >&6
+  fi
+
+  if test "$found" = yes; then
+    ac_cv_have_bindings=yes
+    ac_cv_bindings_dir="$bindings_dir"
+    BINDINGS_CPPFLAGS="-I$bindings_dir -DBOOST_NUMERIC_BINDINGS_NO_STRUCTURE_CHECK"
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_BINDINGS
+_ACEOF
+
+  else
+    ac_cv_have_bindings=no
+    ac_cv_bindings_dir=
+    BINDINGS_CPPFLAGS=
+  fi
+
+
+
+
+if test "$ac_cv_alps_have_bindings" = yes; then
+  HAVE_BINDINGS_TRUE=
+  HAVE_BINDINGS_FALSE='#'
+else
+  HAVE_BINDINGS_TRUE='#'
+  HAVE_BINDINGS_FALSE=
 fi
 
 
@@ -5113,6 +5209,13 @@ if test -z "${HAVE_LAPACK_TRUE}" && test -z "${HAVE_LAPACK_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"HAVE_LAPACK\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"HAVE_LAPACK\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_BINDINGS_TRUE}" && test -z "${HAVE_BINDINGS_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_BINDINGS\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_BINDINGS\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -5708,6 +5811,9 @@ s,@LAPACK_LDFLAGS@,$LAPACK_LDFLAGS,;t t
 s,@LAPACK_LIBS@,$LAPACK_LIBS,;t t
 s,@HAVE_LAPACK_TRUE@,$HAVE_LAPACK_TRUE,;t t
 s,@HAVE_LAPACK_FALSE@,$HAVE_LAPACK_FALSE,;t t
+s,@BINDINGS_CPPFLAGS@,$BINDINGS_CPPFLAGS,;t t
+s,@HAVE_BINDINGS_TRUE@,$HAVE_BINDINGS_TRUE,;t t
+s,@HAVE_BINDINGS_FALSE@,$HAVE_BINDINGS_FALSE,;t t
 s,@HAVE_MPI_TRUE@,$HAVE_MPI_TRUE,;t t
 s,@HAVE_MPI_FALSE@,$HAVE_MPI_FALSE,;t t
 s,@HAVE_PVM_TRUE@,$HAVE_PVM_TRUE,;t t

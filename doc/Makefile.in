@@ -39,6 +39,7 @@ DIST_COMMON = $(dist_pkgdata_DATA) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
+	$(top_srcdir)/config/ac_bindings.m4 \
 	$(top_srcdir)/config/ac_lapack.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
@@ -59,6 +60,7 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BINDINGS_CPPFLAGS = @BINDINGS_CPPFLAGS@
 CPPFLAGS = @CPPFLAGS@
 CPPFLAGS_MPI = @CPPFLAGS_MPI@
 CPPFLAGS_PVM = @CPPFLAGS_PVM@
@@ -74,6 +76,8 @@ ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EXEEXT = @EXEEXT@
+HAVE_BINDINGS_FALSE = @HAVE_BINDINGS_FALSE@
+HAVE_BINDINGS_TRUE = @HAVE_BINDINGS_TRUE@
 HAVE_LAPACK_FALSE = @HAVE_LAPACK_FALSE@
 HAVE_LAPACK_TRUE = @HAVE_LAPACK_TRUE@
 HAVE_MPI_FALSE = @HAVE_MPI_FALSE@
