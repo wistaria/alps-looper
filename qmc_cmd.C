@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: qmc_cmd.C 491 2003-10-31 11:19:49Z wistaria $
+* $Id: qmc_cmd.C 495 2003-11-01 03:45:49Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -198,6 +198,8 @@ try {
   typedef alps::RealObservable measurement_type;
   measurements << measurement_type("diagonal energy");
   measurements << measurement_type("diagonal energy (improved)");
+  measurements << measurement_type("off-diagonal energy");
+  measurements << measurement_type("energy");
   measurements << measurement_type("uniform magnetization");
   measurements << measurement_type("uniform susceptibility");
   measurements << measurement_type("staggered magnetization");
@@ -234,9 +236,16 @@ try {
       qmc::flip_and_cleanup(config, param, rng);
       
       // measure unimproved quantities here
+      double ez, exy;
+      boost::tie(ez, exy) = qmc::energy(config, param);
+      ez += e_offset;
       measurements.
-	template get<measurement_type>("diagonal energy") <<
-	e_offset + qmc::energy_z(config, param);
+	template get<measurement_type>("diagonal energy") << ez;
+      measurements.
+	template get<measurement_type>("off-diagonal energy") << exy;
+      measurements.
+	template get<measurement_type>("energy") << ez + exy;
+
       double sz = qmc::uniform_sz(config, param);
       measurements.
 	template get<measurement_type>("uniform magnetization") << sz;
@@ -271,24 +280,26 @@ try {
       qmc::check_and_expand(config, rng);
       qmc::generate_loops(config, param, rng);
 
-      ////std::cout << config.num_loops0 << ' ' << config.num_loops << std::endl;
-      ////qmc::output(config, param);
-
       // measure improved quantities here
-//       measurements.
-// 	template get<measurement_type>("diagonal energy (improved)") <<
-// 	e_offset + qmc::energy_z_imp(config, param);
+      measurements.
+ 	template get<measurement_type>("diagonal energy (improved)") <<
+ 	e_offset + qmc::energy_z_imp(config, param);
 
-//       //qmc::flip_and_cleanup(config, vg, rng);
       qmc::flip_and_cleanup(config, param, rng);
       
-      ////std::cout << config.num_operators << std::endl;
       ////qmc::output(config, param);
 
       // measure unimproved quantities here
+      double ez;
+      double exy;
+      boost::tie(ez, exy) = qmc::energy(config, param);
+      ez += e_offset;
       measurements.
- 	template get<measurement_type>("diagonal energy") <<
- 	e_offset + qmc::energy_z(config, param);
+ 	template get<measurement_type>("diagonal energy") << ez;
+      measurements.
+ 	template get<measurement_type>("off-diagonal energy") << exy;
+      measurements.
+ 	template get<measurement_type>("energy") << ez + exy;
 
       double sz = qmc::uniform_sz(config, param);
       measurements.
@@ -321,12 +332,26 @@ try {
 	    << opts.step_m << ' '
 	    << (opts.sse ? "SSE" : "PI") << ' '
 
-	    << measurements.template get<measurement_type>("diagonal energy").mean() << ' '
-	    << measurements.template get<measurement_type>("diagonal energy").error() << ' '
-	    << measurements.template get<measurement_type>("uniform susceptibility").mean() << ' '
-	    << measurements.template get<measurement_type>("uniform susceptibility").error() << ' '
-	    << measurements.template get<measurement_type>("staggered magnetization^2").mean() << ' '
-	    << measurements.template get<measurement_type>("staggered magnetization^2").error() << ' '
+	    << measurements.template
+                 get<measurement_type>("diagonal energy").mean() << ' '
+	    << measurements.template
+                 get<measurement_type>("diagonal energy").error() << ' '
+	    << measurements.template
+                 get<measurement_type>("off-diagonal energy").mean() << ' '
+	    << measurements.template
+                 get<measurement_type>("off-diagonal energy").error() << ' '
+	    << measurements.template
+                 get<measurement_type>("energy").mean() << ' '
+	    << measurements.template
+                 get<measurement_type>("energy").error() << ' '
+	    << measurements.template
+                 get<measurement_type>("uniform susceptibility").mean() << ' '
+	    << measurements.template
+                 get<measurement_type>("uniform susceptibility").error() << ' '
+	    << measurements.template
+                 get<measurement_type>("staggered magnetization^2").mean() << ' '
+	    << measurements.template
+                 get<measurement_type>("staggered magnetization^2").error() << ' '
 	    << std::endl;
 
 #ifndef BOOST_NO_EXCEPTIONS

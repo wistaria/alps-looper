@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: path_integral.h 492 2003-10-31 13:48:54Z wistaria $
+* $Id: path_integral.h 495 2003-11-01 03:45:49Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -448,9 +448,7 @@ struct path_integral<virtual_graph<G>, M, W>
 
   template<bool HasCTime>
   static double static_sz(int i, const config_type<HasCTime>& config)
-  {
-    return 0.5 - double(config.wl.series(i).first->conf());
-  }
+  { return 0.5 - double(config.wl.series(i).first->conf()); }
 
   static double energy_offset(const vg_type& vg, const M& model)
   {
@@ -458,7 +456,7 @@ struct path_integral<virtual_graph<G>, M, W>
     edge_iterator ei, ei_end;
     for (boost::tie(ei, ei_end) = boost::edges(vg.graph); ei != ei_end; ++ei)
       offset += model.bond(bond_type(*ei, vg.graph)).c();
-    return offset / double(vg.num_real_edges);
+    return offset / vg.num_real_edges;
   }
   static double energy_offset(const parameter_type& p)
   { return energy_offset(p.virtual_graph, p.model); }
@@ -470,12 +468,11 @@ struct path_integral<virtual_graph<G>, M, W>
     typedef typename config_type<HasCTime>::const_iterator const_iterator;
     double ene = 0.;
     edge_iterator ei, ei_end;
-    for (boost::tie(ei, ei_end) = boost::edges(vg.graph); ei != ei_end; ++ei) {
-      ene += model.bond(bond_type(*ei, vg.graph)).jz() *
+    for (boost::tie(ei, ei_end) = boost::edges(vg.graph); ei != ei_end; ++ei)
+      ene -= model.bond(bond_type(*ei, vg.graph)).jz() *
 	static_sz(boost::source(*ei, vg.graph), config) *
 	static_sz(boost::target(*ei, vg.graph), config);
-    }
-    return ene / double(vg.num_real_vertices);
+    return ene / vg.num_real_vertices;
   }
   template<bool HasCTime>
   static double energy_z(const config_type<HasCTime>& config,
@@ -492,18 +489,35 @@ struct path_integral<virtual_graph<G>, M, W>
       vertex_descriptor v0 = boost::source(*ei, vg.graph);
       vertex_descriptor v1 = boost::target(*ei, vg.graph);
       if (config.wl.series(v0).first->loop_segment(0).index == 
-	  config.wl.series(v1).first->loop_segment(0).index) {
-	ene += model.bond(bond_type(*ei, vg.graph)).jz() *
+	  config.wl.series(v1).first->loop_segment(0).index)
+	ene -= model.bond(bond_type(*ei, vg.graph)).jz() *
 	  static_sz(v0, config) * static_sz(v1, config);
-      }
     }
-    // std::cout << ene << ' ' << vg.num_real_vertices << std::endl;////
-    return ene / double(vg.num_real_vertices);
+    return ene / vg.num_real_vertices;
   }
   template<bool HasCTime>
   static double energy_z_imp(const config_type<HasCTime>& config,
 			     const parameter_type& p)
   { return energy_z_imp(config, p.virtual_graph, p.model); }
+
+  template<bool HasCTime>
+  static double energy_xy(const config_type<HasCTime>& config,
+			  const vg_type& vg, double beta)
+  {
+    return - (double)config.wl.num_links() / beta / vg.num_real_vertices;
+  }
+  template<bool HasCTime>
+  static double energy_xy(const config_type<HasCTime>& config,
+			 const parameter_type& p)
+  { return energy_xy(config, p.virtual_graph, p.beta); }
+
+  template<bool HasCTime>
+  static std::pair<double, double>
+  energy(const config_type<HasCTime>& config, const parameter_type& p)
+  {
+    return std::make_pair(energy_z(config, p),
+			  energy_xy(config, p));
+  }
 
   template<bool HasCTime>
   static double uniform_sz(const config_type<HasCTime>& config,
@@ -514,11 +528,9 @@ struct path_integral<virtual_graph<G>, M, W>
     vertex_iterator vi, vi_end;
     for (boost::tie(vi, vi_end) = boost::vertices(vg.graph);
  	 vi != vi_end; ++vi) {
-      // std::cout << static_sz(*vi, config) << ' '; ////
       sz += static_sz(*vi, config);
     }
-    // std::cout << std::endl; ////
-    return sz / double(vg.num_real_vertices);
+    return sz / vg.num_real_vertices;
   }
   template<bool HasCTime>
   static double uniform_sz(const config_type<HasCTime>& config,
@@ -535,7 +547,7 @@ struct path_integral<virtual_graph<G>, M, W>
     for (boost::tie(vi, vi_end) = boost::vertices(vg.graph);
 	 vi != vi_end; ++vi)
       ss += gauge(*vi, vg.graph) * static_sz(*vi, config);
-    return ss / double(vg.num_real_vertices);
+    return ss / vg.num_real_vertices;
   }
   template<bool HasCTime>
   static double staggered_sz(const config_type<HasCTime>& config,

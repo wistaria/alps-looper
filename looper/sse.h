@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: sse.h 491 2003-10-31 11:19:49Z wistaria $
+* $Id: sse.h 495 2003-11-01 03:45:49Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -79,14 +79,21 @@ struct sse<virtual_graph<G>, M, W>
 
     parameter_type(const vg_type& vg, const model_type& m, double b)
       : virtual_graph(vg), graph(vg.graph), mapping(vg.mapping), model(m),
-	beta(b), chooser(vg, model) {}
+	beta(b), chooser(vg, model), ez_offset(0)
+    {
+      typename boost::graph_traits<graph_type>::edge_iterator ei, ei_end;
+      for (boost::tie(ei, ei_end) = boost::edges(vg.graph); ei != ei_end; ++ei)
+	ez_offset +=
+	  weight_type(model.bond(bond_type(*ei, vg.graph))).offset();
+    }
 
-    const vg_type&                  virtual_graph;
-    const graph_type&               graph;
-    const mapping_type&             mapping;
-    const model_type&               model;
-    const double                    beta;
-    const bond_chooser<weight_type> chooser;
+    const vg_type&            virtual_graph;
+    const graph_type&         graph;
+    const mapping_type&       mapping;
+    const model_type&         model;
+    double                    beta;
+    bond_chooser<weight_type> chooser;
+    double                    ez_offset;
   };
 
   struct config_type
@@ -444,10 +451,9 @@ struct sse<virtual_graph<G>, M, W>
   static double energy_offset(const vg_type& vg, const model_type& model)
   {
     double offset = 0.;
-    edge_iterator ei_end = boost::edges(vg.graph).second;
-    for (edge_iterator ei = boost::edges(vg.graph).first; ei != ei_end; ++ei)
-      offset += model.bond(bond_type(*ei, vg.graph)).c() +
-	weight_type(model.bond(bond_type(*ei, vg.graph))).offset();
+    edge_iterator ei, ei_end;
+    for (boost::tie(ei, ei_end) = boost::edges(vg.graph); ei != ei_end; ++ei)
+      offset += model.bond(bond_type(*ei, vg.graph)).c();
     return offset;
   }
   static double energy_offset(const parameter_type& p)
@@ -458,15 +464,64 @@ struct sse<virtual_graph<G>, M, W>
   {
     double ene = 0.;
     edge_iterator ei, ei_end;
-    for (boost::tie(ei, ei_end) = boost::edges(vg.graph); ei != ei_end; ++ei) {
-      ene += model.bond(bond_type(*ei, vg.graph)).jz() *
+    for (boost::tie(ei, ei_end) = boost::edges(vg.graph); ei != ei_end; ++ei)
+      ene -= model.bond(bond_type(*ei, vg.graph)).jz() *
 	static_sz(boost::source(*ei, vg.graph), config) *
 	static_sz(boost::target(*ei, vg.graph), config);
-    }
-    return ene / double(vg.num_real_vertices);
+    return ene / vg.num_real_vertices;
   }
   static double energy_z(const config_type& config, const parameter_type& p)
   { return energy_z(config, p.virtual_graph, p.model); }
+
+  static double energy_z_imp(const config_type& config, const vg_type& vg,
+			     const model_type& model)
+  {
+    double ene = 0.;
+    edge_iterator ei, ei_end;
+    for (boost::tie(ei, ei_end) = boost::edges(vg.graph); ei != ei_end; ++ei) {
+      vertex_descriptor v0 = boost::source(*ei, vg.graph);
+      vertex_descriptor v1 = boost::target(*ei, vg.graph);
+      if (config.bottom[v0].loop_segment(0).index == 
+	  config.bottom[v0].loop_segment(0).index)
+	ene -= model.bond(bond_type(*ei, vg.graph)).jz() *
+	  static_sz(v0, config) * static_sz(v1, config);
+    }
+    return ene / vg.num_real_vertices;
+  }
+  static double energy_z_imp(const config_type& config,
+			     const parameter_type& p)
+  { return energy_z_imp(config, p.virtual_graph, p.model); }
+
+  static double energy_xy(const config_type& config, const vg_type& vg,
+			  double beta)
+  {
+    int n = 0;
+    operator_iterator oi_end = config.os.end();
+    for (operator_iterator oi = config.os.begin(); oi != oi_end; ++oi)
+      if (oi->is_offdiagonal()) ++n;
+    return -(double)n / beta / vg.num_real_vertices;
+  }
+  static double energy_xy(const config_type& config, const parameter_type& p)
+  { return energy_xy(config, p.virtual_graph, p.beta); }
+
+  static std::pair<double, double>
+  energy(const config_type& config, const vg_type& vg, double beta,
+	 double ez_offset)
+  {
+    int nz = 0;
+    int nxy = 0;
+    operator_iterator oi_end = config.os.end();
+    for (operator_iterator oi = config.os.begin(); oi != oi_end; ++oi) {
+      if (oi->is_diagonal()) ++nz;
+      if (oi->is_offdiagonal()) ++nxy;
+    }
+    return std::make_pair((-(double)nz / beta - ez_offset) /
+			  vg.num_real_vertices,
+			  -(double)nxy / beta / vg.num_real_vertices);
+  }
+  static std::pair<double, double>
+  energy(const config_type& config, const parameter_type& p)
+  { return energy(config, p.virtual_graph, p.beta, p.ez_offset); }
 
   static double uniform_sz(const config_type& config,
 			   const vg_type& vg)
@@ -474,10 +529,8 @@ struct sse<virtual_graph<G>, M, W>
     double sz = 0.;
     vertex_iterator vi, vi_end;
     for (boost::tie(vi, vi_end) = boost::vertices(vg.graph); 
-	 vi != vi_end; ++vi) {
-      sz += static_sz(*vi, config);
-    }
-    return sz / double(vg.num_real_vertices);
+	 vi != vi_end; ++vi) sz += static_sz(*vi, config);
+    return sz / vg.num_real_vertices;
   }
   static double uniform_sz(const config_type& config,
 			   const parameter_type& p)
@@ -489,12 +542,9 @@ struct sse<virtual_graph<G>, M, W>
     double ss = 0.;
     vertex_iterator vi, vi_end;
     for (boost::tie(vi, vi_end) = boost::vertices(vg.graph); 
-	 vi != vi_end; ++vi) {
+	 vi != vi_end; ++vi)
       ss += gauge(*vi, vg.graph) * static_sz(*vi, config);
-      ////std::cout << (int)boost::get(parity_t(), vg.graph, *vi) << ' ' << gauge(*vi, vg.graph) << ' ' << static_sz(*vi, config) << std::endl;
-    }
-    //// std::cout << ss << std::endl;
-    return ss / double(vg.num_real_vertices);
+    return ss / vg.num_real_vertices;
   }
   static double staggered_sz(const config_type& config,
 			   const parameter_type& p)
