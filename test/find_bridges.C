@@ -24,7 +24,6 @@
 *****************************************************************************/
 
 #include <looper/find_bridges.h>
-#include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/connected_components.hpp>
 #include <boost/random.hpp>
 

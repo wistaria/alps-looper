@@ -22,11 +22,13 @@
 *
 *****************************************************************************/
 
-#include <looper/lapack.h>
+#include <boost/numeric/bindings/lapack/gesvd.hpp>
+#include <boost/numeric/ublas/io.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>
-#include <boost/numeric/ublas/io.hpp>
 #include <boost/random.hpp>
+
+#include <cmath>
 #include <iostream>
 
 #ifdef BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
@@ -35,31 +37,52 @@ using namespace boost::numeric::ublas;
 
 int main()
 {
+  // matrix & vector
+  typedef boost::numeric::ublas::matrix<double,
+    boost::numeric::ublas::column_major> matrix_type;
+  typedef boost::numeric::ublas::vector<double> vector_type;
+
   // random number generator
   boost::variate_generator<boost::mt19937, boost::uniform_real<> >
     rng(boost::mt19937(4357), boost::uniform_real<>(-.5, .5));
-  for (int i = 0; i < 1000; ++i) rng();
 
-  int m, n;
-  std::cin >> m >> n;
+  while (true) {
+    int m, n;
+    std::cin >> m >> n;
+    if (!std::cin) break;
 
-  std::cout << "m: dimension of problem    : " << m << std::endl;
-  std::cout << "n: number of basis vectors : " << n << std::endl;
+    std::cout << "m: dimension of problem    : " << m << std::endl;
+    std::cout << "n: number of basis vectors : " << n << std::endl;
 
-  boost::numeric::ublas::matrix<double> a(m, n);
-  boost::numeric::ublas::vector<double> b(m);
-  boost::numeric::ublas::vector<double> x(n);
-  for (int i = 0; i < m; ++i) {
-    for (int j = 0; j < n; ++j) a(i,j) = rng();
-    b(i) = rng();
+    matrix_type a(m, n);
+    vector_type x(n);
+    for (int i = 0; i < m; ++i) {
+      for (int j = 0; j < n; ++j) a(i,j) = rng();
+    }
+
+    std::cout << "input: A      = " << a << std::endl;
+
+    int minmn = std::min(m, n);
+    matrix_type at(a);
+    matrix_type u(m, minmn);
+    matrix_type vt(minmn, n);
+    vector_type s(minmn);
+
+    boost::numeric::bindings::lapack::gesvd(at, s, u, vt);
+
+    for (int i = 0; i < m; ++i)
+      for (int j = 0; j < n; ++j) {
+        at(i,j) = 0.0;
+        for (int k = 0; k < minmn; ++k) at(i,j) += u(i,k) * s(k) * vt(k,j);
+      }
+
+    std::cout << "output: U     = " << u << std::endl;
+    std::cout << "output: VT    = " << vt << std::endl;
+    std::cout << "output: S     = " << s << std::endl;
+    std::cout << "check: U*S*VT = " << at << std::endl;
+
+    for (int i = 0; i < m; ++i)
+      for (int j = 0; j < n; ++j)
+        assert(std::abs(a(i,j) - at(i,j)) < 1.0e-10);
   }
-
-  std::cout << "input:  A   = " << a << std::endl;
-  std::cout << "input:  B   = " << b << std::endl;
-
-  boost::numeric::ublas::matrix<double> atmp(a);
-  looper::solve_llsp(atmp, b, x);
-
-  std::cout << "output: X   = " << x << std::endl;
-  std::cout << "check:  AxX = " << prod(a, x) << std::endl;
 }

@@ -5,10 +5,11 @@ check_PROGRAMS = \
 	fill_duration \
 	filtered_graph \
 	find_bridges \
-	gels \
 	generate_01 \
+	gesvd \
 	hypercubic \
 	index_helper \
+	llsp \
 	permutation \
 	postorder \
 	random_choice \
@@ -26,10 +27,11 @@ dist_noinst_DATA = \
 	fill_duration.ip fill_duration.op \
 	filtered_graph.ip filtered_graph.op \
 	find_bridges.ip find_bridges.op \
-	gels.ip gels.op \
 	generate_01.op \
+	gesvd.ip gesvd.op \
 	hypercubic.ip hypercubic.op \
 	index_helper.op \
+	llsp.ip llsp.op \
 	permutation.op \
 	postorder.ip postorder.op \
 	random_choice.op \
@@ -49,10 +51,11 @@ edge_type_SOURCES = edge_type.C
 fill_duration_SOURCES = fill_duration.C
 filtered_graph_SOURCES = filtered_graph.C
 find_bridges_SOURCES = find_bridges.C
-gels_SOURCES = gels.C
 generate_01_SOURCES = generate_01.C
+gesvd_SOURCES = gesvd.C
 hypercubic_SOURCES = hypercubic.C
 index_helper_SOURCES = index_helper.C
+llsp_SOURCES = llsp.C
 permutation_SOURCES = permutation.C
 postorder_SOURCES = postorder.C
 random_choice_SOURCES = random_choice.C

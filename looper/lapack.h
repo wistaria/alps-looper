@@ -25,64 +25,25 @@
 #ifndef LOOPER_LAPACK_H
 #define LOOPER_LAPACK_H
 
-#include <algorithm>
+#include <cmath>
 #include <complex>
 #include <stdexcept>
 
-#include <alps/bindings/gels.hpp>
+#include <boost/numeric/bindings/lapack/gesvd.hpp>
 #include <boost/numeric/bindings/lapack/syev.hpp>
 #include <boost/numeric/bindings/lapack/heev.hpp>
+#include <boost/numeric/bindings/traits/matrix_traits.hpp>
+#include <boost/numeric/bindings/traits/traits.hpp>
 #include <boost/numeric/bindings/traits/ublas_matrix.hpp>
 #include <boost/numeric/bindings/traits/ublas_vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 
-namespace {
-
-template<class T> struct vector_helper;
-
-template<class T>
-struct vector_helper<boost::numeric::ublas::vector<T> >
-{
-  typedef T                                value_type;
-  typedef boost::numeric::ublas::vector<T> vector_type;
-  static value_type * begin_ptr(vector_type& v) { return &v(0); }
-  static int size(const vector_type& v) { return v.size(); }
-};
-
-template<class T> struct matrix_helper;
-
-template<class T, class A>
-struct matrix_helper<
-  boost::numeric::ublas::matrix<T,boost::numeric::ublas::row_major,A> >
-{
-  typedef T value_type;
-  typedef boost::numeric::ublas::matrix<T,
-            boost::numeric::ublas::row_major,A> matrix_type;
-  BOOST_STATIC_CONSTANT(bool, is_row_major = true);
-  BOOST_STATIC_CONSTANT(bool, is_column_major = false);
-  static value_type * begin_ptr(matrix_type& m) { return &m(0, 0); }
-  static int size1(const matrix_type& m) { return m.size1(); }
-  static int size2(const matrix_type& m) { return m.size2(); }
-};
-
-template<class T, class A>
-struct matrix_helper<
-  boost::numeric::ublas::matrix<T,boost::numeric::ublas::column_major,A> >
-{
-  typedef T value_type;
-  typedef boost::numeric::ublas::matrix<T,
-            boost::numeric::ublas::column_major,A> matrix_type;
-  BOOST_STATIC_CONSTANT(bool, is_row_major = false);
-  BOOST_STATIC_CONSTANT(bool, is_column_major = true);
-  static value_type * begin_ptr(matrix_type& m) { return &m(0, 0); }
-  static int size1(const matrix_type& m) { return m.size1(); }
-  static int size2(const matrix_type& m) { return m.size2(); }
-};
-
-}
-
 namespace looper {
+
+//
+// diagonalize matrix
+//
 
 template <class Matrix, class Vector>
 inline void diagonalize(Matrix& a, Vector& w, bool need_eigenvectors = true)
@@ -90,96 +51,81 @@ inline void diagonalize(Matrix& a, Vector& w, bool need_eigenvectors = true)
   typedef Matrix matrix_type;
   typedef Vector vector_type;
 
-  // size check
-  assert(matrix_helper<matrix_type>::size1(a) ==
-         matrix_helper<matrix_type>::size2(a));
-  assert(matrix_helper<matrix_type>::size1(a) ==
-         vector_helper<vector_type>::size(w));
-
-  char jobz;
-  if (need_eigenvectors) {
-    jobz = 'V';
-  } else {
-    jobz = 'N';
-  }
-  char uplo = 'L';
-  int info;
+  const char jobz = (need_eigenvectors ? 'V' : 'N');
+  const char uplo = 'L';
 
   // call dispatcher
-  info = boost::numeric::bindings::lapack::syev(jobz, uplo, a, w,
+  int info = boost::numeric::bindings::lapack::syev(jobz, uplo, a, w,
     boost::numeric::bindings::lapack::optimal_workspace());
   if (info != 0) throw std::runtime_error("failed in syev");
 }
 
 template <class T, class R, class A, class Vector>
-inline void diagonalize(boost::numeric::ublas::matrix<std::complex<T>,R,A>& a, Vector& w, bool need_eigenvectors = true)
+inline void diagonalize(
+  boost::numeric::ublas::matrix<std::complex<T>,R,A>& a,
+  Vector& w, bool need_eigenvectors = true)
 {
-  typedef boost::numeric::ublas::matrix<std::complex<T>,R,A> matrix_type;
-  typedef Vector                                             vector_type;
+  using namespace boost::numeric;
 
-  // size check
-  assert(matrix_helper<matrix_type>::size1(a) ==
-         matrix_helper<matrix_type>::size2(a));
-  assert(matrix_helper<matrix_type>::size1(a) ==
-         vector_helper<vector_type>::size(w));
+  typedef ublas::matrix<std::complex<T>,R,A> matrix_type;
+  typedef Vector                             vector_type;
 
-  char jobz;
-  if (need_eigenvectors) {
-    jobz = 'V';
-  } else {
-    jobz = 'N';
-  }
-  char uplo = 'L';
-  int info;
+  const char jobz = (need_eigenvectors ? 'V' : 'N');
+  const char uplo = 'L';
 
   // call dispatcher
-  info = boost::numeric::bindings::lapack::heev(jobz, uplo, a, w,
-    boost::numeric::bindings::lapack::optimal_workspace());
+  int info = bindings::lapack::heev(jobz, uplo, a, w,
+    bindings::lapack::optimal_workspace());
   if (info != 0) throw std::runtime_error("failed in heev");
 }
 
-template <class Matrix, class Vector>
-inline void solve_llsp(Matrix& a, Vector& b, Vector& x)
+
+//
+// solve_llsp: solving linear least-squares problem
+//
+
+template <typename T, typename C>
+inline double solve_llsp(
+  const boost::numeric::ublas::matrix<T, C>& a,
+  const boost::numeric::ublas::vector<T>& b,
+  boost::numeric::ublas::vector<T>& x,
+  double tol = 1.0e-10)
 {
-  int m = matrix_helper<Matrix>::size1(a);
-  int n = matrix_helper<Matrix>::size2(a);
+  using namespace boost::numeric;
 
-  // size check
-  assert(vector_helper<Vector>::size(b) == m);
-  assert(vector_helper<Vector>::size(x) == n);
+  typedef T value_type;
+  typedef ublas::matrix<value_type, ublas::column_major> matrix_type;
+  typedef ublas::vector<value_type> vector_type;
 
-  char trans;
-  int info;
-  if (matrix_helper<Matrix>::is_column_major) {
-    trans = 'N';
-    if (m >= n) {
-      info = boost::numeric::bindings::lapack::gels(trans, m, n, 1,
-               matrix_helper<Matrix>::begin_ptr(a), m,
-               vector_helper<Vector>::begin_ptr(b), m);
-      std::copy(b.begin(), b.begin() + n, x.begin());
-    } else {
-      std::copy(b.begin(), b.begin() + m, x.begin());
-      info = boost::numeric::bindings::lapack::gels(trans, m, n, 1,
-               matrix_helper<Matrix>::begin_ptr(a), m,
-               vector_helper<Vector>::begin_ptr(x), n);
-    }
-  } else {
-    trans = 'T';
-    if (m >= n) {
-      info = boost::numeric::bindings::lapack::gels(trans, n, m, 1,
-               matrix_helper<Matrix>::begin_ptr(a), n,
-               vector_helper<Vector>::begin_ptr(b), m);
-      std::copy(b.begin(), b.begin() + n, x.begin());
-    } else {
-      std::copy(b.begin(), b.begin() + m, x.begin());
-      info = boost::numeric::bindings::lapack::gels(trans, n, m, 1,
-               matrix_helper<Matrix>::begin_ptr(a), n,
-               vector_helper<Vector>::begin_ptr(x), n);
-    }
+  int const m = bindings::traits::matrix_size1(a);
+  int const n = bindings::traits::matrix_size2(a);
+  int const min_mn = std::min(m, n);
+
+  // temporary storage
+  matrix_type at(a);
+  matrix_type u(m, min_mn);
+  matrix_type vt(min_mn, n);
+  vector_type s(min_mn);
+
+  // call SVD
+  int info = bindings::lapack::gesvd(at, s, u, vt);
+  if (info != 0) throw std::runtime_error("failed in gesvd");
+
+  // inverse S
+  double smax_inv = 1.0 / norm_inf(s);
+  for (int i = 0; i < min_mn; ++i)
+    s(i) = (smax_inv * s(i) > tol) ? (1.0 / s(i)) : 0.0;
+
+  for (int i = 0; i < n; ++i) {
+    x(i) = 0.0;
+    for (int j = 0; j < min_mn; ++j)
+      for (int k = 0; k < m; ++k) x(i) += vt(j,i) * s(j) * u(k,j) * b(k);
   }
-  if (info != 0) throw std::runtime_error("failed in gels");
+
+  // return residual
+  return norm_2(prod(a,x) - b);
 }
 
 } // end namespace looper
 
-#endif /* ! LOOPER_LAPACK_H */
+#endif // ! LOOPER_LAPACK_H

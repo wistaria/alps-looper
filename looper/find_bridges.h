@@ -32,6 +32,7 @@
 #ifndef LOOPER_FIND_BRIDGES_H
 #define LOOPER_FIND_BRIDGES_H
 
+#include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/filtered_graph.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/graph_utility.hpp>

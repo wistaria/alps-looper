@@ -14,7 +14,7 @@
 
 @SET_MAKE@
 
-SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) $(edge_type_SOURCES) $(fill_duration_SOURCES) $(filtered_graph_SOURCES) $(find_bridges_SOURCES) $(gels_SOURCES) $(generate_01_SOURCES) $(hypercubic_SOURCES) $(index_helper_SOURCES) $(permutation_SOURCES) $(postorder_SOURCES) $(random_choice_SOURCES) $(syev_SOURCES) $(union_find_SOURCES) $(virtual_graph_SOURCES) $(weight_SOURCES) $(xxz_matrix_SOURCES) $(xxz_model_SOURCES)
+SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) $(edge_type_SOURCES) $(fill_duration_SOURCES) $(filtered_graph_SOURCES) $(find_bridges_SOURCES) $(generate_01_SOURCES) $(gesvd_SOURCES) $(hypercubic_SOURCES) $(index_helper_SOURCES) $(llsp_SOURCES) $(permutation_SOURCES) $(postorder_SOURCES) $(random_choice_SOURCES) $(syev_SOURCES) $(union_find_SOURCES) $(virtual_graph_SOURCES) $(weight_SOURCES) $(xxz_matrix_SOURCES) $(xxz_model_SOURCES)
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -39,11 +39,12 @@ POST_UNINSTALL = :
 host_triplet = @host@
 check_PROGRAMS = alternating_tensor$(EXEEXT) amida$(EXEEXT) \
 	edge_type$(EXEEXT) fill_duration$(EXEEXT) \
-	filtered_graph$(EXEEXT) find_bridges$(EXEEXT) gels$(EXEEXT) \
-	generate_01$(EXEEXT) hypercubic$(EXEEXT) index_helper$(EXEEXT) \
-	permutation$(EXEEXT) postorder$(EXEEXT) random_choice$(EXEEXT) \
-	syev$(EXEEXT) union_find$(EXEEXT) virtual_graph$(EXEEXT) \
-	weight$(EXEEXT) xxz_matrix$(EXEEXT) xxz_model$(EXEEXT)
+	filtered_graph$(EXEEXT) find_bridges$(EXEEXT) \
+	generate_01$(EXEEXT) gesvd$(EXEEXT) hypercubic$(EXEEXT) \
+	index_helper$(EXEEXT) llsp$(EXEEXT) permutation$(EXEEXT) \
+	postorder$(EXEEXT) random_choice$(EXEEXT) syev$(EXEEXT) \
+	union_find$(EXEEXT) virtual_graph$(EXEEXT) weight$(EXEEXT) \
+	xxz_matrix$(EXEEXT) xxz_model$(EXEEXT)
 subdir = test
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/xxz_model.ip.in
@@ -80,14 +81,14 @@ am_find_bridges_OBJECTS = find_bridges.$(OBJEXT)
 find_bridges_OBJECTS = $(am_find_bridges_OBJECTS)
 find_bridges_LDADD = $(LDADD)
 find_bridges_DEPENDENCIES =
-am_gels_OBJECTS = gels.$(OBJEXT)
-gels_OBJECTS = $(am_gels_OBJECTS)
-gels_LDADD = $(LDADD)
-gels_DEPENDENCIES =
 am_generate_01_OBJECTS = generate_01.$(OBJEXT)
 generate_01_OBJECTS = $(am_generate_01_OBJECTS)
 generate_01_LDADD = $(LDADD)
 generate_01_DEPENDENCIES =
+am_gesvd_OBJECTS = gesvd.$(OBJEXT)
+gesvd_OBJECTS = $(am_gesvd_OBJECTS)
+gesvd_LDADD = $(LDADD)
+gesvd_DEPENDENCIES =
 am_hypercubic_OBJECTS = hypercubic.$(OBJEXT)
 hypercubic_OBJECTS = $(am_hypercubic_OBJECTS)
 hypercubic_LDADD = $(LDADD)
@@ -96,6 +97,10 @@ am_index_helper_OBJECTS = index_helper.$(OBJEXT)
 index_helper_OBJECTS = $(am_index_helper_OBJECTS)
 index_helper_LDADD = $(LDADD)
 index_helper_DEPENDENCIES =
+am_llsp_OBJECTS = llsp.$(OBJEXT)
+llsp_OBJECTS = $(am_llsp_OBJECTS)
+llsp_LDADD = $(LDADD)
+llsp_DEPENDENCIES =
 am_permutation_OBJECTS = permutation.$(OBJEXT)
 permutation_OBJECTS = $(am_permutation_OBJECTS)
 permutation_LDADD = $(LDADD)
@@ -138,10 +143,10 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/amida.Po ./$(DEPDIR)/edge_type.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/fill_duration.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/filtered_graph.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/find_bridges.Po ./$(DEPDIR)/gels.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/generate_01.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/find_bridges.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/generate_01.Po ./$(DEPDIR)/gesvd.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/hypercubic.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/index_helper.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/index_helper.Po ./$(DEPDIR)/llsp.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/permutation.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/postorder.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/random_choice.Po ./$(DEPDIR)/syev.Po \
@@ -159,16 +164,16 @@ CXXLINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) \
 	$(edge_type_SOURCES) $(fill_duration_SOURCES) \
 	$(filtered_graph_SOURCES) $(find_bridges_SOURCES) \
-	$(gels_SOURCES) $(generate_01_SOURCES) $(hypercubic_SOURCES) \
-	$(index_helper_SOURCES) $(permutation_SOURCES) \
+	$(generate_01_SOURCES) $(gesvd_SOURCES) $(hypercubic_SOURCES) \
+	$(index_helper_SOURCES) $(llsp_SOURCES) $(permutation_SOURCES) \
 	$(postorder_SOURCES) $(random_choice_SOURCES) $(syev_SOURCES) \
 	$(union_find_SOURCES) $(virtual_graph_SOURCES) \
 	$(weight_SOURCES) $(xxz_matrix_SOURCES) $(xxz_model_SOURCES)
 DIST_SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) \
 	$(edge_type_SOURCES) $(fill_duration_SOURCES) \
 	$(filtered_graph_SOURCES) $(find_bridges_SOURCES) \
-	$(gels_SOURCES) $(generate_01_SOURCES) $(hypercubic_SOURCES) \
-	$(index_helper_SOURCES) $(permutation_SOURCES) \
+	$(generate_01_SOURCES) $(gesvd_SOURCES) $(hypercubic_SOURCES) \
+	$(index_helper_SOURCES) $(llsp_SOURCES) $(permutation_SOURCES) \
 	$(postorder_SOURCES) $(random_choice_SOURCES) $(syev_SOURCES) \
 	$(union_find_SOURCES) $(virtual_graph_SOURCES) \
 	$(weight_SOURCES) $(xxz_matrix_SOURCES) $(xxz_model_SOURCES)
@@ -296,10 +301,11 @@ dist_noinst_DATA = \
 	fill_duration.ip fill_duration.op \
 	filtered_graph.ip filtered_graph.op \
 	find_bridges.ip find_bridges.op \
-	gels.ip gels.op \
 	generate_01.op \
+	gesvd.ip gesvd.op \
 	hypercubic.ip hypercubic.op \
 	index_helper.op \
+	llsp.ip llsp.op \
 	permutation.op \
 	postorder.ip postorder.op \
 	random_choice.op \
@@ -318,10 +324,11 @@ edge_type_SOURCES = edge_type.C
 fill_duration_SOURCES = fill_duration.C
 filtered_graph_SOURCES = filtered_graph.C
 find_bridges_SOURCES = find_bridges.C
-gels_SOURCES = gels.C
 generate_01_SOURCES = generate_01.C
+gesvd_SOURCES = gesvd.C
 hypercubic_SOURCES = hypercubic.C
 index_helper_SOURCES = index_helper.C
+llsp_SOURCES = llsp.C
 permutation_SOURCES = permutation.C
 postorder_SOURCES = postorder.C
 random_choice_SOURCES = random_choice.C
@@ -391,18 +398,21 @@ filtered_graph$(EXEEXT): $(filtered_graph_OBJECTS) $(filtered_graph_DEPENDENCIES
 find_bridges$(EXEEXT): $(find_bridges_OBJECTS) $(find_bridges_DEPENDENCIES) 
 	@rm -f find_bridges$(EXEEXT)
 	$(CXXLINK) $(find_bridges_LDFLAGS) $(find_bridges_OBJECTS) $(find_bridges_LDADD) $(LIBS)
-gels$(EXEEXT): $(gels_OBJECTS) $(gels_DEPENDENCIES) 
-	@rm -f gels$(EXEEXT)
-	$(CXXLINK) $(gels_LDFLAGS) $(gels_OBJECTS) $(gels_LDADD) $(LIBS)
 generate_01$(EXEEXT): $(generate_01_OBJECTS) $(generate_01_DEPENDENCIES) 
 	@rm -f generate_01$(EXEEXT)
 	$(CXXLINK) $(generate_01_LDFLAGS) $(generate_01_OBJECTS) $(generate_01_LDADD) $(LIBS)
+gesvd$(EXEEXT): $(gesvd_OBJECTS) $(gesvd_DEPENDENCIES) 
+	@rm -f gesvd$(EXEEXT)
+	$(CXXLINK) $(gesvd_LDFLAGS) $(gesvd_OBJECTS) $(gesvd_LDADD) $(LIBS)
 hypercubic$(EXEEXT): $(hypercubic_OBJECTS) $(hypercubic_DEPENDENCIES) 
 	@rm -f hypercubic$(EXEEXT)
 	$(CXXLINK) $(hypercubic_LDFLAGS) $(hypercubic_OBJECTS) $(hypercubic_LDADD) $(LIBS)
 index_helper$(EXEEXT): $(index_helper_OBJECTS) $(index_helper_DEPENDENCIES) 
 	@rm -f index_helper$(EXEEXT)
 	$(CXXLINK) $(index_helper_LDFLAGS) $(index_helper_OBJECTS) $(index_helper_LDADD) $(LIBS)
+llsp$(EXEEXT): $(llsp_OBJECTS) $(llsp_DEPENDENCIES) 
+	@rm -f llsp$(EXEEXT)
+	$(CXXLINK) $(llsp_LDFLAGS) $(llsp_OBJECTS) $(llsp_LDADD) $(LIBS)
 permutation$(EXEEXT): $(permutation_OBJECTS) $(permutation_DEPENDENCIES) 
 	@rm -f permutation$(EXEEXT)
 	$(CXXLINK) $(permutation_LDFLAGS) $(permutation_OBJECTS) $(permutation_LDADD) $(LIBS)
@@ -443,10 +453,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fill_duration.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/filtered_graph.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/find_bridges.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gels.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_01.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gesvd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hypercubic.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/index_helper.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/llsp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/permutation.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/postorder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/random_choice.Po@am__quote@
