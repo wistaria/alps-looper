@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: amida.h 427 2003-10-16 05:23:18Z wistaria $
+* $Id: amida.h 437 2003-10-17 01:23:36Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -37,17 +37,14 @@
 #ifndef LOOPER_AMIDA_H
 #define LOOPER_AMIDA_H
 
+#include "vectorhelper.h"
+
 #include <alps/osiris.h>
 #include <boost/throw_exception.hpp>
-#include <boost/type_traits.hpp> // for boost::is_class
-#include <cmath>
 #include <deque>
-#include <iosfwd>
 #include <iterator>
-#include <limits>
 #include <stdexcept>
-
-#include "vectorhelper.h"
+#include <utility>
 
 //
 // forward declarations

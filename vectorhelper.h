@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: vectorhelper.h 429 2003-10-16 06:20:39Z wistaria $
+* $Id: vectorhelper.h 437 2003-10-17 01:23:36Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -45,10 +45,7 @@
 
 namespace looper {
   
-namespace {
-struct nulltype {};
-}
-
+namespace { struct nulltype {}; }
 
 template<class C = nulltype>
 class index_helper
@@ -63,6 +60,10 @@ public:
   }
 };
 
+
+//
+// for std::vector
+//
 
 template<class T, class Alloc>
 class index_helper<std::vector<T, Alloc> >
@@ -83,7 +84,9 @@ private:
 };
 
 
-#if 1
+//
+// for std::deque
+//
 
 template<class T, class Alloc>
 class index_helper<std::deque<T, Alloc> >
@@ -127,79 +130,84 @@ private:
   map_type map_;
 };
 
-#endif
 
-#if 0
+//
+// alternative implementation based on pointers for deque 
+// (incorrect outputs for ICC??)
+//
 
-template<class T, class Alloc>
-class index_helper<std::deque<T, Alloc> >
-{
-public:
-  typedef std::deque<T, Alloc>                                   array_type;
-  typedef typename array_type::value_type                        value_type;
-  typedef typename array_type::size_type                         size_type;
-  typedef std::vector<std::pair<const value_type *, size_type> > map_type;
+// template<class T, class Alloc>
+// class index_helper<std::deque<T, Alloc> >
+// {
+// public:
+//   typedef std::deque<T, Alloc>                                   array_type;
+//   typedef typename array_type::value_type                        value_type;
+//   typedef typename array_type::size_type                         size_type;
+//   typedef std::vector<std::pair<const value_type *, size_type> > map_type;
+//
+//   index_helper(const array_type& a) { init(a); }
+//
+//   void init(const array_type& a)
+//   {
+//     map_.clear();
+//
+//     if (a.size()) {
+//       // start address of first chunk
+//       map_.push_back(std::make_pair(&a[0], 0));
+//
+//       // find boundary of chunks
+//       for (int i = 1; i < a.size(); ++i)
+// 	if ((&a[i]) - (&a[i-1]) != 1) map_.push_back(std::make_pair(&a[i], i));
+//
+//       std::sort(map_.begin(), map_.end());
+//     }
+//   }
+//    
+//   size_type index(const value_type* ptr) const
+//   {
+//     typename map_type::const_iterator p = 
+//       std::lower_bound(map_.begin(), map_.end(), std::make_pair(ptr, 0),
+// 		       std::less<std::pair<const value_type *, size_type> >());
+//     if (p == map_.end() || ptr != p->first) --p;
+//     return p->second + (ptr - (p->first));
+//   }
+//
+// private:
+//   map_type map_;
+// };
 
-  index_helper(const array_type& a) { init(a); }
 
-  void init(const array_type& a)
-  {
-    map_.clear();
+//
+// naive implementation for deque (but SLOW)
+//
 
-    if (a.size()) {
-      // start address of first chunk
-      map_.push_back(std::make_pair(&a[0], 0));
-
-      // find boundary of chunks
-      for (int i = 1; i < a.size(); ++i)
-	if ((&a[i]) - (&a[i-1]) != 1) map_.push_back(std::make_pair(&a[i], i));
-
-      std::sort(map_.begin(), map_.end());
-    }
-  }
-    
-  size_type index(const value_type* ptr) const
-  {
-    typename map_type::const_iterator p = 
-      std::lower_bound(map_.begin(), map_.end(), std::make_pair(ptr, 0),
-		       std::less<std::pair<const value_type *, size_type> >());
-    if (p == map_.end() || ptr != p->first) --p;
-    return p->second + (ptr - (p->first));
-  }
-
-private:
-  map_type map_;
-};
-
-template<class T, class Alloc>
-class index_helper<std::deque<T, Alloc> >
-{
-public:
-  typedef std::deque<T, Alloc>                                   array_type;
-  typedef typename array_type::value_type                        value_type;
-  typedef typename array_type::size_type                         size_type;
-  typedef std::vector<std::pair<const value_type *, size_type> > map_type;
-
-  index_helper(const array_type& a) { init(a); }
-
-  void init(const array_type& a) { array_ptr_ = &a; }
- 
-  size_type index(const value_type* ptr) const
-  {
-    int i = 0;
-    for (typename array_type::const_iterator itr = array_ptr_->begin();
-	 itr != array_ptr_->end(); ++itr) {
-      if (&*itr == ptr) break;
-      ++i;
-    }
-    return i;
-  }
-
-private:
-  const array_type * array_ptr_;
-};
-
-#endif
+// template<class T, class Alloc>
+// class index_helper<std::deque<T, Alloc> >
+// {
+// public:
+//   typedef std::deque<T, Alloc>                                   array_type;
+//   typedef typename array_type::value_type                        value_type;
+//   typedef typename array_type::size_type                         size_type;
+//   typedef std::vector<std::pair<const value_type *, size_type> > map_type;
+//
+//   index_helper(const array_type& a) { init(a); }
+//
+//   void init(const array_type& a) { array_ptr_ = &a; }
+// 
+//   size_type index(const value_type* ptr) const
+//   {
+//     int i = 0;
+//     for (typename array_type::const_iterator itr = array_ptr_->begin();
+// 	 itr != array_ptr_->end(); ++itr) {
+//       if (&*itr == ptr) break;
+//       ++i;
+//     }
+//     return i;
+//   }
+//
+// private:
+//   const array_type * array_ptr_;
+// };
 
 } // end namespace looper
 
