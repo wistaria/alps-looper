@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-/* $Id: amida.C 693 2004-03-16 15:48:04Z wistaria $ */
+/* $Id: amida.C 698 2004-03-17 09:23:58Z wistaria $ */
 
 #include <looper/amida.h>
 #include <looper/vector_helper.h>
@@ -57,9 +57,9 @@ int main() {
 try {
 #endif
 
-  typedef boost::mt19937 rng_type;
-  typedef boost::uniform_int<> uniform_int;
-  rng_type rng;
+  // random number generator
+  boost::variate_generator<boost::mt19937, boost::uniform_int<> >
+    rng(boost::mt19937(4357), boost::uniform_int<>(0, n_series - 1));
 
   std::cout << "[[amida test]]\n";
 
@@ -69,9 +69,9 @@ try {
   // insert nodes randomly
   std::size_t n0, n1;
   for (std::size_t i = 0; i < n_nodes; i++) {
-    n0 = uniform_int(0, n_series - 1)(rng);
+    n0 = rng();
     n1 = n0;
-    while (n0 == n1) n1 = uniform_int(0, n_series - 1)(rng);
+    while (n0 == n1) n1 = rng();
     looper::amida<std::size_t>::iterator r0 = amida.series(n0).first;
     looper::amida<std::size_t>::iterator r1 = amida.series(n1).first;
     looper::amida<std::size_t>::iterator r = 

@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-/* $Id: fill_duration.C 693 2004-03-16 15:48:04Z wistaria $ */
+/* $Id: fill_duration.C 698 2004-03-17 09:23:58Z wistaria $ */
 
 #include <looper/fill_duration.h>
 #include <alps/alea.h>
@@ -39,8 +39,8 @@ try {
   int trial;
   std::cin >> r >> tmax >> trial;
 
-  boost::mt19937 base_rng;
-  boost::uniform_01<boost::mt19937> uniform_01(base_rng);
+  boost::variate_generator<boost::mt19937, boost::uniform_real<> >
+    uniform_01(boost::mt19937(4357), boost::uniform_real<>());
   for (int i = 0; i < trial; ++i) uniform_01();
 
   std::cout << "filling duration [0," << tmax << "]\n";

@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-/* $Id: random_choice.C 693 2004-03-16 15:48:04Z wistaria $ */
+/* $Id: random_choice.C 698 2004-03-17 09:23:58Z wistaria $ */
 
 // Define the following macro if you want the original initialization
 // routine of O(N^2).
@@ -31,8 +31,7 @@
 
 #include <looper/random_choice.h>
 
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/uniform_01.hpp>
+#include <boost/random.hpp>
 #include <vector>
 
 static const unsigned int n = 8;
@@ -46,14 +45,11 @@ try {
   std::cout << "number of bins = " << n << std::endl;
   std::cout << "number of samples = " << samples << std::endl;
 
-  typedef boost::mt19937 base_rng_type;
-  typedef boost::uniform_01<base_rng_type> rng_type;
-
   std::vector<double> weights(n);
 
   // random number generator
-  base_rng_type base_rng(29411);
-  rng_type rng(base_rng);
+  boost::variate_generator<boost::mt19937, boost::uniform_real<> >
+    rng(boost::mt19937(29411), boost::uniform_real<>());
 
   // generate weights
   std::generate(weights.begin(), weights.end(), rng);

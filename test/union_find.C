@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-/* $Id: union_find.C 693 2004-03-16 15:48:04Z wistaria $ */
+/* $Id: union_find.C 698 2004-03-17 09:23:58Z wistaria $ */
 
 #include <looper/union_find.h>
 #include <boost/random.hpp>
@@ -43,10 +43,10 @@ int index(const Itr0& itr, const Itr1& base) {
 int main()
 {
   typedef std::vector<looper::union_find::node<> > vector_type;
-  typedef boost::mt19937 rng_type;
-  typedef boost::uniform_int<> uniform_int;
 
-  rng_type rng;
+  // random number generator
+  boost::variate_generator<boost::mt19937, boost::uniform_int<> >
+    rng(boost::mt19937(4357), boost::uniform_int<>(0, n - 1));
   
   std::cout << "[[union find test]]\n";
 
@@ -55,8 +55,8 @@ int main()
   std::cout << "\n[making tree]\n";
 
   for (int i = 0; i < n; i++) {
-    int i0 = uniform_int(0, n-1)(rng);
-    int i1 = uniform_int(0, n-1)(rng);
+    int i0 = rng();
+    int i1 = rng();
     std::cout << "connecting node " << i0 << " to node " << i1 << std::endl;
     unify(tree[i0], tree[i1]);
   }

@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-/* $Id: syev.C 693 2004-03-16 15:48:04Z wistaria $ */
+/* $Id: syev.C 698 2004-03-17 09:23:58Z wistaria $ */
 
 #include <looper/lapack.h>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -94,8 +94,9 @@ int main(int argc, char ** argv)
 
   std::cout << "initialization... ";
 
-  boost::mt19937 rng(uint32_t(opts.seed));
-  double norm = 1.0/rng.max();
+  // random number generator
+  boost::variate_generator<boost::mt19937, boost::uniform_real<> >
+    rng(boost::mt19937(uint32_t(opts.seed)), boost::uniform_real<>(-.5, .5));
   for (int i = 0; i < 1000; ++i) rng();
 
   const int n = opts.n;
@@ -103,7 +104,7 @@ int main(int argc, char ** argv)
   boost::numeric::ublas::matrix<double> mat(n, n);
   for (int i = 0; i < n; ++i)
     for (int j = i; j < n; ++j)
-      mat(i, j) = norm * double(rng()) - 0.5;
+      mat(i, j) = rng();
   std::cout << "done\n";
 
   boost::posix_time::ptime t0 =
