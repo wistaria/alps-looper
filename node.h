@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: node.h 439 2003-10-17 06:19:43Z wistaria $
+* $Id: node.h 440 2003-10-17 06:33:05Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -84,7 +84,7 @@ public:
 
   reference conf() { return type_[bits::CONF]; }
   bool conf() const { return type_[bits::CONF]; }
-  void flip_conf() { type_.flip(bits::bits::CONF); }
+  void flip_conf() { type_.flip(bits::CONF); }
   
   bool is_refl() const { return type_.test(bits::REFL); }
   bool is_frozen() const { return type_.test(bits::FREZ); }
