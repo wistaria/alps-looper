@@ -51,22 +51,14 @@ void output(const G& graph, const looper::xxz_model& m)
 
   // bond parameters
   std::cout << "number of bond types = " << m.num_bond_types() << std::endl;
-  if (m.is_uniform_bond()) {
-    std::cout << "C = " << m.uniform_bond().c()
-              << ", Jxy = " << m.uniform_bond().jxy()
-              << ", Jz = " << m.uniform_bond().jz()
-              << std::endl;
-  }
+  if (m.is_uniform_bond()) std::cout << m.uniform_bond() << std::endl;
   typename alps::property_map<alps::bond_type_t, graph_type, int>::const_type
     bond_type(alps::get_or_default(alps::bond_type_t(), graph, 0));
   edge_iterator ei_end = boost::edges(graph).second;
   for (edge_iterator ei = boost::edges(graph).first; ei != ei_end; ++ei) {
     int t = bond_type[*ei];
-    std::cout << "bond " << *ei << ": type = " << t
-              << ", C = " << m.bond(t).c()
-              << ", Jxy = " << m.bond(t).jxy()
-              << ", Jz = " << m.bond(t).jz()
-              << std::endl;
+    std::cout << "bond " << *ei << ": type = " << t << ", " << m.bond(t)
+	      << std::endl;
   }
 }
 

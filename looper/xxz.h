@@ -47,6 +47,33 @@ I index(const alps::half_integer<I>& s0,
 
 } // end namespace detail
 
+class site_parameter
+{
+public:
+  typedef alps::half_integer<short> spin_type;
+
+  site_parameter(const spin_type& s = spin_type(0.5))
+    : s_(s), c_(), hx_(), hz_() {}
+  site_parameter(const spin_type& s, double c, double hx, double hz)
+    : s_(s), c_(c), hx_(hx), hz_(hz) {}
+
+  const spin_type& s() const { return s_; }
+  spin_type& s() { return s_; }
+
+  double c() const { return c_; }
+  double& c() { return c_; }
+
+  double hx() const { return hx_; }
+  double& hx() { return hx_; }
+
+  double hz() const { return hz_; }
+  double& hz() { return hz_; }
+
+private:
+  spin_type s_;
+  double c_, hx_, hz_;
+};
+
 class xxz_parameter
 {
 public:
@@ -79,14 +106,20 @@ public:
 
   xxz_matrix() : matrix_() {}
   xxz_matrix(const xxz_matrix& m) : matrix_(m.matrix_) {}
-  template<class I>
-  xxz_matrix(const alps::half_integer<I>& s0, const alps::half_integer<I>& s1,
+  // template<class I>
+  //  xxz_matrix(const alps::half_integer<I>& s0, const alps::half_integer<I>& s1,
+  //             double e0, double jxy, double jz) : matrix_()
+  //  { build(s0, s1, e0, jxy, jz); }
+  xxz_matrix(const site_parameter& s0, const site_parameter& s1,
              double e0, double jxy, double jz) : matrix_()
-  { build(s0, s1, e0, jxy, jz); }
-  template<class I>
-  xxz_matrix(const alps::half_integer<I>& s0, const alps::half_integer<I>& s1,
+  { build(s0.s(), s1.s(), e0, jxy, jz); }
+  // template<class I>
+  //  xxz_matrix(const alps::half_integer<I>& s0, const alps::half_integer<I>& s1,
+  // const xxz_parameter& p) : matrix_()
+  // { build(s0, s1, p.c(), p.jxy(), p.jz()); }
+  xxz_matrix(const site_parameter& s0, const site_parameter& s1,
              const xxz_parameter& p) : matrix_()
-  { build(s0, s1, p.c(), p.jxy(), p.jz()); }
+  { build(s0.s(), s1.s(), p.c(), p.jxy(), p.jz()); }
 
   // access to matrix
   matrix_type& matrix() { return matrix_; }
@@ -161,16 +194,16 @@ inline std::ostream& operator<<(std::ostream& os, const xxz_matrix<T, M>& m)
 // fitting a matrix to xxz_matrix
 //
 
-template <class I, class M>
+template <class M>
 inline boost::tuple<bool, typename M::value_type, typename M::value_type,
                     typename M::value_type>
-fit2xxz(const alps::half_integer<I>& s0, const alps::half_integer<I>& s1,
+fit2xxz(const site_parameter& s0, const site_parameter& s1,
         const M& mat, typename M::value_type tol = 1.0e-10)
 {
   typedef M matrix_type;
   typedef typename M::value_type value_type;
 
-  int dim = (s0.get_twice()+1) * (s1.get_twice()+1);
+  int dim = (s0.s().get_twice()+1) * (s1.s().get_twice()+1);
   xxz_matrix<value_type> m1(s0, s1, 0, 1, 1);
 
   // e0
@@ -205,15 +238,15 @@ fit2xxz(const alps::half_integer<I>& s0, const alps::half_integer<I>& s1,
   return boost::make_tuple(success, e0, jxy, jz);
 }
 
-template <class I, class T>
+template <class T>
 inline boost::tuple<bool, T, T, T>
-fit2xxz(const alps::half_integer<I>& s0, const alps::half_integer<I>& s1,
+fit2xxz(const site_parameter& s0, const site_parameter& s1,
         const boost::multi_array<T, 4>& mat, T tol = 1.0e-10)
 {
   typedef T value_type;
 
-  int d0 = s0.get_twice()+1;
-  int d1 = s1.get_twice()+1;
+  int d0 = s0.s().get_twice()+1;
+  int d1 = s1.s().get_twice()+1;
   int dim = d0 * d1;
 
   boost::numeric::ublas::matrix<value_type> m(dim, dim);
@@ -231,26 +264,27 @@ class xxz_model
 {
 public:
   typedef int type_type;
-  typedef std::map<type_type, alps::half_integer<int> > spin_type;
+  typedef std::map<type_type, site_parameter> site_type;
   typedef std::map<type_type, xxz_parameter> bond_type;
+  typedef site_parameter::spin_type spin_type;
 
-  template<class G, class I>
-  xxz_model(double Jxy, double Jz, const alps::half_integer<I>& spin,
-            const G& graph) : spin_(), bond_()
+  template<class G>
+  xxz_model(double Jxy, double Jz, const spin_type& spin,
+            const G& graph) : site_(), bond_()
   { set_parameters(Jxy, Jz, spin, graph); }
   template<class G, class IntType>
   xxz_model(const alps::Parameters params, const G& graph,
             const alps::ModelLibrary::OperatorDescriptorMap& ops,
             const alps::HamiltonianDescriptor<IntType>& hd)
-    : spin_(), bond_()
+    : site_(), bond_()
   { set_parameters(params, graph, ops, hd); }
   template<class G>
   xxz_model(const alps::Parameters params, const G& graph,
-            const alps::ModelLibrary& models) : spin_(), bond_()
+            const alps::ModelLibrary& models) : site_(), bond_()
   { set_parameters(params, graph, models); }
 
-  template<class G, class I>
-  void set_parameters(double Jxy, double Jz, const alps::half_integer<I>& spin,
+  template<class G>
+  void set_parameters(double Jxy, double Jz, const spin_type& spin,
                       const G& graph)
   {
     typedef G graph_type;
@@ -268,7 +302,7 @@ public:
     for (vertex_iterator vi = boost::vertices(graph).first; vi != vi_end;
          ++vi) {
       type_type t = site_type[*vi];
-      if (!spin_.count(t)) spin_[t] = spin;
+      if (!site_.count(t)) site_[t].s() = spin;
     }
 
     // set bond parameters
@@ -306,8 +340,8 @@ public:
     for (vertex_iterator vi = boost::vertices(graph).first; vi != vi_end;
          ++vi) {
       type_type t = site_type[*vi];
-      if (!spin_.count(t))
-        spin_[t] = (double(hd.basis().site_basis(t).num_states()) - 1) / 2;
+      if (!site_.count(t))
+        site_[t].s() = (double(hd.basis().site_basis(t).num_states()) - 1) / 2;
     }
 
     // get bond parameters
@@ -329,7 +363,7 @@ public:
                                     hd.basis().site_basis(st1),
                                     ops, params);
         boost::tuple<bool, double, double, double>
-          fit = fit2xxz(spin_[st0], spin_[st1], bm);
+          fit = fit2xxz(site_[st0], site_[st1], bm);
         if (!fit.template get<0>())
           boost::throw_exception(std::runtime_error("fitting to XXZ model failed"));
         if (!bond_.count(bt)) {
@@ -359,15 +393,12 @@ public:
     set_parameters(p, graph, models.simple_operators(), hd);
   }
 
-  int num_spin_types() const { return spin_.size(); }
+  int num_spin_types() const { return site_.size(); }
   bool is_uniform_spin() const { return num_spin_types() == 1; }
-  alps::half_integer<int> spin(type_type t) const
-    { return spin_.find(t)->second; }
-  alps::half_integer<int> uniform_spin() const
-  {
-    assert(is_uniform_spin());
-    return spin_.begin()->second;
-  }
+  spin_type spin(type_type t) const
+  { return site_.find(t)->second.s(); }
+  spin_type uniform_spin() const
+  { assert(is_uniform_spin()); return site_.begin()->second.s(); }
 
   int num_bond_types() const { return bond_.size(); }
   bool is_uniform_bond() const { return num_bond_types() == 1; }
@@ -380,10 +411,25 @@ public:
   }
 
 private:
-  std::map<type_type, alps::half_integer<int> > spin_;
+  std::map<type_type, site_parameter> site_;
   std::map<type_type, xxz_parameter> bond_;
 };
 
+
 } // end namespace looper
+
+#ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
+namespace looper {
+#endif
+
+std::ostream& operator<<(std::ostream& os, const looper::xxz_parameter& p)
+{
+  os << "C = " << p.c() << ", Jxy = " << p.jxy() << ", Jz = " << p.jz();
+  return os;
+}
+
+#ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
+} // namespace looper
+#endif
 
 #endif // LOOPER_XXZ_H
