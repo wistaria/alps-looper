@@ -22,7 +22,7 @@
 #
 ##############################################################################
 
-# $Id: Makefile.in 604 2004-01-16 08:35:21Z wistaria $
+# $Id: Makefile.in 617 2004-02-19 08:16:39Z wistaria $
 # top-level Makefile
 
 srcdir = @srcdir@
@@ -30,14 +30,10 @@ top_srcdir = @top_srcdir@
 builddir = @builddir@l
 top_builddir = ./@top_builddir@
 
-include @INCLUDE_MK@
+include $(top_builddir)include-looper.mk
 
-version = @PACKAGE_VERSION@
+version = $(looper_version)
 distdir = @PACKAGE_NAME@-@PACKAGE_VERSION@
-
-LAPACK_CPPFLAGS = @LAPACK_CPPFLAGS@
-LAPACK_LDFLAGS = @LAPACK_LDFLAGS@
-LAPACK_LIBS = @LAPACK_LIBS@
 
 cppflags = $(CPPFLAGS) $(LAPACK_CPPFLAGS) -I$(top_builddir) -I$(top_srcdir)
 cppflags_mpi = $(CPPFLAGS_MPI) $(LAPACK_CPPFLAGS) -I$(top_builddir) -I$(top_srcdir)
@@ -47,13 +43,20 @@ ldflags_mpi = $(LDFLAGS_MPI) $(LAPACK_LDFLAGS)
 libs_program = -lalps -lcomm-sgl $(LAPACK_LIBS) $(HDF5_LIBS) $(XML_LIBS) $(BASE_LIBS)
 libs_program_mpi = -lalps -lcomm-mpi $(LAPACK_LIBS) $(HDF5_LIBS) $(XML_LIBS) $(MPI_LIBS) $(BASE_LIBS)
 
-LOCAL_CONFIG = looper/config.h lattices.xml models.xml percolation-params qmc-params
+pkgincludedir = $(includedir)
+pkgdatadir = $(datadir)/@PACKAGE_NAME@
+
+LOCAL_CONFIG = lattices.xml models.xml percolation-params qmc-params
+HEADER_CONFIG = looper/config.h
+HEADER = looper/amida.h looper/copyright.h looper/exact_diag.h looper/fill_duration.h looper/graph.h looper/lapack.h looper/measurement.h looper/model.h looper/node.h looper/path_integral.h looper/permutation.h looper/random_choice.h looper/sse.h looper/union_find.h looper/vector_helper.h looper/virtual_graph.h looper/weight.h looper/xxz.h
 PROGRAM_MPI =
 PROGRAM =
 EXAMPLE_MPI = qmc_mpi percolation_mpi
 EXAMPLE = copyright qmc qmc_cmd percolation percolation_cmd @EXAMPLE_MPI@
 
 SCRIPTS = configure
+PKGDATA_CONFIG = include-looper.mk
+PKGDATA =
 ERASE = header.txt replace_header.pl replace_header.sh
 
 default : copyright qmc qmc_cmd

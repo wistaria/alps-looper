@@ -1,12 +1,13 @@
 #!/usr/local/bin/perl
 
-# $Id: replace_header.pl 554 2003-11-12 02:36:24Z wistaria $
+# $Id: replace_header.pl 617 2004-02-19 08:16:39Z wistaria $
 
 $header = "header.txt";
 
 foreach $file (@ARGV) {
     if (-f $file) {
-	if ($file =~ /Makefile.in$/) {
+	if ($file =~ /Makefile\.in$/ || $file =~ /\.mk\.in$/ ||
+	    $file =~ /\.mk$/) {
 	    $orig = "$file.orig";
 	    print "Processing $file...\n";
 	    rename($file,$orig);
@@ -35,7 +36,7 @@ foreach $file (@ARGV) {
  	    close(IN);
  	    close(OUT);
 	}
-	if ($file =~ /.[Ch]$/) {
+	if ($file =~ /\.[Ch]$/ || $file =~ /\.[Ch]\.in$/) {
 	    $orig = "$file.orig";
 	    print "Processing $file...\n";
 	    rename($file,$orig);

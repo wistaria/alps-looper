@@ -1,5 +1,9 @@
-2004-01-16  Synge Todo  <wistaria@comp-phys.org>
+2004-02-19  Synge Todo  <wistaria@comp-phys.org>
 
+	* Supported installing headers etc.
+	
+2004-01-16  Synge Todo  <wistaria@comp-phys.org>
+	
 	* Fixed worker<QMC_WORKER>::work_done() function.
 
 	* Changed measurement type in qmc_impl.h and percolation_impl.h.

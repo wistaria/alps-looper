@@ -22,7 +22,7 @@
 #
 ##############################################################################
 
-# $Id: Makefile.in 604 2004-01-16 08:35:21Z wistaria $
+# $Id: Makefile.in 617 2004-02-19 08:16:39Z wistaria $
 # Makefile for test programs
 
 srcdir = @srcdir@
@@ -30,11 +30,7 @@ top_srcdir = @top_srcdir@
 builddir = @builddir@l
 top_builddir = ./@top_builddir@
 
-include @INCLUDE_MK@
-
-LAPACK_CPPFLAGS = @LAPACK_CPPFLAGS@
-LAPACK_LDFLAGS = @LAPACK_LDFLAGS@
-LAPACK_LIBS = @LAPACK_LIBS@
+include $(top_builddir)include-looper.mk
 
 cppflags = $(CPPFLAGS) $(LAPACK_CPPFLAGS) -I$(top_builddir) -I$(top_srcdir)
 cppflags_mpi = $(CPPFLAGS_MPI) $(LAPACK_CPPFLAGS) -I$(top_builddir) -I$(top_srcdir)
