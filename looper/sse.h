@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: sse.h 486 2003-10-30 05:01:15Z wistaria $
+* $Id: sse.h 487 2003-10-30 09:55:12Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -140,6 +140,41 @@ struct sse<virtual_graph<G>, M, W>
 			 int ni = 16)
   { initialize(config, p.virtual_graph, ni); }
 
+  struct default_expander
+  {
+    default_expander() : thresh_(0.75), expand_(2.) {}
+    default_expander(double t, double e) : thresh_(t), expand_(e)
+    { assert(thresh_ > 0. && thresh_ < 1.); assert(expand_ > 1.); }
+
+    bool need_expansion(double p) const { return (p > thresh_); }
+    int new_size(int c) const {
+      int n = int(c * expand_);
+      return (n == c) ? (c + 1) : n;
+    }
+
+    double thresh_;
+    double expand_;
+  };
+
+  template<class RNG, class EXP>
+  static void check_and_expand(config_type& config, RNG& /* uniform_01 */,
+			       const EXP& expander)
+  {
+    int old_size = config.os.size();
+    if (expander.need_expansion(double(config.num_operators) / old_size)) {
+      config.os.resize(expander.new_size(old_size));
+      for (int i = old_size; i < config.os.size(); ++i) {
+	config.os[i].clear_graph();
+	config.os[i].set_to_identity();
+      }
+    }
+  }
+  template<class RNG>
+  static void check_and_expand(config_type& config, RNG& uniform_01)
+  {
+    check_and_expand(config, uniform_01, default_expander());
+  }
+
   template<class RNG>
   static void generate_loops(config_type& config, const vg_type& vg,
 			     const model_type& /* model */, double beta,
@@ -160,9 +195,10 @@ struct sse<virtual_graph<G>, M, W>
     }
     
     // scan over operators
-    {
+    if (boost::num_edges(vg.graph) > 0) {
       operator_iterator oi_end = config.os.end();
       for (operator_iterator oi = config.os.begin(); oi != oi_end; ++oi) {
+	////std::cout << "op: before " << oi->is_identity() << oi->is_diagonal() << oi->is_offdiagonal();
 	if (oi->is_identity()) {
 	  // identity operator
 	  int b = bc.choose(uniform_01);
@@ -174,12 +210,15 @@ struct sse<virtual_graph<G>, M, W>
 	      double(config.os.size() - config.num_operators)) {
 	    // insert diagonal operator
 	    oi->identity_to_diagonal();
+	    ////std::cout << " " << oi->is_identity() << oi->is_diagonal() << oi->is_offdiagonal();
 	    oi->set_bond(b);
 	    ++config.num_operators;
+	    ////std::cout << " " << oi->is_identity() << oi->is_diagonal() << oi->is_offdiagonal();
 	    
 	    oi->set_new((curr_conf[boost::source(*ei, vg.graph)] ^
 			 curr_conf[boost::target(*ei, vg.graph)]),
 			(uniform_01() < bc.weight(b).p_freeze()));
+	    ////std::cout << " " << oi->is_identity() << oi->is_diagonal() << oi->is_offdiagonal();
 	  } else { /* nothing to be done */ }
 	} else if (oi->is_diagonal()) {
 	  // diagonal operator
@@ -207,6 +246,7 @@ struct sse<virtual_graph<G>, M, W>
 	  curr_conf[boost::target(*ei, vg.graph)] ^= 1;
 	  oi->set_old(uniform_01() < bc.weight(b).p_reflect());
 	}
+	////std::cout << " after " << oi->is_identity() << oi->is_diagonal() << oi->is_offdiagonal() << std::endl;
       }
     }
 #ifndef NDEBUG
@@ -326,15 +366,17 @@ struct sse<virtual_graph<G>, M, W>
       config.num_loops = config.num_loops0;
       operator_iterator oi_end = config.os.end();
       for (operator_iterator oi = config.os.begin(); oi != oi_end; ++oi) {
-	if (oi->loop_segment(0).index == loop_segment::undefined) {
-	  if (oi->loop_segment(0).root()->index == loop_segment::undefined)
-	    oi->loop_segment(0).root()->index = config.num_loops++;
-	  oi->loop_segment(0).index = oi->loop_segment(0).root()->index;
-	}
-	if (oi->loop_segment(1).index == loop_segment::undefined) {
-	  if (oi->loop_segment(1).root()->index == loop_segment::undefined)
-	    oi->loop_segment(1).root()->index = config.num_loops++;
-	  oi->loop_segment(1).index = oi->loop_segment(1).root()->index;
+	if (!oi->is_identity()) {
+	  if (oi->loop_segment(0).index == loop_segment::undefined) {
+	    if (oi->loop_segment(0).root()->index == loop_segment::undefined)
+	      oi->loop_segment(0).root()->index = config.num_loops++;
+	    oi->loop_segment(0).index = oi->loop_segment(0).root()->index;
+	  }
+	  if (oi->loop_segment(1).index == loop_segment::undefined) {
+	    if (oi->loop_segment(1).root()->index == loop_segment::undefined)
+	      oi->loop_segment(1).root()->index = config.num_loops++;
+	    oi->loop_segment(1).index = oi->loop_segment(1).root()->index;
+	  }
 	}
       }
     }
@@ -345,6 +387,58 @@ struct sse<virtual_graph<G>, M, W>
   {
     generate_loops(config, p.virtual_graph, p.model, p.beta, p.chooser,
 		   uniform_01);
+  }
+
+  template<class RNG>
+  static void flip_and_cleanup(config_type& config, const vg_type& vg,
+                               RNG& uniform_01)
+  {
+    typedef RNG rng_type;
+
+    std::vector<int> flip(config.num_loops);
+    std::generate(flip.begin(), flip.end(),
+		  boost::variate_generator<rng_type&,
+                                           boost::uniform_smallint<> >(
+                    uniform_01, boost::uniform_smallint<>(0, 1)));
+
+    // flip spins
+    {
+      vertex_iterator vi, vi_end;
+      for (boost::tie(vi, vi_end) = boost::vertices(vg.graph);
+	   vi != vi_end; ++vi) {
+	if (flip[config.bottom[*vi].loop_segment(0).index] == 1)
+	  config.bottom[*vi].flip_conf();
+	config.bottom[*vi].clear_graph();
+	if (flip[config.top[*vi].loop_segment(0).index] == 1)
+	  config.top[*vi].flip_conf();
+	config.top[*vi].clear_graph();
+      }
+    }
+
+    // update operators
+    {
+      operator_iterator oi_end = config.os.end();
+      for (operator_iterator oi = config.os.begin(); oi != oi_end; ++oi) {
+	if ((!oi->is_identity()) &&
+	    (flip[oi->loop_segment(0).index] ^
+	     flip[oi->loop_segment(1).index] == 1))
+	  oi->flip_operator();
+	oi->clear_graph();
+      }
+    }
+  }
+  template<class RNG>
+  static void flip_and_cleanup(config_type& config, const parameter_type& p,
+                               RNG& uniform_01)
+  {
+    flip_and_cleanup(config, p.virtual_graph, uniform_01);
+  }
+
+  // measurements
+
+  static double static_sz(const config_type& config, int i)
+  {
+    return 0.5 - double(config.bottom[i].conf());
   }
 
   static double energy_offset(const vg_type& vg, const model_type& model)
@@ -360,6 +454,67 @@ struct sse<virtual_graph<G>, M, W>
   }
   static double energy_offset(const parameter_type& p)
   { return energy_offset(p.virtual_graph, p.model); }
+
+  static double energy_z(const config_type& config, const vg_type& vg,
+			 const model_type& model)
+  {
+    double ene = 0.;
+    typename alps::property_map<alps::bond_type_t, graph_type, int>::const_type
+      bond_type(alps::get_or_default(alps::bond_type_t(), vg.graph, 0));
+    edge_iterator ei, ei_end;
+    for (boost::tie(ei, ei_end) = boost::edges(vg.graph); ei != ei_end; ++ei) {
+      ene += model.bond(bond_type[*ei]).jz() *
+	static_sz(config, boost::source(*ei, vg.graph)) *
+	static_sz(config, boost::target(*ei, vg.graph));
+    }
+    return ene / double(vg.num_real_vertices);
+  }
+  static double energy_z(const config_type& config, const parameter_type& p)
+  { return energy_z(config, p.virtual_graph, p.model); }
+
+  static double uniform_sz(const config_type& config,
+			   const vg_type& vg)
+  {
+    double sz = 0.;
+    vertex_iterator vi, vi_end;
+    for (boost::tie(vi, vi_end) = boost::vertices(vg.graph); 
+	 vi != vi_end; ++vi) {
+      sz += static_sz(config, *vi);
+    }
+    return sz / double(vg.num_real_vertices);
+  }
+  static double uniform_sz(const config_type& config,
+			   const parameter_type& p)
+  { return uniform_sz(config, p.virtual_graph); }
+
+  // for debugging
+
+  static void output(config_type& config, const parameter_type& p)
+  {
+    std::cout << "config at bottom: ";
+    for (int i = 0; i < boost::num_vertices(p.graph); ++i)
+      std::cout << (config.bottom[i].conf() == 0 ? '+' : '-');
+    std::cout << std::endl;
+
+    std::cout << "config at top   : ";
+    for (int i = 0; i < boost::num_vertices(p.graph); ++i)
+      std::cout << (config.top[i].conf() == 0 ? '+' : '-');
+    std::cout << std::endl;
+
+    std::cout << "operator string:\n";
+    for (int i = 0; i < config.os.size(); ++i) {
+      if (config.os[i].is_identity()) {
+	std::cout << i << " identity\n";
+      } else if (config.os[i].is_diagonal()) {
+	std::cout << i << " diagonal     at bond " << config.os[i].bond()
+		  << std::endl;
+      } else {
+	std::cout << i << " off-diagonal at bond " << config.os[i].bond()
+		  << std::endl;
+      }
+    }
+  }
+  
 }; // struct sse
 
 } // end namespace looper

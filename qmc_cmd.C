@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: qmc_cmd.C 476 2003-10-29 10:16:12Z wistaria $
+* $Id: qmc_cmd.C 487 2003-10-30 09:55:12Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -257,29 +257,34 @@ try {
 
     for (int mcs = 0; mcs < opts.step_t + opts.step_m; ++mcs) {
       if (mcs == opts.step_t) measurements.reset(true);
-      
+
+      qmc::check_and_expand(config, rng);
       qmc::generate_loops(config, param, rng);
 
-//       std::cout << config.num_loops0 << ' ' << config.num_loops << std::endl;
+      std::cout << config.num_loops0 << ' ' << config.num_loops << std::endl;
+      ////qmc::output(config, param);
 
-//       // measure improved quantities here
+      // measure improved quantities here
 //       measurements.
 // 	template get<alps::RealObservable>("diagonal energy (improved)") <<
 // 	e_offset + qmc::energy_z_imp(config, param);
 
 //       //qmc::flip_and_cleanup(config, vg, rng);
-//       qmc::flip_and_cleanup(config, param, rng);
+      qmc::flip_and_cleanup(config, param, rng);
       
-//       // measure unimproved quantities here
-//       measurements.
-// 	template get<alps::RealObservable>("diagonal energy") <<
-// 	e_offset + qmc::energy_z(config, param);
-//       double sz = qmc::uniform_sz(config, param);
-//       measurements.
-// 	template get<alps::RealObservable>("uniform magnetization") << sz;
-//       measurements.
-// 	template get<alps::RealObservable>("uniform susceptibility") <<
-// 	beta * vg.num_real_vertices * sz * sz;
+      std::cout << config.num_operators << std::endl;
+      ////qmc::output(config, param);
+
+      // measure unimproved quantities here
+      measurements.
+ 	template get<alps::RealObservable>("diagonal energy") <<
+ 	e_offset + qmc::energy_z(config, param);
+      double sz = qmc::uniform_sz(config, param);
+      measurements.
+ 	template get<alps::RealObservable>("uniform magnetization") << sz;
+      measurements.
+ 	template get<alps::RealObservable>("uniform susceptibility") <<
+ 	beta * vg.num_real_vertices * sz * sz;
     }
   }
 

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: xxz.h 469 2003-10-28 01:41:10Z wistaria $
+* $Id: xxz.h 487 2003-10-30 09:55:12Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -159,7 +159,7 @@ fit2xxz(const alps::half_integer<I>& s0, const alps::half_integer<I>& s1,
   xxz_matrix<value_type> m1(s0, s1, 0, 1, 1);
   
   // e0
-  value_type e0 = 0;
+  value_type e0 = 0.;
   for (int i = 0; i < dim; ++i) e0 += mat[i][i];
   e0 /= dim;
   

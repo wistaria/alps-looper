@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: weight.h 481 2003-10-29 15:18:42Z wistaria $
+* $Id: weight.h 487 2003-10-30 09:55:12Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -66,7 +66,7 @@ public:
       pa_para_ = range_01((Jxy + Jz) / (Jxy + abs(Jz)));
       pa_anti_ = range_01((Jxy - Jz) / (Jxy + abs(Jz)));
       p_reflect_ = range_01((Jxy - Jz) / (2 * Jxy));
-      offset_ = max(abs(Jz) / 4, Jxy / 4);
+      offset_ = -max(abs(Jz) / 4, Jxy / 4);
     }
   }
 
@@ -152,22 +152,24 @@ public:
   void init(const G& vg, const M& m)
   {
     weight_.clear();
-    typename boost::graph_traits<typename G::graph_type>::edge_iterator
-      ei, ei_end;
-    for (boost::tie(ei, ei_end) = boost::edges(vg.graph); ei != ei_end; ++ei) {
-      weight_.push_back(
-	weight_type(m.bond(boost::get(edge_type_t(), vg.graph, *ei))));
-    }
-
     gw_ = 0.0;
-    std::vector<double> w(0);
-    typename std::vector<weight_type>::iterator itr_end = weight_.end();
-    for (typename std::vector<weight_type>::iterator itr = weight_.begin();
-	 itr != itr_end; ++itr) {
-      w.push_back(itr->weight());
-      gw_ += itr->weight();
+    if (boost::num_edges(vg.graph) > 0) {
+      typename boost::graph_traits<typename G::graph_type>::edge_iterator
+	ei, ei_end;
+      for (boost::tie(ei, ei_end) = boost::edges(vg.graph);
+	   ei != ei_end; ++ei)
+	weight_.push_back(
+	  weight_type(m.bond(boost::get(edge_type_t(), vg.graph, *ei))));
+
+      std::vector<double> w(0);
+      typename std::vector<weight_type>::iterator itr_end = weight_.end();
+      for (typename std::vector<weight_type>::iterator itr = weight_.begin();
+	   itr != itr_end; ++itr) {
+	w.push_back(itr->weight());
+	gw_ += itr->weight();
+      }
+      rc_.init(w);
     }
-    rc_.init(w);
   }
   template<class P>
   void init(const P& p) { init(p.virtual_graph, p.model); }
