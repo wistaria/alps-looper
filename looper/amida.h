@@ -223,7 +223,7 @@ struct amida_series_iterator : public amida_const_series_iterator<T>
   amida_series_iterator() {}
   amida_series_iterator(node_type* x, size_type s) : base_(x, s) {}
 
-  reference operator*() const { return ((node_type*)node_)->data_; }
+  reference operator*() const { return ((node_type*)base_::node_)->data_; }
   pointer operator->() const { return &(operator*()); }
 
   self_ operator++() { this->incr(); return *this; }

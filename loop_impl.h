@@ -27,8 +27,6 @@
 #ifndef LOOP_IMPL_H
 #define LOOP_IMPL_H
 
-#define MEASURE_GENERAL_SUSCEPTIBILITIES
-
 #include <looper/copyright.h>
 #include <looper/model.h>
 #include <looper/path_integral.h>
@@ -61,18 +59,16 @@ public:
     m << alps::RealObservable("Energy");
     m << alps::RealObservable("Energy Density");
     m << alps::RealObservable("Energy Density^2");
-    m << alps::RealObservable("Energy for SH");
-    m << alps::RealObservable("Energy^2 for SH");
+    m << alps::RealObservable("beta * Energy / sqrt(N)");
+    m << alps::RealObservable("beta * Energy^2");
     m << alps::RealObservable("Magnetization^2");
     m << alps::RealObservable("Susceptibility");
     m << alps::RealObservable("Staggered Magnetization^2");
     m << alps::RealObservable("Staggered Susceptibility");
-#ifdef MEASURE_GENERAL_SUSCEPTIBILITIES
     m << alps::RealObservable("Uniform Generalized Magnetization^2");
     m << alps::RealObservable("Uniform Generalized Susceptibility");
     m << alps::RealObservable("Staggered Generalized Magnetization^2");
     m << alps::RealObservable("Staggered Generalized Susceptibility");
-#endif
   }
 
   template<class RNG>
@@ -94,7 +90,6 @@ public:
     m.template get<alps::RealObservable>("Staggered Magnetization^2") <<
       looper::staggered_sz2_imp(config_, param_);
 
-#ifdef MEASURE_GENERAL_SUSCEPTIBILITIES
     double gm2, gs;
     boost::tie(gm2, gs) =
       looper::uniform_generalized_susceptibility_imp(config_, param_);
@@ -106,7 +101,6 @@ public:
       looper::staggered_generalized_susceptibility_imp(config_, param_);
     m.template get<alps::RealObservable>("Staggered Generalized Magnetization^2") << sgm2;
     m.template get<alps::RealObservable>("Staggered Generalized Susceptibility") << sgs;
-#endif
 
     //
     // flip clusters
@@ -126,10 +120,10 @@ public:
     m.template get<alps::RealObservable>("Energy Density") << ez + exy;
     m.template get<alps::RealObservable>("Energy Density^2") << e2;
 
-    m.template get<alps::RealObservable>("Energy for SH") <<
+    m.template get<alps::RealObservable>("beta * Energy / sqrt(N)") <<
       std::sqrt((double)param_.virtual_graph.num_real_vertices) *
       param_.beta * (ez + exy);
-    m.template get<alps::RealObservable>("Energy^2 for SH") <<
+    m.template get<alps::RealObservable>("beta * Energy^2") <<
       (double)param_.virtual_graph.num_real_vertices *
       looper::sqr(param_.beta) * e2;
 
@@ -157,7 +151,6 @@ public:
        << m.template get<alps::RealObservable>("Staggered Magnetization^2").error() << ' '
        << m.template get<alps::RealObservable>("Staggered Susceptibility").mean() << ' '
        << m.template get<alps::RealObservable>("Staggered Susceptibility").error() << ' '
-#ifdef MEASURE_GENERAL_SUSCEPTIBILITIES
        << m.template get<alps::RealObservable>("Uniform Generalized Magnetization^2").mean() << ' '
        << m.template get<alps::RealObservable>("Uniform Generalized Magnetization^2").error() << ' '
        << m.template get<alps::RealObservable>("Uniform Generalized Susceptibility").mean() << ' '
@@ -165,9 +158,7 @@ public:
        << m.template get<alps::RealObservable>("Staggered Generalized Magnetization^2").mean() << ' '
        << m.template get<alps::RealObservable>("Staggered Generalized Magnetization^2").error() << ' '
        << m.template get<alps::RealObservable>("Staggered Generalized Susceptibility").mean() << ' '
-       << m.template get<alps::RealObservable>("Staggered Generalized Susceptibility").error() << ' '
-#endif
-      ;
+       << m.template get<alps::RealObservable>("Staggered Generalized Susceptibility").error() << ' ';
   }
 
   void save(alps::ODump& od) const { config_.save(od); }
@@ -182,8 +173,8 @@ private:
 template<class T>
 inline void accumulate(const alps::ObservableSet& m_in, T& m_out)
 {
-  alps::RealObsevaluator obse_e = m_in["Energy for SH"];
-  alps::RealObsevaluator obse_e2 = m_in["Energy^2 for SH"];
+  alps::RealObsevaluator obse_e = m_in["beta * Energy / sqrt(N)"];
+  alps::RealObsevaluator obse_e2 = m_in["beta * Energy^2"];
   alps::RealObsevaluator eval("Specific Heat");
   eval = (obse_e2 - obse_e * obse_e);
   m_out << eval;

@@ -32,14 +32,15 @@
 
 namespace looper {
 
-typedef alps::graph_name_t    graph_name_t;
-typedef alps::dimension_t     dimension_t;
-typedef boost::vertex_index_t vertex_index_t;
-typedef alps::vertex_type_t   vertex_type_t;
-typedef alps::coordinate_t    coordinate_t;
-typedef alps::parity_t        parity_t;
-typedef boost::edge_index_t   edge_index_t;
-typedef alps::edge_type_t     edge_type_t;
+typedef alps::graph_name_t        graph_name_t;
+typedef alps::dimension_t         dimension_t;
+typedef boost::vertex_index_t     vertex_index_t;
+typedef alps::vertex_type_t       vertex_type_t;
+typedef alps::coordinate_t        coordinate_t;
+typedef alps::parity_t            parity_t;
+typedef boost::edge_index_t       edge_index_t;
+typedef alps::edge_type_t         edge_type_t;
+typedef alps::boundary_crossing_t boundary_crossing_t;
 
 // NOTE: We use adjacency_list with EdgeListS=vecS, which will be less
 // efficient than that with EdgeListS=listS for edge insertion.
@@ -53,7 +54,8 @@ typedef boost::adjacency_list<boost::vecS,
                                               alps::coordinate_type,
                                 boost::property<vertex_type_t, int > >,
                               boost::property<edge_type_t, int,
-                                boost::property<edge_index_t, int > >,
+                                boost::property<edge_index_t, int,
+                                  boost::property<boundary_crossing_t, alps::boundary_crossing> > >,
                               boost::property<dimension_t, std::size_t,
                                 boost::property<graph_name_t, std::string > >,
                               boost::vecS> graph_type;
@@ -66,7 +68,8 @@ typedef boost::adjacency_list<boost::vecS,
                                 boost::property<parity_t, int,
                                 boost::property<vertex_type_t, int> > >,
                               boost::property<edge_type_t, int,
-                                boost::property<edge_index_t, int> >,
+                                boost::property<edge_index_t, int,
+                                  boost::property<boundary_crossing_t, alps::boundary_crossing> > >,
                               boost::property<dimension_t, std::size_t,
                                 boost::property<graph_name_t, std::string > >,
                               boost::vecS> parity_graph_type;

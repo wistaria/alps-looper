@@ -113,8 +113,8 @@ public:
   template<class RNG>
   int operator()(RNG& rng) const { return choose(rng); }
 
-  weight_type& weight(int) { return w_; }
-  const weight_type& weight(int) const { return w_; }
+  weight_type& weight(int) { return weight_; }
+  const weight_type& weight(int) const { return weight_; }
   double global_weight() const { return gw_; }
 
 private:
@@ -147,7 +147,7 @@ public:
       for (boost::tie(ei, ei_end) = boost::edges(vg.graph);
            ei != ei_end; ++ei)
         weight_.push_back(
-          weight_type(m.bond(boost::get(edge_type_t(), vg.graph, *ei))));
+          weight_type(m.bond(boost::get(alps::edge_type_t(), vg.graph, *ei))));
 
       std::vector<double> w(0);
       typename std::vector<weight_type>::iterator itr_end = weight_.end();

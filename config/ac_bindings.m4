@@ -54,7 +54,7 @@ AC_DEFUN([AC_BINDINGS],
   if test "$found" = yes; then
     ac_cv_have_bindings=yes
     ac_cv_bindings_dir="$bindings_dir"
-    BINDINGS_CPPFLAGS="-I$bindings_dir -DBOOST_NUMERIC_BINDINGS_NO_STRUCTURE_CHECK"
+    BINDINGS_CPPFLAGS="-I$bindings_dir -DBOOST_NUMERIC_BINDINGS_POOR_MANS_TRAITS"
     AC_DEFINE(HAVE_BINDINGS, [], [Define if you have uBLAS LAPACK bindings.])
   else
     ac_cv_have_bindings=no
