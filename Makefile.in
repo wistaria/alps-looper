@@ -271,8 +271,7 @@ pkginclude_HEADERS = \
 	looper/vector_helper.h \
 	looper/version.h \
 	looper/virtual_graph.h \
-	looper/weight.h \
-	looper/xxz.h
+	looper/weight.h
 
 dist_noinst_SCRIPTS = config/run-test config/update_preamble
 dist_noinst_DATA = CITATIONS.txt LICENSE lattices.xml models.xml

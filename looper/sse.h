@@ -37,7 +37,7 @@ namespace looper {
 
 typedef qmc_node sse_node;
 
-template<class G, class M, class W = default_weight, class N = sse_node>
+template<class G, class M, class W = weight::xxz, class N = sse_node>
 struct sse;
 
 template<class G, class M, class W, class N>
@@ -252,10 +252,10 @@ struct sse<virtual_graph<G>, M, W, N>
           // identity operator
           int b = bc.choose(uniform_01);
           edge_iterator ei = boost::edges(vg.graph).first + b;
-	  int r = curr_conf[boost::source(*ei, vg.graph)] ^
-	    curr_conf[boost::target(*ei, vg.graph)];
+          int r = curr_conf[boost::source(*ei, vg.graph)] ^
+            curr_conf[boost::target(*ei, vg.graph)];
           if (uniform_01() < bc.global_weight() * beta *
-	      bc.weight(b).p_accept(r) /
+              bc.weight(b).p_accept(r) /
               double(config.os.size() - config.num_operators)) {
             // insert diagonal operator
             oi->identity_to_diagonal();
@@ -267,8 +267,8 @@ struct sse<virtual_graph<G>, M, W, N>
           // diagonal operator
           int b = oi->bond();
           edge_iterator ei = boost::edges(vg.graph).first + b;
-	  int r = curr_conf[boost::source(*ei, vg.graph)] ^
-	    curr_conf[boost::target(*ei, vg.graph)];
+          int r = curr_conf[boost::source(*ei, vg.graph)] ^
+            curr_conf[boost::target(*ei, vg.graph)];
           if (uniform_01() <
               double(config.os.size() - config.num_operators + 1) /
               (bc.global_weight() * beta * bc.weight(b).p_accept(r))) {

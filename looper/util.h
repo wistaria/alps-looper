@@ -89,7 +89,7 @@ inline int alternating_tensor(const boost::tuple<int, int, int>& x)
 
 template<typename T, typename U>
 void flatten_matrix(const boost::multi_array<T, 4>& m_in,
-		    boost::numeric::ublas::matrix<U>& m_out)
+                    boost::numeric::ublas::matrix<U>& m_out)
 {
 #ifndef NDEBUG
   assert(m_in.shape()[0] == m_in.shape()[2]);

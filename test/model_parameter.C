@@ -22,11 +22,11 @@
 *
 *****************************************************************************/
 
-#include <looper/xxz.h>
+#include <looper/model.h>
 #include <iostream>
 
-template<class G, class I>
-void output(const G& graph, const looper::xxz_model<I>& m)
+template<typename G, typename SITE_P, typename BOND_P>
+void output(const G& graph, const looper::model_parameter<SITE_P, BOND_P>& m)
 {
   typedef G graph_type;
   typedef typename boost::graph_traits<graph_type>::vertex_iterator
@@ -80,11 +80,11 @@ try {
   alps::ModelLibrary models(params);
 
   // construct from model library
-  looper::xxz_model<> m0(params, graph, models);
+  looper::model_parameter<> m0(params, graph, models);
   output(graph, m0);
 
   // construct from parameters
-  looper::xxz_model<> m1(-2, -1, looper::xxz_model<>::spin_type(1.5), graph);
+  looper::model_parameter<> m1(-2, -1, alps::half_integer<int>(1.5), graph);
   output(graph, m1);
 
 #ifndef BOOST_NO_EXCEPTIONS

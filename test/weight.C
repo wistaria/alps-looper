@@ -22,15 +22,16 @@
 *
 *****************************************************************************/
 
-#include <looper/util.h>
-#include <looper/xxz.h>
+#include <looper/model.h>
 #include <looper/weight.h>
 #include <alps/parameterlist.h>
 #include <iostream>
 
-template<typename W>
-void output(const alps::Parameters& param, const W& weight)
+template<typename W, typename BOND_P>
+void output(const alps::Parameters& param, const W& weight, const BOND_P&)
 {
+  typedef BOND_P bond_parameter_type;
+
   assert(weight.p_freeze_para() == weight.p_freeze(0,0) &&
 	 weight.p_freeze_para() == weight.p_freeze(1,1));
   assert(weight.p_freeze_anti() == weight.p_freeze(0,1) &&
@@ -57,7 +58,7 @@ void output(const alps::Parameters& param, const W& weight)
   }
   std::cout << std::endl;
 
-  looper::xxz_parameter p = looper::weight::check_pi(weight);
+  bond_parameter_type p = looper::weight::check(weight);
   assert(looper::nearly_equal(param["Jxy"], p.jxy()));
   assert(looper::nearly_equal(param["Jz"], p.jz()));
 }
@@ -68,18 +69,20 @@ int main()
 try {
 #endif
 
+  typedef looper::bond_parameter_xxz bond_parameter_type;
+
   alps::ParameterList params;
   std::cin >> params;
 
   for (alps::ParameterList::iterator p = params.begin();
        p != params.end(); ++p) {
-    looper::xxz_parameter xxz(0, (*p)["Jxy"], (*p)["Jz"]);
+    bond_parameter_type bond(0, (*p)["Jxy"], (*p)["Jz"]);
 
     std::cout << "standard: ";
-    output(*p, looper::default_weight(xxz));      
+    output(*p, looper::weight::xxz(bond), bond_parameter_type());
 
     std::cout << "ergodic: ";
-    output(*p, looper::default_weight(xxz, 0.1));
+    output(*p, looper::weight::xxz(bond, 0.1), bond_parameter_type());
   }
 
 #ifndef BOOST_NO_EXCEPTIONS

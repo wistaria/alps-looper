@@ -3,6 +3,7 @@ Makefile
 .libs
 alternating_tensor
 amida
+bond_matrix
 edge_type
 fill_duration
 filtered_graph
@@ -12,6 +13,7 @@ gesvd
 hypercubic
 index_helper
 llsp
+model_parameter
 permutation
 postorder
 random_choice
@@ -20,7 +22,5 @@ syev
 union_find
 virtual_graph
 weight
-xxz_matrix
-xxz_model
 amida.xdr
-xxz_model.ip
+model_parameter.ip

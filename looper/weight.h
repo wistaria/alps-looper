@@ -37,141 +37,6 @@ namespace looper {
 
 namespace weight {
 
-class ferro_ising
-{
-public:
-  ferro_ising() : density_(0), offset_(0) {}
-  template<class P>
-  ferro_ising(const P& p) : density_(p.jz()/2), offset_(-p.jz()/4)
-  {
-    if (!(p.jx() == 0 && p.jy() == 0 && p.jz() >= 0))
-      boost::throw_exception(std::invalid_argument(
-        "invalid coupling constant"));
-  }
-
-  double density() const { return density_; }
-  double weight() const { return density_; }
-  static double p_accept_para() { return 1; }
-  static double p_accept_anti() { return 0; }
-  static double p_accept(int r) { return r ? 0 : 1; }
-  static double p_accept(int c0, int c1) { return p_accept(c0 ^ c1); }
-  static double p_freeze_para() { return 1; }
-  static double p_freeze_anti() { return 0; }
-#ifndef NDEBUG
-  static double p_freeze(int r) {
-    if (r != 0) boost::throw_exception(std::logic_error("ferro_ising"));
-    return 1;
-  }
-  static double p_freeze(int c0, int c1) {
-    if (c0 ^ c1 != 0) boost::throw_exception(std::logic_error("ferro_ising"));
-    return 1;
-  }
-#else
-  static double p_freeze(int) { return 1; }
-  static double p_freeze(int, int) { return 1; }
-#endif
-  static double p_reflect() { return 0; }
-  double offset() const { return offset_; }
-  static double sign() { return 1; }
-
-private:
-  double density_;
-  double offset_;
-};
-
-class antiferro_ising
-{
-public:
-  antiferro_ising() : density_(0), offset_(0) {}
-  template<class P>
-  antiferro_ising(const P& p) : density_(-p.jz()/2), offset_(p.jz()/4)
-  {
-    if (!(p.jx() == 0 && p.jy() == 0 && p.jz() <= 0))
-      boost::throw_exception(std::invalid_argument(
-        "invalid coupling constant"));
-  }
-
-  double density() const { return density_; }
-  double weight() const { return density_; }
-  static double p_accept_para() { return 0; }
-  static double p_accept_anti() { return 1; }
-  static double p_accept(int r) { return r ? 1 : 0; }
-  static double p_accept(int c0, int c1) { return p_accept(c0 ^ c1); }
-  static double p_freeze_para() { return 0; }
-  static double p_freeze_anti() { return 1; }
-#ifndef NDEBUG
-  static double p_freeze(int r) {
-    if (r != 1) boost::throw_exception(std::logic_error("antiferro_ising"));
-    return 1;
-  }
-  static double p_freeze(int c0, int c1) {
-    if (c0 ^ c1 != 1)
-      boost::throw_exception(std::logic_error("antiferro_ising"));
-    return 1;
-  }
-#else
-  static double p_freeze(int) { return 1; }
-  static double p_freeze(int, int) { return 1; }
-#endif
-  static double p_reflect() { return 0; }
-  double offset() { return offset_; }
-  static double sign() { return 1; }
-
-private:
-  double density_;
-  double offset_;
-};
-
-class xxz_orig {
-public:
-  xxz_orig() :
-    density_(0), pa_para_(0), pa_anti_(0), pf_para_(0), pf_anti_(0), 
-    p_reflect_(0), offset_(0), sign_(1) {}
-  template<class P>
-  xxz_orig(const P& p) :
-    density_(0), pa_para_(0), pa_anti_(0), pf_para_(0), pf_anti_(0),
-    p_reflect_(0), offset_(0), sign_(1)
-  {
-    using std::abs; using std::max;
-    double Jxy = abs(p.jxy());
-    double Jz = p.jz();
-    if (Jxy + abs(Jz) > 1.0e-10) {
-      density_ = max(abs(Jz) / 2, (Jxy + abs(Jz)) / 4);
-      pa_para_ = range_01((Jxy + Jz) / (Jxy + abs(Jz)));
-      pa_anti_ = range_01((Jxy - Jz) / (Jxy + abs(Jz)));
-      pf_para_ = range_01(1 - Jxy / abs(Jz));
-      pf_anti_ = range_01(1 - Jxy / abs(Jz));
-      p_reflect_ = range_01((Jxy - Jz) / (2 * Jxy));
-      offset_ = -max(abs(Jz) / 4, Jxy / 4);
-      sign_ = (p.jxy() >= 0 ? 1 : -1);
-    }
-  }
-
-  double density() const { return density_; }
-  double weight() const { return density_; }
-  double p_accept_para() const { return pa_para_; }
-  double p_accept_anti() const { return pa_anti_; }
-  double p_accept(int r) const { return r ? pa_anti_ : pa_para_; }
-  double p_accept(int c0, int c1) const { return p_accept(c0 ^ c1); }
-  double p_freeze_para() const { return pf_para_; }
-  double p_freeze_anti() const { return pf_anti_; }
-  double p_freeze(int r) const { return r ? pf_anti_ : pf_para_; }
-  double p_freeze(int c0, int c1) const { return p_freeze(c0 ^ c1); }
-  double p_reflect() const { return p_reflect_; }
-  double offset() const { return offset_; }
-  double sign() const { return sign_; }
-
-private:
-  double density_;
-  double pa_para_;
-  double pa_anti_;
-  double pf_para_;
-  double pf_anti_;
-  double p_reflect_;
-  double offset_;
-  double sign_;
-};
-
 class xxz {
 
   // loop equations:
@@ -240,19 +105,19 @@ public:
     double w12, w11, w13, w22, w23;
     if (Jxy + abs(Jz) > 1.0e-10) {
       if (Jxy + Jz > 2 * a * Jxy) {
-	// standard solutions
-	w12 = min(-abs(Jz)/4, -Jxy/4);
-	w11 = max((Jz - Jxy)/2, 0.);
-	w13 = max(min(Jxy/2, (Jz + Jxy)/4), 0.);
-	w22 = max(-(Jz + Jxy)/2, 0.);
-	w23 = max(min(Jxy/2, (-Jz + Jxy)/4), 0.);
+        // standard solutions
+        w12 = min(-abs(Jz)/4, -Jxy/4);
+        w11 = max((Jz - Jxy)/2, 0.);
+        w13 = max(min(Jxy/2, (Jz + Jxy)/4), 0.);
+        w22 = max(-(Jz + Jxy)/2, 0.);
+        w23 = max(min(Jxy/2, (-Jz + Jxy)/4), 0.);
       } else {
-	// "ergodic" solutions
-	w12 = (Jz - 2*a*Jxy)/4;
-	w11 = 0;
-	w13 = a*Jxy/2;
-	w22 = (-Jz + (2*a-1)*Jxy)/2;
-	w23 = (1-a)*Jxy/2;
+        // "ergodic" solutions
+        w12 = (Jz - 2*a*Jxy)/4;
+        w11 = 0;
+        w13 = a*Jxy/2;
+        w22 = (-Jz + (2*a-1)*Jxy)/2;
+        w23 = (1-a)*Jxy/2;
       }
 
       density_ = max(w11+w13, w22+w23);
@@ -292,7 +157,7 @@ private:
 };
 
 template<typename W>
-xxz_parameter check_pi(const W& w, double tol = 1.0e-10)
+bond_parameter_xxz check(const W& w, double tol = 1.0e-10)
 {
   double rp = w.density() * w.p_accept_para();
   double w11 = rp * w.p_freeze_para();
@@ -308,12 +173,10 @@ xxz_parameter check_pi(const W& w, double tol = 1.0e-10)
   double jxy = 2 * (w13 + w23) * w.sign();
   double jz = 4 * (w12 + w11 + w13);
 
-  return xxz_parameter(0, jxy, jz);
+  return bond_parameter_xxz(0, jxy, jz);
 }
 
 } // end namespace weight
-
-typedef weight::xxz default_weight;
 
 
 template<class W>

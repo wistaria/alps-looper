@@ -70,7 +70,7 @@ inline operator_map_type spin_operators(const std::set<std::string>& suffixes = 
   } else {
     std::set<std::string>::const_iterator itr_end = suffixes.end();
     for (std::set<std::string>::const_iterator itr = suffixes.begin();
-	 itr != itr_end; ++itr) {
+         itr != itr_end; ++itr) {
       std::string es2 = "S" + *itr + "*(S" + *itr + "+1)";
 
       // Sz

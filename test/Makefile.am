@@ -1,6 +1,7 @@
 check_PROGRAMS = \
 	alternating_tensor \
 	amida \
+	bond_matrix \
 	edge_type \
 	fill_duration \
 	filtered_graph \
@@ -10,6 +11,7 @@ check_PROGRAMS = \
 	hypercubic \
 	index_helper \
 	llsp \
+	model_parameter \
 	permutation \
 	postorder \
 	random_choice \
@@ -17,13 +19,12 @@ check_PROGRAMS = \
 	syev \
 	union_find \
 	virtual_graph \
-	weight \
-	xxz_matrix \
-	xxz_model
+	weight
 
 dist_noinst_DATA = \
 	alternating_tensor.op \
 	amida.op \
+	bond_matrix.ip bond_matrix.op \
 	edge_type.ip edge_type.op \
 	fill_duration.ip fill_duration.op \
 	filtered_graph.ip filtered_graph.op \
@@ -33,6 +34,7 @@ dist_noinst_DATA = \
 	hypercubic.ip hypercubic.op \
 	index_helper.op \
 	llsp.ip llsp.op \
+	model_parameter.op \
 	permutation.op \
 	postorder.ip postorder.op \
 	random_choice.op \
@@ -40,15 +42,14 @@ dist_noinst_DATA = \
 	syev.op \
 	union_find.op \
 	virtual_graph.op \
-	weight.ip weight.op \
-	xxz_matrix.ip xxz_matrix.op \
-	xxz_model.op
+	weight.ip weight.op
 
 TESTS = $(check_PROGRAMS)
 TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
 
 alternating_tensor_SOURCES = alternating_tensor.C
 amida_SOURCES = amida.C
+bond_matrix_SOURCES = bond_matrix.C
 edge_type_SOURCES = edge_type.C
 fill_duration_SOURCES = fill_duration.C
 filtered_graph_SOURCES = filtered_graph.C
@@ -58,6 +59,7 @@ gesvd_SOURCES = gesvd.C
 hypercubic_SOURCES = hypercubic.C
 index_helper_SOURCES = index_helper.C
 llsp_SOURCES = llsp.C
+model_parameter_SOURCES = model_parameter.C
 permutation_SOURCES = permutation.C
 postorder_SOURCES = postorder.C
 random_choice_SOURCES = random_choice.C
@@ -66,8 +68,6 @@ syev_SOURCES = syev.C
 union_find_SOURCES = union_find.C
 virtual_graph_SOURCES = virtual_graph.C
 weight_SOURCES = weight.C
-xxz_matrix_SOURCES = xxz_matrix.C
-xxz_model_SOURCES = xxz_model.C
 
 test tests : check
 clean-local :

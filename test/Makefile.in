@@ -14,7 +14,7 @@
 
 @SET_MAKE@
 
-SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) $(edge_type_SOURCES) $(fill_duration_SOURCES) $(filtered_graph_SOURCES) $(find_bridges_SOURCES) $(generate_01_SOURCES) $(gesvd_SOURCES) $(hypercubic_SOURCES) $(index_helper_SOURCES) $(llsp_SOURCES) $(permutation_SOURCES) $(postorder_SOURCES) $(random_choice_SOURCES) $(site_matrix_SOURCES) $(syev_SOURCES) $(union_find_SOURCES) $(virtual_graph_SOURCES) $(weight_SOURCES) $(xxz_matrix_SOURCES) $(xxz_model_SOURCES)
+SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) $(bond_matrix_SOURCES) $(edge_type_SOURCES) $(fill_duration_SOURCES) $(filtered_graph_SOURCES) $(find_bridges_SOURCES) $(generate_01_SOURCES) $(gesvd_SOURCES) $(hypercubic_SOURCES) $(index_helper_SOURCES) $(llsp_SOURCES) $(model_parameter_SOURCES) $(permutation_SOURCES) $(postorder_SOURCES) $(random_choice_SOURCES) $(site_matrix_SOURCES) $(syev_SOURCES) $(union_find_SOURCES) $(virtual_graph_SOURCES) $(weight_SOURCES)
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -38,16 +38,16 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 host_triplet = @host@
 check_PROGRAMS = alternating_tensor$(EXEEXT) amida$(EXEEXT) \
-	edge_type$(EXEEXT) fill_duration$(EXEEXT) \
+	bond_matrix$(EXEEXT) edge_type$(EXEEXT) fill_duration$(EXEEXT) \
 	filtered_graph$(EXEEXT) find_bridges$(EXEEXT) \
 	generate_01$(EXEEXT) gesvd$(EXEEXT) hypercubic$(EXEEXT) \
-	index_helper$(EXEEXT) llsp$(EXEEXT) permutation$(EXEEXT) \
-	postorder$(EXEEXT) random_choice$(EXEEXT) site_matrix$(EXEEXT) \
-	syev$(EXEEXT) union_find$(EXEEXT) virtual_graph$(EXEEXT) \
-	weight$(EXEEXT) xxz_matrix$(EXEEXT) xxz_model$(EXEEXT)
+	index_helper$(EXEEXT) llsp$(EXEEXT) model_parameter$(EXEEXT) \
+	permutation$(EXEEXT) postorder$(EXEEXT) random_choice$(EXEEXT) \
+	site_matrix$(EXEEXT) syev$(EXEEXT) union_find$(EXEEXT) \
+	virtual_graph$(EXEEXT) weight$(EXEEXT)
 subdir = test
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(srcdir)/xxz_model.ip.in
+	$(srcdir)/Makefile.in $(srcdir)/model_parameter.ip.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
 	$(top_srcdir)/config/ac_bindings.m4 \
@@ -56,7 +56,7 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(mkdir_p)
 CONFIG_HEADER = $(top_builddir)/looper/config.h
-CONFIG_CLEAN_FILES = xxz_model.ip
+CONFIG_CLEAN_FILES = model_parameter.ip
 am_alternating_tensor_OBJECTS = alternating_tensor.$(OBJEXT)
 alternating_tensor_OBJECTS = $(am_alternating_tensor_OBJECTS)
 alternating_tensor_LDADD = $(LDADD)
@@ -65,6 +65,10 @@ am_amida_OBJECTS = amida.$(OBJEXT)
 amida_OBJECTS = $(am_amida_OBJECTS)
 amida_LDADD = $(LDADD)
 amida_DEPENDENCIES =
+am_bond_matrix_OBJECTS = bond_matrix.$(OBJEXT)
+bond_matrix_OBJECTS = $(am_bond_matrix_OBJECTS)
+bond_matrix_LDADD = $(LDADD)
+bond_matrix_DEPENDENCIES =
 am_edge_type_OBJECTS = edge_type.$(OBJEXT)
 edge_type_OBJECTS = $(am_edge_type_OBJECTS)
 edge_type_LDADD = $(LDADD)
@@ -101,6 +105,10 @@ am_llsp_OBJECTS = llsp.$(OBJEXT)
 llsp_OBJECTS = $(am_llsp_OBJECTS)
 llsp_LDADD = $(LDADD)
 llsp_DEPENDENCIES =
+am_model_parameter_OBJECTS = model_parameter.$(OBJEXT)
+model_parameter_OBJECTS = $(am_model_parameter_OBJECTS)
+model_parameter_LDADD = $(LDADD)
+model_parameter_DEPENDENCIES =
 am_permutation_OBJECTS = permutation.$(OBJEXT)
 permutation_OBJECTS = $(am_permutation_OBJECTS)
 permutation_LDADD = $(LDADD)
@@ -133,31 +141,24 @@ am_weight_OBJECTS = weight.$(OBJEXT)
 weight_OBJECTS = $(am_weight_OBJECTS)
 weight_LDADD = $(LDADD)
 weight_DEPENDENCIES =
-am_xxz_matrix_OBJECTS = xxz_matrix.$(OBJEXT)
-xxz_matrix_OBJECTS = $(am_xxz_matrix_OBJECTS)
-xxz_matrix_LDADD = $(LDADD)
-xxz_matrix_DEPENDENCIES =
-am_xxz_model_OBJECTS = xxz_model.$(OBJEXT)
-xxz_model_OBJECTS = $(am_xxz_model_OBJECTS)
-xxz_model_LDADD = $(LDADD)
-xxz_model_DEPENDENCIES =
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
 @AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/alternating_tensor.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/amida.Po ./$(DEPDIR)/edge_type.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/amida.Po ./$(DEPDIR)/bond_matrix.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/edge_type.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/fill_duration.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/filtered_graph.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/find_bridges.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/generate_01.Po ./$(DEPDIR)/gesvd.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/hypercubic.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/index_helper.Po ./$(DEPDIR)/llsp.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/model_parameter.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/permutation.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/postorder.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/random_choice.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/site_matrix.Po ./$(DEPDIR)/syev.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/union_find.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/virtual_graph.Po ./$(DEPDIR)/weight.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/xxz_matrix.Po ./$(DEPDIR)/xxz_model.Po
+@AMDEP_TRUE@	./$(DEPDIR)/virtual_graph.Po ./$(DEPDIR)/weight.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -167,23 +168,25 @@ CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) \
-	$(edge_type_SOURCES) $(fill_duration_SOURCES) \
-	$(filtered_graph_SOURCES) $(find_bridges_SOURCES) \
-	$(generate_01_SOURCES) $(gesvd_SOURCES) $(hypercubic_SOURCES) \
-	$(index_helper_SOURCES) $(llsp_SOURCES) $(permutation_SOURCES) \
-	$(postorder_SOURCES) $(random_choice_SOURCES) \
-	$(site_matrix_SOURCES) $(syev_SOURCES) $(union_find_SOURCES) \
-	$(virtual_graph_SOURCES) $(weight_SOURCES) \
-	$(xxz_matrix_SOURCES) $(xxz_model_SOURCES)
+	$(bond_matrix_SOURCES) $(edge_type_SOURCES) \
+	$(fill_duration_SOURCES) $(filtered_graph_SOURCES) \
+	$(find_bridges_SOURCES) $(generate_01_SOURCES) \
+	$(gesvd_SOURCES) $(hypercubic_SOURCES) $(index_helper_SOURCES) \
+	$(llsp_SOURCES) $(model_parameter_SOURCES) \
+	$(permutation_SOURCES) $(postorder_SOURCES) \
+	$(random_choice_SOURCES) $(site_matrix_SOURCES) \
+	$(syev_SOURCES) $(union_find_SOURCES) $(virtual_graph_SOURCES) \
+	$(weight_SOURCES)
 DIST_SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) \
-	$(edge_type_SOURCES) $(fill_duration_SOURCES) \
-	$(filtered_graph_SOURCES) $(find_bridges_SOURCES) \
-	$(generate_01_SOURCES) $(gesvd_SOURCES) $(hypercubic_SOURCES) \
-	$(index_helper_SOURCES) $(llsp_SOURCES) $(permutation_SOURCES) \
-	$(postorder_SOURCES) $(random_choice_SOURCES) \
-	$(site_matrix_SOURCES) $(syev_SOURCES) $(union_find_SOURCES) \
-	$(virtual_graph_SOURCES) $(weight_SOURCES) \
-	$(xxz_matrix_SOURCES) $(xxz_model_SOURCES)
+	$(bond_matrix_SOURCES) $(edge_type_SOURCES) \
+	$(fill_duration_SOURCES) $(filtered_graph_SOURCES) \
+	$(find_bridges_SOURCES) $(generate_01_SOURCES) \
+	$(gesvd_SOURCES) $(hypercubic_SOURCES) $(index_helper_SOURCES) \
+	$(llsp_SOURCES) $(model_parameter_SOURCES) \
+	$(permutation_SOURCES) $(postorder_SOURCES) \
+	$(random_choice_SOURCES) $(site_matrix_SOURCES) \
+	$(syev_SOURCES) $(union_find_SOURCES) $(virtual_graph_SOURCES) \
+	$(weight_SOURCES)
 DATA = $(dist_noinst_DATA)
 ETAGS = etags
 CTAGS = ctags
@@ -304,6 +307,7 @@ target_alias = @target_alias@
 dist_noinst_DATA = \
 	alternating_tensor.op \
 	amida.op \
+	bond_matrix.ip bond_matrix.op \
 	edge_type.ip edge_type.op \
 	fill_duration.ip fill_duration.op \
 	filtered_graph.ip filtered_graph.op \
@@ -313,6 +317,7 @@ dist_noinst_DATA = \
 	hypercubic.ip hypercubic.op \
 	index_helper.op \
 	llsp.ip llsp.op \
+	model_parameter.op \
 	permutation.op \
 	postorder.ip postorder.op \
 	random_choice.op \
@@ -320,14 +325,13 @@ dist_noinst_DATA = \
 	syev.op \
 	union_find.op \
 	virtual_graph.op \
-	weight.ip weight.op \
-	xxz_matrix.ip xxz_matrix.op \
-	xxz_model.op
+	weight.ip weight.op
 
 TESTS = $(check_PROGRAMS)
 TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
 alternating_tensor_SOURCES = alternating_tensor.C
 amida_SOURCES = amida.C
+bond_matrix_SOURCES = bond_matrix.C
 edge_type_SOURCES = edge_type.C
 fill_duration_SOURCES = fill_duration.C
 filtered_graph_SOURCES = filtered_graph.C
@@ -337,6 +341,7 @@ gesvd_SOURCES = gesvd.C
 hypercubic_SOURCES = hypercubic.C
 index_helper_SOURCES = index_helper.C
 llsp_SOURCES = llsp.C
+model_parameter_SOURCES = model_parameter.C
 permutation_SOURCES = permutation.C
 postorder_SOURCES = postorder.C
 random_choice_SOURCES = random_choice.C
@@ -345,8 +350,6 @@ syev_SOURCES = syev.C
 union_find_SOURCES = union_find.C
 virtual_graph_SOURCES = virtual_graph.C
 weight_SOURCES = weight.C
-xxz_matrix_SOURCES = xxz_matrix.C
-xxz_model_SOURCES = xxz_model.C
 all: all-am
 
 .SUFFIXES:
@@ -380,7 +383,7 @@ $(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
-xxz_model.ip: $(top_builddir)/config.status $(srcdir)/xxz_model.ip.in
+model_parameter.ip: $(top_builddir)/config.status $(srcdir)/model_parameter.ip.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 clean-checkPROGRAMS:
@@ -395,6 +398,9 @@ alternating_tensor$(EXEEXT): $(alternating_tensor_OBJECTS) $(alternating_tensor_
 amida$(EXEEXT): $(amida_OBJECTS) $(amida_DEPENDENCIES) 
 	@rm -f amida$(EXEEXT)
 	$(CXXLINK) $(amida_LDFLAGS) $(amida_OBJECTS) $(amida_LDADD) $(LIBS)
+bond_matrix$(EXEEXT): $(bond_matrix_OBJECTS) $(bond_matrix_DEPENDENCIES) 
+	@rm -f bond_matrix$(EXEEXT)
+	$(CXXLINK) $(bond_matrix_LDFLAGS) $(bond_matrix_OBJECTS) $(bond_matrix_LDADD) $(LIBS)
 edge_type$(EXEEXT): $(edge_type_OBJECTS) $(edge_type_DEPENDENCIES) 
 	@rm -f edge_type$(EXEEXT)
 	$(CXXLINK) $(edge_type_LDFLAGS) $(edge_type_OBJECTS) $(edge_type_LDADD) $(LIBS)
@@ -422,6 +428,9 @@ index_helper$(EXEEXT): $(index_helper_OBJECTS) $(index_helper_DEPENDENCIES)
 llsp$(EXEEXT): $(llsp_OBJECTS) $(llsp_DEPENDENCIES) 
 	@rm -f llsp$(EXEEXT)
 	$(CXXLINK) $(llsp_LDFLAGS) $(llsp_OBJECTS) $(llsp_LDADD) $(LIBS)
+model_parameter$(EXEEXT): $(model_parameter_OBJECTS) $(model_parameter_DEPENDENCIES) 
+	@rm -f model_parameter$(EXEEXT)
+	$(CXXLINK) $(model_parameter_LDFLAGS) $(model_parameter_OBJECTS) $(model_parameter_LDADD) $(LIBS)
 permutation$(EXEEXT): $(permutation_OBJECTS) $(permutation_DEPENDENCIES) 
 	@rm -f permutation$(EXEEXT)
 	$(CXXLINK) $(permutation_LDFLAGS) $(permutation_OBJECTS) $(permutation_LDADD) $(LIBS)
@@ -446,12 +455,6 @@ virtual_graph$(EXEEXT): $(virtual_graph_OBJECTS) $(virtual_graph_DEPENDENCIES)
 weight$(EXEEXT): $(weight_OBJECTS) $(weight_DEPENDENCIES) 
 	@rm -f weight$(EXEEXT)
 	$(CXXLINK) $(weight_LDFLAGS) $(weight_OBJECTS) $(weight_LDADD) $(LIBS)
-xxz_matrix$(EXEEXT): $(xxz_matrix_OBJECTS) $(xxz_matrix_DEPENDENCIES) 
-	@rm -f xxz_matrix$(EXEEXT)
-	$(CXXLINK) $(xxz_matrix_LDFLAGS) $(xxz_matrix_OBJECTS) $(xxz_matrix_LDADD) $(LIBS)
-xxz_model$(EXEEXT): $(xxz_model_OBJECTS) $(xxz_model_DEPENDENCIES) 
-	@rm -f xxz_model$(EXEEXT)
-	$(CXXLINK) $(xxz_model_LDFLAGS) $(xxz_model_OBJECTS) $(xxz_model_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -461,6 +464,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/alternating_tensor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/amida.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bond_matrix.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/edge_type.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fill_duration.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/filtered_graph.Po@am__quote@
@@ -470,6 +474,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hypercubic.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/index_helper.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/llsp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/model_parameter.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/permutation.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/postorder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/random_choice.Po@am__quote@
@@ -478,8 +483,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/union_find.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/virtual_graph.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/weight.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xxz_matrix.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xxz_model.Po@am__quote@
 
 .C.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \

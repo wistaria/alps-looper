@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-#include <looper/xxz.h>
+#include <looper/model.h>
 #include <iostream>
 
 int main()
@@ -32,19 +32,19 @@ int main()
     std::cin >> s0_in >> s1_in >> c >> jxy >> jz;
     if (!std::cin) break;
 
-    looper::site_parameter<> s0(s0_in);
-    looper::site_parameter<> s1(s1_in);
-    looper::xxz_matrix<> xxz(s0, s1, c, jxy, jz);
+    alps::half_integer<int> s0(s0_in);
+    alps::half_integer<int> s1(s1_in);
+    looper::bond_matrix<> xxz(s0, s1, c, jxy, jz);
 
-    std::cout << "input parameters: S0 = " << s0.s() << ", S1 = " << s1.s()
+    std::cout << "input parameters: S0 = " << s0 << ", S1 = " << s1
               << ", C = " << c << ", Jxy = " << jxy << ", Jz = " << jz
               << std::endl << xxz << std::endl;
 
-    looper::xxz_parameter p;
-    bool success = looper::fit2xxz(xxz, p);
+    looper::bond_parameter_xxz p;
+    bool success = looper::fit2bond(xxz.matrix(), p);
 
     assert(success);
-    assert(p == looper::xxz_parameter(c, jxy, jz));
+    assert(p == looper::bond_parameter_xxz(c, jxy, jz));
     std::cout << "fitting result: " << p << std::endl;
   }
 }

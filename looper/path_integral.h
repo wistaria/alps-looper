@@ -106,7 +106,7 @@ private:
 };
 
 
-template<class G, class M, class W = default_weight, class N = pi_node<> >
+template<class G, class M, class W = weight::xxz, class N = pi_node<> >
 struct path_integral;
 
 template<class G, class M, class W, class N>
@@ -306,7 +306,7 @@ struct path_integral<virtual_graph<G>, M, W, N>
             itr_new->set_time(*ti);
             itr_new->set_bond(bond);
             itr_new->set_new((c0 ^ c1), 
-			     (uniform_01() < weight.p_freeze(c0 ^ c1)));
+                             (uniform_01() < weight.p_freeze(c0 ^ c1)));
           }
         }
         while (!itr0.at_top()) {

@@ -1972,8 +1972,8 @@ fi
 
 
 
-{ echo "$as_me:$LINENO: starting configuration for ALPS/looper version 3.0.2b (2004/08/03)" >&5
-echo "$as_me: starting configuration for ALPS/looper version 3.0.2b (2004/08/03)" >&6;}
+{ echo "$as_me:$LINENO: starting configuration for ALPS/looper version 3.0.2b (2004/08/31)" >&5
+echo "$as_me: starting configuration for ALPS/looper version 3.0.2b (2004/08/31)" >&6;}
 
 
 
@@ -22453,7 +22453,7 @@ LIBS_PVM="$LAPACK_LIBS $ac_cv_alps_libs_pvm"
 
                                         ac_config_files="$ac_config_files Makefile doc/Makefile test/Makefile ed/Makefile"
 
-                    ac_config_files="$ac_config_files test/xxz_model.ip ed/diag.ip"
+                    ac_config_files="$ac_config_files test/model_parameter.ip ed/diag.ip"
 
 
 
@@ -22983,7 +22983,7 @@ do
   "doc/Makefile" ) CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
   "test/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
   "ed/Makefile" ) CONFIG_FILES="$CONFIG_FILES ed/Makefile" ;;
-  "test/xxz_model.ip" ) CONFIG_FILES="$CONFIG_FILES test/xxz_model.ip" ;;
+  "test/model_parameter.ip" ) CONFIG_FILES="$CONFIG_FILES test/model_parameter.ip" ;;
   "ed/diag.ip" ) CONFIG_FILES="$CONFIG_FILES ed/diag.ip" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
   "looper/config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS looper/config.h" ;;
