@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2005 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -59,8 +59,8 @@ void output(const alps::Parameters& param, const W& weight, const BOND_P&)
   std::cout << std::endl;
 
   bond_parameter_type p = looper::weight::check<bond_parameter_type>(weight);
-  assert(looper::nearly_equal(param["Jxy"], p.jxy()));
-  assert(looper::nearly_equal(param["Jz"], p.jz()));
+  assert(looper::equal(static_cast<double>(param["Jxy"]), p.jxy()));
+  assert(looper::equal(static_cast<double>(param["Jz"]), p.jz()));
 }
 
 int main()

@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2004 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 2004-2005 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -50,10 +50,10 @@ try {
           std::cout << p->key() << " = " << p->value() << std::endl;
       }
       
-      alps::graph_helper<> lattice(*itr);
+      alps::graph_helper<> graph(*itr);
       looper::model_parameter<> model(-1.0, (double)j,
                                       alps::half_integer<int>(0.5),
-                                      lattice.graph());
+                                      graph);
       
       std::cout << "model has "
                 << (model.is_signed() ? "" : "no ")
