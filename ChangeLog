@@ -3,9 +3,10 @@
 	* version 3.0b2 released.
 
 	- prerequisites: boost-ss-20031102, boost-ss-20031102.patch,
-	  alps-20031105
+	alps-20031105
 
-	- TODO: improved estimators, more measurements
+	- TODO: optimization, improved estimators, more measurements,
+	license issue.
 
 2003-11-06  Synge Todo  <wistaria@comp-phys.org>
 	
@@ -32,4 +33,4 @@
 	* version 3.0b1 released.
 
 	- prerequisites: boost-ss-20031102, boost-ss-20031102.patch,
-	  alps-20031105
+	alps-20031105
