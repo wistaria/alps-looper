@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: qmc_cmd.C 488 2003-10-30 21:42:47Z wistaria $
+* $Id: qmc_cmd.C 490 2003-10-31 09:31:45Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -195,13 +195,14 @@ try {
 
   // measurements
   alps::ObservableSet measurements;
-  measurements << alps::RealObservable("diagonal energy");
-  measurements << alps::RealObservable("diagonal energy (improved)");
-  measurements << alps::RealObservable("uniform magnetization");
-  measurements << alps::RealObservable("uniform susceptibility");
-  measurements << alps::RealObservable("staggered magnetization");
-  measurements << alps::RealObservable("staggered magnetization^2");
-  measurements << alps::RealObservable("staggered susceptibility");
+  typedef alps::RealObservable measurement_type;
+  measurements << measurement_type("diagonal energy");
+  measurements << measurement_type("diagonal energy (improved)");
+  measurements << measurement_type("uniform magnetization");
+  measurements << measurement_type("uniform susceptibility");
+  measurements << measurement_type("staggered magnetization");
+  measurements << measurement_type("staggered magnetization^2");
+  measurements << measurement_type("staggered susceptibility");
 
   if (!opts.sse) {
     // path-integral representation
@@ -222,11 +223,11 @@ try {
       
       qmc::generate_loops(config, param, rng);
 
-      std::cout << config.num_loops0 << ' ' << config.num_loops << std::endl;
+      ////std::cout << config.num_loops0 << ' ' << config.num_loops << std::endl;
 
       // measure improved quantities here
       measurements.
-	template get<alps::RealObservable>("diagonal energy (improved)") <<
+	template get<measurement_type>("diagonal energy (improved)") <<
 	e_offset + qmc::energy_z_imp(config, param);
 
       //qmc::flip_and_cleanup(config, vg, rng);
@@ -234,20 +235,20 @@ try {
       
       // measure unimproved quantities here
       measurements.
-	template get<alps::RealObservable>("diagonal energy") <<
+	template get<measurement_type>("diagonal energy") <<
 	e_offset + qmc::energy_z(config, param);
       double sz = qmc::uniform_sz(config, param);
       measurements.
-	template get<alps::RealObservable>("uniform magnetization") << sz;
+	template get<measurement_type>("uniform magnetization") << sz;
       measurements.
-	template get<alps::RealObservable>("uniform susceptibility") <<
+	template get<measurement_type>("uniform susceptibility") <<
 	beta * vg.num_real_vertices * sz * sz;
 
       double ss = qmc::staggered_sz(config, param);
       measurements.
-	template get<alps::RealObservable>("staggered magnetization") << ss;
+	template get<measurement_type>("staggered magnetization") << ss;
       measurements.
-	template get<alps::RealObservable>("staggered magnetization^2") <<
+	template get<measurement_type>("staggered magnetization^2") <<
 	vg.num_real_vertices * ss * ss;
     }
   } else {
@@ -270,43 +271,63 @@ try {
       qmc::check_and_expand(config, rng);
       qmc::generate_loops(config, param, rng);
 
-      std::cout << config.num_loops0 << ' ' << config.num_loops << std::endl;
+      ////std::cout << config.num_loops0 << ' ' << config.num_loops << std::endl;
       ////qmc::output(config, param);
 
       // measure improved quantities here
 //       measurements.
-// 	template get<alps::RealObservable>("diagonal energy (improved)") <<
+// 	template get<measurement_type>("diagonal energy (improved)") <<
 // 	e_offset + qmc::energy_z_imp(config, param);
 
 //       //qmc::flip_and_cleanup(config, vg, rng);
       qmc::flip_and_cleanup(config, param, rng);
       
-      std::cout << config.num_operators << std::endl;
+      ////std::cout << config.num_operators << std::endl;
       ////qmc::output(config, param);
 
       // measure unimproved quantities here
       measurements.
- 	template get<alps::RealObservable>("diagonal energy") <<
+ 	template get<measurement_type>("diagonal energy") <<
  	e_offset + qmc::energy_z(config, param);
 
       double sz = qmc::uniform_sz(config, param);
       measurements.
- 	template get<alps::RealObservable>("uniform magnetization") << sz;
+ 	template get<measurement_type>("uniform magnetization") << sz;
       measurements.
- 	template get<alps::RealObservable>("uniform susceptibility") <<
+ 	template get<measurement_type>("uniform susceptibility") <<
  	beta * vg.num_real_vertices * sz * sz;
 
       double ss = qmc::staggered_sz(config, param);
       measurements.
-	template get<alps::RealObservable>("staggered magnetization") << ss;
+	template get<measurement_type>("staggered magnetization") << ss;
       measurements.
-	template get<alps::RealObservable>("staggered magnetization^2") <<
+	template get<measurement_type>("staggered magnetization^2") <<
 	vg.num_real_vertices * ss * ss;
     }
   }
 
   // output results
   std::cout << measurements;
+
+  std::cout << std::endl
+	    << opts.seed << ' '
+	    << opts.dim << ' '
+	    << opts.lsize << ' '
+	    << opts.spin << ' '
+	    << opts.Jxy << ' '
+	    << opts.Jz << ' '
+	    << opts.temp << ' '
+	    << opts.step_t << ' '
+	    << opts.step_m << ' '
+	    << (opts.sse ? "SSE" : "PI") << ' '
+
+	    << measurements.template get<measurement_type>("diagonal energy").mean() << ' '
+	    << measurements.template get<measurement_type>("diagonal energy").error() << ' '
+	    << measurements.template get<measurement_type>("uniform susceptibility").mean() << ' '
+	    << measurements.template get<measurement_type>("uniform susceptibility").error() << ' '
+	    << measurements.template get<measurement_type>("staggered magnetization^2").mean() << ' '
+	    << measurements.template get<measurement_type>("staggered magnetization^2").error() << ' '
+	    << std::endl;
 
 #ifndef BOOST_NO_EXCEPTIONS
 } 
