@@ -23,7 +23,6 @@
 *****************************************************************************/
 
 #include <looper/vector_helper.h>
-#include <cmath>
 #include <boost/random.hpp>
 #include <iostream>
 

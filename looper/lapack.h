@@ -106,7 +106,8 @@ inline void diagonalize(Matrix& a, Vector& w, bool need_eigenvectors = true)
   int info;
 
   // call dispatcher
-  info = boost::numeric::bindings::lapack::syev(jobz, uplo, a, w, boost::numeric::bindings::lapack::optimal_workspace());
+  info = boost::numeric::bindings::lapack::syev(jobz, uplo, a, w,
+    boost::numeric::bindings::lapack::optimal_workspace());
   if (info != 0) throw std::runtime_error("failed in syev");
 }
 
@@ -132,7 +133,8 @@ inline void diagonalize(boost::numeric::ublas::matrix<std::complex<T>,R,A>& a, V
   int info;
 
   // call dispatcher
-  info = boost::numeric::bindings::lapack::heev(jobz, uplo, a, w);
+  info = boost::numeric::bindings::lapack::heev(jobz, uplo, a, w,
+    boost::numeric::bindings::lapack::optimal_workspace());
   if (info != 0) throw std::runtime_error("failed in heev");
 }
 

@@ -23,7 +23,6 @@
 *****************************************************************************/
 
 #include <looper/permutation.h>
-#include <cmath>
 #include <boost/random.hpp>
 #include <algorithm> // for std::random_shuffle
 #include <cstdlib>

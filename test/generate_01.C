@@ -22,7 +22,6 @@
 *
 *****************************************************************************/
 
-#include <cmath>
 #include <boost/random.hpp>
 #include <algorithm>
 #include <iostream>
