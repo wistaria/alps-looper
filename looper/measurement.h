@@ -26,7 +26,7 @@
 #define LOOPER_MEASUREMENT_H
 
 #include <looper/util.h>
-#
+
 namespace looper {
 
 //
@@ -47,21 +47,22 @@ struct sign_helper<path_integral<G, M, W, N> >
   calc(const typename qmc_type::config_type& config,
        const typename qmc_type::parameter_type& param)
   {
-    double sign = 1.0;
-    typename qmc_type::vertex_iterator vi, vi_end;
-    for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
-	 vi != vi_end; ++vi) {
-      // setup iterator
-      typename qmc_type::config_type::iterator
-	itr = boost::next(config.wl.series(*vi).first);
-      // iterate until t = 1
-      while (!itr.at_top()) {
-	if (itr.leg() == 0 && param.weight(itr->bond()).sign() < 0)
-	  sign = -sign;
-	++itr;
+    int n = 0;
+    typename qmc_type::edge_iterator ei, ei_end;
+    for (boost::tie(ei, ei_end) = boost::edges(param.virtual_graph.graph);
+         ei != ei_end; ++ei) {
+      int bond = boost::get(boost::edge_index, param.virtual_graph.graph, *ei);
+      if (param.weight[bond].sign() < 0) {
+        typename qmc_type::config_type::const_iterator
+          itr = boost::next(config.wl.series(
+            boost::source(*ei, param.virtual_graph.graph)).first);
+        while (!itr.at_top()) {
+          if (itr->bond() == bond) ++n;
+          ++itr;
+        }
       }
     }
-    return sign;
+    return (n & 1 == 0) ? 1.0 : -1.0;
   }
 };
 
@@ -73,16 +74,16 @@ struct sign_helper<sse<G, M, W, N> >
   calc(const typename qmc_type::config_type& config,
        const typename qmc_type::parameter_type& param)
   {
-    double sign = 1.0;
+    int n = 0;
     typename qmc_type::config_type::const_iterator oi_end = config.os.end();
     for (typename qmc_type::config_type::const_iterator oi = config.os.begin();
-	 oi != oi_end; ++oi)
-      if (param.chooser.weight(oi->bond()).sign() < 0) sign = -sign;
-    return sign;
+         oi != oi_end; ++oi)
+      if (param.chooser.weight(oi->bond()).sign() < 0) ++n;
+    return (n & 1 == 0) ? 1.0 : -1.0;
   }
 };
 
-} // end namespace
+} // End namespace
 
 template<class C, class P>
 inline double
@@ -304,8 +305,29 @@ struct sign_imp_helper<path_integral<G, M, W, N> >
   calc(const typename qmc_type::config_type& config,
        const typename qmc_type::parameter_type& param)
   {
-    // to be implemented
-    return 1;
+    std::vector<int> nnl(config.num_loops, 0); // number of negative links
+    typename qmc_type::edge_iterator ei, ei_end;
+    for (boost::tie(ei, ei_end) = boost::edges(param.virtual_graph.graph);
+         ei != ei_end; ++ei) {
+      int bond = boost::get(boost::edge_index, param.virtual_graph.graph, *ei);
+      if (param.weight[bond].sign() < 0) {
+        typename qmc_type::config_type::iterator
+          itr = boost::next(config.wl.series(
+            boost::source(*ei, param.virtual_grtph.graph)).first);
+        while (!itr.at_top()) {
+          if (itr->bond() == bond) {
+            ++nnl[itr->loop_segment(0).index];
+            ++nnl[itr->loop_segment(1).index];
+          }
+          ++itr;
+        }
+      }
+    }
+    std::vector<int>::const_iterator itr_end = nnl.end();      
+    for (std::vector<int>::const_iterator itr = nnl.begin();
+         itr != itr_end; ++itr)
+      if ((*itr) & 1 == 1) return 0.0;
+    return 1.0;
   }
 };
 
@@ -317,8 +339,20 @@ struct sign_imp_helper<sse<G, M, W, N> >
   calc(const typename qmc_type::config_type& config,
        const typename qmc_type::parameter_type& param)
   {
-    // to be implemented
-    return 1;
+    std::vector<int> nnl(config.num_loops, 0);
+    typename qmc_type::config_type::const_iterator oi_end = config.os.end();
+    for (typename qmc_type::config_type::const_iterator oi = config.os.begin();
+         oi != oi_end; ++oi) {
+      if (param.chooser.weight(oi->bond()).sign() < 0) {
+        ++nnl[oi->loop_segment(0).index];
+        ++nnl[oi->loop_segment(1).index];
+      }
+    }
+    std::vector<int>::const_iterator itr_end = nnl.end();      
+    for (std::vector<int>::const_iterator itr = nnl.begin();
+         itr != itr_end; ++itr)
+      if ((*itr) & 1 == 1) return 0.0;
+    return 1.0;
   }
 };
 

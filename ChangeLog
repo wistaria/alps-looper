@@ -2,6 +2,8 @@
 
 	* Fixed energy offset for SSE with "ergodic" loop solutions.
 
+	* Added negative sign support.
+	
 2004-08-25  Synge Todo <wistaria@comp-phys.org>
 
 	* Fixed xxz.h for systems with different spin sizes.

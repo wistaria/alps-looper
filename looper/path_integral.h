@@ -278,7 +278,7 @@ struct path_integral<virtual_graph<G>, M, W, N>
       edge_iterator ei, ei_end;
       for (boost::tie(ei, ei_end) = boost::edges(vg.graph);
            ei != ei_end; ++ei) {
-        int bond = boost::get(edge_index_t(), vg.graph, *ei); // bond index
+        int bond = boost::get(boost::edge_index, vg.graph, *ei);
 
         // setup iterators
         iterator itr0 = config.wl.series(boost::source(*ei, vg.graph)).first;

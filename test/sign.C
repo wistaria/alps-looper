@@ -42,18 +42,18 @@ try {
   for (alps::ParameterList::const_iterator itr = params.begin();
        itr != params.end(); ++itr) {
     for (alps::Parameters::const_iterator p = itr->begin();
-	 p != itr->end(); ++p) {
+         p != itr->end(); ++p) {
       if (p->key() != "LATTICE_LIBRARY")
-	std::cout << p->key() << " = " << p->value() << std::endl;
+        std::cout << p->key() << " = " << p->value() << std::endl;
     }
 
     alps::graph_helper<> lattice(*itr);
     looper::model_parameter<> model(-1.0, 0.0, alps::half_integer<int>(0.5),
-				    lattice.graph());
+                                    lattice.graph());
 
     std::cout << "lattice is "
-	      << (model.is_signed() ? "frustrated" : "non frustrated")
-	      << std::endl;
+              << (model.is_signed() ? "frustrated" : "non frustrated")
+              << std::endl;
   }
 
 #ifndef BOOST_NO_EXCEPTIONS

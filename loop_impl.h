@@ -47,7 +47,7 @@ inline double mean(const alps::Observable& o)
   } else {
     boost::throw_exception(std::runtime_error("dynamic cast failed"));
   }
-  return 0.; // dummy
+  return 0; // dummy
 }
 
 inline double error(const alps::Observable& o)
@@ -61,7 +61,7 @@ inline double error(const alps::Observable& o)
   } else {
     boost::throw_exception(std::runtime_error("dynamic cast failed"));
   }
-  return 0.; // dummy
+  return 0; // dummy
 }
 
 template<class QMC>
@@ -212,21 +212,16 @@ public:
   void output_results(std::ostream& os, alps::ObservableSet& m)
   {
     if (is_signed()) {
-      os << mean(m["Sign"]) << ' '
-         << error(m["Sign"]) << ' '
+      os << mean(m["Sign"]) << ' ' << error(m["Sign"]) << ' '
          << mean(m["Sign (improved)"]) << ' '
          << error(m["Sign (improved)"]) << ' ';
     }
-    os << mean(m["Energy"]) << ' '
-       << error(m["Energy"]) << ' '
-       << mean(m["Energy Density"]) << ' '
-       << error(m["Energy Density"]) << ' '
-       << mean(m["Specific Heat"]) << ' '
-       << error(m["Specific Heat"]) << ' '
+    os << mean(m["Energy"]) << ' ' << error(m["Energy"]) << ' '
+       << mean(m["Energy Density"]) << ' ' << error(m["Energy Density"]) << ' '
+       << mean(m["Specific Heat"]) << ' ' << error(m["Specific Heat"]) << ' '
        << mean(m["Magnetization^2"]) << ' '
        << error(m["Magnetization^2"]) << ' '
-       << mean(m["Susceptibility"]) << ' '
-       << error(m["Susceptibility"]) << ' '
+       << mean(m["Susceptibility"]) << ' ' << error(m["Susceptibility"]) << ' '
        << mean(m["Staggered Magnetization^2"]) << ' '
        << error(m["Staggered Magnetization^2"]) << ' '
        << mean(m["Staggered Susceptibility"]) << ' '

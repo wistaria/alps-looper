@@ -109,9 +109,11 @@ int main(int , char**)
     looper::mask_edge(g, *boost::edges(g).first),
     my_visitor<boost::filtered_graph<Graph, looper::edge_mask<Graph> > >(),
     boost::make_iterator_property_map(vcolor_map.begin(),
-      boost::get(boost::vertex_index, looper::mask_edge(g, *boost::edges(g).first))),
+      boost::get(boost::vertex_index,
+        looper::mask_edge(g, *boost::edges(g).first))),
     boost::make_iterator_property_map(ecolor_map.begin(),
-      boost::get(boost::edge_index, looper::mask_edge(g, *boost::edges(g).first))));
+      boost::get(boost::edge_index,
+        looper::mask_edge(g, *boost::edges(g).first))));
 
   return 0;
 }
