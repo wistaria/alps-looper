@@ -568,12 +568,19 @@ protected:
     }
   }
 
-  template<typename G>
-  bool check_sign(const G& graph) const
+  template<typename GRAPH>
+  bool check_sign(const GRAPH& graph) const
   {
-    // to be implemented
-    boost::throw_exception(std::logic_error("check_sign not implemented"));
-    return false;
+    std::vector<double> w(boost::num_edges(graph));
+    typename alps::property_map<alps::bond_type_t, GRAPH, type_type>::const_type
+      bond_type(alps::get_or_default(alps::bond_type_t(), graph, 0));
+    typename boost::graph_traits<GRAPH>::edge_iterator ei, ei_end;
+    for (boost::tie(ei, ei_end) = boost::edges(graph); ei != ei_end; ++ei)
+      w[boost::get(boost::edge_index, graph, *ei)] =
+	bond(boost::get(alps::edge_type_t(), graph, *ei)).jxy();
+    return alps::is_frustrated(graph,
+      boost::make_iterator_property_map(w.begin(),
+        boost::get(boost::edge_index, graph)));
   }
 
 private:

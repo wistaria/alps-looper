@@ -14,7 +14,7 @@
 
 @SET_MAKE@
 
-SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) $(bond_matrix_SOURCES) $(edge_type_SOURCES) $(fill_duration_SOURCES) $(filtered_graph_SOURCES) $(find_bridges_SOURCES) $(generate_01_SOURCES) $(gesvd_SOURCES) $(hypercubic_SOURCES) $(index_helper_SOURCES) $(llsp_SOURCES) $(model_parameter_SOURCES) $(permutation_SOURCES) $(postorder_SOURCES) $(random_choice_SOURCES) $(site_matrix_SOURCES) $(syev_SOURCES) $(union_find_SOURCES) $(virtual_graph_SOURCES) $(weight_SOURCES)
+SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) $(bond_matrix_SOURCES) $(edge_type_SOURCES) $(fill_duration_SOURCES) $(filtered_graph_SOURCES) $(find_bridges_SOURCES) $(generate_01_SOURCES) $(gesvd_SOURCES) $(hypercubic_SOURCES) $(index_helper_SOURCES) $(llsp_SOURCES) $(model_parameter_SOURCES) $(permutation_SOURCES) $(postorder_SOURCES) $(random_choice_SOURCES) $(sign_SOURCES) $(site_matrix_SOURCES) $(syev_SOURCES) $(union_find_SOURCES) $(virtual_graph_SOURCES) $(weight_SOURCES)
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -43,11 +43,12 @@ check_PROGRAMS = alternating_tensor$(EXEEXT) amida$(EXEEXT) \
 	generate_01$(EXEEXT) gesvd$(EXEEXT) hypercubic$(EXEEXT) \
 	index_helper$(EXEEXT) llsp$(EXEEXT) model_parameter$(EXEEXT) \
 	permutation$(EXEEXT) postorder$(EXEEXT) random_choice$(EXEEXT) \
-	site_matrix$(EXEEXT) syev$(EXEEXT) union_find$(EXEEXT) \
-	virtual_graph$(EXEEXT) weight$(EXEEXT)
+	sign$(EXEEXT) site_matrix$(EXEEXT) syev$(EXEEXT) \
+	union_find$(EXEEXT) virtual_graph$(EXEEXT) weight$(EXEEXT)
 subdir = test
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(srcdir)/model_parameter.ip.in
+	$(srcdir)/Makefile.in $(srcdir)/model_parameter.ip.in \
+	$(srcdir)/sign.ip.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
 	$(top_srcdir)/config/ac_bindings.m4 \
@@ -56,7 +57,7 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(mkdir_p)
 CONFIG_HEADER = $(top_builddir)/looper/config.h
-CONFIG_CLEAN_FILES = model_parameter.ip
+CONFIG_CLEAN_FILES = model_parameter.ip sign.ip
 am_alternating_tensor_OBJECTS = alternating_tensor.$(OBJEXT)
 alternating_tensor_OBJECTS = $(am_alternating_tensor_OBJECTS)
 alternating_tensor_LDADD = $(LDADD)
@@ -121,6 +122,10 @@ am_random_choice_OBJECTS = random_choice.$(OBJEXT)
 random_choice_OBJECTS = $(am_random_choice_OBJECTS)
 random_choice_LDADD = $(LDADD)
 random_choice_DEPENDENCIES =
+am_sign_OBJECTS = sign.$(OBJEXT)
+sign_OBJECTS = $(am_sign_OBJECTS)
+sign_LDADD = $(LDADD)
+sign_DEPENDENCIES =
 am_site_matrix_OBJECTS = site_matrix.$(OBJEXT)
 site_matrix_OBJECTS = $(am_site_matrix_OBJECTS)
 site_matrix_LDADD = $(LDADD)
@@ -155,7 +160,7 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/model_parameter.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/permutation.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/postorder.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/random_choice.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/random_choice.Po ./$(DEPDIR)/sign.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/site_matrix.Po ./$(DEPDIR)/syev.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/union_find.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/virtual_graph.Po ./$(DEPDIR)/weight.Po
@@ -174,9 +179,9 @@ SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) \
 	$(gesvd_SOURCES) $(hypercubic_SOURCES) $(index_helper_SOURCES) \
 	$(llsp_SOURCES) $(model_parameter_SOURCES) \
 	$(permutation_SOURCES) $(postorder_SOURCES) \
-	$(random_choice_SOURCES) $(site_matrix_SOURCES) \
-	$(syev_SOURCES) $(union_find_SOURCES) $(virtual_graph_SOURCES) \
-	$(weight_SOURCES)
+	$(random_choice_SOURCES) $(sign_SOURCES) \
+	$(site_matrix_SOURCES) $(syev_SOURCES) $(union_find_SOURCES) \
+	$(virtual_graph_SOURCES) $(weight_SOURCES)
 DIST_SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) \
 	$(bond_matrix_SOURCES) $(edge_type_SOURCES) \
 	$(fill_duration_SOURCES) $(filtered_graph_SOURCES) \
@@ -184,9 +189,9 @@ DIST_SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) \
 	$(gesvd_SOURCES) $(hypercubic_SOURCES) $(index_helper_SOURCES) \
 	$(llsp_SOURCES) $(model_parameter_SOURCES) \
 	$(permutation_SOURCES) $(postorder_SOURCES) \
-	$(random_choice_SOURCES) $(site_matrix_SOURCES) \
-	$(syev_SOURCES) $(union_find_SOURCES) $(virtual_graph_SOURCES) \
-	$(weight_SOURCES)
+	$(random_choice_SOURCES) $(sign_SOURCES) \
+	$(site_matrix_SOURCES) $(syev_SOURCES) $(union_find_SOURCES) \
+	$(virtual_graph_SOURCES) $(weight_SOURCES)
 DATA = $(dist_noinst_DATA)
 ETAGS = etags
 CTAGS = ctags
@@ -321,7 +326,8 @@ dist_noinst_DATA = \
 	permutation.op \
 	postorder.ip postorder.op \
 	random_choice.op \
-	site_matrix.ip site_matrix.op \
+	sign.ip sign.op \
+	site_matrix.op \
 	syev.op \
 	union_find.op \
 	virtual_graph.op \
@@ -345,6 +351,7 @@ model_parameter_SOURCES = model_parameter.C
 permutation_SOURCES = permutation.C
 postorder_SOURCES = postorder.C
 random_choice_SOURCES = random_choice.C
+sign_SOURCES = sign.C
 site_matrix_SOURCES = site_matrix.C
 syev_SOURCES = syev.C
 union_find_SOURCES = union_find.C
@@ -384,6 +391,8 @@ $(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 model_parameter.ip: $(top_builddir)/config.status $(srcdir)/model_parameter.ip.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+sign.ip: $(top_builddir)/config.status $(srcdir)/sign.ip.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 clean-checkPROGRAMS:
@@ -440,6 +449,9 @@ postorder$(EXEEXT): $(postorder_OBJECTS) $(postorder_DEPENDENCIES)
 random_choice$(EXEEXT): $(random_choice_OBJECTS) $(random_choice_DEPENDENCIES) 
 	@rm -f random_choice$(EXEEXT)
 	$(CXXLINK) $(random_choice_LDFLAGS) $(random_choice_OBJECTS) $(random_choice_LDADD) $(LIBS)
+sign$(EXEEXT): $(sign_OBJECTS) $(sign_DEPENDENCIES) 
+	@rm -f sign$(EXEEXT)
+	$(CXXLINK) $(sign_LDFLAGS) $(sign_OBJECTS) $(sign_LDADD) $(LIBS)
 site_matrix$(EXEEXT): $(site_matrix_OBJECTS) $(site_matrix_DEPENDENCIES) 
 	@rm -f site_matrix$(EXEEXT)
 	$(CXXLINK) $(site_matrix_LDFLAGS) $(site_matrix_OBJECTS) $(site_matrix_LDADD) $(LIBS)
@@ -478,6 +490,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/permutation.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/postorder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/random_choice.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sign.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/site_matrix.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/syev.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/union_find.Po@am__quote@

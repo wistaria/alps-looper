@@ -1,0 +1,5 @@
+LATTICE_LIBRARY = "@top_srcdir@/lattices.xml"
+{ LATTICE = "chain lattice"; L=4; }
+{ LATTICE = "chain lattice"; L=3; }
+{ LATTICE = "square lattice 3x3"; }
+{ LATTICE = "5-site dimerized"; }

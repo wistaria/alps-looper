@@ -1,0 +1,10 @@
+LATTICE = chain lattice
+L = 4
+lattice is non frustrated
+LATTICE = chain lattice
+L = 3
+lattice is frustrated
+LATTICE = square lattice 3x3
+lattice is frustrated
+LATTICE = 5-site dimerized
+lattice is non frustrated
