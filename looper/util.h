@@ -88,6 +88,8 @@ int alternating_tensor(const boost::tuple<int, int, int>& x)
 // function sqr
 //
 
+#ifndef BOOST_NO_SFINAE
+
 template<typename T>
 T sqr(T t, typename boost::enable_if<boost::is_arithmetic<T> >::type* = 0)
 {
@@ -100,6 +102,12 @@ T sqr(const T& t, typename boost::disable_if<boost::is_arithmetic<T> >::type* = 
   return t * t;
 }
 
+#else
+
+template<typename T>
+T sqr(const T& t) { return t * t; }
+
+#endif
 
 //
 // function flatten_matrix
@@ -178,6 +186,8 @@ struct numeric_cast_helper<U, std::complex<T> > {
 // function range_01
 //
 
+#ifndef BOOST_NO_SFINAE
+
 template<typename T>
 T range_01(T x, typename boost::enable_if<boost::is_arithmetic<T> >::type* = 0)
 {
@@ -194,6 +204,17 @@ T range_01(const T& x, typename boost::disable_if<boost::is_arithmetic<T> >::typ
   return min(max(x, value_type(0)), value_type(1));
 }
 
+#else
+
+template<typename T>
+T range_01(const T& x)
+{
+  typedef T value_type;
+  using std::min; using std::max;
+  return min(max(x, value_type(0)), value_type(1));
+}
+
+#endif
 
 } // end namespace looper
 
