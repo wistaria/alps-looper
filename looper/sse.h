@@ -58,12 +58,12 @@ struct sse
 
   struct parameter_type : public qmc_parameter_base<G, M>
   {
-    typedef qmc_parameter_base<G, M> base_type
+    typedef qmc_parameter_base<G, M> base_type;
     typedef sse<G, M, W, N>          qmc_type;
     typedef W                        weight_type;
 
     parameter_type(const graph_type& g, const model_type& m,
-		   double b, double fs)
+                   double b, double fs)
       : base_type(g, m, b), chooser(), ez_offset(0.0)
     {
       // if (model.is_signed() || model.is_classically_frustrated())
@@ -75,12 +75,12 @@ struct sse
       edge_iterator rei, rei_end;
       for (boost::tie(rei, rei_end) = boost::edges(rgraph);
            rei != rei_end; ++rei) {
-	edge_iterator vei, vei_end;
-	for (boost::tie(vei, vei_end) = vmap.virtual_edges(rgraph, *rei);
-	     vei != vei_end; ++vei) {
-	  ez_offset += model.bond(*rei, rgraph).c() -
-	    chooser.weight(bond_index(*vei, vgraph)).offset();
-	}
+        edge_iterator vei, vei_end;
+        for (boost::tie(vei, vei_end) = vmap.virtual_edges(rgraph, *rei);
+             vei != vei_end; ++vei) {
+          ez_offset += model.bond(*rei, rgraph).c() -
+            chooser.weight(bond_index(*vei, vgraph)).offset();
+        }
       }
     }
 
@@ -350,11 +350,11 @@ struct sse
       std::vector<int> r, c0, c1;
       vertex_iterator rvi, rvi_end;
       for (boost::tie(rvi, rvi_end) = boost::vertices(param.rgraph);
-	   rvi != rvi_end; ++rvi) {
+           rvi != rvi_end; ++rvi) {
         unsigned int s2 = param.model.site(*rvi, param.rgraph).s().get_twice();
-	vertex_iterator vvi, vvi_end;
-	boost::tie(vvi, vvi_end) =
-	  param.vmap.virtual_vertices(param.rgraph, *rvi);
+        vertex_iterator vvi, vvi_end;
+        boost::tie(vvi, vvi_end) =
+          param.vmap.virtual_vertices(param.rgraph, *rvi);
         int offset = boost::get(boost::vertex_index, param.vgraph, *vvi);
         if (s2 == 1) {
           // S=1/2: just connect top and bottom

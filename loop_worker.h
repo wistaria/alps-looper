@@ -247,11 +247,11 @@ public:
   worker(const alps::ProcessList& w, const alps::Parameters& p, int n) :
     alps::scheduler::LatticeModelMCRun<>(w, p, n),
     mdl_(p, this->graph(), this->disordered_sites(), this->disordered_bonds(),
-	 *this, has_sign_problem()), mcs_(0),
+         *this, has_sign_problem()), mcs_(0),
     therm_(static_cast<unsigned int>(p["THERMALIZATION"])),
     total_(therm_ + static_cast<unsigned int>(p["SWEEPS"])),
     strict_mcs_(p.defined("STRICT_MCS")),
-    qmc_worker_(*this, mdl_, 1.0 / static_cast<double>(p["T"]),
+    qmc_worker_(this->graph(), mdl_, 1.0 / static_cast<double>(p["T"]),
                 p.value_or_default("FORCE_SCATTER", 0.0),
                 measurements)
   { if (p.defined("FIXED_SEED")) random.seed(parms["FIXED_SEED"]); }

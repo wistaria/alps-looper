@@ -22,12 +22,12 @@
 *
 *****************************************************************************/
 
-#ifndef LOOPER_QMCL_H
+#ifndef LOOPER_QMC_H
 #define LOOPER_QMC_H
 
 namespace looper {
 
-tempalte<class G, class MP>
+template<class G, class MP>
 struct qmc_parameter_base
 {
   typedef G                           graph_type;
@@ -35,21 +35,23 @@ struct qmc_parameter_base
   typedef MP                          model_parameter_type;
 
   qmc_parameter_base(const graph_type& g, const model_parameter_type& mp,
-		     double b)
-    : rgraph(g), model(m), vgraph(), vmap(), beta(b),
-      sz_conserved(true), is_bipartite(false)
+                     double b)
+    : rgraph(g), model(mp), vgraph(), vmap(), beta(b),
+      is_bipartite(false), sz_conserved(true)
   {
     generate_virtual_graph(g, mp, vgraph, vmap);
     is_bipartite = alps::set_parity(vgraph);
   }
 
-  const graph_type&        rgraph;
-  const model_type&        model;
-  graph_type               vgraph;
-  mapping_type             vmap;
-  double                   beta;
-  bool                     sz_conserved;
-  bool                     is_bipartite;
+  const graph_type&           rgraph;
+  const model_parameter_type& model;
+  graph_type                  vgraph;
+  mapping_type                vmap;
+  double                      beta;
+  bool                        is_bipartite;
+  bool                        sz_conserved;
 };
+
+} // namespace looper
 
 #endif // LOOPER_QMC_H
