@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: config.h.in 557 2003-11-12 12:33:19Z wistaria $
+// $Id: config.h.in 577 2003-11-16 00:20:47Z wistaria $
 
 #ifndef LOOPER_CONFIG_H
 #define LOOPER_CONFIG_H
@@ -36,8 +36,16 @@
 // Define if you have LAPACK library
 #undef HAVE_LAPACK
 
+// Macros for Fortran subroutine call
 #ifndef LOOPER_FCALL
 # define LOOPER_FCALL(x,y) x##_
 #endif
+
+// Useful tiny functions
+namespace looper {
+
+template<class T> T sqr(T t) { return t * t; }
+
+} // end namespace looper
 
 #endif // LOOPER_CONFIG_H

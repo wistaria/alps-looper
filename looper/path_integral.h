@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: path_integral.h 554 2003-11-12 02:36:24Z wistaria $
+// $Id: path_integral.h 577 2003-11-16 00:20:47Z wistaria $
 
 #ifndef LOOPER_PATH_INTEGRAL_H
 #define LOOPER_PATH_INTEGRAL_H
@@ -520,6 +520,35 @@ struct path_integral<virtual_graph<G>, M, W, N>
       if (itrU.at_top()) break;
     }
     return sz;
+  }
+
+  static double static_correlation(const config_type& config,
+				   const vertex_descriptor& v0,
+				   const vertex_descriptor& v1)
+  {
+    typedef typename config_type::const_iterator const_iterator;
+    
+    double corr = 0.;
+    double t = 0.;
+
+    // setup iterators
+    const_iterator itr0 = config.wl.series(v0).first;
+    const_iterator itr1 = config.wl.series(v1).first;
+    double c = static_sz(v0, config) * static_sz(v1, config);
+    while (true) {
+      if (itr0->time() < itr1->time()) {
+	corr += c * (itr0->time() - t);
+	if (itr0.at_top()) break;
+	t = itr0->time();
+	++itr0;
+      } else {
+	corr += c * (itr1->time() - t);
+	if (itr1.at_top()) break;
+	t = itr1->time();
+	++itr1;
+      }
+    }
+    return corr;
   }
 
   static int num_offdiagonals(const config_type& config)

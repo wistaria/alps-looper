@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: qmc_impl.h 572 2003-11-14 09:24:47Z wistaria $
+// $Id: qmc_impl.h 577 2003-11-16 00:20:47Z wistaria $
 // qmc_impl.h - implementation of worker for QMC simulation
 
 #ifndef QMC_IMPL_H
@@ -73,7 +73,6 @@ public:
     m << measurement_type("uniform magnetization^2");
     m << measurement_type("uniform magnetization^2 (improved)");
     m << measurement_type("uniform susceptibility");
-    m << measurement_type("uniform susceptibility (improved)");
     m << measurement_type("staggered magnetization^2");
     m << measurement_type("staggered magnetization^2 (improved)");
     m << measurement_type("staggered susceptibility");
@@ -101,12 +100,9 @@ public:
       get<measurement_type>("diagonal energy (improved)") <<
       looper::energy_z_imp(config_, param_);
 
-    double m2 = looper::uniform_sz2_imp(config_, param_);
     m.template
-      get<measurement_type>("uniform magnetization^2 (improved)") << m2;
-    m.template
-      get<measurement_type>("uniform susceptibility (improved)") <<
-      param_.beta * m2;
+      get<measurement_type>("uniform magnetization^2 (improved)") << 
+      looper::uniform_sz2_imp(config_, param_);
 
     m.template
       get<measurement_type>("staggered magnetization^2 (improved)") << 
@@ -138,7 +134,7 @@ public:
     m.template get<measurement_type>("energy") << ez + exy;
     m.template get<measurement_type>("energy^2") << e2;
 
-    m2 = param_.virtual_graph.num_real_vertices *
+    double m2 = param_.virtual_graph.num_real_vertices *
       looper::sqr(looper::uniform_sz(config_, param_));
     m.template get<measurement_type>("uniform magnetization^2") << m2;
     m.template get<measurement_type>("uniform susceptibility") <<
@@ -166,12 +162,22 @@ public:
        << m.template get<measurement_type>("energy").error() << ' '
        << m.template get<evaluator_type>("specific heat").mean() << ' '
        << m.template get<evaluator_type>("specific heat").error() << ' '
+       << m.template get<measurement_type>("uniform magnetization^2").mean() << ' '
+       << m.template get<measurement_type>("uniform magnetization^2").error() << ' '
+       << m.template get<measurement_type>("uniform magnetization^2 (improved)").mean() << ' '
+       << m.template get<measurement_type>("uniform magnetization^2 (improved)").error() << ' '
        << m.template get<measurement_type>("uniform susceptibility").mean() << ' '
        << m.template get<measurement_type>("uniform susceptibility").error() << ' '
        << m.template get<measurement_type>("staggered magnetization^2").mean() << ' '
        << m.template get<measurement_type>("staggered magnetization^2").error() << ' '
+       << m.template get<measurement_type>("staggered magnetization^2 (improved)").mean() << ' '
+       << m.template get<measurement_type>("staggered magnetization^2 (improved)").error() << ' '
        << m.template get<measurement_type>("staggered susceptibility").mean() << ' '
-       << m.template get<measurement_type>("staggered susceptibility").error() << ' ';
+       << m.template get<measurement_type>("staggered susceptibility").error() << ' '
+       << m.template get<measurement_type>("generalized magnetization^2 (improved)").mean() << ' '
+       << m.template get<measurement_type>("generalized magnetization^2 (improved)").error() << ' '
+       << m.template get<measurement_type>("generalized susceptibility (improved)").mean() << ' '
+       << m.template get<measurement_type>("generalized susceptibility (improved)").error() << ' ';
   }
 
   void save(alps::ODump& od) const { config_.save(od); }
@@ -246,6 +252,9 @@ public:
   {
     evaluator_type obse_e = m.template get<measurement_type>("energy");
     evaluator_type obse_e2 = m.template get<measurement_type>("energy^2");
+//     m.template get<evaluator_type>("specific heat") = 
+//       (double)boost::num_vertices(param_.graph) *
+//       looper::sqr(param_.beta) * (obse_e2 - obse_e * obse_e);
     m.template get<evaluator_type>("specific heat") = 
       (double)boost::num_vertices(param_.graph) *
       looper::sqr(param_.beta) * (obse_e2 - obse_e * obse_e);

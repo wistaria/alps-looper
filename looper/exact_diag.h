@@ -22,11 +22,12 @@
 *
 *****************************************************************************/
 
-// $Id: exact_diag.h 564 2003-11-13 08:08:07Z wistaria $
+// $Id: exact_diag.h 577 2003-11-16 00:20:47Z wistaria $
 
 #ifndef LOOPER_EXACT_DIAG_H
 #define LOOPER_EXACT_DIAG_H
 
+#include <looper/config.h>
 #include <looper/lapack.h>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>
@@ -222,15 +223,16 @@ struct exact_diagonalization
     
       // energy
       ene += (*ev) * weight;
-      ene2 += (*ev) * (*ev) * weight;
+      ene2 += sqr(*ev) * weight;
     }
     ene /= part;
     ene2 /= part;
-    double c = param.beta * param.beta * (ene2 - ene * ene);
 
     ene /= boost::num_vertices(param.graph);
-    ene2 /= boost::num_vertices(param.graph);
-    c /= boost::num_vertices(param.graph);
+    ene2 /= sqr(boost::num_vertices(param.graph));
+
+    double c = sqr(param.beta) * boost::num_vertices(param.graph) *
+      (ene2 - sqr(ene));
     
     return boost::make_tuple(ene, ene2, c);
   }
@@ -270,9 +272,9 @@ struct exact_diagonalization
 	typename vector_type::const_iterator itr_m = config.mtab.begin();
 	typename vector_type::const_iterator itr_s = config.stab.begin();
 	for (; j != evec.end(); ++j, ++itr_m, ++itr_s) {
-	  double w = std::pow(*j, 2);
-	  m2 += std::pow(*itr_m, 2) * w;
-	  s2 += std::pow(*itr_s, 2) * w;
+	  double w = sqr(*j);
+	  m2 += sqr(*itr_m) * w;
+	  s2 += sqr(*itr_s) * w;
 	}
 	umag2 += m2 * weight;
 	smag2 += s2 * weight;
@@ -282,8 +284,8 @@ struct exact_diagonalization
 	typename vector_type::const_iterator itr_m = config.mtab.begin();
 	typename vector_type::const_iterator itr_s = config.stab.begin();
 	for (; j != evec.end(); ++j, ++itr_m, ++itr_s) {
-	  double w = std::pow(*j, 2);
-	  m2 += std::pow(*itr_m, 2) * w;
+	  double w = sqr(*j);
+	  m2 += sqr(*itr_m) * w;
 	}
 	umag2 += m2 * weight;
       }
@@ -313,8 +315,8 @@ struct exact_diagonalization
 	  } else {
 	    wij = param.beta * weight;
 	  }
-	  usus += 2 * std::pow(mu, 2) * wij;
-	  ssus += 2 * std::pow(su, 2) * wij;
+	  usus += 2 * sqr(mu) * wij;
+	  ssus += 2 * sqr(su) * wij;
 	}
 	{
 	  // for evec_j = evec
@@ -329,8 +331,8 @@ struct exact_diagonalization
 	    su += (*k) * (*itr_s) * (*j);
 	  }
 	  double wij = param.beta * weight;
-	  usus += std::pow(mu, 2) * wij;
-	  ssus += std::pow(su, 2) * wij;
+	  usus += sqr(mu) * wij;
+	  ssus += sqr(su) * wij;
 	}
       } else {
 	typename matrix_type::const_reverse_iterator1 evec_j =
@@ -353,7 +355,7 @@ struct exact_diagonalization
 	  } else {
 	    wij = param.beta * weight;
 	  }
-	  usus += 2 * std::pow(mu, 2) * wij;
+	  usus += 2 * sqr(mu) * wij;
 	}
 	{
 	  // for evec_j = evec
@@ -365,7 +367,7 @@ struct exact_diagonalization
 	    mu += (*k) * (*itr_m) * (*j);
 	  }
 	  double wij = param.beta * weight;
-	  usus += std::pow(mu, 2) * wij;
+	  usus += sqr(mu) * wij;
 	}
       }
     }

@@ -22,14 +22,14 @@
 *
 *****************************************************************************/
 
-// $Id: measurement.h 554 2003-11-12 02:36:24Z wistaria $
+// $Id: measurement.h 577 2003-11-16 00:20:47Z wistaria $
 
 #ifndef LOOPER_MEASUREMENT_H
 #define LOOPER_MEASUREMENT_H
 
-namespace looper {
+#include <looper/config.h>
 
-template<class T> T sqr(T t) { return t * t; }
+namespace looper {
 
 //
 // unimproved estimators
@@ -43,45 +43,70 @@ inline double energy_offset(const P& param)
   return P::qmc_type::energy_offset(param.virtual_graph, param.model);
 }
 
-template<class C, class P>
-inline double energy_z(const C& config, const P& param)
-{
-  typedef typename C::qmc_type qmc_type;
-
-  double ene = 0.;
-  typename qmc_type::edge_iterator ei, ei_end;
-  for (boost::tie(ei, ei_end) = boost::edges(param.virtual_graph.graph);
-       ei != ei_end; ++ei)
-    ene -= param.model.bond(bond_type(*ei, param.virtual_graph.graph)).jz() *
-      qmc_type::static_sz(boost::source(*ei, param.virtual_graph.graph),
-			  config) *
-      qmc_type::static_sz(boost::target(*ei, param.virtual_graph.graph),
-			  config);
-  return ene / param.virtual_graph.num_real_vertices;
-}
-
 
 // energy
 
-template<class C, class P>
-inline double energy_xy(const C& config, const P& param)
-{
-  typedef typename C::qmc_type qmc_type;
-  return - (double)qmc_type::num_offdiagonals(config) / param.beta /
-    param.virtual_graph.num_real_vertices;
-}
+namespace {
 
+template<class Q> struct energy_helper;
+
+template<class G, class M, class W, class N>
+struct energy_helper<path_integral<G, M, W, N> >
+{
+  typedef path_integral<G, M, W, N> qmc_type;
+  static boost::tuple<double, double, double>
+  calc(const typename qmc_type::config_type& config,
+       const typename qmc_type::parameter_type& param)
+  {
+    double ez = 0.;
+    typename qmc_type::edge_iterator ei, ei_end;
+    for (boost::tie(ei, ei_end) = boost::edges(param.virtual_graph.graph);
+	 ei != ei_end; ++ei) {
+      ez -= param.model.bond(bond_type(*ei, param.virtual_graph.graph)).jz()
+	* qmc_type::static_correlation(config, 
+           boost::source(*ei, param.virtual_graph.graph),
+           boost::target(*ei, param.virtual_graph.graph));
+    }
+    double exy = -(double)config.wl.num_links() / param.beta;
+    double e2 = sqr(ez + exy) -
+      (double)config.wl.num_links() / sqr(param.beta);
+    double nvinv = 1.0 / (double)param.virtual_graph.num_real_vertices;
+    return boost::make_tuple(nvinv * ez, nvinv * exy, sqr(nvinv) * e2);
+  }
+};
+
+template<class G, class M, class W, class N>
+struct energy_helper<sse<G, M, W, N> >
+{
+  typedef sse<G, M, W, N> qmc_type;
+  static boost::tuple<double, double, double>
+  calc(const typename qmc_type::config_type& config,
+       const typename qmc_type::parameter_type& param)
+  {
+    typedef typename qmc_type::config_type::const_iterator
+      const_operator_iterator;
+    int nd = 0;
+    int no = 0;
+    const_operator_iterator oi_end = config.os.end();
+    for (const_operator_iterator oi = config.os.begin(); oi != oi_end; ++oi) {
+      if (oi->is_diagonal()) ++nd;
+      if (oi->is_offdiagonal()) ++no;
+    }
+    double ez = - double(nd) / param.beta - param.ez_offset;
+    double exy = - double(no) / param.beta;
+    double e2 = sqr(ez + exy) - (double)(nd + no) / sqr(param.beta);
+    double nvinv = 1.0 / (double)param.virtual_graph.num_real_vertices;
+    return boost::make_tuple(nvinv * ez, nvinv * exy, sqr(nvinv) * e2);
+  }
+};
+
+} // end namespace
+  
 template<class C, class P>
 inline boost::tuple<double, double, double>
 energy(const C& config, const P& param)
 {
-  typedef typename C::qmc_type qmc_type;
-  double ez = energy_z(config, param);
-  double exy = energy_xy(config, param);
-  double e2 = sqr(ez + exy) -
-    (double)qmc_type::num_offdiagonals(config) /
-    sqr(param.beta * param.virtual_graph.num_real_vertices);
-  return boost::make_tuple(ez, exy, e2);
+  return energy_helper<typename C::qmc_type>::calc(config, param);
 }
 
 
@@ -160,9 +185,7 @@ struct staggered_susceptibility_helper<sse<G, M, W, N> >
       ss += gauge(*vi, param.virtual_graph.graph) *
 	qmc_type::static_sz(*vi, config);
     }
-    //// return param.beta * (sqr(sd) + sqr(ss) / (config.os.size() + 1)) /
-    //// param.virtual_graph.num_real_vertices;
-    return param.beta * sqr(sd) /
+    return param.beta * (sqr(sd) + sqr(ss) / (config.os.size() + 1)) /
       param.virtual_graph.num_real_vertices;
   }
 };
@@ -334,7 +357,7 @@ struct generalized_susceptibility_imp_helper<sse<G, M, W, N> >
 
     double ss = 0.;
     for (int i = 0; i < config.num_loops; ++i) ss += sqr(len[i]);
-    ss *= 0.25 / sqr(config.os.size());
+    ss *= 0.25 / sqr((double)config.os.size());
     double m2 = 0.;
     for (int i = 0; i < config.num_loops0; ++i) m2 += sqr(mg[i]);
     m2 *= 0.25;

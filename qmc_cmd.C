@@ -182,7 +182,7 @@ try {
 	    << "l:   linear size            : " << opts.lsize << std::endl
 	    << "s:   spin size S            : " << opts.spin << std::endl
 	    << "x:   coupling Jxy           : " << opts.Jxy << std::endl
-	    << "z:   doupling Jz            : " << opts.Jz << std::endl
+	    << "z:   coupling Jz            : " << opts.Jz << std::endl
 	    << "t:   temperature            : " << opts.temp << std::endl
 	    << "m:   MCS for thermalization : " << opts.step_t << std::endl
 	    << "n:   MCS for measurement    : " << opts.step_m << std::endl
@@ -256,9 +256,9 @@ try {
 #ifdef HAVE_LAPACK
   } else {
     // exact diagonalization
-    measurements.reset(true);
     ed_worker<looper::exact_diagonalization<graph_type, model_type> >
       worker(g, model, beta, measurements);
+    measurements.reset(true);
     worker.step(rng, measurements);
     worker.accumulate(measurements);
 

@@ -1,5 +1,9 @@
-2003-11-14  Synge Todo  <wistaria@comp-phys.org>
+2003-11-16  Synge Todo  <wistaria@comp-phys.org>
 
+	* Fixed some measurements.
+	
+2003-11-14  Synge Todo  <wistaria@comp-phys.org>
+	
 	* version 3.0b3 released.
 
 	- prerequisites: boost-ss-20031109, boost-ss-20031109.patch,
