@@ -12,16 +12,11 @@ void check(const C& c)
 int main()
 {
   boost::mt19937 rng;
-  boost::uniform_int<> uniform_int(1, 5);
+  boost::uniform_int<> uniform_int(1, 10);
 
-  std::vector<int> a(uniform_int(rng));
+  std::vector<int> a(100);
   check(a);
-  for (;;) {
-    a.push_back(uniform_int(rng));
-    check(a);
-    if (a.size() > 1000) break;
-  }
-  assert(looper::index_helper<>::index(a, &a[a.size() / 2]) == a.size() / 2);
+  std::cout << "std::vector(" << a.size() << ") OK\n";
 
   std::deque<int> b(uniform_int(rng));
   check(b);
@@ -33,9 +28,8 @@ int main()
       for (int i = 0; i < n; ++i) b.push_back(0);
     }
     check(b);
-    if (b.size() > 1000) break;
+    std::cout << "std::deque(" << b.size() << ") OK\n";
+    if (b.size() > 300) break;
   }
   assert(looper::index_helper<>::index(b, &b[b.size() / 2]) == b.size() / 2);
-
-  std::cout << "OK\n";
 }

@@ -52,31 +52,30 @@ EXAMPLE = simple
 
 default all : simple
 
+# rules for tests
+
 default : default-test
 default-test :
-	$(MAKE) -C test default
+	@$(MAKE) -C test default
 all : all-test
 all-test :
-	$(MAKE) -C test all
+	@$(MAKE) -C test all
 tests : tests-test
 tests-test :
-	$(MAKE) -C test tests
+	@$(MAKE) -C test tests
 depend : depend-test
 depend-test :
-	$(MAKE) -C test depend
+	@$(MAKE) -C test depend
 clean : clean-test
 clean-test :
-	$(MAKE) -C test clean
+	@$(MAKE) -C test clean
 distclean : distclean-test
 distclean-test :
-	$(MAKE) -C test distclean
+	@$(MAKE) -C test distclean
 
 bootstrap :
 	autoconf --force
 	rm -rf autom4te*.cache
-
-include $(RULES_MK)
-include $(srcdir)/Makefile.dep
 
 # dependency for inputs
 
@@ -84,3 +83,6 @@ models.xml : $(srcdir)/models.xml.in
 	$(top_builddir)config.status models.xml
 lattices.xml : $(srcdir)/lattices.xml.in
 	$(top_builddir)config.status lattices.xml
+
+include $(RULES_MK)
+include $(srcdir)/Makefile.dep
