@@ -1,5 +1,6 @@
 install_sh_HTML = $(install_sh_DATA)
 pkgdocdir = @prefix@/doc/@PACKAGE_NAME@
+dist_noinst_DATA = $(HTML)
 
 HTML = index.html
 

@@ -13,6 +13,7 @@
 # PARTICULAR PURPOSE.
 
 @SET_MAKE@
+
 SOURCES = $(amida_SOURCES) $(fill_duration_SOURCES) $(hypercubic_SOURCES) $(index_helper_SOURCES) $(permutation_SOURCES) $(random_choice_SOURCES) $(syev_SOURCES) $(union_find_SOURCES) $(virtual_graph_SOURCES) $(weight_SOURCES) $(xxz_matrix_SOURCES) $(xxz_model_SOURCES)
 
 srcdir = @srcdir@
@@ -42,7 +43,8 @@ check_PROGRAMS = amida$(EXEEXT) fill_duration$(EXEEXT) \
 	xxz_model$(EXEEXT) $(am__EXEEXT_1)
 @HAVE_LAPACK_TRUE@am__append_1 = syev
 subdir = test
-DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
+DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
+	$(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/ac_lapack.m4 \
 	$(top_srcdir)/configure.ac
@@ -126,6 +128,7 @@ DIST_SOURCES = $(amida_SOURCES) $(fill_duration_SOURCES) \
 	$(permutation_SOURCES) $(random_choice_SOURCES) \
 	$(syev_SOURCES) $(union_find_SOURCES) $(virtual_graph_SOURCES) \
 	$(weight_SOURCES) $(xxz_matrix_SOURCES) $(xxz_model_SOURCES)
+DATA = $(dist_noinst_DATA)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -218,6 +221,7 @@ target_alias = @target_alias@
 AM_CPPFLAGS = @CPPFLAGS_SGL@ @LAPACK_CPPFLAGS@
 AM_LDFLAGS = -L$(top_builddir) @LDFLAGS_SGL@ @LAPACK_LDFLAGS@
 LDADD = @LAPACK_LIBS@ @LIBS_SGL@
+dist_noinst_DATA = amida.op fill_duration.ip fill_duration.op hypercubic.ip hypercubic.op index_helper.op permutation.op random_choice.op syev.op union_find.op virtual_graph.op weight.ip weight.op xxz_matrix.ip xxz_matrix.op xxz_model.ip xxz_model.op
 TESTS = $(check_PROGRAMS)
 TESTS_ENVIRONMENT = $(top_srcdir)/run-test $(srcdir)
 amida_SOURCES = amida.C
@@ -491,7 +495,7 @@ check-am: all-am
 	$(MAKE) $(AM_MAKEFLAGS) $(check_PROGRAMS)
 	$(MAKE) $(AM_MAKEFLAGS) check-TESTS
 check: check-am
-all-am: Makefile
+all-am: Makefile $(DATA)
 installdirs:
 install: install-am
 install-exec: install-exec-am
