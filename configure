@@ -4640,7 +4640,7 @@ LIBS_PVM=$ac_cv_alps_libs_pvm
 
           ac_config_headers="$ac_config_headers looper/config.h"
 
-                                                                      ac_config_files="$ac_config_files Makefile test/Makefile doc/Makefile lattices.xml models.xml percolation-params qmc-params"
+                              ac_config_files="$ac_config_files Makefile test/Makefile doc/Makefile"
 
 
 test "x$prefix" = xNONE && prefix=$ac_default_prefix
@@ -5161,10 +5161,6 @@ do
   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
   "test/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
   "doc/Makefile" ) CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
-  "lattices.xml" ) CONFIG_FILES="$CONFIG_FILES lattices.xml" ;;
-  "models.xml" ) CONFIG_FILES="$CONFIG_FILES models.xml" ;;
-  "percolation-params" ) CONFIG_FILES="$CONFIG_FILES percolation-params" ;;
-  "qmc-params" ) CONFIG_FILES="$CONFIG_FILES qmc-params" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
   "looper/config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS looper/config.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5

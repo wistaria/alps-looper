@@ -16,7 +16,7 @@
 
 
 
-SOURCES = $(copyright_SOURCES) $(percolation_SOURCES) $(percolation_cmd_SOURCES) $(percolation_mpi_SOURCES) $(percolation_pvm_SOURCES) $(qmc_SOURCES) $(qmc_cmd_SOURCES) $(qmc_mpi_SOURCES) $(qmc_pvm_SOURCES)
+SOURCES = $(qmc_SOURCES) $(qmc_cmd_SOURCES) $(qmc_mpi_SOURCES) $(qmc_pvm_SOURCES)
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -38,17 +38,14 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-noinst_PROGRAMS = copyright$(EXEEXT) qmc$(EXEEXT) qmc_cmd$(EXEEXT) \
-	percolation$(EXEEXT) percolation_cmd$(EXEEXT) $(am__EXEEXT_1) \
+bin_PROGRAMS = qmc$(EXEEXT) qmc_cmd$(EXEEXT) $(am__EXEEXT_1) \
 	$(am__EXEEXT_2)
-@HAVE_MPI_TRUE@am__append_1 = qmc_mpi percolation_mpi
-@HAVE_PVM_TRUE@am__append_2 = qmc_pvm percolation_pvm
+@HAVE_MPI_TRUE@am__append_1 = qmc_mpi
+@HAVE_PVM_TRUE@am__append_2 = qmc_pvm
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(dist_noinst_SCRIPTS) \
 	$(pkginclude_HEADERS) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(srcdir)/lattices.xml.in \
-	$(srcdir)/models.xml.in $(srcdir)/percolation-params.in \
-	$(srcdir)/qmc-params.in $(top_srcdir)/configure \
+	$(srcdir)/Makefile.in $(top_srcdir)/configure \
 	$(top_srcdir)/looper/config.h.in AUTHORS COPYING ChangeLog \
 	INSTALL NEWS depcomp install-sh missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -60,32 +57,15 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno configure.status.lineno
 mkinstalldirs = $(mkdir_p)
 CONFIG_HEADER = $(top_builddir)/looper/config.h
-CONFIG_CLEAN_FILES = lattices.xml models.xml percolation-params \
-	qmc-params
-@HAVE_MPI_TRUE@am__EXEEXT_1 = qmc_mpi$(EXEEXT) \
-@HAVE_MPI_TRUE@	percolation_mpi$(EXEEXT)
-@HAVE_PVM_TRUE@am__EXEEXT_2 = qmc_pvm$(EXEEXT) \
-@HAVE_PVM_TRUE@	percolation_pvm$(EXEEXT)
-PROGRAMS = $(noinst_PROGRAMS)
-am_copyright_OBJECTS = copyright-copyright.$(OBJEXT)
-copyright_OBJECTS = $(am_copyright_OBJECTS)
-am__DEPENDENCIES_1 =
-copyright_DEPENDENCIES = $(am__DEPENDENCIES_1)
-am_percolation_OBJECTS = percolation-percolation.$(OBJEXT)
-percolation_OBJECTS = $(am_percolation_OBJECTS)
-percolation_DEPENDENCIES = $(am__DEPENDENCIES_1)
-am_percolation_cmd_OBJECTS =  \
-	percolation_cmd-percolation_cmd.$(OBJEXT)
-percolation_cmd_OBJECTS = $(am_percolation_cmd_OBJECTS)
-percolation_cmd_DEPENDENCIES = $(am__DEPENDENCIES_1)
-am_percolation_mpi_OBJECTS = percolation_mpi-percolation.$(OBJEXT)
-percolation_mpi_OBJECTS = $(am_percolation_mpi_OBJECTS)
-percolation_mpi_DEPENDENCIES = $(am__DEPENDENCIES_1)
-am_percolation_pvm_OBJECTS = percolation_pvm-percolation.$(OBJEXT)
-percolation_pvm_OBJECTS = $(am_percolation_pvm_OBJECTS)
-percolation_pvm_DEPENDENCIES = $(am__DEPENDENCIES_1)
+CONFIG_CLEAN_FILES =
+@HAVE_MPI_TRUE@am__EXEEXT_1 = qmc_mpi$(EXEEXT)
+@HAVE_PVM_TRUE@am__EXEEXT_2 = qmc_pvm$(EXEEXT)
+am__installdirs = $(DESTDIR)$(bindir) $(DESTDIR)$(pkgincludedir) $(DESTDIR)$(pkgincludedir)
+binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
+PROGRAMS = $(bin_PROGRAMS)
 am_qmc_OBJECTS = qmc-qmc.$(OBJEXT)
 qmc_OBJECTS = $(am_qmc_OBJECTS)
+am__DEPENDENCIES_1 =
 qmc_DEPENDENCIES = $(am__DEPENDENCIES_1)
 am_qmc_cmd_OBJECTS = qmc_cmd-qmc_cmd.$(OBJEXT)
 qmc_cmd_OBJECTS = $(am_qmc_cmd_OBJECTS)
@@ -99,12 +79,7 @@ qmc_pvm_DEPENDENCIES = $(am__DEPENDENCIES_1)
 SCRIPTS = $(dist_noinst_SCRIPTS)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/copyright-copyright.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/percolation-percolation.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/percolation_cmd-percolation_cmd.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/percolation_mpi-percolation.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/percolation_pvm-percolation.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/qmc-qmc.Po \
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/qmc-qmc.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/qmc_cmd-qmc_cmd.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/qmc_mpi-qmc.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/qmc_pvm-qmc.Po
@@ -117,21 +92,16 @@ COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(copyright_SOURCES) $(percolation_SOURCES) \
-	$(percolation_cmd_SOURCES) $(percolation_mpi_SOURCES) \
-	$(percolation_pvm_SOURCES) $(qmc_SOURCES) $(qmc_cmd_SOURCES) \
-	$(qmc_mpi_SOURCES) $(qmc_pvm_SOURCES)
-DIST_SOURCES = $(copyright_SOURCES) $(percolation_SOURCES) \
-	$(percolation_cmd_SOURCES) $(percolation_mpi_SOURCES) \
-	$(percolation_pvm_SOURCES) $(qmc_SOURCES) $(qmc_cmd_SOURCES) \
-	$(qmc_mpi_SOURCES) $(qmc_pvm_SOURCES)
+SOURCES = $(qmc_SOURCES) $(qmc_cmd_SOURCES) $(qmc_mpi_SOURCES) \
+	$(qmc_pvm_SOURCES)
+DIST_SOURCES = $(qmc_SOURCES) $(qmc_cmd_SOURCES) $(qmc_mpi_SOURCES) \
+	$(qmc_pvm_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-exec-recursive install-info-recursive \
 	install-recursive installcheck-recursive installdirs-recursive \
 	pdf-recursive ps-recursive uninstall-info-recursive \
 	uninstall-recursive
-am__installdirs = $(DESTDIR)$(pkgincludedir) $(DESTDIR)$(pkgincludedir)
 nodist_pkgincludeHEADERS_INSTALL = $(INSTALL_HEADER)
 pkgincludeHEADERS_INSTALL = $(INSTALL_HEADER)
 HEADERS = $(nodist_pkginclude_HEADERS) $(pkginclude_HEADERS)
@@ -239,42 +209,22 @@ SUBDIRS = doc test
 nodist_pkginclude_HEADERS = looper/config.h
 pkginclude_HEADERS = looper/amida.h looper/copyright.h looper/exact_diag.h looper/fill_duration.h looper/fortran.h looper/graph.h looper/lapack.h looper/measurement.h looper/model.h looper/node.h looper/path_integral.h looper/permutation.h looper/random_choice.h looper/sse.h looper/union_find.h looper/util.h looper/vector_helper.h looper/virtual_graph.h looper/weight.h looper/xxz.h
 dist_noinst_SCRIPTS = run-test
-copyright_SOURCES = copyright.C
-copyright_CPPFLAGS = $(CPPFLAGS_SGL)
-copyright_LDFLAGS = $(LDFLAGS_SGL)
-copyright_LDADD = $(LIBS_SGL)
 qmc_SOURCES = qmc.C qmc_impl.h
 qmc_CPPFLAGS = $(CPPFLAGS_SGL)
 qmc_LDFLAGS = $(LDFLAGS_SGL)
 qmc_LDADD = $(LIBS_SGL)
-qmc_mpi_SOURCES = qmc.C
+qmc_mpi_SOURCES = qmc.C qmc_impl.h
 qmc_mpi_CPPFLAGS = $(CPPFLAGS_MPI)
 qmc_mpi_LDFLAGS = $(LDFLAGS_MPI)
 qmc_mpi_LDADD = $(LIBS_MPI)
-qmc_pvm_SOURCES = qmc.C
+qmc_pvm_SOURCES = qmc.C qmc_impl.h
 qmc_pvm_CPPFLAGS = $(CPPFLAGS_PVM)
 qmc_pvm_LDFLAGS = $(LDFLAGS_PVM)
 qmc_pvm_LDADD = $(LIBS_PVM)
-qmc_cmd_SOURCES = qmc_cmd.C
+qmc_cmd_SOURCES = qmc_cmd.C qmc_impl.h
 qmc_cmd_CPPFLAGS = $(CPPFLAGS_SGL)
 qmc_cmd_LDFLAGS = $(LDFLAGS_SGL)
 qmc_cmd_LDADD = $(LIBS_SGL)
-percolation_SOURCES = percolation.C percolation_impl.h
-percolation_CPPFLAGS = $(CPPFLAGS_SGL)
-percolation_LDFLAGS = $(LDFLAGS_SGL)
-percolation_LDADD = $(LIBS_SGL)
-percolation_mpi_SOURCES = percolation.C
-percolation_mpi_CPPFLAGS = $(CPPFLAGS_MPI)
-percolation_mpi_LDFLAGS = $(LDFLAGS_MPI)
-percolation_mpi_LDADD = $(LIBS_MPI)
-percolation_pvm_SOURCES = percolation.C
-percolation_pvm_CPPFLAGS = $(CPPFLAGS_PVM)
-percolation_pvm_LDFLAGS = $(LDFLAGS_PVM)
-percolation_pvm_LDADD = $(LIBS_PVM)
-percolation_cmd_SOURCES = percolation_cmd.C
-percolation_cmd_CPPFLAGS = $(CPPFLAGS_SGL)
-percolation_cmd_LDFLAGS = $(LDFLAGS_SGL)
-percolation_cmd_LDADD = $(LIBS_SGL)
 all: all-recursive
 
 .SUFFIXES:
@@ -329,32 +279,29 @@ $(top_srcdir)/looper/config.h.in:  $(am__configure_deps)
 
 distclean-hdr:
 	-rm -f looper/config.h looper/stamp-h1
-lattices.xml: $(top_builddir)/config.status $(srcdir)/lattices.xml.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
-models.xml: $(top_builddir)/config.status $(srcdir)/models.xml.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
-percolation-params: $(top_builddir)/config.status $(srcdir)/percolation-params.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
-qmc-params: $(top_builddir)/config.status $(srcdir)/qmc-params.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
+install-binPROGRAMS: $(bin_PROGRAMS)
+	@$(NORMAL_INSTALL)
+	$(mkdir_p) $(DESTDIR)$(bindir)
+	@list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  p1=`echo $$p|sed 's/$(EXEEXT)$$//'`; \
+	  if test -f $$p \
+	  ; then \
+	    f=`echo "$$p1" | sed 's,^.*/,,;$(transform);s/$$/$(EXEEXT)/'`; \
+	   echo " $(INSTALL_PROGRAM_ENV) $(binPROGRAMS_INSTALL) $$p $(DESTDIR)$(bindir)/$$f"; \
+	   $(INSTALL_PROGRAM_ENV) $(binPROGRAMS_INSTALL) $$p $(DESTDIR)$(bindir)/$$f || exit 1; \
+	  else :; fi; \
+	done
 
-clean-noinstPROGRAMS:
-	-test -z "$(noinst_PROGRAMS)" || rm -f $(noinst_PROGRAMS)
-copyright$(EXEEXT): $(copyright_OBJECTS) $(copyright_DEPENDENCIES) 
-	@rm -f copyright$(EXEEXT)
-	$(CXXLINK) $(copyright_LDFLAGS) $(copyright_OBJECTS) $(copyright_LDADD) $(LIBS)
-percolation$(EXEEXT): $(percolation_OBJECTS) $(percolation_DEPENDENCIES) 
-	@rm -f percolation$(EXEEXT)
-	$(CXXLINK) $(percolation_LDFLAGS) $(percolation_OBJECTS) $(percolation_LDADD) $(LIBS)
-percolation_cmd$(EXEEXT): $(percolation_cmd_OBJECTS) $(percolation_cmd_DEPENDENCIES) 
-	@rm -f percolation_cmd$(EXEEXT)
-	$(CXXLINK) $(percolation_cmd_LDFLAGS) $(percolation_cmd_OBJECTS) $(percolation_cmd_LDADD) $(LIBS)
-percolation_mpi$(EXEEXT): $(percolation_mpi_OBJECTS) $(percolation_mpi_DEPENDENCIES) 
-	@rm -f percolation_mpi$(EXEEXT)
-	$(CXXLINK) $(percolation_mpi_LDFLAGS) $(percolation_mpi_OBJECTS) $(percolation_mpi_LDADD) $(LIBS)
-percolation_pvm$(EXEEXT): $(percolation_pvm_OBJECTS) $(percolation_pvm_DEPENDENCIES) 
-	@rm -f percolation_pvm$(EXEEXT)
-	$(CXXLINK) $(percolation_pvm_LDFLAGS) $(percolation_pvm_OBJECTS) $(percolation_pvm_LDADD) $(LIBS)
+uninstall-binPROGRAMS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  f=`echo "$$p" | sed 's,^.*/,,;s/$(EXEEXT)$$//;$(transform);s/$$/$(EXEEXT)/'`; \
+	  echo " rm -f $(DESTDIR)$(bindir)/$$f"; \
+	  rm -f $(DESTDIR)$(bindir)/$$f; \
+	done
+
+clean-binPROGRAMS:
+	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
 qmc$(EXEEXT): $(qmc_OBJECTS) $(qmc_DEPENDENCIES) 
 	@rm -f qmc$(EXEEXT)
 	$(CXXLINK) $(qmc_LDFLAGS) $(qmc_OBJECTS) $(qmc_LDADD) $(LIBS)
@@ -374,11 +321,6 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/copyright-copyright.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/percolation-percolation.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/percolation_cmd-percolation_cmd.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/percolation_mpi-percolation.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/percolation_pvm-percolation.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qmc-qmc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qmc_cmd-qmc_cmd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qmc_mpi-qmc.Po@am__quote@
@@ -399,86 +341,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
-
-copyright-copyright.o: copyright.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(copyright_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT copyright-copyright.o -MD -MP -MF "$(DEPDIR)/copyright-copyright.Tpo" -c -o copyright-copyright.o `test -f 'copyright.C' || echo '$(srcdir)/'`copyright.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/copyright-copyright.Tpo" "$(DEPDIR)/copyright-copyright.Po"; else rm -f "$(DEPDIR)/copyright-copyright.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='copyright.C' object='copyright-copyright.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/copyright-copyright.Po' tmpdepfile='$(DEPDIR)/copyright-copyright.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(copyright_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o copyright-copyright.o `test -f 'copyright.C' || echo '$(srcdir)/'`copyright.C
-
-copyright-copyright.obj: copyright.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(copyright_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT copyright-copyright.obj -MD -MP -MF "$(DEPDIR)/copyright-copyright.Tpo" -c -o copyright-copyright.obj `if test -f 'copyright.C'; then $(CYGPATH_W) 'copyright.C'; else $(CYGPATH_W) '$(srcdir)/copyright.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/copyright-copyright.Tpo" "$(DEPDIR)/copyright-copyright.Po"; else rm -f "$(DEPDIR)/copyright-copyright.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='copyright.C' object='copyright-copyright.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/copyright-copyright.Po' tmpdepfile='$(DEPDIR)/copyright-copyright.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(copyright_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o copyright-copyright.obj `if test -f 'copyright.C'; then $(CYGPATH_W) 'copyright.C'; else $(CYGPATH_W) '$(srcdir)/copyright.C'; fi`
-
-percolation-percolation.o: percolation.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(percolation_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT percolation-percolation.o -MD -MP -MF "$(DEPDIR)/percolation-percolation.Tpo" -c -o percolation-percolation.o `test -f 'percolation.C' || echo '$(srcdir)/'`percolation.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/percolation-percolation.Tpo" "$(DEPDIR)/percolation-percolation.Po"; else rm -f "$(DEPDIR)/percolation-percolation.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='percolation.C' object='percolation-percolation.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/percolation-percolation.Po' tmpdepfile='$(DEPDIR)/percolation-percolation.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(percolation_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o percolation-percolation.o `test -f 'percolation.C' || echo '$(srcdir)/'`percolation.C
-
-percolation-percolation.obj: percolation.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(percolation_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT percolation-percolation.obj -MD -MP -MF "$(DEPDIR)/percolation-percolation.Tpo" -c -o percolation-percolation.obj `if test -f 'percolation.C'; then $(CYGPATH_W) 'percolation.C'; else $(CYGPATH_W) '$(srcdir)/percolation.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/percolation-percolation.Tpo" "$(DEPDIR)/percolation-percolation.Po"; else rm -f "$(DEPDIR)/percolation-percolation.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='percolation.C' object='percolation-percolation.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/percolation-percolation.Po' tmpdepfile='$(DEPDIR)/percolation-percolation.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(percolation_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o percolation-percolation.obj `if test -f 'percolation.C'; then $(CYGPATH_W) 'percolation.C'; else $(CYGPATH_W) '$(srcdir)/percolation.C'; fi`
-
-percolation_cmd-percolation_cmd.o: percolation_cmd.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(percolation_cmd_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT percolation_cmd-percolation_cmd.o -MD -MP -MF "$(DEPDIR)/percolation_cmd-percolation_cmd.Tpo" -c -o percolation_cmd-percolation_cmd.o `test -f 'percolation_cmd.C' || echo '$(srcdir)/'`percolation_cmd.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/percolation_cmd-percolation_cmd.Tpo" "$(DEPDIR)/percolation_cmd-percolation_cmd.Po"; else rm -f "$(DEPDIR)/percolation_cmd-percolation_cmd.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='percolation_cmd.C' object='percolation_cmd-percolation_cmd.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/percolation_cmd-percolation_cmd.Po' tmpdepfile='$(DEPDIR)/percolation_cmd-percolation_cmd.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(percolation_cmd_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o percolation_cmd-percolation_cmd.o `test -f 'percolation_cmd.C' || echo '$(srcdir)/'`percolation_cmd.C
-
-percolation_cmd-percolation_cmd.obj: percolation_cmd.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(percolation_cmd_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT percolation_cmd-percolation_cmd.obj -MD -MP -MF "$(DEPDIR)/percolation_cmd-percolation_cmd.Tpo" -c -o percolation_cmd-percolation_cmd.obj `if test -f 'percolation_cmd.C'; then $(CYGPATH_W) 'percolation_cmd.C'; else $(CYGPATH_W) '$(srcdir)/percolation_cmd.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/percolation_cmd-percolation_cmd.Tpo" "$(DEPDIR)/percolation_cmd-percolation_cmd.Po"; else rm -f "$(DEPDIR)/percolation_cmd-percolation_cmd.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='percolation_cmd.C' object='percolation_cmd-percolation_cmd.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/percolation_cmd-percolation_cmd.Po' tmpdepfile='$(DEPDIR)/percolation_cmd-percolation_cmd.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(percolation_cmd_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o percolation_cmd-percolation_cmd.obj `if test -f 'percolation_cmd.C'; then $(CYGPATH_W) 'percolation_cmd.C'; else $(CYGPATH_W) '$(srcdir)/percolation_cmd.C'; fi`
-
-percolation_mpi-percolation.o: percolation.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(percolation_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT percolation_mpi-percolation.o -MD -MP -MF "$(DEPDIR)/percolation_mpi-percolation.Tpo" -c -o percolation_mpi-percolation.o `test -f 'percolation.C' || echo '$(srcdir)/'`percolation.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/percolation_mpi-percolation.Tpo" "$(DEPDIR)/percolation_mpi-percolation.Po"; else rm -f "$(DEPDIR)/percolation_mpi-percolation.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='percolation.C' object='percolation_mpi-percolation.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/percolation_mpi-percolation.Po' tmpdepfile='$(DEPDIR)/percolation_mpi-percolation.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(percolation_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o percolation_mpi-percolation.o `test -f 'percolation.C' || echo '$(srcdir)/'`percolation.C
-
-percolation_mpi-percolation.obj: percolation.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(percolation_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT percolation_mpi-percolation.obj -MD -MP -MF "$(DEPDIR)/percolation_mpi-percolation.Tpo" -c -o percolation_mpi-percolation.obj `if test -f 'percolation.C'; then $(CYGPATH_W) 'percolation.C'; else $(CYGPATH_W) '$(srcdir)/percolation.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/percolation_mpi-percolation.Tpo" "$(DEPDIR)/percolation_mpi-percolation.Po"; else rm -f "$(DEPDIR)/percolation_mpi-percolation.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='percolation.C' object='percolation_mpi-percolation.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/percolation_mpi-percolation.Po' tmpdepfile='$(DEPDIR)/percolation_mpi-percolation.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(percolation_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o percolation_mpi-percolation.obj `if test -f 'percolation.C'; then $(CYGPATH_W) 'percolation.C'; else $(CYGPATH_W) '$(srcdir)/percolation.C'; fi`
-
-percolation_pvm-percolation.o: percolation.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(percolation_pvm_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT percolation_pvm-percolation.o -MD -MP -MF "$(DEPDIR)/percolation_pvm-percolation.Tpo" -c -o percolation_pvm-percolation.o `test -f 'percolation.C' || echo '$(srcdir)/'`percolation.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/percolation_pvm-percolation.Tpo" "$(DEPDIR)/percolation_pvm-percolation.Po"; else rm -f "$(DEPDIR)/percolation_pvm-percolation.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='percolation.C' object='percolation_pvm-percolation.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/percolation_pvm-percolation.Po' tmpdepfile='$(DEPDIR)/percolation_pvm-percolation.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(percolation_pvm_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o percolation_pvm-percolation.o `test -f 'percolation.C' || echo '$(srcdir)/'`percolation.C
-
-percolation_pvm-percolation.obj: percolation.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(percolation_pvm_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT percolation_pvm-percolation.obj -MD -MP -MF "$(DEPDIR)/percolation_pvm-percolation.Tpo" -c -o percolation_pvm-percolation.obj `if test -f 'percolation.C'; then $(CYGPATH_W) 'percolation.C'; else $(CYGPATH_W) '$(srcdir)/percolation.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/percolation_pvm-percolation.Tpo" "$(DEPDIR)/percolation_pvm-percolation.Po"; else rm -f "$(DEPDIR)/percolation_pvm-percolation.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='percolation.C' object='percolation_pvm-percolation.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/percolation_pvm-percolation.Po' tmpdepfile='$(DEPDIR)/percolation_pvm-percolation.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(percolation_pvm_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o percolation_pvm-percolation.obj `if test -f 'percolation.C'; then $(CYGPATH_W) 'percolation.C'; else $(CYGPATH_W) '$(srcdir)/percolation.C'; fi`
 
 qmc-qmc.o: qmc.C
 @am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(qmc_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT qmc-qmc.o -MD -MP -MF "$(DEPDIR)/qmc-qmc.Tpo" -c -o qmc-qmc.o `test -f 'qmc.C' || echo '$(srcdir)/'`qmc.C; \
@@ -698,7 +560,7 @@ distclean-tags:
 distdir: $(DISTFILES)
 	$(am__remove_distdir)
 	mkdir $(distdir)
-	$(mkdir_p) $(distdir)/. $(distdir)/config $(distdir)/looper
+	$(mkdir_p) $(distdir)/config $(distdir)/looper
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \
@@ -840,7 +702,7 @@ check: check-recursive
 all-am: Makefile $(PROGRAMS) $(SCRIPTS) $(HEADERS)
 installdirs: installdirs-recursive
 installdirs-am:
-	$(mkdir_p) $(DESTDIR)$(pkgincludedir) $(DESTDIR)$(pkgincludedir)
+	$(mkdir_p) $(DESTDIR)$(bindir) $(DESTDIR)$(pkgincludedir) $(DESTDIR)$(pkgincludedir)
 install: install-recursive
 install-exec: install-exec-recursive
 install-data: install-data-recursive
@@ -867,7 +729,7 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-recursive
 
-clean-am: clean-generic clean-noinstPROGRAMS mostlyclean-am
+clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
@@ -889,7 +751,7 @@ info-am:
 install-data-am: install-nodist_pkgincludeHEADERS \
 	install-pkgincludeHEADERS
 
-install-exec-am:
+install-exec-am: install-binPROGRAMS
 
 install-info: install-info-recursive
 
@@ -916,26 +778,27 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-info-am uninstall-nodist_pkgincludeHEADERS \
-	uninstall-pkgincludeHEADERS
+uninstall-am: uninstall-binPROGRAMS uninstall-info-am \
+	uninstall-nodist_pkgincludeHEADERS uninstall-pkgincludeHEADERS
 
 uninstall-info: uninstall-info-recursive
 
 .PHONY: $(RECURSIVE_TARGETS) CTAGS GTAGS all all-am am--refresh check \
-	check-am clean clean-generic clean-noinstPROGRAMS \
-	clean-recursive ctags ctags-recursive dist dist-all dist-bzip2 \
-	dist-gzip dist-shar dist-tarZ dist-zip distcheck distclean \
+	check-am clean clean-binPROGRAMS clean-generic clean-recursive \
+	ctags ctags-recursive dist dist-all dist-bzip2 dist-gzip \
+	dist-shar dist-tarZ dist-zip distcheck distclean \
 	distclean-compile distclean-generic distclean-hdr \
 	distclean-recursive distclean-tags distcleancheck distdir \
 	distuninstallcheck dvi dvi-am html html-am info info-am \
-	install install-am install-data install-data-am install-exec \
-	install-exec-am install-info install-info-am install-man \
-	install-nodist_pkgincludeHEADERS install-pkgincludeHEADERS \
-	install-strip installcheck installcheck-am installdirs \
-	installdirs-am maintainer-clean maintainer-clean-generic \
-	maintainer-clean-recursive mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-recursive pdf pdf-am ps ps-am \
-	tags tags-recursive uninstall uninstall-am uninstall-info-am \
+	install install-am install-binPROGRAMS install-data \
+	install-data-am install-exec install-exec-am install-info \
+	install-info-am install-man install-nodist_pkgincludeHEADERS \
+	install-pkgincludeHEADERS install-strip installcheck \
+	installcheck-am installdirs installdirs-am maintainer-clean \
+	maintainer-clean-generic maintainer-clean-recursive \
+	mostlyclean mostlyclean-compile mostlyclean-generic \
+	mostlyclean-recursive pdf pdf-am ps ps-am tags tags-recursive \
+	uninstall uninstall-am uninstall-binPROGRAMS uninstall-info-am \
 	uninstall-nodist_pkgincludeHEADERS uninstall-pkgincludeHEADERS
 
 

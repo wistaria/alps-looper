@@ -1,3 +1,7 @@
+2004-04-06  Synge Todo  <wistaria@comp-phys.org>
+
+	* Moved percolation programs into an independent package.
+	
 2004-04-03  Synge Todo  <wistaria@comp-phys.org>
 
 	* Introduced site_parameter<T> class template.

@@ -1,5 +1,4 @@
 dnl Process this file with autoconf to produce a configure script.
-dnl $Id: configure.ac 705 2004-03-18 01:16:30Z wistaria $
 
 dnl 
 dnl Initialization
@@ -94,4 +93,4 @@ dnl generate files
 dnl
 
 AC_CONFIG_HEADERS(looper/config.h)
-AC_OUTPUT(Makefile test/Makefile doc/Makefile lattices.xml models.xml percolation-params qmc-params)
+AC_OUTPUT(Makefile test/Makefile doc/Makefile)

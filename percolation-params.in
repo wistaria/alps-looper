@@ -1,7 +1,0 @@
-{
-LATTICE = "square lattice"
-L = 16
-TYPE = site
-P = 0.5
-SAMPLES = 100
-}
