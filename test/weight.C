@@ -31,8 +31,6 @@
 template<typename W>
 void output(const alps::Parameters& param, const W& weight)
 {
-  using looper::range_01;
-
   assert(weight.p_freeze_para() == weight.p_freeze(0,0) &&
 	 weight.p_freeze_para() == weight.p_freeze(1,1));
   assert(weight.p_freeze_anti() == weight.p_freeze(0,1) &&
@@ -47,17 +45,21 @@ void output(const alps::Parameters& param, const W& weight)
 	    << ", Jz = " << param["Jz"]
 	    << " : r = " << weight.density();
   if (weight.density() > 0) {
-    std::cout << ", parallel: accept = " << range_01(weight.p_accept_para());
+    std::cout << ", parallel: accept = " << weight.p_accept_para();
     if (weight.p_accept_para() > 0)
-      std::cout << ", freeze = " << range_01(weight.p_freeze_para());
+      std::cout << ", freeze = " << weight.p_freeze_para();
     std::cout << ", antiparallel: accept = "
-	      << range_01(weight.p_accept_anti());
+	      << weight.p_accept_anti();
     if (weight.p_accept_anti() > 0)
-      std::cout << ", freeze = " << range_01(weight.p_freeze_anti());
-    std::cout << ", P_r = " << range_01(weight.p_reflect())
+      std::cout << ", freeze = " << weight.p_freeze_anti();
+    std::cout << ", P_r = " << weight.p_reflect()
 	      << ", sign = " << weight.sign();
   }
   std::cout << std::endl;
+
+  looper::xxz_parameter p = looper::weight::check_pi(weight);
+  assert(looper::nearly_equal(param["Jxy"], p.jxy()));
+  assert(looper::nearly_equal(param["Jz"], p.jz()));
 }
 
 int main()
@@ -72,8 +74,12 @@ try {
   for (alps::ParameterList::iterator p = params.begin();
        p != params.end(); ++p) {
     looper::xxz_parameter xxz(0, (*p)["Jxy"], (*p)["Jz"]);
-    looper::default_weight w(xxz);
-    output(*p, w);
+
+    std::cout << "standard: ";
+    output(*p, looper::default_weight(xxz));      
+
+    std::cout << "ergodic: ";
+    output(*p, looper::default_weight(xxz, 0.1));
   }
 
 #ifndef BOOST_NO_EXCEPTIONS

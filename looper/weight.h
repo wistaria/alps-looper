@@ -122,13 +122,13 @@ private:
   double offset_;
 };
 
-class xxz {
+class xxz_orig {
 public:
-  xxz() :
+  xxz_orig() :
     density_(0), pa_para_(0), pa_anti_(0), pf_para_(0), pf_anti_(0), 
     p_reflect_(0), offset_(0), sign_(1) {}
   template<class P>
-  xxz(const P& p) :
+  xxz_orig(const P& p) :
     density_(0), pa_para_(0), pa_anti_(0), pf_para_(0), pf_anti_(0),
     p_reflect_(0), offset_(0), sign_(1)
   {
@@ -137,10 +137,130 @@ public:
     double Jz = p.jz();
     if (Jxy + abs(Jz) > 1.0e-10) {
       density_ = max(abs(Jz) / 2, (Jxy + abs(Jz)) / 4);
-      pa_para_ = (Jxy + Jz) / (Jxy + abs(Jz));
-      pa_anti_ = (Jxy - Jz) / (Jxy + abs(Jz));
-      pf_para_ = pf_anti_ = 1 - Jxy / abs(Jz);
-      p_reflect_ = (Jxy - Jz) / (2 * Jxy);
+      pa_para_ = range_01((Jxy + Jz) / (Jxy + abs(Jz)));
+      pa_anti_ = range_01((Jxy - Jz) / (Jxy + abs(Jz)));
+      pf_para_ = range_01(1 - Jxy / abs(Jz));
+      pf_anti_ = range_01(1 - Jxy / abs(Jz));
+      p_reflect_ = range_01((Jxy - Jz) / (2 * Jxy));
+      offset_ = -max(abs(Jz) / 4, Jxy / 4);
+      sign_ = (p.jxy() >= 0 ? 1 : -1);
+    }
+  }
+
+  double density() const { return density_; }
+  double weight() const { return density_; }
+  double p_accept_para() const { return pa_para_; }
+  double p_accept_anti() const { return pa_anti_; }
+  double p_accept(int r) const { return r ? pa_anti_ : pa_para_; }
+  double p_accept(int c0, int c1) const { return p_accept(c0 ^ c1); }
+  double p_freeze_para() const { return pf_para_; }
+  double p_freeze_anti() const { return pf_anti_; }
+  double p_freeze(int r) const { return r ? pf_anti_ : pf_para_; }
+  double p_freeze(int c0, int c1) const { return p_freeze(c0 ^ c1); }
+  double p_reflect() const { return p_reflect_; }
+  double offset() const { return offset_; }
+  double sign() const { return sign_; }
+
+private:
+  double density_;
+  double pa_para_;
+  double pa_anti_;
+  double pf_para_;
+  double pf_anti_;
+  double p_reflect_;
+  double offset_;
+  double sign_;
+};
+
+class xxz {
+
+  // loop equations:
+  //
+  //   w12 + w11 + w13 = Jz/4
+  //   w12 + w22 + w23 = -Jz/4
+  //   w13 + w23 = |Jxy|/2
+  //
+  //   density = max((w11 + w13), (w22 + w23))
+  //   Pa_para = (w11 + w13) / density
+  //   Pa_anti = (w22 + w23) / density
+  //   Pf_para = w11 / w13
+  //   Pf_anti = w22 / w23
+  //   Pr = w23 / (w13 + w 23)
+
+  // standard solutions:
+  //
+  // i) Jz >= |Jxy|  (ferro-Ising)
+  //      w12 = -Jz/4
+  //      w11 = (Jz - |Jxy|)/2
+  //      w13 = |Jxy|/2
+  //      w22 = w23 = 0
+  // ii) -|Jxy| <= Jz <= |Jxy|  (XY)
+  //      w12 = -|Jxy|/4
+  //      w11 = w22 = 0
+  //      w13 = (Jz + |Jxy|)/4
+  //      w23 = (-Jz + |Jxy|)/4
+  // iii) Jz <= -|Jxy|  (antiferro-Ising)
+  //      w12 = Jz/4
+  //      w11 = w13 = 0
+  //      w22 = (-Jz - |Jxy|)/2
+  //      w23 = |Jxy|/2
+
+  // "ergodic" solutions (with additional parameter a)
+  // i) Jz >= |Jxy|  (ferro-Ising)
+  //      same as the standard solution
+  // ii) -|Jxy| <= Jz <= |Jxy|  (XY)
+  //   ii-1) Jz + |Jxy| >= 2 a |Jxy|
+  //      same as the standard solution
+  //   ii-2) Jz + |Jxy| <= 2 a |Jxy|
+  //      w12 = (Jz - 2a |Jxy|)/4
+  //      w11 = 0
+  //      w22 = (-Jz + (2a-1) |Jxy|)/2
+  //      w13 = a |Jxy| / 2
+  //      w23 = (1-a) |Jxy| / 2
+  // iii) Jz <= -|Jxy|  (antiferro-Ising)
+  //      same as ii-2)
+
+  //      w22 = (-Jz + a |Jxy|)/2
+  //             (1-a) |Jxy| / 2
+
+public:
+  xxz() :
+    density_(0), pa_para_(0), pa_anti_(0), pf_para_(0), pf_anti_(0), 
+    p_reflect_(0), offset_(0), sign_(1) {}
+  template<class P>
+  xxz(const P& p, double force_scatter = 0) :
+    density_(0), pa_para_(0), pa_anti_(0), pf_para_(0), pf_anti_(0),
+    p_reflect_(0), offset_(0), sign_(1)
+  {
+    using std::abs; using std::max; using std::min;
+
+    double Jxy = abs(p.jxy());
+    double Jz = p.jz();
+    double a = range_01(force_scatter);
+    double w12, w11, w13, w22, w23;
+    if (Jxy + abs(Jz) > 1.0e-10) {
+      if (Jxy + Jz > 2 * a * Jxy) {
+	// standard solutions
+	w12 = min(-abs(Jz)/4, -Jxy/4);
+	w11 = max((Jz - Jxy)/2, 0.);
+	w13 = max(min(Jxy/2, (Jz + Jxy)/4), 0.);
+	w22 = max(-(Jz + Jxy)/2, 0.);
+	w23 = max(min(Jxy/2, (-Jz + Jxy)/4), 0.);
+      } else {
+	// "ergodic" solutions
+	w12 = (Jz - 2*a*Jxy)/4;
+	w11 = 0;
+	w13 = a*Jxy/2;
+	w22 = (-Jz + (2*a-1)*Jxy)/2;
+	w23 = (1-a)*Jxy/2;
+      }
+
+      density_ = max(w11+w13, w22+w23);
+      pa_para_ = (w11+w13)/density_;
+      pa_anti_ = (w22+w23)/density_;
+      pf_para_ = (w11+w13>0) ? w11/(w11+w13) : 0;
+      pf_anti_ = (w22+w23>0) ? w22/(w22+w23) : 0;
+      p_reflect_ = (w13+w23>0) ? w23/(w13+w23) : 0;
       offset_ = -max(abs(Jz) / 4, Jxy / 4);
       sign_ = (p.jxy() >= 0 ? 1 : -1);
     }
@@ -172,10 +292,22 @@ private:
 };
 
 template<typename W>
-inline xxz_parameter check(const W& w)
+xxz_parameter check_pi(const W& w, double tol = 1.0e-10)
 {
-  double jxy;
-  double jz;
+  double rp = w.density() * w.p_accept_para();
+  double w11 = rp * w.p_freeze_para();
+  double w13 = rp - w11;
+  double ra = w.density() * w.p_accept_anti();
+  double w22 = ra * w.p_freeze_anti();
+  double w23 = ra - w22;
+  double w12 = -(w11+ w13 + w22 + w23) / 2;
+
+  assert(w11 > -tol && w13 > -tol && w22 > -tol && w23 > -tol);
+  assert(nearly_equal(w23, w.p_reflect() * (w13 + w23)));
+
+  double jxy = 2 * (w13 + w23) * w.sign();
+  double jz = 4 * (w12 + w11 + w13);
+
   return xxz_parameter(0, jxy, jz);
 }
 

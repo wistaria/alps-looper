@@ -1,13 +1,26 @@
-Jxy = 1, Jz = 2  : r = 1, parallel: accept = 1, freeze = 0.5, antiparallel: accept = 0, P_r = 0, sign = 1
-Jxy = 1, Jz = 1.5  : r = 0.75, parallel: accept = 1, freeze = 0.333333, antiparallel: accept = 0, P_r = 0, sign = 1
-Jxy = 1, Jz = 1  : r = 0.5, parallel: accept = 1, freeze = 0, antiparallel: accept = 0, P_r = 0, sign = 1
-Jxy = 1, Jz = 0.5  : r = 0.375, parallel: accept = 1, freeze = 0, antiparallel: accept = 0.333333, freeze = 0, P_r = 0.25, sign = 1
-Jxy = 1, Jz = 0  : r = 0.25, parallel: accept = 1, freeze = 0, antiparallel: accept = 1, freeze = 0, P_r = 0.5, sign = 1
-Jxy = 1, Jz = -0.5  : r = 0.375, parallel: accept = 0.333333, freeze = 0, antiparallel: accept = 1, freeze = 0, P_r = 0.75, sign = 1
-Jxy = 1, Jz = -1  : r = 0.5, parallel: accept = 0, antiparallel: accept = 1, freeze = 0, P_r = 1, sign = 1
-Jxy = 1, Jz = -1.5  : r = 0.75, parallel: accept = 0, antiparallel: accept = 1, freeze = 0.333333, P_r = 1, sign = 1
-Jxy = 1, Jz = -2  : r = 1, parallel: accept = 0, antiparallel: accept = 1, freeze = 0.5, P_r = 1, sign = 1
-Jxy = 0, Jz = 1  : r = 0.5, parallel: accept = 1, freeze = 1, antiparallel: accept = 0, P_r = 0, sign = 1
-Jxy = 0, Jz = -1  : r = 0.5, parallel: accept = 0, antiparallel: accept = 1, freeze = 1, P_r = 1, sign = 1
-Jxy = -1, Jz = 1  : r = 0.5, parallel: accept = 1, freeze = 0, antiparallel: accept = 0, P_r = 0, sign = -1
-Jxy = 0, Jz = 0  : r = 0
+standard: Jxy = 1, Jz = 2  : r = 1, parallel: accept = 1, freeze = 0.5, antiparallel: accept = 0, P_r = 0, sign = 1
+ergodic: Jxy = 1, Jz = 2  : r = 1, parallel: accept = 1, freeze = 0.5, antiparallel: accept = 0, P_r = 0, sign = 1
+standard: Jxy = 1, Jz = 1.5  : r = 0.75, parallel: accept = 1, freeze = 0.333333, antiparallel: accept = 0, P_r = 0, sign = 1
+ergodic: Jxy = 1, Jz = 1.5  : r = 0.75, parallel: accept = 1, freeze = 0.333333, antiparallel: accept = 0, P_r = 0, sign = 1
+standard: Jxy = 1, Jz = 1  : r = 0.5, parallel: accept = 1, freeze = 0, antiparallel: accept = 0, P_r = 0, sign = 1
+ergodic: Jxy = 1, Jz = 1  : r = 0.5, parallel: accept = 1, freeze = 0, antiparallel: accept = 0, P_r = 0, sign = 1
+standard: Jxy = 1, Jz = 0.5  : r = 0.375, parallel: accept = 1, freeze = 0, antiparallel: accept = 0.333333, freeze = 0, P_r = 0.25, sign = 1
+ergodic: Jxy = 1, Jz = 0.5  : r = 0.375, parallel: accept = 1, freeze = 0, antiparallel: accept = 0.333333, freeze = 0, P_r = 0.25, sign = 1
+standard: Jxy = 1, Jz = 0  : r = 0.25, parallel: accept = 1, freeze = 0, antiparallel: accept = 1, freeze = 0, P_r = 0.5, sign = 1
+ergodic: Jxy = 1, Jz = 0  : r = 0.25, parallel: accept = 1, freeze = 0, antiparallel: accept = 1, freeze = 0, P_r = 0.5, sign = 1
+standard: Jxy = 1, Jz = -0.5  : r = 0.375, parallel: accept = 0.333333, freeze = 0, antiparallel: accept = 1, freeze = 0, P_r = 0.75, sign = 1
+ergodic: Jxy = 1, Jz = -0.5  : r = 0.375, parallel: accept = 0.333333, freeze = 0, antiparallel: accept = 1, freeze = 0, P_r = 0.75, sign = 1
+standard: Jxy = 1, Jz = -1  : r = 0.5, parallel: accept = 0, antiparallel: accept = 1, freeze = 0, P_r = 1, sign = 1
+ergodic: Jxy = 1, Jz = -1  : r = 0.55, parallel: accept = 0.0909091, freeze = 0, antiparallel: accept = 1, freeze = 0.181818, P_r = 0.9, sign = 1
+standard: Jxy = 1, Jz = -1.5  : r = 0.75, parallel: accept = 0, antiparallel: accept = 1, freeze = 0.333333, P_r = 1, sign = 1
+ergodic: Jxy = 1, Jz = -1.5  : r = 0.8, parallel: accept = 0.0625, freeze = 0, antiparallel: accept = 1, freeze = 0.4375, P_r = 0.9, sign = 1
+standard: Jxy = 1, Jz = -2  : r = 1, parallel: accept = 0, antiparallel: accept = 1, freeze = 0.5, P_r = 1, sign = 1
+ergodic: Jxy = 1, Jz = -2  : r = 1.05, parallel: accept = 0.047619, freeze = 0, antiparallel: accept = 1, freeze = 0.571429, P_r = 0.9, sign = 1
+standard: Jxy = 0, Jz = 1  : r = 0.5, parallel: accept = 1, freeze = 1, antiparallel: accept = 0, P_r = 0, sign = 1
+ergodic: Jxy = 0, Jz = 1  : r = 0.5, parallel: accept = 1, freeze = 1, antiparallel: accept = 0, P_r = 0, sign = 1
+standard: Jxy = 0, Jz = -1  : r = 0.5, parallel: accept = 0, antiparallel: accept = 1, freeze = 1, P_r = 0, sign = 1
+ergodic: Jxy = 0, Jz = -1  : r = 0.5, parallel: accept = 0, antiparallel: accept = 1, freeze = 1, P_r = 0, sign = 1
+standard: Jxy = -1, Jz = 1  : r = 0.5, parallel: accept = 1, freeze = 0, antiparallel: accept = 0, P_r = 0, sign = -1
+ergodic: Jxy = -1, Jz = 1  : r = 0.5, parallel: accept = 1, freeze = 0, antiparallel: accept = 0, P_r = 0, sign = -1
+standard: Jxy = 0, Jz = 0  : r = 0
+ergodic: Jxy = 0, Jz = 0  : r = 0

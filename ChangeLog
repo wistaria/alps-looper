@@ -4,7 +4,8 @@
 
 	* Added support for extenal field in site_parameter.
 
-	* Extended weight classes for supporting negative signs.
+	* Added an extra parameter to the default weight classes for
+	supporting "erdogic" loop solutions.
 	
 2004-08-20  Synge Todo <wistaria@comp-phys.org>
 
