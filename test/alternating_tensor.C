@@ -22,13 +22,29 @@
 *
 *****************************************************************************/
 
-#ifndef LOOPER_VERSION_H
-#define LOOPER_VERSION_H
+#include <looper/util.h>
+#include <iostream>
 
-/* Define the version of ALPS/looper */
-#define LOOPER_VERSION "3.0.1b"
+int main() {
 
-/* Define the published date of ALPS/looper */
-#define LOOPER_DATE "2004/06/25"
+#ifndef BOOST_NO_EXCEPTIONS
+try {
+#endif
 
-#endif /* ! LOOPER_VERSION_H */
+  for (int i = 0; i < 3; ++i) 
+    for (int j = 0; j < 3; ++j) 
+      for (int k = 0; k < 3; ++k) 
+	std::cout << '(' << i << ',' << j << ',' << k << ") = " 
+		  << looper::alternating_tensor(i,j,k) << std::endl;
+	  
+#ifndef BOOST_NO_EXCEPTIONS
+}
+catch (const std::exception& excp) {
+  std::cerr << excp.what() << std::endl;
+  std::exit(-1); }
+catch (...) {
+  std::cerr << "Unknown exception occurred!" << std::endl;
+  std::exit(-1); }
+#endif
+
+}

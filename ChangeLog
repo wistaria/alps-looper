@@ -1,3 +1,8 @@
+2004-06-25  Synge Todo  <wistaria@comp-phys.org>
+
+	* Added alternating_tensor (Levi-Civita or permutation symbol)
+	function in looper/util.h.
+	
 2004-06-11  Synge Todo  <wistaria@comp-phys.org>
 
         * version 3.0 released.

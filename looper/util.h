@@ -29,6 +29,43 @@ namespace looper {
 
 template<class T> T sqr(T t) { return t * t; }
 
+inline 
+int alternating_tensor(int i, int j, int k)
+{
+  switch (i) {
+  case 0 :
+    switch (j) {
+    case 1:
+      return (k == 2) ? 1 : 0;
+    case 2:
+      return (k == 1) ? -1 : 0;
+    default:
+      return 0;
+    }
+  case 1 :
+    switch (j) {
+    case 2:
+      return (k == 0) ? 1 : 0;
+    case 0:
+      return (k == 2) ? -1 : 0;
+    default:
+      return 0;
+    }
+  case 2 :
+    switch (j) {
+    case 0:
+      return (k == 1) ? 1 : 0;
+    case 1:
+      return (k == 0) ? -1 : 0;
+    default:
+      return 0;
+    }
+  default :
+    break;
+  }
+  return 0;
+}
+
 } // end namespace looper
 
 #endif // LOOPER_UTIL_H

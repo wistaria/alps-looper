@@ -14,7 +14,7 @@
 
 @SET_MAKE@
 
-SOURCES = $(amida_SOURCES) $(fill_duration_SOURCES) $(gels_SOURCES) $(generate_01_SOURCES) $(hypercubic_SOURCES) $(index_helper_SOURCES) $(permutation_SOURCES) $(random_choice_SOURCES) $(syev_SOURCES) $(union_find_SOURCES) $(virtual_graph_SOURCES) $(weight_SOURCES) $(xxz_matrix_SOURCES) $(xxz_model_SOURCES)
+SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) $(fill_duration_SOURCES) $(gels_SOURCES) $(generate_01_SOURCES) $(hypercubic_SOURCES) $(index_helper_SOURCES) $(permutation_SOURCES) $(random_choice_SOURCES) $(syev_SOURCES) $(union_find_SOURCES) $(virtual_graph_SOURCES) $(weight_SOURCES) $(xxz_matrix_SOURCES) $(xxz_model_SOURCES)
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -37,11 +37,12 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 host_triplet = @host@
-check_PROGRAMS = amida$(EXEEXT) fill_duration$(EXEEXT) gels$(EXEEXT) \
-	generate_01$(EXEEXT) hypercubic$(EXEEXT) index_helper$(EXEEXT) \
-	permutation$(EXEEXT) random_choice$(EXEEXT) syev$(EXEEXT) \
-	union_find$(EXEEXT) virtual_graph$(EXEEXT) weight$(EXEEXT) \
-	xxz_matrix$(EXEEXT) xxz_model$(EXEEXT)
+check_PROGRAMS = alternating_tensor$(EXEEXT) amida$(EXEEXT) \
+	fill_duration$(EXEEXT) gels$(EXEEXT) generate_01$(EXEEXT) \
+	hypercubic$(EXEEXT) index_helper$(EXEEXT) permutation$(EXEEXT) \
+	random_choice$(EXEEXT) syev$(EXEEXT) union_find$(EXEEXT) \
+	virtual_graph$(EXEEXT) weight$(EXEEXT) xxz_matrix$(EXEEXT) \
+	xxz_model$(EXEEXT)
 subdir = test
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/xxz_model.ip.in
@@ -54,6 +55,10 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(mkdir_p)
 CONFIG_HEADER = $(top_builddir)/looper/config.h
 CONFIG_CLEAN_FILES = xxz_model.ip
+am_alternating_tensor_OBJECTS = alternating_tensor.$(OBJEXT)
+alternating_tensor_OBJECTS = $(am_alternating_tensor_OBJECTS)
+alternating_tensor_LDADD = $(LDADD)
+alternating_tensor_DEPENDENCIES =
 am_amida_OBJECTS = amida.$(OBJEXT)
 amida_OBJECTS = $(am_amida_OBJECTS)
 amida_LDADD = $(LDADD)
@@ -112,9 +117,9 @@ xxz_model_LDADD = $(LDADD)
 xxz_model_DEPENDENCIES =
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/amida.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/fill_duration.Po ./$(DEPDIR)/gels.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/generate_01.Po \
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/alternating_tensor.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/amida.Po ./$(DEPDIR)/fill_duration.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/gels.Po ./$(DEPDIR)/generate_01.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/hypercubic.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/index_helper.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/permutation.Po \
@@ -130,14 +135,16 @@ LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
 CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(amida_SOURCES) $(fill_duration_SOURCES) $(gels_SOURCES) \
+SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) \
+	$(fill_duration_SOURCES) $(gels_SOURCES) \
 	$(generate_01_SOURCES) $(hypercubic_SOURCES) \
 	$(index_helper_SOURCES) $(permutation_SOURCES) \
 	$(random_choice_SOURCES) $(syev_SOURCES) $(union_find_SOURCES) \
 	$(virtual_graph_SOURCES) $(weight_SOURCES) \
 	$(xxz_matrix_SOURCES) $(xxz_model_SOURCES)
-DIST_SOURCES = $(amida_SOURCES) $(fill_duration_SOURCES) \
-	$(gels_SOURCES) $(generate_01_SOURCES) $(hypercubic_SOURCES) \
+DIST_SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) \
+	$(fill_duration_SOURCES) $(gels_SOURCES) \
+	$(generate_01_SOURCES) $(hypercubic_SOURCES) \
 	$(index_helper_SOURCES) $(permutation_SOURCES) \
 	$(random_choice_SOURCES) $(syev_SOURCES) $(union_find_SOURCES) \
 	$(virtual_graph_SOURCES) $(weight_SOURCES) \
@@ -259,9 +266,10 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-dist_noinst_DATA = amida.op fill_duration.ip fill_duration.op gels.ip gels.op generate_01.op hypercubic.ip hypercubic.op index_helper.op permutation.op random_choice.op syev.op union_find.op virtual_graph.op weight.ip weight.op xxz_matrix.ip xxz_matrix.op xxz_model.op
+dist_noinst_DATA = alternating_tensor.op amida.op fill_duration.ip fill_duration.op gels.ip gels.op generate_01.op hypercubic.ip hypercubic.op index_helper.op permutation.op random_choice.op syev.op union_find.op virtual_graph.op weight.ip weight.op xxz_matrix.ip xxz_matrix.op xxz_model.op
 TESTS = $(check_PROGRAMS)
 TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
+alternating_tensor_SOURCES = alternating_tensor.C
 amida_SOURCES = amida.C
 fill_duration_SOURCES = fill_duration.C
 gels_SOURCES = gels.C
@@ -318,6 +326,9 @@ clean-checkPROGRAMS:
 	  echo " rm -f $$p $$f"; \
 	  rm -f $$p $$f ; \
 	done
+alternating_tensor$(EXEEXT): $(alternating_tensor_OBJECTS) $(alternating_tensor_DEPENDENCIES) 
+	@rm -f alternating_tensor$(EXEEXT)
+	$(CXXLINK) $(alternating_tensor_LDFLAGS) $(alternating_tensor_OBJECTS) $(alternating_tensor_LDADD) $(LIBS)
 amida$(EXEEXT): $(amida_OBJECTS) $(amida_DEPENDENCIES) 
 	@rm -f amida$(EXEEXT)
 	$(CXXLINK) $(amida_LDFLAGS) $(amida_OBJECTS) $(amida_LDADD) $(LIBS)
@@ -367,6 +378,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/alternating_tensor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/amida.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fill_duration.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gels.Po@am__quote@
