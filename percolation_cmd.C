@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-/* $Id: percolation_cmd.C 693 2004-03-16 15:48:04Z wistaria $ */
+/* $Id: percolation_cmd.C 699 2004-03-17 09:55:30Z wistaria $ */
 
 // percolation_cmd - a command-line percolation program for simple
 // hypercubic lattices
@@ -134,9 +134,9 @@ try {
             << std::endl;
 
   // random number generator
-  boost::mt19937 base_rng;
-  boost::uniform_01<boost::mt19937> rng(base_rng);
-  rng.base().seed(boost::mt19937::result_type(opts.seed));
+  boost::variate_generator<boost::mt19937, boost::uniform_real<> >
+    rng(boost::mt19937(boost::mt19937::result_type(opts.seed)),
+	boost::uniform_real<>());
   for (int i = 0; i < 19844; ++i) rng();
 
   // hypercubic lattice

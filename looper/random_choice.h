@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-/* $Id: random_choice.h 693 2004-03-16 15:48:04Z wistaria $ */
+/* $Id: random_choice.h 699 2004-03-17 09:55:30Z wistaria $ */
 
 #ifndef LOOPER_RANDOM_CHOICE_H
 #define LOOPER_RANDOM_CHOICE_H
@@ -34,7 +34,7 @@
 #include <iostream>
 #include <vector>
 #include <boost/config.hpp>
-#include <boost/random/uniform_01.hpp>
+#include <boost/static_assert.hpp>
 
 // Define the following macro if you want the original initialization
 // routine of O(N^2).
