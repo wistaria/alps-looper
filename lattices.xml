@@ -225,8 +225,8 @@
 
 <GRAPH name="triangle" vertices="3">
   <EDGE type="0" source="1" target="2"/>
-  <EDGE type="1" source="2" target="3"/>
-  <EDGE type="2" source="3" target="1"/>
+  <EDGE type="0" source="2" target="3"/>
+  <EDGE type="0" source="3" target="1"/>
 </GRAPH>
 
 </LATTICES>

@@ -92,7 +92,7 @@ struct sign_helper<path_integral<G, M, W, N> >
         }
       }
     }
-    return (n & 1 == 0) ? 1.0 : -1.0;
+    return (n % 2 == 0) ? 1.0 : -1.0;
   }
 };
 
@@ -108,8 +108,9 @@ struct sign_helper<sse<G, M, W, N> >
     typename qmc_type::config_type::const_iterator oi_end = config.os.end();
     for (typename qmc_type::config_type::const_iterator oi = config.os.begin();
          oi != oi_end; ++oi)
-      if (param.chooser.weight(oi->bond()).sign() < 0) ++n;
-    return (n & 1 == 0) ? 1.0 : -1.0;
+      if (oi->is_offdiagonal() &&
+          param.chooser.weight(oi->bond()).sign() < 0) ++n;
+    return (n % 2 == 0) ? 1.0 : -1.0;
   }
 };
 
@@ -335,6 +336,7 @@ struct sign_imp_helper<path_integral<G, M, W, N> >
   calc(const typename qmc_type::config_type& config,
        const typename qmc_type::parameter_type& param)
   {
+    int n = 0;
     std::vector<int> nnl(config.num_loops, 0); // number of negative links
     typename qmc_type::edge_iterator ei, ei_end;
     for (boost::tie(ei, ei_end) = boost::edges(param.virtual_graph.graph);
@@ -347,17 +349,15 @@ struct sign_imp_helper<path_integral<G, M, W, N> >
         while (!itr.at_top()) {
           if (itr->bond() == bond) {
             ++nnl[itr->loop_segment(0).index];
-            ++nnl[itr->loop_segment(1).index];
+	    ++nnl[itr->loop_segment(1).index];
+	    if (itr->is_old()) ++n;
           }
           ++itr;
         }
       }
     }
-    std::vector<int>::const_iterator itr_end = nnl.end();      
-    for (std::vector<int>::const_iterator itr = nnl.begin();
-         itr != itr_end; ++itr)
-      if ((*itr) & 1 == 1) return 0.0;
-    return 1.0;
+    for (int i = 0; i < config.num_loops; ++i) if (nnl[i] % 2 == 1) return 0.0;
+    return (n % 2 == 0) ? 1.0 : -1.0;
   }
 };
 
@@ -369,20 +369,19 @@ struct sign_imp_helper<sse<G, M, W, N> >
   calc(const typename qmc_type::config_type& config,
        const typename qmc_type::parameter_type& param)
   {
-    std::vector<int> nnl(config.num_loops, 0);
+    int n = 0;
+    std::vector<int> nnl(config.num_loops, 0); // number of negative links
     typename qmc_type::config_type::const_iterator oi_end = config.os.end();
     for (typename qmc_type::config_type::const_iterator oi = config.os.begin();
          oi != oi_end; ++oi) {
-      if (param.chooser.weight(oi->bond()).sign() < 0) {
-        ++nnl[oi->loop_segment(0).index];
-        ++nnl[oi->loop_segment(1).index];
+      if (!oi->is_identity() && param.chooser.weight(oi->bond()).sign() < 0) {
+	++nnl[oi->loop_segment(0).index];
+	++nnl[oi->loop_segment(1).index];
+	if (oi->is_offdiagonal()) ++n;
       }
     }
-    std::vector<int>::const_iterator itr_end = nnl.end();      
-    for (std::vector<int>::const_iterator itr = nnl.begin();
-         itr != itr_end; ++itr)
-      if ((*itr) & 1 == 1) return 0.0;
-    return 1.0;
+    for (int i = 0; i < config.num_loops; ++i) if (nnl[i] % 2 == 1) return 0.0;
+    return (n % 2 == 0) ? 1.0 : -1.0;
   }
 };
 

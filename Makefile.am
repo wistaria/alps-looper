@@ -1,8 +1,8 @@
-SUBDIRS = doc test ed .
+SUBDIRS = doc test ed check .
 
 distdir = alps-looper-$(VERSION)
 
-noinst_PROGRAMS = loop evaluate loop_cmd
+noinst_PROGRAMS = loop loop_evaluate loop_cmd
 if HAVE_MPI
 noinst_PROGRAMS += loop_mpi
 endif
@@ -38,7 +38,7 @@ dist_noinst_SCRIPTS = config/run-test config/update_preamble
 dist_noinst_DATA = CITATIONS.txt LICENSE lattices.xml models.xml
 
 loop_SOURCES = loop.C loop_impl.h
-evaluate_SOURCES = evaluate.C
+loop_evaluate_SOURCES = evaluate.C
 loop_cmd_SOURCES = loop_cmd.C
 
 loop_mpi_SOURCES = loop.C

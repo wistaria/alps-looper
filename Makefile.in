@@ -17,7 +17,7 @@
 
 
 
-SOURCES = $(evaluate_SOURCES) $(loop_SOURCES) $(loop_cmd_SOURCES) $(loop_mpi_SOURCES) $(loop_pvm_SOURCES)
+SOURCES = $(loop_SOURCES) $(loop_cmd_SOURCES) $(loop_evaluate_SOURCES) $(loop_mpi_SOURCES) $(loop_pvm_SOURCES)
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -40,17 +40,16 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 host_triplet = @host@
-noinst_PROGRAMS = loop$(EXEEXT) evaluate$(EXEEXT) loop_cmd$(EXEEXT) \
-	$(am__EXEEXT_1) $(am__EXEEXT_2)
+noinst_PROGRAMS = loop$(EXEEXT) loop_evaluate$(EXEEXT) \
+	loop_cmd$(EXEEXT) $(am__EXEEXT_1) $(am__EXEEXT_2)
 @HAVE_MPI_TRUE@am__append_1 = loop_mpi
 @HAVE_PVM_TRUE@am__append_2 = loop_pvm
 DIST_COMMON = README $(am__configure_deps) $(dist_noinst_DATA) \
 	$(dist_noinst_SCRIPTS) $(pkginclude_HEADERS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(top_srcdir)/configure $(top_srcdir)/looper/config.h.in \
-	ChangeLog config.guess config.sub config/config.guess \
-	config/config.sub config/depcomp config/install-sh \
-	config/ltmain.sh config/missing ltmain.sh
+	ChangeLog config/config.guess config/config.sub config/depcomp \
+	config/install-sh config/ltmain.sh config/missing
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
@@ -66,10 +65,6 @@ CONFIG_CLEAN_FILES =
 @HAVE_MPI_TRUE@am__EXEEXT_1 = loop_mpi$(EXEEXT)
 @HAVE_PVM_TRUE@am__EXEEXT_2 = loop_pvm$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
-am_evaluate_OBJECTS = evaluate.$(OBJEXT)
-evaluate_OBJECTS = $(am_evaluate_OBJECTS)
-evaluate_LDADD = $(LDADD)
-evaluate_DEPENDENCIES =
 am_loop_OBJECTS = loop.$(OBJEXT)
 loop_OBJECTS = $(am_loop_OBJECTS)
 loop_LDADD = $(LDADD)
@@ -78,6 +73,10 @@ am_loop_cmd_OBJECTS = loop_cmd.$(OBJEXT)
 loop_cmd_OBJECTS = $(am_loop_cmd_OBJECTS)
 loop_cmd_LDADD = $(LDADD)
 loop_cmd_DEPENDENCIES =
+am_loop_evaluate_OBJECTS = evaluate.$(OBJEXT)
+loop_evaluate_OBJECTS = $(am_loop_evaluate_OBJECTS)
+loop_evaluate_LDADD = $(LDADD)
+loop_evaluate_DEPENDENCIES =
 am_loop_mpi_OBJECTS = loop_mpi-loop.$(OBJEXT)
 loop_mpi_OBJECTS = $(am_loop_mpi_OBJECTS)
 loop_mpi_DEPENDENCIES =
@@ -107,10 +106,11 @@ LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(evaluate_SOURCES) $(loop_SOURCES) $(loop_cmd_SOURCES) \
+SOURCES = $(loop_SOURCES) $(loop_cmd_SOURCES) $(loop_evaluate_SOURCES) \
 	$(loop_mpi_SOURCES) $(loop_pvm_SOURCES)
-DIST_SOURCES = $(evaluate_SOURCES) $(loop_SOURCES) $(loop_cmd_SOURCES) \
-	$(loop_mpi_SOURCES) $(loop_pvm_SOURCES)
+DIST_SOURCES = $(loop_SOURCES) $(loop_cmd_SOURCES) \
+	$(loop_evaluate_SOURCES) $(loop_mpi_SOURCES) \
+	$(loop_pvm_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-exec-recursive install-info-recursive \
@@ -248,7 +248,7 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-SUBDIRS = doc test ed .
+SUBDIRS = doc test ed check .
 distdir = alps-looper-$(VERSION)
 nodist_pkginclude_HEADERS = looper/config.h
 pkginclude_HEADERS = \
@@ -277,7 +277,7 @@ pkginclude_HEADERS = \
 dist_noinst_SCRIPTS = config/run-test config/update_preamble
 dist_noinst_DATA = CITATIONS.txt LICENSE lattices.xml models.xml
 loop_SOURCES = loop.C loop_impl.h
-evaluate_SOURCES = evaluate.C
+loop_evaluate_SOURCES = evaluate.C
 loop_cmd_SOURCES = loop_cmd.C
 loop_mpi_SOURCES = loop.C
 loop_mpi_CPPFLAGS = @CPPFLAGS_MPI@
@@ -348,15 +348,15 @@ clean-noinstPROGRAMS:
 	  echo " rm -f $$p $$f"; \
 	  rm -f $$p $$f ; \
 	done
-evaluate$(EXEEXT): $(evaluate_OBJECTS) $(evaluate_DEPENDENCIES) 
-	@rm -f evaluate$(EXEEXT)
-	$(CXXLINK) $(evaluate_LDFLAGS) $(evaluate_OBJECTS) $(evaluate_LDADD) $(LIBS)
 loop$(EXEEXT): $(loop_OBJECTS) $(loop_DEPENDENCIES) 
 	@rm -f loop$(EXEEXT)
 	$(CXXLINK) $(loop_LDFLAGS) $(loop_OBJECTS) $(loop_LDADD) $(LIBS)
 loop_cmd$(EXEEXT): $(loop_cmd_OBJECTS) $(loop_cmd_DEPENDENCIES) 
 	@rm -f loop_cmd$(EXEEXT)
 	$(CXXLINK) $(loop_cmd_LDFLAGS) $(loop_cmd_OBJECTS) $(loop_cmd_LDADD) $(LIBS)
+loop_evaluate$(EXEEXT): $(loop_evaluate_OBJECTS) $(loop_evaluate_DEPENDENCIES) 
+	@rm -f loop_evaluate$(EXEEXT)
+	$(CXXLINK) $(loop_evaluate_LDFLAGS) $(loop_evaluate_OBJECTS) $(loop_evaluate_LDADD) $(LIBS)
 loop_mpi$(EXEEXT): $(loop_mpi_OBJECTS) $(loop_mpi_DEPENDENCIES) 
 	@rm -f loop_mpi$(EXEEXT)
 	$(CXXLINK) $(loop_mpi_LDFLAGS) $(loop_mpi_OBJECTS) $(loop_mpi_LDADD) $(LIBS)
@@ -615,7 +615,7 @@ distclean-tags:
 distdir: $(DISTFILES)
 	$(am__remove_distdir)
 	mkdir $(distdir)
-	$(mkdir_p) $(distdir)/config $(distdir)/ed $(distdir)/looper $(distdir)/test
+	$(mkdir_p) $(distdir)/check $(distdir)/config $(distdir)/ed $(distdir)/looper $(distdir)/test
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \
