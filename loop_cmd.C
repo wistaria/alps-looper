@@ -206,7 +206,7 @@ try {
 
     if (opts.representation == "path integral") {
       // path-integral representation
-      qmc_worker<looper::path_integral<looper::virtual_graph<graph_type>,
+      qmc_worker<looper::path_integral<graph_type,
         model_type> > worker(g, model, beta, opts.fs, measurements);
 
       for (int mcs = 0; mcs < opts.step_t + opts.step_m; ++mcs) {
@@ -221,7 +221,7 @@ try {
       std::cout << std::endl;
     } else {
       // SSE representation
-      qmc_worker<looper::sse<looper::virtual_graph<graph_type>,
+      qmc_worker<looper::sse<graph_type,
         model_type> > worker(g, model, beta, opts.fs, measurements);
 
       for (int mcs = 0; mcs < opts.step_t + opts.step_m; ++mcs) {

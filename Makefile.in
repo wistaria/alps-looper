@@ -45,11 +45,12 @@ noinst_PROGRAMS = loop$(EXEEXT) loop_evaluate$(EXEEXT) \
 @HAVE_MPI_TRUE@am__append_1 = loop_mpi
 @HAVE_PVM_TRUE@am__append_2 = loop_pvm
 DIST_COMMON = README $(am__configure_deps) $(dist_noinst_DATA) \
-	$(dist_noinst_SCRIPTS) $(pkginclude_HEADERS) \
-	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(top_srcdir)/config/config.h.in $(top_srcdir)/configure \
-	ChangeLog config/config.guess config/config.sub config/depcomp \
-	config/install-sh config/ltmain.sh config/missing
+	$(dist_noinst_SCRIPTS) $(include_HEADERS) \
+	$(pkginclude_HEADERS) $(srcdir)/Makefile.am \
+	$(srcdir)/Makefile.in $(top_srcdir)/config/config.h.in \
+	$(top_srcdir)/configure ChangeLog config/config.guess \
+	config/config.sub config/depcomp config/install-sh \
+	config/ltmain.sh config/missing
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
@@ -123,9 +124,10 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	pdf-recursive ps-recursive uninstall-info-recursive \
 	uninstall-recursive
 DATA = $(dist_noinst_DATA)
-am__installdirs = "$(DESTDIR)$(pkgincludedir)"
+am__installdirs = "$(DESTDIR)$(includedir)" "$(DESTDIR)$(pkgincludedir)"
+includeHEADERS_INSTALL = $(INSTALL_HEADER)
 pkgincludeHEADERS_INSTALL = $(INSTALL_HEADER)
-HEADERS = $(pkginclude_HEADERS)
+HEADERS = $(include_HEADERS) $(pkginclude_HEADERS)
 ETAGS = etags
 CTAGS = ctags
 DIST_SUBDIRS = $(SUBDIRS)
@@ -254,8 +256,8 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 SUBDIRS = doc test ed check .
 distdir = alps-looper-$(VERSION)
+include_HEADERS = looper.h
 pkginclude_HEADERS = \
-	looper.h \
 	looper/amida.h \
 	looper/exact_diag.h \
 	looper/fill_duration.h \
@@ -274,8 +276,6 @@ pkginclude_HEADERS = \
 	looper/union_find.h \
 	looper/util.h \
 	looper/vector_helper.h \
-	looper/version.h \
-	looper/virtual_graph.h \
 	looper/weight.h
 
 dist_noinst_SCRIPTS = config/run-test config/update_preamble
@@ -512,6 +512,23 @@ clean-libtool:
 distclean-libtool:
 	-rm -f libtool
 uninstall-info-am:
+install-includeHEADERS: $(include_HEADERS)
+	@$(NORMAL_INSTALL)
+	test -z "$(includedir)" || $(mkdir_p) "$(DESTDIR)$(includedir)"
+	@list='$(include_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f="`echo $$p | sed -e 's|^.*/||'`"; \
+	  echo " $(includeHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(includedir)/$$f'"; \
+	  $(includeHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(includedir)/$$f"; \
+	done
+
+uninstall-includeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(include_HEADERS)'; for p in $$list; do \
+	  f="`echo $$p | sed -e 's|^.*/||'`"; \
+	  echo " rm -f '$(DESTDIR)$(includedir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(includedir)/$$f"; \
+	done
 install-pkgincludeHEADERS: $(pkginclude_HEADERS)
 	@$(NORMAL_INSTALL)
 	test -z "$(pkgincludedir)" || $(mkdir_p) "$(DESTDIR)$(pkgincludedir)"
@@ -795,7 +812,7 @@ check: check-recursive
 all-am: Makefile $(PROGRAMS) $(SCRIPTS) $(DATA) $(HEADERS)
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(pkgincludedir)"; do \
+	for dir in "$(DESTDIR)$(includedir)" "$(DESTDIR)$(pkgincludedir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
 	done
 install: install-recursive
@@ -844,7 +861,7 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-pkgincludeHEADERS
+install-data-am: install-includeHEADERS install-pkgincludeHEADERS
 
 install-exec-am:
 
@@ -874,7 +891,8 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-info-am uninstall-pkgincludeHEADERS
+uninstall-am: uninstall-includeHEADERS uninstall-info-am \
+	uninstall-pkgincludeHEADERS
 
 uninstall-info: uninstall-info-recursive
 
@@ -887,13 +905,14 @@ uninstall-info: uninstall-info-recursive
 	distclean-recursive distclean-tags distcleancheck distdir \
 	distuninstallcheck dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am install-exec \
-	install-exec-am install-info install-info-am install-man \
-	install-pkgincludeHEADERS install-strip installcheck \
-	installcheck-am installdirs installdirs-am maintainer-clean \
-	maintainer-clean-generic maintainer-clean-recursive \
-	mostlyclean mostlyclean-compile mostlyclean-generic \
-	mostlyclean-libtool mostlyclean-recursive pdf pdf-am ps ps-am \
-	tags tags-recursive uninstall uninstall-am uninstall-info-am \
+	install-exec-am install-includeHEADERS install-info \
+	install-info-am install-man install-pkgincludeHEADERS \
+	install-strip installcheck installcheck-am installdirs \
+	installdirs-am maintainer-clean maintainer-clean-generic \
+	maintainer-clean-recursive mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool mostlyclean-recursive \
+	pdf pdf-am ps ps-am tags tags-recursive uninstall uninstall-am \
+	uninstall-includeHEADERS uninstall-info-am \
 	uninstall-pkgincludeHEADERS
 
 

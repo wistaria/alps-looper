@@ -23,7 +23,6 @@
 *****************************************************************************/
 
 #include <looper/graph.h>
-#include <looper/virtual_graph.h>
 #include <alps/model.h>
 #include <iostream>
 
@@ -55,24 +54,29 @@ try {
   std::cout << std::endl;
 
   // virtual graph
-  looper::virtual_graph<graph_type> vg;
+  graph_type vg;
+  looper::virtual_mapping<graph_type> vm;
   std::vector<alps::half_integer<int> > spins(2);
   spins[0] = 1; spins[1] = 3./2;
-  looper::generate_virtual_graph(vg, rg, spins);
+  looper::generate_virtual_graph(rg, spins, vg, vm);
   alps::set_parity(vg);
 
-  std::cout << "number of original real vertices = " << vg.num_real_vertices
-            << std::endl;
-  std::cout << "number of original real edges = " << vg.num_real_edges
-            << std::endl;
-  std::cout << vg.graph;
-  for (vertex_iterator vi = boost::vertices(vg.graph).first;
-       vi != boost::vertices(vg.graph).second; ++vi) {
-    std::cout << looper::gauge(*vi, vg.graph) << ' ';
-    //    std::cout << (boost::get(looper::parity_t(), vg.graph, *vi) == alps::parity::black ? 0 : 1) << ' ';
+  std::cout << "number of real vertices = "
+            << boost::num_vertices(rg) << std::endl;
+  std::cout << "number of real edges = "
+            << boost::num_edges(rg) << std::endl;
+  std::cout << "number of virtual vertices = "
+            << boost::num_vertices(vg) << std::endl;
+  std::cout << "number of virtual edges = "
+            << boost::num_edges(vg) << std::endl;
+
+  std::cout << vg;
+  for (vertex_iterator vi = boost::vertices(vg).first;
+       vi != boost::vertices(vg).second; ++vi) {
+    std::cout << looper::gauge(*vi, vg) << ' ';
   }
   std::cout << std::endl;
-  std::cout << vg.mapping;
+  std::cout << vm;
 
 #ifndef BOOST_NO_EXCEPTIONS
 }

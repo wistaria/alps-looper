@@ -43,12 +43,10 @@ alps::scheduler::MCRun* factory::make_worker(const alps::ProcessList& w,
   if (!p.defined("REPRESENTATION") ||
       p["REPRESENTATION"] == "path integral") {
     return new worker<qmc_worker<looper::path_integral<
-    looper::virtual_graph<looper::parity_graph_type>,
-      looper::model_parameter<> > > >(w, p, n);
+      looper::parity_graph_type, looper::model_parameter<> > > >(w, p, n);
   } else if (p["REPRESENTATION"] == "SSE") {
     return new worker<qmc_worker<looper::sse<
-    looper::virtual_graph<looper::parity_graph_type>,
-      looper::model_parameter<> > > >(w, p, n);
+      looper::parity_graph_type, looper::model_parameter<> > > >(w, p, n);
   } else {
     boost::throw_exception(std::invalid_argument("unknwon representation"));
   }

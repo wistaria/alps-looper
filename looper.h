@@ -25,10 +25,39 @@
 #ifndef LOOPER_H
 #define LOOPER_H
 
-#include <looper/version.h>
+/* Define the version of ALPS/looper */
+#define LOOPER_VERSION "3.1.2b"
+
+/* Define the published date of ALPS/looper */
+#define LOOPER_DATE "2004/10/08"
+
 #include <looper/model.h>
 #include <looper/path_integral.h>
 #include <looper/sse.h>
 #include <looper/measurement.h>
+#include <alps/copyright.h>
+#include <iostream>
 
-#endif /* ! LOOPER_H */
+namespace looper {
+
+inline
+std::ostream& print_copyright(std::ostream& os = std::cout)
+{
+  os << "ALPS/looper version " LOOPER_VERSION " (" LOOPER_DATE ")\n"
+     << "  multi-cluster quantum Monte Carlo algorithms for spin systems\n"
+     << "  available from http://wistaria.comp-phys.org/alps-looper/\n"
+     << "  copyright (c) 1997-2004 by Synge Todo <wistaria@comp-phys.org>\n"
+     << "\n";
+  return os;
+}
+
+inline
+std::ostream& print_license(std::ostream& os = std::cout)
+{
+  os << "Please look at the file LICENSE for the license conditions.\n";
+  return os;
+}
+
+} // end namespace looper
+
+#endif // ! LOOPER_H

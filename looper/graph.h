@@ -22,13 +22,15 @@
 *
 *****************************************************************************/
 
-#ifndef LOOPER_GRAPH_H__
-#define LOOPER_GRAPH_H__
+#ifndef LOOPER_GRAPH_H_
+#define LOOPER_GRAPH_H_
 
 #include <alps/lattice.h>
+#include <alps/model.h>
 #include <boost/throw_exception.hpp>
 #include <stdexcept>
-#include <vector>
+#include <utility>                 // std::pair, std::make_pair
+#include <vector>                  // std::vector
 
 namespace looper {
 
@@ -236,6 +238,214 @@ bond_type(typename boost::graph_traits<
           const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g)
 {
   return boost::get(alps::bond_type_t(), g, ed);
+}
+
+
+//
+// class template virtual_mapping
+//
+
+// class template virtual_mapping
+// for describing a mapping from a real site to virtual ones
+
+template<class G>
+class virtual_mapping
+{
+public:
+  typedef G                                           graph_type;
+  typedef typename graph_type::vertex_iterator        vertex_iterator;
+  typedef std::pair<vertex_iterator, vertex_iterator> range_type;
+
+  virtual_mapping() : map_(1, vertex_iterator()) {}
+
+  int num_groups() const { return map_.size() - 1; }
+  int num_virtual_vertices(int g) const {
+    return *map_[g + 1] - *map_[g];
+  }
+
+  range_type virtual_vertices(int s) const {
+    return std::make_pair(map_[s], map_[s + 1]);
+  }
+
+  void add(const vertex_iterator& first, const vertex_iterator& last) {
+    map_[map_.size() - 1] = first;
+    map_.push_back(last);
+  }
+  void clear() {
+    map_.clear();
+    map_.push_back(vertex_iterator());
+  }
+
+  friend bool operator==(const virtual_mapping& lhs,
+                         const virtual_mapping& rhs) {
+    return lhs.map_ == rhs.map_;
+  }
+  friend bool operator!=(const virtual_mapping& lhs,
+                         const virtual_mapping& rhs) {
+    return !operator==(lhs, rhs);
+  }
+
+  void output(std::ostream& os) const {
+    os << "[[virtual_mapping]]\n";
+    os << "  number of groups = " << num_groups() << std::endl;
+    os << "  mapping:\n";
+    for (int g = 0; g < num_groups(); ++g) {
+      os << "    " << g << " -> ";
+      if (num_virtual_vertices(g) == 0) {
+        os << "null\n";
+      } else if (num_virtual_vertices(g) == 1) {
+        os << *(map_[g]) << '\n';
+      } else {
+        os << "[" << *(map_[g]) << "," << *(map_[g+1]) - 1 << "]\n";
+      }
+    }
+  }
+
+  friend std::ostream& operator<<(std::ostream& os,
+                                  const virtual_mapping& map) {
+    map.output(os);
+    return os;
+  }
+
+private:
+  std::vector<vertex_iterator> map_;
+};
+
+
+//
+// function generate_virtual_graph
+//
+
+template<class RealGraph, class M, class VirtualGraph>
+inline void generate_virtual_graph(const RealGraph& rg,
+                                   const M& model,
+                                   VirtualGraph& vg,
+                                   virtual_mapping<VirtualGraph>& vm)
+{
+  typedef RealGraph             rgraph_type;
+  typedef VirtualGraph          vgraph_type;
+
+  vg.clear();
+  vm.clear();
+
+  // setup graph properties
+  boost::get_property(vg, graph_name_t())
+    = "virtual graph of " + boost::get_property(rg, graph_name_t());
+  boost::get_property(vg, dimension_t())
+    = boost::get_property(rg, dimension_t());
+
+  // setup vertices
+  {
+    typename boost::graph_traits<rgraph_type>::vertex_iterator rvi, rvi_end;
+    for (boost::tie(rvi, rvi_end) = boost::vertices(rg);
+         rvi != rvi_end; ++rvi) {
+      int t = boost::get(vertex_type_t(), rg, *rvi);
+      for (int i = 0; i < model.site(t).s().get_twice(); ++i) {
+        // add vertices to virtual graph
+        typename boost::graph_traits<vgraph_type>::vertex_descriptor
+          vvd = boost::add_vertex(vg);
+        
+        // copy vertex properties
+        alps::copy_property(vertex_type_t(), rg, *rvi, vg, vvd);
+        alps::copy_property(coordinate_t(), rg, *rvi, vg, vvd);
+        alps::copy_property(parity_t(), rg, *rvi, vg, vvd);
+      }
+    }
+  }
+
+  // setup mapping
+  {
+    typename boost::graph_traits<rgraph_type>::vertex_iterator rvi, rvi_end;
+    typename boost::graph_traits<vgraph_type>::vertex_iterator
+      vvi_first = boost::vertices(vg).first;
+    typename boost::graph_traits<vgraph_type>::vertex_iterator
+      vvi_last = vvi_first;
+    for (boost::tie(rvi, rvi_end) = boost::vertices(rg);
+         rvi != rvi_end; ++rvi) {
+      int t = boost::get(vertex_type_t(), rg, *rvi);
+      for (int i = 0; i < model.site(t).s().get_twice(); ++i) ++vvi_last;
+      vm.add(vvi_first, vvi_last);
+      vvi_first = vvi_last;
+    }
+  }
+
+  // setup edges
+  {
+    typename boost::graph_traits<rgraph_type>::edge_iterator rei, rei_end;
+    for (boost::tie(rei, rei_end) = boost::edges(rg); rei != rei_end; ++rei) {
+      typename boost::graph_traits<rgraph_type>::vertex_descriptor
+        rs = boost::source(*rei, rg);
+      typename boost::graph_traits<rgraph_type>::vertex_descriptor
+        rt = boost::target(*rei, rg);
+      typename boost::graph_traits<vgraph_type>::vertex_iterator
+        vvsi, vvsi_end;
+      for (boost::tie(vvsi, vvsi_end) = vm.virtual_vertices(rs);
+           vvsi != vvsi_end; ++vvsi) {
+        typename boost::graph_traits<vgraph_type>::vertex_iterator
+          vvti, vvti_end;
+        for (boost::tie(vvti, vvti_end) = vm.virtual_vertices(rt);
+             vvti != vvti_end; ++vvti) {
+          // add edges to virtual graph
+          typename boost::graph_traits<vgraph_type>::edge_descriptor ved =
+            boost::add_edge(*vvsi, *vvti, vg).first;
+          
+          // setup edge properties
+          boost::put(boost::edge_index, vg, ved, boost::num_edges(vg) - 1);
+          alps::copy_property(edge_type_t(), rg, *rei, vg, ved);
+          alps::copy_property(edge_vector_t(), rg, *rei, vg, ved);
+        }
+      }
+    }
+  }
+}
+
+namespace vg_detail {
+
+template<class T>
+struct spin_wrapper
+{
+  spin_wrapper(const T& v) : val_(v) {}
+  const T& s() const { return val_; }
+  const T& val_;
+};
+
+template<class T>
+struct vector_spin_wrapper
+{
+  vector_spin_wrapper(const std::vector<T>& v) : vec_(v) {}
+  spin_wrapper<T> site(int i) const { return spin_wrapper<T>(vec_[i]); }
+  const std::vector<T>& vec_;
+};
+
+template<class T>
+struct const_spin_wrapper
+{
+  const_spin_wrapper(const T& t) : t_(t) {}
+  spin_wrapper<T> site(int) const { return spin_wrapper<T>(t_); }
+  const T& t_;
+};
+
+}
+
+template<class RealGraph, class IntType, class VirtualGraph>
+inline void generate_virtual_graph(const RealGraph& rg,
+                                   const alps::half_integer<IntType>& s,
+                                   VirtualGraph& vg,
+                                   virtual_mapping<VirtualGraph>& vm)
+{
+  generate_virtual_graph(rg,
+    vg_detail::const_spin_wrapper<alps::half_integer<IntType> >(s),
+    vg, vm);
+}
+
+template<class RealGraph, class IntType, class VirtualGraph>
+inline void generate_virtual_graph(const RealGraph& rg,
+  const std::vector<alps::half_integer<IntType> >& v,
+  VirtualGraph& vg, virtual_mapping<VirtualGraph>& vm)
+{
+  generate_virtual_graph(rg,
+    vg_detail::vector_spin_wrapper<alps::half_integer<IntType> >(v),
+    vg, vm);
 }
 
 } // end namespace looper

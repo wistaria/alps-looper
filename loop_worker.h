@@ -154,16 +154,16 @@ public:
     
     double ez, exy, e2;
     boost::tie(ez, exy, e2) = looper::energy(config_, param_);
-    m["Energy"] << param_.virtual_graph.num_real_vertices * (ez + exy);
+    m["Energy"] << param_.num_real_vertices * (ez + exy);
     m["Energy Density"] << (ez + exy);
     m["Energy Density^2"] << e2;
     m["Diagonal Energy Density"] << ez;
 
     m["beta * Energy / sqrt(N)"] <<
-      std::sqrt((double)param_.virtual_graph.num_real_vertices) *
+      std::sqrt((double)param_.num_real_vertices) *
       param_.beta * (ez + exy);
     m["beta * Energy^2"] <<
-      param_.virtual_graph.num_real_vertices * looper::sqr(param_.beta) * e2;
+      param_.num_real_vertices * looper::sqr(param_.beta) * e2;
 
     m["Susceptibility"] <<
       looper::uniform_susceptibility(config_, param_);

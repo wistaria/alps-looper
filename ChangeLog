@@ -1,3 +1,11 @@
+2004-10-08  Synge Todo <wistaria@comp-phys.org>
+
+	* Rearranged source files to reduce memory size for build.
+
+	* Added master header file 'looper.h'.
+
+	* Removed virtual_graph class template and virtual_graph.h.
+	
 2004-10-06  Synge Todo <wistaria@comp-phys.org>
 
         * version 3.1.1

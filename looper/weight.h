@@ -191,22 +191,22 @@ public:
 
   uniform_bond_chooser() : n_(), weight_(), gw_() {}
   template<class GRAPH, class MODEL>
-  uniform_bond_chooser(const GRAPH& vg, const MODEL& m, double fs = 0)
+  uniform_bond_chooser(const GRAPH& g, const MODEL& m, double fs = 0)
     : n_(), weight_(), gw_()
-  { init(vg, m, fs); }
+  { init(g, m, fs); }
   // template<class P>
   // uniform_bond_chooser(const P& p) : n_(), weight_(), gw_() { init(p); }
 
   template<class GRAPH, class MODEL>
-  void init(const GRAPH& vg, const MODEL& m, double fs = 0)
+  void init(const GRAPH& g, const MODEL& m, double fs = 0)
   {
     assert(m.num_bond_types() == 1);
-    n_ = double(boost::num_edges(vg.graph));
+    n_ = double(boost::num_edges(g));
     weight_ = weight_type(m.uniform_bond(), fs);
     gw_ = n_ * weight_.weight();
   }
   // template<class P>
-  // void init(const P& p) { init(p.virtual_graph, p.model); }
+  // void init(const P& p) { init(p.vgraph, p.model); }
 
   template<class RNG>
   int choose(RNG& rng) const { return n_ * rng(); }
@@ -231,24 +231,24 @@ public:
 
   bond_chooser() : weight_(), rc_(), gw_(0) {}
   template<class GRAPH, class MODEL>
-  bond_chooser(const GRAPH& vg, const MODEL& m, double fs = 0)
+  bond_chooser(const GRAPH& g, const MODEL& m, double fs = 0)
     : weight_(), rc_(), gw_(0)
-  { init (vg, m, fs); }
+  { init (g, m, fs); }
   // template<class P>
   // bond_chooser(const P& p) : weight_(), rc_(), gw_(0) { init(p); }
 
   template<class GRAPH, class MODEL>
-  void init(const GRAPH& vg, const MODEL& m, double fs = 0)
+  void init(const GRAPH& g, const MODEL& m, double fs = 0)
   {
     weight_.clear();
     gw_ = 0.0;
-    if (boost::num_edges(vg.graph) > 0) {
-      typename boost::graph_traits<typename GRAPH::graph_type>::edge_iterator
+    if (boost::num_edges(g) > 0) {
+      typename boost::graph_traits<GRAPH>::edge_iterator
         ei, ei_end;
-      for (boost::tie(ei, ei_end) = boost::edges(vg.graph);
+      for (boost::tie(ei, ei_end) = boost::edges(g);
            ei != ei_end; ++ei)
         weight_.push_back(
-          weight_type(m.bond(boost::get(alps::edge_type_t(), vg.graph, *ei)),
+          weight_type(m.bond(boost::get(alps::edge_type_t(), g, *ei)),
                       fs));
 
       std::vector<double> w(0);
@@ -262,7 +262,7 @@ public:
     }
   }
   // template<class P>
-  // void init(const P& p) { init(p.virtual_graph, p.model); }
+  // void init(const P& p) { init(p.vgraph, p.model); }
 
   template<class RNG>
   int choose(RNG& rng) const { return rc_(rng); }

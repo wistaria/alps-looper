@@ -89,17 +89,17 @@ struct energy_helper<path_integral<G, M, W, N> >
   {
     double ez = param.ez_offset;
     typename qmc_type::edge_iterator ei, ei_end;
-    for (boost::tie(ei, ei_end) = boost::edges(param.virtual_graph.graph);
+    for (boost::tie(ei, ei_end) = boost::edges(param.vgraph);
          ei != ei_end; ++ei) {
-      ez -= param.model.bond(bond_type(*ei, param.virtual_graph.graph)).jz() *
+      ez -= param.model.bond(bond_type(*ei, param.vgraph)).jz() *
         qmc_type::static_correlation(config,
-          boost::source(*ei, param.virtual_graph.graph),
-          boost::target(*ei, param.virtual_graph.graph));
+          boost::source(*ei, param.vgraph),
+          boost::target(*ei, param.vgraph));
     }
     double exy = -(double)config.wl.num_links() / param.beta;
     double e2 = sqr(ez + exy) -
       (double)config.wl.num_links() / sqr(param.beta);
-    double nvinv = 1.0 / (double)param.virtual_graph.num_real_vertices;
+    double nvinv = 1.0 / (double)param.num_real_vertices;
     return boost::make_tuple(config.sign * nvinv * ez,
                              config.sign * nvinv * exy,
                              config.sign * sqr(nvinv) * e2);
@@ -126,7 +126,7 @@ struct energy_helper<sse<G, M, W, N> >
     double ez = - double(nd) / param.beta + param.ez_offset;
     double exy = - double(no) / param.beta;
     double e2 = sqr(ez + exy) - (double)(nd + no) / sqr(param.beta);
-    double nvinv = 1.0 / (double)param.virtual_graph.num_real_vertices;
+    double nvinv = 1.0 / (double)param.num_real_vertices;
     return boost::make_tuple(config.sign * nvinv * ez,
                              config.sign * nvinv * exy,
                              config.sign * sqr(nvinv) * e2);
@@ -157,11 +157,11 @@ struct sz_helper
   {
     double s = 0.0;
     vertex_iterator vi, vi_end;
-    for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
+    for (boost::tie(vi, vi_end) = boost::vertices(param.vgraph);
          vi != vi_end; ++vi)
-      s += phase.value(*vi, param.virtual_graph.graph) *
+      s += phase.value(*vi, param.vgraph) *
         qmc_type::static_sz(*vi, config);
-    return config.sign * s / param.virtual_graph.num_real_vertices;
+    return config.sign * s / param.num_real_vertices;
   }
 };
 
@@ -196,12 +196,12 @@ struct susceptibility_helper<path_integral<G, M, W, N>, R>
   {
     double ss = 0.0;
     typename qmc_type::vertex_iterator vi, vi_end;
-    for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
+    for (boost::tie(vi, vi_end) = boost::vertices(param.vgraph);
          vi != vi_end; ++vi)
-      ss += phase.value(*vi, param.virtual_graph.graph) *
-        qmc_type::dynamic_sz(*vi, config, param.virtual_graph);
+      ss += phase.value(*vi, param.vgraph) *
+        qmc_type::dynamic_sz(*vi, config, param.vgraph);
     return config.sign * param.beta * ss * ss /
-      param.virtual_graph.num_real_vertices;
+      param.num_real_vertices;
   }
 };
 
@@ -213,12 +213,12 @@ struct susceptibility_helper<sse<G, M, W, N>, R>
                      const typename qmc_type::parameter_type& param,
                      const R& phase = R())
   {
-    std::vector<double> conf(boost::num_vertices(param.virtual_graph.graph));
+    std::vector<double> conf(boost::num_vertices(param.vgraph));
     double ss = 0.0;
     typename qmc_type::vertex_iterator vi, vi_end;
-    for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
+    for (boost::tie(vi, vi_end) = boost::vertices(param.vgraph);
          vi != vi_end; ++vi) {
-      double c = phase.value(*vi, param.virtual_graph.graph) *
+      double c = phase.value(*vi, param.vgraph) *
         qmc_type::static_sz(*vi, config);
       conf[*vi] = c;
       ss += c;
@@ -231,11 +231,11 @@ struct susceptibility_helper<sse<G, M, W, N>, R>
       sd += sst;
       if (oi->is_offdiagonal()) {
         typename qmc_type::edge_iterator ei =
-          boost::edges(param.virtual_graph.graph).first + oi->bond();
-        int s0 = boost::source(*ei, param.virtual_graph.graph);
+          boost::edges(param.vgraph).first + oi->bond();
+        int s0 = boost::source(*ei, param.vgraph);
         conf[s0] *= -1;
         sst += (2 * conf[s0]);
-        int s1 = boost::target(*ei, param.virtual_graph.graph);
+        int s1 = boost::target(*ei, param.vgraph);
         conf[s1] *= -1;
         sst += (2 * conf[s1]);
       }
@@ -243,7 +243,7 @@ struct susceptibility_helper<sse<G, M, W, N>, R>
     sd /= std::sqrt((double)config.os.size() * (double)(config.os.size() + 1));
     return config.sign * param.beta *
       (sqr(sd) + sqr(ss) / (config.os.size() + 1)) /
-      param.virtual_graph.num_real_vertices;
+      param.num_real_vertices;
   }
 };
 
@@ -253,7 +253,7 @@ template<class C, class P>
 inline double uniform_susceptibility(const C& config, const P& param)
 {
   return param.sz_conserved ?
-    (config.sign * param.beta * param.virtual_graph.num_real_vertices *
+    (config.sign * param.beta * param.num_real_vertices *
      sqr(uniform_sz(config, param))) :
     susceptibility_helper<typename C::qmc_type, uniform>::calc(config, param);
 }
@@ -289,36 +289,36 @@ inline double energy_z_imp(const C& config, const P& param)
   double ene = 0.0;
   if (config.num_merons == 0) {
     typename qmc_type::edge_iterator ei, ei_end;
-    for (boost::tie(ei, ei_end) = boost::edges(param.virtual_graph.graph);
+    for (boost::tie(ei, ei_end) = boost::edges(param.vgraph);
          ei != ei_end; ++ei) {
       typename qmc_type::vertex_descriptor v0 =
-        boost::source(*ei, param.virtual_graph.graph);
+        boost::source(*ei, param.vgraph);
       typename qmc_type::vertex_descriptor v1 =
-        boost::target(*ei, param.virtual_graph.graph);
+        boost::target(*ei, param.vgraph);
       if (qmc_type::loop_index_0(v0, config) ==
           qmc_type::loop_index_0(v1, config))
         ene -= param.model.bond(
-          bond_type(*ei, param.virtual_graph.graph)).jz() *
+          bond_type(*ei, param.vgraph)).jz() *
           qmc_type::static_sz(v0, config) * qmc_type::static_sz(v1, config);
     }
   } else if (config.num_merons == 2 && config.num_merons0 == 2) {
     typename qmc_type::edge_iterator ei, ei_end;
-    for (boost::tie(ei, ei_end) = boost::edges(param.virtual_graph.graph);
+    for (boost::tie(ei, ei_end) = boost::edges(param.vgraph);
           ei != ei_end; ++ei) {
       typename qmc_type::vertex_descriptor v0 =
-         boost::source(*ei, param.virtual_graph.graph);
+         boost::source(*ei, param.vgraph);
       typename qmc_type::vertex_descriptor v1 =
-         boost::target(*ei, param.virtual_graph.graph);
+         boost::target(*ei, param.vgraph);
       if (qmc_type::loop_index_0(v0, config) !=
            qmc_type::loop_index_0(v1, config) &&
            config.loop_sign[qmc_type::loop_index_0(v0, config)] == -1 &&
            config.loop_sign[qmc_type::loop_index_0(v1, config)] == -1)
          ene -= param.model.bond(
-          bond_type(*ei, param.virtual_graph.graph)).jz() *
+          bond_type(*ei, param.vgraph)).jz() *
            qmc_type::static_sz(v0, config) * qmc_type::static_sz(v1, config);
     }
   }
-  return config.sign * ene / param.virtual_graph.num_real_vertices;
+  return config.sign * ene / param.num_real_vertices;
 }
 
 // magnetizations^2
@@ -335,10 +335,10 @@ struct sz2_imp_helper
   {
     std::vector<double> m(config.num_loops0);
     vertex_iterator vi, vi_end;
-    for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
+    for (boost::tie(vi, vi_end) = boost::vertices(param.vgraph);
          vi != vi_end; ++vi)
       m[qmc_type::loop_index_0(*vi, config)] +=
-        phase.value(*vi, param.virtual_graph.graph) *
+        phase.value(*vi, param.vgraph) *
         qmc_type::static_sz(*vi, config);
 
     double m2 = 0.0;
@@ -351,7 +351,7 @@ struct sz2_imp_helper
         if (config.loop_sign[i] == -1) m2 *= m[i];
     }
 
-    return config.sign * m2 / param.virtual_graph.num_real_vertices;
+    return config.sign * m2 / param.num_real_vertices;
   }
 };
 
@@ -387,9 +387,9 @@ struct generalized_susceptibility_imp_helper<path_integral<G, M, W, N>, R>
     std::vector<double> mg(config.num_loops0);
     std::vector<double> len(config.num_loops);
     typename qmc_type::vertex_iterator vi, vi_end;
-    for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
+    for (boost::tie(vi, vi_end) = boost::vertices(param.vgraph);
          vi != vi_end; ++vi) {
-      double ph = phase.value(*vi, param.virtual_graph.graph);
+      double ph = phase.value(*vi, param.vgraph);
 
       mg[qmc_type::loop_index_0(*vi, config)] += ph;
 
@@ -414,9 +414,9 @@ struct generalized_susceptibility_imp_helper<path_integral<G, M, W, N>, R>
     for (int i = 0; i < config.num_loops; ++i) ss += sqr(len[i]);
     ss *= 0.25;
 
-    return boost::make_tuple(m2 / param.virtual_graph.num_real_vertices,
+    return boost::make_tuple(m2 / param.num_real_vertices,
                              param.beta * ss /
-                             param.virtual_graph.num_real_vertices);
+                             param.num_real_vertices);
   }
 };
 
@@ -431,30 +431,30 @@ struct generalized_susceptibility_imp_helper<sse<G, M, W, N>, R>
     std::vector<double> mg(config.num_loops0);
     std::vector<double> len(config.num_loops);
 
-    std::vector<int> pos(boost::num_vertices(param.virtual_graph.graph), 0);
+    std::vector<int> pos(boost::num_vertices(param.vgraph), 0);
     int p = 1;
     typename qmc_type::config_type::const_iterator oi_end = config.os.end();
     for (typename qmc_type::config_type::const_iterator oi = config.os.begin();
          oi != oi_end; ++oi, ++p) {
       if (!oi->is_identity()) {
         typename qmc_type::edge_iterator ei =
-          boost::edges(param.virtual_graph.graph).first + oi->bond();
+          boost::edges(param.vgraph).first + oi->bond();
         typename qmc_type::vertex_descriptor v0 =
-          boost::source(*ei, param.virtual_graph.graph);
+          boost::source(*ei, param.vgraph);
         typename qmc_type::vertex_descriptor v1 =
-          boost::target(*ei, param.virtual_graph.graph);
+          boost::target(*ei, param.vgraph);
         len[qmc_type::segment_d(oi, 0).index] +=
-          phase.value(v0, param.virtual_graph.graph) * (p - pos[v0]);
+          phase.value(v0, param.vgraph) * (p - pos[v0]);
         len[qmc_type::segment_d(oi, 1).index] +=
-          phase.value(v1, param.virtual_graph.graph) * (p - pos[v1]);
+          phase.value(v1, param.vgraph) * (p - pos[v1]);
         pos[v0] = p;
         pos[v1] = p;
       }
     }
     typename qmc_type::vertex_iterator vi, vi_end;
-    for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
+    for (boost::tie(vi, vi_end) = boost::vertices(param.vgraph);
          vi != vi_end; ++vi) {
-      double ph = phase.value(*vi, param.virtual_graph.graph);
+      double ph = phase.value(*vi, param.vgraph);
       mg[qmc_type::loop_index_0(*vi, config)] += ph;
       len[qmc_type::loop_index_1(*vi, config)] +=
         ph * (config.os.size() - pos[*vi]);
@@ -467,9 +467,9 @@ struct generalized_susceptibility_imp_helper<sse<G, M, W, N>, R>
     for (int i = 0; i < config.num_loops; ++i) ss += sqr(len[i]);
     ss *= 0.25 / ((double)config.os.size() * (double)(config.os.size() + 1));
 
-    return boost::make_tuple(m2 / param.virtual_graph.num_real_vertices,
+    return boost::make_tuple(m2 / param.num_real_vertices,
       param.beta * (ss + m2 / (double)(config.os.size() + 1)) /
-      param.virtual_graph.num_real_vertices);
+      param.num_real_vertices);
   }
 };
 

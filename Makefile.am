@@ -10,8 +10,8 @@ if HAVE_PVM
 noinst_PROGRAMS += loop_pvm
 endif
 
+include_HEADERS = looper.h
 pkginclude_HEADERS = \
-	looper.h \
 	looper/amida.h \
 	looper/exact_diag.h \
 	looper/fill_duration.h \
@@ -30,8 +30,6 @@ pkginclude_HEADERS = \
 	looper/union_find.h \
 	looper/util.h \
 	looper/vector_helper.h \
-	looper/version.h \
-	looper/virtual_graph.h \
 	looper/weight.h
 
 dist_noinst_SCRIPTS = config/run-test config/update_preamble

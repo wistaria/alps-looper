@@ -29,7 +29,6 @@
 #include <looper/lapack.h>
 #include <looper/operator.h>
 #include <looper/util.h>
-#include <looper/virtual_graph.h>
 
 #include <boost/multi_array.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
