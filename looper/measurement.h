@@ -58,6 +58,45 @@ inline double error(const alps::Observable& o)
   return 0; // dummy
 }
 
+inline bool has_tau(const alps::Observable& o)
+{
+  if (dynamic_cast<const alps::AbstractSimpleObservable<double>*>(&o)) {
+    return dynamic_cast<const alps::AbstractSimpleObservable<double>*>(&o)
+      ->has_tau();
+  } else if (dynamic_cast<const alps::AbstractSimpleObservable<float>*>(&o)) {
+    return dynamic_cast<const alps::AbstractSimpleObservable<float>*>(&o)
+      ->has_tau();
+  }
+  return false;
+}
+
+inline double tau(const alps::Observable& o)
+{
+  if (dynamic_cast<const alps::AbstractSimpleObservable<double>*>(&o)) {
+    return dynamic_cast<const alps::AbstractSimpleObservable<double>*>(&o)
+      ->tau();
+  } else if (dynamic_cast<const alps::AbstractSimpleObservable<float>*>(&o)) {
+    return dynamic_cast<const alps::AbstractSimpleObservable<float>*>(&o)
+      ->tau();
+  } else {
+    boost::throw_exception(std::runtime_error("dynamic cast failed"));
+  }
+  return 0; // dummy
+}
+
+inline void print(std::ostream& os, const alps::Observable& o)
+{
+  os << o.name() << ": " << std::setprecision(6)
+     << mean(o) << " +/- " << error(o);
+  if (has_tau(o)) os << std::setprecision(3) << "; tau = " << tau(o);
+  os << std::endl;
+}
+
+inline void print_all(std::ostream& os, const alps::ObservableSet& obs)
+{
+  obs.do_for_all(boost::bind1st(&print, os));
+}
+
 
 //
 // unimproved estimators

@@ -214,11 +214,7 @@ try {
         worker.step(rng, measurements);
       }
       accumulate(measurements, measurements);
-
-      std::cout << measurements << std::endl;
-      opts.output(); std::cout << ' ';
-      worker.output_results(std::cout, measurements);
-      std::cout << std::endl;
+      looper::print_all(std::cout, measurements);
     } else {
       // SSE representation
       qmc_worker<looper::sse<graph_type,
@@ -229,11 +225,7 @@ try {
         worker.step(rng, measurements);
       }
       accumulate(measurements, measurements);
-
-      std::cout << measurements << std::endl;
-      opts.output(); std::cout << ' ';
-      worker.output_results(std::cout, measurements);
-      std::cout << std::endl;
+      looper::print_all(std::cout, measurements);
     }
   }
 
