@@ -102,7 +102,7 @@ am_xxz_model_OBJECTS = xxz_model.$(OBJEXT)
 xxz_model_OBJECTS = $(am_xxz_model_OBJECTS)
 xxz_model_LDADD = $(LDADD)
 xxz_model_DEPENDENCIES =
-depcomp = $(SHELL) $(top_srcdir)/config/depcomp
+depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 @AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/amida.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/fill_duration.Po \

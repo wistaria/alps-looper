@@ -50,7 +50,7 @@ DIST_COMMON = README $(am__configure_deps) $(dist_noinst_SCRIPTS) \
 	$(srcdir)/models.xml.in $(srcdir)/percolation-params.in \
 	$(srcdir)/qmc-params.in $(top_srcdir)/configure \
 	$(top_srcdir)/looper/config.h.in AUTHORS COPYING ChangeLog \
-	INSTALL NEWS config/depcomp config/install-sh config/missing
+	INSTALL NEWS depcomp install-sh missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/ac_lapack.m4 \
 	$(top_srcdir)/config/ac_lapack.m4 $(top_srcdir)/configure.ac
@@ -97,7 +97,7 @@ am_qmc_pvm_OBJECTS = qmc_pvm-qmc.$(OBJEXT)
 qmc_pvm_OBJECTS = $(am_qmc_pvm_OBJECTS)
 qmc_pvm_DEPENDENCIES = $(am__DEPENDENCIES_1)
 SCRIPTS = $(dist_noinst_SCRIPTS)
-depcomp = $(SHELL) $(top_srcdir)/config/depcomp
+depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 @AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/copyright-copyright.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/percolation-percolation.Po \
