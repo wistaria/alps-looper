@@ -3,9 +3,9 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: copyright.h 552 2003-11-12 02:00:01Z wistaria $
+* $Id: copyright.C 552 2003-11-12 02:00:01Z wistaria $
 *
-* Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
+* Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
 * Permission is hereby granted, free of charge, to any person or organization 
 * obtaining a copy of the software covered by this license (the "Software") 
@@ -34,29 +34,78 @@
 *
 **************************************************************************/
 
-#ifndef LOOPER_COPYRIGHT_H
-#define LOOPER_COPYRIGHT_H
-
-#include <alps/copyright.h>
+#include "looper/copyright.h"
+#include <boost/throw_exception.hpp>
 #include <iostream>
+#include <stdexcept>
 
-namespace looper {
-
-std::ostream& print_copyright(std::ostream& os = std::cout)
+struct options
 {
-  os << "ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems\n"
-     << "  available from http://wistaria.comp-phys.org/looper/\n"
-     << "  copyright (c) 1997-2003 by Synge Todo <wistaria@comp-phys.org>\n"
-     << "\n";
-  return os;
-}
+  bool license;
 
-std::ostream& print_license(std::ostream& os = std::cout)
+  options(int argc, char *argv[]) : license(false) { parse(argc, argv); }
+
+  void usage(int status, std::ostream& os = std::cerr) const
+  {
+    os << "NAME\n"
+       << "     copyright - print copyright and/or license information\n\n"
+       << "SYNOPSIS\n"
+       << "     copyright [-l] [-h]\n\n"
+       << "DESCRIPTION\n"
+       << "     The options are as follows:\n\n"
+       << "     -l          print license details.\n"
+       << "     -h          print this help message and exit.\n\n";
+    if (status) {
+      boost::throw_exception(std::invalid_argument("Invalid command line option(s)"));
+    } else {
+      std::exit(0);
+    }
+  }
+
+  void parse(int argc, char *argv[]) {
+    for (int i = 1; i < argc; ++i) {
+      switch (argv[i][0]) {
+      case '-' :
+        switch (argv[i][1]) {
+        case 'l' :
+	  license = true;
+          break;
+        case 'h' :
+	  usage(0, std::cout);
+          break;
+	default :
+	  usage(1);
+	  break;
+	}
+	break;
+	
+      default :
+	usage(1);
+	break;
+      }
+    }
+  }
+};
+
+
+int main(int argc, char *argv[])
 {
-  os << "Please look at the file LICENSE.txt for the license conditions.\n";
-  return os;
+#ifndef BOOST_NO_EXCEPTIONS
+try {
+#endif
+
+  options opts(argc, argv);
+  looper::print_copyright(std::cout);
+  alps::print_copyright(std::cout);
+  if (opts.license) looper::print_license(std::cout);
+
+#ifndef BOOST_NO_EXCEPTIONS
+} 
+catch (const std::exception& excp) {
+  std::cerr << excp.what() << std::endl;
+  std::exit(-1); }
+catch (...) {
+  std::cerr << "Unknown exception occurred!" << std::endl;
+  std::exit(-1); }
+#endif
 }
-
-} // end namespace looper
-
-#endif // LOOPER_COPYRIGHT_H

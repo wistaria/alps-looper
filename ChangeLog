@@ -1,5 +1,9 @@
-2003-11-07  Synge Todo  <wistaria@comp-phys.org>
+2003-11-12  Synge Todo  <wistaria@comp-phys.org>
 
+	* Updated copyright and added program `copyright'.
+	
+2003-11-07  Synge Todo  <wistaria@comp-phys.org>
+	
 	* Added improved estimators for uniform/staggered magnetization^2,
 	etc.
 	

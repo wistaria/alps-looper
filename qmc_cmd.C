@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: qmc_cmd.C 536 2003-11-06 08:01:36Z wistaria $
+* $Id: qmc_cmd.C 552 2003-11-12 02:00:01Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -39,8 +39,9 @@
 #include <alps/alea.h>
 #include <boost/random.hpp>
 #include <iostream>
+#include <string>
 
-struct Options {
+struct options {
   uint32_t seed;                // -r seed
   uint32_t dim;                 // -d spatial dimension
   uint32_t lsize;               // -l linear size of system
@@ -50,12 +51,12 @@ struct Options {
   double temp;                  // -t temperature
   uint32_t step_t;              // -m MCS for thermalization
   uint32_t step_m;              // -n MCS for measurement
-  bool sse;                     // -e use SSE
+  std::string representation;   // -e use SSE instead of path integral
   
-  Options(int argc, char *argv[]) : 
+  options(int argc, char *argv[]) : 
     // default options
     seed(2837), dim(1), lsize(16), spin(0.5), Jxy(-1.), Jz(-1.), temp(1.),
-    step_t(1024), step_m(8192), sse(false)
+    step_t(1024), step_m(8192), representation("path integral")
   {
     parse(argc, argv);
   }
@@ -122,7 +123,7 @@ struct Options {
           step_m = std::atoi(argv[++i]);
           break;
         case 'e' :
-          sse = true;
+	  representation = "SSE";
           break;
 	case 'h' :
 	  usage(0);
@@ -151,22 +152,25 @@ struct Options {
        << temp << ' '
        << step_t << ' '
        << step_m << ' '
-       << (sse ? "SSE" : "PI");
+       << (representation == "path integral" ? "PI" : "SSE");
   }
 };
 
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 
 #ifndef BOOST_NO_EXCEPTIONS
 try {
 #endif
 
-  looper::print_copyright();
-  std::cout << "qmc_cmd: sample QMC program for simple hypercubic lattices\n\n";
+  options opts(argc, argv);
+  looper::print_copyright(std::cout);
+  alps::print_copyright(std::cout);
+  std::cout <<
+    "qmc_cmd: a command-line QMC program for simple hypercubic lattices\n\n";
 
   // simulation parameters
-  Options opts(argc, argv);
   std::cout << "r: seed for RNG           : " << opts.seed << std::endl
 	    << "d: spatial dimension      : " << opts.dim << std::endl
 	    << "l: linear size            : " << opts.lsize << std::endl
@@ -176,8 +180,7 @@ try {
 	    << "t: temperature            : " << opts.temp << std::endl
 	    << "m: MCS for thermalization : " << opts.step_t << std::endl
 	    << "n: MCS for measurement    : " << opts.step_m << std::endl
-	    << "e: representation         : "
-	    << (opts.sse ? "SSE" : "path integral") << std::endl
+	    << "e: representation         : " << opts.representation << std::endl
 	    << std::endl;
 
   // random number generator
@@ -195,15 +198,14 @@ try {
   // model & inverse temperature
   typedef looper::xxz_model model_type;
   model_type model(opts.Jxy, opts.Jz, opts.spin, g);
-  double beta = 1./opts.temp;
 
   // measurements
   alps::ObservableSet measurements;
 
-  if (!opts.sse) {
+  if (opts.representation == "path integral") {
     // path-integral representation
     qmc_worker<looper::path_integral<looper::virtual_graph<graph_type>,
-      model_type> > worker(g, model, beta, measurements);
+      model_type> > worker(g, model, 1./opts.temp, measurements);
 
     for (int mcs = 0; mcs < opts.step_t + opts.step_m; ++mcs) {
       if (mcs == opts.step_t) measurements.reset(true);
@@ -220,7 +222,7 @@ try {
   } else {
     // SSE representation
     qmc_worker<looper::sse<looper::virtual_graph<graph_type>,
-      model_type> > worker(g, model, beta, measurements);
+      model_type> > worker(g, model, 1./opts.temp, measurements);
 
     for (int mcs = 0; mcs < opts.step_t + opts.step_m; ++mcs) {
       if (mcs == opts.step_t) measurements.reset(true);

@@ -52,7 +52,7 @@ libs_program_mpi = -lalps -lcomm-mpi $(HDF5_LIBS) $(XML_LIBS) $(MPI_LIBS) $(BASE
 
 LOCAL_CONFIG = lattices.xml models.xml percolation-params qmc-params
 PROGRAM_MPI = qmc_mpi
-PROGRAM = qmc qmc_cmd @PROGRAM_MPI@
+PROGRAM = copyright qmc qmc_cmd @PROGRAM_MPI@
 EXAMPLE_MPI = percolation_mpi
 EXAMPLE = percolation percolation_cmd @EXAMPLE_MPI@
 
