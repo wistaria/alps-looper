@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: pathintegral.h 438 2003-10-17 03:56:37Z wistaria $
+* $Id: pathintegral.h 439 2003-10-17 06:19:43Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -82,10 +82,10 @@ inline double energy_offset(const virtual_graph<G>& vg, const M& model)
 template<bool HasCTime = false, class U = uint32_t> class node;
 
 template<class U>
-class node<false, U> : public node_type<U>
+class node<false, U> : public node_type
 {
 private:
-  typedef node_type<U> base_type;
+  typedef node_type base_type;
   typedef looper::unionfind::node<looper::loop_segment> segment_type;
   
 public:
@@ -100,11 +100,15 @@ public:
   void set_bond(uint32_t b) { bond_ = b; }
   void set_time(time_type t) { time_ = t; }
   
-  void set_new(uint32_t b, uint32_t is_refl, uint32_t is_frozen,
-	       uint32_t conf, uint32_t phase) {
-    base_type::set_new(is_refl, is_frozen, conf, phase);
-    bond_ = b;
-  }
+//   void set_new(uint32_t b, uint32_t is_refl, uint32_t is_frozen) {
+//     base_type::set_new(is_refl, is_frozen);
+//     bond_ = b;
+//   }
+//   void set_new(uint32_t b, uint32_t is_refl, uint32_t is_frozen,
+// 	       uint32_t is_anti) {
+//     base_type::set_new(is_refl, is_frozen, is_anti);
+//     bond_ = b;
+//   }
   
   segment_type& loop_segment(int i) {
     return (i == 0 ? segment0_ : segment1_);
@@ -193,8 +197,8 @@ inline void initialize(amida<N>& config, const virtual_graph<G>& vg)
   for (vertex_iterator vi = boost::vertices(vg.graph).first; vi != vi_end; ++vi) {
     config.series(*vi).first ->set_time(0.);
     config.series(*vi).second->set_time(1.);
-    config.series(*vi).first ->set_conf(0);
-    config.series(*vi).second->set_conf(0);
+    config.series(*vi).first ->conf() = 0;
+    config.series(*vi).second->conf() = 0;
   }
 }
 
@@ -238,12 +242,12 @@ do_update(amida<N>& config, const virtual_graph<G>& vg, const M& model,
 	 ti != ti_end; ++ti) {
       while (itr0->time() < *ti) { 
 	if (itr0->bond() == bond) // labeling existing link
-	  itr0->set_old((uniform_01() < weight.p_reflect ? 1 : 0), 0);
-	if (itr0->is_old_node()) c0 ^= 1;
+	  itr0->set_old(uniform_01() < weight.p_reflect);
+	if (itr0->is_old()) c0 ^= 1;
 	++itr0;
       }
       while (itr1->time() < *ti) {
-	if (itr1->is_old_node()) c1 ^= 1;
+	if (itr1->is_old()) c1 ^= 1;
 	++itr1;
       }
       if (uniform_01() < weight.p_accept(c0, c1)) {
@@ -251,13 +255,13 @@ do_update(amida<N>& config, const virtual_graph<G>& vg, const M& model,
 	iterator itr_new =
 	  config.insert_link_prev(node_type(), itr0, itr1).first;
 	itr_new->set_time(*ti);
-	itr_new->set_new(boost::get(edge_index_t(), vg.graph, *ei), c0 ^ c1,
-			 (uniform_01() < weight.p_freeze ? 1 : 0), 0, 0);
+	itr_new->set_bond(boost::get(edge_index_t(), vg.graph, *ei));
+	itr_new->set_new(c0 ^ c1, (uniform_01() < weight.p_freeze));
       }
     }
     while (!itr0.at_top()) { 
       if (itr0->bond() == bond)	// labeling existing link
-	itr0->set_old((uniform_01() < weight.p_reflect ? 1 : 0), 0);
+	itr0->set_old(uniform_01() < weight.p_reflect);
       ++itr0;
     }
   }
@@ -282,17 +286,17 @@ do_update(amida<N>& config, const virtual_graph<G>& vg, const M& model,
 			   itrD->loop_segment(0));
 	else
 	  unionfind::unify(itrU->loop_segment(0),
-			   itrD->loop_segment(1^(itrD.leg()|itrD->refl())));
+			   itrD->loop_segment(1^(itrD.leg()|itrD->is_refl())));
 	break; // finish
       } else {
 	if (itrU.leg() == 0 && itrU->is_frozen()) // frozen link
 	  unionfind::unify(itrU->loop_segment(0), itrU->loop_segment(0));
 	if (itrD.at_bottom())
-	  unionfind::unify(itrU->loop_segment(itrU.leg()|itrU->refl()),
+	  unionfind::unify(itrU->loop_segment(itrU.leg()|itrU->is_refl()),
 			   itrD->loop_segment(0));
 	else
-	  unionfind::unify(itrU->loop_segment(itrU.leg()|itrU->refl()),
-			   itrD->loop_segment(1^(itrD.leg()|itrD->refl())));
+	  unionfind::unify(itrU->loop_segment(itrU.leg()|itrU->is_refl()),
+			   itrD->loop_segment(1^(itrD.leg()|itrD->is_refl())));
 	itrD = itrU++; // next
       }
     }

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: node.h 438 2003-10-17 03:56:37Z wistaria $
+* $Id: node.h 439 2003-10-17 06:19:43Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -40,90 +40,119 @@
 #include <alps/osiris.h>
 #include <boost/integer_traits.hpp>
 #include <boost/static_assert.hpp>
+#include <bitset>
 
 namespace looper {
 
-template<class U = uint32_t>
-class node_flag
+namespace detail {
+
+struct bits
 {
-public:
-  typedef U uint_type;
+  // number of bits
+  BOOST_STATIC_CONSTANT(unsigned int, N = 7);
   
-  BOOST_STATIC_CONSTANT(uint_type, B_ADDD = 0);
-  BOOST_STATIC_CONSTANT(uint_type, B_REFL = 1);
-  BOOST_STATIC_CONSTANT(uint_type, B_FREZ = 2);
-  BOOST_STATIC_CONSTANT(uint_type, B_ANTI = 3); // only for XYZ
-  BOOST_STATIC_CONSTANT(uint_type, B_CONF = 4);
+  BOOST_STATIC_CONSTANT(unsigned int, CONF = 0); // bit denoting spin direction
+
+  BOOST_STATIC_CONSTANT(unsigned int, REFL = 1);
+  BOOST_STATIC_CONSTANT(unsigned int, FREZ = 2); // only for easy-axis cases
+  BOOST_STATIC_CONSTANT(unsigned int, ANTI = 3); // only for XYZ cases
+
+  // for path integral
+  BOOST_STATIC_CONSTANT(unsigned int, ADDD = 4); // set for newly-added node
   
-  // set for newly-added node
-  BOOST_STATIC_CONSTANT(uint_type, M_ADDD = 1 << B_ADDD);
-  
-  BOOST_STATIC_CONSTANT(uint_type, M_REFL = 1 << B_REFL); 
-  BOOST_STATIC_CONSTANT(uint_type, M_FREZ = 1 << B_FREZ);
-  BOOST_STATIC_CONSTANT(uint_type, M_ANTI = 1 << B_ANTI); // only for XYZ
-  BOOST_STATIC_CONSTANT(uint_type, M_CONF = 1 << B_CONF);
+  // for SSE
+  BOOST_STATIC_CONSTANT(unsigned int, IDNT = 5); // identity operator
+  BOOST_STATIC_CONSTANT(unsigned int, DIAG = 6); // diagonal operator
   
   // bit mask for clear()
-  BOOST_STATIC_CONSTANT(uint_type, M_CLEAR = M_ANTI | M_CONF);
-  
-private:
-  BOOST_STATIC_ASSERT((boost::integer_traits<uint_type>::is_integral));
-  BOOST_STATIC_ASSERT((boost::integer_traits<uint_type>::const_min == 0));
+  BOOST_STATIC_CONSTANT(unsigned int,
+			M_CLEAR = (1 << CONF) | (1 << IDNT) | (1 << DIAG));
 };
 
-template<class U = uint32_t>
-class node_type : private node_flag<U>
+} // end namespace detail
+
+class node_type
 {
 public:
-  typedef U uint_type;
-  
+  typedef detail::bits bits;
+  typedef std::bitset<bits::N> bitset;
+  typedef bitset::reference reference;
+
   node_type() : type_(0) {}
+  void reset() { type_.reset(); }
+  void clear_graph() { type_ &= bitset(bits::M_CLEAR); }
+
+  reference conf() { return type_[bits::CONF]; }
+  bool conf() const { return type_[bits::CONF]; }
+  void flip_conf() { type_.flip(bits::bits::CONF); }
   
-  bool is_refl() const { return type_ & M_REFL; }
-  bool is_frozen() const { return type_ & M_FREZ; }
-  bool is_new_node() const { return type_ & M_ADDD; }
-  bool is_old_node() const { return !is_new_node(); }
+  bool is_refl() const { return type_.test(bits::REFL); }
+  bool is_frozen() const { return type_.test(bits::FREZ); }
+  bool is_anti() const { return type_.test(bits::ANTI); }
+
   
-  uint_type refl() const { return ( type_ >> B_REFL ) & 1; }
-  uint_type frozen() const { return ( type_ >> B_FREZ ) & 1; }
-  uint_type new_node() const { return ( type_ >> B_ADDD ) & 1; }
-  uint_type old_node() const { return 1 ^ (( type_ >> B_ADDD ) & 1); }
-  
-  uint_type phase() const { return ( type_ >> B_ANTI ) & 1; }
-  uint_type conf() const { return (type_ >> B_CONF) & 1; }
-  
-  void set_type(uint_type t) { type_ = t; }
-  void clear() { type_ &= M_CLEAR; }
-  
-  void set_conf(uint_type c) {
-    type_ = ((0xffffffff ^ M_CONF) & type_) | (c << B_CONF); }
-  void flip_conf(uint_type c = 1) { type_ ^= (c << B_CONF); }
-  
-  void set_new(uint_type is_refl, uint_type is_frozen, uint_type conf,
-               uint_type phase) {
-    type_ = M_ADDD | (is_refl << B_REFL) | (is_frozen << B_FREZ) 
-      | (conf << B_CONF) | (phase << B_ANTI);
+  // void set_conf(unsigned int c) { type_.set(bits::CONF, c); }
+
+  // for path integral
+  bool is_new() const { return type_.test(bits::ADDD); }
+  bool is_old() const { return !is_new(); }
+  void set_new(unsigned int is_refl, unsigned int is_frozen)
+  {
+    type_.reset().set(bits::REFL, is_refl).set(bits::FREZ, is_frozen)
+      .set(bits::ADDD);
   }
-  void set_old(uint_type is_refl, uint_type is_frozen) {
-    type_ |= (is_refl << B_REFL) | (is_frozen << B_FREZ);
+  void set_new(unsigned int is_refl, unsigned int is_frozen,
+	       unsigned int is_anti)
+  {
+    set_new(is_refl, is_frozen);
+    type_.set(bits::ANTI, is_anti);
   }
+  void set_old(unsigned int is_refl) { type_.set(bits::REFL, is_refl); }
+  void set_old(unsigned int is_refl, unsigned int is_frozen)
+  { set_old(is_refl); type_.set(bits::FREZ, is_frozen); }
   
-  void output(std::ostream& os) const {
-    os << "refl = " << refl()
-       << " frozen = " << frozen()
-       << " new_node = " << new_node()
-       << " phase = " << phase()
-       << " conf = " << conf();
+  // for SSE
+  bool is_identity() const { return type_[bits::IDNT]; }
+  bool is_diagonal() const { return type_[bits::DIAG]; }
+  bool is_offdiagonal() const { return !is_identity() && !is_diagonal(); }
+  void identity_to_diagonal() {
+#ifndef NDEBUG
+    assert(is_identity());
+#endif
+    type_.reset(bits::IDNT).set(bits::DIAG);
   }
-  
-  void save(alps::ODump& od) const { od << type_; }
-  void load(alps::IDump& id) { id >> type_; }
+  void diagonal_to_identity() {
+#ifndef NDEBUG
+    assert(is_diagonal());
+#endif
+    type_.reset(bits::DIAG).set(bits::IDNT);
+  }
+  void diagonal_to_offdiagonal() {
+#ifndef NDEBUG
+    assert(is_diagonal());
+#endif
+    type_.reset(bits::DIAG);
+  }
+  void offdiagonal_to_diagonal() {
+#ifndef NDEBUG
+    assert(is_offdiagonal());
+#endif
+    type_.set(bits::DIAG);
+  }
+  void flip_operator() {
+#ifndef NDEBUG
+    assert(!is_identity());
+#endif
+    type_.flip(bits::DIAG);
+  }
+
+  void save(alps::ODump& od) const
+  { uint32_t b = type_.to_ulong(); od << b; }
+  void load(alps::IDump& id)
+  { uint32_t b; id >> b; type_ = bitset(b); }
   
 private:
-  BOOST_STATIC_ASSERT((boost::integer_traits<uint_type>::is_integral));
-  BOOST_STATIC_ASSERT((boost::integer_traits<uint_type>::const_min == 0));
-  
-  uint_type type_;
+  bitset type_;
 };
 
 } // end namespace looper
