@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: virtual_graph.h 455 2003-10-22 01:04:57Z wistaria $
+* $Id: virtual_graph.h 460 2003-10-22 12:50:20Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -123,6 +123,8 @@ struct virtual_graph
 
   graph_type   graph;
   mapping_type mapping;
+  int num_real_vertices;
+  int num_real_edges;
 };
 
 
@@ -140,6 +142,8 @@ inline void generate_virtual_graph(const G& rg,
 
   vg.graph.clear();
   vg.mapping.clear();
+  vg.num_real_vertices = boost::num_vertices(rg);
+  vg.num_real_edges = boost::num_edges(rg);
 
   // setup graph properties
   boost::get_property(vg.graph, graph_name_t())

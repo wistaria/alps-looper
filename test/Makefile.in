@@ -59,6 +59,9 @@ include $(srcdir)/Makefile.dep
 
 amida.ok : $(srcdir)/amida.output
 fill_duration.ok : $(srcdir)/fill_duration.input $(srcdir)/fill_duration.output
+hypercubic_graph_generator.ok : $(srcdir)/hypercubic_graph_generator.input $(srcdir)/hypercubic_graph_generator.output
+index_helper.ok : $(srcdir)/index_helper.output
+permutation.ok :  $(srcdir)/permutation.output
 xxz_model.ok : $(srcdir)/xxz_model.input $(srcdir)/xxz_model.output models.xml lattices.xml
 xxz_matrix.ok : $(srcdir)/xxz_matrix.input $(srcdir)/xxz_matrix.output
 

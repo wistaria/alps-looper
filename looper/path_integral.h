@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: path_integral.h 455 2003-10-22 01:04:57Z wistaria $
+* $Id: path_integral.h 460 2003-10-22 12:50:20Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -174,17 +174,6 @@ struct path_integral<virtual_graph<G>, M, W>
   typedef typename boost::graph_traits<graph_type>::vertex_descriptor
     vertex_descriptor;
   
-  static double energy_offset(const vg_type& vg, const M& model)
-  {
-    double offset = 0;
-    typename alps::property_map<alps::bond_type_t, graph_type, int>::const_type
-      bond_type(alps::get_or_default(alps::bond_type_t(), vg.graph, 0));
-    edge_iterator ei_end = boost::edges(vg.graph).second;
-    for (edge_iterator ei = boost::edges(vg.graph).first; ei != ei_end; ++ei)
-      offset += model.bond(bond_type[*ei]).C;
-    return offset;
-  }
-  
   //
   // struct types
   //
@@ -192,9 +181,10 @@ struct path_integral<virtual_graph<G>, M, W>
   template<bool HasCTime = false>
   struct config_type
   {
-    typedef amida<pi_node<HasCTime> >    wl_type;
-    typedef typename wl_type::iterator   iterator;
-    typedef typename wl_type::value_type node_type;
+    typedef amida<pi_node<HasCTime> >        wl_type;
+    typedef typename wl_type::iterator       iterator;
+    typedef typename wl_type::const_iterator const_iterator;
+    typedef typename wl_type::value_type     node_type;
 
     wl_type      wl;
     unsigned int num_loops0;
@@ -423,6 +413,64 @@ struct path_integral<virtual_graph<G>, M, W>
       }
     }
   }
+
+  // measurements
+
+  static double energy_offset(const vg_type& vg, const M& model)
+  {
+    double offset = 0;
+    typename alps::property_map<alps::bond_type_t, graph_type, int>::const_type
+      bond_type(alps::get_or_default(alps::bond_type_t(), vg.graph, 0));
+    edge_iterator ei_end = boost::edges(vg.graph).second;
+    for (edge_iterator ei = boost::edges(vg.graph).first; ei != ei_end; ++ei)
+      offset += model.bond(bond_type[*ei]).C;
+    return offset / double(vg.num_real_edges);
+  }
+  
+  template<bool HasCTime>
+  static double energy_z(const config_type<HasCTime>& config,
+			 const vg_type& vg, const model_type& model,
+			 double beta)
+  {
+    typedef typename config_type<HasCTime>::const_iterator const_iterator;
+    double ene = 0.;
+    typename alps::property_map<alps::bond_type_t, graph_type, int>::const_type
+      bond_type(alps::get_or_default(alps::bond_type_t(), vg.graph, 0));
+    edge_iterator ei_end = boost::edges(vg.graph).second;
+    for (edge_iterator ei = boost::edges(vg.graph).first; ei != ei_end; ++ei) {
+      const_iterator
+	itr0 = config.wl.series(boost::source(*ei, vg.graph)).first;
+      const_iterator
+	itr1 = config.wl.series(boost::target(*ei, vg.graph)).first;
+      ene += model.bond(bond_type[*ei]).Jz *
+	(0.5 - double(itr0->conf())) * (0.5 - double(itr1->conf()));
+    }
+    return ene / double(vg.num_real_vertices);
+  }
+
+  template<bool HasCTime>
+  static double energy_z_imp(const config_type<HasCTime>& config,
+			     const vg_type& vg, const model_type& model,
+			     double beta)
+  {
+    typedef typename config_type<HasCTime>::const_iterator const_iterator;
+    double ene = 0.;
+    typename alps::property_map<alps::bond_type_t, graph_type, int>::const_type
+      bond_type(alps::get_or_default(alps::bond_type_t(), vg.graph, 0));
+    edge_iterator ei_end = boost::edges(vg.graph).second;
+    for (edge_iterator ei = boost::edges(vg.graph).first; ei != ei_end; ++ei) {
+      const_iterator
+	itr0 = config.wl.series(boost::source(*ei, vg.graph)).first;
+      const_iterator
+	itr1 = config.wl.series(boost::target(*ei, vg.graph)).first;
+      if (itr0->loop_segment(0).index == itr1->loop_segment(0).index) {
+	ene += model.bond(bond_type[*ei]).Jz *
+	  (0.5 - double(itr0->conf())) * (0.5 - double(itr1->conf()));
+      }
+    }
+    return ene / double(vg.num_real_vertices);
+  }
+
 }; // struct path_integral
 
 } // namespace looper

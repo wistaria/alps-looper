@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: virtual_graph.C 458 2003-10-22 02:37:31Z wistaria $
+* $Id: virtual_graph.C 460 2003-10-22 12:50:20Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -67,6 +67,10 @@ try {
   spins[0] = 1; spins[1] = 3./2;
   looper::generate_virtual_graph(rg, spins, vg);
 
+  std::cout << "number of original real vertices = " << vg.num_real_vertices
+	    << std::endl;
+  std::cout << "number of original real edges = " << vg.num_real_edges
+	    << std::endl;
   std::cout << vg.graph;
   std::cout << vg.mapping;
 

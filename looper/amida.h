@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: amida.h 455 2003-10-22 01:04:57Z wistaria $
+* $Id: amida.h 460 2003-10-22 12:50:20Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -154,7 +154,7 @@ struct amida_series_iterator_base
   size_type leg_;
 
   amida_series_iterator_base() : node_(), ser_(), leg_() {}
-  amida_series_iterator_base(amida_node_base* x, size_type s)
+  amida_series_iterator_base(const amida_node_base* x, size_type s)
     : node_(x), ser_(s), leg_()
   {
     if (node_)
@@ -211,7 +211,7 @@ struct amida_series_iterator : public amida_series_iterator_base
   typedef amida_node<T> node_type;
 
   amida_series_iterator() {}
-  amida_series_iterator(node_type* x, size_type s)
+  amida_series_iterator(const node_type* x, size_type s)
     : amida_series_iterator_base(x, s) {}
   amida_series_iterator(const series_iterator& x)
     : amida_series_iterator_base(x.node_, x.ser_) {}

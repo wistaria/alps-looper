@@ -8,6 +8,8 @@
   <EDGE source="2" target="4" id="3" type="1"/>
   <EDGE source="3" target="4" id="4" type="0"/>
 </GRAPH>
+number of original real vertices = 4
+number of original real edges = 4
 <GRAPH name="virtual graph of simple hypercubic graph" dimension="2" vertices="9" edges="20">
   <VERTEX id="1" type="1"><COORDINATE>0 0</COORDINATE></VERTEX>
   <VERTEX id="2" type="1"><COORDINATE>0 0</COORDINATE></VERTEX>
