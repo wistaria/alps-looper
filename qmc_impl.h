@@ -166,8 +166,6 @@ inline void accumulate(const alps::ObservableSet& m_in, T& m_out)
   alps::RealObsevaluator obse_e2 = m_in["Energy^2 for SH"];
   alps::RealObsevaluator eval("Specific Heat");
   eval = (obse_e2 - obse_e * obse_e);
-  // alps::RealObsevaluator eval = (obse_e2 - obse_e * obse_e);
-  // eval.rename("Specific Heat");
   m_out << eval;
 }
 
