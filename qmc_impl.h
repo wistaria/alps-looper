@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: qmc_impl.h 515 2003-11-05 06:12:32Z wistaria $
+* $Id: qmc_impl.h 521 2003-11-05 10:37:21Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -102,6 +102,8 @@ public:
     m.template get<measurement_type>("staggered magnetization") << ss; ////
     m.template get<measurement_type>("staggered magnetization^2") <<
       param_.virtual_graph.num_real_vertices * ss * ss;
+    m.template get<measurement_type>("staggered susceptibility") << 
+      qmc::staggered_susceptibility(config_, param_);
   }
 
   static void output_results(std::ostream& os, alps::ObservableSet& m)
@@ -115,7 +117,9 @@ public:
        << m.template get<measurement_type>("uniform susceptibility").mean() << ' '
        << m.template get<measurement_type>("uniform susceptibility").error() << ' '
        << m.template get<measurement_type>("staggered magnetization^2").mean() << ' '
-       << m.template get<measurement_type>("staggered magnetization^2").error() << ' ';
+       << m.template get<measurement_type>("staggered magnetization^2").error() << ' '
+       << m.template get<measurement_type>("staggered susceptibility").mean() << ' '
+       << m.template get<measurement_type>("staggered susceptibility").error() << ' ';
   }
 
   void save(alps::ODump& od) const { config_.save(od); }

@@ -271,7 +271,7 @@ PACKAGE_STRING='looper 3.0b1'
 PACKAGE_BUGREPORT=''
 
 ac_default_prefix=$HOME/ALPS
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INCLUDE_MK PROGRAM_MPI LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INCLUDE_MK PROGRAM_MPI EXAMPLE_MPI LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1216,8 +1216,10 @@ INCLUDE_MK="$ac_cv_alps_include_mk"
 echo "$as_me:$LINENO: checking for MPI library" >&5
 echo $ECHO_N "checking for MPI library... $ECHO_C" >&6
 
+
 if test "$ac_cv_have_mpi" = yes; then
   PROGRAM_MPI='$(PROGRAM_MPI)'
+  EXAMPLE_MPI='$(EXAMPLE_MPI)'
   echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6
 else
@@ -1823,6 +1825,7 @@ s,@ECHO_T@,$ECHO_T,;t t
 s,@LIBS@,$LIBS,;t t
 s,@INCLUDE_MK@,$INCLUDE_MK,;t t
 s,@PROGRAM_MPI@,$PROGRAM_MPI,;t t
+s,@EXAMPLE_MPI@,$EXAMPLE_MPI,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
 CEOF

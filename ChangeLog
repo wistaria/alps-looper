@@ -1,5 +1,13 @@
 2003-11-05  Synge Todo  <wistaria@comp-phys.org>
 
+	* Modified Makefile.in so that MPI version of programs (qmc_mpi,
+	percolation_mpi) will also be built.
+
+	* Added measurement for staggered susceptibility (unimproved
+	estimator).
+	
+2003-11-05  Synge Todo  <wistaria@comp-phys.org>
+	
 	* version 3.0b1 released.
 
 	- prerequisites: boost-ss-20031102, boost-ss-20031102.patch,

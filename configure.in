@@ -31,8 +31,10 @@ dnl
 
 AC_MSG_CHECKING([for MPI library])
 AC_SUBST(PROGRAM_MPI)
+AC_SUBST(EXAMPLE_MPI)
 if test "$ac_cv_have_mpi" = yes; then
   PROGRAM_MPI='$(PROGRAM_MPI)'
+  EXAMPLE_MPI='$(EXAMPLE_MPI)'
   AC_MSG_RESULT([yes])
 else
   AC_MSG_RESULT([no])

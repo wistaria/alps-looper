@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: path_integral.h 516 2003-11-05 06:27:07Z wistaria $
+* $Id: path_integral.h 521 2003-11-05 10:37:21Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -263,8 +263,6 @@ struct path_integral<virtual_graph<G>, M, W, N>
 	}
       }
     }
-    //// std::cout << "labeling done.\n";
-    //// std::cout << "num_links " << config.wl.num_links() << std::endl;
     
     //
     // cluster identification using union-find algorithm
@@ -372,7 +370,6 @@ struct path_integral<virtual_graph<G>, M, W, N>
 	}
       }
     }
-    //// std::cout << "identification done.\n";
   }
 
   template<class RNG>
@@ -405,10 +402,8 @@ struct path_integral<virtual_graph<G>, M, W, N>
 	itrB->clear_graph();
 	if (flip[itrT->loop_segment(0).index] == 1) itrT->flip_conf();
 	itrT->clear_graph();
-	//// std::cout << itrT->conf() << ' ';
       }
     }
-    //// std::cout << std::endl;
     
     // upating links
     {
@@ -447,6 +442,25 @@ struct path_integral<virtual_graph<G>, M, W, N>
 
   static double static_sz(int i, const config_type& config)
   { return 0.5 - double(config.wl.series(i).first->conf()); }
+
+  static double dynamic_sz(int i, const config_type& config)
+  {
+    typedef typename config_type::const_iterator const_iterator;
+
+    double sz = 0.;
+
+    // setup iterators
+    const_iterator itrD = config.wl.series(i).first;
+    const_iterator itrU = boost::next(itrD);
+    double c = static_sz(i, config);
+	
+    // iteration up to t = 1
+    for (;; itrD = itrU, ++itrU, c *= -1) {
+      sz += c * (itrU->time() - itrD->time());
+      if (itrU.at_top()) break;
+    }
+    return sz;
+  }
 
   static double energy_offset(const vg_type& vg, const M& model)
   {
@@ -538,8 +552,23 @@ struct path_integral<virtual_graph<G>, M, W, N>
     return ss / vg.num_real_vertices;
   }
   static double staggered_sz(const config_type& config,
-			   const parameter_type& p)
+			     const parameter_type& p)
   { return staggered_sz(config, p.virtual_graph); }
+
+  static double staggered_susceptibility(const config_type& config,
+					 const vg_type& vg, double beta)
+  {
+    typedef typename config_type::const_iterator const_iterator;
+    double ss = 0.;
+    vertex_iterator vi, vi_end;
+    for (boost::tie(vi, vi_end) = boost::vertices(vg.graph);
+	 vi != vi_end; ++vi)
+      ss += gauge(*vi, vg.graph) * dynamic_sz(*vi, config);
+    return beta * ss * ss / vg.num_real_vertices;
+  }
+  static double staggered_susceptibility(const config_type& config,
+					 const parameter_type& p)
+  { return staggered_susceptibility(config, p.virtual_graph, p.beta); }
 
 }; // struct path_integral
 

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: sse.h 515 2003-11-05 06:12:32Z wistaria $
+* $Id: sse.h 521 2003-11-05 10:37:21Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -457,6 +457,26 @@ template<class G, class M, class W, class N>
     return 0.5 - double(config.bottom[i].conf());
   }
 
+  static double dynamic_sz(int i, const config_type& config, const vg_type& vg)
+  {
+    typedef typename config_type::const_iterator const_operator_iterator;
+
+    double sz = 0.;
+
+    double c = static_sz(i, config);
+    const_operator_iterator oi_end = config.os.end();
+    sz += c;
+    for (const_operator_iterator oi = config.os.begin(); oi != oi_end; ++oi) {
+      if (oi->is_offdiagonal()) {
+	edge_iterator ei = boost::edges(vg.graph).first + oi->bond();
+	if (boost::source(*ei, vg.graph) == i ||
+	    boost::target(*ei, vg.graph) == i) c *= -1;
+      }
+      sz += c;
+    }
+    return sz / (config.os.size() + 1);
+  }
+
   static double energy_offset(const vg_type& vg, const model_type& model)
   {
     double offset = 0.;
@@ -560,6 +580,20 @@ template<class G, class M, class W, class N>
   static double staggered_sz(const config_type& config,
 			   const parameter_type& p)
   { return staggered_sz(config, p.virtual_graph); }
+
+  static double staggered_susceptibility(const config_type& config,
+					 const vg_type& vg, double beta)
+  {
+    double ss = 0.;
+    vertex_iterator vi, vi_end;
+    for (boost::tie(vi, vi_end) = boost::vertices(vg.graph); 
+	 vi != vi_end; ++vi)
+      ss += gauge(*vi, vg.graph) * dynamic_sz(*vi, config, vg);
+    return beta * ss * ss / vg.num_real_vertices;
+  }
+  static double staggered_susceptibility(const config_type& config,
+					 const parameter_type& p)
+  { return staggered_susceptibility(config, p.virtual_graph, p.beta); }
 
   // for debugging
 
