@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: percolation_impl.h 461 2003-10-22 14:34:25Z wistaria $
+* $Id: percolation_impl.h 466 2003-10-24 08:37:13Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -47,220 +47,189 @@
 
 struct percolation
 {
-  class site
-  {
-  private:
-    struct node_base {
-      bool occupied;
-      void reset() { occupied = false; }
-      node_base& operator+=(const node_base&) { return *this; }
-    };
-    typedef looper::union_find::node<node_base> node_type;
-    typedef std::vector<node_type> vector_type;
-    
-  public:
-    typedef alps::BasicSimpleObservable<double, alps::NoBinning<double> >
-      measurement_type;
-    
-    template<class G>
-    site(const G& g, double p) : site_(boost::num_vertices(g)), prob_(p) {}
-    
-    template<class G>
-    site(const G& g, double p, alps::ObservableSet& m) :
-      site_(boost::num_vertices(g)), prob_(p)
-    {
-      // setup measurements
-      m << measurement_type("concentration");
-      m << measurement_type("number of clusters");
-      m.reset(true);
-    }
-    
-    template<class G, class RNG>
-    void step(const G& g, RNG& random_01, alps::ObservableSet& m)
-    {
-      // generate sample
-      int n = 0;
-      vector_type::iterator itr_end = site_.end();
-      for (vector_type::iterator itr = site_.begin(); itr != itr_end; ++itr) {
-	itr->reset();
-	if (random_01() < prob_) {
-	  itr->occupied = true;
-	  ++n;
-	}
-      }
-      
-      // union_find
-      typename boost::graph_traits<G>::edge_iterator ei, ei_end;
-      for (boost::tie(ei, ei_end) = boost::edges(g); ei != ei_end; ++ei) {
-	vector_type::iterator s_itr = site_.begin() + boost::source(*ei, g);
-	vector_type::iterator t_itr = site_.begin() + boost::target(*ei, g);
-	if (s_itr->occupied && t_itr->occupied)
-	  looper::union_find::unify(*s_itr, *t_itr);
-      }
-      
-      // measurement
-      node_type::weight_type max_weight = 0;
-      int num_clusters = 0;
-      int sc = 0;
-      itr_end = site_.end();
-      for (vector_type::iterator itr = site_.begin(); itr != itr_end; ++itr) {
-	if (itr->occupied && itr->is_root()) {
-	  max_weight = std::max(max_weight, itr->weight());
-	  ++num_clusters;
-	  sc += itr->weight();
-	}
-      }
-      
-      m.template get<measurement_type>("concentration") <<
-	double(n) / boost::num_vertices(g);
-      m.template get<measurement_type>("number of clusters") <<
-	double(num_clusters) / boost::num_vertices(g);
-    }
-    
-  private:
-    vector_type site_;
-    double prob_;
+  struct node_base {
+    bool occupied;
+    void reset() { occupied = true; }
+    node_base& operator+=(const node_base&) { return *this; }
   };
+  typedef looper::union_find::node<node_base> node_type;
+  typedef std::vector<node_type> vector_type;
+
+
+  template<class RNG, bool BOND_P> struct initializer;
   
-  class bond
+  template<class RNG>
+  struct initializer<RNG, false>
   {
-  private:
-    typedef looper::union_find::node<> node_type;
-    typedef std::vector<node_type> vector_type;
-    
+    initializer(double p, RNG& rng) : p_(p), rng_(rng) {}
+    template<class T>
+    void operator()(T& a) const { a.reset(); a.occupied = (rng_() < p_); }
+    double p_;
+    mutable RNG& rng_;
+  };
+
+  template<class RNG>
+  struct initializer<RNG, true>
+  {
+    template<class T>
+    void operator()(T& a) const { a.reset(); }
+  };
+
+
+  template<class G, class V, class RNG, bool BOND_P> struct unifier;
+  
+  template<class G, class V, class RNG>
+  struct unifier<G, V, RNG, false>
+  {
+    unifier(const G& g, V& v) : g_(g), v_(v) {}
+    template<class T>
+    void operator()(const T& a) const {
+      typename V::iterator s_itr = v_.begin() + boost::source(a, g_);
+      typename V::iterator t_itr = v_.begin() + boost::target(a, g_);
+      if (s_itr->occupied && t_itr->occupied)
+	looper::union_find::unify(*s_itr, *t_itr);
+    }
+    const G& g_;
+    mutable V& v_;
+  };
+
+  template<class G, class V, class RNG>
+  struct unifier<G, V, RNG, true>
+  {
+    unifier(const G& g, V& v, double p, RNG& rng) :
+      g_(g), v_(v), p_(p), rng_(rng) {}
+    template<class T>
+    void operator()(const T& a) const {
+      if (rng_() < p_) {
+	typename V::iterator s_itr = v_.begin() + boost::source(a, g_);
+	typename V::iterator t_itr = v_.begin() + boost::target(a, g_);
+	looper::union_find::unify(*s_itr, *t_itr);
+      }
+    }
+    const G& g_;
+    mutable V& v_;
+    double p_;
+    mutable RNG& rng_;
+  };
+
+
+  class worker_base
+  {
   public:
     typedef alps::BasicSimpleObservable<double, alps::NoBinning<double> >
-      measurement_type;
+    measurement_type;
     
     template<class G>
-    bond(const G& g, double p) : site_(boost::num_vertices(g)), prob_(p) {}
+    worker_base(const G& g, double p, bool bp) :
+      bond_p_(bp), vertices_(boost::num_vertices(g)), prob_(p) {}
     
     template<class G>
-    bond(const G& g, double p, alps::ObservableSet& m) :
-      site_(boost::num_vertices(g)), prob_(p)
+    worker_base(const G& g, double p, bool bp, alps::ObservableSet& m) :
+      bond_p_(bp), vertices_(boost::num_vertices(g)), prob_(p)
     {
       // setup measurements
-      m << measurement_type("concentration");
       m << measurement_type("number of clusters");
+      m << measurement_type("percolation probability");
+      m << measurement_type("disconnected susceptiblity");
+      m << measurement_type("connected susceptiblity");
       m.reset(true);
     }
     
     template<class G, class RNG>
     void step(const G& g, RNG& random_01, alps::ObservableSet& m)
     {
-      vector_type::iterator itr_end = site_.end();
-      for (vector_type::iterator itr = site_.begin(); itr != itr_end; ++itr)
-	itr->reset();
+      // setup sample
+      if (!bond_p_)
+	std::for_each(vertices_.begin(), vertices_.end(),
+		      initializer<RNG, false>(prob_, random_01));
+      else
+	std::for_each(vertices_.begin(), vertices_.end(),
+		      initializer<RNG, true>());
       
       // union_find
-      int n = 0;
-      typename boost::graph_traits<G>::edge_iterator ei, ei_end;
-      for (boost::tie(ei, ei_end) = boost::edges(g); ei != ei_end; ++ei) {
-	if (random_01() < prob_) {
-	  ++n;
-	  vector_type::iterator s_itr = site_.begin() + boost::source(*ei, g);
-	  vector_type::iterator t_itr = site_.begin() + boost::target(*ei, g);
-	  looper::union_find::unify(*s_itr, *t_itr);
-	}
-      }
+      if (!bond_p_)
+ 	std::for_each(boost::edges(g).first, boost::edges(g).second,
+ 		      unifier<G, vector_type, RNG, false>(g, vertices_));
+      else
+ 	std::for_each(boost::edges(g).first, boost::edges(g).second,
+ 		      unifier<G, vector_type, RNG, true>(g, vertices_, prob_,
+ 							 random_01));
       
       // measurement
-      node_type::weight_type max_weight = 0;
       int num_clusters = 0;
-      int sc = 0;
-      itr_end = site_.end();
-      for (vector_type::iterator itr = site_.begin(); itr != itr_end; ++itr) {
-	if (itr->is_root()) {
-	  max_weight = std::max(max_weight, itr->weight());
+      double max_weight = 0.;
+      double sc = 0.;
+      vector_type::iterator itr_end = vertices_.end();
+      for (vector_type::iterator itr = vertices_.begin();
+	   itr != itr_end; ++itr) {
+	if (itr->occupied && itr->is_root()) {
 	  ++num_clusters;
-	  sc += itr->weight();
+	  double w = itr->weight();
+	  max_weight = std::max(max_weight, w);
+	  sc += w * w;
 	}
       }
       
-      m.template get<measurement_type>("concentration") <<
-	double(n) / boost::num_edges(g);
+      double nv = double(boost::num_vertices(g));
       m.template get<measurement_type>("number of clusters") <<
-	double(num_clusters) / boost::num_vertices(g);
+	double(num_clusters) / nv;
+      m.template get<measurement_type>("percolation probability") <<
+	max_weight / nv;
+      m.template get<measurement_type>("disconnected susceptiblity") <<
+	sc / nv;
+      m.template get<measurement_type>("connected susceptiblity") <<
+	(sc - max_weight * max_weight) / nv;
     }
-    
+
+    void output_results(std::ostream& os, alps::ObservableSet& m) const {
+      os << m.get<measurement_type>("number of clusters").mean() << ' '
+	 << m.get<measurement_type>("number of clusters").error() << ' '
+	 << m.get<measurement_type>("percolation probability").mean() << ' '
+	 << m.get<measurement_type>("percolation probability").error() << ' '
+	 << m.get<measurement_type>("disconnected susceptiblity").mean() << ' '
+	 << m.get<measurement_type>("disconnected susceptiblity").error() << ' '
+	 << m.get<measurement_type>("connected susceptiblity").mean() << ' '
+	 << m.get<measurement_type>("connected susceptiblity").error();
+    }
   private:
-    vector_type site_;
+    bool bond_p_;
+    vector_type vertices_;
     double prob_;
   };
+
 
   class worker : public alps::scheduler::LatticeMCRun<>
   {
   public:
-    worker(const alps::ProcessList& w, const alps::Parameters& p,
-	   int n) : alps::scheduler::LatticeMCRun<>(w, p, n) {}
+    worker(const alps::ProcessList& w, const alps::Parameters& p, int n) :
+      alps::scheduler::LatticeMCRun<>(w, p, n),
+      prob_(double(p["probability"])),
+      samples_(int(p["samples"])), samples_done_(0),
+      wb_(graph(), prob_, (p["type"] == "bond"), measurements) {}
     virtual ~worker() {}
     
-    virtual void dostep() = 0;
+    virtual void dostep() {
+      ++samples_done_;
+      wb_.step(graph(), random_01, measurements);
+    }
     bool is_thermalized() const { return true; }
-    virtual double work_done() const = 0;
-    
-    virtual void save(alps::ODump&) const = 0;
-    virtual void load(alps::IDump&) = 0;
-  };
-  
-  class site_worker : public worker
-  {
-  public:
-    site_worker(const alps::ProcessList& w, const alps::Parameters& p, int n) :
-      worker(w, p, n), prob_(double(p["probability"])),
-      samples_(int(p["samples"])), samples_done_(0),
-      sp_(graph(), prob_, measurements) {}
-    ~site_worker() {}
-    
-    void dostep() {
-      ++samples_done_;
-      sp_.step(graph(), random_01, measurements);
+    virtual double work_done() const {
+      return double(samples_done_) / samples_;
     }
-    double work_done() const { return double(samples_done_) / samples_; }
     
-    void save(alps::ODump& od) const {
+    virtual void save(alps::ODump& od) const {
       od << prob_ << samples_ << samples_done_;
     }
-    void load(alps::IDump& id) {
+    virtual void load(alps::IDump& id) {
       id >> prob_ >> samples_ >> samples_done_;
       if (where.empty()) measurements.compact();
     }
-    
-  private:  
+
+  private:
     double prob_;
     unsigned int samples_;
     unsigned int samples_done_;
-    percolation::site sp_;
-  };
-  
-  class bond_worker : public worker
-  {
-  public:
-    bond_worker(const alps::ProcessList& w, const alps::Parameters& p, int n) :
-      worker(w, p, n), prob_(double(p["probability"])),
-      samples_(int(p["samples"])), samples_done_(0),
-      bp_(graph(), prob_, measurements) {}
-    ~bond_worker() {}
-    
-    void dostep() {
-      ++samples_done_;
-      bp_.step(graph(), random_01, measurements);
-    }
-    double work_done() const { return double(samples_done_) / samples_; }
-    
-    void save(alps::ODump& od) const {
-      od << prob_ << samples_ << samples_done_;
-    }
-    void load(alps::IDump& id) {
-      id >> prob_ >> samples_ >> samples_done_;
-      if (where.empty()) measurements.compact();
-    }
-    
-  private:  
-    double prob_;
-    unsigned int samples_;
-    unsigned int samples_done_;
-    percolation::bond bp_;
+    worker_base wb_;
   };
   
   class factory : public alps::scheduler::Factory
@@ -276,15 +245,7 @@ struct percolation
 
     worker* make_worker(const alps::ProcessList& w,
 			const alps::Parameters& p, int n) const {
-      worker* wk;
-      if (p["type"] == "site") {
-	wk = new site_worker(w, p, n);
-      } else if (p["type"] == "bond") {
-	wk = new bond_worker(w, p, n);
-      } else {
-	boost::throw_exception(std::runtime_error("Invalid value for parameter \"type\"."));
-      }
-      return wk;
+      return new worker(w, p, n);
     }
 
     void print_copyright(std::ostream& os) const {

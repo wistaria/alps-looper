@@ -2,7 +2,7 @@
 *
 * alps/percolation: an ALPS application example for percolation problem
 *
-* $Id: percolation_cmd.C 461 2003-10-22 14:34:25Z wistaria $
+* $Id: percolation_cmd.C 466 2003-10-24 08:37:13Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -127,7 +127,7 @@ try {
 #endif
 
   looper::print_copyright();
-  std::cout << "percolation_cmd: sample percolation MC program for simple hypercubic lattices\n\n";
+  std::cout << "percolation_cmd: a sample MC program for percolation problem on simple hypercubic lattices\n\n";
 
   // simulation parameters
   Options opts(argc, argv);
@@ -146,26 +146,27 @@ try {
   for (int i = 0; i < 19844; ++i) rng();
 
   // hypercubic lattice
-  typedef looper::graph_type graph_type;
-  graph_type g;
+  looper::graph_type g;
   looper::generate_graph(
     looper::hypercubic_graph_generator<>(opts.dim, opts.lsize), g);
 
   // measurements
   alps::ObservableSet measurements;
 
-  if (opts.bond) {
-    // bond percolation
-    percolation::bond bp(g, opts.p, measurements);
-    for (int s = 0; s < opts.nm; s++) bp.step(g, rng, measurements);
-  } else {
-    // site percolation
-    percolation::site sp(g, opts.p, measurements);
-    for (int s = 0; s < opts.nm; s++) sp.step(g, rng, measurements);
-  }
+  percolation::worker_base wb(g, opts.p, opts.bond, measurements);
+  for (int s = 0; s < opts.nm; s++) wb.step(g, rng, measurements);
   
   // output results
   std::cout << measurements;
+  std::cout << std::endl
+	    << opts.seed << ' '
+	    << (opts.bond ? "bond" : "site") << ' '
+	    << opts.dim << ' '
+	    << opts.lsize << ' '
+	    << opts.nm << ' '
+	    << opts.p << ' ';
+  wb.output_results(std::cout, measurements);
+  std::cout << std::endl;
 
 #ifndef BOOST_NO_EXCEPTIONS
 } 
