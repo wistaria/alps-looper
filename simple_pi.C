@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: simple_pi.C 443 2003-10-18 03:00:16Z wistaria $
+* $Id: simple_pi.C 444 2003-10-18 03:42:48Z wistaria $
 *
 * Copyright (C) 2001-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -34,12 +34,9 @@
 *
 **************************************************************************/
 
-#include "pathintegral.h"
-
 #include "model.h"
-
 #include "pathintegral.h"
-#include "sse.h"
+// #include "sse.h"
 
 #include <alps/alea.h>
 #include <boost/random.hpp>
@@ -177,12 +174,14 @@ try {
   looper::generate_graph(shgd, g);
 
   // virtual graph
-  looper::virtual_graph<graph_type> vg;
+  typedef looper::virtual_graph<graph_type> vg_type;
+  vg_type vg;
   std::vector<alps::half_integer<int> > spin(opts.dim, opts.spin);
   looper::generate_virtual_graph(g, spin, vg);
 
   // model & inverse temperature
-  looper::xxz_model model(opts.Jxy, opts.Jz, opts.spin, g);
+  typedef looper::xxz_model model_type;
+  model_type model(opts.Jxy, opts.Jz, opts.spin, g);
   double beta = 1./opts.temp;
 
   // measurements
@@ -190,23 +189,22 @@ try {
 
   if (true) {
     // path-integral representation
+    typedef looper::path_integral<vg_type, model_type> qmc;
 
     // world line configration
-    looper::path_integral::types<>::config_type config;
-    looper::path_integral::initialize(config, vg);
+    qmc::config_type<> config;
+    qmc::initialize(config, vg);
     
     // energy offset
-    double e_offset = looper::path_integral::energy_offset(vg, model);
+    double e_offset = qmc::energy_offset(vg, model);
     std::cout << e_offset << std::endl;
     
     for (int mcs = 0; mcs < opts.step_t + opts.step_m; ++mcs) {
       if (mcs == opts.step_t) measurements.reset(true);
       
-      int num_loops0, num_loops;
-      boost::tie(num_loops0, num_loops) =
-	looper::path_integral::generate_loops(config, vg, model, beta, rng);
-      std::cout << num_loops0 << ' ' << num_loops << std::endl;
-      looper::path_integral::flip_and_cleanup(config, vg, rng, num_loops);
+      qmc::generate_loops(config, vg, model, beta, rng);
+      std::cout << config.num_loops0 << ' ' << config.num_loops << std::endl;
+      qmc::flip_and_cleanup(config, vg, rng);
       // std::cout << config;
     }
   } else {
