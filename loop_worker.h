@@ -34,9 +34,9 @@ public:
   typedef typename qmc::model_type model_type;
 
   template<class G, class MDL>
-  qmc_worker(const G& rg, const MDL& model, double beta, double fs,
-             alps::ObservableSet& m) :
-    param_(rg, model, beta, fs), config_()
+  qmc_worker(const alps::graph_helper<G>& gh, const MDL& model,
+             double beta, double fs, alps::ObservableSet& m) :
+    param_(gh, model, beta, fs), config_()
   {
     using alps::RealObservable;
     using alps::make_observable;
@@ -246,11 +246,11 @@ public:
 
   worker(const alps::ProcessList& w, const alps::Parameters& p, int n) :
     alps::scheduler::LatticeModelMCRun<>(w, p, n),
-    mdl_(p, graph(), model(), has_sign_problem()), mcs_(0),
+    mdl_(p, *this, *this, has_sign_problem()), mcs_(0),
     therm_(static_cast<unsigned int>(p["THERMALIZATION"])),
     total_(therm_ + static_cast<unsigned int>(p["SWEEPS"])),
     strict_mcs_(p.defined("STRICT_MCS")),
-    qmc_worker_(graph(), mdl_, 1.0 / static_cast<double>(p["T"]),
+    qmc_worker_(*this, mdl_, 1.0 / static_cast<double>(p["T"]),
                 p.value_or_default("FORCE_SCATTER", 0.0),
                 measurements)
   { if (p.defined("FIXED_SEED")) random.seed(parms["FIXED_SEED"]); }

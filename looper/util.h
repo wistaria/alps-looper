@@ -116,13 +116,25 @@ T sqr(const T& t) { return t * t; }
 //
 
 template<typename T, typename U, typename R, typename A>
+void flatten_matrix(const boost::multi_array<T, 2>& m_in,
+                    boost::numeric::ublas::matrix<U, R, A>& m_out)
+{
+  assert(m_in.shape()[0] == m_in.shape()[1]);
+
+  int dim = m_in.shape()[0];
+
+  m_out.resize(dim, dim);
+  for (int i = 0; i < dim; ++i)
+    for (int j = 0; j < dim; ++j)
+      m_out(i, j) = m_in[i][j];
+}
+
+template<typename T, typename U, typename R, typename A>
 void flatten_matrix(const boost::multi_array<T, 4>& m_in,
                     boost::numeric::ublas::matrix<U, R, A>& m_out)
 {
-#ifndef NDEBUG
   assert(m_in.shape()[0] == m_in.shape()[2]);
   assert(m_in.shape()[1] == m_in.shape()[3]);
-#endif
 
   int d0 = m_in.shape()[0];
   int d1 = m_in.shape()[1];

@@ -102,7 +102,7 @@ try {
   // simulation parameters
   alps::half_integer<int> spin(opts.spin);
   std::cout << "r:   seed for RNG           : " << opts.seed << std::endl
-	    << "d:   spatial dimension      : " << opts.dim << std::endl
+            << "d:   spatial dimension      : " << opts.dim << std::endl
             << "l:   linear size            : " << opts.lsize << std::endl
             << "s:   spin size S            : " << spin << std::endl
             << "x:   coupling Jxy           : " << opts.jxy << std::endl
@@ -111,7 +111,7 @@ try {
             << "m:   MCS for thermalization : " << opts.step_t << std::endl
             << "n:   MCS for measurement    : " << opts.step_m << std::endl
             << "e:   representation         : "
-	    << (vm.count("sse") == 0 ? "path integral" : "SSE")
+            << (vm.count("sse") == 0 ? "path integral" : "SSE")
             << std::endl << std::endl;
 
   // random number generator

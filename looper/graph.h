@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2005 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -246,69 +246,116 @@ bond_type(typename boost::graph_traits<
 //
 
 // class template virtual_mapping
-// for describing a mapping from a real site to virtual ones
+// for describing a mapping from a real site/bond to virtual ones
 
 template<class G>
 class virtual_mapping
 {
 public:
   typedef G                                           graph_type;
-  typedef typename graph_type::vertex_iterator        vertex_iterator;
-  typedef std::pair<vertex_iterator, vertex_iterator> range_type;
+  typedef typename boost::graph_traits<graph_type>::vertex_descriptor
+    vertex_descriptor;
+  typedef typename boost::graph_traits<graph_type>::edge_descriptor
+    edge_descriptor;
+  typedef typename boost::graph_traits<graph_type>::vertex_iterator
+    vertex_iterator;
+  typedef typename boost::graph_traits<graph_type>::edge_iterator
+    edge_iterator;
+  typedef std::pair<vertex_iterator, vertex_iterator> vertex_range_type;
+  typedef std::pair<edge_iterator, edge_iterator>     edge_range_type;
 
-  virtual_mapping() : map_(1, vertex_iterator()) {}
+  virtual_mapping() :
+    vertex_map_(1, vertex_iterator()), edge_map_(1, edge_iterator()) {}
 
-  int num_groups() const { return map_.size() - 1; }
-  int num_virtual_vertices(int g) const {
-    return *map_[g + 1] - *map_[g];
+  vertex_range_type
+  virtual_vertices(const graph_type& rg, const vertex_descriptor& rv) const {
+    return std::make_pair(vertex_map_[boost::get(boost::vertex_index, rg, rv)],
+      vertex_map_[boost::get(boost::vertex_index, rg, rv) + 1]);
   }
 
-  range_type virtual_vertices(int s) const {
-    return std::make_pair(map_[s], map_[s + 1]);
+  edge_range_type
+  virtual_edges(const graph_type& rg, const edge_descriptor& re) const {
+    return std::make_pair(edge_map_[boost::get(boost::edge_index, rg, re)],
+      edge_map_[boost::get(boost::edge_index, rg, re) + 1]);
   }
 
-  void add(const vertex_iterator& first, const vertex_iterator& last) {
-    map_[map_.size() - 1] = first;
-    map_.push_back(last);
-  }
-  void clear() {
-    map_.clear();
-    map_.push_back(vertex_iterator());
-  }
-
-  friend bool operator==(const virtual_mapping& lhs,
-                         const virtual_mapping& rhs) {
-    return lhs.map_ == rhs.map_;
-  }
-  friend bool operator!=(const virtual_mapping& lhs,
-                         const virtual_mapping& rhs) {
-    return !operator==(lhs, rhs);
+  void add_vertex(const graph_type& rg, const vertex_descriptor& rv,
+                  const vertex_iterator& first, const vertex_iterator& last)
+  {
+    assert(boost::get(boost::vertex_index, rg, rv) == vertex_map_.size() - 1);
+    if (vertex_map_.size() == 1) {
+      vertex_map_.back() = first;
+    } else {
+      assert(first == vertex_map_.back());
+    }
+    vertex_map_.push_back(last);
   }
 
-  void output(std::ostream& os) const {
-    os << "[[virtual_mapping]]\n";
-    os << "  number of groups = " << num_groups() << std::endl;
-    os << "  mapping:\n";
-    for (int g = 0; g < num_groups(); ++g) {
-      os << "    " << g << " -> ";
-      if (num_virtual_vertices(g) == 0) {
+  void add_edge(const graph_type& rg, const edge_descriptor& re,
+                const edge_iterator& first, const edge_iterator& last)
+  {
+    assert(boost::get(boost::edge_index, rg, re) == edge_map_.size() - 1);
+    if (edge_map_.size() == 1) {
+      edge_map_.back() = first;
+    } else {
+      assert(first == edge_map_.back());
+    }
+    edge_map_.push_back(last);
+  }
+
+  void clear()
+  {
+    vertex_map_.clear();
+    edge_map_.clear();
+    vertex_map_.push_back(vertex_iterator());
+    edge_map_.push_back(edge_iterator());
+  }
+
+  bool operator==(const virtual_mapping& rhs) const
+  { return vertex_map_ == rhs.vertex_map_ && edge_map_ == rhs.edge_map_; }
+  bool operator!=(const virtual_mapping& rhs) { return !(*this == rhs); }
+
+  void output(std::ostream& os, const graph_type& rg,
+              const graph_type& vg) const
+  {
+    os << "[[vitual_mapping]]\n";
+    os << "  number of vertex groups = " << boost::num_vertices(rg) << '\n';
+    os << "  vertex mapping:\n";
+    vertex_iterator vi, vi_end;
+    for (boost::tie(vi, vi_end) = boost::vertices(rg); vi != vi_end; ++vi) {
+      os << "    " << boost::get(boost::vertex_index, rg, *vi) << " -> ";
+      vertex_range_type vr = virtual_vertices(rg, *vi);
+      if (vr.first == vr.second) {
         os << "null\n";
-      } else if (num_virtual_vertices(g) == 1) {
-        os << *(map_[g]) << '\n';
+      } else if (vr.first == --vr.second) {
+        os << boost::get(boost::vertex_index, vg, *vr.first) << '\n';
       } else {
-        os << "[" << *(map_[g]) << "," << *(map_[g+1]) - 1 << "]\n";
+        os << '['
+           << boost::get(boost::vertex_index, vg, *vr.first) << ','
+           << boost::get(boost::vertex_index, vg, *(--vr.second)) << "]\n";
+      }
+    }
+    os << "  number of edge groups = " << boost::num_edges(rg) << '\n';
+    os << "  edge mapping:\n";
+    edge_iterator ei, ei_end;
+    for (boost::tie(ei, ei_end) = boost::edges(rg); ei != ei_end; ++ei) {
+      os << "    " << boost::get(boost::edge_index, rg, *ei) << " -> ";
+      edge_range_type er = virtual_edges(rg, *ei);
+      if (er.first == er.second) {
+        os << "null\n";
+      } else if (er.first == --er.second) {
+        os << boost::get(boost::edge_index, vg, *er.first) << '\n';
+      } else {
+        os << '['
+           << boost::get(boost::edge_index, vg, *er.first) << ','
+           << boost::get(boost::edge_index, vg, *(--er.second)) << "]\n";
       }
     }
   }
 
-  friend std::ostream& operator<<(std::ostream& os,
-                                  const virtual_mapping& map) {
-    map.output(os);
-    return os;
-  }
-
 private:
-  std::vector<vertex_iterator> map_;
+  std::vector<vertex_iterator> vertex_map_;
+  std::vector<edge_iterator> edge_map_;
 };
 
 
@@ -353,22 +400,6 @@ inline void generate_virtual_graph(const RealGraph& rg,
     }
   }
 
-  // setup mapping
-  {
-    typename boost::graph_traits<rgraph_type>::vertex_iterator rvi, rvi_end;
-    typename boost::graph_traits<vgraph_type>::vertex_iterator
-      vvi_first = boost::vertices(vg).first;
-    typename boost::graph_traits<vgraph_type>::vertex_iterator
-      vvi_last = vvi_first;
-    for (boost::tie(rvi, rvi_end) = boost::vertices(rg);
-         rvi != rvi_end; ++rvi) {
-      int t = boost::get(vertex_type_t(), rg, *rvi);
-      for (int i = 0; i < model.site(t).s().get_twice(); ++i) ++vvi_last;
-      vm.add(vvi_first, vvi_last);
-      vvi_first = vvi_last;
-    }
-  }
-
   // setup edges
   {
     typename boost::graph_traits<rgraph_type>::edge_iterator rei, rei_end;
@@ -379,11 +410,11 @@ inline void generate_virtual_graph(const RealGraph& rg,
         rt = boost::target(*rei, rg);
       typename boost::graph_traits<vgraph_type>::vertex_iterator
         vvsi, vvsi_end;
-      for (boost::tie(vvsi, vvsi_end) = vm.virtual_vertices(rs);
+      for (boost::tie(vvsi, vvsi_end) = vm.virtual_vertices(rg, rs);
            vvsi != vvsi_end; ++vvsi) {
         typename boost::graph_traits<vgraph_type>::vertex_iterator
           vvti, vvti_end;
-        for (boost::tie(vvti, vvti_end) = vm.virtual_vertices(rt);
+        for (boost::tie(vvti, vvti_end) = vm.virtual_vertices(rg, rt);
              vvti != vvti_end; ++vvti) {
           // add edges to virtual graph
           typename boost::graph_traits<vgraph_type>::edge_descriptor ved =
@@ -395,6 +426,35 @@ inline void generate_virtual_graph(const RealGraph& rg,
           alps::copy_property(edge_vector_t(), rg, *rei, vg, ved);
         }
       }
+    }
+  }
+
+  // setup mapping
+  {
+    typename boost::graph_traits<vgraph_type>::vertex_iterator
+      vvi_first = boost::vertices(vg).first;
+    typename boost::graph_traits<vgraph_type>::vertex_iterator
+      vvi_last = vvi_first;
+    typename boost::graph_traits<rgraph_type>::vertex_iterator rvi, rvi_end;
+    for (boost::tie(rvi, rvi_end) = boost::vertices(rg);
+         rvi != rvi_end; ++rvi) {
+      vvi_last +=
+        model.site(boost::get(alps::vertex_type_t(), rg, *rvi)).s().get_twice();
+      vm.add_vertex(rg, *rvi, vvi_first, vvi_last);
+      vvi_first = vvi_last;
+    }
+    typename boost::graph_traits<vgraph_type>::edge_iterator
+      vei_first = boost::edges(vg).first;
+    typename boost::graph_traits<vgraph_type>::edge_iterator
+      vei_last = vei_first;
+    typename boost::graph_traits<rgraph_type>::edge_iterator rei, rei_end;
+    for (boost::tie(rei, rei_end) = boost::edges(rg); rei != rei_end; ++rei) {
+      int st = boost::get(alps::vertex_type_t(), rg, boost::source(*rei, rg));
+      int tt = boost::get(alps::vertex_type_t(), rg, boost::target(*rei, rg));
+      vei_last +=
+        model.site(st).s().get_twice() * model.site(tt).s().get_twice();
+      vm.add_edge(rg, *rei, vei_first, vei_last);
+      vei_first = vei_last;
     }
   }
 }

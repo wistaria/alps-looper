@@ -228,13 +228,13 @@ public:
   bond_chooser() : weight_(), rc_(), gw_(0) {}
   template<class G, class I>
   bond_chooser(const alps::graph_helper<G>& gh, const alps::model_helper<I>& mh,
-	       double fs = 0)
+               double fs = 0)
     : weight_(), rc_(), gw_(0)
   { init (g, m, fs); }
 
   template<class G, class I>
   void init(const alps::graph_helper<G>& gh, const alps::model_helper<I>& mh,
-	    double fs = 0)
+            double fs = 0)
   {
     weight_.clear();
     gw_ = 0.0;

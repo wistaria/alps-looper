@@ -40,7 +40,7 @@ int main()
               << std::endl << site << std::endl;
 
     looper::site_parameter_hxz p;
-    bool success = looper::fit2site(site.matrix(), p);
+    bool success = looper::fit2site(site, p);
 
     assert(success);
     assert(p == s);

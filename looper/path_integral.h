@@ -133,9 +133,9 @@ struct path_integral
     typedef M                           model_type;
     typedef W                           weight_type;
 
-    template<class RealGraph>
-    parameter_type(const RealGraph& rg, const model_type& m, double b,
-                   double fs)
+    template<class RG>
+    parameter_type(const alps::graph_helper<RG>& gh, const model_type& m,
+                   double b, double fs)
       : model(m), vgraph(), vmap(), 
         num_real_vertices(boost::num_vertices(rg)),
         num_real_edges(boost::num_edges(rg)),

@@ -76,7 +76,7 @@ try {
     std::cout << looper::gauge(*vi, vg) << ' ';
   }
   std::cout << std::endl;
-  std::cout << vm;
+  vm.output(std::cout, rg, vg);
 
 #ifndef BOOST_NO_EXCEPTIONS
 }

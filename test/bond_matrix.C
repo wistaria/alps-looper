@@ -34,14 +34,14 @@ int main()
 
     alps::half_integer<int> s0(s0_in);
     alps::half_integer<int> s1(s1_in);
-    looper::bond_matrix<> xxz(s0, s1, c, jxy, jz);
+    looper::bond_matrix<> xxz(s0, s1, looper::bond_parameter_xxz(c, jxy, jz));
 
     std::cout << "input parameters: S0 = " << s0 << ", S1 = " << s1
               << ", C = " << c << ", Jxy = " << jxy << ", Jz = " << jz
               << std::endl << xxz << std::endl;
 
     looper::bond_parameter_xxz p;
-    bool success = looper::fit2bond(xxz.matrix(), p);
+    bool success = looper::fit2bond(xxz, p);
 
     assert(success);
     std::cout << "fitting result: " << p << std::endl;
