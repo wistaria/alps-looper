@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: path_integral.h 514 2003-11-05 04:17:57Z wistaria $
+* $Id: path_integral.h 515 2003-11-05 06:12:32Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -154,16 +154,15 @@ struct path_integral<virtual_graph<G>, M, W, N>
     typedef M model_type;
     typedef W weight_type;
 
-    parameter_type(const G& rg, const model_type& m, double b)
-      : virtual_graph(), graph(virtual_graph.graph),
-	mapping(virtual_graph.mapping), model(m), beta(b)
+
+    template<class RG>
+    parameter_type(const RG& rg, const model_type& m, double b)
+      : virtual_graph(), model(m), beta(b)
     {
       generate_virtual_graph(rg, model, virtual_graph);
     }
 
     vg_type           virtual_graph;
-    graph_type&       graph;
-    mapping_type&     mapping;
     const model_type& model;
     double            beta;
   };
@@ -178,6 +177,9 @@ struct path_integral<virtual_graph<G>, M, W, N>
     wl_type wl;
     unsigned int num_loops0;
     unsigned int num_loops;
+
+    alps::ODump& save(alps::ODump& od) const { return od << wl; }
+    alps::IDump& load(alps::IDump& id) { return id >> wl; }
   };
   
   

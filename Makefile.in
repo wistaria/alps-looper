@@ -47,8 +47,8 @@ ldflags_mpi = $(LDFLAGS_MPI)
 libs_program = -lalps -lcomm-sgl $(HDF5_LIBS) $(XML_LIBS) $(BASE_LIBS)
 libs_program_mpi = -lalps -lcomm-mpi $(HDF5_LIBS) $(XML_LIBS) $(MPI_LIBS) $(BASE_LIBS)
 
-LOCAL_CONFIG = lattices.xml models.xml percolation-params
-EXAMPLE = qmc_cmd percolation percolation_cmd
+LOCAL_CONFIG = lattices.xml models.xml percolation-params qmc-params
+EXAMPLE = percolation percolation_cmd qmc qmc_cmd
 
 default all : $(EXAMPLE)
 
@@ -84,11 +84,15 @@ models.xml : $(srcdir)/models.xml.in
 lattices.xml : $(srcdir)/lattices.xml.in
 	$(top_builddir)config.status lattices.xml
 
-percolation : percolation-params
 percolation-params : $(srcdir)/percolation-params.in
 	./config.status percolation-params
 percolatioin-params.in.xml : percolation-params
 	$(bindir)/convert2xml percolation-params
+
+qmc-params : $(srcdir)/qmc-params.in
+	./config.status qmc-params
+qmc-params.in.xml : qmc-params
+	$(bindir)/convert2xml qmc-params
 
 include $(RULES_MK)
 include $(srcdir)/Makefile.dep

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: qmc_impl.h 514 2003-11-05 04:17:57Z wistaria $
+* $Id: qmc_impl.h 515 2003-11-05 06:12:32Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -58,7 +58,7 @@ public:
 	     alps::ObservableSet& m) :
     param_(rg, model, beta), config_()
   {
-    is_bipartite = alps::set_parity(param_.virtual_graph);
+    is_bipartite = alps::set_parity(param_.virtual_graph.graph);
     e_offset_ = qmc::energy_offset(param_);
 
     qmc::initialize(config_, param_);
@@ -118,6 +118,9 @@ public:
        << m.template get<measurement_type>("staggered magnetization^2").error() << ' ';
   }
 
+  void save(alps::ODump& od) const { config_.save(od); }
+  void load(alps::IDump& id) { config_.load(id); }
+
 private:
   typename qmc::parameter_type param_;
   typename qmc::config_type    config_;
@@ -136,7 +139,7 @@ public:
     alps::scheduler::LatticeModelMCRun<>(w, p, n),
     mdl_(p, graph(), simple_operators(), model()),
     mcs_(0), therm_(static_cast<unsigned int>(p["thermalization"])), 
-    total_(static_cast<unsigned int>(p["total MCS"])),
+    total_(static_cast<unsigned int>(p["MCS"])),
     qmc_(graph(), mdl_, 1.0 / static_cast<double>(p["temperature"]),
 	 measurements) {}
   virtual ~worker() {}
@@ -155,11 +158,13 @@ public:
   }
   
   virtual void save(alps::ODump& od) const {
-    od << mcs_ << qmc_;
+    od << mcs_;
+    qmc_.save(od);
   }
   virtual void load(alps::IDump& id) {
-    id >> mcs_ >> qmc_;
-    if (where.empty()) m.compact();
+    id >> mcs_;
+    qmc_.load(id);
+    if (where.empty()) measurements.compact();
   }
 
 private:
@@ -187,13 +192,11 @@ class factory : public alps::scheduler::Factory
     if (!p.defined("representation") ||
 	p["representation"] != "SSE") {
       return new worker<looper::path_integral<
-                          looper::virtual_graph<
-	                    alps::graph_factory<>::graph_type>,
+                          looper::virtual_graph<looper::parity_graph_type>,
                           looper::xxz_model> >(w, p, n);
     } else {
       return new worker<looper::sse<
-                          looper::virtual_graph<
-	                    alps::graph_factory<>::graph_type>,
+                          looper::virtual_graph<looper::parity_graph_type>,
 	                  looper::xxz_model> >(w, p, n);
     }
   }

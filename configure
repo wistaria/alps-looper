@@ -1232,7 +1232,7 @@ fi
 
                     ac_config_files="$ac_config_files test/lattices.xml test/models.xml"
 
-          ac_config_files="$ac_config_files percolation-params"
+                    ac_config_files="$ac_config_files percolation-params qmc-params"
 
 
 
@@ -1737,6 +1737,7 @@ do
   "test/lattices.xml" ) CONFIG_FILES="$CONFIG_FILES test/lattices.xml" ;;
   "test/models.xml" ) CONFIG_FILES="$CONFIG_FILES test/models.xml" ;;
   "percolation-params" ) CONFIG_FILES="$CONFIG_FILES percolation-params" ;;
+  "qmc-params" ) CONFIG_FILES="$CONFIG_FILES qmc-params" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
    { (exit 1); exit 1; }; };;

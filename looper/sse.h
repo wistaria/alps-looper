@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: sse.h 514 2003-11-05 04:17:57Z wistaria $
+* $Id: sse.h 515 2003-11-05 06:12:32Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -49,7 +49,6 @@ namespace looper {
 
 typedef qmc_node sse_node;
 
-
 template<class G, class M, class W = default_weight, class N = sse_node>
 struct sse;
 
@@ -79,10 +78,9 @@ template<class G, class M, class W, class N>
     typedef M model_type;
     typedef W weight_type;
 
-    parameter_type(const G& rg, const model_type& m, double b)
-      : virtual_graph(), graph(virtual_graph.graph),
-	mapping(virtual_graph.mapping), model(m), beta(b),
-	chooser(), ez_offset(0.)
+    template<class RG>
+    parameter_type(const RG& rg, const model_type& m, double b)
+      : virtual_graph(), model(m), beta(b), chooser(), ez_offset(0.)
     { 
       looper::generate_virtual_graph(rg, model, virtual_graph);
       chooser.init(virtual_graph, model);
@@ -93,14 +91,14 @@ template<class G, class M, class W, class N>
     {
       typename boost::graph_traits<graph_type>::edge_iterator ei, ei_end;
       ez_offset = 0.;
-      for (boost::tie(ei, ei_end) = boost::edges(graph); ei != ei_end; ++ei)
+      for (boost::tie(ei, ei_end) = boost::edges(virtual_graph.graph);
+	   ei != ei_end; ++ei)
 	ez_offset +=
-	  weight_type(model.bond(bond_type(*ei, graph))).offset();
+	  weight_type(model.bond(bond_type(*ei, virtual_graph.graph))).
+	    offset();
     }
 
     vg_type                   virtual_graph;
-    graph_type&               graph;
-    mapping_type&             mapping;
     const model_type&         model;
     double                    beta;
     bond_chooser<weight_type> chooser;
@@ -121,6 +119,13 @@ template<class G, class M, class W, class N>
 
     unsigned int num_loops0;
     unsigned int num_loops;
+
+    alps::ODump& save(alps::ODump& od) const {
+      return od << bottom << top << os << num_operators;
+    }
+    alps::IDump& load(alps::IDump& id) {
+      return id >> bottom >> top >> os >> num_operators;
+    }
   };
 
 
@@ -214,7 +219,6 @@ template<class G, class M, class W, class N>
     if (boost::num_edges(vg.graph) > 0) {
       operator_iterator oi_end = config.os.end();
       for (operator_iterator oi = config.os.begin(); oi != oi_end; ++oi) {
-	////std::cout << "op: before " << oi->is_identity() << oi->is_diagonal() << oi->is_offdiagonal();
 	if (oi->is_identity()) {
 	  // identity operator
 	  int b = bc.choose(uniform_01);
@@ -226,15 +230,11 @@ template<class G, class M, class W, class N>
 	      double(config.os.size() - config.num_operators)) {
 	    // insert diagonal operator
 	    oi->identity_to_diagonal();
-	    ////std::cout << " " << oi->is_identity() << oi->is_diagonal() << oi->is_offdiagonal();
 	    oi->set_bond(b);
 	    ++config.num_operators;
-	    ////std::cout << " " << oi->is_identity() << oi->is_diagonal() << oi->is_offdiagonal();
-	    
 	    oi->set_new((curr_conf[boost::source(*ei, vg.graph)] ^
 			 curr_conf[boost::target(*ei, vg.graph)]),
 			(uniform_01() < bc.weight(b).p_freeze()));
-	    ////std::cout << " " << oi->is_identity() << oi->is_diagonal() << oi->is_offdiagonal();
 	  } else { /* nothing to be done */ }
 	} else if (oi->is_diagonal()) {
 	  // diagonal operator
@@ -262,7 +262,6 @@ template<class G, class M, class W, class N>
 	  curr_conf[boost::target(*ei, vg.graph)] ^= 1;
 	  oi->set_old(uniform_01() < bc.weight(b).p_reflect());
 	}
-	////std::cout << " after " << oi->is_identity() << oi->is_diagonal() << oi->is_offdiagonal() << std::endl;
       }
     }
 #ifndef NDEBUG

@@ -4,7 +4,7 @@
 *
 * main program for QMC simulation
 *
-* $Id: qmc.C 461 2003-10-22 14:34:25Z wistaria $
+* $Id: qmc.C 515 2003-11-05 06:12:32Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -43,7 +43,7 @@ int main(int argc, char** argv)
 #ifndef BOOST_NO_EXCEPTIONS
   try {
 #endif
-    return alps::scheduler::start(argc, argv, looper::qmc::factory());
+    return alps::scheduler::start(argc, argv, factory());
 #ifndef BOOST_NO_EXCEPTIONS
   }
   catch (std::exception& exc) {
