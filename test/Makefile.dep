@@ -1,0 +1,11 @@
+amida.o amida_mpi.o amida_pvm.o amida amida_mpi amida_pvm: $(top_srcdir)/looper/amida.h $(top_srcdir)/looper/vector_helper.h
+fill_duration.o fill_duration_mpi.o fill_duration_pvm.o fill_duration fill_duration_mpi fill_duration_pvm: $(top_srcdir)/looper/fill_duration.h
+hypercubic_graph_generator.o hypercubic_graph_generator_mpi.o hypercubic_graph_generator_pvm.o hypercubic_graph_generator hypercubic_graph_generator_mpi hypercubic_graph_generator_pvm: $(top_srcdir)/looper/graph.h
+index_helper.o index_helper_mpi.o index_helper_pvm.o index_helper index_helper_mpi index_helper_pvm: $(top_srcdir)/looper/vector_helper.h
+permutation.o permutation_mpi.o permutation_pvm.o permutation permutation_mpi permutation_pvm: $(top_srcdir)/looper/permutation.h
+random_choice.o random_choice_mpi.o random_choice_pvm.o random_choice random_choice_mpi random_choice_pvm: $(top_srcdir)/looper/random_choice.h
+union_find.o union_find_mpi.o union_find_pvm.o union_find union_find_mpi union_find_pvm: $(top_srcdir)/looper/union_find.h
+virtual_graph.o virtual_graph_mpi.o virtual_graph_pvm.o virtual_graph virtual_graph_mpi virtual_graph_pvm: $(top_srcdir)/looper/graph.h $(top_srcdir)/looper/virtual_graph.h
+weight.o weight_mpi.o weight_pvm.o weight weight_mpi weight_pvm: $(top_srcdir)/looper/xxz.h $(top_srcdir)/looper/weight.h $(top_srcdir)/looper/random_choice.h
+xxz_matrix.o xxz_matrix_mpi.o xxz_matrix_pvm.o xxz_matrix xxz_matrix_mpi xxz_matrix_pvm: $(top_srcdir)/looper/xxz.h
+xxz_model.o xxz_model_mpi.o xxz_model_pvm.o xxz_model xxz_model_mpi xxz_model_pvm: $(top_srcdir)/looper/xxz.h

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: qmc_impl.h 513 2003-11-05 03:41:16Z wistaria $
+* $Id: qmc_impl.h 514 2003-11-05 04:17:57Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -56,10 +56,9 @@ public:
   template<class G, class MDL>
   qmc_worker(const G& rg, const MDL& model, double beta,
 	     alps::ObservableSet& m) :
-    vg_(), param_(vg_, model, beta), config_()
+    param_(rg, model, beta), config_()
   {
-    looper::generate_virtual_graph(rg, model, vg_);
-    is_bipartite = alps::set_parity(vg_);
+    is_bipartite = alps::set_parity(param_.virtual_graph);
     e_offset_ = qmc::energy_offset(param_);
 
     qmc::initialize(config_, param_);
@@ -120,7 +119,6 @@ public:
   }
 
 private:
-  typename qmc::vg_type        vg_;
   typename qmc::parameter_type param_;
   typename qmc::config_type    config_;
   bool                         is_bipartite;

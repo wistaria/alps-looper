@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: sse.h 513 2003-11-05 03:41:16Z wistaria $
+* $Id: sse.h 514 2003-11-05 04:17:57Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -79,19 +79,28 @@ template<class G, class M, class W, class N>
     typedef M model_type;
     typedef W weight_type;
 
-    parameter_type(const vg_type& vg, const model_type& m, double b)
-      : virtual_graph(vg), graph(vg.graph), mapping(vg.mapping), model(m),
-	beta(b), chooser(vg, model), ez_offset(0)
-    {
-      typename boost::graph_traits<graph_type>::edge_iterator ei, ei_end;
-      for (boost::tie(ei, ei_end) = boost::edges(vg.graph); ei != ei_end; ++ei)
-	ez_offset +=
-	  weight_type(model.bond(bond_type(*ei, vg.graph))).offset();
+    parameter_type(const G& rg, const model_type& m, double b)
+      : virtual_graph(), graph(virtual_graph.graph),
+	mapping(virtual_graph.mapping), model(m), beta(b),
+	chooser(), ez_offset(0.)
+    { 
+      looper::generate_virtual_graph(rg, model, virtual_graph);
+      chooser.init(virtual_graph, model);
+      update_offset();
     }
 
-    const vg_type&            virtual_graph;
-    const graph_type&         graph;
-    const mapping_type&       mapping;
+    void update_offset()
+    {
+      typename boost::graph_traits<graph_type>::edge_iterator ei, ei_end;
+      ez_offset = 0.;
+      for (boost::tie(ei, ei_end) = boost::edges(graph); ei != ei_end; ++ei)
+	ez_offset +=
+	  weight_type(model.bond(bond_type(*ei, graph))).offset();
+    }
+
+    vg_type                   virtual_graph;
+    graph_type&               graph;
+    mapping_type&             mapping;
     const model_type&         model;
     double                    beta;
     bond_chooser<weight_type> chooser;
