@@ -14,7 +14,7 @@
 
 @SET_MAKE@
 
-SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) $(bond_matrix_SOURCES) $(edge_type_SOURCES) $(fill_duration_SOURCES) $(filtered_graph_SOURCES) $(find_bridges_SOURCES) $(generate_01_SOURCES) $(gesvd_SOURCES) $(hypercubic_SOURCES) $(index_helper_SOURCES) $(llsp_SOURCES) $(model_parameter_SOURCES) $(permutation_SOURCES) $(postorder_SOURCES) $(random_choice_SOURCES) $(sign_SOURCES) $(site_matrix_SOURCES) $(syev_SOURCES) $(union_find_SOURCES) $(virtual_graph_SOURCES) $(weight_SOURCES)
+SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) $(bond_matrix_SOURCES) $(edge_type_SOURCES) $(fill_duration_SOURCES) $(filtered_graph_SOURCES) $(find_bridges_SOURCES) $(generate_01_SOURCES) $(gesvd_SOURCES) $(hypercubic_SOURCES) $(index_helper_SOURCES) $(llsp_SOURCES) $(model_parameter_SOURCES) $(parse_vector_SOURCES) $(permutation_SOURCES) $(postorder_SOURCES) $(random_choice_SOURCES) $(sign_SOURCES) $(site_matrix_SOURCES) $(syev_SOURCES) $(union_find_SOURCES) $(virtual_graph_SOURCES) $(weight_SOURCES)
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -43,9 +43,10 @@ check_PROGRAMS = alternating_tensor$(EXEEXT) amida$(EXEEXT) \
 	filtered_graph$(EXEEXT) find_bridges$(EXEEXT) \
 	generate_01$(EXEEXT) gesvd$(EXEEXT) hypercubic$(EXEEXT) \
 	index_helper$(EXEEXT) llsp$(EXEEXT) model_parameter$(EXEEXT) \
-	permutation$(EXEEXT) postorder$(EXEEXT) random_choice$(EXEEXT) \
-	sign$(EXEEXT) site_matrix$(EXEEXT) syev$(EXEEXT) \
-	union_find$(EXEEXT) virtual_graph$(EXEEXT) weight$(EXEEXT)
+	parse_vector$(EXEEXT) permutation$(EXEEXT) postorder$(EXEEXT) \
+	random_choice$(EXEEXT) sign$(EXEEXT) site_matrix$(EXEEXT) \
+	syev$(EXEEXT) union_find$(EXEEXT) virtual_graph$(EXEEXT) \
+	weight$(EXEEXT)
 subdir = test
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/model_parameter.ip.in \
@@ -110,6 +111,10 @@ am_model_parameter_OBJECTS = model_parameter.$(OBJEXT)
 model_parameter_OBJECTS = $(am_model_parameter_OBJECTS)
 model_parameter_LDADD = $(LDADD)
 model_parameter_DEPENDENCIES =
+am_parse_vector_OBJECTS = parse_vector.$(OBJEXT)
+parse_vector_OBJECTS = $(am_parse_vector_OBJECTS)
+parse_vector_LDADD = $(LDADD)
+parse_vector_DEPENDENCIES =
 am_permutation_OBJECTS = permutation.$(OBJEXT)
 permutation_OBJECTS = $(am_permutation_OBJECTS)
 permutation_LDADD = $(LDADD)
@@ -162,8 +167,8 @@ SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) \
 	$(find_bridges_SOURCES) $(generate_01_SOURCES) \
 	$(gesvd_SOURCES) $(hypercubic_SOURCES) $(index_helper_SOURCES) \
 	$(llsp_SOURCES) $(model_parameter_SOURCES) \
-	$(permutation_SOURCES) $(postorder_SOURCES) \
-	$(random_choice_SOURCES) $(sign_SOURCES) \
+	$(parse_vector_SOURCES) $(permutation_SOURCES) \
+	$(postorder_SOURCES) $(random_choice_SOURCES) $(sign_SOURCES) \
 	$(site_matrix_SOURCES) $(syev_SOURCES) $(union_find_SOURCES) \
 	$(virtual_graph_SOURCES) $(weight_SOURCES)
 DIST_SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) \
@@ -172,8 +177,8 @@ DIST_SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) \
 	$(find_bridges_SOURCES) $(generate_01_SOURCES) \
 	$(gesvd_SOURCES) $(hypercubic_SOURCES) $(index_helper_SOURCES) \
 	$(llsp_SOURCES) $(model_parameter_SOURCES) \
-	$(permutation_SOURCES) $(postorder_SOURCES) \
-	$(random_choice_SOURCES) $(sign_SOURCES) \
+	$(parse_vector_SOURCES) $(permutation_SOURCES) \
+	$(postorder_SOURCES) $(random_choice_SOURCES) $(sign_SOURCES) \
 	$(site_matrix_SOURCES) $(syev_SOURCES) $(union_find_SOURCES) \
 	$(virtual_graph_SOURCES) $(weight_SOURCES)
 DATA = $(dist_noinst_DATA)
@@ -307,6 +312,7 @@ dist_noinst_DATA = \
 	index_helper.op \
 	llsp.ip llsp.op \
 	model_parameter.op \
+	parse_vector.ip parse_vector.op \
 	permutation.op \
 	postorder.ip postorder.op \
 	random_choice.op \
@@ -332,6 +338,7 @@ hypercubic_SOURCES = hypercubic.C
 index_helper_SOURCES = index_helper.C
 llsp_SOURCES = llsp.C
 model_parameter_SOURCES = model_parameter.C
+parse_vector_SOURCES = parse_vector.C
 permutation_SOURCES = permutation.C
 postorder_SOURCES = postorder.C
 random_choice_SOURCES = random_choice.C
@@ -424,6 +431,9 @@ llsp$(EXEEXT): $(llsp_OBJECTS) $(llsp_DEPENDENCIES)
 model_parameter$(EXEEXT): $(model_parameter_OBJECTS) $(model_parameter_DEPENDENCIES) 
 	@rm -f model_parameter$(EXEEXT)
 	$(CXXLINK) $(model_parameter_LDFLAGS) $(model_parameter_OBJECTS) $(model_parameter_LDADD) $(LIBS)
+parse_vector$(EXEEXT): $(parse_vector_OBJECTS) $(parse_vector_DEPENDENCIES) 
+	@rm -f parse_vector$(EXEEXT)
+	$(CXXLINK) $(parse_vector_LDFLAGS) $(parse_vector_OBJECTS) $(parse_vector_LDADD) $(LIBS)
 permutation$(EXEEXT): $(permutation_OBJECTS) $(permutation_DEPENDENCIES) 
 	@rm -f permutation$(EXEEXT)
 	$(CXXLINK) $(permutation_LDFLAGS) $(permutation_OBJECTS) $(permutation_LDADD) $(LIBS)
@@ -471,6 +481,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/index_helper.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/llsp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/model_parameter.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parse_vector.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/permutation.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/postorder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/random_choice.Po@am__quote@

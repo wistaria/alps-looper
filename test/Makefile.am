@@ -12,6 +12,7 @@ check_PROGRAMS = \
 	index_helper \
 	llsp \
 	model_parameter \
+	parse_vector \
 	permutation \
 	postorder \
 	random_choice \
@@ -35,6 +36,7 @@ dist_noinst_DATA = \
 	index_helper.op \
 	llsp.ip llsp.op \
 	model_parameter.op \
+	parse_vector.ip parse_vector.op \
 	permutation.op \
 	postorder.ip postorder.op \
 	random_choice.op \
@@ -61,6 +63,7 @@ hypercubic_SOURCES = hypercubic.C
 index_helper_SOURCES = index_helper.C
 llsp_SOURCES = llsp.C
 model_parameter_SOURCES = model_parameter.C
+parse_vector_SOURCES = parse_vector.C
 permutation_SOURCES = permutation.C
 postorder_SOURCES = postorder.C
 random_choice_SOURCES = random_choice.C
