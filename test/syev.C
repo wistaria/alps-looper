@@ -80,12 +80,13 @@ struct Options {
 };
 
 
-int main(int argc, char ** argv) {
-  double t0, t1;
+int main(int argc, char ** argv)
+{
   int info;
 
   std::cout << "Diagonalization of random real symmetric matrix\n";
-  //  std::cerr << "[t = " << alps::dclock() << "s]\n";
+  std::cerr << "[starting program: "
+            << boost::posix_time::microsec_clock::local_time() << "]\n";
 
   Options opts(argc, argv);
   std::cout << "n: dimension of matrix : " << opts.n << std::endl;
@@ -105,20 +106,25 @@ int main(int argc, char ** argv) {
       mat(i, j) = norm * double(rng()) - 0.5;
   std::cout << "done\n";
 
-  //t0 = alps::dclock();
-  //  std::cerr << "[t = " << t0 << "s]\n";
+  boost::posix_time::ptime t0 =
+    boost::posix_time::microsec_clock::local_time();
+  std::cerr << "[starting diagonalization: " << t0 << "]\n";
 
   std::cout << "diagonalization... " << std::flush;
-  looper::lapack_dispatch::syev('V', 'L' ,n, &mat(0, 0), n, &vec(0),info);
+  looper::diagonalize(mat, vec);
   std::cout << "done\n";
 
-  //  t1 = alps::dclock();
-  //  std::cerr << "[t = " << t1 << "s]\n";
-  //  std::cerr << "[CPU time = " << t1 - t0 << "s]\n";
+  boost::posix_time::ptime t1 =
+    boost::posix_time::microsec_clock::local_time();
+  std::cerr << "[finished diagonalization: " << t1 << "]\n";
+  std::cerr << "[elapsed time: " << t1 - t0 << "]\n";
 
   std::cout << "selected eigenvalues:\n";
-  for (int i = 0; i < n; i+=(n/10)) {
+  bool print_last = false;
+  for (int i = 0; i < n; i += std::max(n/10, 1)) {
     std::cout << "    e(" << i << ")\t= " << vec(i) << std::endl;
+    if (i == n - 1) print_last = true;
   }
-  std::cout << "    e(" << n-1 << ")\t= " << vec(n-1) << std::endl;
+  if (!print_last)
+    std::cout << "    e(" << n-1 << ")\t= " << vec(n-1) << std::endl;
 }

@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: exact_diagonalization.h 557 2003-11-12 12:33:19Z wistaria $
+// $Id: exact_diagonalization.h 558 2003-11-12 14:02:13Z wistaria $
 
 #ifndef LOOPER_EXACT_DIAGONALIZATION_H
 #define LOOPER_EXACT_DIAGONALIZATION_H
@@ -44,14 +44,31 @@ struct exact_diagonalization
 
   struct parameter_type
   {
+    parameter_type(graph_type& g, const model_type& m, double b)
+      : graph(g), model(m), beta(b)
+    {
+      is_bipartite = alps::set_parity(graph);
+    }
 
-
+    graph_type& graph;
+    const model_type& model;
+    double            beta;
+    bool              is_bipartite;
   };
 
   struct config_type
   {
-
+    matrix_type hamiltonian;
   };
+
+  static generate_matrix(const parameter_type& param, config_type& config)
+  {
+    
+  }
+
+  static diagonalize(const parameter_type& param, config_type& config)
+  {}
+
 };
 
 } // end namespace looper

@@ -1,10 +1,34 @@
-// dpQLM: lapack.h
+/*****************************************************************************
+*
+* ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
+* 
+* Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
+* 
+* This software is published under the ALPS Application License; you can use,
+* redistribute and/or modify this software under the terms of the license,
+* either version 1 or (at your option) any later version.
+* 
+* You should have received a copy of the ALPS Application License along with
+* the ALPS Library; see the file LICENSE. If not, the license is also
+* available from http://alps.comp-phys.org/.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+* FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT 
+* SHALL THE COPYRIGHT HOLDERS OR ANYONE DISTRIBUTING THE SOFTWARE BE LIABLE 
+* FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE, 
+* ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+* DEALINGS IN THE SOFTWARE.
+*
+*****************************************************************************/
 
 #ifndef LOOPER_LAPACK_H
 #define LOOPER_LAPACK_H
 
 #include <looper/config.h>
 #include <algorithm>
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/vector.hpp>
 #include <complex>
 #include <stdexcept>
 #include <vector>
@@ -131,6 +155,30 @@ inline void syev(const char & jobz, const char& uplo, const int& n,
 
 } // namespace lapack_dispatch
 
+namespace {
+
+template<class T> struct vector_helper;
+
+template<class T>
+struct vector_helper<boost::numeric::ublas::vector<T> >
+{
+  typedef T                                value_type;
+  typedef boost::numeric::ublas::vector<T> vector_type;
+  static value_type * begin_ptr(vector_type& v) { return &v(0); }
+  static int size(const vector_type& v) { return v.size(); }
+};
+
+template<class T> struct matrix_helper;
+
+template<class T>
+struct matrix_helper<boost::numeric::ublas::matrix<T> >
+{
+  typedef T                                value_type;
+  typedef boost::numeric::ublas::matrix<T> matrix_type;
+  static value_type * begin_ptr(matrix_type& m) { return &m(0, 0); }
+};
+
+}
 
 template <class Matrix, class Vector>
 inline void diagonalize(Matrix& a, Vector& w, bool need_eigenvectors = true)
@@ -141,11 +189,16 @@ inline void diagonalize(Matrix& a, Vector& w, bool need_eigenvectors = true)
   } else {
     jobz = 'N';
   }
-  char uplo = 'U';
+  char uplo = 'L';
   int info;
 
   // call dispatcher
-  lapack_dispatch::syev(jobz, uplo, w.size(), &a(0,0), w.size(), &w[0], info);
+  lapack_dispatch::syev(jobz, uplo,
+			vector_helper<Vector>::size(w),
+			matrix_helper<Matrix>::begin_ptr(a),
+			vector_helper<Vector>::size(w),
+			vector_helper<Vector>::begin_ptr(w),
+			info);
   if (info != 0) throw std::runtime_error("failed in syev");
 }
 
