@@ -565,7 +565,7 @@ AC_DEFUN([AC_LAPACK],
                     [AC_MSG_RESULT(yes); found=yes],[AC_MSG_RESULT(no)])
       fi
       if test "$found" = no ;  then
-        for blas_libs in '-lblas' '-lblas -lg2c' '-lblas -lpgftnrtl -lpgc'; do
+        for blas_libs in '-lblas' '-lblas -lf2c' '-lblas -lg2c' '-lblas -lpgftnrtl -lpgc'; do
           LDFLAGS="$blas_ldflags $ac_save_LDFLAGS"
           LIBS="$blas_libs $ac_save_LIBS"
           AC_MSG_CHECKING([for dgemm_ in $blas_ldflags $blas_libs])
@@ -640,7 +640,7 @@ AC_DEFUN([AC_LAPACK],
 	  fi
         fi
         if test "$found" = no; then
-          for lapack_libs in '-llapack'; do
+          for lapack_libs in '-llapack' '-llapack -lf2c' '-llapack -lg2c'; do
             LDFLAGS="$lapack_ldflags $LAPACK_LDFLAGS $ac_save_LDFLAGS"
             LIBS="$lapack_libs $LAPACK_LIBS $ac_save_LIBS"
             if test "$ac_cv_compiler" = ibm32; then
