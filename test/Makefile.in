@@ -22,7 +22,7 @@
 #
 ##############################################################################
 
-# $Id: Makefile.in 567 2003-11-13 09:52:09Z wistaria $
+# $Id: Makefile.in 601 2004-01-14 10:32:55Z wistaria $
 # Makefile for test programs
 
 srcdir = @srcdir@
@@ -36,8 +36,8 @@ LAPACK_CPPFLAGS = @LAPACK_CPPFLAGS@
 LAPACK_LDFLAGS = @LAPACK_LDFLAGS@
 LAPACK_LIBS = @LAPACK_LIBS@
 
-cppflags = $(CPPFLAGS) $(LAPACK_CPPFLAGS) -I$(top_srcdir)
-cppflags_mpi = $(CPPFLAGS_MPI) $(LAPACK_CPPFLAGS) -I$(top_srcdir)
+cppflags = $(CPPFLAGS) $(LAPACK_CPPFLAGS) -I$(top_builddir) -I$(top_srcdir)
+cppflags_mpi = $(CPPFLAGS_MPI) $(LAPACK_CPPFLAGS) -I$(top_builddir) -I$(top_srcdir)
 cxxflags = $(CXXFLAGS)
 ldflags = $(LDFLAGS) $(LAPACK_LDFLAGS)
 ldflags_mpi = $(LDFLAGS_MPI) $(LAPACK_LDFLAGS)
