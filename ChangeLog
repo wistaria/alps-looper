@@ -1,39 +1,43 @@
+2004-04-20  Synge Todo  <wistaria@comp-phys.org>
+
+        * Optimized measurement of staggered susceptibility in SSE.
+        
 2004-04-14  Synge Todo  <wistaria@comp-phys.org>
 
-	* Added wrapper and test program for linear least squares solver
-	(gels) in LAPACK.
+        * Added wrapper and test program for linear least squares solver
+        (gels) in LAPACK.
 
-	* Replaced internal matrix representation in xxz_matrix by
-	boost::multiarray<>.  Improved fitting algorithm in fit2xxz by
-	using the linear least squares solver.
-	
+        * Replaced internal matrix representation in xxz_matrix by
+        boost::multiarray<>.  Improved fitting algorithm in fit2xxz by
+        using the linear least squares solver.
+        
 2004-04-07  Synge Todo  <wistaria@comp-phys.org>
 
         * version 3.0b5 released.
         - prerequisites: boost_1_31_0, alps-20040407
-	- TODO: optimization, improved estimators, more measurements,
+        - TODO: optimization, improved estimators, more measurements,
           license issue.  Bug fixes for some mesurements...
 
 2004-04-06  Synge Todo  <wistaria@comp-phys.org>
-	
-	* Added exact diagonalization checking program.
-	
-	* Moved percolation programs into an independent package.
-	
+        
+        * Added exact diagonalization checking program.
+        
+        * Moved percolation programs into an independent package.
+        
 2004-04-03  Synge Todo  <wistaria@comp-phys.org>
 
-	* Introduced site_parameter<T> class template.
-	
+        * Introduced site_parameter<T> class template.
+        
 2004-04-01  Synge Todo  <wistaria@comp-phys.org>
 
-	* Add new test generate_01, in which icc 8.0 with -xW fails, and
-	changed looper/path_integral.h as a workaround for this bug.
-	
-	* Changed looper/path_integral.h as a workaround for a bug in icc
-	8.0 with -O1 or higher.
-	
+        * Add new test generate_01, in which icc 8.0 with -xW fails, and
+        changed looper/path_integral.h as a workaround for this bug.
+        
+        * Changed looper/path_integral.h as a workaround for a bug in icc
+        8.0 with -O1 or higher.
+        
 2004-03-23  Synge Todo  <wistaria@comp-phys.org>
-	
+        
         * Changed looper/graph.h so that the generate_graph function uses
           ALPS/Lattice Library.
 

@@ -499,25 +499,25 @@ struct sse<virtual_graph<G>, M, W, N>
   static double static_sz(int i, const config_type& config)
   { return 0.5 - (double)config.bottom[i].conf(); }
 
-  static double dynamic_sz(int i, const config_type& config, const vg_type& vg)
-  {
-    typedef typename config_type::const_iterator const_operator_iterator;
+  // static double dynamic_sz(int i, const config_type& config, const vg_type& vg)
+  // {
+  //   typedef typename config_type::const_iterator const_operator_iterator;
 
-    double sz = 0.;
-
-    double c = static_sz(i, config);
-    const_operator_iterator oi_end = config.os.end();
-    for (const_operator_iterator oi = config.os.begin(); oi != oi_end; ++oi) {
-      sz += c;
-      if (oi->is_offdiagonal()) {
-        edge_iterator ei = boost::edges(vg.graph).first + oi->bond();
-        if (boost::source(*ei, vg.graph) == i ||
-            boost::target(*ei, vg.graph) == i) c = -c;
-      }
-    }
-    return sz / std::sqrt((double)config.os.size() *
-                              (double)(config.os.size() + 1));
-  }
+  //   double sz = 0.;
+  //
+  //   double c = static_sz(i, config);
+  //   const_operator_iterator oi_end = config.os.end();
+  //   for (const_operator_iterator oi = config.os.begin(); oi != oi_end; ++oi) {
+  //     sz += c;
+  //     if (oi->is_offdiagonal()) {
+  //       edge_iterator ei = boost::edges(vg.graph).first + oi->bond();
+  //       if (boost::source(*ei, vg.graph) == i ||
+  //           boost::target(*ei, vg.graph) == i) c = -c;
+  //     }
+  //   }
+  //   return sz / std::sqrt((double)config.os.size() *
+  //                             (double)(config.os.size() + 1));
+  // }
 
   static int num_offdiagonals(const config_type& config)
   {
