@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: copyright.h 455 2003-10-22 01:04:57Z wistaria $
+* $Id: copyright.h 458 2003-10-22 02:37:31Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -45,7 +45,7 @@ void print_copyright(std::ostream& os = std::cout)
 {
   os << "ALPS/looper: multi-cluster quantum Monte Carlo algorithm for spin systems\n"
      << "             in path-integral and SSE representations\n"
-     << "  copyright (c) 1997-2003 by Synge Todo <wistaria@comp-phys.org>.\n"
+     << "  copyright (c) 1997-2003 by Synge Todo <wistaria@comp-phys.org>\n"
        << "\n";
 
 

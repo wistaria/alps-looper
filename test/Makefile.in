@@ -48,7 +48,9 @@ libs_program = -lalps -lcomm-sgl $(HDF5_LIBS) $(XML_LIBS) $(BASE_LIBS)
 libs_program_mpi = -lalps -lcomm-mpi $(HDF5_LIBS) $(XML_LIBS) $(MPI_LIBS) $(BASE_LIBS)
 
 LOCAL_CONFIG = lattices.xml models.xml amida.xdr
-TESTOK = amida.ok fill_duration.ok index_helper.ok permutation.ok random_choice.ok simple_graph.ok union_find.ok xxz_matrix.ok xxz_model.ok virtual_graph.ok weight.ok 
+TESTOK = amida.ok fill_duration.ok hypercubic_graph_generator.ok index_helper.ok permutation.ok random_choice.ok union_find.ok xxz_matrix.ok xxz_model.ok virtual_graph.ok weight.ok 
+
+default: tests
 
 include $(RULES_MK)
 include $(srcdir)/Makefile.dep
@@ -57,7 +59,6 @@ include $(srcdir)/Makefile.dep
 
 amida.ok : $(srcdir)/amida.output
 fill_duration.ok : $(srcdir)/fill_duration.input $(srcdir)/fill_duration.output
-simplegraph.ok : $(srcdir)/simplegraph.input $(srcdir)/simplegraph.output
 xxz_model.ok : $(srcdir)/xxz_model.input $(srcdir)/xxz_model.output models.xml lattices.xml
 xxz_matrix.ok : $(srcdir)/xxz_matrix.input $(srcdir)/xxz_matrix.output
 

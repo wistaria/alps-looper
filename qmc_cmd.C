@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: qmc_cmd.C 455 2003-10-22 01:04:57Z wistaria $
+* $Id: qmc_cmd.C 458 2003-10-22 02:37:31Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -34,6 +34,7 @@
 *
 **************************************************************************/
 
+#include <looper/copyright.h>
 #include <looper/model.h>
 #include <looper/path_integral.h>
 #include <looper/sse.h>
@@ -69,7 +70,7 @@ struct Options {
        << "  -l int     linear size of system\n"
        << "  -s double  spin size S\n"
        << "  -x double  coupling Jxy\n"
-       << "  -z double  doupling Jz\n"
+       << "  -z double  coupling Jz\n"
        << "  -t double  temperature\n"
        << "  -m int     MCS for thermalization\n"
        << "  -n int     MCS for measurement\n"
@@ -150,8 +151,8 @@ int main(int argc, char *argv[]) {
 try {
 #endif
 
-  std::cout << "[alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems\n"
-	    << "              in path-integral and SSE representations]\n\n";
+  looper::print_copyright();
+  std::cout << "qmc_cmd: sample QMC program for simple hypercubic lattices\n\n";
 
   // simulation parameters
   Options opts(argc, argv);
@@ -176,9 +177,9 @@ try {
 
   // hypercubic lattice
   typedef looper::parity_graph_type graph_type;
-  looper::simple_hypercubic_graph_descriptor<> shgd(opts.dim, opts.lsize);
   graph_type g;
-  looper::generate_graph(shgd, g);
+  looper::generate_graph(
+    looper::hypercubic_graph_generator<>(opts.dim, opts.lsize), g);
   bool is_bipartite = alps::set_parity(g);
   std::cout << "is_bipartite " << is_bipartite << std::endl;
 

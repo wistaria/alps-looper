@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: graph.h 455 2003-10-22 01:04:57Z wistaria $
+* $Id: graph.h 458 2003-10-22 02:37:31Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -98,19 +98,18 @@ struct graph_traits
 };
 
 template<class D = unsigned int, class S = D, class E = std::vector<S> >
-class simple_hypercubic_graph_descriptor
+class hypercubic_graph_generator
 {
 public:
   typedef D dimension_type;
   typedef S size_type;
   typedef E extent_type;
 
-  simple_hypercubic_graph_descriptor() : ext_() {}
-  explicit simple_hypercubic_graph_descriptor(dimension_type dim,
-					      size_type size)
+  hypercubic_graph_generator() : ext_() {}
+  explicit hypercubic_graph_generator(dimension_type dim, size_type size)
     : ext_(dim, size) {}
   template<class Container>
-  simple_hypercubic_graph_descriptor(const Container& ext) : ext_(ext.size()) {
+  hypercubic_graph_generator(const Container& ext) : ext_(ext.size()) {
     std::copy(ext.begin(), ext.end(), ext_.begin());
   }
   dimension_type dimension() const { return ext_.size(); }
@@ -124,7 +123,7 @@ private:
 namespace detail {
 
 template<class G, class D>
-struct simple_hypercubic_graph_helper
+struct hypercubic_graph_helper
 {
   typedef G                                                  graph_type;
   typedef D                                                  descriptor_type;
@@ -170,7 +169,7 @@ struct simple_hypercubic_graph_helper
 } // end namespace detail
 
 template<class D, class S, class E, class G>
-void generate_graph(const simple_hypercubic_graph_descriptor<D, S, E>& desc,
+void generate_graph(const hypercubic_graph_generator<D, S, E>& desc,
 		    G& g)
 {
   typedef G graph_type;
@@ -182,8 +181,8 @@ void generate_graph(const simple_hypercubic_graph_descriptor<D, S, E>& desc,
     edge_descriptor;
   typedef typename graph_traits<graph_type>::coordinate_type coordinate_type;
 
-  typedef simple_hypercubic_graph_descriptor<D, S, E>        descriptor_type;
-  typedef detail::simple_hypercubic_graph_helper<graph_type, descriptor_type>
+  typedef hypercubic_graph_generator<D, S, E>                descriptor_type;
+  typedef detail::hypercubic_graph_helper<graph_type, descriptor_type>
                                                              helper_type;
 
   typedef typename descriptor_type::dimension_type           dimension_type;

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: virtual_graph.C 454 2003-10-22 00:41:25Z wistaria $
+* $Id: virtual_graph.C 458 2003-10-22 02:37:31Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -55,9 +55,9 @@ try {
   typedef graph_type::edge_iterator edge_iterator;
 
   // real graph
-  looper::simple_hypercubic_graph_descriptor<> shgd(2, 2);
+  looper::hypercubic_graph_generator<> gen(2, 2);
   graph_type rg;
-  looper::generate_graph(shgd, rg);
+  looper::generate_graph(gen, rg);
   boost::put(looper::vertex_type_t(), rg, *(boost::vertices(rg).first), 1);
   std::cout << rg;
   
