@@ -1,35 +1,42 @@
+LATTICE_LIBRARY = "../lattices.xml"
 LATTICE = "chain lattice"
+MODEL_LIBRARY = "../models.xml"
 MODEL = "spin"
-L  = 2
-Jxy  = -1
-Jz = -1
 MCS = 11000
 thermalization = 1000
 
+test = "0"
+
+L  = 2; Jxy  = -1; Jz = -1
+
 representation = "path integral"
-{
-temperature = 0.1
-}
-{
-temperature = 0.2
-}
-{
-temperature = 0.5
-}
-{
-temperature = 1.0
-}
+repr = "0"
+{ temperature = 0.1 }
+{ temperature = 0.2 }
+{ temperature = 0.5 }
+{ temperature = 1.0 }
 
 representation = "SSE"
-{
-temperature = 0.1
-}
-{
-temperature = 0.2
-}
-{
-temperature = 0.5
-}
-{
-temperature = 1.0
-}
+repr = "1"
+{ temperature = 0.1 }
+{ temperature = 0.2 }
+{ temperature = 0.5 }
+{ temperature = 1.0 }
+
+test = "1"
+
+L  = 2; Jxy  = -1; Jz = 1
+
+representation = "path integral"
+repr = "0"
+{ temperature = 0.1 }
+{ temperature = 0.2 }
+{ temperature = 0.5 }
+{ temperature = 1.0 }
+
+representation = "SSE"
+repr = "1"
+{ temperature = 0.1 }
+{ temperature = 0.2 }
+{ temperature = 0.5 }
+{ temperature = 1.0 }

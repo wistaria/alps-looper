@@ -271,7 +271,7 @@ PACKAGE_STRING='looper 3.0b3'
 PACKAGE_BUGREPORT=''
 
 ac_default_prefix=$HOME/ALPS
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS PACKAGE_DATE INCLUDE_MK CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CXXCPP LAPACK_CPPFLAGS LAPACK_LDFLAGS LAPACK_LIBS PROGRAM_MPI EXAMPLE_MPI PROGRAM_PVM EXAMPLE_PVM LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INCLUDE_MK CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CXXCPP LAPACK_CPPFLAGS LAPACK_LDFLAGS LAPACK_LIBS TESTOK_LAPACK PROGRAM_MPI EXAMPLE_MPI PROGRAM_PVM EXAMPLE_PVM LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1232,7 +1232,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-
+              looper_date="2003/11/12"
 
 
 cat >>confdefs.h <<_ACEOF
@@ -1240,12 +1240,12 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 cat >>confdefs.h <<_ACEOF
-#define LOOPER_DATE "2003/11/12"
+#define LOOPER_DATE "$looper_date"
 _ACEOF
 
 
-
-PACKAGE_DATE="2003/11/12"
+{ echo "$as_me:$LINENO: starting configuration for ALPS/looper version $PACKAGE_VERSION ($looper_date)" >&5
+echo "$as_me: starting configuration for ALPS/looper version $PACKAGE_VERSION ($looper_date)" >&6;}
 
 
 echo "$as_me:$LINENO: checking for ALPS library" >&5
@@ -1262,6 +1262,11 @@ echo "$as_me: error: ALPS library not found." >&2;}
 fi
 
 INCLUDE_MK="$ac_cv_alps_include_mk"
+
+echo "$as_me:$LINENO: checking for ALPS version" >&5
+echo $ECHO_N "checking for ALPS version... $ECHO_C" >&6
+echo "$as_me:$LINENO: result: $ac_cv_alps_version" >&5
+echo "${ECHO_T}$ac_cv_alps_version" >&6
 
 
 CXX="$ac_cv_alps_CXX"
@@ -3234,8 +3239,8 @@ echo $ECHO_N "checking for LAPACK root directory... $ECHO_C" >&6
         echo "$as_me:$LINENO: result: $lapack_dir" >&5
 echo "${ECHO_T}$lapack_dir" >&6
       else
-        echo "$as_me:$LINENO: result: OK" >&5
-echo "${ECHO_T}OK" >&6
+        echo "$as_me:$LINENO: result: " >&5
+echo "${ECHO_T}" >&6
       fi
     else
       echo "$as_me:$LINENO: result: $lapack_dir" >&5
@@ -3852,10 +3857,9 @@ echo "$as_me: LAPACK disabled" >&6;}
   fi
 
 
-if test "$ac_cv_have_lapack" != yes; then
-  { { echo "$as_me:$LINENO: error: check for LAPACK library failed" >&5
-echo "$as_me: error: check for LAPACK library failed" >&2;}
-   { (exit 1); exit 1; }; }
+
+if test "$ac_cv_have_lapack" = yes; then
+  TESTOK_LAPACK='$(TESTOK_LAPACK)'
 fi
 
 
@@ -3894,8 +3898,6 @@ fi
                     ac_config_files="$ac_config_files Makefile test/Makefile"
 
                     ac_config_files="$ac_config_files lattices.xml models.xml"
-
-                    ac_config_files="$ac_config_files test/lattices.xml test/models.xml"
 
                     ac_config_files="$ac_config_files percolation-params qmc-params"
 
@@ -4373,8 +4375,6 @@ do
   "test/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
   "lattices.xml" ) CONFIG_FILES="$CONFIG_FILES lattices.xml" ;;
   "models.xml" ) CONFIG_FILES="$CONFIG_FILES models.xml" ;;
-  "test/lattices.xml" ) CONFIG_FILES="$CONFIG_FILES test/lattices.xml" ;;
-  "test/models.xml" ) CONFIG_FILES="$CONFIG_FILES test/models.xml" ;;
   "percolation-params" ) CONFIG_FILES="$CONFIG_FILES percolation-params" ;;
   "qmc-params" ) CONFIG_FILES="$CONFIG_FILES qmc-params" ;;
   "looper/config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS looper/config.h" ;;
@@ -4462,7 +4462,6 @@ s,@ECHO_C@,$ECHO_C,;t t
 s,@ECHO_N@,$ECHO_N,;t t
 s,@ECHO_T@,$ECHO_T,;t t
 s,@LIBS@,$LIBS,;t t
-s,@PACKAGE_DATE@,$PACKAGE_DATE,;t t
 s,@INCLUDE_MK@,$INCLUDE_MK,;t t
 s,@CXX@,$CXX,;t t
 s,@CXXFLAGS@,$CXXFLAGS,;t t
@@ -4475,6 +4474,7 @@ s,@CXXCPP@,$CXXCPP,;t t
 s,@LAPACK_CPPFLAGS@,$LAPACK_CPPFLAGS,;t t
 s,@LAPACK_LDFLAGS@,$LAPACK_LDFLAGS,;t t
 s,@LAPACK_LIBS@,$LAPACK_LIBS,;t t
+s,@TESTOK_LAPACK@,$TESTOK_LAPACK,;t t
 s,@PROGRAM_MPI@,$PROGRAM_MPI,;t t
 s,@EXAMPLE_MPI@,$EXAMPLE_MPI,;t t
 s,@PROGRAM_PVM@,$PROGRAM_PVM,;t t

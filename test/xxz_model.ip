@@ -1,6 +1,8 @@
+LATTICE_LIBRARY = "../lattices.xml"
 LATTICE = "chain lattice"
+MODEL_LIBRARY = "../models.xml"
+MODEL   = "spin"
 L       = 8
 h       = 0
 J       = 2
 Jz      = - 0.3 * J
-MODEL   = "spin"

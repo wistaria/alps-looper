@@ -1,5 +1,10 @@
-2003-11-12  Synge Todo  <wistaria@comp-phys.org>
+2003-11-13  Synge Todo  <wistaria@comp-phys.org>
 
+	* Added check directory, which contains sample parameter for
+	qmc (qmc_mpi) for checking results.
+	
+2003-11-12  Synge Todo  <wistaria@comp-phys.org>
+	
 	* Updated copyright and file headers and added program `copyright'.
 
 	* Added exact diagonalization code (from dpQLM) for checking QMC

@@ -22,7 +22,7 @@
 #
 ##############################################################################
 
-# $Id: Makefile.in 560 2003-11-12 14:25:05Z wistaria $
+# $Id: Makefile.in 567 2003-11-13 09:52:09Z wistaria $
 # Makefile for test programs
 
 srcdir = @srcdir@
@@ -45,7 +45,8 @@ libs_program = -lalps -lcomm-sgl $(LAPACK_LIBS) $(HDF5_LIBS) $(XML_LIBS) $(BASE_
 libs_program_mpi = -lalps -lcomm-mpi $(LAPACK_LIBS) $(HDF5_LIBS) $(XML_LIBS) $(MPI_LIBS) $(BASE_LIBS)
 
 LOCAL_CONFIG = lattices.xml models.xml amida.xdr
-TESTOK = amida.ok fill_duration.ok hypercubic.ok index_helper.ok permutation.ok random_choice.ok syev.ok union_find.ok virtual_graph.ok weight.ok xxz_matrix.ok xxz_model.ok
+TESTOK_LAPACK = syev.ok
+TESTOK = amida.ok fill_duration.ok hypercubic.ok index_helper.ok permutation.ok random_choice.ok union_find.ok virtual_graph.ok weight.ok xxz_matrix.ok xxz_model.ok @TESTOK_LAPACK@
 
 default: tests
 
@@ -64,12 +65,5 @@ syev.ok :  $(srcdir)/syev.op
 union_find.ok :  $(srcdir)/union_find.op
 virtual_graph.ok :  $(srcdir)/virtual_graph.op
 weight.ok : $(srcdir)/weight.ip $(srcdir)/weight.op
-xxz_model.ok : $(srcdir)/xxz_model.ip $(srcdir)/xxz_model.op models.xml lattices.xml
+xxz_model.ok : $(srcdir)/xxz_model.ip $(srcdir)/xxz_model.op
 xxz_matrix.ok : $(srcdir)/xxz_matrix.ip $(srcdir)/xxz_matrix.op
-
-# dependency for inputs
-
-models.xml : $(srcdir)/models.xml.in
-	$(top_builddir)config.status models.xml
-lattices.xml : $(srcdir)/lattices.xml.in
-	$(top_builddir)config.status lattices.xml

@@ -253,7 +253,7 @@ AC_DEFUN([AC_LAPACK],
       if test -n "$lapack_dir"; then
         AC_MSG_RESULT([$lapack_dir])
       else
-        AC_MSG_RESULT([OK])
+        AC_MSG_RESULT([])
       fi
     else
       AC_MSG_RESULT([$lapack_dir])
