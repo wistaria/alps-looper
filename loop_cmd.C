@@ -189,7 +189,7 @@ try {
 
   // model & inverse temperature
   typedef looper::model_parameter<> model_type;
-  model_type model(opts.Jxy, opts.Jz, opts.spin, g);
+  model_type model(opts.Jxy, opts.Jz, opts.spin, g, false);
   double beta = 1./opts.temp;
 
   // measurements

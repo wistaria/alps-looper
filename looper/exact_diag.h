@@ -156,7 +156,7 @@ struct exact_diagonalization
       int d0 = config.basis[v0].first;
       int d1 = config.basis[v1].first;
 
-      xxz_matrix<value_type>
+      bond_matrix<value_type>
         m(param.model.site(site_type(v0, param.graph)),
           param.model.site(site_type(v1, param.graph)),
           param.model.bond(bond_type(*ei, param.graph)));
