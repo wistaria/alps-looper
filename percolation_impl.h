@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: percolation.h 455 2003-10-22 01:04:57Z wistaria $
+* $Id: percolation_impl.h 461 2003-10-22 14:34:25Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -34,8 +34,8 @@
 *
 **************************************************************************/
 
-#ifndef LOOPER_PERCOLATION_H
-#define LOOPER_PERCOLATION_H
+#ifndef PERCOLATION_IMPL_H
+#define PERCOLATION_IMPL_H
 
 #include <looper/copyright.h>
 #include <looper/union_find.h>
@@ -44,8 +44,6 @@
 #include <alps/scheduler.h>
 #include <boost/graph/graph_traits.hpp>
 #include <utility>
-
-namespace looper {
 
 struct percolation
 {
@@ -57,12 +55,12 @@ struct percolation
       void reset() { occupied = false; }
       node_base& operator+=(const node_base&) { return *this; }
     };
-    typedef union_find::node<node_base> node_type;
+    typedef looper::union_find::node<node_base> node_type;
     typedef std::vector<node_type> vector_type;
     
   public:
     typedef alps::BasicSimpleObservable<double, alps::NoBinning<double> >
-    measurement_type;
+      measurement_type;
     
     template<class G>
     site(const G& g, double p) : site_(boost::num_vertices(g)), prob_(p) {}
@@ -97,7 +95,7 @@ struct percolation
 	vector_type::iterator s_itr = site_.begin() + boost::source(*ei, g);
 	vector_type::iterator t_itr = site_.begin() + boost::target(*ei, g);
 	if (s_itr->occupied && t_itr->occupied)
-	  union_find::unify(*s_itr, *t_itr);
+	  looper::union_find::unify(*s_itr, *t_itr);
       }
       
       // measurement
@@ -127,16 +125,12 @@ struct percolation
   class bond
   {
   private:
-    struct node_base {
-      void reset() const {}
-      node_base& operator+=(const node_base&) { return *this; }
-    };
-    typedef union_find::node<node_base> node_type;
+    typedef looper::union_find::node<> node_type;
     typedef std::vector<node_type> vector_type;
     
   public:
     typedef alps::BasicSimpleObservable<double, alps::NoBinning<double> >
-    measurement_type;
+      measurement_type;
     
     template<class G>
     bond(const G& g, double p) : site_(boost::num_vertices(g)), prob_(p) {}
@@ -166,7 +160,7 @@ struct percolation
 	  ++n;
 	  vector_type::iterator s_itr = site_.begin() + boost::source(*ei, g);
 	  vector_type::iterator t_itr = site_.begin() + boost::target(*ei, g);
-	  union_find::unify(*s_itr, *t_itr);
+	  looper::union_find::unify(*s_itr, *t_itr);
 	}
       }
       
@@ -272,27 +266,25 @@ struct percolation
   class factory : public alps::scheduler::Factory
   {
     alps::scheduler::MCSimulation* make_task(const alps::ProcessList& w,
-      const boost::filesystem::path& fn) const
-    {
+      const boost::filesystem::path& fn) const {
       return new alps::scheduler::MCSimulation(w, fn);
     }
     alps::scheduler::MCSimulation* make_task(const alps::ProcessList& w,
-      const boost::filesystem::path& fn, const alps::Parameters&) const
-    {
+      const boost::filesystem::path& fn, const alps::Parameters&) const {
       return new alps::scheduler::MCSimulation(w, fn);
     }
 
     worker* make_worker(const alps::ProcessList& w,
-			const alps::Parameters& p, int n) const
-    {
+			const alps::Parameters& p, int n) const {
+      worker* wk;
       if (p["type"] == "site") {
-	return new site_worker(w, p, n);
+	wk = new site_worker(w, p, n);
       } else if (p["type"] == "bond") {
-	return new bond_worker(w, p, n);
+	wk = new bond_worker(w, p, n);
       } else {
 	boost::throw_exception(std::runtime_error("Invalid value for parameter \"type\"."));
       }
-      return 0; // never reach here
+      return wk;
     }
 
     void print_copyright(std::ostream& os) const {
@@ -301,6 +293,4 @@ struct percolation
   };
 };
 
-} // namespace looper
-
-#endif // LOOPER_PERCOLATION_H
+#endif // PERCOLATION_IMPL_H

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: path_integral.h 460 2003-10-22 12:50:20Z wistaria $
+* $Id: path_integral.h 461 2003-10-22 14:34:25Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -307,10 +307,10 @@ struct path_integral<virtual_graph<G>, M, W>
 	c0[*vi - offset] = config.wl.series(*vi).first->conf();
 	c1[*vi - offset] = config.wl.series(*vi).second->conf();
       }
-      restricted_random_shuffle(r.begin(), r.end(),
-				c0.begin(), c0.end(),
-				c1.begin(), c1.end(),
-				uniform_01);
+//       restricted_random_shuffle(r.begin(), r.end(),
+// 				c0.begin(), c0.end(),
+// 				c1.begin(), c1.end(),
+// 				uniform_01);
       for (int j = 0; j < s2; ++j) {
 	union_find::unify(
           config.wl.series(offset +   j ).first ->loop_segment(0),
@@ -469,6 +469,24 @@ struct path_integral<virtual_graph<G>, M, W>
       }
     }
     return ene / double(vg.num_real_vertices);
+  }
+
+  template<bool HasCTime>
+  static double uniform_sz(const config_type<HasCTime>& config,
+			   const vg_type& vg, const model_type& /* model */,
+			   double /* beta */)
+  {
+    typedef typename config_type<HasCTime>::const_iterator const_iterator;
+    double sz = 0.;
+    vertex_iterator vi_end = boost::vertices(vg.graph).second;
+    for (vertex_iterator vi = boost::vertices(vg.graph).first;
+ 	 vi != vi_end; ++vi) {
+      const_iterator itr = config.wl.series(*vi).first;
+      std::cout << (0.5 - double(itr->conf())) << ' ';
+      sz += (0.5 - double(itr->conf()));
+    }
+    std::cout << std::endl;
+    return sz / double(vg.num_real_vertices);
   }
 
 }; // struct path_integral

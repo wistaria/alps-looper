@@ -2,7 +2,7 @@
 *
 * alps/percolation: an ALPS application example for percolation problem
 *
-* $Id: percolation_cmd.C 458 2003-10-22 02:37:31Z wistaria $
+* $Id: percolation_cmd.C 461 2003-10-22 14:34:25Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -33,8 +33,8 @@
 *
 **************************************************************************/
 
+#include "percolation_impl.h"
 #include <looper/graph.h>
-#include <looper/percolation.h>
 
 #include <alps/alea.h>
 #include <boost/random.hpp>
@@ -156,11 +156,11 @@ try {
 
   if (opts.bond) {
     // bond percolation
-    looper::percolation::bond bp(g, opts.p, measurements);
+    percolation::bond bp(g, opts.p, measurements);
     for (int s = 0; s < opts.nm; s++) bp.step(g, rng, measurements);
   } else {
     // site percolation
-    looper::percolation::site sp(g, opts.p, measurements);
+    percolation::site sp(g, opts.p, measurements);
     for (int s = 0; s < opts.nm; s++) sp.step(g, rng, measurements);
   }
   

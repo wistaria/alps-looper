@@ -2,9 +2,9 @@
 *
 * ALPS project applications
 *
-* main program for percolation simulation
+* main program for QMC simulation
 *
-* $Id: percolation.C 461 2003-10-22 14:34:25Z wistaria $
+* $Id: qmc.C 461 2003-10-22 14:34:25Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -35,7 +35,7 @@
 *
 **************************************************************************/
 
-#include "percolation_impl.h"
+#include "qmc_impl.h"
 #include <alps/osiris/comm.h>
 
 int main(int argc, char** argv)
@@ -43,7 +43,7 @@ int main(int argc, char** argv)
 #ifndef BOOST_NO_EXCEPTIONS
   try {
 #endif
-    return alps::scheduler::start(argc, argv, percolation::factory());
+    return alps::scheduler::start(argc, argv, looper::qmc::factory());
 #ifndef BOOST_NO_EXCEPTIONS
   }
   catch (std::exception& exc) {
