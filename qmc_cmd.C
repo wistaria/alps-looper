@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: qmc_cmd.C 462 2003-10-22 15:36:14Z wistaria $
+* $Id: qmc_cmd.C 470 2003-10-28 05:59:14Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -205,32 +205,36 @@ try {
     // path-integral representation
     typedef looper::path_integral<vg_type, model_type> qmc;
 
-    // energy offset
-    double e_offset = qmc::energy_offset(vg, model);
+    // QMC parameters
+    qmc::parameter_type<vg_type, model_type> param(vg, model, beta);
 
     // world line configration
     qmc::config_type<> config;
-    qmc::initialize(config, vg);
+    qmc::initialize(config, param);
     
+    // energy offset
+    double e_offset = qmc::energy_offset(param);
+
     for (int mcs = 0; mcs < opts.step_t + opts.step_m; ++mcs) {
       if (mcs == opts.step_t) measurements.reset(true);
       
-      qmc::generate_loops(config, vg, model, beta, rng);
+      qmc::generate_loops(config, param, rng);
 
       std::cout << config.num_loops0 << ' ' << config.num_loops << std::endl;
 
       // measure improved quantities here
       measurements.
 	template get<alps::RealObservable>("diagonal energy (improved)") <<
-	e_offset + qmc::energy_z_imp(config, vg, model, beta);
+	e_offset + qmc::energy_z_imp(config, param);
 
-      qmc::flip_and_cleanup(config, vg, rng);
+      //qmc::flip_and_cleanup(config, vg, rng);
+      qmc::flip_and_cleanup(config, param, rng);
       
       // measure unimproved quantities here
       measurements.
 	template get<alps::RealObservable>("diagonal energy") <<
-	e_offset + qmc::energy_z(config, vg, model, beta);
-      double sz = qmc::uniform_sz(config, vg, model, beta);
+	e_offset + qmc::energy_z(config, param);
+      double sz = qmc::uniform_sz(config, param);
       measurements.
 	template get<alps::RealObservable>("uniform magnetization") << sz;
       measurements.
@@ -241,8 +245,42 @@ try {
     // SSE representation
     typedef looper::sse<vg_type, model_type> qmc;
 
+    // QMC parameters
+    qmc::parameter_type<vg_type, model_type> param(vg, model, beta);
+
+    // world line configration
+    qmc::config_type config;
+    qmc::initialize(config, param);
+    
     // energy offset
-    double e_offset = qmc::energy_offset(vg, model);
+    double e_offset = qmc::energy_offset(param);
+
+    for (int mcs = 0; mcs < opts.step_t + opts.step_m; ++mcs) {
+      if (mcs == opts.step_t) measurements.reset(true);
+      
+      qmc::generate_loops(config, param, rng);
+
+//       std::cout << config.num_loops0 << ' ' << config.num_loops << std::endl;
+
+//       // measure improved quantities here
+//       measurements.
+// 	template get<alps::RealObservable>("diagonal energy (improved)") <<
+// 	e_offset + qmc::energy_z_imp(config, param);
+
+//       //qmc::flip_and_cleanup(config, vg, rng);
+//       qmc::flip_and_cleanup(config, param, rng);
+      
+//       // measure unimproved quantities here
+//       measurements.
+// 	template get<alps::RealObservable>("diagonal energy") <<
+// 	e_offset + qmc::energy_z(config, param);
+//       double sz = qmc::uniform_sz(config, param);
+//       measurements.
+// 	template get<alps::RealObservable>("uniform magnetization") << sz;
+//       measurements.
+// 	template get<alps::RealObservable>("uniform susceptibility") <<
+// 	beta * vg.num_real_vertices * sz * sz;
+    }
   }
 
   // output results

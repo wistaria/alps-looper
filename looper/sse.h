@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: sse.h 469 2003-10-28 01:41:10Z wistaria $
+* $Id: sse.h 470 2003-10-28 05:59:14Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -61,14 +61,35 @@ struct sse<virtual_graph<G>, M, W>
   typedef W                                     weight_type;
 
   typedef typename boost::graph_traits<graph_type>::edge_iterator
-    edge_iterator;
+                                                    edge_iterator;
   typedef typename boost::graph_traits<graph_type>::edge_descriptor
-    edge_descriptor;
+                                                    edge_descriptor;
   typedef typename boost::graph_traits<graph_type>::vertex_iterator
-    vertex_iterator;
+                                                    vertex_iterator;
   typedef typename boost::graph_traits<graph_type>::vertex_descriptor
-    vertex_descriptor;
+                                                    vertex_descriptor;
+  
+  template<class G, class M> struct parameter_type;
 
+  template<class G, class M>
+  struct parameter_type<virtual_graph<G>, M>
+  {
+    typedef virtual_graph<G> vg_type;
+    typedef typename vg_type::graph_type graph_type;
+    typedef typename vg_type::mapping_type mapping_type;
+    typedef M model_type;
+
+    parameter_type(const vg_type& vg, const model_type& m, double b)
+      : virtual_graph(vg), graph(vg.graph), mapping(vg.mapping), model(m),
+	beta(b), chooser(vg, model) {}
+
+    const vg_type&      virtual_graph;
+    const graph_type&   graph;
+    const mapping_type& mapping;
+    const model_type&   model;
+    const double        beta;
+    const bond_chooser  chooser;
+  };
 
   struct config_type
   {
@@ -89,8 +110,10 @@ struct sse<virtual_graph<G>, M, W>
   //
   
   // initialize
-  static void initialize(config_type& config, const vg_type& vg)
+  static void initialize(config_type& config, const vg_type& vg, int ni = 16)
   {
+    typedef config_type::iterator iterator;
+
     config.bottom.clear();
     config.bottom.resize(boost::num_vertices(vg.graph));
     config.top.clear();
@@ -104,12 +127,22 @@ struct sse<virtual_graph<G>, M, W>
       config.top[*vi].conf() = 0;
     }
     config.os.clear();
+    config.os.resize(ni);
+    iterator oi_end = config.os.end();
+    for (iterator oi = config.os.begin(); oi != oi_end; ++oi) {
+      oi->clear_graph();
+      oi->set_to_identity();
+    }
   }
+  template<class G, class M>
+  static void initialize(config_type& config, const parameter_type<G, M>& p,
+			 int ni = 16)
+  { initialize(config, p.virtual_graph, ni); }
 
   template<class RNG>
   static void generate_loops(config_type& config, const vg_type& vg,
 			     const model_type& model, double beta,
-			     RNG& uniform_01)
+			     const bond_chooser& bc, RNG& uniform_01)
   {
     //
     // setup
@@ -119,9 +152,16 @@ struct sse<virtual_graph<G>, M, W>
     vertex_iterator vi_end = boost::vertices(vg.graph).second;
     for (vertex_iterator vi = boost::vertices(vg.graph).first;
 	 vi != vi_end; ++vi) {
-      tab_[*vi] = std::make_pair(config.bottom[*vi],
+      tab_[*vi] = std::make_pair(config.bottom[*vi].conf(),
 				 &(config.bottom[*vi].loop_segment(0)));
     }
+  }
+  template<class G, class M, class RNG>
+  static void generate_loops(config_type& config, parameter_type<G, M>& p,
+			     RNG& uniform_01)
+  {
+    generate_loops(config, p.virtual_graph, p.model, p.beta, p.chooser,
+		   uniform_01);
   }
 
   static double energy_offset(const vg_type& vg, const model_type& model)
@@ -132,9 +172,12 @@ struct sse<virtual_graph<G>, M, W>
     edge_iterator ei_end = boost::edges(vg.graph).second;
     for (edge_iterator ei = boost::edges(vg.graph).first; ei != ei_end; ++ei)
       offset += model.bond(bond_type[*ei]).c() +
-	weight_type(model.bond(bond_type[*ei])).offset;
+	weight_type(model.bond(bond_type[*ei])).offset();
     return offset;
   }
+  template<class G, class M>
+  static double energy_offset(const parameter_type<G, M>& p)
+  { return energy_offset(p.virtual_graph, p.model); }
 }; // struct sse
 
 } // end namespace looper

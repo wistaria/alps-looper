@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: random_choice.h 457 2003-10-22 01:45:56Z wistaria $
+* $Id: random_choice.h 470 2003-10-28 05:59:14Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -59,6 +59,7 @@ public:
   typedef RealType input_type;
   typedef IntType result_type;
 
+  random_choice() : n_(0) {}
   template<class CONT>
   explicit random_choice(const CONT& weights)
   {
@@ -76,7 +77,7 @@ public:
   // compiler-generated copy ctor and assignment operator are fine
 
   template<class Engine>
-  result_type operator()(Engine& eng)
+  result_type operator()(Engine& eng) const
   {
     result_type x = result_type(RealType(n_) * eng());
     return (eng() < cutoff(x)) ? x : alias(x);

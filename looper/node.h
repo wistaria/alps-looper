@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: node.h 465 2003-10-23 22:37:19Z wistaria $
+* $Id: node.h 470 2003-10-28 05:59:14Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -114,6 +114,7 @@ public:
   bool is_identity() const { return prop_[bits::IDNT]; }
   bool is_diagonal() const { return prop_[bits::DIAG]; }
   bool is_offdiagonal() const { return !is_identity() && !is_diagonal(); }
+  void set_to_identity() { prop_.set(bits::IDNT).reset(bits::DIAG); }
   void identity_to_diagonal() {
 #ifndef NDEBUG
     assert(is_identity());

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: weight.h 469 2003-10-28 01:41:10Z wistaria $
+* $Id: weight.h 470 2003-10-28 05:59:14Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -37,6 +37,8 @@
 #ifndef LOOPER_WEIGHT_H
 #define LOOPER_WEIGHT_H
 
+#include <looper/random_choice.h>
+
 #include <algorithm> // for std::max, std::min
 #include <cmath> // for std::abs
 
@@ -46,44 +48,102 @@ namespace looper {
 // default graph weights for path-integral and SSE loop algorithms
 //
 
-struct default_weight
+class default_weight
 {
-  double density;
-  double p_freeze;
-  double p_accept_para;
-  double p_accept_anti;
-  double p_reflect;
-  double offset;
-  
-  default_weight() : density(0), p_freeze(0), p_accept_para(0),
-		     p_accept_anti(0), p_reflect(0), offset(0) {}
+public:
+  default_weight() : density_(0), p_freeze_(0), pa_para_(0),
+		     pa_anti_(0), p_reflect_(0), offset_(0) {}
   template<class P>
-  default_weight(const P& p) : density(0), p_freeze(0), p_accept_para(0),
-			       p_accept_anti(0), p_reflect(0), offset(0)
+  default_weight(const P& p) : density_(0), p_freeze_(0), pa_para_(0),
+			       pa_anti_(0), p_reflect_(0), offset_(0)
   {
     using std::abs; using std::max;
     double Jxy = abs(p.jxy()); // ignore negative signs
     double Jz = p.jz();
     if (Jxy + abs(Jz) > 1.0e-10) {
-      density = max(abs(Jz) / 2, (Jxy + abs(Jz)) / 4);
-      p_freeze = range_01(1 - Jxy / abs(Jz));
-      p_accept_para = range_01((Jxy + Jz) / (Jxy + abs(Jz)));
-      p_accept_anti = range_01((Jxy - Jz) / (Jxy + abs(Jz)));
-      p_reflect = range_01((Jxy - Jz) / (2 * Jxy));
-      offset = max(abs(Jz) / 4, Jxy / 4);
+      density_ = max(abs(Jz) / 2, (Jxy + abs(Jz)) / 4);
+      p_freeze_ = range_01(1 - Jxy / abs(Jz));
+      pa_para_ = range_01((Jxy + Jz) / (Jxy + abs(Jz)));
+      pa_anti_ = range_01((Jxy - Jz) / (Jxy + abs(Jz)));
+      p_reflect_ = range_01((Jxy - Jz) / (2 * Jxy));
+      offset_ = max(abs(Jz) / 4, Jxy / 4);
     }
   }
-  
+
+  double density() const { return density_; }
+  double weight() const { return density_; }
+  double p_freeze() const { return p_freeze_; }
+  double p_accept_para() const { return pa_para_; }
+  double p_accept_anti() const { return pa_anti_; }
   double p_accept(int c0, int c1) const {
-    return (c0 ^ c1) ? p_accept_anti : p_accept_para;
+    return (c0 ^ c1) ? pa_anti_ : pa_para_;
   }
-  
+  double p_reflect() const { return p_reflect_; }
+  double offset() const { return offset_; }
+
 protected:
   double range_01(double x) const {
     return std::min(std::max(x, 0.), 1.);
   }
+
+private:
+  double density_;
+  double p_freeze_;
+  double pa_para_;
+  double pa_anti_;
+  double p_reflect_;
+  double offset_;
 };
   
+
+class uniform_bond_chooser
+{
+public:
+  uniform_bond_chooser() : n_() {}
+  template<class GRAPH, class MODEL>
+  uniform_bond_chooser(const GRAPH& vg, const MODEL& m) : n_()
+  {
+    assert(m.num_bond_types() == 1);
+    n_ = double(boost::num_edges(vg.graph));
+  }
+
+  template<class RNG>
+  int choose(RNG& rng) const { return n_ * rng(); }
+
+private:
+  double n_;
+};
+
+class bond_chooser
+{
+public:
+  bond_chooser() : rc_() {}
+  template<class G, class M>
+  bond_chooser(const G& vg, const M& m) : rc_() { init (vg, m); }
+  template<class G, class M, class W>
+  bond_chooser(const G& vg, const M& m, const W& w) : rc_() { init(vg, m, w); }
+
+  template<class G, class M>
+  init(const G& vg, const M& m) { init(vg, m, default_weight()); }
+  template<class G, class M, class W>
+  init(const G& vg, const M& m, const W&)
+  {
+    std::vector<double> w(0);
+    typename boost::graph_traits<typename G::graph_type>::edge_iterator
+      ei, ei_end;
+    for (boost::tie(ei, ei_end) = boost::edges(vg.graph); ei != ei_end; ++ei)
+      w.push_back(
+        W(m.bond(boost::get(edge_type_t(), vg.graph, *ei))).weight());
+    rc_.init(w);
+  }
+
+  template<class RNG>
+  int choose(RNG& rng) const { return rc_(rng); }
+
+private:
+  random_choice<> rc_;
+};
+
 } // namespace looper
 
 #endif // LOOPER_WEIGHT_H
