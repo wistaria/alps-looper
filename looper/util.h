@@ -25,6 +25,8 @@
 #ifndef LOOPER_UTIL_H
 #define LOOPER_UTIL_H
 
+#include <boost/tuple/tuple.hpp>
+
 namespace looper {
 
 template<class T> T sqr(T t) { return t * t; }
@@ -64,6 +66,12 @@ int alternating_tensor(int i, int j, int k)
     break;
   }
   return 0;
+}
+
+inline 
+int alternating_tensor(const boost::tuple<int, int, int>& x)
+{
+  return alternating_tensor(x.get<0>(), x.get<1>(), x.get<2>());
 }
 
 } // end namespace looper
