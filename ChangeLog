@@ -1,5 +1,7 @@
 2004-10-08  Synge Todo <wistaria@comp-phys.org>
 
+        * version 3.1.2
+
 	* Rearranged source files to reduce memory size for build.
 
 	* Added master header file 'looper.h'.
