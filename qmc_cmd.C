@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: qmc_cmd.C 470 2003-10-28 05:59:14Z wistaria $
+* $Id: qmc_cmd.C 476 2003-10-29 10:16:12Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -206,7 +206,7 @@ try {
     typedef looper::path_integral<vg_type, model_type> qmc;
 
     // QMC parameters
-    qmc::parameter_type<vg_type, model_type> param(vg, model, beta);
+    qmc::parameter_type param(vg, model, beta);
 
     // world line configration
     qmc::config_type<> config;
@@ -246,7 +246,7 @@ try {
     typedef looper::sse<vg_type, model_type> qmc;
 
     // QMC parameters
-    qmc::parameter_type<vg_type, model_type> param(vg, model, beta);
+    qmc::parameter_type param(vg, model, beta);
 
     // world line configration
     qmc::config_type config;

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: sse.h 470 2003-10-28 05:59:14Z wistaria $
+* $Id: sse.h 476 2003-10-29 10:16:12Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -69,10 +69,7 @@ struct sse<virtual_graph<G>, M, W>
   typedef typename boost::graph_traits<graph_type>::vertex_descriptor
                                                     vertex_descriptor;
   
-  template<class G, class M> struct parameter_type;
-
-  template<class G, class M>
-  struct parameter_type<virtual_graph<G>, M>
+  struct parameter_type
   {
     typedef virtual_graph<G> vg_type;
     typedef typename vg_type::graph_type graph_type;
@@ -112,7 +109,7 @@ struct sse<virtual_graph<G>, M, W>
   // initialize
   static void initialize(config_type& config, const vg_type& vg, int ni = 16)
   {
-    typedef config_type::iterator iterator;
+    typedef typename config_type::iterator iterator;
 
     config.bottom.clear();
     config.bottom.resize(boost::num_vertices(vg.graph));
@@ -134,8 +131,7 @@ struct sse<virtual_graph<G>, M, W>
       oi->set_to_identity();
     }
   }
-  template<class G, class M>
-  static void initialize(config_type& config, const parameter_type<G, M>& p,
+  static void initialize(config_type& config, const parameter_type& p,
 			 int ni = 16)
   { initialize(config, p.virtual_graph, ni); }
 
@@ -156,8 +152,8 @@ struct sse<virtual_graph<G>, M, W>
 				 &(config.bottom[*vi].loop_segment(0)));
     }
   }
-  template<class G, class M, class RNG>
-  static void generate_loops(config_type& config, parameter_type<G, M>& p,
+  template<class RNG>
+  static void generate_loops(config_type& config, parameter_type& p,
 			     RNG& uniform_01)
   {
     generate_loops(config, p.virtual_graph, p.model, p.beta, p.chooser,
@@ -175,8 +171,7 @@ struct sse<virtual_graph<G>, M, W>
 	weight_type(model.bond(bond_type[*ei])).offset();
     return offset;
   }
-  template<class G, class M>
-  static double energy_offset(const parameter_type<G, M>& p)
+  static double energy_offset(const parameter_type& p)
   { return energy_offset(p.virtual_graph, p.model); }
 }; // struct sse
 

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: path_integral.h 470 2003-10-28 05:59:14Z wistaria $
+* $Id: path_integral.h 476 2003-10-29 10:16:12Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -144,10 +144,7 @@ struct path_integral<virtual_graph<G>, M, W>
   typedef typename boost::graph_traits<graph_type>::vertex_descriptor
                                                     vertex_descriptor;
   
-  template<class G, class M> struct parameter_type;
-
-  template<class G, class M>
-  struct parameter_type<virtual_graph<G>, M>
+  struct parameter_type
   {
     typedef virtual_graph<G> vg_type;
     typedef typename vg_type::graph_type graph_type;
@@ -200,9 +197,9 @@ struct path_integral<virtual_graph<G>, M, W>
     }
   }
 
-  template<bool HasCTime, class G, class M>
+  template<bool HasCTime>
   static void initialize(config_type<HasCTime>& config,
-			 const parameter_type<G, M>& p)
+			 const parameter_type& p)
   {
     initialize(config, p.virtual_graph);
   }
@@ -367,9 +364,9 @@ struct path_integral<virtual_graph<G>, M, W>
     //// std::cout << "identification done.\n";
   }
 
-  template<bool HasCTime, class G, class M, class RNG>
+  template<bool HasCTime, class RNG>
   static void generate_loops(config_type<HasCTime>& config, 
-			     const parameter_type<G, M> p,
+			     const parameter_type& p,
 			     RNG& uniform_01)
   {
     generate_loops(config, p.virtual_graph, p.model, p.beta, uniform_01);
@@ -428,9 +425,9 @@ struct path_integral<virtual_graph<G>, M, W>
     }
   }
 
-  template<bool HasCTime, class G, class M, class RNG>
+  template<bool HasCTime, class RNG>
   static void flip_and_cleanup(config_type<HasCTime>& config,
-			       const parameter_type<G, M> p,
+			       const parameter_type& p,
 			       RNG& uniform_01)
   {
     flip_and_cleanup(config, p.virtual_graph, uniform_01);
@@ -448,8 +445,7 @@ struct path_integral<virtual_graph<G>, M, W>
       offset += model.bond(bond_type[*ei]).c();
     return offset / double(vg.num_real_edges);
   }
-  template<class G, class M>
-  static double energy_offset(const parameter_type<G, M> p)
+  static double energy_offset(const parameter_type& p)
   { return energy_offset(p.virtual_graph, p.model); }
   
   template<bool HasCTime>
@@ -471,9 +467,9 @@ struct path_integral<virtual_graph<G>, M, W>
     }
     return ene / double(vg.num_real_vertices);
   }
-  template<bool HasCTime, class G, class M>
+  template<bool HasCTime>
   static double energy_z(const config_type<HasCTime>& config,
-			 const parameter_type<G, M> p)
+			 const parameter_type& p)
   { return energy_z(config, p.virtual_graph, p.model); }
 
   template<bool HasCTime>
@@ -497,9 +493,9 @@ struct path_integral<virtual_graph<G>, M, W>
     }
     return ene / double(vg.num_real_vertices);
   }
-  template<bool HasCTime, class G, class M>
+  template<bool HasCTime>
   static double energy_z_imp(const config_type<HasCTime>& config,
-			     const parameter_type<G, M> p)
+			     const parameter_type& p)
   { return energy_z_imp(config, p.virtual_graph, p.model); }
 
   template<bool HasCTime>
@@ -518,9 +514,9 @@ struct path_integral<virtual_graph<G>, M, W>
     std::cout << std::endl;
     return sz / double(vg.num_real_vertices);
   }
-  template<bool HasCTime, class G, class M>
+  template<bool HasCTime>
   static double uniform_sz(const config_type<HasCTime>& config,
-			   const parameter_type<G, M> p)
+			   const parameter_type& p)
   { return uniform_sz(config, p.virtual_graph); }
 
 }; // struct path_integral

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: weight.h 470 2003-10-28 05:59:14Z wistaria $
+* $Id: weight.h 476 2003-10-29 10:16:12Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -124,9 +124,9 @@ public:
   bond_chooser(const G& vg, const M& m, const W& w) : rc_() { init(vg, m, w); }
 
   template<class G, class M>
-  init(const G& vg, const M& m) { init(vg, m, default_weight()); }
+  void init(const G& vg, const M& m) { init(vg, m, default_weight()); }
   template<class G, class M, class W>
-  init(const G& vg, const M& m, const W&)
+  void init(const G& vg, const M& m, const W&)
   {
     std::vector<double> w(0);
     typename boost::graph_traits<typename G::graph_type>::edge_iterator
