@@ -1,0 +1,22 @@
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+builddir = @builddir@
+top_builddir = ./@top_builddir@
+
+include @INCLUDE_MK@
+
+cppflags = $(CPPFLAGS)
+cppflags_mpi = $(CPPFLAGS_MPI)
+cxxflags = $(CXXFLAGS)
+ldflags = $(LDFLAGS)
+ldflags_mpi = $(LDFLAGS_MPI)
+libs_program = -lalps -lcomm-sgl $(HDF5_LIBS) $(XML_LIBS) $(BASE_LIBS)
+libs_program_mpi = -lalps -lcomm-mpi $(HDF5_LIBS) $(XML_LIBS) $(MPI_LIBS) $(BASE_LIBS)
+
+OBJ_PROGRAM =
+OBJ_PROGRAM_MPI = $(OBJ_PROGRAM)
+PROGRAM_MPI =
+PROGRAM = @PROGRAM_MPI@
+
+include $(RULES_MK)
+include $(srcdir)/Makefile.dep
