@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: sse.h 537 2003-11-06 14:47:54Z wistaria $
+* $Id: sse.h 549 2003-11-09 22:28:20Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -138,6 +138,47 @@ struct sse<virtual_graph<G>, M, W, N>
     }
   };
 
+  // helper functions: segment_d, segment_d
+
+  static typename node_type::segment_type&
+  segment_d(const typename config_type::iterator& itr, int leg)
+  {
+    if (itr->is_refl()) {
+      return itr->loop_segment(1);
+    } else {
+      return itr->loop_segment(leg);
+    }
+  }
+
+  static const typename node_type::segment_type&
+  segment_d(const typename config_type::const_iterator& itr, int leg)
+  {
+    if (itr->is_refl()) {
+      return itr->loop_segment(1);
+    } else {
+      return itr->loop_segment(leg);
+    }
+  }
+
+  static typename node_type::segment_type&
+  segment_u(const config_type::iterator& itr, int leg)
+  {
+    if (itr->is_refl()) {
+      return itr->loop_segment(0);
+    } else {
+      return itr->loop_segment(1-leg);
+    }
+  }
+
+  static const typename node_type::segment_type&
+  segment_u(const config_type::const_iterator& itr, int leg)
+  {
+    if (itr->is_refl()) {
+      return itr->loop_segment(0);
+    } else {
+      return itr->loop_segment(1-leg);
+    }
+  }
 
   //
   // update functions
@@ -454,6 +495,9 @@ struct sse<virtual_graph<G>, M, W, N>
 
   static int loop_index_0(int i, const config_type& config)
   { return config.bottom[i].loop_segment(0).index; }
+
+  static int loop_index_1(int i, const config_type& config)
+  { return config.top[i].loop_segment(0).index; }
 
   static double static_sz(int i, const config_type& config)
   { return 0.5 - (double)config.bottom[i].conf(); }

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: qmc_impl.h 536 2003-11-06 08:01:36Z wistaria $
+* $Id: qmc_impl.h 549 2003-11-09 22:28:20Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -52,7 +52,8 @@ class qmc_worker
 public:
   typedef QMC                      qmc;
   typedef typename qmc::graph_type graph_type;
-  typedef alps::RealObservable     measurement_type;
+  typedef alps::BasicSimpleObservable<double, alps::SimpleBinning<double> >
+    measurement_type;
   typedef alps::RealObsevaluator   evaluator_type;
 
   template<class G, class MDL>
@@ -70,11 +71,16 @@ public:
     m << measurement_type("off-diagonal energy");
     m << measurement_type("energy");
     m << measurement_type("energy^2");
-    m << measurement_type("uniform magnetization"); ////
+    m << measurement_type("uniform magnetization^2");
+    m << measurement_type("uniform magnetization^2 (improved)");
     m << measurement_type("uniform susceptibility");
-    m << measurement_type("staggered magnetization"); ////
+    m << measurement_type("uniform susceptibility (improved)");
     m << measurement_type("staggered magnetization^2");
+    m << measurement_type("staggered magnetization^2 (improved)");
     m << measurement_type("staggered susceptibility");
+    m << measurement_type("staggered susceptibility (improved)");
+    m << measurement_type("generalized magnetization^2 (improved)");
+    m << measurement_type("generalized susceptibility (improved)");
 
     m << evaluator_type("specific heat");
   }
@@ -82,13 +88,49 @@ public:
   template<class RNG>
   void step(RNG& rng, alps::ObservableSet& m)
   {
+    //
+    // generate clusters
+    //
+
     qmc::generate_loops(config_, param_, rng);
 
-    // measure improved quantities here
-    
+    //
+    // measure improved quantities below
+    //
+
+    m.template
+      get<measurement_type>("diagonal energy (improved)") <<
+      looper::energy_z_imp(config_, param_);
+
+    double m2 = looper::uniform_sz2_imp(config_, param_);
+    m.template
+      get<measurement_type>("uniform magnetization^2 (improved)") << m2;
+    m.template
+      get<measurement_type>("uniform susceptibility (improved)") <<
+      param_.beta * m2;
+
+    m.template
+      get<measurement_type>("staggered magnetization^2 (improved)") << 
+      looper::staggered_sz2_imp(config_, param_);
+
+    double gm2, gs;
+    boost::tie(gm2, gs) =
+      looper::generalized_susceptibility_imp(config_, param_);
+    m.template
+      get<measurement_type>("generalized magnetization^2 (improved)") << gm2;
+    m.template
+      get<measurement_type>("generalized susceptibility (improved)") << gs;
+
+    //
+    // flip clusters
+    //
+
     qmc::flip_and_cleanup(config_, param_, rng);
       
-    // measure unimproved quantities here
+    //
+    // measure unimproved quantities below
+    //
+
     double ez, exy, e2;
     boost::tie(ez, exy, e2) = looper::energy(config_, param_);
     ez += e_offset_;
@@ -97,15 +139,15 @@ public:
     m.template get<measurement_type>("energy") << ez + exy;
     m.template get<measurement_type>("energy^2") << e2;
 
-    double sz = looper::uniform_sz(config_, param_);
-    m.template get<measurement_type>("uniform magnetization") << sz; ////
+    m2 = param_.virtual_graph.num_real_vertices *
+      looper::sqr(looper::uniform_sz(config_, param_));
+    m.template get<measurement_type>("uniform magnetization^2") << m2;
     m.template get<measurement_type>("uniform susceptibility") <<
-      param_.beta * param_.virtual_graph.num_real_vertices * sz * sz;
+      param_.beta * m2;
 
-    double ss = looper::staggered_sz(config_, param_);
-    m.template get<measurement_type>("staggered magnetization") << ss; ////
     m.template get<measurement_type>("staggered magnetization^2") <<
-      param_.virtual_graph.num_real_vertices * ss * ss;
+      param_.virtual_graph.num_real_vertices *
+      looper::sqr(looper::staggered_sz(config_, param_));
     m.template get<measurement_type>("staggered susceptibility") << 
       looper::staggered_susceptibility(config_, param_);
   }

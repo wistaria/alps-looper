@@ -1,5 +1,10 @@
-2003-11-06  Synge Todo  <wistaria@comp-phys.org>
+2003-11-07  Synge Todo  <wistaria@comp-phys.org>
 
+	* Added improved estimators for uniform/staggered magnetization^2,
+	etc.
+	
+2003-11-06  Synge Todo  <wistaria@comp-phys.org>
+	
 	* version 3.0b2 released.
 
 	- prerequisites: boost-ss-20031102, boost-ss-20031102.patch,

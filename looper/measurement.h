@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: measurement.h 539 2003-11-06 15:02:52Z wistaria $
+* $Id: measurement.h 549 2003-11-09 22:28:20Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -170,7 +170,9 @@ struct staggered_susceptibility_helper<sse<G, M, W, N> >
       ss += gauge(*vi, param.virtual_graph.graph) *
 	qmc_type::static_sz(*vi, config);
     }
-    return param.beta * (sqr(sd) + sqr(ss) / (config.os.size() + 1)) /
+    //// return param.beta * (sqr(sd) + sqr(ss) / (config.os.size() + 1)) /
+    //// param.virtual_graph.num_real_vertices;
+    return param.beta * sqr(sd) /
       param.virtual_graph.num_real_vertices;
   }
 };
@@ -191,11 +193,12 @@ inline double staggered_susceptibility(const C& config, const P& param)
 // improved estimators
 //
 
+// diagonal energy
+
 template<class C, class P>
 inline double energy_z_imp(const C& config, const P& param)
 {
   typedef typename C::qmc_type qmc_type;
-
   double ene = 0.;
   typename qmc_type::edge_iterator ei, ei_end;
   for (boost::tie(ei, ei_end) = boost::edges(param.virtual_graph.graph);
@@ -204,11 +207,167 @@ inline double energy_z_imp(const C& config, const P& param)
       boost::source(*ei, param.virtual_graph.graph);
     typename qmc_type::vertex_descriptor v1 =
       boost::target(*ei, param.virtual_graph.graph);
-    if (loop_index_0(v0, config) == loop_index_0(v1, config))
-      ene -= model.bond(bond_type(*ei, param.virtual_graph.graph)).jz() *
-	static_sz(v0, config) * static_sz(v1, config);
-    }
+    if (qmc_type::loop_index_0(v0, config) ==
+	qmc_type::loop_index_0(v1, config))
+      ene -= param.model.bond(bond_type(*ei, param.virtual_graph.graph)).jz() *
+	qmc_type::static_sz(v0, config) * qmc_type::static_sz(v1, config);
+  }
   return ene / param.virtual_graph.num_real_vertices;
+}
+
+// uniform magnetizations^2
+
+template<class C, class P>
+inline double
+uniform_sz2_imp(const C& config, const P& param)
+{
+  typedef typename C::qmc_type qmc_type;
+
+  std::vector<double> m(config.num_loops0);
+  typename qmc_type::vertex_iterator vi, vi_end;
+  for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
+       vi != vi_end; ++vi)
+    m[qmc_type::loop_index_0(*vi, config)] += qmc_type::static_sz(*vi, config);
+  
+  double m2 = 0.;
+  for (int i = 0; i < config.num_loops0; ++i) m2 += sqr(m[i]);
+
+  return m2 / param.virtual_graph.num_real_vertices;
+}
+
+// staggered magnetizations^2
+
+template<class C, class P>
+inline double
+staggered_sz2_imp(const C& config, const P& param)
+{
+  typedef typename C::qmc_type qmc_type;
+
+  std::vector<double> m(config.num_loops0);
+  typename qmc_type::vertex_iterator vi, vi_end;
+  for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
+       vi != vi_end; ++vi)
+    m[qmc_type::loop_index_0(*vi, config)] += 
+      gauge(*vi, param.virtual_graph.graph) * qmc_type::static_sz(*vi, config);
+  
+  double m2 = 0.;
+  for (int i = 0; i < config.num_loops0; ++i) m2 += sqr(m[i]);
+
+  return m2 / param.virtual_graph.num_real_vertices;
+}
+
+
+// generalized susceptilibity
+
+namespace {
+
+template<class Q> struct generalized_susceptibility_imp_helper;
+
+template<class G, class M, class W, class N>
+struct generalized_susceptibility_imp_helper<path_integral<G, M, W, N> >
+{
+  typedef path_integral<G, M, W, N> qmc_type;
+  static boost::tuple<double, double>
+  calc(const typename qmc_type::config_type& config,
+       const typename qmc_type::parameter_type& param)
+  {
+    std::vector<double> len(config.num_loops);
+    std::vector<double> mg(config.num_loops0);
+    typename qmc_type::vertex_iterator vi, vi_end;
+    for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
+	 vi != vi_end; ++vi) {
+      // setup iterators
+      qmc_type::config_type::const_iterator itrD = config.wl.series(*vi).first;
+      qmc_type::config_type::const_iterator itrU = boost::next(itrD);
+        
+      // iteration up to t = 1
+      for (;; itrD = itrU, ++itrU) {
+	len[qmc_type::segment_d(itrU).index] += (itrU->time() - itrD->time());
+	if (itrU.at_top()) break;
+      }
+
+      ++mg[qmc_type::loop_index_0(*vi, config)];
+    }      
+
+    double ss = 0.;
+    for (int i = 0; i < config.num_loops; ++i) ss += sqr(len[i]);
+    ss *= 0.25;
+    double m2 = 0.;
+    for (int i = 0; i < config.num_loops0; ++i) m2 += sqr(mg[i]);
+    m2 *= 0.25;
+
+    return boost::make_tuple(m2 / param.virtual_graph.num_real_vertices,
+			     param.beta * ss /
+			     param.virtual_graph.num_real_vertices);
+  }
+};
+
+template<class G, class M, class W, class N>
+struct generalized_susceptibility_imp_helper<sse<G, M, W, N> >
+{
+  typedef sse<G, M, W, N> qmc_type;
+  static boost::tuple<double, double>
+  calc(const typename qmc_type::config_type& config,
+       const typename qmc_type::parameter_type& param)
+  {
+    std::vector<double> len(config.num_loops);
+    std::vector<double> mg(config.num_loops0);
+
+    std::vector<int> pos(boost::num_vertices(param.virtual_graph.graph), 0);
+    int p = 1;
+    qmc_type::config_type::const_iterator oi_end = config.os.end();
+    for (qmc_type::config_type::const_iterator oi = config.os.begin();
+	 oi != oi_end; ++oi, ++p) {
+      if (oi->is_offdiagonal()) {
+	qmc_type::edge_iterator ei =
+	  boost::edges(param.virtual_graph.graph).first + oi->bond();
+	qmc_type::vertex_descriptor v0 =
+	  boost::source(*ei, param.virtual_graph.graph);
+	qmc_type::vertex_descriptor v1 =
+	  boost::target(*ei, param.virtual_graph.graph);
+	len[qmc_type::segment_d(oi, 0).index] += (p - pos[v0]);
+	len[qmc_type::segment_d(oi, 1).index] += (p - pos[v1]);
+	pos[v0] = p;
+	pos[v1] = p;
+      }
+    }
+
+    typename qmc_type::vertex_iterator vi, vi_end;
+    for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
+	 vi != vi_end; ++vi) {
+      len[qmc_type::loop_index_1(*vi, config)] +=
+	(config.os.size() - pos[*vi]);
+      ++mg[qmc_type::loop_index_0(*vi, config)];
+    }
+
+    double ss = 0.;
+    for (int i = 0; i < config.num_loops; ++i) ss += sqr(len[i]);
+    ss *= 0.25 / sqr(config.os.size());
+    double m2 = 0.;
+    for (int i = 0; i < config.num_loops0; ++i) m2 += sqr(mg[i]);
+    m2 *= 0.25;
+
+    return boost::make_tuple(m2 / param.virtual_graph.num_real_vertices,
+			     param.beta *
+			     (ss /* +
+			       m2 / (config.os.size() + 1) */) /
+			     param.virtual_graph.num_real_vertices);
+//     return boost::make_tuple(0.25 * m2 / param.virtual_graph.num_real_vertices,
+// 			     0.25 * param.beta *
+// 			     (ss / config.os.size() +
+// 			      m2 / (config.os.size() + 1)) /
+// 			     param.virtual_graph.num_real_vertices);
+  }
+};
+
+} // end namespace
+
+template<class C, class P>
+inline boost::tuple<double, double>
+generalized_susceptibility_imp(const C& config, const P& param)
+{
+  return generalized_susceptibility_imp_helper<typename C::qmc_type>::
+    calc(config, param);
 }
 
 } // namespace looper

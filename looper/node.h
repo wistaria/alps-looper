@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: node.h 515 2003-11-05 06:12:32Z wistaria $
+* $Id: node.h 549 2003-11-09 22:28:20Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -41,7 +41,7 @@
 
 #include <alps/osiris.h>
 #include <boost/integer_traits.hpp>
-#include <boost/iterator.hpp>
+// #include <boost/iterator.hpp>
 #include <boost/static_assert.hpp>
 #include <bitset>
 
@@ -217,61 +217,61 @@ private:
 };
 
 
-// for path-integral
+// // for path-integral
 
-template<class Itr>
-inline typename Itr::value_type::segment_type&
-segment_d(const Itr& itr)
-{
-  if (itr.at_boundary()) {
-    return itr->loop_segment(0);
-  } else {
-    if (itr->is_refl()) {
-      return itr->loop_segment(1);
-    } else {
-      return itr->loop_segment(itr.leg());
-    }
-  }
-}
+// template<class Itr>
+// inline typename Itr::value_type::segment_type&
+// segment_d(const Itr& itr)
+// {
+//   if (itr.at_boundary()) {
+//     return itr->loop_segment(0);
+//   } else {
+//     if (itr->is_refl()) {
+//       return itr->loop_segment(1);
+//     } else {
+//       return itr->loop_segment(itr.leg());
+//     }
+//   }
+// }
 
-template<class Itr>
-inline typename Itr::value_type::segment_type&
-segment_u(const Itr& itr)
-{
-  if (itr.at_boundary()) {
-    return itr->loop_segment(0);
-  } else {
-    if (itr->is_refl()) {
-      return itr->loop_segment(0);
-    } else {
-      return itr->loop_segment(1-itr.leg());
-    }
-  }
-}
+// template<class Itr>
+// inline typename Itr::value_type::segment_type&
+// segment_u(const Itr& itr)
+// {
+//   if (itr.at_boundary()) {
+//     return itr->loop_segment(0);
+//   } else {
+//     if (itr->is_refl()) {
+//       return itr->loop_segment(0);
+//     } else {
+//       return itr->loop_segment(1-itr.leg());
+//     }
+//   }
+// }
 
-// for sse
+// // for sse
 
-template<class Itr>
-inline typename boost::iterator_value<Itr>::type::segment_type&
-segment_d(const Itr& itr, int leg)
-{
-  if (itr->is_refl()) {
-    return itr->loop_segment(1);
-  } else {
-    return itr->loop_segment(leg);
-  }
-}
+// template<class Itr>
+// inline typename boost::iterator_value<Itr>::type::segment_type&
+// segment_d(const Itr& itr, int leg)
+// {
+//   if (itr->is_refl()) {
+//     return itr->loop_segment(1);
+//   } else {
+//     return itr->loop_segment(leg);
+//   }
+// }
 
-template<class Itr>
-inline typename boost::iterator_value<Itr>::type::segment_type&
-segment_u(const Itr& itr, int leg)
-{
-  if (itr->is_refl()) {
-    return itr->loop_segment(0);
-  } else {
-    return itr->loop_segment(1-leg);
-  }
-}
+// template<class Itr>
+// inline typename boost::iterator_value<Itr>::type::segment_type&
+// segment_u(const Itr& itr, int leg)
+// {
+//   if (itr->is_refl()) {
+//     return itr->loop_segment(0);
+//   } else {
+//     return itr->loop_segment(1-leg);
+//   }
+// }
 
 } // end namespace looper
 

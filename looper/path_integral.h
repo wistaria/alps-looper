@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: path_integral.h 534 2003-11-06 04:22:01Z wistaria $
+* $Id: path_integral.h 549 2003-11-09 22:28:20Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -184,6 +184,63 @@ struct path_integral<virtual_graph<G>, M, W, N>
     alps::IDump& load(alps::IDump& id) { return id >> wl; }
   };
   
+  // helper functions: segment_d, segment_u
+
+  static typename node_type::segment_type&
+  segment_d(const typename config_type::iterator& itr)
+  {
+    if (itr.at_boundary()) {
+      return itr->loop_segment(0);
+    } else {
+      if (itr->is_refl()) {
+	return itr->loop_segment(1);
+      } else {
+	return itr->loop_segment(itr.leg());
+      }
+    }
+  }
+
+  static const typename node_type::segment_type&
+  segment_d(const typename config_type::const_iterator& itr)
+  {
+    if (itr.at_boundary()) {
+      return itr->loop_segment(0);
+    } else {
+      if (itr->is_refl()) {
+	return itr->loop_segment(1);
+      } else {
+	return itr->loop_segment(itr.leg());
+      }
+    }
+  }
+
+  static typename node_type::segment_type&
+  segment_u(const typename config_type::iterator& itr)
+  {
+    if (itr.at_boundary()) {
+      return itr->loop_segment(0);
+    } else {
+      if (itr->is_refl()) {
+	return itr->loop_segment(0);
+      } else {
+	return itr->loop_segment(1-itr.leg());
+      }
+    }
+  }
+
+  static const typename node_type::segment_type&
+  segment_u(const typename config_type::const_iterator& itr)
+  {
+    if (itr.at_boundary()) {
+      return itr->loop_segment(0);
+    } else {
+      if (itr->is_refl()) {
+	return itr->loop_segment(0);
+      } else {
+	return itr->loop_segment(1-itr.leg());
+      }
+    }
+  }
   
   //
   // update functions
@@ -449,6 +506,9 @@ struct path_integral<virtual_graph<G>, M, W, N>
 
   static int loop_index_0(int i, const config_type& config)
   { return config.wl.series(i).first->loop_segment(0).index; }
+
+  static int loop_index_1(int i, const config_type& config)
+  { return config.wl.series(i).second->loop_segment(0).index; }
 
   static double static_sz(int i, const config_type& config)
   { return 0.5 - double(config.wl.series(i).first->conf()); }
