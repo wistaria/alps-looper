@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: path_integral.h 480 2003-10-29 15:13:08Z wistaria $
+* $Id: path_integral.h 486 2003-10-30 05:01:15Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -216,50 +216,53 @@ struct path_integral<virtual_graph<G>, M, W>
     //
     // labeling
     //
-    
-    edge_iterator ei_end = boost::edges(vg.graph).second;
-    for (edge_iterator ei = boost::edges(vg.graph).first; ei != ei_end; ++ei) {
-    
-      int bond = boost::get(edge_index_t(), vg.graph, *ei); // bond index
-      
-      // setup iterators
-      iterator itr0 = config.wl.series(boost::source(*ei, vg.graph)).first;
-      iterator itr1 = config.wl.series(boost::target(*ei, vg.graph)).first;
-      int c0 = itr0->conf();    
-      int c1 = itr1->conf();
-      
-      // setup bond weight
-      weight_type weight(model.bond(boost::get(edge_type_t(), vg.graph, *ei)));
-      std::vector<double> trials;
-      fill_duration(uniform_01, trials, beta * weight.density());
-      
-      // iteration up to t = 1
-      std::vector<double>::const_iterator ti_end = trials.end();
-      for (std::vector<double>::const_iterator ti = trials.begin();
-	   ti != ti_end; ++ti) {
-	while (itr0->time() < *ti) { 
-	  if (itr0->bond() == bond) // labeling existing link
+
+    {
+      edge_iterator ei_end = boost::edges(vg.graph).second;
+      for (edge_iterator ei = boost::edges(vg.graph).first;
+	   ei != ei_end; ++ei) {
+	int bond = boost::get(edge_index_t(), vg.graph, *ei); // bond index
+	
+	// setup iterators
+	iterator itr0 = config.wl.series(boost::source(*ei, vg.graph)).first;
+	iterator itr1 = config.wl.series(boost::target(*ei, vg.graph)).first;
+	int c0 = itr0->conf();    
+	int c1 = itr1->conf();
+	
+	// setup bond weight
+	weight_type
+	  weight(model.bond(boost::get(edge_type_t(), vg.graph, *ei)));
+	std::vector<double> trials;
+	fill_duration(uniform_01, trials, beta * weight.density());
+	
+	// iteration up to t = 1
+	std::vector<double>::const_iterator ti_end = trials.end();
+	for (std::vector<double>::const_iterator ti = trials.begin();
+	     ti != ti_end; ++ti) {
+	  while (itr0->time() < *ti) { 
+	    if (itr0->bond() == bond) // labeling existing link
+	      itr0->set_old(uniform_01() < weight.p_reflect());
+	    if (itr0->is_old()) c0 ^= 1;
+	    ++itr0;
+	  }
+	  while (itr1->time() < *ti) {
+	    if (itr1->is_old()) c1 ^= 1;
+	    ++itr1;
+	  }
+	  if (uniform_01() < weight.p_accept(c0, c1)) {
+	    // insert new link
+	    iterator itr_new =
+	      config.wl.insert_link_prev(node_type(), itr0, itr1).first;
+	    itr_new->set_time(*ti);
+	    itr_new->set_bond(boost::get(edge_index_t(), vg.graph, *ei));
+	    itr_new->set_new(c0 ^ c1, (uniform_01() < weight.p_freeze()));
+	  }
+	}
+	while (!itr0.at_top()) { 
+	  if (itr0->bond() == bond)	// labeling existing link
 	    itr0->set_old(uniform_01() < weight.p_reflect());
-	  if (itr0->is_old()) c0 ^= 1;
 	  ++itr0;
 	}
-	while (itr1->time() < *ti) {
-	  if (itr1->is_old()) c1 ^= 1;
-	  ++itr1;
-	}
-	if (uniform_01() < weight.p_accept(c0, c1)) {
-	  // insert new link
-	  iterator itr_new =
-	    config.wl.insert_link_prev(node_type(), itr0, itr1).first;
-	  itr_new->set_time(*ti);
-	  itr_new->set_bond(boost::get(edge_index_t(), vg.graph, *ei));
-	  itr_new->set_new(c0 ^ c1, (uniform_01() < weight.p_freeze()));
-	}
-      }
-      while (!itr0.at_top()) { 
-	if (itr0->bond() == bond)	// labeling existing link
-	  itr0->set_old(uniform_01() < weight.p_reflect());
-	++itr0;
       }
     }
     //// std::cout << "labeling done.\n";
@@ -269,97 +272,102 @@ struct path_integral<virtual_graph<G>, M, W>
     // cluster identification using union-find algorithm
     //
     
-    vertex_iterator vi_end = boost::vertices(vg.graph).second;
-    for (vertex_iterator vi = boost::vertices(vg.graph).first;
-	 vi != vi_end; ++vi) {
-      // setup iterators
-      iterator itrD = config.wl.series(*vi).first;
-      iterator itrU = boost::next(itrD);
-      
-      // iteration up to t = 1
-      for (;; itrD = itrU++) {
-	union_find::unify(segment_d(itrU), segment_u(itrD));
-	if (itrU.leg() == 0 && itrU->is_frozen()) // frozen link
-	  union_find::unify(itrU->loop_segment(0), itrU->loop_segment(1));
-	if (itrU.at_top()) break; // finish
+    {
+      vertex_iterator vi_end = boost::vertices(vg.graph).second;
+      for (vertex_iterator vi = boost::vertices(vg.graph).first;
+	   vi != vi_end; ++vi) {
+	// setup iterators
+	iterator itrD = config.wl.series(*vi).first;
+	iterator itrU = boost::next(itrD);
+	
+	// iteration up to t = 1
+	for (;; itrD = itrU++) {
+	  union_find::unify(segment_d(itrU), segment_u(itrD));
+	  if (itrU.leg() == 0 && itrU->is_frozen()) // frozen link
+	    union_find::unify(itrU->loop_segment(0), itrU->loop_segment(1));
+	  if (itrU.at_top()) break; // finish
+	}
       }
     }
     
     // connect bottom and top with random permutation
-    std::vector<int> r, c0, c1;
-    for (int i = 0; i < vg.mapping.num_groups(); ++i) {
-      int s2 = vg.mapping.num_virtual_vertices(i);
-      int offset = *(vg.mapping.virtual_vertices(i).first);
-      if (s2 == 1) {
-	// S=1/2: just connect top and bottom
-	union_find::unify(
-          config.wl.series(offset).first ->loop_segment(0),
-          config.wl.series(offset).second->loop_segment(0));
-      } else {
-	// S>=1
-	r.resize(s2);
-	c0.resize(s2);
-	c1.resize(s2);
-	vertex_iterator vi_end = vg.mapping.virtual_vertices(i).second;
-	for (vertex_iterator vi = vg.mapping.virtual_vertices(i).first;
-	     vi != vi_end; ++vi) {
-	  r[*vi - offset] = *vi - offset;
-	  c0[*vi - offset] = config.wl.series(*vi).first->conf();
-	  c1[*vi - offset] = config.wl.series(*vi).second->conf();
-	}
-	restricted_random_shuffle(r.begin(), r.end(),
-				  c0.begin(), c0.end(),
-				  c1.begin(), c1.end(),
-				  uniform_01);
-	for (int j = 0; j < s2; ++j) {
-	  union_find::unify(
-	    config.wl.series(offset +   j ).first ->loop_segment(0),
-	    config.wl.series(offset + r[j]).second->loop_segment(0));
+    {
+      std::vector<int> r, c0, c1;
+      for (int i = 0; i < vg.mapping.num_groups(); ++i) {
+	int s2 = vg.mapping.num_virtual_vertices(i);
+	int offset = *(vg.mapping.virtual_vertices(i).first);
+	if (s2 == 1) {
+	  // S=1/2: just connect top and bottom
+	  union_find::unify(config.wl.series(offset).first ->loop_segment(0),
+			    config.wl.series(offset).second->loop_segment(0));
+	} else {
+	  // S>=1
+	  r.resize(s2);
+	  c0.resize(s2);
+	  c1.resize(s2);
+	  vertex_iterator vi_end = vg.mapping.virtual_vertices(i).second;
+	  for (vertex_iterator vi = vg.mapping.virtual_vertices(i).first;
+	       vi != vi_end; ++vi) {
+	    r[*vi - offset] = *vi - offset;
+	    c0[*vi - offset] = config.wl.series(*vi).first->conf();
+	    c1[*vi - offset] = config.wl.series(*vi).second->conf();
+	  }
+	  restricted_random_shuffle(r.begin(), r.end(),
+				    c0.begin(), c0.end(),
+				    c1.begin(), c1.end(),
+				    uniform_01);
+	  for (int j = 0; j < s2; ++j) {
+	    union_find::unify(
+	      config.wl.series(offset +   j ).first ->loop_segment(0),
+              config.wl.series(offset + r[j]).second->loop_segment(0));
+	  }
 	}
       }
     }
     
     // counting and indexing loops
-    config.num_loops0 = 0;
-    vi_end = boost::vertices(vg.graph).second;
-    for (vertex_iterator vi = boost::vertices(vg.graph).first;
-	 vi != vi_end; ++vi) {
-      iterator itrB, itrT;
-      boost::tie(itrB, itrT) = config.wl.series(*vi);
-      if (itrB->loop_segment(0).root()->index == loop_segment::undefined)
-	itrB->loop_segment(0).root()->index = (config.num_loops0)++;
-      itrB->loop_segment(0).index = itrB->loop_segment(0).root()->index;
-      if (itrT->loop_segment(0).root()->index == loop_segment::undefined)
-	itrT->loop_segment(0).root()->index = (config.num_loops0)++;
-      itrT->loop_segment(0).index = itrT->loop_segment(0).root()->index;
+    {
+      config.num_loops0 = 0;
+      vertex_iterator vi, vi_end;
+      for (boost::tie(vi, vi_end) = boost::vertices(vg.graph);
+	   vi != vi_end; ++vi) {
+	iterator itrB, itrT;
+	boost::tie(itrB, itrT) = config.wl.series(*vi);
+	if (itrB->loop_segment(0).root()->index == loop_segment::undefined)
+	  itrB->loop_segment(0).root()->index = (config.num_loops0)++;
+	itrB->loop_segment(0).index = itrB->loop_segment(0).root()->index;
+	if (itrT->loop_segment(0).root()->index == loop_segment::undefined)
+	  itrT->loop_segment(0).root()->index = (config.num_loops0)++;
+	itrT->loop_segment(0).index = itrT->loop_segment(0).root()->index;
+      }
     }
 
-    config.num_loops = config.num_loops0;
-    vi_end = boost::vertices(vg.graph).second;
-    for (vertex_iterator vi = boost::vertices(vg.graph).first;
-	 vi != vi_end; ++vi) {
-      // setup iterator
-      iterator itr = boost::next(config.wl.series(*vi).first);
-      
-      // iteration up to t = 1
-      while (!itr.at_top()) {
-	if (itr.leg() == 0) {
-	  if (itr->loop_segment(0).root()->index == loop_segment::undefined) {
-	    itr->loop_segment(0).root()->index = config.num_loops;
-	    itr->loop_segment(0).index = config.num_loops;
-	    ++(config.num_loops);
-	  } else {
-	    itr->loop_segment(0).index = itr->loop_segment(0).root()->index;
+    {
+      config.num_loops = config.num_loops0;
+      vertex_iterator vi, vi_end;
+      for (boost::tie(vi, vi_end) = boost::vertices(vg.graph);
+	   vi != vi_end; ++vi) {
+	// setup iterator
+	iterator itr = boost::next(config.wl.series(*vi).first);
+	
+	// iteration up to t = 1
+	while (!itr.at_top()) {
+	  if (itr.leg() == 0) {
+	    if (itr->loop_segment(0).index == loop_segment::undefined) {
+	      if (itr->loop_segment(0).root()->index ==
+		  loop_segment::undefined)
+		itr->loop_segment(0).root()->index = config.num_loops++;
+	      itr->loop_segment(0).index = itr->loop_segment(0).root()->index;
+	    }
+	    if (itr->loop_segment(1).index == loop_segment::undefined) {
+	      if (itr->loop_segment(1).root()->index ==
+		  loop_segment::undefined)
+		itr->loop_segment(1).root()->index = config.num_loops++;
+	      itr->loop_segment(1).index = itr->loop_segment(1).root()->index;
+	    }
 	  }
-	  if (itr->loop_segment(1).root()->index == loop_segment::undefined) {
-	    itr->loop_segment(1).root()->index = config.num_loops;
-	    itr->loop_segment(1).index = config.num_loops;
-	    ++(config.num_loops);
-	  } else {
-	    itr->loop_segment(1).index = itr->loop_segment(1).root()->index;
-	  }
+	  ++itr;
 	}
-	++itr;
       }
     }
     //// std::cout << "identification done.\n";
