@@ -1,5 +1,15 @@
-2003-11-13  Synge Todo  <wistaria@comp-phys.org>
+2003-11-14  Synge Todo  <wistaria@comp-phys.org>
 
+	* version 3.0b3 released.
+
+	- prerequisites: boost-ss-20031109, boost-ss-20031109.patch,
+	alps-20031114
+
+	- TODO: optimization, improved estimators, more measurements,
+	license issue.  Bug fixes for some mesurements...
+
+2003-11-13  Synge Todo  <wistaria@comp-phys.org>
+	
 	* Added check directory, which contains sample parameter for
 	qmc (qmc_mpi) for checking results.
 	

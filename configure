@@ -1232,7 +1232,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-              looper_date="2003/11/12"
+              looper_date="2003/11/14"
 
 
 cat >>confdefs.h <<_ACEOF

@@ -36,8 +36,8 @@ anisotropy can also be simulated very efficiently.
 <h3>Prerequisites</h3>
 
 <ul>
-<li>Boost library (snapshot 20031102 or later)
-<li>ALPS library (snapshot 20031105 or later)
+<li>Boost library
+<li>ALPS library
 </ul>
 
 <h3>Compilation</h3>
@@ -81,21 +81,20 @@ parameters (e.g. <TT>L</tt> or <TT>W</tt>) as specified in the lattice
 (model) description file.
 
 <H3>Measurements</H3>
-<P>The following observables are measured by the <tt>spinmc</tt> application:</P>
+<P>The following observables are measured by the <tt>qmc</tt> application:</P>
 <TABLE border="2">
 
 <THEAD>
 <tr><td><B>Name</B></td><td><B>Description</B></td></tr>
 </THEAD>
 <TBODY>
-<tr><td>Energy</td><td>the total energy of the system</td></tr>
-<tr><td>Magnetization</td><td>the <i>z</i>-component of the magnetization</td></tr>
-<tr><td>|Magnetization|</td><td>absolute value of the <i>z</i>-component of the magnetization</td></tr>
-<tr><td>Magnetization^2</td><td>square of the <i>z</i>-component of the magnetization</td></tr>
-<tr><td>Staggered Magnetization</td><td>the <i>z</i>-component of the staggered magnetization (only on bipartite lattices)</td></tr>
-<tr><td>Staggered Magnetization^2</td><td>square of the <i>z</i>-component of the staggered magnetization (only on bipartite lattices)</td></tr>
-<tr><td>Susceptibility</td><td>the uniform susceptibility</td></tr>
-<tr><td>Cluster size</td><td>the mean cluster size as a fraction of the lattice volume (only for cluster updates)</td></tr>
+<tr><td>energy</td><td>energy per spin</td></tr>
+<tr><td>uniform magnetization^2</td><td>square of uniform magnetization</td></tr>
+<tr><td>uniform susceptibility</td><td>uniform susceptibility</td></tr>
+<tr><td>staggered magnetization^2</td><td>square of staggered magnetization</td></tr>
+<tr><td>staggered susceptibility</td><td>staggered susceptibility</td></tr>
+<tr><td>generalized magnetization^2</td><td>square of generalized magnetization</td></tr>
+<tr><td>generalized susceptibility</td><td>generalized susceptibility</td></tr>
 </TBODY>
 </TABLE>
 
@@ -107,11 +106,6 @@ href="http://alps.comp-phys.org/license.html">license file</a>.
 
 <h2>Questions and request for support</h2>
 can be addressed to <a href="mailto:wistaria@comp-phys.org">Synge Todo</a>.
-
-<h2>Contributions and feature requests</H2>
-
-We appreciate hearing your requests for additional features and also
-welcome any contributions to the ALPS project.
 
 <hr>
 
