@@ -54,7 +54,6 @@ DIST_COMMON = README $(am__configure_deps) $(dist_noinst_DATA) \
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
-	$(top_srcdir)/config/ac_bindings.m4 \
 	$(top_srcdir)/config/ac_lapack.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
@@ -150,7 +149,6 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
-BINDINGS_CPPFLAGS = @BINDINGS_CPPFLAGS@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -279,7 +277,7 @@ pkginclude_HEADERS = \
 	looper/weight.h
 
 dist_noinst_SCRIPTS = config/run-test config/update_preamble
-dist_noinst_DATA = CITATIONS.txt LICENSE lattices.xml models.xml
+dist_noinst_DATA = CITATIONS.txt LICENSE
 loop_SOURCES = loop.C loop_factory.C loop_factory.h loop_worker.h
 loop_evaluate_SOURCES = loop_evaluate.C loop_worker.h
 loop_cmd_SOURCES = loop_cmd.C loop_worker.h

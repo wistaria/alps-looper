@@ -1,6 +1,6 @@
-LATTICE_LIBRARY = "@top_srcdir@/lattices.xml"
+LATTICE_LIBRARY = "@libdir@/xml/lattices.xml"
 LATTICE = "triangle"
-MODEL_LIBRARY = "@top_srcdir@/models.xml"
+MODEL_LIBRARY = "@libdir@/xml/models.xml"
 MODEL = "spin"
 SWEEPS = 65536
 THERMALIZATION = 1024

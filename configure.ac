@@ -95,30 +95,21 @@ if test "$ac_cv_have_lapack" != yes; then
 fi
 
 dnl
-dnl check for uBLAS LAPACK bindings
-dnl
-
-AC_BINDINGS
-if test "$ac_cv_have_bindings" != yes; then
-  AC_MSG_ERROR([uBLAS LAPACK bindings not found.])
-fi
-
-dnl
 dnl compile flags
 dnl
 
-CXXFLAGS="$ac_cv_alps_cxxflags"
-CPPFLAGS="$ac_cv_alps_cppflags $LAPACK_CPPFLAGS $BINDINGS_CPPFLAGS"
+CXXFLAGS="$ac_cv_alps_cxxflags -DBOOST_NUMERIC_BINDINGS_POOR_MANS_TRAITS"
+CPPFLAGS="$ac_cv_alps_cppflags $LAPACK_CPPFLAGS"
 LDFLAGS="$ac_cv_alps_ldflags $LAPACK_LDFLAGS"
 LIBS=
 AC_SUBST([DEFAULT_INCLUDES], '-I$(top_srcdir) -I$(top_builddir)')
 AC_SUBST([LDADD], "$LAPACK_LIBS $ac_cv_alps_libs")
 
-AC_SUBST([CPPFLAGS_MPI], "$ac_cv_alps_cppflags_mpi $LAPACK_CPPFLAGS $BINDINGS_CPPFLAGS")
+AC_SUBST([CPPFLAGS_MPI], "$ac_cv_alps_cppflags_mpi $LAPACK_CPPFLAGS")
 AC_SUBST([LDFLAGS_MPI], "$ac_cv_alps_ldflags_mpi $LAPACK_LDFLAGS")
 AC_SUBST([LIBS_MPI], "$LAPACK_LIBS $ac_cv_alps_libs_mpi")
 
-AC_SUBST([CPPFLAGS_PVM], "$ac_cv_alps_cppflags_pvm $LAPACK_CPPFLAGS $BINDINGS_CPPFLAGS")
+AC_SUBST([CPPFLAGS_PVM], "$ac_cv_alps_cppflags_pvm $LAPACK_CPPFLAGS")
 AC_SUBST([LDFLAGS_PVM], "$ac_cv_alps_ldflags_pvm $LAPACK_LDFLAGS")
 AC_SUBST([LIBS_PVM], "$LAPACK_LIBS $ac_cv_alps_libs_pvm")
 

@@ -1,11 +1,11 @@
-LATTICE_LIBRARY = "@top_srcdir@/lattices.xml"
-MODEL_LIBRARY = "@top_srcdir@/models.xml"
+LATTICE_LIBRARY = "@libdir@/xml/lattices.xml"
+MODEL_LIBRARY = "@libdir@/xml/models.xml"
 
 {
 LATTICE = "dimer"
 MODEL   = "spin"
 T	= 0.5
-J       = -1
+J       = 1
 h       = 0
 Gamma   = 0
 }
@@ -15,7 +15,7 @@ LATTICE = "chain lattice"
 MODEL   = "spin"
 L       = 4
 T	= 0.25
-J       = -1
+J       = 1
 h       = 0
 Gamma   = 0
 }

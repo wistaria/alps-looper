@@ -463,7 +463,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CXX CXXFLAGS ac_ct_CXX CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE build build_cpu build_vendor build_os host host_cpu host_vendor host_os EGREP LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL HAVE_MPI_TRUE HAVE_MPI_FALSE HAVE_PVM_TRUE HAVE_PVM_FALSE LAPACK_CPPFLAGS LAPACK_LDFLAGS LAPACK_LIBS BINDINGS_CPPFLAGS DEFAULT_INCLUDES LDADD CPPFLAGS_MPI LDFLAGS_MPI LIBS_MPI CPPFLAGS_PVM LDFLAGS_PVM LIBS_PVM LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CXX CXXFLAGS ac_ct_CXX CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE build build_cpu build_vendor build_os host host_cpu host_vendor host_os EGREP LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL HAVE_MPI_TRUE HAVE_MPI_FALSE HAVE_PVM_TRUE HAVE_PVM_FALSE LAPACK_CPPFLAGS LAPACK_LDFLAGS LAPACK_LIBS DEFAULT_INCLUDES LDADD CPPFLAGS_MPI LDFLAGS_MPI LIBS_MPI CPPFLAGS_PVM LDFLAGS_PVM LIBS_PVM LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1057,7 +1057,6 @@ Optional Packages:
   --with-scsl             use SGI SCSL Scientific Library
   --with-essl             use ESSL library on IBM AIX
   --with-veclib           use vecLib framework on Mac OS X
-  --with-bindings=DIR     path to Boost uBLAS bindings root directory
 
 Some influential environment variables:
   CC          C compiler command
@@ -1972,8 +1971,8 @@ fi
 
 
 
-{ echo "$as_me:$LINENO: starting configuration for ALPS/looper version 3.1.3b (2004/11/08)" >&5
-echo "$as_me: starting configuration for ALPS/looper version 3.1.3b (2004/11/08)" >&6;}
+{ echo "$as_me:$LINENO: starting configuration for ALPS/looper version 3.1.3b (2004/11/11)" >&5
+echo "$as_me: starting configuration for ALPS/looper version 3.1.3b (2004/11/11)" >&6;}
 
 
 
@@ -4190,7 +4189,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 4193 "configure"' > conftest.$ac_ext
+  echo '#line 4192 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -5298,7 +5297,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:5301:" \
+echo "$as_me:5300:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -6332,11 +6331,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:6335: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:6334: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:6339: \$? = $ac_status" >&5
+   echo "$as_me:6338: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -6565,11 +6564,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:6568: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:6567: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:6572: \$? = $ac_status" >&5
+   echo "$as_me:6571: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -6625,11 +6624,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:6628: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:6627: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:6632: \$? = $ac_status" >&5
+   echo "$as_me:6631: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -8809,7 +8808,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 8812 "configure"
+#line 8811 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -8907,7 +8906,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 8910 "configure"
+#line 8909 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -11086,11 +11085,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:11089: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:11088: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:11093: \$? = $ac_status" >&5
+   echo "$as_me:11092: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -11146,11 +11145,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:11149: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:11148: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:11153: \$? = $ac_status" >&5
+   echo "$as_me:11152: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -12507,7 +12506,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 12510 "configure"
+#line 12509 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12605,7 +12604,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 12608 "configure"
+#line 12607 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -13432,11 +13431,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13435: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13434: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:13439: \$? = $ac_status" >&5
+   echo "$as_me:13438: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -13492,11 +13491,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13495: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13494: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13499: \$? = $ac_status" >&5
+   echo "$as_me:13498: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -15526,11 +15525,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15529: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15528: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:15533: \$? = $ac_status" >&5
+   echo "$as_me:15532: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -15759,11 +15758,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15762: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15761: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:15766: \$? = $ac_status" >&5
+   echo "$as_me:15765: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -15819,11 +15818,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15822: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15821: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:15826: \$? = $ac_status" >&5
+   echo "$as_me:15825: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -18003,7 +18002,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 18006 "configure"
+#line 18005 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -18101,7 +18100,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 18104 "configure"
+#line 18103 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -22183,250 +22182,8 @@ echo "$as_me: error: LAPACK Library not found." >&2;}
 fi
 
 
-
-
-
-
-
-# Check whether --with-bindings or --without-bindings was given.
-if test "${with_bindings+set}" = set; then
-  withval="$with_bindings"
-
-    if test "x$withval" = xno; then
-      bindings=no
-    else
-      bindings=yes
-      if test "x$withval" != xyes; then
-        bindings_dir=`echo "$withval" | sed 's,//*,/,g' | sed 's,/$,,'`
-      fi
-    fi
-
-
-fi;
-
-  found=no
-
-  if test "x$bindings" != xno; then
-    echo "$as_me:$LINENO: checking for Boost uBLAS bindings library" >&5
-echo $ECHO_N "checking for Boost uBLAS bindings library... $ECHO_C" >&6
-    if test -n "$bindings_dir"; then
-      if test -f "$bindings_dir/boost/numeric/bindings/lapack/lapack.hpp"; then
-        found=yes
-      else
-        bindings_dir=no
-      fi
-    else
-      bindings_dir=no
-      for d in $prefix $prefix/src $HOME $HOME/src /usr/local /usr/local/src
-      do
-        for s in include boost-sandbox boost-bindings bindings ublas_bindings
-        do
-          if test -f "$d/$s/boost/numeric/bindings/lapack/lapack.hpp"; then
-            found=yes
-            bindings_dir="$d/$s"
-            break
-          fi
-        done
-        if test "$found" = yes; then
-          break
-        fi
-      done
-    fi
-    echo "$as_me:$LINENO: result: $bindings_dir" >&5
-echo "${ECHO_T}$bindings_dir" >&6
-  fi
-
-  if test "$found" = yes; then
-    ac_cv_have_bindings=yes
-    ac_cv_bindings_dir="$bindings_dir"
-    BINDINGS_CPPFLAGS="-I$bindings_dir -DBOOST_NUMERIC_BINDINGS_POOR_MANS_TRAITS"
-
-cat >>confdefs.h <<\_ACEOF
-#define HAVE_BINDINGS
-_ACEOF
-
-  else
-    ac_cv_have_bindings=no
-    ac_cv_bindings_dir=
-    BINDINGS_CPPFLAGS=
-  fi
-
-  if test "$ac_cv_have_bindings" = yes; then
-
-
-    ac_ext=cc
-ac_cpp='$CXXCPP $CPPFLAGS'
-ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
-
-    ac_save_CPPFLAGS="$CPPFLAGS"
-    CPPFLAGS="$CPPFLAGS $BINDINGS_CPPFLAGS"
-    if test "${ac_cv_header_boost_numeric_bindings_lapack_syev_hpp+set}" = set; then
-  echo "$as_me:$LINENO: checking for boost/numeric/bindings/lapack/syev.hpp" >&5
-echo $ECHO_N "checking for boost/numeric/bindings/lapack/syev.hpp... $ECHO_C" >&6
-if test "${ac_cv_header_boost_numeric_bindings_lapack_syev_hpp+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-fi
-echo "$as_me:$LINENO: result: $ac_cv_header_boost_numeric_bindings_lapack_syev_hpp" >&5
-echo "${ECHO_T}$ac_cv_header_boost_numeric_bindings_lapack_syev_hpp" >&6
-else
-  # Is the header compilable?
-echo "$as_me:$LINENO: checking boost/numeric/bindings/lapack/syev.hpp usability" >&5
-echo $ECHO_N "checking boost/numeric/bindings/lapack/syev.hpp usability... $ECHO_C" >&6
-cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-$ac_includes_default
-#include <boost/numeric/bindings/lapack/syev.hpp>
-_ACEOF
-rm -f conftest.$ac_objext
-if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
-  (eval $ac_compile) 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_cxx_werror_flag"
-			 || test ! -s conftest.err'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  ac_header_compiler=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-ac_header_compiler=no
-fi
-rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
-echo "$as_me:$LINENO: result: $ac_header_compiler" >&5
-echo "${ECHO_T}$ac_header_compiler" >&6
-
-# Is the header present?
-echo "$as_me:$LINENO: checking boost/numeric/bindings/lapack/syev.hpp presence" >&5
-echo $ECHO_N "checking boost/numeric/bindings/lapack/syev.hpp presence... $ECHO_C" >&6
-cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-#include <boost/numeric/bindings/lapack/syev.hpp>
-_ACEOF
-if { (eval echo "$as_me:$LINENO: \"$ac_cpp conftest.$ac_ext\"") >&5
-  (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } >/dev/null; then
-  if test -s conftest.err; then
-    ac_cpp_err=$ac_cxx_preproc_warn_flag
-    ac_cpp_err=$ac_cpp_err$ac_cxx_werror_flag
-  else
-    ac_cpp_err=
-  fi
-else
-  ac_cpp_err=yes
-fi
-if test -z "$ac_cpp_err"; then
-  ac_header_preproc=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-  ac_header_preproc=no
-fi
-rm -f conftest.err conftest.$ac_ext
-echo "$as_me:$LINENO: result: $ac_header_preproc" >&5
-echo "${ECHO_T}$ac_header_preproc" >&6
-
-# So?  What about this header?
-case $ac_header_compiler:$ac_header_preproc:$ac_cxx_preproc_warn_flag in
-  yes:no: )
-    { echo "$as_me:$LINENO: WARNING: boost/numeric/bindings/lapack/syev.hpp: accepted by the compiler, rejected by the preprocessor!" >&5
-echo "$as_me: WARNING: boost/numeric/bindings/lapack/syev.hpp: accepted by the compiler, rejected by the preprocessor!" >&2;}
-    { echo "$as_me:$LINENO: WARNING: boost/numeric/bindings/lapack/syev.hpp: proceeding with the compiler's result" >&5
-echo "$as_me: WARNING: boost/numeric/bindings/lapack/syev.hpp: proceeding with the compiler's result" >&2;}
-    ac_header_preproc=yes
-    ;;
-  no:yes:* )
-    { echo "$as_me:$LINENO: WARNING: boost/numeric/bindings/lapack/syev.hpp: present but cannot be compiled" >&5
-echo "$as_me: WARNING: boost/numeric/bindings/lapack/syev.hpp: present but cannot be compiled" >&2;}
-    { echo "$as_me:$LINENO: WARNING: boost/numeric/bindings/lapack/syev.hpp:     check for missing prerequisite headers?" >&5
-echo "$as_me: WARNING: boost/numeric/bindings/lapack/syev.hpp:     check for missing prerequisite headers?" >&2;}
-    { echo "$as_me:$LINENO: WARNING: boost/numeric/bindings/lapack/syev.hpp: see the Autoconf documentation" >&5
-echo "$as_me: WARNING: boost/numeric/bindings/lapack/syev.hpp: see the Autoconf documentation" >&2;}
-    { echo "$as_me:$LINENO: WARNING: boost/numeric/bindings/lapack/syev.hpp:     section \"Present But Cannot Be Compiled\"" >&5
-echo "$as_me: WARNING: boost/numeric/bindings/lapack/syev.hpp:     section \"Present But Cannot Be Compiled\"" >&2;}
-    { echo "$as_me:$LINENO: WARNING: boost/numeric/bindings/lapack/syev.hpp: proceeding with the preprocessor's result" >&5
-echo "$as_me: WARNING: boost/numeric/bindings/lapack/syev.hpp: proceeding with the preprocessor's result" >&2;}
-    { echo "$as_me:$LINENO: WARNING: boost/numeric/bindings/lapack/syev.hpp: in the future, the compiler will take precedence" >&5
-echo "$as_me: WARNING: boost/numeric/bindings/lapack/syev.hpp: in the future, the compiler will take precedence" >&2;}
-    (
-      cat <<\_ASBOX
-## --------------------------------- ##
-## Report this to the looper lists.  ##
-## --------------------------------- ##
-_ASBOX
-    ) |
-      sed "s/^/$as_me: WARNING:     /" >&2
-    ;;
-esac
-echo "$as_me:$LINENO: checking for boost/numeric/bindings/lapack/syev.hpp" >&5
-echo $ECHO_N "checking for boost/numeric/bindings/lapack/syev.hpp... $ECHO_C" >&6
-if test "${ac_cv_header_boost_numeric_bindings_lapack_syev_hpp+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  ac_cv_header_boost_numeric_bindings_lapack_syev_hpp=$ac_header_preproc
-fi
-echo "$as_me:$LINENO: result: $ac_cv_header_boost_numeric_bindings_lapack_syev_hpp" >&5
-echo "${ECHO_T}$ac_cv_header_boost_numeric_bindings_lapack_syev_hpp" >&6
-
-fi
-
-
-    CPPFLAGS="$ac_save_CPPFLAGS"
-    ac_ext=cc
-ac_cpp='$CXXCPP $CPPFLAGS'
-ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
-
-
-    if test "$ac_cv_header_boost_numeric_bindings_lapack_syev_hpp" = yes; then
-      cat >>confdefs.h <<\_ACEOF
-#define HAVE_BOOST_NUMERIC_BINDINGS_LAPACK_SYEV_HPP 1
-_ACEOF
-
-    fi
-  fi
-
-
-if test "$ac_cv_have_bindings" != yes; then
-  { { echo "$as_me:$LINENO: error: uBLAS LAPACK bindings not found." >&5
-echo "$as_me: error: uBLAS LAPACK bindings not found." >&2;}
-   { (exit 1); exit 1; }; }
-fi
-
-
-CXXFLAGS="$ac_cv_alps_cxxflags"
-CPPFLAGS="$ac_cv_alps_cppflags $LAPACK_CPPFLAGS $BINDINGS_CPPFLAGS"
+CXXFLAGS="$ac_cv_alps_cxxflags -DBOOST_NUMERIC_BINDINGS_POOR_MANS_TRAITS"
+CPPFLAGS="$ac_cv_alps_cppflags $LAPACK_CPPFLAGS"
 LDFLAGS="$ac_cv_alps_ldflags $LAPACK_LDFLAGS"
 LIBS=
 DEFAULT_INCLUDES='-I$(top_srcdir) -I$(top_builddir)'
@@ -22434,14 +22191,14 @@ DEFAULT_INCLUDES='-I$(top_srcdir) -I$(top_builddir)'
 LDADD="$LAPACK_LIBS $ac_cv_alps_libs"
 
 
-CPPFLAGS_MPI="$ac_cv_alps_cppflags_mpi $LAPACK_CPPFLAGS $BINDINGS_CPPFLAGS"
+CPPFLAGS_MPI="$ac_cv_alps_cppflags_mpi $LAPACK_CPPFLAGS"
 
 LDFLAGS_MPI="$ac_cv_alps_ldflags_mpi $LAPACK_LDFLAGS"
 
 LIBS_MPI="$LAPACK_LIBS $ac_cv_alps_libs_mpi"
 
 
-CPPFLAGS_PVM="$ac_cv_alps_cppflags_pvm $LAPACK_CPPFLAGS $BINDINGS_CPPFLAGS"
+CPPFLAGS_PVM="$ac_cv_alps_cppflags_pvm $LAPACK_CPPFLAGS"
 
 LDFLAGS_PVM="$ac_cv_alps_ldflags_pvm $LAPACK_LDFLAGS"
 
@@ -23155,7 +22912,6 @@ s,@HAVE_PVM_FALSE@,$HAVE_PVM_FALSE,;t t
 s,@LAPACK_CPPFLAGS@,$LAPACK_CPPFLAGS,;t t
 s,@LAPACK_LDFLAGS@,$LAPACK_LDFLAGS,;t t
 s,@LAPACK_LIBS@,$LAPACK_LIBS,;t t
-s,@BINDINGS_CPPFLAGS@,$BINDINGS_CPPFLAGS,;t t
 s,@DEFAULT_INCLUDES@,$DEFAULT_INCLUDES,;t t
 s,@LDADD@,$LDADD,;t t
 s,@CPPFLAGS_MPI@,$CPPFLAGS_MPI,;t t

@@ -33,7 +33,7 @@ pkginclude_HEADERS = \
 	looper/weight.h
 
 dist_noinst_SCRIPTS = config/run-test config/update_preamble
-dist_noinst_DATA = CITATIONS.txt LICENSE lattices.xml models.xml
+dist_noinst_DATA = CITATIONS.txt LICENSE
 
 loop_SOURCES = loop.C loop_factory.C loop_factory.h loop_worker.h
 loop_evaluate_SOURCES = loop_evaluate.C loop_worker.h
