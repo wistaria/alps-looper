@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: pathintegral.h 433 2003-10-16 14:38:03Z wistaria $
+* $Id: pathintegral.h 434 2003-10-16 14:45:06Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -306,7 +306,7 @@ void initialize(amida<N>& config, const VG& vg, const VM&)
 
 template<class N, class VG, class VM, class M, class RNG, class W>
 int do_update(amida<N>& config, const VG& vg, const VM& vm, const M& model,
-	     double beta, RNG& uniform_01, const W& weight)
+	     double beta, RNG& uniform_01, const W&)
 {
   typedef typename amida<N>::iterator iterator;
   typedef typename amida<N>::value_type node_type;

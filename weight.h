@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: weight.h 432 2003-10-16 13:24:54Z wistaria $
+* $Id: weight.h 434 2003-10-16 14:45:06Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -41,7 +41,7 @@
 
 namespace looper {
 
-struct weight
+struct default_weight
 {
   double density;
   double p_freeze;
@@ -49,9 +49,10 @@ struct weight
   double p_accept_anti;
   double p_reflect;
   
-  weight() {}
+  default_weight() {}
+
   template<class P>
-  weight(const P& p)
+  default_weight(const P& p)
   {
     double Jxy = std::abs(p.Jxy); // ignore negative signs
     double Jz = p.Jz;

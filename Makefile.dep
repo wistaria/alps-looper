@@ -6,6 +6,6 @@ simple_pi.o simple_pi_mpi.o simple_pi_pvm.o simple_pi simple_pi_mpi simple_pi_pv
 simplegraph.o simplegraph_mpi.o simplegraph_pvm.o simplegraph simplegraph_mpi simplegraph_pvm: $(srcdir)/graph.h
 unionfind.o unionfind_mpi.o unionfind_pvm.o unionfind unionfind_mpi unionfind_pvm: $(srcdir)/unionfind.h
 virtualgraph.o virtualgraph_mpi.o virtualgraph_pvm.o virtualgraph virtualgraph_mpi virtualgraph_pvm: $(srcdir)/graph.h $(srcdir)/virtualgraph.h
-weight.o weight_mpi.o weight_pvm.o weight weight_mpi weight_pvm: $(srcdir)/pathintegral.h $(srcdir)/amida.h $(srcdir)/vectorhelper.h $(srcdir)/graph.h $(srcdir)/loop.h $(srcdir)/permutation.h $(srcdir)/unionfind.h $(srcdir)/weight.h $(srcdir)/xxz.h
+weight.o weight_mpi.o weight_pvm.o weight weight_mpi weight_pvm: $(srcdir)/xxz.h $(srcdir)/weight.h
 xxz_matrix.o xxz_matrix_mpi.o xxz_matrix_pvm.o xxz_matrix xxz_matrix_mpi xxz_matrix_pvm: $(srcdir)/xxz.h
 xxz_model.o xxz_model_mpi.o xxz_model_pvm.o xxz_model xxz_model_mpi xxz_model_pvm: $(srcdir)/xxz.h
