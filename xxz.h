@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: xxz.h 398 2003-10-09 10:33:05Z wistaria $
+* $Id: xxz.h 402 2003-10-09 15:28:14Z wistaria $
 *
 * Copyright (C) 2001-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -45,6 +45,19 @@
 #include <boost/numeric/ublas/io.hpp>
 
 namespace looper {
+
+namespace detail {
+
+template<class I>
+I index(const alps::half_integer<I>& s0,
+	const alps::half_integer<I>& s1,
+	const alps::half_integer<I>& sz0,
+	const alps::half_integer<I>& sz1)
+{
+  return s0.distance(sz0) * (s1.get_twice()+1) + s1.distance(sz1);
+}
+
+} // end namespace detail
 
 template <class T = double, class M = boost::numeric::ublas::matrix<T> >
 class xxz_matrix
@@ -89,7 +102,8 @@ public:
     // diagonal elements: jz sz0 sz1
     for (half_integer_type sz0 = s0; sz0 >= -s0; --sz0) {
       for (half_integer_type sz1 = s1; sz1 >= -s1; --sz1) {
-	matrix_[index(s0, s1, sz0, sz1)][index(s0, s1, sz0, sz1)] = 
+	matrix_[detail::index(s0, s1, sz0, sz1)]
+	       [detail::index(s0, s1, sz0, sz1)] = 
 	  e0 - jz * double(sz0) * double(sz1);
       }
     }
@@ -97,7 +111,8 @@ public:
     // off-diagonal elements: jxy s0+ s1- / 2
     for (half_integer_type sz0 = s0-1; sz0 >= -s0; --sz0) {
       for (half_integer_type sz1 = s1; sz1 >= -s1+1; --sz1) {
-	matrix_[index(s0, s1, sz0+1, sz1-1)][index(s0, s1, sz0, sz1)] =
+	matrix_[detail::index(s0, s1, sz0+1, sz1-1)]
+               [detail::index(s0, s1, sz0, sz1)] =
 	  - 0.5 * jxy *
 	  std::sqrt(double(s0-sz0) * double(s0+sz0+1)) * 
 	  std::sqrt(double(s1+sz1) * double(s1-sz1+1));
@@ -107,22 +122,13 @@ public:
     // off-diagonal elements: jxy s0- s1+ / 2
     for (half_integer_type sz0 = s0; sz0 >= -s0+1; --sz0) {
       for (half_integer_type sz1 = s1-1; sz1 >= -s1; --sz1) {
-	matrix_[index(s0, s1, sz0-1, sz1+1)][index(s0, s1, sz0, sz1)] =
+	matrix_[detail::index(s0, s1, sz0-1, sz1+1)]
+               [detail::index(s0, s1, sz0, sz1)] =
 	  - 0.5 * jxy *
 	  std::sqrt(double(s0+sz0) * double(s0-sz0+1)) * 
 	  std::sqrt(double(s1-sz1) * double(s1+sz1+1));
       }
     }
-  }
-  
-protected:
-  template<class I>
-  I index(const alps::half_integer<I>& s0,
-	  const alps::half_integer<I>& s1,
-	  const alps::half_integer<I>& sz0,
-	  const alps::half_integer<I>& sz1) const
-  {
-    return s0.distance(sz0) * (s1.get_twice()+1) + s1.distance(sz1);
   }
 
 private:
@@ -141,7 +147,8 @@ inline std::ostream& operator<<(std::ostream& os, const xxz_matrix<T, M>& m)
 //
 
 template <class I, class M>
-inline boost::tuple<bool, typename M::value_type, M::value_type, M::value_type>
+inline boost::tuple<bool, typename M::value_type, typename M::value_type,
+                    typename M::value_type>
 fit2xxz(const alps::half_integer<I>& s0, const alps::half_integer<I>& s1, 
 	const M& mat, typename M::value_type tol = 1.0e-10)
 {
@@ -231,8 +238,10 @@ public:
 		      const alps::ModelLibrary& models)
   {
     typedef G graph_type;
-    typedef boost::graph_traits<graph_type>::vertex_iterator vertex_iterator;
-    typedef boost::graph_traits<graph_type>::edge_iterator edge_iterator;
+    typedef typename boost::graph_traits<graph_type>::vertex_iterator
+      vertex_iterator;
+    typedef typename boost::graph_traits<graph_type>::edge_iterator
+      edge_iterator;
     
     // get Hamilton operator
     alps::HamiltonianDescriptor<short> hd(models.hamiltonian(params["MODEL"]));
@@ -241,7 +250,8 @@ public:
     hd.set_parameters(p);
     
     // get site parameters
-    alps::property_map<alps::site_type_t, graph_type, type_type>::const_type
+    typename alps::property_map<alps::site_type_t, graph_type,
+                                type_type>::const_type
       site_type(alps::get_or_default(alps::site_type_t(), graph, 0));
 
     vertex_iterator vi_end = boost::vertices(graph).second;
@@ -254,7 +264,8 @@ public:
 
     // get bond parameters
     std::map<boost::tuple<type_type, type_type, type_type>, bool> bond_visited;
-    alps::property_map<alps::bond_type_t, graph_type, type_type>::const_type
+    typename alps::property_map<alps::bond_type_t, graph_type,
+                                type_type>::const_type
       bond_type(alps::get_or_default(alps::bond_type_t(), graph, 0));
 
     edge_iterator ei_end = boost::edges(graph).second;
@@ -271,15 +282,17 @@ public:
 						   p);
 	boost::tuple<bool, double, double, double>
 	  fit = fit2xxz(spin_[st0], spin_[st1], bm);
-	if (!fit.get<0>())
+	if (!fit.template get<0>())
 	  boost::throw_exception(std::runtime_error("fitting to XXZ model failed"));
 	if (bond_.count(bt)) {
-	  if (bond_[bt].C != fit.get<1>() ||
-	      bond_[bt].Jxy != fit.get<2>() ||
-	      bond_[bt].Jz != fit.get<3>())
+	  if (bond_[bt].C != fit.template get<1>() ||
+	      bond_[bt].Jxy != fit.template get<2>() ||
+	      bond_[bt].Jz != fit.template get<3>())
 	    boost::throw_exception(std::runtime_error("inconsistent bond parameter(s)"));
 	} else {
-	  bond_[bt] = xxz_parameter(fit.get<1>(), fit.get<2>(), fit.get<3>());
+	  bond_[bt] = xxz_parameter(fit.template get<1>(),
+				    fit.template get<2>(),
+				    fit.template get<3>());
 	}
       }
     }
