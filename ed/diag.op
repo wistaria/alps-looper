@@ -9,6 +9,7 @@ diagonalization... done
 ground state energy          = -0.75
 ground state energy per site = -0.375
 energy per site              = -0.230617
+diagonal energy per site     = -0.0768724
 specific heat                = 0.41076
 uniform magnetization        = 0
 uniform magnetization^2      = 0.0962551
@@ -28,6 +29,7 @@ diagonalization... done
 ground state energy          = -2
 ground state energy per site = -0.5
 energy per site              = -0.485876
+diagonal energy per site     = -0.161959
 specific heat                = 0.231684
 uniform magnetization        = 0
 uniform magnetization^2      = 0.0089931

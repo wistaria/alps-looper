@@ -222,6 +222,9 @@ try {
         boost::target(*ei, lattice.graph()),
         lattice.graph(), params);
 
+    diagonal_matrix_type diagonal_energy(dim);
+    for (int i = 0; i < dim; ++i) diagonal_energy(i) = hamiltonian(i,i);
+
     //
     // diagonalization
     //
@@ -248,12 +251,16 @@ try {
     boost::tie(ene, ene2) = static_average2(beta, gs_ene, evals);
     ene = ene / part / num_vertices;
     ene2 = ene2 / part / sqr(num_vertices);
+    double ez = static_average(beta, gs_ene, evals, hamiltonian,
+			       diagonal_energy);
+    ez = ez / part / num_vertices;
     double c = sqr(beta) * num_vertices * (ene2 - sqr(ene));
 
     std::cout << "ground state energy          = " << gs_ene << std::endl
               << "ground state energy per site = "
               << gs_ene/num_vertices << std::endl
               << "energy per site              = " << ene << std::endl
+              << "diagonal energy per site     = " << ez << std::endl
               << "specific heat                = " << c << std::endl;
 
     //
@@ -273,7 +280,8 @@ try {
     boost::tie(umag, umag2) =
       static_average2(beta, gs_ene, evals, hamiltonian, uniform_sz);
     if (std::abs(umag) < 1.0e-12) umag = 0.;
-    double usus = dynamic_average2(beta, gs_ene, evals, hamiltonian, uniform_sz);
+    double usus = dynamic_average2(beta, gs_ene, evals, hamiltonian,
+				   uniform_sz);
     umag = umag / part / num_vertices;
     umag2 = umag2 / part / num_vertices;
     usus = usus / part / num_vertices;
