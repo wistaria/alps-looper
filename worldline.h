@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: worldline.h 427 2003-10-16 05:23:18Z wistaria $
+* $Id: worldline.h 431 2003-10-16 09:24:06Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -39,6 +39,10 @@
 
 #include "amida.h"
 #include "unionfind.h"
+#include "pathintegral.h"
+#include "permutation.h"
+#include "random.h"
+
 #include <alps/osiris.h>
 #include <boost/integer_traits.hpp>
 
@@ -163,7 +167,7 @@ public:
   uint32_t bond() const { return bond_; }
 
   void set_bond(uint32_t b) { bond_ = b; }
-  void set_time(time_type, time_type t) { time_ = t; }
+  void set_time(time_type t) { time_ = t; }
 
   void set_new(uint32_t b, uint32_t is_refl, uint32_t is_frozen,
 	       uint32_t conf, uint32_t phase) {
@@ -217,12 +221,12 @@ public:
   typedef std::complex<time_type> ctime_type;
 
   ctime_type ctime() const { return _ctime; }
-  void set_time(time_type beta, time_type t) {
-    node<false>::set_time(beta, t);
+  void set_time(time_type t) {
+    node<false>::set_time(t);
 #ifdef M_PI
-    _ctime = std::exp(2 * M_PI * t / beta);
+    _ctime = std::exp(2 * M_PI * t);
 #else
-    _ctime = std::exp(2 * 3.1415926535897932385 * t / beta);
+    _ctime = std::exp(2 * 3.1415926535897932385 * t);
 #endif
   }
 
@@ -244,50 +248,50 @@ private:
   ctime_type _ctime;
 };
 
-//
-// helper functions
-//
+// //
+// // helper functions
+// //
 
-template<class NodePtr>
-inline bool not_passed(const NodePtr& ptr, uint32_t path) {
-  if (ptr->is_vacant()) {
-    return false;
-  }
+// template<class NodePtr>
+// inline bool not_passed(const NodePtr& ptr, uint32_t path) {
+//   if (ptr->is_vacant()) {
+//     return false;
+//   }
   
-  if (ptr->at_boundary()) {
-    return path == 0 && ptr->loop(0) == Node<>::loop_not_assigned;
-  } else {
-    return ptr->loop(0) == Node<>::loop_not_assigned;
-  }
-}
+//   if (ptr->at_boundary()) {
+//     return path == 0 && ptr->loop(0) == Node<>::loop_not_assigned;
+//   } else {
+//     return ptr->loop(0) == Node<>::loop_not_assigned;
+//   }
+// }
 
-template<class WorldLine, class NodePtr, class Loops>
-void check_erase(WorldLine& wline, NodePtr& ptr, const Loops& loops) {
-  if (ptr->is_node()) {
-    if (ptr->at_boundary()) {
-      ptr->flip_conf(loops[loops[ptr->loop(0)].root()].direc);
-      ptr->clear();
-    } else {
-      if (ptr->old_node()) {
-	if (loops[loops[ptr->loop(0)].root()].direc ^
-	    loops[loops[ptr->loop(1)].root()].direc == 1) {
-	  wline.erase(ptr);
-	} else {
-	  ptr->flip_conf(loops[loops[ptr->loop(0)].root()].direc);
-	  ptr->clear();
-	}
-      } else {
-	if (loops[loops[ptr->loop(0)].root()].direc ^
-	    loops[loops[ptr->loop(1)].root()].direc == 0) {
-	  wline.erase(ptr);
-	} else {
-	  ptr->flip_conf(loops[loops[ptr->loop(0)].root()].direc);
-	  ptr->clear();
-	}
-      }
-    }
-  }
-}
+// template<class WorldLine, class NodePtr, class Loops>
+// void check_erase(WorldLine& wline, NodePtr& ptr, const Loops& loops) {
+//   if (ptr->is_node()) {
+//     if (ptr->at_boundary()) {
+//       ptr->flip_conf(loops[loops[ptr->loop(0)].root()].direc);
+//       ptr->clear();
+//     } else {
+//       if (ptr->old_node()) {
+// 	if (loops[loops[ptr->loop(0)].root()].direc ^
+// 	    loops[loops[ptr->loop(1)].root()].direc == 1) {
+// 	  wline.erase(ptr);
+// 	} else {
+// 	  ptr->flip_conf(loops[loops[ptr->loop(0)].root()].direc);
+// 	  ptr->clear();
+// 	}
+//       } else {
+// 	if (loops[loops[ptr->loop(0)].root()].direc ^
+// 	    loops[loops[ptr->loop(1)].root()].direc == 0) {
+// 	  wline.erase(ptr);
+// 	} else {
+// 	  ptr->flip_conf(loops[loops[ptr->loop(0)].root()].direc);
+// 	  ptr->clear();
+// 	}
+//       }
+//     }
+//   }
+// }
 
 //
 // class template world_line
@@ -304,12 +308,10 @@ public:
   static const bool has_ctime = HasCTime;
 
   // constructors & destructor
-  world_line() : beta_(1.), config_() {}
+  world_line() : config_() {}
   template<class VG, class VM>
-  world_line(double beta, const VG& vg, const VM& vm, int c = 0)
-    : beta_(beta), config_()
+  world_line(const VG& vg, const VM& vm, int c = 0) : config_()
   {
-    assert(beta > 0);
     init(vg, vm, c);
   }
 
@@ -321,10 +323,10 @@ public:
     int n = boost::num_vertices(vg);
     config_.init(n);
     for (std::size_t s = 0; s < n; ++s) {
-      bottom(s)->set_time(beta_, 0);
-      bottom(s)->set_conf(c);
-      top(s)->set_time(beta_, beta_);
-      top(s)->set_conf(c);
+      config_.series(s).first ->set_time(0.);
+      config_.series(s).second->set_time(1.);
+      config_.series(s).first ->set_conf(c);
+      config_.series(s).second->set_conf(c);
     }
   }
   template<class VG, class VM, class RNG>
@@ -333,58 +335,59 @@ public:
     init(vg, vm);
     for (std::size_t s = 0; s < sites(); ++s) {
       if (rng() < p) {
-	bottom(s)->set_conf(0);
-	top(s)->set_conf(0);
+	config_.series(s).first ->set_conf(0);
+	config_.series(s).second->set_conf(0);
       } else {
-	bottom(s)->set_conf(1);
-	top(s)->set_conf(1);
+	config_.series(s).first ->set_conf(1);
+	config_.series(s).second->set_conf(1);
       }
     }
   }
   
-  double beta() const { return beta_; }
-
   // size inquiry
-  std::size_t sites() const { return config_.series(); }
-  std::size_t links() const { return config_.links(); }
-  std::size_t cuts() const { return config_.cuts(); }
-  std::size_t nodes() const { return config_.nodes(); }
-  std::size_t nodes_max() const { return config_.nodes_max(); }
+//   std::size_t sites() const { return config_.series(); }
+//   std::size_t links() const { return config_.links(); }
+//   std::size_t cuts() const { return config_.cuts(); }
+//   std::size_t nodes() const { return config_.nodes(); }
+//   std::size_t nodes_max() const { return config_.nodes_max(); }
   
-  double memory() const { return config_.memory(); }
+//   double memory() const { return config_.memory(); }
 
   // generate iterators, pointers, etc.
-  series_iterator bottom(std::size_t r) { return config_.series(r).first; }
-  const series_iterator bottom(std::size_t r) const {
-    return config_.series(r).first;
-  }
-  series_iterator top(std::size_t r) { return config_.series(r).second; }
-  const series_iterator top(std::size_t r) const {
-    return config_.series(r).second;
-  }
-  node_pointer node(std::size_t i) { return config_.ptr(i); }
-  const node_pointer node(std::size_t i) const { return config_.ptr(i); }
+  // iterator bottom(std::size_t r) { return config_.series(r).first; }
+  // const iterator bottom(std::size_t r) const {
+  //   return config_.series(r).first;
+  // }
+  // iterator top(std::size_t r) { return config_.series(r).second; }
+  // const iterator top(std::size_t r) const {
+  //  return config_.series(r).second;
+  // }
+  // node_pointer node(std::size_t i) { return config_.ptr(i); }
+  // const node_pointer node(std::size_t i) const { return config_.ptr(i); }
 
-  std::pair<series_iterator, series_iterator>
-  insert(const series_iterator& curr0, const series_iterator& curr1,
-	 const series_iterator& next0, const series_iterator& next1,
-	 double t)
-  {
-    // insert to list
-    node_type k;
-    k.set_time(beta_, t);
-    node_pointer itr_new = config_.insert_link(k, curr0, curr1, next0, next1);
-    return std::make_pair(series_iterator(itr_new, 0),
-			  series_iterator(itr_new, 1));
-  }
+//   std::pair<iterator, iterator>
+//   insert(const iterator& curr0, const iterator& curr1,
+// 	 const iterator& next0, const iterator& next1,
+// 	 double t)
+//   {
+//     // insert to list
+//     node_type k;
+//     k.set_time(t);
+//     node_pointer itr_new = config_.insert_link(k, curr0, curr1, next0, next1);
+//     return std::make_pair(iterator(itr_new, 0),
+// 			  iterator(itr_new, 1));
+//   }
 
-  void erase(node_pointer link) { config_.erase(link); }
+//   void erase(iterator itr) { config_.erase(itr); }
   
   void save(alps::ODump& od) const { config_.save(od); }
   void load(alps::IDump& id) { config_.load(id); }
-  
+
+  template<class VG, class VM, class M, class RNG>
+  void do_labeling(double betga, const VG& vg, const VM& vm, const M& model,
+		   RNG& uniform_01);
+
 private:
-  double beta_;
   amida<node_type> config_;
 };
 
@@ -410,5 +413,123 @@ alps::IDump& operator>>(alps::IDump& id, world_line<HasCTime>& wline) {
 #ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
 } // end namespace looper
 #endif
+
+namespace looper {
+
+template<bool HasCTime>
+template<class VG, class VM, class M, class RNG>
+void world_line<HasCTime>::do_labeling(double beta, const VG& vg, const VM& vm,
+				       const M& model, RNG& uniform_01)
+{
+  typedef VG graph_type;
+  typedef VM mapping_type;
+  typedef typename boost::graph_traits<graph_type>::vertex_iterator
+    vertex_iterator;
+  typedef typename boost::graph_traits<graph_type>::edge_iterator
+    edge_iterator;
+
+  //
+  // labeling
+  //
+
+  edge_iterator ei_end = boost::edges(vg).second;
+  for (edge_iterator ei = boost::edges(vg).first; ei != ei_end; ++ei) {
+
+    int bond = boost::get(edge_index_t(), vg, *ei); // bond index
+
+    // setup iterators
+    iterator itr0 = config_.series(boost::source(*ei, vg)).first;
+    iterator itr1 = config_.series(boost::target(*ei, vg)).first;
+    int c0 = itr0->conf();    
+    int c1 = itr1->conf();
+
+    // setup bond weight
+    path_integral::weight w(model.bond(boost::get(edge_type_t(), vg, *ei)));
+    std::vector<double> trials;
+    fill_duration(uniform_01, trials, beta * w.density(), 1.);
+
+    // iteration up to t = 1
+    std::vector<double>::const_iterator ti_end = trials.end();
+    for (std::vector<double>::const_iterator ti = trials.begin();
+	 ti != ti_end; ++ti) {
+      while (itr0->time() < *ti) { 
+	if (itr0->bond() == bond) {
+	  // labeling existing link
+	  itr0->set_old((uniform_01() < w.reflect() ? 1 : 0), 0);
+	}
+	if (itr0->is_old_node()) c0 ^= 1;
+	++itr0;
+      }
+      while (itr1->time() < *ti) { if (itr1->is_old_node()) c1 ^= 1; ++itr1; }
+      if (uniform_01() < w.accept(c0, c1)) {
+	// insert new link
+	iterator itr_new =
+	  config_.insert_link_prev(node_type(), itr0, itr1).first;
+	bool fz = (uniform_01() < w.freeze());
+	itr_new->set_time(*ti);
+	itr_new->set_new(boost::get(edge_index_t(), vg, *ei), c0 ^ c1,
+			 (fz ? 1 : 0), 0, 0);
+	if (fz) unionfind::unify(itr_new->loop_segment(0),
+				 itr_new->loop_segment(0));
+      }
+    }
+    while (!itr0.at_top()) { 
+      if (itr0->bond() == bond) {
+	// labeling existing link
+	itr0->set_old((uniform_01() < w.reflect() ? 1 : 0), 0);
+      }
+      ++itr0;
+    }
+  }
+  std::cout << "labeling done.\n";
+
+  //
+  // cluster identification using union-find algorithm
+  //
+
+  vertex_iterator vi_end = boost::vertices(vg).second;
+  for (vertex_iterator vi = boost::vertices(vg).first; vi != vi_end; ++vi) {
+
+    // setup iterators
+    iterator itrD = config_.series(*vi).first;
+    iterator itrU = itrD + 1;
+
+    // iteration up to t = 1
+    while (!itrU.at_top()) {
+      // connect loop segments // FIXME
+      itrD = itrU++;
+    }
+  }
+
+  std::vector<int> r;
+  std::vector<int> c0;
+  std::vector<int> c1;
+  for (int i = 0; i < vm.num_groups(); ++i) {
+    int s2 = vm.num_virtual_vertices(i);
+    int offset = *(vm.virtual_vertices(i).first);
+    r.resize(s2);
+    c0.resize(s2);
+    c1.resize(s2);
+    vertex_iterator vi_end = vm.virtual_vertices(i).second;
+    for (vertex_iterator vi = vm.virtual_vertices(i).first;
+	 vi != vi_end; ++vi) {
+      r[*vi - offset] = *vi - offset;
+      c0[*vi - offset] = config_.series(*vi).first->conf();
+      c1[*vi - offset] = config_.series(*vi).second->conf();
+    }
+    restricted_random_shuffle(r.begin(), r.end(),
+			      c0.begin(), c0.end(),
+			      c1.begin(), c1.end(),
+			      uniform_01);
+    for (vertex_iterator vi = vm.virtual_vertices(i).first;
+	 vi != vi_end; ++vi)
+      unionfind::unify(
+        config_.series(*vi            ).first ->loop_segment(0),
+	config_.series(r[*vi - offset]).second->loop_segment(0));
+  }
+  std::cout << "identification done.\n";
+}
+
+} // namespace looper
 
 #endif // LOOPER_WORLDLINE_H

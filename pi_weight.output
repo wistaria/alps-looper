@@ -1,8 +1,0 @@
-Jxy = 1, Jz = 2  : r = 1, P_f = 0.5, P_p = 1, P_a = 0
-Jxy = 1, Jz = 1  : r = 0.5, P_f = 0, P_p = 1, P_a = 0
-Jxy = 1, Jz = 0  : r = 0.25, P_f = 0, P_p = 1, P_a = 1
-Jxy = 1, Jz = -1  : r = 0.5, P_f = 0, P_p = 0, P_a = 1
-Jxy = 1, Jz = -2  : r = 1, P_f = 0.5, P_p = 0, P_a = 1
-Jxy = 0, Jz = 1  : r = 0.5, P_f = 1, P_p = 1, P_a = 0
-Jxy = 0, Jz = -1  : r = 0.5, P_f = 1, P_p = 0, P_a = 1
-Jxy = -1, Jz = 1  : r = 0.5, P_f = 0, P_p = 1, P_a = 0

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: pathintegral.h 418 2003-10-15 01:55:10Z wistaria $
+* $Id: pathintegral.h 431 2003-10-16 09:24:06Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -63,6 +63,11 @@ double energy_offset(const M& model, const G& graph)
 class weight
 {
 public:
+  static double range_01(double x)
+  {
+    return std::min(std::max(x, double(0.)), double(1.));
+  }
+    
   template<class P>
   weight(const P& p)
   {
@@ -72,13 +77,10 @@ public:
       boost::throw_exception(std::invalid_argument("Invalid values for coupling constants"));
     
     density_ = std::max(std::abs(Jz) / 2, (Jxy + std::abs(Jz)) / 4);
-    if (std::abs(Jz) > Jxy) {
-      freeze_ = 1 - Jxy / std::abs(Jz);
-    } else {
-      freeze_ = 0;
-    }
-    accept_p_ = std::max((Jxy + Jz) / (Jxy + std::abs(Jz)), double(0));
-    accept_a_ = std::max((Jxy - Jz) / (Jxy + std::abs(Jz)), double(0));
+    freeze_ = range_01(1 - Jxy / std::abs(Jz));
+    accept_p_ = range_01((Jxy + Jz) / (Jxy + std::abs(Jz)));
+    accept_a_ = range_01((Jxy - Jz) / (Jxy + std::abs(Jz)));
+    reflect_ = range_01((Jxy - Jz) / (2 * Jxy));
   }
 
   double density() const { return density_; }
@@ -88,12 +90,14 @@ public:
   double accept(int c0, int c1) const {
     return (c0 ^ c1) ? accept_a_ : accept_p_;
   }
+  double reflect() const { return reflect_; }
 
 private:
   double density_;
   double freeze_;
   double accept_p_;
   double accept_a_;
+  double reflect_;
 };
 
 } // end namespace path_integral

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: simple_pi.C 422 2003-10-15 10:50:28Z wistaria $
+* $Id: simple_pi.C 431 2003-10-16 09:24:06Z wistaria $
 *
 * Copyright (C) 2001-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -82,7 +82,6 @@ struct Options {
   }
 
   void parse(int argc, char *argv[]) {
-    bool found_p = false;
     for (int i = 1; i < argc; ++i) {
       switch (argv[i][0]) {
       case '-' :
@@ -182,13 +181,15 @@ try {
   looper::generate_virtual_graph(g, spin, vg, vm);
 
   // model
-  looper::xxz_model(opts.Jxy, opts.Jz, opts.spin, g);
+  looper::xxz_model model(opts.Jxy, opts.Jz, opts.spin, g);
 
   // world line configration
-  looper::world_line<> wline(1./opts.temp, vg, vm);
+  looper::world_line<> wline(vg, vm);
 
   // measurements
   alps::ObservableSet measurements;
+
+  wline.do_labeling(1.0/opts.temp, vg, vm, model, rng);
 
   // output results
   std::cout << measurements;
