@@ -179,7 +179,7 @@ struct staggered_susceptibility_helper<sse<G, M, W, N> >
     for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
          vi != vi_end; ++vi) {
       double c = gauge(*vi, param.virtual_graph.graph) *
-	qmc_type::static_sz(*vi, config);
+        qmc_type::static_sz(*vi, config);
       conf[*vi] = c;
       ss += c;
     }
@@ -187,17 +187,17 @@ struct staggered_susceptibility_helper<sse<G, M, W, N> >
     double sd = 0.;
     typename qmc_type::config_type::const_iterator oi_end = config.os.end();
     for (typename qmc_type::config_type::const_iterator oi = config.os.begin();
-	 oi != oi_end; ++oi) {
+         oi != oi_end; ++oi) {
       sd += sst;
       if (oi->is_offdiagonal()) {
-	typename qmc_type::edge_iterator ei =
-	  boost::edges(param.virtual_graph.graph).first + oi->bond();
-	int s0 = boost::source(*ei, param.virtual_graph.graph);
-	conf[s0] *= -1;
-	sst += (2 * conf[s0]);
-	int s1 = boost::target(*ei, param.virtual_graph.graph);
-	conf[s1] *= -1;
-	sst += (2 * conf[s1]);
+        typename qmc_type::edge_iterator ei =
+          boost::edges(param.virtual_graph.graph).first + oi->bond();
+        int s0 = boost::source(*ei, param.virtual_graph.graph);
+        conf[s0] *= -1;
+        sst += (2 * conf[s0]);
+        int s1 = boost::target(*ei, param.virtual_graph.graph);
+        conf[s1] *= -1;
+        sst += (2 * conf[s1]);
       }
     }
     sd /= std::sqrt((double)config.os.size() * (double)(config.os.size() + 1));

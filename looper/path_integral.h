@@ -556,6 +556,7 @@ struct path_integral<virtual_graph<G>, M, W, N>
         t = itr1->time();
         ++itr1;
       }
+      c *= -1.;
     }
     return corr;
   }

@@ -1,7 +1,11 @@
+2004-04-21  Synge Todo  <wistaria@comp-phys.org>
+
+        * Fixed a bug in static_correlation in looper/path_integral.h
+
 2004-04-20  Synge Todo  <wistaria@comp-phys.org>
 
         * Optimized measurement of staggered susceptibility in SSE.
-        
+
 2004-04-14  Synge Todo  <wistaria@comp-phys.org>
 
         * Added wrapper and test program for linear least squares solver
