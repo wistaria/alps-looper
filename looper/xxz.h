@@ -135,6 +135,12 @@ public:
     return matrix_[i];
   }
 
+  // sccess to elements
+  value_type& operator()(size_type i, size_type j)
+  { return matrix_(i, j); }
+  const value_type& operator()(size_type i, size_type j) const
+  { return matrix_(i, j); }
+
   template<class I>
   void build(const alps::half_integer<I>& s0, const alps::half_integer<I>& s1,
              double e0, double jxy, double jz)
@@ -147,13 +153,13 @@ public:
     matrix_.resize(dim, dim);
     for (int i = 0; i < dim; ++i)
       for (int j = 0; j < dim; ++j)
-        matrix_[i][j] = value_type(0);
+        matrix_(i,j) = value_type(0);
 
     // diagonal elements: jz sz0 sz1
     for (half_integer_type sz0 = s0; sz0 >= -s0; --sz0) {
       for (half_integer_type sz1 = s1; sz1 >= -s1; --sz1) {
-        matrix_[detail::index(s0, s1, sz0, sz1)]
-               [detail::index(s0, s1, sz0, sz1)] =
+        matrix_(detail::index(s0, s1, sz0, sz1),
+		detail::index(s0, s1, sz0, sz1)) =
           e0 - jz * double(sz0) * double(sz1);
       }
     }
@@ -161,8 +167,8 @@ public:
     // off-diagonal elements: jxy s0+ s1- / 2
     for (half_integer_type sz0 = s0-1; sz0 >= -s0; --sz0) {
       for (half_integer_type sz1 = s1; sz1 >= -s1+1; --sz1) {
-        matrix_[detail::index(s0, s1, sz0+1, sz1-1)]
-               [detail::index(s0, s1, sz0, sz1)] =
+        matrix_(detail::index(s0, s1, sz0+1, sz1-1),
+		detail::index(s0, s1, sz0, sz1)) =
           - 0.5 * jxy *
           std::sqrt(double(s0-sz0) * double(s0+sz0+1)) *
           std::sqrt(double(s1+sz1) * double(s1-sz1+1));
@@ -172,8 +178,8 @@ public:
     // off-diagonal elements: jxy s0- s1+ / 2
     for (half_integer_type sz0 = s0; sz0 >= -s0 + 1; --sz0) {
       for (half_integer_type sz1 = s1-1; sz1 >= -s1; --sz1) {
-        matrix_[detail::index(s0, s1, sz0-1, sz1+1)]
-               [detail::index(s0, s1, sz0, sz1)] =
+        matrix_(detail::index(s0, s1, sz0-1, sz1+1),
+		detail::index(s0, s1, sz0, sz1)) =
           - 0.5 * jxy *
           std::sqrt(double(s0+sz0) * double(s0-sz0+1)) *
           std::sqrt(double(s1-sz1) * double(s1+sz1+1));
@@ -211,18 +217,18 @@ fit2xxz(const site_parameter<I>& s0, const site_parameter<I>& s1,
 
   // e0
   value_type e0 = 0.;
-  for (int i = 0; i < dim; ++i) e0 += mat[i][i];
+  for (int i = 0; i < dim; ++i) e0 += mat(i,i);
   e0 /= dim;
 
   // jz
-  value_type jz = (mat[0][0] - e0) / m1[0][0];
+  value_type jz = (mat(0,0) - e0) / m1(0,0);
 
   // jxy
   double jxy = 0;
   for (int i = 0; i < dim; ++i) {
     for (int j = 0; j < dim; ++j) {
-      if ((i != j) && (m1[i][j] != 0)) {
-        jxy = mat[i][j] / m1[i][j];
+      if ((i != j) && (m1(i,j) != 0)) {
+        jxy = mat(i,j) / m1(i,j);
         break;
       }
     }
@@ -234,7 +240,7 @@ fit2xxz(const site_parameter<I>& s0, const site_parameter<I>& s1,
   xxz_matrix<value_type> m(s0, s1, e0, jxy, jz);
   for (int i = 0; i < dim; ++i) {
     for (int j = 0; j < dim; ++j) {
-      if (std::abs(mat[i][j] - m[i][j]) > tol) success = false;
+      if (std::abs(mat(i,j) - m(i,j)) > tol) success = false;
     }
   }
 
@@ -257,7 +263,7 @@ fit2xxz(const site_parameter<I>& s0, const site_parameter<I>& s1,
     for (int i1 = 0; i1 < d1; ++i1)
       for (int j0 = 0; j0 < d0; ++j0)
         for (int j1 = 0; j1 < d1; ++j1)
-          m[i0 * d1 + i1][j0 * d1 + j1] = mat[i0][i1][j0][j1];
+          m(i0 * d1 + i1, j0 * d1 + j1) = mat[i0][i1][j0][j1];
 
   return fit2xxz(s0, s1, m, tol);
 }
