@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: vectorhelper.h 427 2003-10-16 05:23:18Z wistaria $
+* $Id: vectorhelper.h 429 2003-10-16 06:20:39Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -92,6 +92,52 @@ public:
   typedef std::deque<T, Alloc>                                   array_type;
   typedef typename array_type::value_type                        value_type;
   typedef typename array_type::size_type                         size_type;
+  typedef std::vector<std::pair<size_type, size_type> > map_type;
+
+  index_helper(const array_type& a) { init(a); }
+
+  void init(const array_type& a)
+  {
+    map_.clear();
+
+    if (a.size()) {
+      // start address of first chunk
+      map_.push_back(std::make_pair((size_type)(&a[0]), 0));
+
+      // find boundary of chunks
+      for (int i = 1; i < a.size(); ++i)
+	if ((size_type)(&a[i]) - (size_type)(&a[i-1]) != sizeof(T))
+	  map_.push_back(std::make_pair((size_type)(&a[i]), i));
+
+      std::sort(map_.begin(), map_.end());
+    }
+  }
+    
+  size_type index(const void* ptr) const
+  {
+    typename map_type::const_iterator p = 
+      std::lower_bound(map_.begin(), map_.end(),
+		       std::make_pair((size_type)ptr, 0),
+		       std::less<std::pair<size_type, size_type> >());
+    if (p == map_.end() || (size_type)ptr != p->first) --p;
+    return p->second + ((size_type)ptr - (p->first)) / sizeof(T);
+  }
+
+private:
+  map_type map_;
+};
+
+#endif
+
+#if 0
+
+template<class T, class Alloc>
+class index_helper<std::deque<T, Alloc> >
+{
+public:
+  typedef std::deque<T, Alloc>                                   array_type;
+  typedef typename array_type::value_type                        value_type;
+  typedef typename array_type::size_type                         size_type;
   typedef std::vector<std::pair<const value_type *, size_type> > map_type;
 
   index_helper(const array_type& a) { init(a); }
@@ -124,8 +170,6 @@ public:
 private:
   map_type map_;
 };
-
-#else
 
 template<class T, class Alloc>
 class index_helper<std::deque<T, Alloc> >
