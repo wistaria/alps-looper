@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: copyright.h 554 2003-11-12 02:36:24Z wistaria $
+// $Id: copyright.h.in 555 2003-11-12 02:58:33Z wistaria $
 
 #ifndef LOOPER_COPYRIGHT_H
 #define LOOPER_COPYRIGHT_H
@@ -34,7 +34,8 @@ namespace looper {
 
 std::ostream& print_copyright(std::ostream& os = std::cout)
 {
-  os << "ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems\n"
+  os << "ALPS/looper version @PACKAGE_VERSION@\n"
+     << "  multi-cluster quantum Monte Carlo algorithms for spin systems\n"
      << "  available from http://wistaria.comp-phys.org/looper/\n"
      << "  copyright (c) 1997-2003 by Synge Todo <wistaria@comp-phys.org>\n"
      << "\n";

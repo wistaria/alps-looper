@@ -1243,7 +1243,7 @@ echo "${ECHO_T}no" >&6
 fi
 
 
-                    ac_config_files="$ac_config_files Makefile test/Makefile"
+                              ac_config_files="$ac_config_files Makefile test/Makefile looper/copyright.h"
 
                     ac_config_files="$ac_config_files lattices.xml models.xml"
 
@@ -1749,6 +1749,7 @@ do
   # Handling of arguments.
   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
   "test/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
+  "looper/copyright.h" ) CONFIG_FILES="$CONFIG_FILES looper/copyright.h" ;;
   "lattices.xml" ) CONFIG_FILES="$CONFIG_FILES lattices.xml" ;;
   "models.xml" ) CONFIG_FILES="$CONFIG_FILES models.xml" ;;
   "test/lattices.xml" ) CONFIG_FILES="$CONFIG_FILES test/lattices.xml" ;;
