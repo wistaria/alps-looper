@@ -82,8 +82,6 @@ struct Options {
 
 int main(int argc, char ** argv)
 {
-  int info;
-
   std::cout << "Diagonalization of random real symmetric matrix\n";
   std::cerr << "[starting program: "
             << boost::posix_time::microsec_clock::local_time() << "]\n";
