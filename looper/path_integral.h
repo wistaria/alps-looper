@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: path_integral.h 515 2003-11-05 06:12:32Z wistaria $
+* $Id: path_integral.h 516 2003-11-05 06:27:07Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -60,13 +60,6 @@ template<bool HasCTime = false> class pi_node;
 template<>
 class pi_node<false> : public qmc_node
 {
-protected:
-#ifdef M_PI
-  BOOST_STATIC_CONSTANT(double, two_pi = (2.0 * M_PI));
-#else
-  BOOST_STATIC_CONSTANT(double, two_pi = (2.0 * 3.1415926535897932385));
-#endif
-
 public:
   typedef qmc_node                base_type;
   typedef double                  time_type;
@@ -76,7 +69,7 @@ public:
   pi_node() : base_type(), time_(0.) {}
   
   time_type time() const { return time_; }
-  ctime_type ctime() const { return std::exp(two_pi * time_); }
+  ctime_type ctime() const { return std::exp(2 * M_PI * time_); }
   void set_time(time_type t) { time_ = t; }
   
   std::ostream& output(std::ostream& os) const {
@@ -107,7 +100,7 @@ public:
   ctime_type ctime() const { return ctime_; }
   void set_time(time_type t) {
     base_type::set_time(t);
-  ctime_ = std::exp(two_pi * t);
+    ctime_ = std::exp(2 * M_PI * t);
   }
   
   std::ostream& output(std::ostream& os) const {
@@ -116,7 +109,7 @@ public:
   alps::ODump& save(alps::ODump& od) const { return base_type::save(od); }
   alps::IDump& load(alps::IDump& id) {
     base_type::load(id);
-    ctime_ = std::exp(two_pi * time());
+    ctime_ = std::exp(2 * M_PI * time());
     return id;
   }
   
