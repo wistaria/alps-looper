@@ -1,5 +1,7 @@
 2004-09-13  Synge Todo <wistaria@comp-phys.org>
 
+        * version 3.1b1
+
 	* Fixed energy offset for SSE with "ergodic" loop solutions.
 
 	* Added negative sign support.
