@@ -1,0 +1,6 @@
+LATTICE = "chain lattice"
+L       = 8
+h       = 0
+J       = 2
+Jz      = - 0.3 * J
+MODEL   = "spin"

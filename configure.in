@@ -43,4 +43,5 @@ dnl generate files
 dnl
 
 AC_CONFIG_FILES(Makefile)
+AC_CONFIG_FILES(lattices.xml models.xml)
 AC_OUTPUT
