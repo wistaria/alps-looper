@@ -26,6 +26,7 @@ pkginclude_HEADERS = \
 	looper/path_integral.h \
 	looper/permutation.h \
 	looper/random_choice.h \
+	looper/sign.h \
 	looper/sse.h \
 	looper/union_find.h \
 	looper/util.h \

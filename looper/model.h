@@ -365,35 +365,35 @@ public:
   template<typename I, typename G>
   model_parameter(double Jxy, double Jz, const alps::half_integer<I>& spin,
                   const G& graph)
-    : sites_(), bonds_(), signed_()
+    : sites_(), bonds_(), signed_(), frustrated_()
   { set_parameters(Jxy, Jz, spin, graph); }
   template<typename I, typename G>
   model_parameter(double Jxy, double Jz, const alps::half_integer<I>& spin,
                   const G& graph, bool is_signed)
-    : sites_(), bonds_(), signed_()
+    : sites_(), bonds_(), signed_(), frustrated_()
   { set_parameters(Jxy, Jz, spin, graph, is_signed); }
   template<typename G, typename I>
   model_parameter(const alps::Parameters params, const G& graph,
                   const alps::ModelLibrary::OperatorDescriptorMap& ops,
                   const alps::HamiltonianDescriptor<I>& hd)
-    : sites_(), bonds_(), signed_()
+    : sites_(), bonds_(), signed_(), frustrated_()
   { set_parameters(params, graph, ops, hd); }
   template<typename G, typename I>
   model_parameter(const alps::Parameters params, const G& graph,
                   const alps::ModelLibrary::OperatorDescriptorMap& ops,
                   const alps::HamiltonianDescriptor<I>& hd,
                   bool is_signed)
-    : sites_(), bonds_(), signed_()
+    : sites_(), bonds_(), signed_(), frustrated_()
   { set_parameters(params, graph, ops, hd, is_signed); }
   template<typename G>
   model_parameter(const alps::Parameters params, const G& graph,
                    const alps::ModelLibrary& models)
-    : sites_(), bonds_(), signed_()
+    : sites_(), bonds_(), signed_(), frustrated_()
   { set_parameters(params, graph, models); }
   template<typename G>
   model_parameter(const alps::Parameters params, const G& graph,
                    const alps::ModelLibrary& models, bool is_signed)
-    : sites_(), bonds_(), signed_()
+    : sites_(), bonds_(), signed_(), frustrated_()
   { set_parameters(params, graph, models, is_signed); }
 
   // set_parameters
@@ -404,6 +404,7 @@ public:
   {
     set_parameters_impl(Jxy, Jz, spin, graph);
     signed_ = check_sign(graph);
+    frustrated_ = check_classical_frustration(graph);
   }
   template<typename I, typename G>
   void set_parameters(double Jxy, double Jz, const alps::half_integer<I>& spin,
@@ -411,6 +412,7 @@ public:
   {
     set_parameters_impl(Jxy, Jz, spin, graph);
     signed_ = is_signed;
+    frustrated_ = check_classical_frustration(graph);
   }
   template<typename G, typename I>
   void set_parameters(alps::Parameters params, const G& graph,
@@ -419,6 +421,7 @@ public:
   {
     set_parameters_impl(params, graph, ops, hd);
     signed_ = check_sign(graph);
+    frustrated_ = check_classical_frustration(graph);
   }
   template<typename G, typename I>
   void set_parameters(alps::Parameters params, const G& graph,
@@ -428,6 +431,7 @@ public:
   {
     set_parameters_impl(params, graph, ops, hd);
     signed_ = is_signed;
+    frustrated_ = check_classical_frustration(graph);
   }
   template<typename G>
   void set_parameters(const alps::Parameters params, const G& graph,
@@ -481,6 +485,7 @@ public:
   }
 
   bool is_signed() const { return signed_; }
+  bool is_classically_frustrated() const { return frustrated_; }
 
 protected:
   template<typename I, typename G>
@@ -514,7 +519,7 @@ protected:
     edge_iterator ei_end = boost::edges(graph).second;
     for (edge_iterator ei = boost::edges(graph).first; ei != ei_end; ++ei) {
       type_type t = bond_type[*ei];
-      if (!bonds_.count(t)) bonds_[t] = bond_parameter_xxz(0., Jxy, Jz);
+      if (!bonds_.count(t)) bonds_[t] = bond_parameter_xxz(0.0, Jxy, Jz);
     }
   }
 
@@ -529,8 +534,8 @@ protected:
     typedef typename boost::graph_traits<graph_type>::edge_iterator
       edge_iterator;
 
-        // get default couplings
-        params.copy_undefined(hd.default_parameters());
+    // get default couplings
+    params.copy_undefined(hd.default_parameters());
 
     // get site parameters
     typename alps::property_map<alps::site_type_t, graph_type,
@@ -572,25 +577,53 @@ protected:
     }
   }
 
-  template<typename GRAPH>
-  bool check_sign(const GRAPH& graph) const
+  template<typename G>
+  bool check_sign(const G& graph) const
   {
     std::vector<double> w(boost::num_edges(graph));
-    typename alps::property_map<alps::bond_type_t, GRAPH, type_type>::const_type
+    typename alps::property_map<alps::bond_type_t, G, type_type>::const_type
       bond_type(alps::get_or_default(alps::bond_type_t(), graph, 0));
-    typename boost::graph_traits<GRAPH>::edge_iterator ei, ei_end;
-    for (boost::tie(ei, ei_end) = boost::edges(graph); ei != ei_end; ++ei)
-      w[boost::get(boost::edge_index, graph, *ei)] =
-        bond(boost::get(alps::edge_type_t(), graph, *ei)).jxy();
+    typename boost::graph_traits<G>::edge_iterator ei, ei_end;
+    for (boost::tie(ei, ei_end) = boost::edges(graph); ei != ei_end; ++ei) {
+      if (bond(bond_type[*ei]).jxy() > 0.0) {
+        w[boost::get(boost::edge_index, graph, *ei)] = 1.0;
+      } else if (bond(bond_type[*ei]).jxy() < 0.0) {
+        w[boost::get(boost::edge_index, graph, *ei)] = -1.0;
+      } else {
+        w[boost::get(boost::edge_index, graph, *ei)] = 0.0;
+      }
+    }
+    return alps::is_frustrated(graph,
+             boost::make_iterator_property_map(w.begin(),
+             boost::get(boost::edge_index, graph)));
+  }
+
+  template<typename G>
+  bool check_classical_frustration(const G& graph) const
+  {
+    std::vector<double> w(boost::num_edges(graph));
+    typename alps::property_map<alps::bond_type_t, G, type_type>::const_type
+      bond_type(alps::get_or_default(alps::bond_type_t(), graph, 0));
+    typename boost::graph_traits<G>::edge_iterator ei, ei_end;
+    for (boost::tie(ei, ei_end) = boost::edges(graph); ei != ei_end; ++ei) {
+      if (bond(bond_type[*ei]).jz() > 0.0) {
+        w[boost::get(boost::edge_index, graph, *ei)] = 1.0;
+      } else if (bond(bond_type[*ei]).jz() < 0.0) {
+        w[boost::get(boost::edge_index, graph, *ei)] = -1.0;
+      } else {
+        w[boost::get(boost::edge_index, graph, *ei)] = 0.0;
+      }
+    }
     return alps::is_frustrated(graph,
       boost::make_iterator_property_map(w.begin(),
-        boost::get(boost::edge_index, graph)));
+      boost::get(boost::edge_index, graph)));
   }
 
 private:
   site_map_type sites_;
   bond_map_type bonds_;
   bool signed_;
+  bool frustrated_;
 };
 
 

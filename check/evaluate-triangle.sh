@@ -26,6 +26,7 @@ do
     echo
 
     $BINDIR/archivecat $xmls \
+      | sed 's/Diagonal Energy Density (improved)/ed/g' \
       | sed 's/Energy Density/ene/g' \
       | sed 's/Specific Heat/sh/g' \
       | sed 's/Magnetization\^2/zmag/g' \
@@ -40,7 +41,7 @@ do
     file="$p-$t.dat"
     rm -f $file
 
-    for m in ene sh zmag zsus sgn1 sgn2; do
+    for m in ene ed sh zmag zsus sgn1 sgn2; do
     echo "measurement = $m"
 
       cat <<EOF > plot.xml
@@ -79,7 +80,7 @@ do_eval_g()
   for p in $parameters; do
   if test -f "$p.out"; then
   for t in $tests; do
-    awk '$1=="TEST" {test=$3} $1=="T" {temp=$3} $1=="energy" {ene=$5} $1=="specific" {sh=$4} $1=="uniform" && $2=="magnetization^2" {umag=$4} $1=="uniform" && $2=="susceptibility" && test==t {print temp,ene,sh,umag,$4}' t=$t $p.out > $p-$t.dat
+    awk '$1=="TEST" {test=$3} $1=="T" {temp=$3} $1=="energy" {ene=$5} $1=="diagonal" && $2=="energy" {ed=$6} $1=="specific" {sh=$4} $1=="uniform" && $2=="magnetization^2" {umag=$4} $1=="uniform" && $2=="susceptibility" && test==t {print temp,ene,ed,sh,umag,$4}' t=$t $p.out > $p-$t.dat
   done
   fi
   done
@@ -90,5 +91,5 @@ tests='1 2 3 4'
 parameters='triangle-p triangle-e'
 do_eval
 
-parameters='chain-g triangle-g'
+parameters='triangle-g'
 do_eval_g

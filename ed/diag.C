@@ -252,7 +252,7 @@ try {
     ene = ene / part / num_vertices;
     ene2 = ene2 / part / sqr(num_vertices);
     double ez = static_average(beta, gs_ene, evals, hamiltonian,
-			       diagonal_energy);
+                               diagonal_energy);
     ez = ez / part / num_vertices;
     double c = sqr(beta) * num_vertices * (ene2 - sqr(ene));
 
@@ -281,7 +281,7 @@ try {
       static_average2(beta, gs_ene, evals, hamiltonian, uniform_sz);
     if (std::abs(umag) < 1.0e-12) umag = 0.;
     double usus = dynamic_average2(beta, gs_ene, evals, hamiltonian,
-				   uniform_sz);
+                                   uniform_sz);
     umag = umag / part / num_vertices;
     umag2 = umag2 / part / num_vertices;
     usus = usus / part / num_vertices;

@@ -45,13 +45,18 @@ public:
   template<class G, class MDL>
   qmc_worker(const G& rg, const MDL& model, double beta, double fs,
              alps::ObservableSet& m) :
-    param_(rg, model, beta, fs), config_(),
-    e_offset_(looper::energy_offset(param_))
+    param_(rg, model, beta, fs), config_()
   {
     using alps::RealObservable;
     using alps::make_observable;
 
     qmc::initialize(config_, param_);
+
+// #ifndef NDEBUG
+    if (is_signed()) std::cerr << "WARNING: model has negative signs\n";
+    if (is_classically_frustrated())
+      std::cerr << "WARNING: model is classically frustrated\n";
+// #endif
 
     //
     // measurements
@@ -67,6 +72,8 @@ public:
            RealObservable("Energy"), is_signed())
       << make_observable(
            RealObservable("Energy Density"), is_signed())
+      << make_observable(
+           RealObservable("Diagonal Energy Density"), is_signed())
       << make_observable(
            RealObservable("Energy Density^2"), is_signed())
       << make_observable(
@@ -85,21 +92,18 @@ public:
            RealObservable("Magnetization^2"),
            "Sign (improved)", double(), is_signed())
       << make_observable(
-           RealObservable("Uniform Generalized Magnetization^2"),
-           "Sign (improved)", double(), is_signed())
-      << make_observable(
-           RealObservable("Uniform Generalized Susceptibility"),
+           RealObservable("Diagonal Energy Density (improved)"),
            "Sign (improved)", double(), is_signed());
-    if (is_bipartite()) {
+    if (is_bipartite())
       m << make_observable(
              RealObservable("Staggered Magnetization^2"),
-             "Sign (improved)", double(), is_signed())
-        << make_observable(
-             RealObservable("Staggered Generalized Magnetization^2"),
-             "Sign (improved)", double(), is_signed())
-        << make_observable(
-             RealObservable("Staggered Generalized Susceptibility"),
              "Sign (improved)", double(), is_signed());
+    if (!is_classically_frustrated()) {
+      m << RealObservable("Uniform Generalized Magnetization^2")
+        << RealObservable("Uniform Generalized Susceptibility");
+      if (is_bipartite())
+        m << RealObservable("Staggered Generalized Magnetization^2")
+          << RealObservable("Staggered Generalized Susceptibility");
     }
   }
 
@@ -116,31 +120,30 @@ public:
     // measure improved quantities
     //
 
-    double sign_imp = 1.;
     if (is_signed()) {
-      sign_imp = looper::sign_imp(config_, param_);
-      m["Sign (improved)"] << sign_imp;
+      m["Sign (improved)"] << looper::sign_imp(config_, param_);
     }
-
-    m["Magnetization^2"] <<
-      sign_imp * looper::uniform_sz2_imp(config_, param_);
-    if (is_bipartite()) {
+    m["Diagonal Energy Density (improved)"] <<
+      looper::energy_z_imp(config_, param_);
+    m["Magnetization^2"] << looper::uniform_sz2_imp(config_, param_);
+    if (is_bipartite())
       m["Staggered Magnetization^2"] <<
-        sign_imp * looper::staggered_sz2_imp(config_, param_);
-    }
+        looper::staggered_sz2_imp(config_, param_);
 
-    double gm2, gs;
-    boost::tie(gm2, gs) =
-      looper::uniform_generalized_susceptibility_imp(config_, param_);
-    m["Uniform Generalized Magnetization^2"] << sign_imp * gm2;
-    m["Uniform Generalized Susceptibility"] << sign_imp * gs;
+    if (!is_classically_frustrated()) {
+      double gm2, gs;
+      boost::tie(gm2, gs) =
+        looper::uniform_generalized_susceptibility_imp(config_, param_);
+      m["Uniform Generalized Magnetization^2"] << gm2;
+      m["Uniform Generalized Susceptibility"] << gs;
 
-    if (is_bipartite()) {
-      double sgm2, sgs;
-      boost::tie(sgm2, sgs) =
-        looper::staggered_generalized_susceptibility_imp(config_, param_);
-      m["Staggered Generalized Magnetization^2"] << sign_imp * sgm2;
-      m["Staggered Generalized Susceptibility"] << sign_imp * sgs;
+      if (is_bipartite()) {
+        double sgm2, sgs;
+        boost::tie(sgm2, sgs) =
+          looper::staggered_generalized_susceptibility_imp(config_, param_);
+        m["Staggered Generalized Magnetization^2"] << sgm2;
+        m["Staggered Generalized Susceptibility"] << sgs;
+      }
     }
 
     //
@@ -153,32 +156,30 @@ public:
     // measure unimproved quantities
     //
 
-    double sign = 1.;
+    double sign = 1.0;
     if (is_signed()) {
       sign = looper::sign(config_, param_);
       m["Sign"] << sign;
     }
-
+    
     double ez, exy, e2;
     boost::tie(ez, exy, e2) = looper::energy(config_, param_);
-    ez += e_offset_;
-    m["Energy"] << sign * param_.virtual_graph.num_real_vertices * (ez + exy);
-    m["Energy Density"] << sign * (ez + exy);
-    m["Energy Density^2"] << sign * e2;
+    m["Energy"] << param_.virtual_graph.num_real_vertices * (ez + exy);
+    m["Energy Density"] << (ez + exy);
+    m["Energy Density^2"] << e2;
+    m["Diagonal Energy Density"] << ez;
 
     m["beta * Energy / sqrt(N)"] <<
-      sign * std::sqrt((double)param_.virtual_graph.num_real_vertices) *
+      std::sqrt((double)param_.virtual_graph.num_real_vertices) *
       param_.beta * (ez + exy);
     m["beta * Energy^2"] <<
-      sign * param_.virtual_graph.num_real_vertices *
-      looper::sqr(param_.beta) * e2;
+      param_.virtual_graph.num_real_vertices * looper::sqr(param_.beta) * e2;
 
     m["Susceptibility"] <<
-      sign * param_.beta * param_.virtual_graph.num_real_vertices *
-      looper::sqr(looper::uniform_sz(config_, param_));
+      looper::uniform_susceptibility(config_, param_);
     if (is_bipartite()) {
       m["Staggered Susceptibility"] <<
-        sign * looper::staggered_susceptibility(config_, param_);
+        looper::staggered_susceptibility(config_, param_);
     }
   }
 
@@ -204,15 +205,17 @@ public:
          << mean(m["Staggered Susceptibility"]) << ' '
          << error(m["Staggered Susceptibility"]) << ' ';
     }
-    os << mean(m["Uniform Generalized Magnetization^2"]) << ' '
-       << error(m["Uniform Generalized Magnetization^2"]) << ' '
-       << mean(m["Uniform Generalized Susceptibility"]) << ' '
-       << error(m["Uniform Generalized Susceptibility"]) << ' ';
-    if (is_bipartite()) {
-      os << mean(m["Staggered Generalized Magnetization^2"]) << ' '
-         << error(m["Staggered Generalized Magnetization^2"]) << ' '
-         << mean(m["Staggered Generalized Susceptibility"]) << ' '
-         << error(m["Staggered Generalized Susceptibility"]) << ' ';
+    if (!is_signed()) {
+      os << mean(m["Uniform Generalized Magnetization^2"]) << ' '
+         << error(m["Uniform Generalized Magnetization^2"]) << ' '
+         << mean(m["Uniform Generalized Susceptibility"]) << ' '
+         << error(m["Uniform Generalized Susceptibility"]) << ' ';
+      if (is_bipartite()) {
+        os << mean(m["Staggered Generalized Magnetization^2"]) << ' '
+           << error(m["Staggered Generalized Magnetization^2"]) << ' '
+           << mean(m["Staggered Generalized Susceptibility"]) << ' '
+           << error(m["Staggered Generalized Susceptibility"]) << ' ';
+      }
     }
   }
 
@@ -221,12 +224,13 @@ public:
 
 protected:
   bool is_signed() const { return param_.model.is_signed(); }
+  bool is_classically_frustrated() const
+  { return param_.model.is_classically_frustrated(); }
   bool is_bipartite() const { return param_.is_bipartite; }
 
 private:
   typename qmc::parameter_type param_;
   typename qmc::config_type    config_;
-  double                       e_offset_;
 };
 
 template<class T>

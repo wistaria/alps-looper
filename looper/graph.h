@@ -199,7 +199,17 @@ struct staggered
 };
 
 template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
-inline int
+inline unsigned int
+site_index(typename boost::graph_traits<
+             boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
+             vertex_descriptor vd,
+           const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g)
+{
+  return boost::get(boost::vertex_index, g, vd);
+}
+
+template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
+inline unsigned int
 site_type(typename boost::graph_traits<
             boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
             vertex_descriptor vd,
@@ -209,7 +219,17 @@ site_type(typename boost::graph_traits<
 }
 
 template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
-inline int
+inline unsigned int
+bond_index(typename boost::graph_traits<
+             boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
+             edge_descriptor ed,
+           const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g)
+{
+  return boost::get(boost::edge_index, g, ed);
+}
+
+template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
+inline unsigned int
 bond_type(typename boost::graph_traits<
             boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
             edge_descriptor ed,

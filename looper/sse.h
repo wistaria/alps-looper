@@ -26,6 +26,7 @@
 #define LOOPER_SSE_H
 
 #include <looper/permutation.h>
+#include <looper/sign.h>
 #include <looper/union_find.h>
 #include <looper/virtual_graph.h>
 #include <looper/weight.h>
@@ -70,28 +71,36 @@ struct sse<virtual_graph<G>, M, W, N>
 
     template<class RG>
     parameter_type(const RG& rg, const model_type& m, double b, double fs)
-      : virtual_graph(), model(m), beta(b), is_bipartite(false),
-        chooser(), ez_offset(0.)
+      : virtual_graph(), model(m), beta(b), sz_conserved(true),
+        is_bipartite(false), chooser(), ez_offset(0.0)
     {
       looper::generate_virtual_graph(virtual_graph, rg, model);
       is_bipartite = alps::set_parity(virtual_graph.graph);
 
-      if (!is_bipartite || model.is_signed()) fs = std::max(fs, 0.1);
+      // if (model.is_signed() || model.is_classically_frustrated())
+      //   fs = std::max(fs, 0.1);
+      if (model.is_classically_frustrated()) fs = std::max(fs, 0.1);
 
       chooser.init(virtual_graph, model, fs);
-      for (int i = 0; i < boost::num_edges(virtual_graph.graph); ++i)
-        ez_offset += chooser.weight(i).offset();
+
+      edge_iterator ei, ei_end;
+      for (boost::tie(ei, ei_end) = boost::edges(virtual_graph.graph);
+           ei != ei_end; ++ei)
+        ez_offset +=
+          model.bond(bond_type(*ei, virtual_graph.graph)).c() -
+          chooser.weight(bond_index(*ei, virtual_graph.graph)).offset();
     }
 
     vg_type                   virtual_graph;
     const model_type&         model;
     double                    beta;
+    bool                      sz_conserved;
     bool                      is_bipartite;
     bond_chooser<weight_type> chooser;
     double                    ez_offset;
   };
 
-  struct config_type
+  struct config_type : public sign_info
   {
     typedef sse<virtual_graph<G>, M, W, N> qmc_type;
 
@@ -102,6 +111,8 @@ struct sse<virtual_graph<G>, M, W, N>
 
     BOOST_STATIC_CONSTANT(bool, is_sse = true);
     BOOST_STATIC_CONSTANT(bool, is_path_integral = false);
+
+    config_type() : sign_info() {}
 
     os_type bottom;
     os_type top;
@@ -190,6 +201,8 @@ struct sse<virtual_graph<G>, M, W, N>
       oi->set_to_identity();
     }
     config.num_operators = 0;
+
+    config.sign = 1;
   }
   static void initialize(config_type& config, const parameter_type& p,
                          int ni = 16)
@@ -214,9 +227,8 @@ struct sse<virtual_graph<G>, M, W, N>
   }
 
   template<class RNG>
-  static void generate_loops(config_type& config, const vg_type& vg,
-                             double beta,
-                             const bond_chooser<weight_type>& bc,
+  static void generate_loops(config_type& config,
+                             const parameter_type& param,
                              RNG& uniform_01)
   {
     typedef typename config_type::iterator operator_iterator;
@@ -229,42 +241,44 @@ struct sse<virtual_graph<G>, M, W, N>
     check_and_resize(config);
 
     // copy spin configurations at the bottom
-    std::vector<int> curr_conf(boost::num_vertices(vg.graph));
+    std::vector<int> curr_conf(boost::num_vertices(param.virtual_graph.graph));
     {
       vertex_iterator vi, vi_end;
       std::vector<int>::iterator itr = curr_conf.begin();
-      for (boost::tie(vi, vi_end) = boost::vertices(vg.graph);
+      for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
            vi != vi_end; ++vi, ++itr) *itr = config.bottom[*vi].conf();
     }
 
     // scan over operators
-    if (boost::num_edges(vg.graph) > 0) {
+    if (boost::num_edges(param.virtual_graph.graph) > 0) {
       operator_iterator oi_end = config.os.end();
       for (operator_iterator oi = config.os.begin(); oi != oi_end; ++oi) {
         if (oi->is_identity()) {
           // identity operator
-          int b = bc.choose(uniform_01);
-          edge_iterator ei = boost::edges(vg.graph).first + b;
-          int r = curr_conf[boost::source(*ei, vg.graph)] ^
-            curr_conf[boost::target(*ei, vg.graph)];
-          if (uniform_01() < bc.global_weight() * beta *
-              bc.weight(b).p_accept(r) /
+          int b = param.chooser.choose(uniform_01);
+          edge_iterator ei = boost::edges(param.virtual_graph.graph).first + b;
+          int r = curr_conf[boost::source(*ei, param.virtual_graph.graph)] ^
+            curr_conf[boost::target(*ei, param.virtual_graph.graph)];
+          if (uniform_01() < param.chooser.global_weight() * param.beta *
+              param.chooser.weight(b).p_accept(r) /
               double(config.os.size() - config.num_operators)) {
             // insert diagonal operator
             oi->identity_to_diagonal();
             oi->set_bond(b);
             ++config.num_operators;
-            oi->set_new(r, (uniform_01() < bc.weight(b).p_freeze(r)));
+            oi->set_new(r, (uniform_01() <
+                            param.chooser.weight(b).p_freeze(r)));
           } else { /* nothing to be done */ }
         } else if (oi->is_diagonal()) {
           // diagonal operator
           int b = oi->bond();
-          edge_iterator ei = boost::edges(vg.graph).first + b;
-          int r = curr_conf[boost::source(*ei, vg.graph)] ^
-            curr_conf[boost::target(*ei, vg.graph)];
+          edge_iterator ei = boost::edges(param.virtual_graph.graph).first + b;
+          int r = curr_conf[boost::source(*ei, param.virtual_graph.graph)] ^
+            curr_conf[boost::target(*ei, param.virtual_graph.graph)];
           if (uniform_01() <
               double(config.os.size() - config.num_operators + 1) /
-              (bc.global_weight() * beta * bc.weight(b).p_accept(r))) {
+              (param.chooser.global_weight() *
+               param.beta * param.chooser.weight(b).p_accept(r))) {
             // remove diagonal operator
             oi->diagonal_to_identity();
             --config.num_operators;
@@ -275,10 +289,11 @@ struct sse<virtual_graph<G>, M, W, N>
         } else {
           // off-diagonal operator
           int b = oi->bond();
-          edge_iterator ei = boost::edges(vg.graph).first + oi->bond();
-          curr_conf[boost::source(*ei, vg.graph)] ^= 1;
-          curr_conf[boost::target(*ei, vg.graph)] ^= 1;
-          oi->set_old(uniform_01() < bc.weight(b).p_reflect());
+          edge_iterator ei =
+            boost::edges(param.virtual_graph.graph).first + oi->bond();
+          curr_conf[boost::source(*ei, param.virtual_graph.graph)] ^= 1;
+          curr_conf[boost::target(*ei, param.virtual_graph.graph)] ^= 1;
+          oi->set_old(uniform_01() < param.chooser.weight(b).p_reflect());
         }
       }
     }
@@ -287,7 +302,7 @@ struct sse<virtual_graph<G>, M, W, N>
     {
       vertex_iterator vi, vi_end;
       std::vector<int>::iterator itr = curr_conf.begin();
-      for (boost::tie(vi, vi_end) = boost::vertices(vg.graph);
+      for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
            vi != vi_end; ++vi, ++itr) assert(*itr == config.top[*vi].conf());
     }
 #endif
@@ -298,11 +313,12 @@ struct sse<virtual_graph<G>, M, W, N>
 
     {
       std::vector<sse_node::segment_type *>
-        curr_ptr(boost::num_vertices(vg.graph));
+        curr_ptr(boost::num_vertices(param.virtual_graph.graph));
       {
         vertex_iterator vi, vi_end;
         std::vector<sse_node::segment_type *>::iterator pi = curr_ptr.begin();
-        for (boost::tie(vi, vi_end) = boost::vertices(vg.graph);
+        for (boost::tie(vi, vi_end) =
+               boost::vertices(param.virtual_graph.graph);
              vi != vi_end; ++vi, ++pi)
           *pi = &(config.bottom[*vi].loop_segment(0));
       }
@@ -312,15 +328,20 @@ struct sse<virtual_graph<G>, M, W, N>
         operator_iterator oi_end = config.os.end();
         for (operator_iterator oi = config.os.begin(); oi != oi_end; ++oi) {
           if (!oi->is_identity()) {
-            edge_iterator ei = boost::edges(vg.graph).first + oi->bond();
-            union_find::unify(*curr_ptr[boost::source(*ei, vg.graph)],
+            edge_iterator ei =
+              boost::edges(param.virtual_graph.graph).first + oi->bond();
+            union_find::unify(*curr_ptr[boost::source(*ei,
+                                 param.virtual_graph.graph)],
                               segment_d(oi, 0));
-            union_find::unify(*curr_ptr[boost::target(*ei, vg.graph)],
+            union_find::unify(*curr_ptr[boost::target(*ei,
+                                param.virtual_graph.graph)],
                               segment_d(oi, 1));
             if (oi->is_frozen())
               union_find::unify(oi->loop_segment(0), oi->loop_segment(1));
-            curr_ptr[boost::source(*ei, vg.graph)] = &segment_u(oi, 0);
-            curr_ptr[boost::target(*ei, vg.graph)] = &segment_u(oi, 1);
+            curr_ptr[boost::source(*ei, param.virtual_graph.graph)] =
+              &segment_u(oi, 0);
+            curr_ptr[boost::target(*ei, param.virtual_graph.graph)] =
+              &segment_u(oi, 1);
           }
         }
       }
@@ -328,7 +349,8 @@ struct sse<virtual_graph<G>, M, W, N>
       // connect to top
       {
         vertex_iterator vi, vi_end;
-        for (boost::tie(vi, vi_end) = boost::vertices(vg.graph);
+        for (boost::tie(vi, vi_end) =
+               boost::vertices(param.virtual_graph.graph);
              vi != vi_end; ++vi)
           union_find::unify(*curr_ptr[*vi], config.top[*vi].loop_segment(0));
       }
@@ -337,9 +359,9 @@ struct sse<virtual_graph<G>, M, W, N>
     // connect bottom and top with random permutation
     {
       std::vector<int> r, c0, c1;
-      for (int i = 0; i < vg.mapping.num_groups(); ++i) {
-        int s2 = vg.mapping.num_virtual_vertices(i);
-        int offset = *(vg.mapping.virtual_vertices(i).first);
+      for (int i = 0; i < param.virtual_graph.mapping.num_groups(); ++i) {
+        int s2 = param.virtual_graph.mapping.num_virtual_vertices(i);
+        int offset = *(param.virtual_graph.mapping.virtual_vertices(i).first);
         if (s2 == 1) {
           // S=1/2: just connect top and bottom
           union_find::unify(config.bottom[offset].loop_segment(0),
@@ -349,8 +371,10 @@ struct sse<virtual_graph<G>, M, W, N>
           r.resize(s2);
           c0.resize(s2);
           c1.resize(s2);
-          vertex_iterator vi_end = vg.mapping.virtual_vertices(i).second;
-          for (vertex_iterator vi = vg.mapping.virtual_vertices(i).first;
+          vertex_iterator vi_end =
+            param.virtual_graph.mapping.virtual_vertices(i).second;
+          for (vertex_iterator vi =
+                 param.virtual_graph.mapping.virtual_vertices(i).first;
                vi != vi_end; ++vi) {
             r[*vi - offset] = *vi - offset;
             c0[*vi - offset] = config.bottom[*vi].conf();
@@ -373,7 +397,7 @@ struct sse<virtual_graph<G>, M, W, N>
     {
       config.num_loops0 = 0;
       vertex_iterator vi, vi_end;
-      for (boost::tie(vi, vi_end) = boost::vertices(vg.graph);
+      for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
            vi != vi_end; ++vi) {
         if (config.bottom[*vi].loop_segment(0).index ==
             loop_segment::undefined) {
@@ -413,16 +437,46 @@ struct sse<virtual_graph<G>, M, W, N>
         }
       }
     }
-  }
-  template<class RNG>
-  static void generate_loops(config_type& config, parameter_type& p,
-                             RNG& uniform_01)
-  {
-    generate_loops(config, p.virtual_graph, p.beta, p.chooser, uniform_01);
-  }
 
+    // negative sign information
+    if (param.model.is_signed()) {
+      config.num_merons0 = 0;
+      config.num_merons = 0;
+      config.loop_sign.clear();
+      config.loop_sign.resize(config.num_loops, 0);
+      typename config_type::const_iterator oi_end = config.os.end();
+      for (typename config_type::const_iterator oi = config.os.begin();
+           oi != oi_end; ++oi) {
+        if (!oi->is_identity() && param.chooser.weight(oi->bond()).sign() < 0) {
+          ++config.loop_sign[oi->loop_segment(0).index];
+          ++config.loop_sign[oi->loop_segment(1).index];
+        }
+      }
+      for (int i = 0; i < config.num_loops0; ++i) {
+        // sign = 1 for even number of negative links
+        //       -1 for odd
+        if (config.loop_sign[i] % 2 == 1) {
+          config.loop_sign[i] = -1;
+          ++config.num_merons0;
+          ++config.num_merons;
+        } else {
+          config.loop_sign[i] = 1;
+        }
+      }
+      for (int i = config.num_loops0; i < config.num_loops; ++i) {
+        if (config.loop_sign[i] % 2 == 1) {
+          config.loop_sign[i] = -1;
+          ++config.num_merons;
+        } else {
+          config.loop_sign[i] = 1;
+        }
+      }
+    }
+  }
+  
   template<class RNG>
-  static void flip_and_cleanup(config_type& config, const vg_type& vg,
+  static void flip_and_cleanup(config_type& config,
+                               const parameter_type& param,
                                RNG& uniform_01)
   {
     typedef typename config_type::iterator operator_iterator;
@@ -443,10 +497,19 @@ struct sse<virtual_graph<G>, M, W, N>
     //   boost::variate_generator<rng_type&, boost::uniform_smallint<> >(
     //   uniform_01, boost::uniform_smallint<>(0, 1)));
 
+    if (param.model.is_signed()) {
+      int n = 0;
+      std::vector<int>::iterator itr = flip.begin();
+      std::vector<int>::iterator itr_end = flip.end();
+      std::vector<int>::iterator sitr = config.loop_sign.begin();
+      for (; itr != itr_end; ++itr, ++sitr) if (*itr == 1 && *sitr == -1) ++n;
+      if (n % 2 == 1) config.sign = -config.sign;
+    }
+
     // flip spins
     {
       vertex_iterator vi, vi_end;
-      for (boost::tie(vi, vi_end) = boost::vertices(vg.graph);
+      for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
            vi != vi_end; ++vi) {
         if (flip[config.bottom[*vi].loop_segment(0).index] == 1)
           config.bottom[*vi].flip_conf();
@@ -468,12 +531,6 @@ struct sse<virtual_graph<G>, M, W, N>
         oi->clear_graph();
       }
     }
-  }
-  template<class RNG>
-  static void flip_and_cleanup(config_type& config, const parameter_type& p,
-                               RNG& uniform_01)
-  {
-    flip_and_cleanup(config, p.virtual_graph, uniform_01);
   }
 
   // measurements
@@ -517,14 +574,14 @@ struct sse<virtual_graph<G>, M, W, N>
     return n;
   }
 
-  static double energy_offset(const vg_type& vg, const model_type& model)
-  {
-    double offset = 0.;
-    edge_iterator ei, ei_end;
-    for (boost::tie(ei, ei_end) = boost::edges(vg.graph); ei != ei_end; ++ei)
-      offset += model.bond(bond_type(*ei, vg.graph)).c();
-    return offset;
-  }
+//   static double energy_offset(const vg_type& vg, const model_type& model)
+//   {
+//     double offset = 0.;
+//     edge_iterator ei, ei_end;
+//     for (boost::tie(ei, ei_end) = boost::edges(vg.graph); ei != ei_end; ++ei)
+//       offset += model.bond(bond_type(*ei, vg.graph)).c();
+//     return offset;
+//   }
 
   // for debugging
 

@@ -22,13 +22,27 @@
 *
 *****************************************************************************/
 
-#ifndef LOOPER_VERSION_H
-#define LOOPER_VERSION_H
+#ifndef LOOPER_SIGN_H
+#define LOOPER_SIGN_H
 
-/* Define the version of ALPS/looper */
-#define LOOPER_VERSION "3.1.1"
+#include <alps/model/sign.h>
 
-/* Define the published date of ALPS/looper */
-#define LOOPER_DATE "2004/10/06"
+// negative sign information
 
-#endif // ! LOOPER_VERSION_H
+namespace looper {
+
+struct sign_info
+{
+  sign_info() : sign(1.0), num_merons0(0), num_merons(0), loop_sign(0) {}
+
+  double sign;
+  unsigned int num_merons0;
+  unsigned int num_merons;
+  std::vector<int> loop_sign;
+
+  double sign_imp() const { return (num_merons == 0) ? sign : 0; }
+};
+
+} // end namespace looper
+
+#endif // LOOPER_SIGN_H

@@ -39,21 +39,29 @@ try {
 
   alps::ParameterList params(std::cin);
 
-  for (alps::ParameterList::const_iterator itr = params.begin();
-       itr != params.end(); ++itr) {
-    for (alps::Parameters::const_iterator p = itr->begin();
-         p != itr->end(); ++p) {
-      if (p->key() != "LATTICE_LIBRARY")
-        std::cout << p->key() << " = " << p->value() << std::endl;
+  for (int j = -1; j <= 1; ++j) {
+    std::cout << "[Jxy = -1; Jz = " << j << "]\n";
+
+    for (alps::ParameterList::const_iterator itr = params.begin();
+         itr != params.end(); ++itr) {
+      for (alps::Parameters::const_iterator p = itr->begin();
+           p != itr->end(); ++p) {
+        if (p->key() != "LATTICE_LIBRARY")
+          std::cout << p->key() << " = " << p->value() << std::endl;
+      }
+      
+      alps::graph_helper<> lattice(*itr);
+      looper::model_parameter<> model(-1.0, (double)j,
+                                      alps::half_integer<int>(0.5),
+                                      lattice.graph());
+      
+      std::cout << "model has "
+                << (model.is_signed() ? "" : "no ")
+                << "sign problem.\n";
+      std::cout << "model is "
+                << (model.is_classically_frustrated() ? "" : "not ")
+                << "classically frustrated.\n";
     }
-
-    alps::graph_helper<> lattice(*itr);
-    looper::model_parameter<> model(-1.0, 0.0, alps::half_integer<int>(0.5),
-                                    lattice.graph());
-
-    std::cout << "lattice is "
-              << (model.is_signed() ? "frustrated" : "non frustrated")
-              << std::endl;
   }
 
 #ifndef BOOST_NO_EXCEPTIONS

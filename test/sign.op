@@ -1,10 +1,45 @@
+[Jxy = -1; Jz = -1]
 LATTICE = chain lattice
 L = 4
-lattice is non frustrated
+model has no sign problem.
+model is not classically frustrated.
 LATTICE = chain lattice
 L = 3
-lattice is frustrated
+model has sign problem.
+model is classically frustrated.
 LATTICE = square lattice 3x3
-lattice is frustrated
+model has sign problem.
+model is classically frustrated.
 LATTICE = 5-site dimerized
-lattice is non frustrated
+model has no sign problem.
+model is not classically frustrated.
+[Jxy = -1; Jz = 0]
+LATTICE = chain lattice
+L = 4
+model has no sign problem.
+model is not classically frustrated.
+LATTICE = chain lattice
+L = 3
+model has sign problem.
+model is not classically frustrated.
+LATTICE = square lattice 3x3
+model has sign problem.
+model is not classically frustrated.
+LATTICE = 5-site dimerized
+model has no sign problem.
+model is not classically frustrated.
+[Jxy = -1; Jz = 1]
+LATTICE = chain lattice
+L = 4
+model has no sign problem.
+model is not classically frustrated.
+LATTICE = chain lattice
+L = 3
+model has sign problem.
+model is not classically frustrated.
+LATTICE = square lattice 3x3
+model has sign problem.
+model is not classically frustrated.
+LATTICE = 5-site dimerized
+model has no sign problem.
+model is not classically frustrated.
