@@ -475,7 +475,7 @@ public:
 
   bool is_site_disordered() const { return site_disordered_; }
   template<class G, class V>
-  site_parameter_type site(const G& gh,
+  site_parameter_type site(const alps::graph_helper<G>& gh,
     const V& v) const
   //  site_parameter_type site(const alps::graph_helper<G>& gh,
   //    const typename alps::graph_helper<G>::vertex_descriptort& v) const
@@ -486,7 +486,7 @@ public:
 
   bool is_bond_disordered() const { return bond_disordered_; }
   template<class G, class E>
-  bond_parameter_type bond(const G& gh,
+  bond_parameter_type bond(const alps::graph_helper<G>& gh,
     const E& e) const
   //  template<class G>
   //  bond_parameter_type bond(const alps::graph_helper<G>& gh,

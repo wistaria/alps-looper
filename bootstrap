@@ -1,41 +1,60 @@
 #!/bin/sh
 
+if test -f configure.ac; then :; else
+  echo "configure.ac not found.  Stop."
+  exit -1
+fi
+
 # required version of autotools
-am_require="1.9.3"
-ac_require="2.59"
-lt_require="1.5.10"
-
-# location of config.h.in
-config_h_in="config/config.h.in"
-
-have_autotools=yes
+am_require=1.9.5
+ac_require=2.59
+lt_require=1.5.14
 
 am_version=`automake --version 2>&1 | head -1 | cut -d ' ' -f 4`
 ac_version=`autoconf --version 2>&1 | head -1 | cut -d ' ' -f 4`
 lt_version=`libtoolize --version 2>&1 | head -1 | cut -d ' ' -f 4`
 
+have_autotools=yes
 if test "x$am_version" != "x$am_require"; then
-  echo "Error: Required automake version $am_require, but found $am_version."
+  echo "Error: automake version $am_require is required, but found $am_version."
   have_autotools=no
 fi
 if test "x$ac_version" != "x$ac_require"; then
-  echo "Error: Required autoconf version $ac_require, but found $ac_version."
+  echo "Error: autoconf version $ac_require is required, but found $ac_version."
   have_autotools=no
 fi
 if test "x$lt_version" != "x$lt_require"; then
-  echo "Error: Required libtool version $lt_require, but found $lt_version."
+  echo "Error: libtool version $lt_require is required, but found $lt_version."
   have_autotools=no
 fi
-
 if test "$have_autotools" = no; then
   echo "Stop."
   exit -1
 fi
 
+if test -d config; then
+  aclocal_flags='-I config'
+  patch_flags=-p0
+else
+  patch_flags=-p1
+fi
+
 set -x
-aclocal -I config
+aclocal $aclocal_flags
 libtoolize --force --copy
-test -f "$config_h_in" && touch "$config_h_in"
+find . -name config.h.in | xargs touch
 automake --foreign --add-missing --copy
 autoconf
 rm -rf autom4te.cache
+
+# patch to libtool (workaround for 1.5.14)
+uudecode -p << EOF | gzip -dc | patch $patch_flags
+begin-base64 644 ltmain.patch.gz
+H4sICPLBFkIAA2x0bWFpbi5wYXRjaACdUUFugzAQPMMrtlEuceMUg0lbolz7gT4AuY2hVoyJHNpI
+fX3BrsGBIkXdi7Xr3dnZGYQQvNeqEOWDbCom1Ob8sam1KINX1sALfwPyDCTOaJSlEcRRlIYY48nI
+uDvNCLHd6Dq6HEiypWuSPBIwJYAAOsRGqE9us92ufV0cmL4IlReaVfxS6+MqvLMT1UlIrvNCsvK8
+XyyvC7BkulxYuJPmX/vZPQFamaMcLQpthv9LSwp19Ej5KeC++ZfdTYdMpryb7j2AvH0rpg4DgqtM
+IcxcIRST4tsfHJdmls+o+KfZNH5aE5pQZ3YvIfakG2Q1d421DXH/f6vtQ39P1YXhay2nCenIba3l
+P4bAFukOAwAA
+====
+EOF

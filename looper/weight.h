@@ -194,8 +194,6 @@ public:
   uniform_bond_chooser(const GRAPH& g, const MODEL& m, double fs = 0)
     : n_(), weight_(), gw_()
   { init(g, m, fs); }
-  // template<class P>
-  // uniform_bond_chooser(const P& p) : n_(), weight_(), gw_() { init(p); }
 
   template<class GRAPH, class MODEL>
   void init(const GRAPH& g, const MODEL& m, double fs = 0)
@@ -205,8 +203,6 @@ public:
     weight_ = weight_type(m.uniform_bond(), fs);
     gw_ = n_ * weight_.weight();
   }
-  // template<class P>
-  // void init(const P& p) { init(p.vgraph, p.model); }
 
   template<class RNG>
   int choose(RNG& rng) const { return n_ * rng(); }
@@ -235,8 +231,6 @@ public:
 	       double fs = 0)
     : weight_(), rc_(), gw_(0)
   { init (g, m, fs); }
-  // template<class P>
-  // bond_chooser(const P& p) : weight_(), rc_(), gw_(0) { init(p); }
 
   template<class G, class I>
   void init(const alps::graph_helper<G>& gh, const alps::model_helper<I>& mh,
@@ -259,8 +253,6 @@ public:
       rc_.init(w);
     }
   }
-  // template<class P>
-  // void init(const P& p) { init(p.vgraph, p.model); }
 
   template<class RNG>
   int choose(RNG& rng) const { return rc_(rng); }
