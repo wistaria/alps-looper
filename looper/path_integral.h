@@ -143,7 +143,9 @@ struct path_integral<virtual_graph<G>, M, W, N>
     {
       generate_virtual_graph(virtual_graph, rg, model);
       is_bipartite = alps::set_parity(virtual_graph.graph);
-      
+
+      if (!is_bipartite || model.is_signed()) fs = std::max(fs, 0.1);
+
       edge_iterator ei, ei_end;
       for (boost::tie(ei, ei_end) = boost::edges(virtual_graph.graph);
            ei != ei_end; ++ei) {

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-BINDIR=@bindir@
+BINDIR=$1
 
 do_eval()
 {
@@ -28,19 +28,19 @@ do
     $BINDIR/archivecat $xmls \
       | sed 's/Energy Density/ene/g' \
       | sed 's/Specific Heat/sh/g' \
+      | sed 's/Staggered Magnetization\^2/smag/g' \
+      | sed 's/Staggered Susceptibility/ssus/g' \
       | sed 's/Magnetization\^2/zmag/g' \
       | sed 's/Susceptibility/zsus/g' \
-      | sed 's/Sign (improved)/sgn2/g' \
-      | sed 's/Sign/sgn1/g' \
       > archive.xml
   
     for t in $tests; do
     echo "test = $t"
 
-    file="plot-$p-$t.dat"
+    file="$p-$t.dat"
     rm -f $file
 
-    for m in ene sh zmag zsus sgn1 sgn2; do
+    for m in ene sh zmag zsus smag ssus; do
     echo "measurement = $m"
 
       cat <<EOF > plot.xml
@@ -79,24 +79,16 @@ do_eval_g()
   for p in $parameters; do
   if test -f "$p.out"; then
   for t in $tests; do
-    awk '$1=="TEST" {test=$3} $1=="T" {temp=$3} $1=="energy" {ene=$5} $1=="specific" {sh=$4} $1=="uniform" && $2=="magnetization^2" {umag=$4} $1=="uniform" && $2=="susceptibility" && test==t {print temp,ene,sh,umag,$4}' t=$t $p.out > plot-$p-$t.dat
+    awk '$1=="TEST" {test=$3} $1=="T" {temp=$3} $1=="energy" {ene=$5} $1=="specific" {sh=$4} $1=="uniform" && $2=="magnetization^2" {umag=$4} $1=="uniform" && $2=="susceptibility" {usus=$4} $1=="staggered" && $2=="magnetization^2" {smag=$4} $1=="staggered" && $2=="susceptibility" && test==t {print temp,ene,sh,umag,usus,smag,$4}' t=$t $p.out > $p-$t.dat
   done
   fi
   done
 }
 
-parameters='chain-p chain-e'
 tests='1 2 3 4 5 6 7'
+
+parameters='chain-p chain-e'
 do_eval
 
 parameters='chain-g'
-tests='1 2 3 4 5 6 7'
-do_eval_g
-
-parameters='triangle-p triangle-e'
-tests='1 2 3 4'
-do_eval
-
-parameters='chain-g triangle-g'
-tests='1 2 3 4'
 do_eval_g

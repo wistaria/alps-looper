@@ -255,9 +255,8 @@ public:
     total_(therm_ + static_cast<unsigned int>(p["SWEEPS"])),
     strict_mcs_(p.defined("STRICT_MCS")),
     qmc_worker_(graph(), mdl_, 1.0 / static_cast<double>(p["T"]),
-      static_cast<double>(p.value_or_default("FORCE_SCATTER",
-        has_sign_problem() ? 0.1 : 0.0)),
-      measurements)
+                p.value_or_default("FORCE_SCATTER", 0.0),
+                measurements)
   { if (p.defined("FIXED_SEED")) random.seed(parms["FIXED_SEED"]); }
   virtual ~worker() {}
 

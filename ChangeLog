@@ -1,3 +1,9 @@
+2004-09-21  Synge Todo <wistaria@comp-phys.org>
+
+        * version 3.1b3
+
+	* Force "ergodic" loop solutions also for non-bipartite lattices.
+
 2004-09-17  Synge Todo <wistaria@comp-phys.org>
 
 	* Removed unused parameter from generate_loops.

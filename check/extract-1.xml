@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="http://xml.comp-phys.org/2003/4/plot2html.xsl"?>
-<plot>
-  <xaxis label="temperature" type="PARAMETER" name="temperature"/>
-  <yaxis label="energy" type="SCALAR_AVERAGE"/>
-  <constraint name="test" condition="=1"/>
-  <constraint name="repr" condition="=0"/>
-</plot>

@@ -349,8 +349,8 @@ struct sign_imp_helper<path_integral<G, M, W, N> >
         while (!itr.at_top()) {
           if (itr->bond() == bond) {
             ++nnl[itr->loop_segment(0).index];
-	    ++nnl[itr->loop_segment(1).index];
-	    if (itr->is_old()) ++n;
+            ++nnl[itr->loop_segment(1).index];
+            if (itr->is_old()) ++n;
           }
           ++itr;
         }
@@ -375,9 +375,9 @@ struct sign_imp_helper<sse<G, M, W, N> >
     for (typename qmc_type::config_type::const_iterator oi = config.os.begin();
          oi != oi_end; ++oi) {
       if (!oi->is_identity() && param.chooser.weight(oi->bond()).sign() < 0) {
-	++nnl[oi->loop_segment(0).index];
-	++nnl[oi->loop_segment(1).index];
-	if (oi->is_offdiagonal()) ++n;
+        ++nnl[oi->loop_segment(0).index];
+        ++nnl[oi->loop_segment(1).index];
+        if (oi->is_offdiagonal()) ++n;
       }
     }
     for (int i = 0; i < config.num_loops; ++i) if (nnl[i] % 2 == 1) return 0.0;

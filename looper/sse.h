@@ -75,6 +75,9 @@ struct sse<virtual_graph<G>, M, W, N>
     {
       looper::generate_virtual_graph(virtual_graph, rg, model);
       is_bipartite = alps::set_parity(virtual_graph.graph);
+
+      if (!is_bipartite || model.is_signed()) fs = std::max(fs, 0.1);
+
       chooser.init(virtual_graph, model, fs);
       for (int i = 0; i < boost::num_edges(virtual_graph.graph); ++i)
         ez_offset += chooser.weight(i).offset();
