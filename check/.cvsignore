@@ -1,5 +1,10 @@
 Makefile
-*.xml
-*.run*
+chain-e
+chain-p
+triangle-e
+triangle-p
 *.dat
+*.gp
 *.out
+*.run*
+*.xml

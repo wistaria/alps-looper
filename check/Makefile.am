@@ -6,13 +6,13 @@ run-chain: run-chain-p run-chain-e run-chain-g
 run-chain-p:
 	if test ! -f chain-p.out.xml; then \
 	  $(DESTDIR)$(bindir)/parameter2xml chain-p; \
-	  cp -f chain-p.out.xml; \
+	  cp -f chain-p.in.xml chain-p.out.xml; \
 	fi
 	../loop -Tmin 2 chain-p.out.xml
 run-chain-e:
 	if test ! -f chain-e.out.xml; then \
 	  $(DESTDIR)$(bindir)/parameter2xml chain-e; \
-	  cp -f chain-e.out.xml; \
+	  cp -f chain-e.in.xml chain-e.out.xml; \
 	fi
 	../loop -Tmin 2 chain-e.out.xml
 run-chain-g:
@@ -26,13 +26,13 @@ run-triangle: run-triangle-p run-triangle-e run-triangle-g
 run-triangle-p:
 	if test ! -f triangle-p.out.xml; then \
 	  $(DESTDIR)$(bindir)/parameter2xml triangle-p; \
-	  cp -f triangle-p.out.xml; \
+	  cp -f triangle-p.in.xml triangle-p.out.xml; \
 	fi
 	../loop -Tmin 2 triangle-p.out.xml
 run-triangle-e:
 	if test ! -f triangle-e.out.xml; then \
 	  $(DESTDIR)$(bindir)/parameter2xml triangle-e; \
-	  cp -f triangle-e.out.xml; \
+	  cp -f triangle-e.in.xml triangle-e.out.xml; \
 	fi
 	../loop -Tmin 2 triangle-e.out.xml
 run-triangle-g:
