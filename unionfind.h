@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: unionfind.h 405 2003-10-10 05:44:48Z wistaria $
+* $Id: unionfind.h 407 2003-10-10 08:42:44Z wistaria $
 *
 * Copyright (C) 2001-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -36,16 +36,15 @@
 
 // Weighted Union-Find Algorithm
 // Reference:
-//   D. Knuth, `The Art of Computer Programming, Vol. 1, Fundamental
-//   Algorithms', 3rd edition (Addison Wesley, Reading, 1997) Sec 2.3.
+//   D. Knuth, 
+//   `The Art of Computer Programming, Vol. 1, Fundamental Algorithms'
+//   3rd edition (Addison Wesley, Reading, 1997) Sec 2.3.3.
 
 #ifndef LOOPER_UNIONFIND_H
 #define LOOPER_UNIONFIND_H
 
 #include <boost/throw_exception.hpp>
-#include <iterator>
 #include <stdexcept>
-#include <vector>
 
 namespace looper {
 
@@ -74,7 +73,7 @@ template<class BASE = detail::null_node, class W = unsigned int>
 class node : public BASE
 {
 public:
-  typedef  BASE base_type;
+  typedef BASE base_type;
   typedef W    weight_type;
 
   node() : base_type(), parent_(0), weight_(1) {}
@@ -83,20 +82,26 @@ public:
  
   bool is_root() const { return parent_ == 0; }
   node* root() {
-    if (is_root()) {
-      return this;
-    } else {
-      parent_ = parent_->root();
-      return parent_;
+    node* r = this;
+    while (!r->is_root()) r = r->parent();
+    node* n = this;
+    while (n != r) {
+      node* p = n->parent();
+      n->set_parent(r);
+      n = p;
     }
+    return r;
   }
   const node* root() const {
-    if (is_root()) {
-      return this;
-    } else {
-      parent_ = parent_->root();
-      return parent_;
+    node* r = this;
+    while (!r->is_root()) r = r->parent();
+    node* n = this;
+    while (n != r) {
+      node* p = n->parent();
+      n->set_parent(r);
+      n = p;
     }
+    return r;
   }
 
   void set_parent(node* p) { parent_ = p; }
@@ -123,7 +128,7 @@ public:
     parent_ = 0;
     weight_ = weight_type(1);
   }
-  
+
 private:
   // root node     : 0
   // non-root node : points my parent node
@@ -164,267 +169,5 @@ inline bool unify(node<T>& node0, node<T>& node1)
 } // end namespace unionfind
 
 } // end namespace looper
-
-#############################################################################
-
-#if false
-
-namespace detail {
-
-template<class T>
-struct UnionFindNode
-{
-  typedef T value_type;
-
-  static const int32_t no_parent = -1;
-
-  UnionFindNode(const T& t = T()) : value(t), parent(no_parent), weight(1) {}
-  void reset() { t.reset(); parent = no_parent; weight = 1; }
-
-  T value;
-  mutable int32_t parent;
-  mutable uint32_t weight;
-};
-
-template<class T, class Ref, class Ptr, class BaseIter>
-class UnionFindIterator
-{
-private:
-  typedef UnionFindNode<T> node_type;
-  typedef UnionFindNode<T>* node_pointer;
-  typedef UnionFindNode<const T>* const_node_pointer;
-
-public:
-  // types:
-  typedef std::ptrdiff_t                           difference_type;
-  typedef T                                        value_type;
-  typedef Ref                                      reference;
-  typedef Ptr                                      pointer;
-  typedef UnionFindIterator<T, T&, T*, BaseIter>             iterator;
-  typedef UnionFindIterator<T, const T&, const T*, const BaseIter> const_iterator;
-  typedef std::random_access_iterator_tag          iterator_category;
-
-  // construct/copy/destroy:
-  UnionFindIterator(BaseIter n) : current_(n) {}
-
-  reference operator*() const { return current_->value; }
-  pointer operator->() const { return &(current_->value); }
-  reference operator[](difference_type n) const {
-    return (current_ + n)->value;
-  }
-
-  // difference:
-  difference_type operator-(const UnionFindIterator& x) const {
-    return current_ - x.current_;
-  }
-
-  UnionFindIterator& operator++() { ++current_; return *this; }
-  UnionFindIterator operator++(int) {
-    UnionFindIterator tmp = *this;
-    ++*this;
-    return tmp;
-  }
-  UnionFindIterator& operator--() { --current_; return *this; }
-  UnionFindIterator operator--(int) {
-    UnionFindIterator tmp = *this;
-    --*this;
-    return tmp;
-  }
-  UnionFindIterator& operator+=(difference_type n) {
-    current_ += n;
-    return *this;
-  }
-  UnionFindIterator operator+(difference_type n) const {
-    UnionFindIterator tmp = *this;
-    tmp += n;
-    return tmp;
-  }
-  UnionFindIterator& operator-=(difference_type n) { return *this += (-n); }
-  UnionFindIterator operator-(difference_type n) const { return *this + (-n); }
-
-  // comparison:
-  bool operator==(const UnionFindIterator& x) const {
-    return current_ == x.current_;
-  }
-  bool operator!=(const UnionFindIterator& x) const { return !(*this == x); }
-  bool operator< (const UnionFindIterator& x) const {
-    return current_ < x.current_();
-  }
-  bool operator> (const UnionFindIterator& x) const { return x < *this; }
-  bool operator<=(const UnionFindIterator& x) const { return !(x < *this); }
-  bool operator>=(const UnionFindIterator& x) const { return !(*this < x); }
-
-private:
-  BaseIter current_;
-};
-
-} // end namespace detail
-
-class NullUnionFindNode {};
-
-template<class T = NullUnionFindNode>
-class UnionFindVector : public std::vector<detail::UnionFindNode<T> >
-{
-private:
-  typedef std::vector<detail::UnionFindNode<T> > BASE_;
-  typedef detail::UnionFindNode<T> node_type;
-
-public:
-  typedef T value_type;
-  typedef T& reference;
-  typedef const T& const_reference;
-  typedef detail::UnionFindIterator<T, T&, T*, typename BASE_::iterator> iterator;
-  typedef detail::UnionFindIterator<T, const T&, const T*, typename BASE_::const_iterator> const_iterator;
-
-  UnionFindVector() : BASE_(0) {}
-  explicit UnionFindVector(uint32_t n, const T& v = T())
-    : BASE_(n, node_type(v)) {}
-
-  void reset() {
-    for (iterator itr = begin(); itr != end(); ++itr) itr->reset();
-  }
-
-  void push_back(const T& t = T()) { BASE_::push_back(t); }
-
-  iterator begin() { return iterator(BASE_::begin()); }
-  const_iterator begin() const { return const_iterator(BASE_::begin()); }
-  iterator end() { return iterator(BASE_::end()); }
-  const_iterator end() const { return const_iterator(BASE_::end()); }
-
-  reference operator[](uint32_t n) { return BASE_::operator[](n).value; }
-  const_reference operator[](uint32_t n) const {
-    return BASE_::operator[](n).value;
-  }
-
-  friend bool is_root(const UnionFindVector& v, uint32_t n) {
-    return v.is_root(n);
-  }
-  friend uint32_t parent_index(const UnionFindVector& v, uint32_t n) {
-    return v.parent(n);
-  }
-  // friend uint32_t parent(const UnionFindVector& v, uint32_t n) {
-  //   return v.parent(n);
-  // }
-  friend uint32_t root_index(const UnionFindVector& v, uint32_t n) {
-    return v.find_root(n);
-  }
-  // friend uint32_t root(const UnionFindVector& v, uint32_t n) {
-  //   return v.find_root(n);
-  // }
-  friend uint32_t weight(const UnionFindVector& v, uint32_t n) {
-    return v.weight(n);
-  }
-  friend bool unify(UnionFindVector& v, uint32_t i0, uint32_t i1) {
-    return v.unify(i0, i1);
-  }
-  friend void set_as_root(UnionFindVector& v, uint32_t i) {
-    v.set_as_root(i);
-  }
-
-  reference root(uint32_t n) { return BASE_::operator[](find_root(n)).value; }
-  const_reference root(uint32_t n) const {
-    return BASE_::operator[](find_root(n)).value;
-  }
-
-protected:
-  bool is_root(uint32_t n) const {
-    return BASE_::operator[](n).parent == node_type::no_parent;
-  }
-  uint32_t find_root(uint32_t n) const {
-    if (is_root(n)) {
-      return n;
-    } else {
-      uint32_t r = find_root(BASE_::operator[](n).parent);
-      BASE_::operator[](n).parent = r;
-      return r;
-    }
-  }
-  uint32_t parent(uint32_t n) const {
-    return BASE_::operator[](n).parent;
-  }
-  uint32_t weight(uint32_t n) const {
-    return BASE_::operator[](find_root(n)).weight;
-  }
-  bool unify(uint32_t n0, uint32_t n1) {
-    uint32_t r0 = find_root(n0);
-    uint32_t r1 = find_root(n1);
-    if (r0 != r1) {
-      if (BASE_::operator[](r0).weight >= BASE_::operator[](r1).weight) {
-	BASE_::operator[](r0).weight += BASE_::operator[](r1).weight;
-	BASE_::operator[](r0).value.update(BASE_::operator[](r1).value);
-	BASE_::operator[](r1).parent = r0;
-      } else {
-	BASE_::operator[](r1).weight += BASE_::operator[](r0).weight;
-	BASE_::operator[](r1).value.update(BASE_::operator[](r0).value);
-	BASE_::operator[](r0).parent = r1;
-      }
-      return true;
-    } else {
-      return false;
-    }
-  }
-  void set_as_root(uint32_t n) {
-    if (!is_root(n)) {
-      uint32_t r = find_root(n);
-      BASE_::operator[](n).parent = node_type::no_parent;
-      BASE_::operator[](n).weight = BASE_::operator[](r).weight;
-      BASE_::operator[](n).value.change(BASE_::operator[](r).value);
-      BASE_::operator[](r).parent = n;
-    }
-  }
-};
-
-template<class T>
-inline uint32_t index(UnionFindVector<T>& v,
-  const typename UnionFindVector<T>::iterator& itr) {
-  return itr - v.begin();
-}
-template<class T>
-inline uint32_t index(const UnionFindVector<T>& v,
-  const typename UnionFindVector<T>::const_iterator& itr) {
-  return itr - v.begin();
-}
-template<class T>
-inline bool is_root(UnionFindVector<T>& v,
-  const typename UnionFindVector<T>::iterator& itr) {
-  return is_root(v, index(v, itr));
-}
-template<class T>
-inline bool is_root(const UnionFindVector<T>& v,
-  const typename UnionFindVector<T>::const_iterator& itr) {
-  return is_root(v, index(v, itr));
-}
-template<class T>
-inline uint32_t root_index(UnionFindVector<T>& v,
-  const typename UnionFindVector<T>::iterator& itr) {
-  return root_index(v, index(v, itr));
-}
-template<class T>
-inline uint32_t root_index(const UnionFindVector<T>& v,
-  const typename UnionFindVector<T>::const_iterator& itr) {
-  return root_index(v, index(v, itr));
-}
-template<class T>
-inline uint32_t weight(UnionFindVector<T>& v,
-  const typename UnionFindVector<T>::iterator& itr) {
-  return weight(v, index(v, itr));
-}
-template<class T>
-inline uint32_t weight(const UnionFindVector<T>& v,
-  const typename UnionFindVector<T>::const_iterator& itr) {
-  return weight(v, index(v, itr));
-}
-template<class T>
-inline uint32_t parent_index(UnionFindVector<T>& v,
-  const typename UnionFindVector<T>::iterator& itr) {
-  return parent_index(v, index(v, itr));
-}
-template<class T>
-inline uint32_t parent_index(const UnionFindVector<T>& v,
-  const typename UnionFindVector<T>::const_iterator& itr) {
-  return parent_index(v, index(v, itr));
-}
-
-#endif
 
 #endif // LOOPER_UNIONFIND_H
