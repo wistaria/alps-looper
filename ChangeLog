@@ -1,0 +1,6 @@
+2003-11-05  Synge Todo  <wistaria@comp-phys.org>
+
+	* version 3.0b1 released.
+
+	- prerequisites: boost-ss-20031102, boost-ss-20031102.patch,
+	  alps-20031105
