@@ -10,11 +10,14 @@ define([AC_CACHE_SAVE], )dnl
 AC_PREREQ(2.59)
 AC_INIT([looper], 3.0b5)              dnl check here for release!
 looper_date="2004/04/07"
+
+AC_CONFIG_AUX_DIR([config])
 AM_INIT_AUTOMAKE
 
 AC_PREFIX_DEFAULT([$HOME/ALPS])
 
 AC_MSG_NOTICE([starting configuration for ALPS/looper version $PACKAGE_VERSION ($looper_date)])
+
 
 dnl
 dnl check for ALPS libraries

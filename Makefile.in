@@ -46,8 +46,8 @@ subdir = .
 DIST_COMMON = README $(am__configure_deps) $(dist_noinst_SCRIPTS) \
 	$(pkginclude_HEADERS) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(top_srcdir)/configure \
-	$(top_srcdir)/looper/config.h.in ChangeLog depcomp install-sh \
-	missing
+	$(top_srcdir)/looper/config.h.in ChangeLog config/depcomp \
+	config/install-sh config/missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
 	$(top_srcdir)/config/ac_lapack.m4 $(top_srcdir)/configure.ac
@@ -78,7 +78,7 @@ am_loop_pvm_OBJECTS = loop_pvm-loop.$(OBJEXT)
 loop_pvm_OBJECTS = $(am_loop_pvm_OBJECTS)
 loop_pvm_DEPENDENCIES = $(am__DEPENDENCIES_1)
 SCRIPTS = $(dist_noinst_SCRIPTS)
-depcomp = $(SHELL) $(top_srcdir)/depcomp
+depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
 @AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/evaluate-evaluate.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/loop-loop.Po \
