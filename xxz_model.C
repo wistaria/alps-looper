@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: xxz_model.C 408 2003-10-10 09:34:54Z wistaria $
+* $Id: xxz_model.C 422 2003-10-15 10:50:28Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -37,25 +37,14 @@
 #include "xxz.h"
 #include <iostream>
 
-int main()
+template<class G>
+void output(const G& graph, const looper::xxz_model& m)
 {
-#ifndef BOOST_NO_EXCEPTIONS
-try {
-#endif
-
-  alps::Parameters params;
-  std::cin >> params;
-
-  // get graph
-  typedef alps::graph_factory<>::graph_type graph_type;
-  typedef boost::graph_traits<graph_type>::vertex_iterator vertex_iterator;
-  typedef boost::graph_traits<graph_type>::edge_iterator edge_iterator;
-  alps::graph_factory<graph_type> gf(params);
-  const graph_type& graph = gf.graph();
-
-  alps::ModelLibrary models(params);
-  
-  looper::xxz_model m(params, graph, models);
+  typedef G graph_type;
+  typedef typename boost::graph_traits<graph_type>::vertex_iterator
+    vertex_iterator;
+  typedef typename boost::graph_traits<graph_type>::edge_iterator
+    edge_iterator;
 
   // site parameters
   std::cout << "number of spin types = " << m.num_spin_types() << std::endl;
@@ -76,21 +65,47 @@ try {
   std::cout << "number of bond types = " << m.num_bond_types() << std::endl;
   if (m.is_uniform_bond()) {
     std::cout << "C = " << m.uniform_bond().C
- 	      << ", Jxy = " << m.uniform_bond().Jxy
- 	      << ", Jz = " << m.uniform_bond().Jz
- 	      << std::endl;
+	      << ", Jxy = " << m.uniform_bond().Jxy
+	      << ", Jz = " << m.uniform_bond().Jz
+	      << std::endl;
   }
   alps::property_map<alps::bond_type_t, graph_type, int>::const_type
     bond_type(alps::get_or_default(alps::bond_type_t(), graph, 0));
   edge_iterator ei_end = boost::edges(graph).second;
   for (edge_iterator ei = boost::edges(graph).first; ei != ei_end; ++ei) {
     int t = bond_type[*ei];
-      std::cout << "bond " << *ei << ": type = " << t
-		<< ", C = " << m.bond(t).C
-		<< ", Jxy = " << m.bond(t).Jxy
-		<< ", Jz = " << m.bond(t).Jz
-		<< std::endl;
+    std::cout << "bond " << *ei << ": type = " << t
+	      << ", C = " << m.bond(t).C
+	      << ", Jxy = " << m.bond(t).Jxy
+	      << ", Jz = " << m.bond(t).Jz
+	      << std::endl;
   }
+}
+
+int main()
+{
+#ifndef BOOST_NO_EXCEPTIONS
+try {
+#endif
+
+  alps::Parameters params;
+  std::cin >> params;
+
+  // get graph
+  typedef alps::graph_factory<>::graph_type graph_type;
+  alps::graph_factory<graph_type> gf(params);
+  const graph_type& graph = gf.graph();
+
+  // get model
+  alps::ModelLibrary models(params);
+
+  // construct from model library
+  looper::xxz_model m0(params, graph, models);
+  output(graph, m0);
+
+  // construct from parameters
+  looper::xxz_model m1(-2, -1, alps::half_integer<short>(1.5), graph);
+  output(graph, m1);
 
 #ifndef BOOST_NO_EXCEPTIONS
 }

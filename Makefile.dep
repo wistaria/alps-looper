@@ -2,6 +2,7 @@ amida.o amida_mpi.o amida_pvm.o amida amida_mpi amida_pvm: $(srcdir)/amida.h
 fill_duration.o fill_duration_mpi.o fill_duration_pvm.o fill_duration fill_duration_mpi fill_duration_pvm: $(srcdir)/random.h
 permutation.o permutation_mpi.o permutation_pvm.o permutation permutation_mpi permutation_pvm: $(srcdir)/permutation.h
 pi_weight.o pi_weight_mpi.o pi_weight_pvm.o pi_weight pi_weight_mpi pi_weight_pvm: $(srcdir)/pathintegral.h $(srcdir)/graph.h $(srcdir)/xxz.h
+simple_pi.o simple_pi_mpi.o simple_pi_pvm.o simple_pi simple_pi_mpi simple_pi_pvm: $(srcdir)/graph.h $(srcdir)/random.h $(srcdir)/virtualgraph.h $(srcdir)/worldline.h $(srcdir)/amida.h $(srcdir)/xxz.h
 simplegraph.o simplegraph_mpi.o simplegraph_pvm.o simplegraph simplegraph_mpi simplegraph_pvm: $(srcdir)/graph.h
 unionfind.o unionfind_mpi.o unionfind_pvm.o unionfind unionfind_mpi unionfind_pvm: $(srcdir)/unionfind.h
 virtualgraph.o virtualgraph_mpi.o virtualgraph_pvm.o virtualgraph virtualgraph_mpi virtualgraph_pvm: $(srcdir)/graph.h $(srcdir)/virtualgraph.h

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: amida.C 408 2003-10-10 09:34:54Z wistaria $
+* $Id: amida.C 422 2003-10-15 10:50:28Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -34,7 +34,7 @@
 *
 **************************************************************************/
 
-#include "amida.h"
+#include "amida2.h"
 
 #include <boost/random.hpp>
 #include <cstdlib>
@@ -69,13 +69,13 @@ try {
   // insert nodes randomly
   std::size_t n0, n1;
   for (std::size_t i = 0; i < n_nodes; i++) {
-    looper::amida<std::size_t>::pointer a;
     n0 = uniform_int(0, n_series - 1)(rng);
     n1 = n0;
     while (n0 == n1) n1 = uniform_int(0, n_series - 1)(rng);
-    looper::amida<std::size_t>::series_iterator r0 = amida.series(n0).first;
-    looper::amida<std::size_t>::series_iterator r1 = amida.series(n1).first;
-    a = amida.insert_link_next(0, r0, r1);
+    looper::amida<std::size_t>::iterator r0 = amida.series(n0).first;
+    looper::amida<std::size_t>::iterator r1 = amida.series(n1).first;
+    looper::amida<std::size_t>::iterator r = 
+      amida.insert_link_next(0, r0, r1).first;
     std::cout << "node connecting " << n0 << " and " << n1 
 	      << " inserted at " << index(a, amida) << std::endl;
   }

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: xxz.h 422 2003-10-15 10:50:28Z wistaria $
+* $Id: deque.h 422 2003-10-15 10:50:28Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -37,23 +37,74 @@
 #ifndef LOOPER_DEQUE_H
 #define LOOPER_DEQUE_H
 
-namespace looper {
+#include <algorithm>
+#include <deque>
+#include <functional>
+#include <utility>
+#include <vector>
 
+namespace looper {
+  
 template<class D>
 class deque_index_helper
 {
 public:
   typedef typename D::value_type value_type;
-  deque_index_helper() {}
-  template<class T>
-  deque_index_helper(const std::deque<T>& d)
-  {
-    size_ = sizeof(T);
+  typedef typename D::size_type size_type;
+  typedef std::pair<value_type *, size_type> pair_type;
+  typedef std::vector<std::pair<value_type *, size_type> > map_type;
 
+  deque_index_helper(const D& d) { build(d); }
+
+  struct comp
+  {
+    bool operator()(const std::pair<value_type *, size_type>& x,
+		    const value_type* y) const
+    {
+      return x.first < y;
+    }
+  };
+
+  void build(const D& d)
+  {
+    // start address of first chunk
+    map_.push_back(std::make_pair(&d[0], 0));
+
+    size_type base = 0;
+    for (;;) {
+      if (base >= d.size()) break; // finish
+      size_type step = 1;
+      for (;;) {
+	if (base + step >= d.size()) { step >>= 1; break; }
+	step <<= 1;
+      }
+      size_type pos = base;
+      for (;;) {
+	if (&d[pos + step] - &d[base] == pos + step - base) { pos += step; }
+	if (step == 1) break;
+	step >>= 1;
+      }
+      base = pos + 1;
+      if (base != d.size()) {
+	map_type::iterator p = 
+	  std::lower_bound(map_.begin(), map_.end(), std::make_pair(&d[base], 0), std::less<pair_type>());
+	map_.insert(p, std::make_pair(&d[base], base));
+      }
+    }
+  }
+
+  size_type index(const value_type* ptr) const
+  {
+    map_type::const_iterator p = 
+      std::lower_bound(map_.begin(), map_.end(), std::make_pair(ptr, 0), 
+		       std::less<pair_type>());
+    if (ptr != p->first) --p;
+    return p->second
+      + ((size_type)ptr - (size_type)(p->first)) / sizeof(value_type);
   }
 
 private:
-  std::vector<std::pair<value_type*, int> 
+  map_type map_;
 };
 
 } // end namespace looper

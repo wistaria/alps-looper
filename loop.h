@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: xxz.h 422 2003-10-15 10:50:28Z wistaria $
+* $Id: loop.h 422 2003-10-15 10:50:28Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -34,28 +34,52 @@
 *
 **************************************************************************/
 
-#ifndef LOOPER_DEQUE_H
-#define LOOPER_DEQUE_H
+#ifndef LOOPER_LOOP_H
+#define LOOPER_LOOP_H
 
 namespace looper {
 
-template<class D>
-class deque_index_helper
+struct loop_segment
 {
-public:
-  typedef typename D::value_type value_type;
-  deque_index_helper() {}
-  template<class T>
-  deque_index_helper(const std::deque<T>& d)
-  {
-    size_ = sizeof(T);
+  BOOST_STATIC_CONSTANT(int, undefined = -1);
 
+  int index;
+
+  loop_segment() : index(undefined) {}
+  void reset() { index = undefined; }
+  null_node& operator+=(const null_node&) { return *this; }
+};
+
+// helper functions
+
+struct loop
+{
+  template<class T>
+  static int index(const T& t)
+  {
+    t.root()->index;
   }
 
-private:
-  std::vector<std::pair<value_type*, int> 
+  template<class CONTAINER>
+  static int set_indices(CONTAINER& cont)
+  {
+    typedef CONTAINER container_type;
+    typedef typename container_type::iterator iterator;
+
+    int n = 0; // number of loops
+    
+    iterator itr_end = cont.end();
+    for (iterator itr = cont.begin(); itr != itr_end; ++itr) {
+      if (itr->is_root()) {
+	itr->index = n;
+	++n;
+      }
+    }
+    
+    return n;
+  }
 };
 
 } // end namespace looper
 
-#endif // LOOPER_DEQUE_H
+#endif // LOOPER_XXZ_H

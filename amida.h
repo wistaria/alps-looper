@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: amida.h 408 2003-10-10 09:34:54Z wistaria $
+* $Id: amida.h 422 2003-10-15 10:50:28Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -53,13 +53,14 @@
 
 namespace looper {
 
-template<class T, std::size_t C = 10> class amida;
+template<class T> class amida;
 
 namespace detail {
 
 struct amida_node_base;
 template<class T, bool IsClass> class amida_node;
 template<class T> class amida_pointer;
+template<class T> class const_amida_pointer;
 
 } // end namespace detail
 
@@ -69,7 +70,6 @@ template<class T> std::size_t series(const amida_series_iterator<T>&);
 template<class T> std::size_t leg(const amida_series_iterator<T>&);
 template<class T> void jump(amida_series_iterator<T>&);
 template<class T> void proceed(amida_series_iterator<T>&, size_t);
-  // template<class T, std::size_t C> void rotate_series(amida<T, C>&, std::size_t, std::size_t, int);
 
 namespace detail {
 
@@ -79,10 +79,10 @@ template<class T> inline amida_node_base* addr(const amida_pointer<T>&);
 
 
 //
-// amida<T, C>
+// amida<T>
 //
 
-template<class T, std::size_t C>
+template<class T>
 class amida
 {
 public:
@@ -91,7 +91,7 @@ public:
   typedef T&                             reference;
   typedef const T&                       const_reference;
   typedef detail::amida_pointer<T>       pointer;
-  typedef const detail::amida_pointer<T> const_pointer;
+  typedef detail::const_amida_pointer<T> const_pointer;
   typedef amida_series_iterator<T>       series_iterator;
   typedef const amida_series_iterator<T> const_series_iterator;
   
@@ -149,68 +149,8 @@ public:
 
   bool no_links(size_type r) const;
 
-  inline friend void
-  rotate_series(amida<T, C>& c, size_type first, size_type last, int direc) {
-    // check parameter
-    if (first > last || last > c.series())
-      boost::throw_exception(std::invalid_argument("rotate_series() : invalid argument"));
-    
-    typedef amida<T, C>::node_type node_type;
-    
-    size_type s = c.series();
-    size_type n = last - first;
-    while (direc < 0) direc += n;
-    std::vector<node_type> tmp(n);
-    
-    // rotate bottom
-    for (size_type i = 0; i < n; ++i) tmp[i] = c._array[first + i];
-    for (size_type i = 0; i < n; ++i)
-      c._array[first + (direc + i) % n] = tmp[i];
-    
-    // rotate top
-    for (size_type i = 0; i < n; ++i) tmp[i] = c._array[s + first + i];
-    for (size_type i = 0; i < n; ++i)
-      c._array[s + first + (direc + i) % n] = tmp[i];
-    
-    // adjust series[], next[], prev[]
-    for (size_type i = 0; i < c._array.size(); ++i) {
-      if (c._array[i].is_node()) {
-	size_type t0 = c._array[i].series[0];
-	if (t0 >= first && t0 < last)
-	  c._array[i].series[0] = first + (direc - first + t0) % n;
-	
-	size_type t1 = c._array[i].series[1];
-	if (t1 >= first && t1 < last)
-	  c._array[i].series[1] = first + (direc - first + t1) % n;
-	
-	if (c._array[i].prev[0] != 0) {
-	  size_type idx = index(c._array[i].prev[0], c);
-	  if (idx >= first && idx < last)
-	    c._array[i].prev[0] = &c._array[first + (direc - first + idx) % n];
-	}
-	if (c._array[i].prev[1] != 0) {
-	  size_type idx = index(c._array[i].prev[1], c);
-	  if (idx >= first && idx < last)
-	    c._array[i].prev[1] = &c._array[first + (direc - first + idx) % n];
-	}
-	if (c._array[i].next[0] != 0) {
-	  size_type idx = index(c._array[i].next[0], c);
-	  if (idx >= s + first && idx < s + last)
-	    c._array[i].next[0] =
-	      &c._array[s + first + (direc - first + idx) % n];
-	}
-	if (c._array[i].next[1] != 0) {
-	  size_type idx = index(c._array[i].next[1], c);
-	  if (idx >= s + first && idx < s + last)
-	    c._array[i].next[1] =
-	      &c._array[s + first + (direc - first + idx) % n];
-	}
-      }
-    }
-  }
-
   inline friend size_type
-  index(const void* p, const amida<T, C>& c) { 
+  index(const void* p, const amida<T>& c) { 
     size_type r = std::numeric_limits<size_type>::max();
     for (int i = 0; i < c._array.size(); ++i) {
       if (&(c._array[i]) == p) {
@@ -221,7 +161,7 @@ public:
     return r;
   }
   inline friend size_type
-  index(const pointer p, const amida<T, C>& c) {
+  index(const pointer p, const amida<T>& c) {
     return index(detail::addr(p), c);
   }
   
@@ -317,18 +257,19 @@ private:
 template<class T>
 struct amida_node<T, true> : public T, public amida_node_base
 {
+  typedef T        value_type;
+  typedef T&       reference;
+  typedef const T& const_reference;
+
   amida_node() : T(), amida_node_base() {}
 
-  T& operator*() { return *this; }
-  const T& operator*() const { return *this; }
+  reference operator*() { return *this; }
+  const_reference operator*() const { return *this; }
 
-  template<std::size_t C>
-  void output(std::ostream& os, const amida<T, C>& c) const;
+  void output(std::ostream& os, const amida<T>& c) const;
 
-  template<std::size_t C>
-  void save(alps::ODump& od, const amida<T, C>& c) const;
-  template<std::size_t C>
-  void load(alps::IDump& id, const amida<T, C>& c);
+  void save(alps::ODump& od, const amida<T>& c) const;
+  void load(alps::IDump& id, const amida<T>& c);
 };
 
 // for intrinsic types
@@ -336,19 +277,20 @@ struct amida_node<T, true> : public T, public amida_node_base
 template<class T>
 struct amida_node<T, false> : amida_node_base
 {
+  typedef T        value_type;
+  typedef T&       reference;
+  typedef const T& const_reference;
+
   amida_node() : amida_node_base(), _data() {}
-  T _data;
+  value_type _data;
 
-  T& operator*() { return _data; }
-  const T& operator*() const { return _data; }
+  reference operator*() { return _data; }
+  const_reference operator*() const { return _data; }
 
-  template<std::size_t C>
-  void output(std::ostream& os, const amida<T, C>& c) const;
+  void output(std::ostream& os, const amida<T>& c) const;
 
-  template<std::size_t C>
-  void save(alps::ODump& od, const amida<T, C>& c) const;
-  template<std::size_t C>
-  void load(alps::IDump& id, const amida<T, C>& c);
+  void save(alps::ODump& od, const amida<T>& c) const;
+  void load(alps::IDump& id, const amida<T>& c);
 };
 
 
@@ -356,27 +298,30 @@ struct amida_node<T, false> : amida_node_base
 // amida_pointer<T>
 //
 
-template<class T>
+template<class T, class Ref, class Ptr>
 class amida_pointer
 {
 public:
-  typedef T value_type;
+  typedef T                                    base_value_type;
+  typedef Ref                                  base_reference;
+  typedef Ptr                                  base_pointer;
+  typedef amida_pointer<T, T&, T*>             amida_pointer_type;
+  typedef amida_pointer<T, const T&, const T*> const_amida_pointer_type;
   typedef amida_node<T, boost::is_class<T>::value> node_type;
 
   friend amida_node_base* looper::detail::addr<T>(const amida_pointer<T>&);
 
   // constructors
   amida_pointer() : _node(0) {}
-  amida_pointer(const amida_pointer<T>& s) : _node(s._node) {}
-  amida_pointer(const node_type* n) : _node(const_cast<node_type*>(n)) {}
+  amida_pointer(const amida_pointer_type& p) : _node(p._node) {}
+  amida_pointer(const const_amida_pointer_type& p) : _node(p._node) {}
+  amida_pointer(pointer pos) : _node(pos) {}
 
-  T& operator*() { return _node->operator*(); }
-  const T& operator*() const { return _node->operator*(); }
-  node_type* operator->() { return _node; }
-  const node_type* operator->() const { return _node; }
+  reference operator*() const { return _node->operator*(); }
+  pointer operator->() const { return _node; }
 
-  bool operator==(const amida_pointer& i) const { return (_node == i._node); }
-  bool operator!=(const amida_pointer& i) const { return (_node != i._node); }
+  bool operator==(const amida_pointer& p) const { return (_node == p._node); }
+  bool operator!=(const amida_pointer& p) const { return (_node != p._node); }
 
 protected:
   node_type* _node;
@@ -440,11 +385,11 @@ private:
 
 
 //
-// member functions of amida<T, C>
+// member functions of amida<T>
 //
 
-template<class T, std::size_t C>
-void amida<T, C>::init(std::size_t r) {
+template<class T>
+void amida<T>::init(std::size_t r) {
   // setup boundary nodes
   _series = r;
   _array.resize(2 * _series);
@@ -464,9 +409,9 @@ void amida<T, C>::init(std::size_t r) {
   _cuts = 0;
 }
 
-template<class T, std::size_t C>
-inline std::pair<typename amida<T, C>::series_iterator, typename amida<T, C>::series_iterator>
-amida<T, C>::series(std::size_t r) {
+template<class T>
+inline std::pair<typename amida<T>::series_iterator, typename amida<T>::series_iterator>
+amida<T>::series(std::size_t r) {
 #ifdef LOOPER_DEBUG
   if (r >= _series)
     LOOPER_EXCEPTION("amida<>::series() : invalid range of r");
@@ -475,9 +420,9 @@ amida<T, C>::series(std::size_t r) {
 			series_iterator(&(_array[r + _series]), 0));
 }
 
-template<class T, std::size_t C>
-inline std::pair<typename amida<T, C>::const_series_iterator, typename amida<T, C>::const_series_iterator>
-amida<T, C>::series(std::size_t r) const {
+template<class T>
+inline std::pair<typename amida<T>::const_series_iterator, typename amida<T>::const_series_iterator>
+amida<T>::series(std::size_t r) const {
 #ifdef LOOPER_DEBUG
   if (r >= _series)
     LOOPER_EXCEPTION("amida<>::series() : invalid range of r");
@@ -486,9 +431,9 @@ amida<T, C>::series(std::size_t r) const {
 			series_iterator(&(_array[r + _series]), 0));
 }
 
-template<class T, std::size_t C>
-inline typename amida<T, C>::pointer
-amida<T, C>::insert_link(const T& t,
+template<class T>
+inline typename amida<T>::pointer
+amida<T>::insert_link(const T& t,
   const series_iterator& prev0, const series_iterator& prev1,
   const series_iterator& next0, const series_iterator& next1) {
   // not optimized for intrinsic types
@@ -515,27 +460,27 @@ amida<T, C>::insert_link(const T& t,
   return pointer(node);
 }
 
-template<class T, std::size_t C>
-inline typename amida<T, C>::pointer
-amida<T, C>::insert_link_next(const T& t,
+template<class T>
+inline typename amida<T>::pointer
+amida<T>::insert_link_next(const T& t,
   const series_iterator& prev0, const series_iterator& prev1) {
   // not optimized for intrinsic types
   return insert_link(t, prev0, prev1,
 		     ++series_iterator(prev0), ++series_iterator(prev1));
 }
 
-template<class T, std::size_t C>
-inline typename amida<T, C>::pointer
-amida<T, C>::insert_link_prev(const T& t,
+template<class T>
+inline typename amida<T>::pointer
+amida<T>::insert_link_prev(const T& t,
   const series_iterator& next0, const series_iterator& next1) {
   // not optimized for intrinsic types
   return insert_link(t, --series_iterator(next0), --series_iterator(next1),
 		     next0, next1);
 }
 
-template<class T, std::size_t C>
-inline typename amida<T, C>::series_iterator
-amida<T, C>::insert_cut(const T& t,
+template<class T>
+inline typename amida<T>::series_iterator
+amida<T>::insert_cut(const T& t,
   const series_iterator& prev, const series_iterator& next) {
   // not optimized for intrinsic types
 
@@ -559,23 +504,23 @@ amida<T, C>::insert_cut(const T& t,
   return series_iterator(node, 0);
 }
 
-template<class T, std::size_t C>
-inline typename amida<T, C>::series_iterator
-amida<T, C>::insert_cut_next(const T& t, const series_iterator& prev) {
+template<class T>
+inline typename amida<T>::series_iterator
+amida<T>::insert_cut_next(const T& t, const series_iterator& prev) {
   // not optimized for intrinsic types
   return insert_cut(t, prev, ++series_iterator(prev));
 }
 
-template<class T, std::size_t C>
-inline typename amida<T, C>::series_iterator
-amida<T, C>::insert_cut_prev(const T& t, const series_iterator& next) {
+template<class T>
+inline typename amida<T>::series_iterator
+amida<T>::insert_cut_prev(const T& t, const series_iterator& next) {
   // not optimized for intrinsic types
   return insert_cut(t, --series_iterator(next), next);
 }
 
-template<class T, std::size_t C>
+template<class T>
 inline void
-amida<T, C>::erase(node_type* node) {
+amida<T>::erase(node_type* node) {
   if (node->is_link()) {
 
     series_iterator prev0 = --series_iterator(node, 0);
@@ -605,9 +550,9 @@ amida<T, C>::erase(node_type* node) {
   delete_node(node);
 }
 
-template<class T, std::size_t C>
+template<class T>
 inline bool
-amida<T, C>::no_links(std::size_t r) const {
+amida<T>::no_links(std::size_t r) const {
 #ifdef LOOPER_DEBUG
   if (r >= _series)
     LOOPER_EXCEPTION("amida<>::no_linkds() : invalid range of r");
@@ -616,9 +561,9 @@ amida<T, C>::no_links(std::size_t r) const {
 }
 
 
-template<class T, std::size_t C>
-inline typename amida<T, C>::node_type*
-amida<T, C>::new_node() {
+template<class T>
+inline typename amida<T>::node_type*
+amida<T>::new_node() {
   ++_nodes;
   if (_vacant == 0) {
     // stack expansion
@@ -634,26 +579,26 @@ amida<T, C>::new_node() {
   }
 }
 
-template<class T, std::size_t C>
+template<class T>
 inline void
-amida<T, C>::delete_node(node_type* b) {
+amida<T>::delete_node(node_type* b) {
   // push to stack of vacant nodes
   b->set_as_vacant(_vacant);
   _vacant = b;
   --_nodes;
 }
 
-template<class T, std::size_t C>
+template<class T>
 void
-amida<T, C>::save(alps::ODump& od) const {
+amida<T>::save(alps::ODump& od) const {
   od << _largest << _series << _nodes << _links << _cuts
      << ((_vacant == 0) ? 0 : index(_vacant, *this) + 1);
   for (std::size_t i = 0; i < _largest; ++i) _array[i].save(od, *this);
 }
 
-template<class T, std::size_t C>
+template<class T>
 void
-amida<T, C>::load(alps::IDump& id) {
+amida<T>::load(alps::IDump& id) {
   std::size_t vacant;
   id >> _largest >> _series >> _nodes >> _links >> _cuts >> vacant;
   _array.resize(_largest);
@@ -661,9 +606,9 @@ amida<T, C>::load(alps::IDump& id) {
   for (std::size_t i = 0; i < _largest; ++i) _array[i].load(id, *this);
 }
 
-template<class T, std::size_t C>
+template<class T>
 void
-amida<T, C>::output_serial(std::ostream& os) const {
+amida<T>::output_serial(std::ostream& os) const {
   os << "[amida Information]\n";
   for (std::size_t i = 0; i != _largest; ++i) {
     pointer p(this->ptr(i));
@@ -701,9 +646,9 @@ amida<T, C>::output_serial(std::ostream& os) const {
   }
 }
 
-template<class T, std::size_t C>
+template<class T>
 void
-amida<T, C>::output_stack(std::ostream& os) const {
+amida<T>::output_stack(std::ostream& os) const {
   os << "[amida Stack Information]\n";
   for (node_type* s = _vacant; s != 0; s = (node_type*)(s->next[0])) {
     os << index(s, *this) << "->";
@@ -717,17 +662,15 @@ amida<T, C>::output_stack(std::ostream& os) const {
 //
 
 template<class T>
-template<std::size_t C>
 void
-detail::amida_node<T, true>::output(std::ostream& os, const amida<T, C>& c) const {
+detail::amida_node<T, true>::output(std::ostream& os, const amida<T>& c) const {
   os << "node: " << index(this, c) << ", contents: ";
   T::output(os);
 }
 
 template<class T>
-template<std::size_t C>
 void
-detail::amida_node<T, true>::save(alps::ODump& od, const amida<T, C>& c) const {
+detail::amida_node<T, true>::save(alps::ODump& od, const amida<T>& c) const {
   od << series[0] << series[1]
      << ((next[0] == 0) ? 0 : index(next[0], c) + 1)
      << ((next[1] == 0) ? 0 : index(next[1], c) + 1)
@@ -737,9 +680,8 @@ detail::amida_node<T, true>::save(alps::ODump& od, const amida<T, C>& c) const {
 }
 
 template<class T>
-template<std::size_t C>
 void
-detail::amida_node<T, true>::load(alps::IDump& id, const amida<T, C>& c) {
+detail::amida_node<T, true>::load(alps::IDump& id, const amida<T>& c) {
   std::size_t n0, n1, p0, p1;
   id >> series[0] >> series[1] >> n0 >> n1 >> p0 >> p1;
   next[0] = (n0 == 0 ? 0 : detail::addr(c.ptr(n0 - 1)));
@@ -750,16 +692,14 @@ detail::amida_node<T, true>::load(alps::IDump& id, const amida<T, C>& c) {
 }
 
 template<class T>
-template<std::size_t C>
 void
-detail::amida_node<T, false>::output(std::ostream& os, const amida<T, C>& c) const {
+detail::amida_node<T, false>::output(std::ostream& os, const amida<T>& c) const {
   os << "node: " << index(this, c) << ", contents: " << _data;
 }
 
 template<class T>
-template<std::size_t C>
 void
-detail::amida_node<T, false>::save(alps::ODump& od, const amida<T, C>& c) const {
+detail::amida_node<T, false>::save(alps::ODump& od, const amida<T>& c) const {
   od << series[0] << series[1]
      << ((next[0] == 0) ? 0 : index(next[0], c) + 1)
      << ((next[1] == 0) ? 0 : index(next[1], c) + 1)
@@ -769,9 +709,8 @@ detail::amida_node<T, false>::save(alps::ODump& od, const amida<T, C>& c) const 
 }
 
 template<class T>
-template<std::size_t C>
 void 
-detail::amida_node<T, false>::load(alps::IDump& id, const amida<T, C>& c) {
+detail::amida_node<T, false>::load(alps::IDump& id, const amida<T>& c) {
   std::size_t n0, n1, p0, p1;
   id >> series[0] >> series[1] >> n0 >> n1 >> p0 >> p1;
   next[0] = (n0 == 0 ? 0 : detail::addr(c.ptr(n0 - 1)));
@@ -876,18 +815,18 @@ proceed(amida_series_iterator<T>& p, std::size_t d) {
 // I/O functions
 //
 
-template<class T, std::size_t C>
-std::ostream& operator<<(std::ostream& os, const looper::amida<T, C>& c) {
+template<class T>
+std::ostream& operator<<(std::ostream& os, const looper::amida<T>& c) {
   c.output_serial(os); c.output_stack(os); return os;
 }
 
-template<class T, std::size_t C>
-alps::ODump& operator<<(alps::ODump& od, const looper::amida<T, C>& c) {
+template<class T>
+alps::ODump& operator<<(alps::ODump& od, const looper::amida<T>& c) {
   c.save(od); return od;
 }
 
-template<class T, std::size_t C>
-alps::IDump& operator>>(alps::IDump& id, looper::amida<T, C>& c) {
+template<class T>
+alps::IDump& operator>>(alps::IDump& id, looper::amida<T>& c) {
   c.load(id); return id;
 }
 

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: worldline.h 408 2003-10-10 09:34:54Z wistaria $
+* $Id: worldline.h 422 2003-10-15 10:50:28Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -37,50 +37,300 @@
 #ifndef LOOPER_WORLDLINE_H
 #define LOOPER_WORLDLINE_H
 
-#include <looper/amida.h>
-#include <looper/node.h>
-#include <looper/unionfind.h>
+#include "amida.h"
+#include "unionfind.h"
 #include <alps/osiris.h>
+#include <boost/integer_traits.hpp>
 
 namespace looper {
 
+struct loop_segment
+{
+  BOOST_STATIC_CONSTANT(int, undefined = -1);
+
+  int index;
+
+  loop_segment() : index(undefined) {}
+  void reset() { index = undefined; }
+  loop_segment& operator+=(const loop_segment&) { return *this; }
+};
+
 //
-// class template WorldLine
+// Bit positions and bit masks
+//
+
+template<class U = uint32_t>
+class node_flag
+{
+public:
+  typedef U uint_type;
+
+  BOOST_STATIC_CONSTANT(uint_type, B_ADDD = 0);
+  BOOST_STATIC_CONSTANT(uint_type, B_REFL = 1);
+  BOOST_STATIC_CONSTANT(uint_type, B_FREZ = 2);
+  BOOST_STATIC_CONSTANT(uint_type, B_ANTI = 3); // only for XYZ
+  BOOST_STATIC_CONSTANT(uint_type, B_CONF = 4);
+
+  // set for newly-added node
+  BOOST_STATIC_CONSTANT(uint_type, M_ADDD = 1 << B_ADDD);
+
+  BOOST_STATIC_CONSTANT(uint_type, M_REFL = 1 << B_REFL); 
+  BOOST_STATIC_CONSTANT(uint_type, M_FREZ = 1 << B_FREZ);
+  BOOST_STATIC_CONSTANT(uint_type, M_ANTI = 1 << B_ANTI); // only for XYZ
+  BOOST_STATIC_CONSTANT(uint_type, M_CONF = 1 << B_CONF);
+    
+  // bit mask for clear()
+  BOOST_STATIC_CONSTANT(uint_type, M_CLEAR = M_ANTI | M_CONF);
+
+private:
+  BOOST_STATIC_ASSERT((boost::integer_traits<uint_type>::is_integral));
+  BOOST_STATIC_ASSERT((boost::integer_traits<uint_type>::const_min == 0));
+};
+
+
+template<class U = uint32_t>
+class node_type : private node_flag<U>
+{
+public:
+  typedef U uint_type;
+
+  node_type() : type_(0) {}
+
+  bool is_refl() const { return type_ & M_REFL; }
+  bool is_frozen() const { return type_ & M_FREZ; }
+  bool is_new_node() const { return type_ & M_ADDD; }
+  bool is_old_node() const { return !is_new_node(); }
+
+  uint_type refl() const { return ( type_ >> B_REFL ) & 1; }
+  uint_type frozen() const { return ( type_ >> B_FREZ ) & 1; }
+  uint_type new_node() const { return ( type_ >> B_ADDD ) & 1; }
+  uint_type old_node() const { return 1 ^ (( type_ >> B_ADDD ) & 1); }
+
+  uint_type phase() const { return ( type_ >> B_ANTI ) & 1; }
+  uint_type conf() const { return (type_ >> B_CONF) & 1; }
+
+  void set_type(uint_type t) { type_ = t; }
+  void clear() { type_ &= M_CLEAR; }
+
+  void set_conf(uint_type c) {
+    type_ = ((0xffffffff ^ M_CONF) & type_) | (c << B_CONF); }
+  void flip_conf(uint_type c = 1) { type_ ^= (c << B_CONF); }
+
+  void set_new(uint_type is_refl, uint_type is_frozen, uint_type conf,
+	       uint_type phase) {
+    type_ = M_ADDD | (is_refl << B_REFL) | (is_frozen << B_FREZ) 
+      | (conf << B_CONF) | (phase << B_ANTI);
+  }
+  void set_old(uint_type is_refl, uint_type is_frozen) {
+    type_ |= (is_refl << B_REFL) | (is_frozen << B_FREZ);
+  }
+
+  void output(std::ostream& os) const {
+    os << "refl = " << refl()
+       << " frozen = " << frozen()
+       << " new_node = " << new_node()
+       << " phase = " << phase()
+       << " conf = " << conf();
+  }
+
+  void save(alps::ODump& od) const { od << type_; }
+  void load(alps::IDump& id) { id >> type_; }
+
+private:
+  BOOST_STATIC_ASSERT((boost::integer_traits<uint_type>::is_integral));
+  BOOST_STATIC_ASSERT((boost::integer_traits<uint_type>::const_min == 0));
+
+  uint_type type_;
+};
+
+
+template<bool HasCTime = false, class U = uint32_t> class node;
+
+template<class U>
+class node<false, U> : public node_type<U>
+{
+private:
+  typedef node_type<U> base_type;
+  typedef looper::unionfind::node<looper::loop_segment> segment_type;
+
+public:
+  typedef double time_type;
+  static const bool has_ctime = false;
+
+  node() : base_type(), time_(0), bond_(0), segment0_(), segment1_() {}
+
+  time_type time() const { return time_; }
+  uint32_t bond() const { return bond_; }
+
+  void set_bond(uint32_t b) { bond_ = b; }
+  void set_time(time_type, time_type t) { time_ = t; }
+
+  void set_new(uint32_t b, uint32_t is_refl, uint32_t is_frozen,
+	       uint32_t conf, uint32_t phase) {
+    base_type::set_new(is_refl, is_frozen, conf, phase);
+    bond_ = b;
+  }
+
+  segment_type& loop_segment(int i) {
+    return (i == 0 ? segment0_ : segment1_);
+  }
+  const segment_type& loop_segment(int i) const {
+    return (i == 0 ? segment0_ : segment1_);
+  }
+  int loop_index(int i) const { return loop_segment(i).root()->index; }
+
+  void clear() {
+    base_type::clear();
+    segment0_.reset();
+    segment1_.reset();
+  }
+
+  void output(std::ostream& os) const {
+    base_type::output(os);
+    os << " time = " << time_ << " bond = " << bond_ ;
+  }
+
+  void save(alps::ODump& od) const {
+    base_type::save(od);
+    od << time_ << bond_;
+    // segment[01]_ are not saved
+  }
+  void load(alps::IDump& id) {
+    base_type::load(id);
+    id >> time_ >> bond_;
+    // segment[01]_ are not restored
+  }
+  
+private:
+  time_type time_;
+  uint32_t bond_;
+  segment_type segment0_;
+  segment_type segment1_;
+};
+
+class node<true> : public node<false>
+{
+public:
+  static const bool has_ctime = true;
+
+  typedef node<false>::time_type time_type;
+  typedef std::complex<time_type> ctime_type;
+
+  ctime_type ctime() const { return _ctime; }
+  void set_time(time_type beta, time_type t) {
+    node<false>::set_time(beta, t);
+#ifdef M_PI
+    _ctime = std::exp(2 * M_PI * t / beta);
+#else
+    _ctime = std::exp(2 * 3.1415926535897932385 * t / beta);
+#endif
+  }
+
+  void output(std::ostream& os) const {
+    node<false>::output(os);
+    os << " ctime = " << _ctime;
+  }
+
+  void save(alps::ODump& od) const {
+    node<false>::save(od);
+    od << _ctime;
+  }
+  void load(alps::IDump& id) {
+    node<false>::load(id);
+    id >> _ctime;
+  }
+  
+private:
+  ctime_type _ctime;
+};
+
+//
+// helper functions
+//
+
+template<class NodePtr>
+inline bool not_passed(const NodePtr& ptr, uint32_t path) {
+  if (ptr->is_vacant()) {
+    return false;
+  }
+  
+  if (ptr->at_boundary()) {
+    return path == 0 && ptr->loop(0) == Node<>::loop_not_assigned;
+  } else {
+    return ptr->loop(0) == Node<>::loop_not_assigned;
+  }
+}
+
+template<class WorldLine, class NodePtr, class Loops>
+void check_erase(WorldLine& wline, NodePtr& ptr, const Loops& loops) {
+  if (ptr->is_node()) {
+    if (ptr->at_boundary()) {
+      ptr->flip_conf(loops[loops[ptr->loop(0)].root()].direc);
+      ptr->clear();
+    } else {
+      if (ptr->old_node()) {
+	if (loops[loops[ptr->loop(0)].root()].direc ^
+	    loops[loops[ptr->loop(1)].root()].direc == 1) {
+	  wline.erase(ptr);
+	} else {
+	  ptr->flip_conf(loops[loops[ptr->loop(0)].root()].direc);
+	  ptr->clear();
+	}
+      } else {
+	if (loops[loops[ptr->loop(0)].root()].direc ^
+	    loops[loops[ptr->loop(1)].root()].direc == 0) {
+	  wline.erase(ptr);
+	} else {
+	  ptr->flip_conf(loops[loops[ptr->loop(0)].root()].direc);
+	  ptr->clear();
+	}
+      }
+    }
+  }
+}
+
+//
+// class template world_line
 // 
 
 template<bool HasCTime = false>
-class WorldLine
+class world_line
 {
 public:
-  typedef detail::Node<HasCTime>                     node_type;
-  typedef typename Amida<node_type>::pointer         node_pointer;
-  typedef typename Amida<node_type>::series_iterator series_iterator;
+  typedef node<HasCTime>                     node_type;
+  typedef typename amida<node_type>::pointer         node_pointer;
+  typedef typename amida<node_type>::series_iterator series_iterator;
 
   static const bool has_ctime = HasCTime;
 
   // constructors & destructor
-  WorldLine() : _config() {}
-  template<class GraphT>
-  WorldLine(const GraphT& vg, int c = 0) : _config() { init(vg, c); }
+  world_line() : beta_(1.), config_() {}
+  template<class VG, class VM>
+  world_line(double beta, const VG& vg, const VM& vm, int c = 0)
+    : beta_(beta), config_()
+  {
+    assert(beta > 0);
+    init(vg, vm, c);
+  }
 
   // initialize
-  template<class GraphT>
-  void init(const GraphT& vg, int c = 0)
+  template<class VG, class VM>
+  void init(const VG& vg, const VM&, int c = 0)
   {
     assert(c == 0 || c == 1);
     int n = boost::num_vertices(vg);
-    _config.init(n);
+    config_.init(n);
     for (std::size_t s = 0; s < n; ++s) {
-      bottom(s)->set_time(0);
+      bottom(s)->set_time(beta_, 0);
       bottom(s)->set_conf(c);
-      top(s)->set_time(1);
+      top(s)->set_time(beta_, beta_);
       top(s)->set_conf(c);
     }
   }
-  template<class GraphT, class RNG>
-  void init(const GraphT& vg, RNG& rng, double p = 0.5)
+  template<class VG, class VM, class RNG>
+  void init(const VG& vg, const VM& vm, RNG& rng, double p = 0.5)
   {
-    init(vg);
+    init(vg, vm);
     for (std::size_t s = 0; s < sites(); ++s) {
       if (rng() < p) {
 	bottom(s)->set_conf(0);
@@ -92,26 +342,28 @@ public:
     }
   }
   
+  double beta() const { return beta_; }
+
   // size inquiry
-  std::size_t sites() const { return _config.series(); }
-  std::size_t links() const { return _config.links(); }
-  std::size_t cuts() const { return _config.cuts(); }
-  std::size_t nodes() const { return _config.nodes(); }
-  std::size_t nodes_max() const { return _config.nodes_max(); }
+  std::size_t sites() const { return config_.series(); }
+  std::size_t links() const { return config_.links(); }
+  std::size_t cuts() const { return config_.cuts(); }
+  std::size_t nodes() const { return config_.nodes(); }
+  std::size_t nodes_max() const { return config_.nodes_max(); }
   
-  double memory() const { return _config.memory(); }
+  double memory() const { return config_.memory(); }
 
   // generate iterators, pointers, etc.
-  series_iterator bottom(std::size_t r) { return _config.series(r).first; }
+  series_iterator bottom(std::size_t r) { return config_.series(r).first; }
   const series_iterator bottom(std::size_t r) const {
-    return _config.series(r).first;
+    return config_.series(r).first;
   }
-  series_iterator top(std::size_t r) { return _config.series(r).second; }
+  series_iterator top(std::size_t r) { return config_.series(r).second; }
   const series_iterator top(std::size_t r) const {
-    return _config.series(r).second;
+    return config_.series(r).second;
   }
-  node_pointer node(std::size_t i) { return _config.ptr(i); }
-  const node_pointer node(std::size_t i) const { return _config.ptr(i); }
+  node_pointer node(std::size_t i) { return config_.ptr(i); }
+  const node_pointer node(std::size_t i) const { return config_.ptr(i); }
 
   std::pair<series_iterator, series_iterator>
   insert(const series_iterator& curr0, const series_iterator& curr1,
@@ -120,19 +372,20 @@ public:
   {
     // insert to list
     node_type k;
-    k.set_time(t);
-    node_pointer itr_new = _config.insert_link(k, curr0, curr1, next0, next1);
+    k.set_time(beta_, t);
+    node_pointer itr_new = config_.insert_link(k, curr0, curr1, next0, next1);
     return std::make_pair(series_iterator(itr_new, 0),
 			  series_iterator(itr_new, 1));
   }
 
-  void erase(node_pointer link) { _config.erase(link); }
+  void erase(node_pointer link) { config_.erase(link); }
   
-  void save(alps::ODump& od) const { _config.save(od); }
-  void load(alps::IDump& id) { _config.load(id); }
+  void save(alps::ODump& od) const { config_.save(od); }
+  void load(alps::IDump& id) { config_.load(id); }
   
 private:
-  Amida<node_type> _config;
+  double beta_;
+  amida<node_type> config_;
 };
 
 } // end namespace looper
@@ -143,13 +396,13 @@ namespace looper {
 #endif
 
 template<bool HasCTime>
-alps::ODump& operator<<(alps::ODump& od, const WorldLine<HasCTime>& wline) {
+alps::ODump& operator<<(alps::ODump& od, const world_line<HasCTime>& wline) {
   wline.save(od);
   return od;
 }
 
 template<bool HasCTime>
-alps::IDump& operator>>(alps::IDump& id, WorldLine<HasCTime>& wline) {
+alps::IDump& operator>>(alps::IDump& id, world_line<HasCTime>& wline) {
   wline.load(id);
   return id;
 }
