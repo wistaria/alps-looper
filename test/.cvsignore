@@ -1,0 +1,14 @@
+Makefile
+amida
+fill_duration
+index_helper
+permutation
+simplegraph
+unionfind
+virtualgraph
+weight
+xxz_matrix
+xxz_model
+*.ok
+*.xdr
+*.xml

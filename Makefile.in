@@ -47,13 +47,40 @@ ldflags_mpi = $(LDFLAGS_MPI)
 libs_program = -lalps -lcomm-sgl $(HDF5_LIBS) $(XML_LIBS) $(BASE_LIBS)
 libs_program_mpi = -lalps -lcomm-mpi $(HDF5_LIBS) $(XML_LIBS) $(MPI_LIBS) $(BASE_LIBS)
 
-default : simple
+LOCAL_CONFIG = lattices.xml models.xml
+EXAMPLES = simple
 
-all tests clean distclean depend:
-	$(MAKE) -C test $@
+default all : simple
+
+default : default-test
+default-test :
+	$(MAKE) -C test default
+all : all-test
+all-test :
+	$(MAKE) -C test all
+tests : tests-test
+tests-test :
+	$(MAKE) -C test tests
+depend : depend-test
+depend-test :
+	$(MAKE) -C test depend
+clean : clean-test
+clean-test :
+	$(MAKE) -C test clean
+distclean : distclean-test
+distclean-test :
+	$(MAKE) -C test distclean
 
 bootstrap :
 	autoconf --force
 	rm -rf autom4te*.cache
 
+include $(RULES_MK)
 include $(srcdir)/Makefile.dep
+
+# dependency for inputs
+
+models.xml : $(srcdir)/models.xml.in
+	$(top_builddir)config.status models.xml
+lattices.xml : $(srcdir)/lattices.xml.in
+	$(top_builddir)config.status lattices.xml
