@@ -5,6 +5,7 @@ hypercubic_graph_generator
 index_helper
 permutation
 random_choice
+syev
 union_find
 virtual_graph
 weight

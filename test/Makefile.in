@@ -22,7 +22,7 @@
 #
 ##############################################################################
 
-# $Id: Makefile.in 554 2003-11-12 02:36:24Z wistaria $
+# $Id: Makefile.in 557 2003-11-12 12:33:19Z wistaria $
 # Makefile for test programs
 
 srcdir = @srcdir@
@@ -32,16 +32,20 @@ top_builddir = ./@top_builddir@
 
 include @INCLUDE_MK@
 
-cppflags = $(CPPFLAGS) -I$(top_srcdir)
-cppflags_mpi = $(CPPFLAGS_MPI) -I$(top_srcdir)
+LAPACK_CPPFLAGS = @LAPACK_CPPFLAGS@
+LAPACK_LDFLAGS = @LAPACK_LDFLAGS@
+LAPACK_LIBS = @LAPACK_LIBS@
+
+cppflags = $(CPPFLAGS) $(LAPACK_CPPFLAGS) -I$(top_srcdir)
+cppflags_mpi = $(CPPFLAGS_MPI) $(LAPACK_CPPFLAGS) -I$(top_srcdir)
 cxxflags = $(CXXFLAGS)
-ldflags = $(LDFLAGS)
-ldflags_mpi = $(LDFLAGS_MPI)
-libs_program = -lalps -lcomm-sgl $(HDF5_LIBS) $(XML_LIBS) $(BASE_LIBS)
-libs_program_mpi = -lalps -lcomm-mpi $(HDF5_LIBS) $(XML_LIBS) $(MPI_LIBS) $(BASE_LIBS)
+ldflags = $(LDFLAGS) $(LAPACK_LDFLAGS)
+ldflags_mpi = $(LDFLAGS_MPI) $(LAPACK_LDFLAGS)
+libs_program = -lalps -lcomm-sgl $(LAPACK_LIBS) $(HDF5_LIBS) $(XML_LIBS) $(BASE_LIBS)
+libs_program_mpi = -lalps -lcomm-mpi $(LAPACK_LIBS) $(HDF5_LIBS) $(XML_LIBS) $(MPI_LIBS) $(BASE_LIBS)
 
 LOCAL_CONFIG = lattices.xml models.xml amida.xdr
-TESTOK = amida.ok fill_duration.ok hypercubic_graph_generator.ok index_helper.ok permutation.ok random_choice.ok union_find.ok virtual_graph.ok weight.ok xxz_matrix.ok xxz_model.ok
+TESTOK = amida.ok fill_duration.ok hypercubic_graph_generator.ok index_helper.ok permutation.ok random_choice.ok syev.ok union_find.ok virtual_graph.ok weight.ok xxz_matrix.ok xxz_model.ok
 
 default: tests
 

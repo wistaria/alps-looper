@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-dnl $Id: configure.in 556 2003-11-12 03:03:47Z wistaria $
+dnl $Id: configure.in 557 2003-11-12 12:33:19Z wistaria $
 
 dnl 
 dnl Initialization
@@ -11,6 +11,9 @@ define([AC_CACHE_SAVE], )dnl
 AC_PREREQ(2.57)
 AC_INIT([looper], [3.0b3])
 AC_PREFIX_DEFAULT([$HOME/ALPS])
+
+AC_DEFINE_UNQUOTED(LOOPER_VERSION, "$PACKAGE_VERSION")
+AC_DEFINE_UNQUOTED(LOOPER_DATE, "2003/11/12")
 
 AC_SUBST(PACKAGE_DATE)
 PACKAGE_DATE="2003/11/12"
@@ -28,6 +31,28 @@ else
 fi
 AC_SUBST(INCLUDE_MK)
 INCLUDE_MK="$ac_cv_alps_include_mk"
+
+dnl
+dnl setup C++ compiler
+dnl
+
+CXX="$ac_cv_alps_CXX"
+CPPFLAGS="$ac_cv_alps_CPPFLAGS"
+CXXFLAGS="$ac_cv_alps_CXXFLAGS"
+LDFLAGS="$ac_cv_alps_LDFLAGS"
+AC_PROG_CXX
+AC_PROG_CXXCPP
+AC_LANG_CPLUSPLUS
+
+dnl
+dnl check for LAPACK
+dnl
+
+sinclude(config/ac_lapack.m4)
+AC_LAPACK
+if test "$ac_cv_have_lapack" != yes; then
+  AC_MSG_ERROR([check for LAPACK library failed])
+fi
 
 dnl
 dnl check for MPI library
@@ -63,7 +88,8 @@ dnl
 dnl generate files
 dnl
 
-AC_CONFIG_FILES(Makefile test/Makefile looper/copyright.h)
+AC_CONFIG_HEADERS(looper/config.h)
+AC_CONFIG_FILES(Makefile test/Makefile)
 AC_CONFIG_FILES(lattices.xml models.xml)
 AC_CONFIG_FILES(test/lattices.xml test/models.xml)
 AC_CONFIG_FILES(percolation-params qmc-params)

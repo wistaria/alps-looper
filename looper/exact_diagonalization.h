@@ -22,32 +22,38 @@
 *
 *****************************************************************************/
 
-// $Id: copyright.h.in 556 2003-11-12 03:03:47Z wistaria $
+// $Id: exact_diagonalization.h 557 2003-11-12 12:33:19Z wistaria $
 
-#ifndef LOOPER_COPYRIGHT_H
-#define LOOPER_COPYRIGHT_H
+#ifndef LOOPER_EXACT_DIAGONALIZATION_H
+#define LOOPER_EXACT_DIAGONALIZATION_H
 
-#include <alps/copyright.h>
-#include <iostream>
+#include <looper/lapack.h>
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/vector.hpp>
 
 namespace looper {
 
-std::ostream& print_copyright(std::ostream& os = std::cout)
+template<class G, class M, class T = double>
+struct exact_diagonalization
 {
-  os << "ALPS/looper version @PACKAGE_VERSION@ (@PACKAGE_DATE@)\n"
-     << "  multi-cluster quantum Monte Carlo algorithms for spin systems\n"
-     << "  available from http://wistaria.comp-phys.org/looper/\n"
-     << "  copyright (c) 1997-2003 by Synge Todo <wistaria@comp-phys.org>\n"
-     << "\n";
-  return os;
-}
+  typedef G graph_type;
+  typedef M model_type;
+  typedef T value_type;
+  typedef boost::numeric::ublas::vector<value_type> vector_type;
+  typedef boost::numeric::ublas::matrix<value_type> matrix_type;
 
-std::ostream& print_license(std::ostream& os = std::cout)
-{
-  os << "Please look at the file LICENSE for the license conditions.\n";
-  return os;
-}
+  struct parameter_type
+  {
+
+
+  };
+
+  struct config_type
+  {
+
+  };
+};
 
 } // end namespace looper
 
-#endif // LOOPER_COPYRIGHT_H
+#endif // LOOPER_EXACT_DIAGONALIZATION_H
