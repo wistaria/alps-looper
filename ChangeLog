@@ -7,6 +7,8 @@
 	* Removed check_and_resize from path_integral.h.
 
 	* Added specific heat measurement.
+
+	* Fixed staggered susceptibility measurement.
 	
 2003-11-05  Synge Todo  <wistaria@comp-phys.org>
 	

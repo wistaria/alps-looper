@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: measurement.h 537 2003-11-06 14:47:54Z wistaria $
+* $Id: measurement.h 538 2003-11-06 14:59:29Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -140,8 +140,8 @@ template<class G, class M, class W, class N>
 struct staggered_susceptibility_helper<path_integral<G, M, W, N> >
 {
   typedef path_integral<G, M, W, N> qmc_type;
-  static double calc(const qmc_type::config_type& config,
-		     const qmc_type::parameter_type& param)
+  static double calc(const typename qmc_type::config_type& config,
+		     const typename qmc_type::parameter_type& param)
   {
     double ss = 0.;
     typename qmc_type::vertex_iterator vi, vi_end;
@@ -157,8 +157,8 @@ template<class G, class M, class W, class N>
 struct staggered_susceptibility_helper<sse<G, M, W, N> >
 {
   typedef sse<G, M, W, N> qmc_type;
-  static double calc(const qmc_type::config_type& config,
-		     const qmc_type::parameter_type& param)
+  static double calc(const typename qmc_type::config_type& config,
+		     const typename qmc_type::parameter_type& param)
   {
     double sd = 0.;
     double ss = 0.;
