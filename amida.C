@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: amida.C 422 2003-10-15 10:50:28Z wistaria $
+* $Id: amida.C 427 2003-10-16 05:23:18Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -34,7 +34,8 @@
 *
 **************************************************************************/
 
-#include "amida2.h"
+#include "amida.h"
+#include "vectorhelper.h"
 
 #include <boost/random.hpp>
 #include <cstdlib>
@@ -50,6 +51,84 @@ const std::size_t n_nodes = 50;
 #ifdef BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
 using namespace looper;
 #endif
+
+template<class T>
+int index(const looper::amida<T>& a,
+	  const looper::amida<std::size_t>::iterator& itr)
+{
+  return looper::index_helper<>::index(a.base(),
+    static_cast<looper::amida_node<T> *>(itr.node_));
+}
+
+template<class T>
+void erase(looper::amida<T>& a, int n)
+{
+  looper::amida_node<T> * ptr =
+    const_cast<looper::amida_node<T> *>(&(a.base()[n]));
+  typename looper::amida<T>::iterator itr(ptr, ptr->series[0]);
+  a.erase(itr);
+}
+
+template<class T>
+void output_serial(const looper::amida<T>& a, std::ostream& os = std::cout)
+{
+  os << "[amida Information]\n";
+  for (std::size_t i = 0; i != a.base().size(); ++i) {
+    looper::amida_node<T> * p =
+      const_cast<looper::amida_node<T> *>(&(a.base()[i]));
+    typename looper::amida<T>::iterator s0(p, p->series[0]);
+    typename looper::amida<T>::iterator s1(p, p->series[1]);
+    if (!p->is_vacant()) {
+      if (p->at_boundary()) {
+        if (p->at_bottom()) {
+          os << index(a, s0) << '\t' << "root at " << s0.ser_;
+          os << " :\t" << "next node is "
+             << index(a, s0 + 1);
+          os << "  ";
+	  os << "node: " << index(a, s0) << ", contents: " << p->data_;
+          os << std::endl;
+        } else {
+          os << index(a, s0) << '\t' << "goal at " << s0.ser_;
+          os << " :\t" << "prev node is " 
+             << index(a, s0 - 1);
+          os << "  ";
+	  os << "node: " << index(a, s0) << ", contents: " << p->data_;
+          os << std::endl;
+        }
+      } else {
+        os << index(a, s0) << '\t' << "node connecting "
+           << s0.ser_ << " and " << s1.ser_;
+        os << " :\t" << index(a, s0 + 1);
+        os << ' ' << index(a, s0 - 1);
+        os << ' ' << index(a, s1 + 1);
+        os << ' ' << index(a, s1 - 1);
+        os << '\t';
+	os << "node: " << index(a, s0) << ", contents: " << p->data_;
+        os << std::endl;
+      }
+    }
+  }
+}
+
+template<class T>
+void output_stack(const looper::amida<T>& a, std::ostream& os = std::cout)
+{
+  os << "[amida Stack Information]\n";
+  for (looper::amida_node_base * s =
+	 const_cast<looper::amida_node_base *>(a.vacant()); s != 0;
+       s = s->next[0]) {
+    typename looper::amida<T>::iterator
+      itr(static_cast<typename looper::amida<T>::node_type *>(s),
+	  s->series[0]);
+    os << index(a, itr) << "->";
+  }
+  os << "NULL\n";
+}
+
+template<class T>
+std::ostream& operator<<(std::ostream& os, const looper::amida<T>& a)
+{ output_serial(a, os); output_stack(a, os); return os; }
+
 
 int main() {
 
@@ -77,13 +156,13 @@ try {
     looper::amida<std::size_t>::iterator r = 
       amida.insert_link_next(0, r0, r1).first;
     std::cout << "node connecting " << n0 << " and " << n1 
-	      << " inserted at " << index(a, amida) << std::endl;
+	      << " inserted at " << index(amida, r) << std::endl;
   }
 
-  amida.erase(10);
-  amida.erase(16);
-  amida.erase(17);
-  amida.erase(12);
+  erase(amida, 10);
+  erase(amida, 16);
+  erase(amida, 17);
+  erase(amida, 12);
 
   std::cout << std::endl;
   std::cout << amida;
@@ -92,59 +171,59 @@ try {
 
   for (std::size_t i = 0; i < n_series; i++) {
     std::cout << i << '\t';
-    looper::amida<std::size_t>::series_iterator a = amida.series(i).first;
-    while (! a->at_top()) {
-      std::cout << "(" << index(a, amida) << ',' << leg(a) << ")->";
-      a++;
+    looper::amida<std::size_t>::iterator a = amida.series(i).first;
+    while (! a.at_top()) {
+      std::cout << "(" << index(amida, a) << ',' << a.leg() << ")->";
+      ++a;
     }
-    std::cout << "(" << index(a, amida) << ',' << leg(a) << ")\n";
+    std::cout << "(" << index(amida, a) << ',' << a.leg() << ")\n";
   }
 
   std::cout << "\n[[ trace along world line ]]\n";
   for (std::size_t i = 0; i < n_series; i++) {
-    looper::amida<std::size_t>::series_iterator a = amida.series(i).first;
-    std::cout << "[" << index(a, amida) << "," << series(a) << "]";
-    a++;
-    while (! a->at_boundary()) {
-      std::cout << "->(" << index(a, amida) << "," << series(a) << ")";
-      jump(a);
-      std::cout << "->(" << index(a, amida) << "," << series(a) << ")";
-      a++;
+    looper::amida<std::size_t>::iterator a = amida.series(i).first;
+    std::cout << "[" << index(amida, a) << "," << a.series() << "]";
+    ++a;
+    while (! a.at_boundary()) {
+      std::cout << "->(" << index(amida, a) << "," << a.series() << ")";
+      a.jump();
+      std::cout << "->(" << index(amida, a) << "," << a.series() << ")";
+      ++a;
     }
-    std::cout << "->[" << index(a, amida) << "," << series(a) << "]\n";
+    std::cout << "->[" << index(amida, a) << "," << a.series() << "]\n";
   }
 
   std::cout << "\n[[ trace along loop ]]\n";
   std::size_t d;
 
   for (std::size_t i = 0; i < n_series; i++) {
-    looper::amida<std::size_t>::series_iterator a = amida.series(i).first;
+    looper::amida<std::size_t>::iterator a = amida.series(i).first;
     d = 0; // upward
-    std::cout << "[" << index(a, amida) << "," << series(a) << "]";
-    proceed(a, d);
-    while (! a->at_boundary()) {
+    std::cout << "[" << index(amida, a) << "," << a.series() << "]";
+    if (d == 0) ++a; else --a; // proceed(a, d);
+    while (! a.at_boundary()) {
       d ^= 1;
-      std::cout << "->(" << index(a, amida) << "," << series(a) << ")";
-      jump(a);
-      std::cout << "->(" << index(a, amida) << "," << series(a) << ")";
-      proceed(a, d);
+      std::cout << "->(" << index(amida, a) << "," << a.series() << ")";
+      a.jump();
+      std::cout << "->(" << index(amida, a) << "," << a.series() << ")";
+      if (d == 0) ++a; else --a; // proceed(a, d);
     }
-    std::cout << "->[" << index(a, amida) << "," << series(a) << "]\n";
+    std::cout << "->[" << index(amida, a) << "," << a.series() << "]\n";
   }
 
   for (std::size_t i = 0; i < n_series; i++) {
-    looper::amida<std::size_t>::series_iterator a = amida.series(i).second;
+    looper::amida<std::size_t>::iterator a = amida.series(i).second;
     d = 1; // downward
-    std::cout << "[" << index(a, amida) << "," << series(a) << "]";
-    proceed(a, d);
-    while (! a->at_boundary()) {
+    std::cout << "[" << index(amida, a) << "," << a.series() << "]";
+    if (d == 0) ++a; else --a; // proceed(a, d);
+    while (! a.at_boundary()) {
       d ^= 1;
-      std::cout << "->(" << index(a, amida) << "," << series(a) << ")";
-      jump(a);
-      std::cout << "->(" << index(a, amida) << "," << series(a) << ")";
-      proceed(a, d);
+      std::cout << "->(" << index(amida, a) << "," << a.series() << ")";
+      a.jump();
+      std::cout << "->(" << index(amida, a) << "," << a.series() << ")";
+      if (d == 0) ++a; else --a; // proceed(a, d);
     }
-    std::cout << "->[" << index(a, amida) << "," << series(a) << "]\n";
+    std::cout << "->[" << index(amida, a) << "," << a.series() << "]\n";
   }
 
   std::cout << "[Save & load test]\n";
@@ -164,18 +243,18 @@ try {
   }
 
   for (std::size_t i = 0; i < n_series; i++) {
-    looper::amida<std::size_t>::series_iterator a = amida.series(i).second;
+    looper::amida<std::size_t>::iterator a = amida.series(i).second;
     d = 1; // downward
-    std::cout << "[" << index(a, amida) << "," << series(a) << "]";
-    proceed(a, d);
-    while (! a->at_boundary()) {
+    std::cout << "[" << index(amida, a) << "," << a.series() << "]";
+    if (d == 0) ++a; else --a; // proceed(a, d);
+    while (! a.at_boundary()) {
       d ^= 1;
-      std::cout << "->(" << index(a, amida) << "," << series(a) << ")";
-      jump(a);
-      std::cout << "->(" << index(a, amida) << "," << series(a) << ")";
-      proceed(a, d);
+      std::cout << "->(" << index(amida, a) << "," << a.series() << ")";
+      a.jump();
+      std::cout << "->(" << index(amida, a) << "," << a.series() << ")";
+      if (d == 0) ++a; else --a; // proceed(a, d);
     }
-    std::cout << "->[" << index(a, amida) << "," << series(a) << "]\n";
+    std::cout << "->[" << index(amida, a) << "," << a.series() << "]\n";
   }
 
 #ifndef BOOST_NO_EXCEPTIONS

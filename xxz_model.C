@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: xxz_model.C 422 2003-10-15 10:50:28Z wistaria $
+* $Id: xxz_model.C 427 2003-10-16 05:23:18Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -51,7 +51,7 @@ void output(const G& graph, const looper::xxz_model& m)
   if (m.is_uniform_spin()) {
     std::cout << "S = " << m.uniform_spin() << std::endl;
   }
-  alps::property_map<alps::site_type_t, graph_type, int>::const_type
+  typename alps::property_map<alps::site_type_t, graph_type, int>::const_type
     site_type(alps::get_or_default(alps::site_type_t(), graph, 0));
   vertex_iterator vi_end = boost::vertices(graph).second;
   for (vertex_iterator vi = boost::vertices(graph).first; vi != vi_end;
@@ -69,7 +69,7 @@ void output(const G& graph, const looper::xxz_model& m)
 	      << ", Jz = " << m.uniform_bond().Jz
 	      << std::endl;
   }
-  alps::property_map<alps::bond_type_t, graph_type, int>::const_type
+  typename alps::property_map<alps::bond_type_t, graph_type, int>::const_type
     bond_type(alps::get_or_default(alps::bond_type_t(), graph, 0));
   edge_iterator ei_end = boost::edges(graph).second;
   for (edge_iterator ei = boost::edges(graph).first; ei != ei_end; ++ei) {

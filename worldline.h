@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: worldline.h 422 2003-10-15 10:50:28Z wistaria $
+* $Id: worldline.h 427 2003-10-16 05:23:18Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -298,8 +298,8 @@ class world_line
 {
 public:
   typedef node<HasCTime>                     node_type;
-  typedef typename amida<node_type>::pointer         node_pointer;
-  typedef typename amida<node_type>::series_iterator series_iterator;
+  // typedef typename amida<node_type>::pointer         node_pointer;
+  typedef typename amida<node_type>::iterator iterator;
 
   static const bool has_ctime = HasCTime;
 

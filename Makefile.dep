@@ -1,6 +1,6 @@
-amida.o amida_mpi.o amida_pvm.o amida amida_mpi amida_pvm: $(srcdir)/amida2.h
-deque.o deque_mpi.o deque_pvm.o deque deque_mpi deque_pvm: $(srcdir)/deque.h
+amida.o amida_mpi.o amida_pvm.o amida amida_mpi amida_pvm: $(srcdir)/amida.h $(srcdir)/vectorhelper.h
 fill_duration.o fill_duration_mpi.o fill_duration_pvm.o fill_duration fill_duration_mpi fill_duration_pvm: $(srcdir)/random.h
+index_helper.o index_helper_mpi.o index_helper_pvm.o index_helper index_helper_mpi index_helper_pvm: $(srcdir)/vectorhelper.h
 permutation.o permutation_mpi.o permutation_pvm.o permutation permutation_mpi permutation_pvm: $(srcdir)/permutation.h
 pi_weight.o pi_weight_mpi.o pi_weight_pvm.o pi_weight pi_weight_mpi pi_weight_pvm: $(srcdir)/pathintegral.h $(srcdir)/graph.h $(srcdir)/xxz.h
 simple_pi.o simple_pi_mpi.o simple_pi_pvm.o simple_pi simple_pi_mpi simple_pi_pvm: $(srcdir)/graph.h $(srcdir)/random.h $(srcdir)/virtualgraph.h $(srcdir)/worldline.h $(srcdir)/amida.h $(srcdir)/unionfind.h $(srcdir)/xxz.h

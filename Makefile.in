@@ -50,10 +50,10 @@ libs_program_mpi = -lalps -lcomm-mpi $(HDF5_LIBS) $(XML_LIBS) $(MPI_LIBS) $(BASE
 OBJ_PROGRAM =
 OBJ_PROGRAM_MPI = $(OBJ_PROGRAM)
 PROGRAM_MPI =
-PROGRAM = simple_pi @PROGRAM_MPI@
+# PROGRAM = simple_pi @PROGRAM_MPI@
 
 LOCAL_CONFIG = lattices.xml models.xml amida.xdr
-TESTOK = amida.ok fill_duration.ok permutation.ok pi_weight.ok simplegraph.ok unionfind.ok xxz_matrix.ok xxz_model.ok virtualgraph.ok
+TESTOK = amida.ok fill_duration.ok index_helper.ok permutation.ok pi_weight.ok simplegraph.ok unionfind.ok xxz_matrix.ok xxz_model.ok virtualgraph.ok
 
 include $(RULES_MK)
 include $(srcdir)/Makefile.dep
