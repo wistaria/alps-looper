@@ -76,6 +76,36 @@ void LOOPER_FCALL(zheev,ZHEEV)(const char& jobz, const char& uplo, const int& n,
                              double rwork[],
                              int& info);
 
+// Simple Driver Routines for Solving Linear Equations for General Matrices
+
+// SGESV:
+void LOOPER_FCALL(sgesv,SGESV)(const int& n, const int& nrhs, 
+			       float a[], const int& lda,
+			       int ipiv[],
+			       float b[], const int& lbd,
+			       int& info);
+
+// DGESV:
+void LOOPER_FCALL(dgesv,DGESV)(const int& n, const int& nrhs, 
+			       double a[], const int& lda,
+			       int ipiv[],
+			       double b[], const int& lbd,
+			       int& info);
+
+// CGESV:
+void LOOPER_FCALL(cgesv,CGESV)(const int& n, const int& nrhs, 
+			       std::complex<float> a[], const int& lda,
+			       int ipiv[],
+			       std::complex<float> b[], const int& lbd,
+			       int& info);
+
+// ZGESV:
+void LOOPER_FCALL(zgesv,ZGESV)(const int& n, const int& nrhs, 
+			       std::complex<double> a[], const int& lda,
+			       int ipiv[],
+			       std::complex<double> b[], const int& lbd,
+			       int& info);
+
 #if defined(c_plusplus) || defined(__cplusplus)
 }
 #endif
@@ -98,7 +128,6 @@ inline void syev(const char & jobz, const char& uplo, const int& n,
   work  = new float[lwork];
   LOOPER_FCALL(ssyev,SSYEV)(jobz, uplo, n, a, lda, w, work, lwork, info);
   delete [] work;
-
 }
 
 inline void syev(const char & jobz, const char& uplo, const int& n,
@@ -153,6 +182,30 @@ inline void syev(const char & jobz, const char& uplo, const int& n,
   delete [] work;
 }
 
+inline void gesv(const int& n, const int& nrhs,
+		 float a[], const int& lda, int ipiv[],
+		 float b[], const int& ldb, int& info) {
+  LOOPER_FCALL(sgesv,SGESV)(n, nrhs, a, lda, ipiv, b, ldb, info);
+}
+
+inline void gesv(const int& n, const int& nrhs,
+		 double a[], const int& lda, int ipiv[],
+		 double b[], const int& ldb, int& info) {
+  LOOPER_FCALL(dgesv,DGESV)(n, nrhs, a, lda, ipiv, b, ldb, info);
+}
+
+inline void gesv(const int& n, const int& nrhs,
+		 std::complex<float> a[], const int& lda, int ipiv[],
+		 std::complex<float> b[], const int& ldb, int& info) {
+  LOOPER_FCALL(cgesv,CGESV)(n, nrhs, a, lda, ipiv, b, ldb, info);
+}
+
+inline void gesv(const int& n, const int& nrhs,
+		 std::complex<double> a[], const int& lda, int ipiv[],
+		 std::complex<double> b[], const int& ldb, int& info) {
+  LOOPER_FCALL(zgesv,ZGESV)(n, nrhs, a, lda, ipiv, b, ldb, info);
+}
+
 } // namespace lapack_dispatch
 
 namespace {
@@ -200,6 +253,21 @@ inline void diagonalize(Matrix& a, Vector& w, bool need_eigenvectors = true)
                         vector_helper<Vector>::begin_ptr(w),
                         info);
   if (info != 0) throw std::runtime_error("failed in syev");
+}
+
+template <class Matrix, class Vector>
+inline void solve_leq(Matrix& a, Vector& b)
+{
+  int n = vector_helper<Vector>::size(b);
+  int info;
+
+  // call dispatcher
+  int* ipiv = new int[n];
+  lapack_dispatch::gesvv(n, 1,
+			 matrix_helper<Matrix>::begin_ptr(a), n, ipiv,
+			 vector_helper<Vector>::begin_ptr(b), n, info);
+  delete [] ipiv;
+  if (info != 0) throw std::runtime_error("failed in gesv");
 }
 
 } // end namespace looper
