@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: path_integral.h 462 2003-10-22 15:36:14Z wistaria $
+* $Id: path_integral.h 463 2003-10-23 15:27:30Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -440,7 +440,7 @@ struct path_integral<virtual_graph<G>, M, W>
   template<bool HasCTime>
   static double energy_z(const config_type<HasCTime>& config,
 			 const vg_type& vg, const model_type& model,
-			 double beta)
+			 double /* beta */)
   {
     typedef typename config_type<HasCTime>::const_iterator const_iterator;
     double ene = 0.;

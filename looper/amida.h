@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: amida.h 460 2003-10-22 12:50:20Z wistaria $
+* $Id: amida.h 463 2003-10-23 15:27:30Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -154,7 +154,7 @@ struct amida_series_iterator_base
   size_type leg_;
 
   amida_series_iterator_base() : node_(), ser_(), leg_() {}
-  amida_series_iterator_base(const amida_node_base* x, size_type s)
+  amida_series_iterator_base(amida_node_base* x, size_type s)
     : node_(x), ser_(s), leg_()
   {
     if (node_)
@@ -197,24 +197,43 @@ struct amida_series_iterator_base
 };
 
 
-template<class T, class Ref, class Ptr>
-struct amida_series_iterator : public amida_series_iterator_base
+template<class T>
+struct amida_const_series_iterator : public amida_series_iterator_base
 {
-  typedef amida_series_iterator<T, T&, T*>             series_iterator;
-  typedef amida_series_iterator<T, const T&, const T*> const_series_iterator;
-  typedef amida_series_iterator<T, Ref, Ptr>           self_;
-
   typedef std::size_t   size_type;
   typedef T             value_type;
-  typedef Ref           reference;
-  typedef Ptr           pointer;
+  typedef const T&      const_reference;
+  typedef const T*      const_pointer;
   typedef amida_node<T> node_type;
+  typedef amida_const_series_iterator<T> self_;
+
+  amida_const_series_iterator() {}
+  amida_const_series_iterator(node_type* x, size_type s)
+    : amida_series_iterator_base(x, s) {}
+
+  const_reference operator*() const { return ((node_type*)node_)->data_; }
+  const_pointer operator->() const { return &(operator*()); }
+
+  self_ operator++() { this->incr(); return *this; }
+  self_ operator++(int) { self_ tmp = *this; this->incr(); return tmp; }
+  self_ operator--() { this->decr(); return *this; }
+  self_ operator--(int) { self_ tmp = *this; this->decr(); return tmp; }
+};
+
+
+template<class T>
+struct amida_series_iterator : public amida_const_series_iterator<T>
+{
+  typedef amida_const_series_iterator<T> base_;
+  typedef typename base_::size_type      size_type;
+  typedef T                              value_type;
+  typedef T&                             reference;
+  typedef T*                             pointer;
+  typedef amida_node<T>                  node_type;
+  typedef amida_series_iterator<T>       self_;
 
   amida_series_iterator() {}
-  amida_series_iterator(const node_type* x, size_type s)
-    : amida_series_iterator_base(x, s) {}
-  amida_series_iterator(const series_iterator& x)
-    : amida_series_iterator_base(x.node_, x.ser_) {}
+  amida_series_iterator(node_type* x, size_type s) : base_(x, s) {}
 
   reference operator*() const { return ((node_type*)node_)->data_; }
   pointer operator->() const { return &(operator*()); }
@@ -223,57 +242,7 @@ struct amida_series_iterator : public amida_series_iterator_base
   self_ operator++(int) { self_ tmp = *this; this->incr(); return tmp; }
   self_ operator--() { this->decr(); return *this; }
   self_ operator--(int) { self_ tmp = *this; this->decr(); return tmp; }
-
-#if false 
-  self_ operator+(int n) const {
-    self_ temp = *this;
-    for (int i = 0; i < n; ++i) ++temp;
-    return temp;
-  }
-  self_ operator-(int n) const {
-    self_ temp = *this;
-    for (int i = 0; i < n; ++i) --temp;
-    return temp;
-  }
-#endif
 };
-
-
-struct amida_series_base
-{
-  typedef std::size_t size_type;
-  
-  amida_node_base* bottom_;
-  amida_node_base* top_;
-  size_type ser_;
-
-  amida_series_base() : bottom_(), top_(), ser_() {}
-  amida_series_base(amida_node_base* b, amida_node_base* t, size_type s)
-    : bottom_(b), top_(t), ser_(s) {}
-  ~amida_series_base() {}
-};
-
-
-// template<class T>
-// struct amida_series
-// {
-//   typedef std::size_t                           size_type;
-//   typedef T                                     value_type;
-//   typedef amida_series_iterator<T, T&, T*>             iterator;
-//   typedef amida_series_iterator<T, const T&, const T*> const_iterator;
-//   typedef amida_node<T>                         node_type;
-
-//   amida_series() : amida_series_base() {}
-//   amida_series(node_type* b, node_type* t, size_type s)
-//     : amida_series_base(b, t, s) {}
-//   amida_series(const amida_series& x) : amida_series_base(x.b, x.t, x.s) {}
-//   ~amida_series() {}
-
-//   iterator begin() const { return iterator(bottom_, ser_); }
-//   const_iterator begin() const { return const_iterator(bottom_, ser_); }
-//   iterator end() const { return iterator(top_, ser_); }
-//   const_iterator end() const { return const_iterator(top_, ser_); }
-// }
 
 
 template<class T>
@@ -286,10 +255,9 @@ public:
   typedef const T&                       const_reference;
   typedef T*                             pointer;
   typedef const T*                       const_pointer;
-  // typedef amida_series<T>                series;
-  typedef amida_series_iterator<T, T&, T*> iterator;
-  typedef amida_series_iterator<T, const T&, const T*> const_iterator;
-  typedef amida_node<T>   node_type;
+  typedef amida_series_iterator<T>       iterator;
+  typedef amida_const_series_iterator<T> const_iterator;
+  typedef amida_node<T>                  node_type;
 
   // constructors
   explicit amida(size_type r = 0)
@@ -334,8 +302,9 @@ public:
   }
   std::pair<const_iterator, const_iterator> series(size_type s) const
   {
-    return std::make_pair(const_iterator(&array_[s], s),
-			  const_iterator(&array_[s + num_series_], s));
+    return std::make_pair(
+      const_iterator(const_cast<node_type *>(&array_[s]), s),
+      const_iterator(const_cast<node_type *>(&array_[s + num_series_]), s));
   }
 
   std::pair<iterator, iterator>
