@@ -29,7 +29,7 @@ DEALINGS IN THE SOFTWARE.
   Version 1
     1997        version 1      FORTRAN 77 only works for S=1/2,
                                bipartite lattice,
-                               Heisenberg and easy plan anisotropy
+                               Heisenberg and easy plane anisotropy
   Version 2.0
     1998/10/09  version 2.0    Fortran 90, large S support
   Version 2.1
@@ -45,13 +45,8 @@ DEALINGS IN THE SOFTWARE.
     2001/10/26          2.9.6
 
   Version 3.0
-    2003/06/26  version 3.0a   Based on ALPS framework
-    2003/11/05          3.0b1
-    2003/11/06          3.0b2
-    2003/11/14          3.0b3
-    2003/11/20          3.0b4
-    2004/04/07          3.0b5
-    2004/06/11          3.0
+    2004/06/11          3.0    Based on ALPS framework
+    2004/09/23          3.1    Negative sign support
 
 * Developers
 

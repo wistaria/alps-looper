@@ -40,7 +40,7 @@ dist_noinst_DATA = \
 	postorder.ip postorder.op \
 	random_choice.op \
 	sign.ip sign.op \
-	site_matrix.op \
+	site_matrix.ip site_matrix.op \
 	syev.op \
 	union_find.op \
 	virtual_graph.op \
