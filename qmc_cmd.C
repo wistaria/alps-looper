@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: qmc_cmd.C 495 2003-11-01 03:45:49Z wistaria $
+* $Id: qmc_cmd.C 513 2003-11-05 03:41:16Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -34,10 +34,7 @@
 *
 **************************************************************************/
 
-#include <looper/copyright.h>
-#include <looper/model.h>
-#include <looper/path_integral.h>
-#include <looper/sse.h>
+#include "qmc_impl.h"
 
 #include <alps/alea.h>
 #include <boost/random.hpp>
@@ -142,6 +139,20 @@ struct Options {
       }
     }
   }
+
+  void output(std::ostream& os = std::cout) const
+  {
+    os << seed << ' '
+       << dim << ' '
+       << lsize << ' '
+       << spin << ' '
+       << Jxy << ' '
+       << Jz << ' '
+       << temp << ' '
+       << step_t << ' '
+       << step_m << ' '
+       << (sse ? "SSE" : "PI");
+  }
 };
 
 
@@ -175,18 +186,11 @@ try {
   rng.base().seed(boost::mt19937::result_type(opts.seed));
   for (int i = 0; i < 19844; ++i) rng();
 
-  // hypercubic lattice
+  // hypercubic lattice (real lattice)
   typedef looper::parity_graph_type graph_type;
   graph_type g;
   looper::generate_graph(
     looper::hypercubic_graph_generator<>(opts.dim, opts.lsize), g);
-  alps::set_parity(g);
-
-  // virtual graph
-  typedef looper::virtual_graph<graph_type> vg_type;
-  vg_type vg;
-  std::vector<alps::half_integer<int> > spin(opts.dim, opts.spin);
-  looper::generate_virtual_graph(g, spin, vg);
 
   // model & inverse temperature
   typedef looper::xxz_model model_type;
@@ -195,164 +199,40 @@ try {
 
   // measurements
   alps::ObservableSet measurements;
-  typedef alps::RealObservable measurement_type;
-  measurements << measurement_type("diagonal energy");
-  measurements << measurement_type("diagonal energy (improved)");
-  measurements << measurement_type("off-diagonal energy");
-  measurements << measurement_type("energy");
-  measurements << measurement_type("uniform magnetization");
-  measurements << measurement_type("uniform susceptibility");
-  measurements << measurement_type("staggered magnetization");
-  measurements << measurement_type("staggered magnetization^2");
-  measurements << measurement_type("staggered susceptibility");
 
   if (!opts.sse) {
     // path-integral representation
-    typedef looper::path_integral<vg_type, model_type> qmc;
-
-    // QMC parameters
-    qmc::parameter_type param(vg, model, beta);
-
-    // world line configration
-    qmc::config_type<> config;
-    qmc::initialize(config, param);
-    
-    // energy offset
-    double e_offset = qmc::energy_offset(param);
+    qmc_worker<looper::path_integral<looper::virtual_graph<graph_type>,
+      model_type> > worker(g, model, beta, measurements);
 
     for (int mcs = 0; mcs < opts.step_t + opts.step_m; ++mcs) {
       if (mcs == opts.step_t) measurements.reset(true);
-      
-      qmc::generate_loops(config, param, rng);
-
-      ////std::cout << config.num_loops0 << ' ' << config.num_loops << std::endl;
-
-      // measure improved quantities here
-      measurements.
-	template get<measurement_type>("diagonal energy (improved)") <<
-	e_offset + qmc::energy_z_imp(config, param);
-
-      //qmc::flip_and_cleanup(config, vg, rng);
-      qmc::flip_and_cleanup(config, param, rng);
-      
-      // measure unimproved quantities here
-      double ez, exy;
-      boost::tie(ez, exy) = qmc::energy(config, param);
-      ez += e_offset;
-      measurements.
-	template get<measurement_type>("diagonal energy") << ez;
-      measurements.
-	template get<measurement_type>("off-diagonal energy") << exy;
-      measurements.
-	template get<measurement_type>("energy") << ez + exy;
-
-      double sz = qmc::uniform_sz(config, param);
-      measurements.
-	template get<measurement_type>("uniform magnetization") << sz;
-      measurements.
-	template get<measurement_type>("uniform susceptibility") <<
-	beta * vg.num_real_vertices * sz * sz;
-
-      double ss = qmc::staggered_sz(config, param);
-      measurements.
-	template get<measurement_type>("staggered magnetization") << ss;
-      measurements.
-	template get<measurement_type>("staggered magnetization^2") <<
-	vg.num_real_vertices * ss * ss;
+      worker.step(rng, measurements);
     }
+
+    std::cout << measurements << std::endl; 
+    opts.output();
+    std::cout << ' ';
+    worker.output_results(std::cout, measurements);
+    std::cout << std::endl;
   } else {
     // SSE representation
-    typedef looper::sse<vg_type, model_type> qmc;
-
-    // QMC parameters
-    qmc::parameter_type param(vg, model, beta);
-
-    // world line configration
-    qmc::config_type config;
-    qmc::initialize(config, param);
-    
-    // energy offset
-    double e_offset = qmc::energy_offset(param);
+    qmc_worker<looper::sse<looper::virtual_graph<graph_type>,
+      model_type> > worker(g, model, beta, measurements);
 
     for (int mcs = 0; mcs < opts.step_t + opts.step_m; ++mcs) {
       if (mcs == opts.step_t) measurements.reset(true);
-
-      qmc::check_and_expand(config, rng);
-      qmc::generate_loops(config, param, rng);
-
-      // measure improved quantities here
-      measurements.
- 	template get<measurement_type>("diagonal energy (improved)") <<
- 	e_offset + qmc::energy_z_imp(config, param);
-
-      qmc::flip_and_cleanup(config, param, rng);
-      
-      ////qmc::output(config, param);
-
-      // measure unimproved quantities here
-      double ez;
-      double exy;
-      boost::tie(ez, exy) = qmc::energy(config, param);
-      ez += e_offset;
-      measurements.
- 	template get<measurement_type>("diagonal energy") << ez;
-      measurements.
- 	template get<measurement_type>("off-diagonal energy") << exy;
-      measurements.
- 	template get<measurement_type>("energy") << ez + exy;
-
-      double sz = qmc::uniform_sz(config, param);
-      measurements.
- 	template get<measurement_type>("uniform magnetization") << sz;
-      measurements.
- 	template get<measurement_type>("uniform susceptibility") <<
- 	beta * vg.num_real_vertices * sz * sz;
-
-      double ss = qmc::staggered_sz(config, param);
-      measurements.
-	template get<measurement_type>("staggered magnetization") << ss;
-      measurements.
-	template get<measurement_type>("staggered magnetization^2") <<
-	vg.num_real_vertices * ss * ss;
+      worker.step(rng, measurements);
     }
+
+    std::cout << measurements << std::endl; 
+    opts.output();
+    std::cout << ' ';
+    worker.output_results(std::cout, measurements);
+    std::cout << std::endl;
   }
 
   // output results
-  std::cout << measurements;
-
-  std::cout << std::endl
-	    << opts.seed << ' '
-	    << opts.dim << ' '
-	    << opts.lsize << ' '
-	    << opts.spin << ' '
-	    << opts.Jxy << ' '
-	    << opts.Jz << ' '
-	    << opts.temp << ' '
-	    << opts.step_t << ' '
-	    << opts.step_m << ' '
-	    << (opts.sse ? "SSE" : "PI") << ' '
-
-	    << measurements.template
-                 get<measurement_type>("diagonal energy").mean() << ' '
-	    << measurements.template
-                 get<measurement_type>("diagonal energy").error() << ' '
-	    << measurements.template
-                 get<measurement_type>("off-diagonal energy").mean() << ' '
-	    << measurements.template
-                 get<measurement_type>("off-diagonal energy").error() << ' '
-	    << measurements.template
-                 get<measurement_type>("energy").mean() << ' '
-	    << measurements.template
-                 get<measurement_type>("energy").error() << ' '
-	    << measurements.template
-                 get<measurement_type>("uniform susceptibility").mean() << ' '
-	    << measurements.template
-                 get<measurement_type>("uniform susceptibility").error() << ' '
-	    << measurements.template
-                 get<measurement_type>("staggered magnetization^2").mean() << ' '
-	    << measurements.template
-                 get<measurement_type>("staggered magnetization^2").error() << ' '
-	    << std::endl;
 
 #ifndef BOOST_NO_EXCEPTIONS
 } 

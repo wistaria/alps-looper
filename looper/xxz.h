@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: xxz.h 487 2003-10-30 09:55:12Z wistaria $
+* $Id: xxz.h 513 2003-11-05 03:41:16Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -245,6 +245,12 @@ public:
   xxz_model(double Jxy, double Jz, const alps::half_integer<I>& spin,
 	    const G& graph) : spin_(), bond_()
   { set_parameters(Jxy, Jz, spin, graph); }
+  template<class G, class IntType>
+  xxz_model(const alps::Parameters params, const G& graph,
+	    const alps::ModelLibrary::OperatorDescriptorMap& ops,
+	    const alps::HamiltonianDescriptor<IntType>& hd)
+    : spin_(), bond_()
+  { set_parameters(params, graph, ops, hd); }
   template<class G>
   xxz_model(const alps::Parameters params, const G& graph,
 	    const alps::ModelLibrary& models) : spin_(), bond_()
@@ -284,22 +290,16 @@ public:
     }
   }
   
-  template<class G>
-  void set_parameters(const alps::Parameters params,
-		      const G& graph,
-		      const alps::ModelLibrary& models)
+  template<class G, class IntType>
+  void set_parameters(const alps::Parameters params, const G& graph,
+		      const alps::ModelLibrary::OperatorDescriptorMap& ops,
+		      const alps::HamiltonianDescriptor<IntType>& hd)
   {
     typedef G graph_type;
     typedef typename boost::graph_traits<graph_type>::vertex_iterator
       vertex_iterator;
     typedef typename boost::graph_traits<graph_type>::edge_iterator
       edge_iterator;
-    
-    // get Hamilton operator
-    alps::HamiltonianDescriptor<short> hd(models.hamiltonian(params["MODEL"]));
-    alps::Parameters p(params);
-    p.copy_undefined(hd.default_parameters());
-    hd.set_parameters(p);
     
     // get site parameters
     typename alps::property_map<alps::site_type_t, graph_type,
@@ -328,10 +328,10 @@ public:
       if (!bond_visited[boost::make_tuple(bt, st0, st1)]) {
 	bond_visited[boost::make_tuple(bt, st0, st1)] = true;
 	boost::multi_array<double ,4> bm =
-	  hd.bond_term(bt).template matrix<double>(hd.basis().site_basis(st0),
-						   hd.basis().site_basis(st1),
-						   models.simple_operators(),
-						   p);
+	  hd.bond_term(bt).
+            template matrix<double>(hd.basis().site_basis(st0),
+				    hd.basis().site_basis(st1),
+				    ops, params);
 	boost::tuple<bool, double, double, double>
 	  fit = fit2xxz(spin_[st0], spin_[st1], bm);
 	if (!fit.template get<0>())
@@ -348,6 +348,19 @@ public:
 	}
       }
     }
+  }
+  
+  template<class G>
+  void set_parameters(const alps::Parameters params,
+		      const G& graph,
+		      const alps::ModelLibrary& models)
+  {
+    // get Hamilton operator from ModelLibrary
+    alps::HamiltonianDescriptor<short> hd(models.hamiltonian(params["MODEL"]));
+    alps::Parameters p(params);
+    p.copy_undefined(hd.default_parameters());
+    hd.set_parameters(p);
+    set_parameters(p, graph, models.simple_operators(), hd);
   }
   
   int num_spin_types() const { return spin_.size(); }

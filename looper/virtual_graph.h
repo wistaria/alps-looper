@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: virtual_graph.h 470 2003-10-28 05:59:14Z wistaria $
+* $Id: virtual_graph.h 513 2003-11-05 03:41:16Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -129,15 +129,13 @@ struct virtual_graph
 
 // function generate_virtual_graph
 
-template<class G, class IntType>
-inline void generate_virtual_graph(const G& rg,
-  const std::vector<alps::half_integer<IntType> >& spins,
-  virtual_graph<G>& vg)
+template<class RG, class MDL>
+inline void generate_virtual_graph(const RG& rg, const MDL& model,
+				   virtual_graph<RG>& vg)
 {
-  typedef G                                       rgraph_type;
-  typedef alps::half_integer<IntType>             spin_type;
-  typedef typename virtual_graph<G>::graph_type   vgraph_type;
-  typedef typename virtual_graph<G>::mapping_type mapping_type;
+  typedef RG                                       rgraph_type;
+  typedef typename virtual_graph<RG>::graph_type   vgraph_type;
+  typedef typename virtual_graph<RG>::mapping_type mapping_type;
 
   vg.graph.clear();
   vg.mapping.clear();
@@ -154,7 +152,7 @@ inline void generate_virtual_graph(const G& rg,
   typename rgraph_type::vertex_iterator rvi, rvi_end;
   for (boost::tie(rvi, rvi_end) = boost::vertices(rg); rvi != rvi_end; ++rvi) {
     int t = boost::get(vertex_type_t(), rg, *rvi);
-    for (int i = 0; i < spins.at(t).get_twice(); ++i) {
+    for (int i = 0; i < model.spin(t).get_twice(); ++i) {
       // add vertices to virtual graph
       typename vgraph_type::vertex_descriptor
 	vvd = boost::add_vertex(vg.graph);
@@ -172,7 +170,7 @@ inline void generate_virtual_graph(const G& rg,
   typename vgraph_type::vertex_iterator vvi_last = vvi_first;
   for (boost::tie(rvi, rvi_end) = boost::vertices(rg); rvi != rvi_end; ++rvi) {
     int t = boost::get(vertex_type_t(), rg, *rvi);
-    for (int i = 0; i < spins.at(t).get_twice(); ++i)
+    for (int i = 0; i < model.spin(t).get_twice(); ++i)
       ++vvi_last;
     vg.mapping.add(vvi_first, vvi_last);
     vvi_first = vvi_last;
@@ -201,17 +199,42 @@ inline void generate_virtual_graph(const G& rg,
   }
 }
 
+namespace vg_detail {
+
+template<class T>
+struct vector_spin_wrapper
+{
+  vector_spin_wrapper(const std::vector<T>& v) : vec_(v) {}
+  const T& spin(int i) const { return vec_[i]; }
+  const std::vector<T>& vec_;
+};
+
+template<class T>
+struct const_spin_wrapper
+{
+  const_spin_wrapper(const T& t) : t_(t) {}
+  const T& spin(int) const { return t_; }
+  const T& t_;
+};
+
+}
+
 template<class G, class IntType>
 inline void generate_virtual_graph(const G& rg,
 				   alps::half_integer<IntType> s,
 				   virtual_graph<G>& vg)
 {
-  int maxtype = 0;
-  typename boost::graph_traits<G>::vertex_iterator vi, vi_end;
-  for (boost::tie(vi, vi_end) = boost::vertices(rg); vi != vi_end; ++vi)
-    maxtype = std::max(maxtype, boost::get(vertex_type_t(), rg, *vi));
-  std::vector<alps::half_integer<IntType> > spins(maxtype + 1, s);
-  generate_virtual_graph(rg, spins, vg);
+  generate_virtual_graph(rg,
+    vg_detail::const_spin_wrapper<alps::half_integer<IntType> >(s), vg);
+}
+
+template<class G, class IntType>
+inline void generate_virtual_graph(const G& rg,
+				   std::vector<alps::half_integer<IntType> > v,
+				   virtual_graph<G>& vg)
+{
+  generate_virtual_graph(rg,
+    vg_detail::vector_spin_wrapper<alps::half_integer<IntType> >(v), vg);
 }
   
 } // end namespace looper

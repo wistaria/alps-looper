@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: sse.h 495 2003-11-01 03:45:49Z wistaria $
+* $Id: sse.h 513 2003-11-05 03:41:16Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -50,15 +50,17 @@ namespace looper {
 typedef qmc_node sse_node;
 
 
-template<class G, class M, class W = default_weight> struct sse;
+template<class G, class M, class W = default_weight, class N = sse_node>
+struct sse;
 
-template<class G, class M, class W>
-struct sse<virtual_graph<G>, M, W>
+template<class G, class M, class W, class N>
+ struct sse<virtual_graph<G>, M, W, N>
 {
   typedef virtual_graph<G>                      vg_type;
   typedef typename virtual_graph<G>::graph_type graph_type;
   typedef M                                     model_type;
   typedef W                                     weight_type;
+  typedef N                                     node_type;
 
   typedef typename boost::graph_traits<graph_type>::edge_iterator
                                                     edge_iterator;
@@ -98,10 +100,10 @@ struct sse<virtual_graph<G>, M, W>
 
   struct config_type
   {
-    typedef std::vector<sse_node>            os_type;
+    typedef N                                node_type;
+    typedef std::vector<node_type>           os_type;
     typedef typename os_type::iterator       iterator;
     typedef typename os_type::const_iterator const_iterator;
-    typedef typename os_type::value_type     node_type;
 
     os_type bottom;
     os_type top;
@@ -112,9 +114,7 @@ struct sse<virtual_graph<G>, M, W>
     unsigned int num_loops;
   };
 
-  typedef typename config_type::iterator       operator_iterator;
-  typedef typename config_type::const_iterator const_operator_iterator;
-  
+
   //
   // update functions
   //
@@ -122,6 +122,8 @@ struct sse<virtual_graph<G>, M, W>
   // initialize
   static void initialize(config_type& config, const vg_type& vg, int ni = 16)
   {
+    typedef typename config_type::iterator operator_iterator;
+
     config.bottom.clear();
     config.bottom.resize(boost::num_vertices(vg.graph));
     config.top.clear();
@@ -163,9 +165,8 @@ struct sse<virtual_graph<G>, M, W>
     double expand_;
   };
 
-  template<class RNG, class EXP>
-  static void check_and_expand(config_type& config, RNG& /* uniform_01 */,
-			       const EXP& expander)
+  template<class EXP>
+  static void check_and_resize(config_type& config, const EXP& expander)
   {
     int old_size = config.os.size();
     if (expander.need_expansion(double(config.num_operators) / old_size)) {
@@ -176,11 +177,8 @@ struct sse<virtual_graph<G>, M, W>
       }
     }
   }
-  template<class RNG>
-  static void check_and_expand(config_type& config, RNG& uniform_01)
-  {
-    check_and_expand(config, uniform_01, default_expander());
-  }
+  static void check_and_resize(config_type& config)
+  { check_and_resize(config, default_expander()); }
 
   template<class RNG>
   static void generate_loops(config_type& config, const vg_type& vg,
@@ -188,6 +186,8 @@ struct sse<virtual_graph<G>, M, W>
 			     const bond_chooser<weight_type>& bc,
 			     RNG& uniform_01)
   {
+    typedef typename config_type::iterator operator_iterator;
+
     //
     // diagonal update & labeling
     //
@@ -400,6 +400,7 @@ struct sse<virtual_graph<G>, M, W>
   static void flip_and_cleanup(config_type& config, const vg_type& vg,
                                RNG& uniform_01)
   {
+    typedef typename config_type::iterator operator_iterator;
     typedef RNG rng_type;
 
     std::vector<int> flip(config.num_loops);
@@ -495,9 +496,10 @@ struct sse<virtual_graph<G>, M, W>
   static double energy_xy(const config_type& config, const vg_type& vg,
 			  double beta)
   {
+    typedef typename config_type::const_iterator const_operator_iterator;
     int n = 0;
-    operator_iterator oi_end = config.os.end();
-    for (operator_iterator oi = config.os.begin(); oi != oi_end; ++oi)
+    const_operator_iterator oi_end = config.os.end();
+    for (const_operator_iterator oi = config.os.begin(); oi != oi_end; ++oi)
       if (oi->is_offdiagonal()) ++n;
     return -(double)n / beta / vg.num_real_vertices;
   }
@@ -508,10 +510,11 @@ struct sse<virtual_graph<G>, M, W>
   energy(const config_type& config, const vg_type& vg, double beta,
 	 double ez_offset)
   {
+    typedef typename config_type::const_iterator const_operator_iterator;
     int nz = 0;
     int nxy = 0;
-    operator_iterator oi_end = config.os.end();
-    for (operator_iterator oi = config.os.begin(); oi != oi_end; ++oi) {
+    const_operator_iterator oi_end = config.os.end();
+    for (const_operator_iterator oi = config.os.begin(); oi != oi_end; ++oi) {
       if (oi->is_diagonal()) ++nz;
       if (oi->is_offdiagonal()) ++nxy;
     }
