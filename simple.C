@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: simple.C 452 2003-10-21 05:51:28Z wistaria $
+* $Id: simple.C 453 2003-10-21 06:07:38Z wistaria $
 *
 * Copyright (C) 2001-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -35,7 +35,7 @@
 **************************************************************************/
 
 #include "model.h"
-#include "pathintegral.h"
+#include "path_integral.h"
 #include "sse.h"
 
 #include <alps/alea.h>

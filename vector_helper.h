@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: vectorhelper.h 437 2003-10-17 01:23:36Z wistaria $
+* $Id: vector_helper.h 453 2003-10-21 06:07:38Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -34,8 +34,8 @@
 *
 **************************************************************************/
 
-#ifndef LOOPER_VECTORHELPER_H
-#define LOOPER_VECTORHELPER_H
+#ifndef LOOPER_VECTOR_HELPER_H
+#define LOOPER_VECTOR_HELPER_H
 
 #include <algorithm>
 #include <deque>
@@ -211,4 +211,4 @@ private:
 
 } // end namespace looper
 
-#endif // LOOPER_VECTORHELPER_H
+#endif // LOOPER_VECTOR_HELPER_H

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: virtualgraph.C 447 2003-10-18 08:35:39Z wistaria $
+* $Id: union_find.C 453 2003-10-21 06:07:38Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -34,49 +34,56 @@
 *
 **************************************************************************/
 
-#include "graph.h"
-#include "virtualgraph.h"
-#include <alps/model.h>
+#include "union_find.h"
+#include <boost/random.hpp>
+
 #include <iostream>
+#include <valarray>
 
 #ifdef BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
-using namespace alps;
+using namespace looper;
 #endif
 
-int main() {
+const int n = 100;
 
-#ifndef BOOST_NO_EXCEPTIONS
-try {
-#endif
+template<class Itr0, class Itr1>
+int index(const Itr0& itr, const Itr1& base) {
+  return &(*itr) - &(*base);
+}
 
-  typedef looper::graph_type graph_type;
-  typedef graph_type::vertex_iterator vertex_iterator;
-  typedef graph_type::edge_iterator edge_iterator;
+int main()
+{
+  typedef std::vector<looper::union_find::node<> > vector_type;
+  typedef boost::mt19937 rng_type;
+  typedef boost::uniform_int<> uniform_int;
 
-  // real graph
-  looper::simple_hypercubic_graph_descriptor<> shgd(2, 2);
-  graph_type rg;
-  looper::generate_graph(shgd, rg);
-  boost::put(looper::vertex_type_t(), rg, *(boost::vertices(rg).first), 1);
-  std::cout << rg;
+  rng_type rng;
   
-  // virtual graph
-  looper::virtual_graph<graph_type> vg;
-  std::vector<alps::half_integer<int> > spins(2);
-  spins[0] = 1; spins[1] = 3./2;
-  looper::generate_virtual_graph(rg, spins, vg);
+  std::cout << "[[union find test]]\n";
 
-  std::cout << vg.graph;
-  std::cout << vg.mapping;
+  vector_type tree(n);
 
-#ifndef BOOST_NO_EXCEPTIONS
-} 
-catch (const std::exception& excp) {
-  std::cerr << excp.what() << std::endl;
-  std::exit(-1); }
-catch (...) {
-  std::cerr << "Unknown exception occurred!" << std::endl;
-  std::exit(-1); }
-#endif
+  std::cout << "\n[making tree]\n";
 
+  for (int i = 0; i < n; i++) {
+    int i0 = uniform_int(0, n-1)(rng);
+    int i1 = uniform_int(0, n-1)(rng);
+    std::cout << "connecting node " << i0 << " to node " << i1 << std::endl;
+    unify(tree[i0], tree[i1]);
+  }
+
+  std::cout << "\n[results]\n";
+
+  for (vector_type::iterator itr = tree.begin(); itr != tree.end(); ++itr) {
+    if (itr->is_root()) {
+      std::cout << "node " << index(itr, tree.begin())
+		<< " is root and tree size is "
+		<< itr->weight() << std::endl;
+    } else {
+      std::cout << "node " << index(itr, tree.begin());
+      std::cout << "'s parent is " << index(itr->parent(), tree.begin());
+      std::cout << " and its root is " << index(itr->root(), tree.begin())
+		<< std::endl;
+    }
+  }
 }

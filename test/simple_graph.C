@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: unionfind.C 447 2003-10-18 08:35:39Z wistaria $
+* $Id: simple_graph.C 453 2003-10-21 06:07:38Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -34,56 +34,34 @@
 *
 **************************************************************************/
 
-#include "unionfind.h"
-#include <boost/random.hpp>
-
+#include "graph.h"
 #include <iostream>
-#include <valarray>
 
 #ifdef BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
-using namespace looper;
+using namespace alps;
 #endif
 
-const int n = 100;
+int main() {
+  typedef looper::graph_type graph_type;
+  typedef graph_type::vertex_iterator vertex_iterator;
 
-template<class Itr0, class Itr1>
-int index(const Itr0& itr, const Itr1& base) {
-  return &(*itr) - &(*base);
-}
-
-int main()
-{
-  typedef std::vector<looper::unionfind::node<> > vector_type;
-  typedef boost::mt19937 rng_type;
-  typedef boost::uniform_int<> uniform_int;
-
-  rng_type rng;
-  
-  std::cout << "[[union find test]]\n";
-
-  vector_type tree(n);
-
-  std::cout << "\n[making tree]\n";
-
-  for (int i = 0; i < n; i++) {
-    int i0 = uniform_int(0, n-1)(rng);
-    int i1 = uniform_int(0, n-1)(rng);
-    std::cout << "connecting node " << i0 << " to node " << i1 << std::endl;
-    unify(tree[i0], tree[i1]);
+  std::vector<int> ext;
+  int dim;
+  std::cin >> dim;
+  ext.resize(dim);
+  for (std::vector<int>::iterator itr = ext.begin(); itr != ext.end(); ++itr) {
+    std::cin >> *itr;
   }
 
-  std::cout << "\n[results]\n";
-
-  for (vector_type::iterator itr = tree.begin(); itr != tree.end(); ++itr) {
-    if (itr->is_root()) {
-      std::cout << "node " << index(itr, tree.begin())
-		<< " is root and tree size is "
-		<< itr->weight() << std::endl;
-    } else {
-      std::cout << "node " << index(itr, tree.begin());
-      std::cout << "'s parent is " << index(itr->parent(), tree.begin());
-      std::cout << " and its root is " << index(itr->root(), tree.begin())
-		<< std::endl;
-    }
+  std::cout << "[test of simple_hypercubic_graph class]\n";
+  std::cout << "dimension = " << dim << std::endl;
+  for (int d = 0; d < dim; ++d) {
+    std::cout << "extent[" << d << "] = " << ext[d] << std::endl;
   }
+
+  looper::simple_hypercubic_graph_descriptor<> shgd(ext);
+  graph_type graph;
+  looper::generate_graph(shgd, graph);
+
+  std::cout << graph;
 }

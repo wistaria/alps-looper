@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: unionfind.h 441 2003-10-17 10:28:53Z wistaria $
+* $Id: union_find.h 453 2003-10-21 06:07:38Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -40,15 +40,15 @@
 //   `The Art of Computer Programming, Vol. 1, Fundamental Algorithms'
 //   3rd edition (Addison Wesley, Reading, 1997) Sec 2.3.3.
 
-#ifndef LOOPER_UNIONFIND_H
-#define LOOPER_UNIONFIND_H
+#ifndef LOOPER_UNION_FIND_H
+#define LOOPER_UNION_FIND_H
 
 #include <boost/throw_exception.hpp>
 #include <stdexcept>
 
 namespace looper {
 
-namespace unionfind {
+namespace union_find {
 
 namespace detail {
 
@@ -111,7 +111,7 @@ public:
   weight_type weight() const {
 #ifndef NDEBUG
     if (!is_root())
-      boost::throw_exception(std::logic_error("unionfind::node::weight() : not a root node"));
+      boost::throw_exception(std::logic_error("union_find::node::weight() : not a root node"));
 #endif
     return weight_;
   }
@@ -166,8 +166,8 @@ inline bool unify(node<T>& node0, node<T>& node1)
   }
 }
 
-} // end namespace unionfind
+} // end namespace union_find
 
 } // end namespace looper
 
-#endif // LOOPER_UNIONFIND_H
+#endif // LOOPER_UNION_FIND_H

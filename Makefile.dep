@@ -1,11 +1,12 @@
-simple.o simple_mpi.o simple_pvm.o simple simple_mpi simple_pvm: $(srcdir)/model.h $(srcdir)/graph.h $(srcdir)/virtualgraph.h $(srcdir)/xxz.h $(srcdir)/pathintegral.h $(srcdir)/amida.h $(srcdir)/vectorhelper.h $(srcdir)/node.h $(srcdir)/permutation.h $(srcdir)/random.h $(srcdir)/unionfind.h $(srcdir)/weight.h $(srcdir)/sse.h
-test/amida.o test/amida_mpi.o test/amida_pvm.o test/amida test/amida_mpi test/amida_pvm: $(srcdir)/amida.h $(srcdir)/vectorhelper.h
+simple.o simple_mpi.o simple_pvm.o simple simple_mpi simple_pvm: $(srcdir)/model.h $(srcdir)/graph.h $(srcdir)/xxz.h $(srcdir)/sse.h $(srcdir)/permutation.h $(srcdir)/weight.h
+test/amida.o test/amida_mpi.o test/amida_pvm.o test/amida test/amida_mpi test/amida_pvm: $(srcdir)/amida.h $(srcdir)/vector_helper.h
 test/fill_duration.o test/fill_duration_mpi.o test/fill_duration_pvm.o test/fill_duration test/fill_duration_mpi test/fill_duration_pvm: $(srcdir)/random.h
-test/index_helper.o test/index_helper_mpi.o test/index_helper_pvm.o test/index_helper test/index_helper_mpi test/index_helper_pvm: $(srcdir)/vectorhelper.h
+test/index_helper.o test/index_helper_mpi.o test/index_helper_pvm.o test/index_helper test/index_helper_mpi test/index_helper_pvm: $(srcdir)/vector_helper.h
 test/permutation.o test/permutation_mpi.o test/permutation_pvm.o test/permutation test/permutation_mpi test/permutation_pvm: $(srcdir)/permutation.h
-test/simplegraph.o test/simplegraph_mpi.o test/simplegraph_pvm.o test/simplegraph test/simplegraph_mpi test/simplegraph_pvm: $(srcdir)/graph.h
-test/unionfind.o test/unionfind_mpi.o test/unionfind_pvm.o test/unionfind test/unionfind_mpi test/unionfind_pvm: $(srcdir)/unionfind.h
-test/virtualgraph.o test/virtualgraph_mpi.o test/virtualgraph_pvm.o test/virtualgraph test/virtualgraph_mpi test/virtualgraph_pvm: $(srcdir)/graph.h $(srcdir)/virtualgraph.h
+test/random_choice.o test/random_choice_mpi.o test/random_choice_pvm.o test/random_choice test/random_choice_mpi test/random_choice_pvm: $(srcdir)/random_choice.h
+test/simple_graph.o test/simple_graph_mpi.o test/simple_graph_pvm.o test/simple_graph test/simple_graph_mpi test/simple_graph_pvm: $(srcdir)/graph.h
+test/union_find.o test/union_find_mpi.o test/union_find_pvm.o test/union_find test/union_find_mpi test/union_find_pvm: $(srcdir)/union_find.h
+test/virtual_graph.o test/virtual_graph_mpi.o test/virtual_graph_pvm.o test/virtual_graph test/virtual_graph_mpi test/virtual_graph_pvm: $(srcdir)/graph.h $(srcdir)/virtual_graph.h
 test/weight.o test/weight_mpi.o test/weight_pvm.o test/weight test/weight_mpi test/weight_pvm: $(srcdir)/xxz.h $(srcdir)/weight.h
 test/xxz_matrix.o test/xxz_matrix_mpi.o test/xxz_matrix_pvm.o test/xxz_matrix test/xxz_matrix_mpi test/xxz_matrix_pvm: $(srcdir)/xxz.h
 test/xxz_model.o test/xxz_model_mpi.o test/xxz_model_pvm.o test/xxz_model test/xxz_model_mpi test/xxz_model_pvm: $(srcdir)/xxz.h

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: simplegraph.C 447 2003-10-18 08:35:39Z wistaria $
+* $Id: virtual_graph.C 453 2003-10-21 06:07:38Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -35,6 +35,8 @@
 **************************************************************************/
 
 #include "graph.h"
+#include "virtual_graph.h"
+#include <alps/model.h>
 #include <iostream>
 
 #ifdef BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
@@ -42,26 +44,39 @@ using namespace alps;
 #endif
 
 int main() {
+
+#ifndef BOOST_NO_EXCEPTIONS
+try {
+#endif
+
   typedef looper::graph_type graph_type;
   typedef graph_type::vertex_iterator vertex_iterator;
+  typedef graph_type::edge_iterator edge_iterator;
 
-  std::vector<int> ext;
-  int dim;
-  std::cin >> dim;
-  ext.resize(dim);
-  for (std::vector<int>::iterator itr = ext.begin(); itr != ext.end(); ++itr) {
-    std::cin >> *itr;
-  }
+  // real graph
+  looper::simple_hypercubic_graph_descriptor<> shgd(2, 2);
+  graph_type rg;
+  looper::generate_graph(shgd, rg);
+  boost::put(looper::vertex_type_t(), rg, *(boost::vertices(rg).first), 1);
+  std::cout << rg;
+  
+  // virtual graph
+  looper::virtual_graph<graph_type> vg;
+  std::vector<alps::half_integer<int> > spins(2);
+  spins[0] = 1; spins[1] = 3./2;
+  looper::generate_virtual_graph(rg, spins, vg);
 
-  std::cout << "[test of simple_hypercubic_graph class]\n";
-  std::cout << "dimension = " << dim << std::endl;
-  for (int d = 0; d < dim; ++d) {
-    std::cout << "extent[" << d << "] = " << ext[d] << std::endl;
-  }
+  std::cout << vg.graph;
+  std::cout << vg.mapping;
 
-  looper::simple_hypercubic_graph_descriptor<> shgd(ext);
-  graph_type graph;
-  looper::generate_graph(shgd, graph);
+#ifndef BOOST_NO_EXCEPTIONS
+} 
+catch (const std::exception& excp) {
+  std::cerr << excp.what() << std::endl;
+  std::exit(-1); }
+catch (...) {
+  std::cerr << "Unknown exception occurred!" << std::endl;
+  std::exit(-1); }
+#endif
 
-  std::cout << graph;
 }

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: virtualgraph.h 438 2003-10-17 03:56:37Z wistaria $
+* $Id: virtual_graph.h 453 2003-10-21 06:07:38Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -34,8 +34,8 @@
 *
 **************************************************************************/
 
-#ifndef LOOPER_VIRTUALGRAPH_H
-#define LOOPER_VIRTUALGRAPH_H
+#ifndef LOOPER_VIRTUAL_GRAPH_H
+#define LOOPER_VIRTUAL_GRAPH_H
 
 #include "graph.h"
 
@@ -213,4 +213,4 @@ inline void generate_virtual_graph(const G& rg,
   
 } // end namespace looper
 
-#endif // LOOPER_VIRTUALGRAPH_H
+#endif // LOOPER_VIRTUAL_GRAPH_H

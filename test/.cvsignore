@@ -3,9 +3,10 @@ amida
 fill_duration
 index_helper
 permutation
-simplegraph
-unionfind
-virtualgraph
+random_choice
+simple_graph
+union_find
+virtual_graph
 weight
 xxz_matrix
 xxz_model

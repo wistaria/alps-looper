@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: pathintegral.h 452 2003-10-21 05:51:28Z wistaria $
+* $Id: path_integral.h 453 2003-10-21 06:07:38Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -34,15 +34,15 @@
 *
 **************************************************************************/
 
-#ifndef LOOPER_PATHINTEGRAL_H
-#define LOOPER_PATHINTEGRAL_H
+#ifndef LOOPER_PATH_INTEGRAL_H
+#define LOOPER_PATH_INTEGRAL_H
 
 #include "amida.h"
 #include "node.h"
 #include "permutation.h"
 #include "random.h"
-#include "unionfind.h"
-#include "virtualgraph.h"
+#include "union_find.h"
+#include "virtual_graph.h"
 #include "weight.h"
 
 #include <boost/integer_traits.hpp>
@@ -61,7 +61,7 @@ template<>
 class pi_node<false> : public node_property
 {
 public:
-  typedef unionfind::node<looper::loop_segment> segment_type;
+  typedef union_find::node<looper::loop_segment> segment_type;
   typedef double time_type;
   
   BOOST_STATIC_CONSTANT(bool, has_ctime = false);
@@ -295,9 +295,9 @@ struct path_integral<virtual_graph<G>, M, W>
       
       // iteration up to t = 1
       for (;; itrD = itrU++) {
-	unionfind::unify(segment_d(itrU), segment_u(itrD));
+	union_find::unify(segment_d(itrU), segment_u(itrD));
 	if (itrU.leg() == 0 && itrU->is_frozen()) // frozen link
-	  unionfind::unify(itrU->loop_segment(0), itrU->loop_segment(1));
+	  union_find::unify(itrU->loop_segment(0), itrU->loop_segment(1));
 	if (itrU.at_top()) break; // finish
       }
     }
@@ -322,7 +322,7 @@ struct path_integral<virtual_graph<G>, M, W>
 				c1.begin(), c1.end(),
 				uniform_01);
       for (int j = 0; j < s2; ++j) {
-	unionfind::unify(
+	union_find::unify(
           config.wl.series(offset +   j ).first ->loop_segment(0),
           config.wl.series(offset + r[j]).second->loop_segment(0));
       }
@@ -442,4 +442,4 @@ std::ostream& operator<<(std::ostream& os,
 } // namespace looper
 #endif
 
-#endif // LOOPER_PATHINTEGRAL_H
+#endif // LOOPER_PATH_INTEGRAL_H
