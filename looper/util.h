@@ -378,17 +378,17 @@ T range_01(const T& x)
 #endif
 
 template<class T>
-bool is_negative(const T& x,
+inline bool is_negative(const T& x,
   typename boost::enable_if<boost::is_arithmetic<T> >::type* = 0)
 { return x < 0; }
 template<class T>
-bool is_negative(T x,
+inline bool is_negative(T x,
   typename boost::disable_if<boost::is_arithmetic<T> >::type* = 0)
 { return x < 0; }
-bool is_negative(unsigned char) { return true; }
-bool is_negative(unsigned short) { return true; }
-bool is_negative(unsigned int) { return true; }
-bool is_negative(unsigned long) { return true; }
+inline bool is_negative(unsigned char) { return false; }
+inline bool is_negative(unsigned short) { return false; }
+inline bool is_negative(unsigned int) { return false; }
+inline bool is_negative(unsigned long) { return false; }
 
 } // end namespace looper
 
