@@ -1,17 +1,17 @@
 /*****************************************************************************
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
-* 
+*
 * Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+*
+* This software is published under the ALPS Application License; you
+* can use, redistribute it and/or modify it under the terms of the
+* license, either version 1 or (at your option) any later version.
 * 
-* This software is published under the ALPS Application License; you can use,
-* redistribute and/or modify this software under the terms of the license,
-* either version 1 or (at your option) any later version.
-* 
-* You should have received a copy of the ALPS Application License along with
-* the ALPS Library; see the file LICENSE. If not, the license is also
-* available from http://alps.comp-phys.org/.
-* 
+* You should have received a copy of the ALPS Application License
+* along with this software; see the file LICENSE. If not, the license
+* is also available from http://alps.comp-phys.org/.
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 * FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT 
@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: permutation.h 608 2004-01-21 00:33:41Z wistaria $
+/* $Id: permutation.h 693 2004-03-16 15:48:04Z wistaria $ */
 
 #ifndef LOOPER_PERMUTATION_H
 #define LOOPER_PERMUTATION_H
@@ -38,8 +38,8 @@ namespace looper {
 template<class RandomAccessIter,
          class RandomNumberGenerator>
 void random_shuffle(RandomAccessIter first, 
-		    RandomAccessIter last,
-		    RandomNumberGenerator& rng)
+                    RandomAccessIter last,
+                    RandomNumberGenerator& rng)
 {
   typedef typename std::iterator_traits<RandomAccessIter>::difference_type
     diff_type;
@@ -47,7 +47,7 @@ void random_shuffle(RandomAccessIter first,
   for (diff_type i = 1; i < last - first; ++i) {
     std::iter_swap(first + i,
       first + boost::variate_generator<RandomNumberGenerator&,
-	boost::uniform_int<> >(rng, boost::uniform_int<>(0, i))());
+        boost::uniform_int<> >(rng, boost::uniform_int<>(0, i))());
   }
 }
 
@@ -62,9 +62,9 @@ void random_shuffle(RandomAccessIter first,
 
 template<class RandomAccessIterator0, class RandomAccessIterator1>
 void guided_sort_binary(RandomAccessIterator0 first_perm, 
-			RandomAccessIterator0 last_perm,
-			RandomAccessIterator1 first_guide,
-			RandomAccessIterator1 last_guide) {
+                        RandomAccessIterator0 last_perm,
+                        RandomAccessIterator1 first_guide,
+                        RandomAccessIterator1 last_guide) {
   if (first_perm == last_perm) return;
   --last_perm;
   --last_guide;
@@ -99,12 +99,12 @@ void guided_sort_binary(RandomAccessIterator0 first_perm,
 template<class RandomAccessIter0, class RandomAccessIter1,
          class RandomNumberGenerator>
 void restricted_random_shuffle(RandomAccessIter0 perm_first, 
-			       RandomAccessIter0 perm_last,
-			       RandomAccessIter1 guide0_first,
-			       RandomAccessIter1 guide0_last,
-			       RandomAccessIter1 guide1_first,
-			       RandomAccessIter1 guide1_last,
-			       RandomNumberGenerator& rng)
+                               RandomAccessIter0 perm_last,
+                               RandomAccessIter1 guide0_first,
+                               RandomAccessIter1 guide0_last,
+                               RandomAccessIter1 guide1_first,
+                               RandomAccessIter1 guide1_last,
+                               RandomNumberGenerator& rng)
 {
   typedef typename std::iterator_traits<RandomAccessIter1>::difference_type
     diff_type;
@@ -119,7 +119,7 @@ void restricted_random_shuffle(RandomAccessIter0 perm_first,
 
   // reorder permutation according to values in guide0
   looper::guided_sort_binary(perm_first, perm_last,
-			     guide0_first, guide0_last);
+                             guide0_first, guide0_last);
 }
 
 } // end namespace looper

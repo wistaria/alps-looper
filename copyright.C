@@ -1,17 +1,17 @@
 /*****************************************************************************
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
-* 
+*
 * Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+*
+* This software is published under the ALPS Application License; you
+* can use, redistribute it and/or modify it under the terms of the
+* license, either version 1 or (at your option) any later version.
 * 
-* This software is published under the ALPS Application License; you can use,
-* redistribute and/or modify this software under the terms of the license,
-* either version 1 or (at your option) any later version.
-* 
-* You should have received a copy of the ALPS Application License along with
-* the ALPS Library; see the file LICENSE. If not, the license is also
-* available from http://alps.comp-phys.org/.
-* 
+* You should have received a copy of the ALPS Application License
+* along with this software; see the file LICENSE. If not, the license
+* is also available from http://alps.comp-phys.org/.
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 * FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT 
@@ -22,7 +22,8 @@
 *
 *****************************************************************************/
 
-// $Id: copyright.C 604 2004-01-16 08:35:21Z wistaria $
+/* $Id: copyright.C 693 2004-03-16 15:48:04Z wistaria $ */
+
 // copyright - print copyright and/or license information
 
 #include "looper/copyright.h"
@@ -59,20 +60,20 @@ struct options
       case '-' :
         switch (argv[i][1]) {
         case 'l' :
-	  license = true;
+          license = true;
           break;
         case 'h' :
-	  usage(0, std::cout);
+          usage(0, std::cout);
           break;
-	default :
-	  usage(1);
-	  break;
-	}
-	break;
-	
+        default :
+          usage(1);
+          break;
+        }
+        break;
+        
       default :
-	usage(1);
-	break;
+        usage(1);
+        break;
       }
     }
   }

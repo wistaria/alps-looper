@@ -1,17 +1,17 @@
 /*****************************************************************************
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
-* 
+*
 * Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+*
+* This software is published under the ALPS Application License; you
+* can use, redistribute it and/or modify it under the terms of the
+* license, either version 1 or (at your option) any later version.
 * 
-* This software is published under the ALPS Application License; you can use,
-* redistribute and/or modify this software under the terms of the license,
-* either version 1 or (at your option) any later version.
-* 
-* You should have received a copy of the ALPS Application License along with
-* the ALPS Library; see the file LICENSE. If not, the license is also
-* available from http://alps.comp-phys.org/.
-* 
+* You should have received a copy of the ALPS Application License
+* along with this software; see the file LICENSE. If not, the license
+* is also available from http://alps.comp-phys.org/.
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 * FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT 
@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: measurement.h 664 2004-03-06 16:55:43Z wistaria $
+/* $Id: measurement.h 693 2004-03-16 15:48:04Z wistaria $ */
 
 #ifndef LOOPER_MEASUREMENT_H
 #define LOOPER_MEASUREMENT_H
@@ -61,9 +61,9 @@ struct energy_helper<path_integral<G, M, W, N> >
     double ez = 0.;
     typename qmc_type::edge_iterator ei, ei_end;
     for (boost::tie(ei, ei_end) = boost::edges(param.virtual_graph.graph);
-	 ei != ei_end; ++ei) {
+         ei != ei_end; ++ei) {
       ez -= param.model.bond(bond_type(*ei, param.virtual_graph.graph)).jz()
-	* qmc_type::static_correlation(config, 
+        * qmc_type::static_correlation(config, 
            boost::source(*ei, param.virtual_graph.graph),
            boost::target(*ei, param.virtual_graph.graph));
     }
@@ -156,14 +156,14 @@ struct staggered_susceptibility_helper<path_integral<G, M, W, N> >
 {
   typedef path_integral<G, M, W, N> qmc_type;
   static double calc(const typename qmc_type::config_type& config,
-		     const typename qmc_type::parameter_type& param)
+                     const typename qmc_type::parameter_type& param)
   {
     double ss = 0.;
     typename qmc_type::vertex_iterator vi, vi_end;
     for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
-	 vi != vi_end; ++vi)
+         vi != vi_end; ++vi)
       ss += gauge(*vi, param.virtual_graph.graph) *
-	qmc_type::dynamic_sz(*vi, config, param.virtual_graph);
+        qmc_type::dynamic_sz(*vi, config, param.virtual_graph);
     return param.beta * ss * ss / param.virtual_graph.num_real_vertices;
   }
 };
@@ -173,17 +173,17 @@ struct staggered_susceptibility_helper<sse<G, M, W, N> >
 {
   typedef sse<G, M, W, N> qmc_type;
   static double calc(const typename qmc_type::config_type& config,
-		     const typename qmc_type::parameter_type& param)
+                     const typename qmc_type::parameter_type& param)
   {
     double sd = 0.;
     double ss = 0.;
     typename qmc_type::vertex_iterator vi, vi_end;
     for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
-	 vi != vi_end; ++vi) {
+         vi != vi_end; ++vi) {
       sd += gauge(*vi, param.virtual_graph.graph) *
-	qmc_type::dynamic_sz(*vi, config, param.virtual_graph);
+        qmc_type::dynamic_sz(*vi, config, param.virtual_graph);
       ss += gauge(*vi, param.virtual_graph.graph) *
-	qmc_type::static_sz(*vi, config);
+        qmc_type::static_sz(*vi, config);
     }
     return param.beta * (sqr(sd) + sqr(ss) / (config.os.size() + 1)) /
       param.virtual_graph.num_real_vertices;
@@ -221,9 +221,9 @@ inline double energy_z_imp(const C& config, const P& param)
     typename qmc_type::vertex_descriptor v1 =
       boost::target(*ei, param.virtual_graph.graph);
     if (qmc_type::loop_index_0(v0, config) ==
-	qmc_type::loop_index_0(v1, config))
+        qmc_type::loop_index_0(v1, config))
       ene -= param.model.bond(bond_type(*ei, param.virtual_graph.graph)).jz() *
-	qmc_type::static_sz(v0, config) * qmc_type::static_sz(v1, config);
+        qmc_type::static_sz(v0, config) * qmc_type::static_sz(v1, config);
   }
   return ene / param.virtual_graph.num_real_vertices;
 }
@@ -288,19 +288,19 @@ struct generalized_susceptibility_imp_helper<path_integral<G, M, W, N> >
     std::vector<double> len(config.num_loops);
     typename qmc_type::vertex_iterator vi, vi_end;
     for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
-	 vi != vi_end; ++vi) {
+         vi != vi_end; ++vi) {
       ++mg[qmc_type::loop_index_0(*vi, config)];
 
       // setup iterators
       typename qmc_type::config_type::const_iterator
-	itrD = config.wl.series(*vi).first;
+        itrD = config.wl.series(*vi).first;
       typename qmc_type::config_type::const_iterator
-	itrU = boost::next(itrD);
+        itrU = boost::next(itrD);
         
       // iteration up to t = 1
       for (;; itrD = itrU, ++itrU) {
-	len[qmc_type::segment_d(itrU).index] += (itrU->time() - itrD->time());
-	if (itrU.at_top()) break;
+        len[qmc_type::segment_d(itrU).index] += (itrU->time() - itrD->time());
+        if (itrU.at_top()) break;
       }
     }      
 
@@ -312,8 +312,8 @@ struct generalized_susceptibility_imp_helper<path_integral<G, M, W, N> >
     ss *= 0.25;
 
     return boost::make_tuple(m2 / param.virtual_graph.num_real_vertices,
-			     param.beta * ss /
-			     param.virtual_graph.num_real_vertices);
+                             param.beta * ss /
+                             param.virtual_graph.num_real_vertices);
   }
 };
 
@@ -332,25 +332,25 @@ struct generalized_susceptibility_imp_helper<sse<G, M, W, N> >
     int p = 1;
     typename qmc_type::config_type::const_iterator oi_end = config.os.end();
     for (typename qmc_type::config_type::const_iterator oi = config.os.begin();
-	 oi != oi_end; ++oi, ++p) {
+         oi != oi_end; ++oi, ++p) {
       if (!oi->is_identity()) {
-	typename qmc_type::edge_iterator ei =
-	  boost::edges(param.virtual_graph.graph).first + oi->bond();
-	typename qmc_type::vertex_descriptor v0 =
-	  boost::source(*ei, param.virtual_graph.graph);
-	typename qmc_type::vertex_descriptor v1 =
-	  boost::target(*ei, param.virtual_graph.graph);
-	len[qmc_type::segment_d(oi, 0).index] += (p - pos[v0]);
-	len[qmc_type::segment_d(oi, 1).index] += (p - pos[v1]);
-	pos[v0] = p;
-	pos[v1] = p;
+        typename qmc_type::edge_iterator ei =
+          boost::edges(param.virtual_graph.graph).first + oi->bond();
+        typename qmc_type::vertex_descriptor v0 =
+          boost::source(*ei, param.virtual_graph.graph);
+        typename qmc_type::vertex_descriptor v1 =
+          boost::target(*ei, param.virtual_graph.graph);
+        len[qmc_type::segment_d(oi, 0).index] += (p - pos[v0]);
+        len[qmc_type::segment_d(oi, 1).index] += (p - pos[v1]);
+        pos[v0] = p;
+        pos[v1] = p;
       }
     }
     typename qmc_type::vertex_iterator vi, vi_end;
     for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
-	 vi != vi_end; ++vi) {
+         vi != vi_end; ++vi) {
       len[qmc_type::loop_index_1(*vi, config)] +=
-	(config.os.size() - pos[*vi]);
+        (config.os.size() - pos[*vi]);
       ++mg[qmc_type::loop_index_0(*vi, config)];
     }
 

@@ -1,17 +1,17 @@
 /*****************************************************************************
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
-* 
+*
 * Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+*
+* This software is published under the ALPS Application License; you
+* can use, redistribute it and/or modify it under the terms of the
+* license, either version 1 or (at your option) any later version.
 * 
-* This software is published under the ALPS Application License; you can use,
-* redistribute and/or modify this software under the terms of the license,
-* either version 1 or (at your option) any later version.
-* 
-* You should have received a copy of the ALPS Application License along with
-* the ALPS Library; see the file LICENSE. If not, the license is also
-* available from http://alps.comp-phys.org/.
-* 
+* You should have received a copy of the ALPS Application License
+* along with this software; see the file LICENSE. If not, the license
+* is also available from http://alps.comp-phys.org/.
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 * FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT 
@@ -22,7 +22,8 @@
 *
 *****************************************************************************/
 
-// $Id: percolation_impl.h 660 2004-03-04 10:58:14Z wistaria $
+/* $Id: percolation_impl.h 693 2004-03-16 15:48:04Z wistaria $ */
+
 // percolation_impl.h - implementation of worker for percolation simulation
 
 #ifndef PERCOLATION_IMPL_H
@@ -78,7 +79,7 @@ struct percolation
       typename V::iterator s_itr = v_.begin() + boost::source(a, g_);
       typename V::iterator t_itr = v_.begin() + boost::target(a, g_);
       if (s_itr->occupied && t_itr->occupied)
-	looper::union_find::unify(*s_itr, *t_itr);
+        looper::union_find::unify(*s_itr, *t_itr);
     }
     const G& g_;
     mutable V& v_;
@@ -92,9 +93,9 @@ struct percolation
     template<class T>
     void operator()(const T& a) const {
       if (rng_() < p_) {
-	typename V::iterator s_itr = v_.begin() + boost::source(a, g_);
-	typename V::iterator t_itr = v_.begin() + boost::target(a, g_);
-	looper::union_find::unify(*s_itr, *t_itr);
+        typename V::iterator s_itr = v_.begin() + boost::source(a, g_);
+        typename V::iterator t_itr = v_.begin() + boost::target(a, g_);
+        looper::union_find::unify(*s_itr, *t_itr);
       }
     }
     const G& g_;
@@ -130,20 +131,20 @@ struct percolation
     {
       // setup sample
       if (!bond_p_)
-	std::for_each(vertices_.begin(), vertices_.end(),
-		      initializer<RNG, false>(prob_, random_01));
+        std::for_each(vertices_.begin(), vertices_.end(),
+                      initializer<RNG, false>(prob_, random_01));
       else
-	std::for_each(vertices_.begin(), vertices_.end(),
-		      initializer<RNG, true>());
+        std::for_each(vertices_.begin(), vertices_.end(),
+                      initializer<RNG, true>());
       
       // union_find
       if (!bond_p_)
- 	std::for_each(boost::edges(g).first, boost::edges(g).second,
- 		      unifier<G, vector_type, RNG, false>(g, vertices_));
+         std::for_each(boost::edges(g).first, boost::edges(g).second,
+                       unifier<G, vector_type, RNG, false>(g, vertices_));
       else
- 	std::for_each(boost::edges(g).first, boost::edges(g).second,
- 		      unifier<G, vector_type, RNG, true>(g, vertices_, prob_,
- 							 random_01));
+         std::for_each(boost::edges(g).first, boost::edges(g).second,
+                       unifier<G, vector_type, RNG, true>(g, vertices_, prob_,
+                                                          random_01));
       
       // measurement
       int num_clusters = 0;
@@ -151,35 +152,35 @@ struct percolation
       double sc = 0.;
       vector_type::iterator itr_end = vertices_.end();
       for (vector_type::iterator itr = vertices_.begin();
-	   itr != itr_end; ++itr) {
-	if (itr->occupied && itr->is_root()) {
-	  ++num_clusters;
-	  double w = itr->weight();
-	  max_weight = std::max(max_weight, w);
-	  sc += w * w;
-	}
+           itr != itr_end; ++itr) {
+        if (itr->occupied && itr->is_root()) {
+          ++num_clusters;
+          double w = itr->weight();
+          max_weight = std::max(max_weight, w);
+          sc += w * w;
+        }
       }
       
       double nv = double(boost::num_vertices(g));
       m.template get<measurement_type>("Number of Clusters") <<
-	double(num_clusters) / nv;
+        double(num_clusters) / nv;
       m.template get<measurement_type>("Percolation Probability") <<
-	max_weight / nv;
+        max_weight / nv;
       m.template get<measurement_type>("Disconnected Susceptiblity") <<
-	sc / nv;
+        sc / nv;
       m.template get<measurement_type>("Connected Susceptiblity") <<
-	(sc - max_weight * max_weight) / nv;
+        (sc - max_weight * max_weight) / nv;
     }
 
     void output_results(std::ostream& os, alps::ObservableSet& m) const {
       os << m.get<measurement_type>("Number of Clusters").mean() << ' '
-	 << m.get<measurement_type>("Number of Clusters").error() << ' '
-	 << m.get<measurement_type>("Percolation Probability").mean() << ' '
-	 << m.get<measurement_type>("Percolation Probability").error() << ' '
-	 << m.get<measurement_type>("Disconnected Susceptiblity").mean() << ' '
-	 << m.get<measurement_type>("Disconnected Susceptiblity").error() << ' '
-	 << m.get<measurement_type>("Connected Susceptiblity").mean() << ' '
-	 << m.get<measurement_type>("Connected Susceptiblity").error();
+         << m.get<measurement_type>("Number of Clusters").error() << ' '
+         << m.get<measurement_type>("Percolation Probability").mean() << ' '
+         << m.get<measurement_type>("Percolation Probability").error() << ' '
+         << m.get<measurement_type>("Disconnected Susceptiblity").mean() << ' '
+         << m.get<measurement_type>("Disconnected Susceptiblity").error() << ' '
+         << m.get<measurement_type>("Connected Susceptiblity").mean() << ' '
+         << m.get<measurement_type>("Connected Susceptiblity").error();
     }
   private:
     bool bond_p_;
@@ -234,7 +235,7 @@ struct percolation
     }
 
     worker* make_worker(const alps::ProcessList& w,
-			const alps::Parameters& p, int n) const {
+                        const alps::Parameters& p, int n) const {
       return new worker(w, p, n);
     }
 

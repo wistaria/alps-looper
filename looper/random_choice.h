@@ -1,17 +1,17 @@
 /*****************************************************************************
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
-* 
+*
 * Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+*
+* This software is published under the ALPS Application License; you
+* can use, redistribute it and/or modify it under the terms of the
+* license, either version 1 or (at your option) any later version.
 * 
-* This software is published under the ALPS Application License; you can use,
-* redistribute and/or modify this software under the terms of the license,
-* either version 1 or (at your option) any later version.
-* 
-* You should have received a copy of the ALPS Application License along with
-* the ALPS Library; see the file LICENSE. If not, the license is also
-* available from http://alps.comp-phys.org/.
-* 
+* You should have received a copy of the ALPS Application License
+* along with this software; see the file LICENSE. If not, the license
+* is also available from http://alps.comp-phys.org/.
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 * FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT 
@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: random_choice.h 669 2004-03-07 13:51:40Z wistaria $
+/* $Id: random_choice.h 693 2004-03-16 15:48:04Z wistaria $ */
 
 #ifndef LOOPER_RANDOM_CHOICE_H
 #define LOOPER_RANDOM_CHOICE_H
@@ -95,11 +95,11 @@ public:
     for (result_type i = 0; i < n_; ++i) {
       RealType b = norm * weights[i] - RealType(1);
       if (b < RealType(0)) {
-	*neg_p = std::make_pair(b, i);
-	++neg_p;
+        *neg_p = std::make_pair(b, i);
+        ++neg_p;
       } else {
-	--pos_p;
-	*pos_p = std::make_pair(b, i);
+        --pos_p;
+        *pos_p = std::make_pair(b, i);
       }
     }
 
@@ -143,15 +143,15 @@ public:
       RealType maxval = 0;
       result_type minpos, maxpos;
       for (result_type j = 0; j < n_; ++j) {
-	sum += std::abs(b[j]);
-	if (b[j] <= minval) {
-	  minval = b[j];
-	  minpos = j;
-	}
-	if (b[j] >= maxval) {
-	  maxval = b[j];
-	  maxpos = j;
-	}
+        sum += std::abs(b[j]);
+        if (b[j] <= minval) {
+          minval = b[j];
+          minpos = j;
+        }
+        if (b[j] >= maxval) {
+          maxval = b[j];
+          maxpos = j;
+        }
       }
 
       if (sum < tol) break;
@@ -176,7 +176,7 @@ public:
     for (result_type i = 0; i < n_; ++i) {
       RealType p = cutoff(i);
       for (result_type j = 0; j < n_; ++j)
-	if (alias(j) == i) p += 1 - cutoff(j);
+        if (alias(j) == i) p += 1 - cutoff(j);
       if (std::abs(p - norm * weights[i]) > tol) r = false;
     }
     return r;

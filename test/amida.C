@@ -1,17 +1,17 @@
 /*****************************************************************************
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
-* 
+*
 * Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+*
+* This software is published under the ALPS Application License; you
+* can use, redistribute it and/or modify it under the terms of the
+* license, either version 1 or (at your option) any later version.
 * 
-* This software is published under the ALPS Application License; you can use,
-* redistribute and/or modify this software under the terms of the license,
-* either version 1 or (at your option) any later version.
-* 
-* You should have received a copy of the ALPS Application License along with
-* the ALPS Library; see the file LICENSE. If not, the license is also
-* available from http://alps.comp-phys.org/.
-* 
+* You should have received a copy of the ALPS Application License
+* along with this software; see the file LICENSE. If not, the license
+* is also available from http://alps.comp-phys.org/.
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 * FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT 
@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: amida.C 604 2004-01-16 08:35:21Z wistaria $
+/* $Id: amida.C 693 2004-03-16 15:48:04Z wistaria $ */
 
 #include <looper/amida.h>
 #include <looper/vector_helper.h>
@@ -77,7 +77,7 @@ try {
     looper::amida<std::size_t>::iterator r = 
       amida.insert_link_next(0, r0, r1).first;
     std::cout << "node connecting " << n0 << " and " << n1 
-	      << " inserted at " << index(amida, r) << std::endl;
+              << " inserted at " << index(amida, r) << std::endl;
   }
 
   erase(amida, 10);

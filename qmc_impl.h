@@ -1,17 +1,17 @@
 /*****************************************************************************
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
-* 
+*
 * Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+*
+* This software is published under the ALPS Application License; you
+* can use, redistribute it and/or modify it under the terms of the
+* license, either version 1 or (at your option) any later version.
 * 
-* This software is published under the ALPS Application License; you can use,
-* redistribute and/or modify this software under the terms of the license,
-* either version 1 or (at your option) any later version.
-* 
-* You should have received a copy of the ALPS Application License along with
-* the ALPS Library; see the file LICENSE. If not, the license is also
-* available from http://alps.comp-phys.org/.
-* 
+* You should have received a copy of the ALPS Application License
+* along with this software; see the file LICENSE. If not, the license
+* is also available from http://alps.comp-phys.org/.
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 * FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT 
@@ -22,7 +22,8 @@
 *
 *****************************************************************************/
 
-// $Id: qmc_impl.h 660 2004-03-04 10:58:14Z wistaria $
+/* $Id: qmc_impl.h 693 2004-03-16 15:48:04Z wistaria $ */
+
 // qmc_impl.h - implementation of worker for QMC simulation
 
 #ifndef QMC_IMPL_H
@@ -56,7 +57,7 @@ public:
 
   template<class G, class MDL>
   qmc_worker(const G& rg, const MDL& model, double beta,
-	     alps::ObservableSet& m) :
+             alps::ObservableSet& m) :
     param_(rg, model, beta), config_()
   {
     e_offset_ = looper::energy_offset(param_);
@@ -186,7 +187,7 @@ public:
 
   template<class G, class MDL>
   ed_worker(const G& rg, const MDL& model, double beta,
-	    alps::ObservableSet& m) :
+            alps::ObservableSet& m) :
     param_(rg, model, beta), config_(), done_(false)
   {
     // measurements
@@ -281,7 +282,7 @@ public:
     mcs_(0), therm_(static_cast<unsigned int>(p["THERMALIZATION"])), 
     total_(therm_ + static_cast<unsigned int>(p["SWEEPS"])),
     qmc_worker_(graph(), mdl_, 1.0 / static_cast<double>(p["T"]),
-		measurements) {}
+                measurements) {}
   virtual ~worker() {}
     
   virtual void dostep() {
@@ -325,22 +326,22 @@ class factory : public alps::scheduler::Factory
   }
 
   alps::scheduler::MCRun* make_worker(const alps::ProcessList& w,
-				      const alps::Parameters& p, int n) const
+                                      const alps::Parameters& p, int n) const
   {
     if (!p.defined("REPRESENTATION") ||
-	p["REPRESENTATION"] == "path integral") {
+        p["REPRESENTATION"] == "path integral") {
       return new worker<qmc_worker<looper::path_integral<
                           looper::virtual_graph<looper::parity_graph_type>,
                           looper::xxz_model> > >(w, p, n);
     } else if (p["REPRESENTATION"] == "SSE") {
       return new worker<qmc_worker<looper::sse<
                           looper::virtual_graph<looper::parity_graph_type>,
-	                  looper::xxz_model> > >(w, p, n);
+                          looper::xxz_model> > >(w, p, n);
 #ifdef HAVE_LAPACK
     } else if (p["REPRESENTATION"] == "exact diagonalization") {
       return new worker<ed_worker<looper::exact_diagonalization<
                           looper::parity_graph_type,
-	                  looper::xxz_model> > >(w, p, n);
+                          looper::xxz_model> > >(w, p, n);
 #endif // HAVE_LAPACK
     } else {
       boost::throw_exception(std::invalid_argument("unknwon representation"));

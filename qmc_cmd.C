@@ -1,17 +1,17 @@
 /*****************************************************************************
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
-* 
+*
 * Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+*
+* This software is published under the ALPS Application License; you
+* can use, redistribute it and/or modify it under the terms of the
+* license, either version 1 or (at your option) any later version.
 * 
-* This software is published under the ALPS Application License; you can use,
-* redistribute and/or modify this software under the terms of the license,
-* either version 1 or (at your option) any later version.
-* 
-* You should have received a copy of the ALPS Application License along with
-* the ALPS Library; see the file LICENSE. If not, the license is also
-* available from http://alps.comp-phys.org/.
-* 
+* You should have received a copy of the ALPS Application License
+* along with this software; see the file LICENSE. If not, the license
+* is also available from http://alps.comp-phys.org/.
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 * FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT 
@@ -21,6 +21,8 @@
 * DEALINGS IN THE SOFTWARE.
 *
 *****************************************************************************/
+
+/* $Id: qmc_cmd.C 693 2004-03-16 15:48:04Z wistaria $ */
 
 #include "qmc_impl.h"
 #include <looper/exact_diag.h>
@@ -80,61 +82,61 @@ struct options {
       case '-' :
         switch (argv[i][1]) {
         case 'r' :
-	  if (i + 1 == argc) usage(1);
+          if (i + 1 == argc) usage(1);
           seed = std::atoi(argv[++i]);
           break;
         case 'd' :
-	  if (i + 1 == argc) usage(1);
+          if (i + 1 == argc) usage(1);
           dim = std::atoi(argv[++i]);
           break;
         case 'l' :
-	  if (i + 1 == argc) usage(1);
+          if (i + 1 == argc) usage(1);
           lsize = std::atoi(argv[++i]);
           break;
         case 's' :
-	  if (i + 1 == argc) usage(1);
+          if (i + 1 == argc) usage(1);
           spin = alps::half_integer<int>(std::atof(argv[++i]));
           break;
         case 'x' :
-	  if (i + 1 == argc) usage(1);
+          if (i + 1 == argc) usage(1);
           Jxy = std::atof(argv[++i]);
           break;
         case 'z' :
-	  if (i + 1 == argc) usage(1);
+          if (i + 1 == argc) usage(1);
           Jz = std::atof(argv[++i]);
           break;
         case 't' :
-	  if (i + 1 == argc) usage(1);
+          if (i + 1 == argc) usage(1);
           temp = std::atof(argv[++i]);
           break;
         case 'm' :
-	  if (i + 1 == argc) usage(1);
+          if (i + 1 == argc) usage(1);
           step_t = std::atoi(argv[++i]);
           break;
         case 'n' :
-	  if (i + 1 == argc) usage(1);
+          if (i + 1 == argc) usage(1);
           step_m = std::atoi(argv[++i]);
           break;
         case 'e' :
-	  representation = "SSE";
+          representation = "SSE";
           break;
 #ifdef HAVE_LAPACK
         case 'g' :
-	  representation = "exact diagonalization";
+          representation = "exact diagonalization";
           break;
 #endif // HAVE_LAPACK
-	case 'h' :
-	  usage(0);
-	  break;
-	default :
-	  usage(1);
-	  break;
-	}
-	break;
-	
+        case 'h' :
+          usage(0);
+          break;
+        default :
+          usage(1);
+          break;
+        }
+        break;
+        
       default :
-	usage(1);
-	break;
+        usage(1);
+        break;
       }
     }
   }
@@ -178,20 +180,20 @@ try {
 
   // simulation parameters
   std::cout << "r:   seed for RNG           : " << opts.seed << std::endl
-	    << "d:   spatial dimension      : " << opts.dim << std::endl
-	    << "l:   linear size            : " << opts.lsize << std::endl
-	    << "s:   spin size S            : " << opts.spin << std::endl
-	    << "x:   coupling Jxy           : " << opts.Jxy << std::endl
-	    << "z:   coupling Jz            : " << opts.Jz << std::endl
-	    << "t:   temperature            : " << opts.temp << std::endl
-	    << "m:   MCS for thermalization : " << opts.step_t << std::endl
-	    << "n:   MCS for measurement    : " << opts.step_m << std::endl
+            << "d:   spatial dimension      : " << opts.dim << std::endl
+            << "l:   linear size            : " << opts.lsize << std::endl
+            << "s:   spin size S            : " << opts.spin << std::endl
+            << "x:   coupling Jxy           : " << opts.Jxy << std::endl
+            << "z:   coupling Jz            : " << opts.Jz << std::endl
+            << "t:   temperature            : " << opts.temp << std::endl
+            << "m:   MCS for thermalization : " << opts.step_t << std::endl
+            << "n:   MCS for measurement    : " << opts.step_m << std::endl
 #ifdef HAVE_LAPACK
-	    << "e,g: representation         : " << opts.representation
+            << "e,g: representation         : " << opts.representation
 #else
-	    << "e:   representation         : " << opts.representation
+            << "e:   representation         : " << opts.representation
 #endif // HAVE_LAPACK
-	    << std::endl << std::endl;
+            << std::endl << std::endl;
 
   // random number generator
   boost::mt19937 base_rng;
@@ -225,11 +227,11 @@ try {
     if (opts.representation == "path integral") {
       // path-integral representation
       qmc_worker<looper::path_integral<looper::virtual_graph<graph_type>,
-	model_type> > worker(g, model, beta, measurements);
+        model_type> > worker(g, model, beta, measurements);
       
       for (int mcs = 0; mcs < opts.step_t + opts.step_m; ++mcs) {
-	if (mcs == opts.step_t) measurements.reset(true);
-	worker.step(rng, measurements);
+        if (mcs == opts.step_t) measurements.reset(true);
+        worker.step(rng, measurements);
       }
       worker.accumulate(measurements);
 
@@ -240,11 +242,11 @@ try {
     } else {
       // SSE representation
       qmc_worker<looper::sse<looper::virtual_graph<graph_type>,
-	model_type> > worker(g, model, beta, measurements);
+        model_type> > worker(g, model, beta, measurements);
       
       for (int mcs = 0; mcs < opts.step_t + opts.step_m; ++mcs) {
-	if (mcs == opts.step_t) measurements.reset(true);
-	worker.step(rng, measurements);
+        if (mcs == opts.step_t) measurements.reset(true);
+        worker.step(rng, measurements);
       }
       worker.accumulate(measurements);
       

@@ -1,17 +1,17 @@
 /*****************************************************************************
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
-* 
+*
 * Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+*
+* This software is published under the ALPS Application License; you
+* can use, redistribute it and/or modify it under the terms of the
+* license, either version 1 or (at your option) any later version.
 * 
-* This software is published under the ALPS Application License; you can use,
-* redistribute and/or modify this software under the terms of the license,
-* either version 1 or (at your option) any later version.
-* 
-* You should have received a copy of the ALPS Application License along with
-* the ALPS Library; see the file LICENSE. If not, the license is also
-* available from http://alps.comp-phys.org/.
-* 
+* You should have received a copy of the ALPS Application License
+* along with this software; see the file LICENSE. If not, the license
+* is also available from http://alps.comp-phys.org/.
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 * FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT 
@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: vector_helper.h 604 2004-01-16 08:35:21Z wistaria $
+/* $Id: vector_helper.h 693 2004-03-16 15:48:04Z wistaria $ */
 
 #ifndef LOOPER_VECTOR_HELPER_H
 #define LOOPER_VECTOR_HELPER_H
@@ -43,7 +43,7 @@ class index_helper
 public:
   template<class D>
   static typename D::size_type index(const D& a,
-				     const typename D::value_type * ptr)
+                                     const typename D::value_type * ptr)
   {
     index_helper<D> helper(a);
     return helper.index(ptr);
@@ -99,8 +99,8 @@ public:
 
       // find boundary of chunks
       for (int i = 1; i < a.size(); ++i)
-	if ((size_type)(&a[i]) - (size_type)(&a[i-1]) != sizeof(T))
-	  map_.push_back(std::make_pair((size_type)(&a[i]), i));
+        if ((size_type)(&a[i]) - (size_type)(&a[i-1]) != sizeof(T))
+          map_.push_back(std::make_pair((size_type)(&a[i]), i));
 
       std::sort(map_.begin(), map_.end());
     }
@@ -110,8 +110,8 @@ public:
   {
     typename map_type::const_iterator p = 
       std::lower_bound(map_.begin(), map_.end(),
-		       std::make_pair((size_type)ptr, 0),
-		       std::less<std::pair<size_type, size_type> >());
+                       std::make_pair((size_type)ptr, 0),
+                       std::less<std::pair<size_type, size_type> >());
     if (p == map_.end() || (size_type)ptr != p->first) --p;
     return p->second + ((size_type)ptr - (p->first)) / sizeof(T);
   }
@@ -147,7 +147,7 @@ private:
 //
 //       // find boundary of chunks
 //       for (int i = 1; i < a.size(); ++i)
-// 	if ((&a[i]) - (&a[i-1]) != 1) map_.push_back(std::make_pair(&a[i], i));
+//         if ((&a[i]) - (&a[i-1]) != 1) map_.push_back(std::make_pair(&a[i], i));
 //
 //       std::sort(map_.begin(), map_.end());
 //     }
@@ -157,7 +157,7 @@ private:
 //   {
 //     typename map_type::const_iterator p = 
 //       std::lower_bound(map_.begin(), map_.end(), std::make_pair(ptr, 0),
-// 		       std::less<std::pair<const value_type *, size_type> >());
+//                        std::less<std::pair<const value_type *, size_type> >());
 //     if (p == map_.end() || ptr != p->first) --p;
 //     return p->second + (ptr - (p->first));
 //   }
@@ -188,7 +188,7 @@ private:
 //   {
 //     int i = 0;
 //     for (typename array_type::const_iterator itr = array_ptr_->begin();
-// 	 itr != array_ptr_->end(); ++itr) {
+//          itr != array_ptr_->end(); ++itr) {
 //       if (&*itr == ptr) break;
 //       ++i;
 //     }

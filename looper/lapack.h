@@ -1,17 +1,17 @@
 /*****************************************************************************
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
-* 
+*
 * Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+*
+* This software is published under the ALPS Application License; you
+* can use, redistribute it and/or modify it under the terms of the
+* license, either version 1 or (at your option) any later version.
 * 
-* This software is published under the ALPS Application License; you can use,
-* redistribute and/or modify this software under the terms of the license,
-* either version 1 or (at your option) any later version.
-* 
-* You should have received a copy of the ALPS Application License along with
-* the ALPS Library; see the file LICENSE. If not, the license is also
-* available from http://alps.comp-phys.org/.
-* 
+* You should have received a copy of the ALPS Application License
+* along with this software; see the file LICENSE. If not, the license
+* is also available from http://alps.comp-phys.org/.
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 * FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT 
@@ -21,6 +21,8 @@
 * DEALINGS IN THE SOFTWARE.
 *
 *****************************************************************************/
+
+/* $Id: lapack.h 693 2004-03-16 15:48:04Z wistaria $ */
 
 #ifndef LOOPER_LAPACK_H
 #define LOOPER_LAPACK_H
@@ -43,38 +45,38 @@ extern "C" {
 // SSYEV: compute all eigenvalues and, optionally, eigenvectors of a
 // real symmetric matrix (single precision, simple driver)
 void LOOPER_FCALL(ssyev,SSYEV)(const char& jobz, const char& uplo, const int& n,
-			     float a[], const int& lda,
-			     float w[],
-			     float work[],
-			     const int& lwork, int& info);
+                             float a[], const int& lda,
+                             float w[],
+                             float work[],
+                             const int& lwork, int& info);
   
 // DSYEV: compute all eigenvalues and, optionally, eigenvectors of a
 // real symmetric matrix (double precision, simple driver)
 void LOOPER_FCALL(dsyev,DSYEV)(const char& jobz, const char& uplo, const int& n,
-			     double a[], const int& lda,
-			     double w[],
-			     double work[],
-			     const int& lwork, int& info);
+                             double a[], const int& lda,
+                             double w[],
+                             double work[],
+                             const int& lwork, int& info);
 
 // CHEEV: compute all eigenvalues and, optionally, eigenvectors of a
 // complex Hermitian matrix (single precision, simple driver)
 void LOOPER_FCALL(cheev,CHEEV)(const char& jobz, const char& uplo, const int& n,
-			     std::complex<float> a[], const int& lda,
-			     float w[],
-			     std::complex<float> work[],
-			     const int& lwork,
-			     float rwork[],
-			     int& info);
+                             std::complex<float> a[], const int& lda,
+                             float w[],
+                             std::complex<float> work[],
+                             const int& lwork,
+                             float rwork[],
+                             int& info);
 
 // ZHEEV: compute all eigenvalues and, optionally, eigenvectors of a
 // complex Hermitian matrix (double precision, simple driver)
 void LOOPER_FCALL(zheev,ZHEEV)(const char& jobz, const char& uplo, const int& n,
-			     std::complex<double> a[], const int& lda,
-			     double w[],
-			     std::complex<double> work[],
-			     const int& lwork,
-			     double rwork[],
-			     int& info);
+                             std::complex<double> a[], const int& lda,
+                             double w[],
+                             std::complex<double> work[],
+                             const int& lwork,
+                             double rwork[],
+                             int& info);
 
 #if defined(c_plusplus) || defined(__cplusplus)
 }
@@ -85,8 +87,8 @@ namespace looper {
 namespace lapack_dispatch {
 
 inline void syev(const char & jobz, const char& uplo, const int& n,
-		 float a[], const int& lda, float w[],
-		 int & info) {
+                 float a[], const int& lda, float w[],
+                 int & info) {
   // check optimal size of lwork
   int lwork = -1;
   float* work  = new float[1];
@@ -102,8 +104,8 @@ inline void syev(const char & jobz, const char& uplo, const int& n,
 }
 
 inline void syev(const char & jobz, const char& uplo, const int& n,
-		 double a[], const int& lda, double w[],
-		 int & info) {
+                 double a[], const int& lda, double w[],
+                 int & info) {
   // check optimal size of lwork
   int lwork = -1;
   double* work  = new double[1];
@@ -118,8 +120,8 @@ inline void syev(const char & jobz, const char& uplo, const int& n,
 }
 
 inline void syev(const char & jobz, const char& uplo, const int& n,
-		 std::complex<float> a[], const int& lda, float w[],
-		 int & info) {
+                 std::complex<float> a[], const int& lda, float w[],
+                 int & info) {
   // check optimal size of lwork
   int lwork = -1;
   std::complex<float>* work  = new std::complex<float>[1];
@@ -136,8 +138,8 @@ inline void syev(const char & jobz, const char& uplo, const int& n,
 }
 
 inline void syev(const char & jobz, const char& uplo, const int& n,
-		 std::complex<double> a[], const int& lda, double w[],
-		 int & info) {
+                 std::complex<double> a[], const int& lda, double w[],
+                 int & info) {
   // check optimal size of lwork
   int lwork = -1;
   std::complex<double>* work  = new std::complex<double>[1];
@@ -194,11 +196,11 @@ inline void diagonalize(Matrix& a, Vector& w, bool need_eigenvectors = true)
 
   // call dispatcher
   lapack_dispatch::syev(jobz, uplo,
-			vector_helper<Vector>::size(w),
-			matrix_helper<Matrix>::begin_ptr(a),
-			vector_helper<Vector>::size(w),
-			vector_helper<Vector>::begin_ptr(w),
-			info);
+                        vector_helper<Vector>::size(w),
+                        matrix_helper<Matrix>::begin_ptr(a),
+                        vector_helper<Vector>::size(w),
+                        vector_helper<Vector>::begin_ptr(w),
+                        info);
   if (info != 0) throw std::runtime_error("failed in syev");
 }
 

@@ -1,17 +1,17 @@
 /*****************************************************************************
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
-* 
+*
 * Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+*
+* This software is published under the ALPS Application License; you
+* can use, redistribute it and/or modify it under the terms of the
+* license, either version 1 or (at your option) any later version.
 * 
-* This software is published under the ALPS Application License; you can use,
-* redistribute and/or modify this software under the terms of the license,
-* either version 1 or (at your option) any later version.
-* 
-* You should have received a copy of the ALPS Application License along with
-* the ALPS Library; see the file LICENSE. If not, the license is also
-* available from http://alps.comp-phys.org/.
-* 
+* You should have received a copy of the ALPS Application License
+* along with this software; see the file LICENSE. If not, the license
+* is also available from http://alps.comp-phys.org/.
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 * FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT 
@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: xxz_model.C 604 2004-01-16 08:35:21Z wistaria $
+/* $Id: xxz_model.C 693 2004-03-16 15:48:04Z wistaria $ */
 
 #include <looper/xxz.h>
 #include <iostream>
@@ -48,16 +48,16 @@ void output(const G& graph, const looper::xxz_model& m)
        ++vi) {
     int t = site_type[*vi];
     std::cout << "site " << *vi << ": type = " << t << ", S = " << m.spin(t)
-	      << std::endl;
+              << std::endl;
   }
   
   // bond parameters
   std::cout << "number of bond types = " << m.num_bond_types() << std::endl;
   if (m.is_uniform_bond()) {
     std::cout << "C = " << m.uniform_bond().c()
-	      << ", Jxy = " << m.uniform_bond().jxy()
-	      << ", Jz = " << m.uniform_bond().jz()
-	      << std::endl;
+              << ", Jxy = " << m.uniform_bond().jxy()
+              << ", Jz = " << m.uniform_bond().jz()
+              << std::endl;
   }
   typename alps::property_map<alps::bond_type_t, graph_type, int>::const_type
     bond_type(alps::get_or_default(alps::bond_type_t(), graph, 0));
@@ -65,10 +65,10 @@ void output(const G& graph, const looper::xxz_model& m)
   for (edge_iterator ei = boost::edges(graph).first; ei != ei_end; ++ei) {
     int t = bond_type[*ei];
     std::cout << "bond " << *ei << ": type = " << t
-	      << ", C = " << m.bond(t).c()
-	      << ", Jxy = " << m.bond(t).jxy()
-	      << ", Jz = " << m.bond(t).jz()
-	      << std::endl;
+              << ", C = " << m.bond(t).c()
+              << ", Jxy = " << m.bond(t).jxy()
+              << ", Jz = " << m.bond(t).jz()
+              << std::endl;
   }
 }
 

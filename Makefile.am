@@ -69,3 +69,6 @@ percolation_cmd_SOURCES = percolation_cmd.C
 percolation_cmd_CPPFLAGS = $(CPPFLAGS_SGL)
 percolation_cmd_LDFLAGS = $(LDFLAGS_SGL)
 percolation_cmd_LDADD = $(LIBS_SGL)
+
+update-preamble:
+	find . -type f -name '*\.h' -or -name '*\.C' -or -name '*\.hpp' -or -name '*\.h\.in' | xargs ./update_preamble.pl

@@ -1,17 +1,17 @@
 /*****************************************************************************
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
-* 
+*
 * Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+*
+* This software is published under the ALPS Application License; you
+* can use, redistribute it and/or modify it under the terms of the
+* license, either version 1 or (at your option) any later version.
 * 
-* This software is published under the ALPS Application License; you can use,
-* redistribute and/or modify this software under the terms of the license,
-* either version 1 or (at your option) any later version.
-* 
-* You should have received a copy of the ALPS Application License along with
-* the ALPS Library; see the file LICENSE. If not, the license is also
-* available from http://alps.comp-phys.org/.
-* 
+* You should have received a copy of the ALPS Application License
+* along with this software; see the file LICENSE. If not, the license
+* is also available from http://alps.comp-phys.org/.
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 * FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT 
@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: virtual_graph.h 669 2004-03-07 13:51:40Z wistaria $
+/* $Id: virtual_graph.h 693 2004-03-16 15:48:04Z wistaria $ */
 
 #ifndef LOOPER_VIRTUAL_GRAPH_H
 #define LOOPER_VIRTUAL_GRAPH_H
@@ -67,11 +67,11 @@ public:
   }
 
   friend bool operator==(const vmapping& lhs,
-			 const vmapping& rhs) {
+                         const vmapping& rhs) {
     return lhs.map_ == rhs.map_;
   }
   friend bool operator!=(const vmapping& lhs,
-			 const vmapping& rhs) {
+                         const vmapping& rhs) {
     return !operator==(lhs, rhs);
   }
 
@@ -82,17 +82,17 @@ public:
     for (int g = 0; g < num_groups(); ++g) {
       os << "    " << g << " -> ";
       if (num_virtual_vertices(g) == 0) {
-	os << "null\n";
+        os << "null\n";
       } else if (num_virtual_vertices(g) == 1) {
-	os << *(map_[g]) << '\n';
+        os << *(map_[g]) << '\n';
       } else {
-	os << "[" << *(map_[g]) << "," << *(map_[g+1]) - 1 << "]\n";
+        os << "[" << *(map_[g]) << "," << *(map_[g+1]) - 1 << "]\n";
       }
     }
   }
 
   friend std::ostream& operator<<(std::ostream& os,
-				  const vmapping& map) {
+                                  const vmapping& map) {
     map.output(os);
     return os;
   }
@@ -121,7 +121,7 @@ struct virtual_graph
 
 template<class RG, class MDL, class G>
 inline void generate_virtual_graph(const RG& rg, const MDL& model,
-				   virtual_graph<G>& vg)
+                                   virtual_graph<G>& vg)
 {
   typedef RG                                      rgraph_type;
   typedef typename virtual_graph<G>::graph_type   vgraph_type;
@@ -145,7 +145,7 @@ inline void generate_virtual_graph(const RG& rg, const MDL& model,
     for (int i = 0; i < model.spin(t).get_twice(); ++i) {
       // add vertices to virtual graph
       typename vgraph_type::vertex_descriptor
-	vvd = boost::add_vertex(vg.graph);
+        vvd = boost::add_vertex(vg.graph);
 
       // copy vertex properties
       alps::copy_property(vertex_type_t(), rg, *rvi, vg.graph, vvd);
@@ -173,18 +173,18 @@ inline void generate_virtual_graph(const RG& rg, const MDL& model,
     typename rgraph_type::vertex_descriptor rt = boost::target(*rei, rg);
     typename vgraph_type::vertex_iterator vvsi, vvsi_end;
     for (boost::tie(vvsi, vvsi_end) = vg.mapping.virtual_vertices(rs);
-	 vvsi != vvsi_end; ++vvsi) {
+         vvsi != vvsi_end; ++vvsi) {
       typename vgraph_type::vertex_iterator vvti, vvti_end;
       for (boost::tie(vvti, vvti_end) = vg.mapping.virtual_vertices(rt);
-	   vvti != vvti_end; ++vvti) {
-	// add edges to virtual graph
-	typename vgraph_type::edge_descriptor ved =
-	  boost::add_edge(*vvsi, *vvti, vg.graph).first;
-	  
-	// setup edge properties
-	boost::put(edge_index_t(), vg.graph, ved,
-		   boost::num_edges(vg.graph) - 1);
-	alps::copy_property(edge_type_t(), rg, *rei, vg.graph, ved);
+           vvti != vvti_end; ++vvti) {
+        // add edges to virtual graph
+        typename vgraph_type::edge_descriptor ved =
+          boost::add_edge(*vvsi, *vvti, vg.graph).first;
+          
+        // setup edge properties
+        boost::put(edge_index_t(), vg.graph, ved,
+                   boost::num_edges(vg.graph) - 1);
+        alps::copy_property(edge_type_t(), rg, *rei, vg.graph, ved);
       }
     }
   }
@@ -212,8 +212,8 @@ struct const_spin_wrapper
 
 template<class G, class IntType>
 inline void generate_virtual_graph(const G& rg,
-				   const alps::half_integer<IntType>& s,
-				   virtual_graph<G>& vg)
+                                   const alps::half_integer<IntType>& s,
+                                   virtual_graph<G>& vg)
 {
   generate_virtual_graph(rg,
     vg_detail::const_spin_wrapper<alps::half_integer<IntType> >(s), vg);
@@ -221,8 +221,8 @@ inline void generate_virtual_graph(const G& rg,
 
 template<class G, class IntType>
 inline void generate_virtual_graph(const G& rg,
-				   const std::vector<alps::half_integer<IntType> >& v,
-				   virtual_graph<G>& vg)
+                                   const std::vector<alps::half_integer<IntType> >& v,
+                                   virtual_graph<G>& vg)
 {
   generate_virtual_graph(rg,
     vg_detail::vector_spin_wrapper<alps::half_integer<IntType> >(v), vg);

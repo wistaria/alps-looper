@@ -1,17 +1,17 @@
 /*****************************************************************************
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
-* 
+*
 * Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+*
+* This software is published under the ALPS Application License; you
+* can use, redistribute it and/or modify it under the terms of the
+* license, either version 1 or (at your option) any later version.
 * 
-* This software is published under the ALPS Application License; you can use,
-* redistribute and/or modify this software under the terms of the license,
-* either version 1 or (at your option) any later version.
-* 
-* You should have received a copy of the ALPS Application License along with
-* the ALPS Library; see the file LICENSE. If not, the license is also
-* available from http://alps.comp-phys.org/.
-* 
+* You should have received a copy of the ALPS Application License
+* along with this software; see the file LICENSE. If not, the license
+* is also available from http://alps.comp-phys.org/.
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 * FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT 
@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: union_find.C 604 2004-01-16 08:35:21Z wistaria $
+/* $Id: union_find.C 693 2004-03-16 15:48:04Z wistaria $ */
 
 #include <looper/union_find.h>
 #include <boost/random.hpp>
@@ -66,13 +66,13 @@ int main()
   for (vector_type::iterator itr = tree.begin(); itr != tree.end(); ++itr) {
     if (itr->is_root()) {
       std::cout << "node " << index(itr, tree.begin())
-		<< " is root and tree size is "
-		<< itr->weight() << std::endl;
+                << " is root and tree size is "
+                << itr->weight() << std::endl;
     } else {
       std::cout << "node " << index(itr, tree.begin());
       std::cout << "'s parent is " << index(itr->parent(), tree.begin());
       std::cout << " and its root is " << index(itr->root(), tree.begin())
-		<< std::endl;
+                << std::endl;
     }
   }
 }

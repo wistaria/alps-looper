@@ -1,17 +1,17 @@
 /*****************************************************************************
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
-* 
+*
 * Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+*
+* This software is published under the ALPS Application License; you
+* can use, redistribute it and/or modify it under the terms of the
+* license, either version 1 or (at your option) any later version.
 * 
-* This software is published under the ALPS Application License; you can use,
-* redistribute and/or modify this software under the terms of the license,
-* either version 1 or (at your option) any later version.
-* 
-* You should have received a copy of the ALPS Application License along with
-* the ALPS Library; see the file LICENSE. If not, the license is also
-* available from http://alps.comp-phys.org/.
-* 
+* You should have received a copy of the ALPS Application License
+* along with this software; see the file LICENSE. If not, the license
+* is also available from http://alps.comp-phys.org/.
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 * FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT 
@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: amida.h 604 2004-01-16 08:35:21Z wistaria $
+/* $Id: amida.h 693 2004-03-16 15:48:04Z wistaria $ */
 
 #ifndef LOOPER_AMIDA_H
 #define LOOPER_AMIDA_H
@@ -110,13 +110,13 @@ struct amida_node : public amida_node_base
   {
     od << series[0] << series[1]
        << ((next[0] == 0) ?
-	   0 : helper.index(static_cast<amida_node<T> *>(next[0])) + 1)
+           0 : helper.index(static_cast<amida_node<T> *>(next[0])) + 1)
        << ((next[1] == 0) ?
-	   0 : helper.index(static_cast<amida_node<T> *>(next[1])) + 1)
+           0 : helper.index(static_cast<amida_node<T> *>(next[1])) + 1)
        << ((prev[0] == 0) ?
-	   0 : helper.index(static_cast<amida_node<T> *>(prev[0])) + 1)
+           0 : helper.index(static_cast<amida_node<T> *>(prev[0])) + 1)
        << ((prev[1] == 0) ?
-	   0 : helper.index(static_cast<amida_node<T> *>(prev[1])) + 1)
+           0 : helper.index(static_cast<amida_node<T> *>(prev[1])) + 1)
        << data_;
   }
   template<class D>
@@ -149,9 +149,9 @@ struct amida_series_iterator_base
   {
     if (node_)
       if (node_->series[0] == ser_)
-	leg_ = 0;
+        leg_ = 0;
       else
-	leg_ = 1;
+        leg_ = 1;
   }
   ~amida_series_iterator_base() {}
 
@@ -288,7 +288,7 @@ public:
   std::pair<iterator, iterator> series(size_type s)
   {
     return std::make_pair(iterator(&array_[s], s),
-			  iterator(&array_[s + num_series_], s));
+                          iterator(&array_[s + num_series_], s));
   }
   std::pair<const_iterator, const_iterator> series(size_type s) const
   {
@@ -299,8 +299,8 @@ public:
 
   std::pair<iterator, iterator>
   insert_link(const T& t,
-	      const iterator& prev0, const iterator& prev1,
-	      const iterator& next0, const iterator& next1)
+              const iterator& prev0, const iterator& prev1,
+              const iterator& next0, const iterator& next1)
   {
     // get a new node
     node_type* n = static_cast<node_type *>(new_node());
@@ -322,19 +322,19 @@ public:
   
     ++num_links_;
     return std::make_pair(iterator(n, n->series[0]),
-			  iterator(n, n->series[1]));
+                          iterator(n, n->series[1]));
   }
 
   std::pair<iterator, iterator>
   insert_link_next(const T& t, const iterator& prev0, const iterator& prev1) {
     return insert_link(t, prev0, prev1,
-		       boost::next(prev0), boost::next(prev1));
+                       boost::next(prev0), boost::next(prev1));
   }
     
   std::pair<iterator, iterator>
   insert_link_prev(const T& t, const iterator& next0, const iterator& next1) {
     return insert_link(t, boost::prior(next0), boost::prior(next1),
-		       next0, next1);
+                       next0, next1);
   }
 
   void erase(iterator itr)
@@ -342,17 +342,17 @@ public:
     if (itr.node_->is_link()) {
       iterator prev0, next0, prev1, next1;
       if (itr.ser_ == 0) {
-	prev0 = boost::prior(itr);
-	next0 = boost::next(itr);
-	itr.jump();
-	prev1 = boost::prior(itr);
-	next1 = boost::next(itr);
+        prev0 = boost::prior(itr);
+        next0 = boost::next(itr);
+        itr.jump();
+        prev1 = boost::prior(itr);
+        next1 = boost::next(itr);
       } else {
-	prev1 = boost::prior(itr);
-	next1 = boost::next(itr);
-	itr.jump();
-	prev0 = boost::prior(itr);
-	next0 = boost::next(itr);
+        prev1 = boost::prior(itr);
+        next1 = boost::next(itr);
+        itr.jump();
+        prev0 = boost::prior(itr);
+        next0 = boost::next(itr);
       }
       prev0.node_->next[prev0.leg_] = next0.node_;
       prev1.node_->next[prev1.leg_] = next1.node_;
@@ -377,7 +377,7 @@ public:
     index_helper<std::deque<node_type> > helper(array_);
     od << largest_ << num_series_ << num_nodes_ << num_links_ << num_cuts_
        << ((vacant_ == 0) ?
-	   0 : helper.index(static_cast<node_type *>(vacant_)) + 1);
+           0 : helper.index(static_cast<node_type *>(vacant_)) + 1);
     for (std::size_t i = 0; i < largest_; ++i) array_[i].save(od, helper);
   }
   void load(alps::IDump& id)

@@ -1,17 +1,17 @@
 /*****************************************************************************
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
-* 
+*
 * Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+*
+* This software is published under the ALPS Application License; you
+* can use, redistribute it and/or modify it under the terms of the
+* license, either version 1 or (at your option) any later version.
 * 
-* This software is published under the ALPS Application License; you can use,
-* redistribute and/or modify this software under the terms of the license,
-* either version 1 or (at your option) any later version.
-* 
-* You should have received a copy of the ALPS Application License along with
-* the ALPS Library; see the file LICENSE. If not, the license is also
-* available from http://alps.comp-phys.org/.
-* 
+* You should have received a copy of the ALPS Application License
+* along with this software; see the file LICENSE. If not, the license
+* is also available from http://alps.comp-phys.org/.
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 * FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT 
@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: sse.h 604 2004-01-16 08:35:21Z wistaria $
+/* $Id: sse.h 693 2004-03-16 15:48:04Z wistaria $ */
 
 #ifndef LOOPER_SSE_H
 #define LOOPER_SSE_H
@@ -73,7 +73,7 @@ struct sse<virtual_graph<G>, M, W, N>
     template<class RG>
     parameter_type(const RG& rg, const model_type& m, double b)
       : virtual_graph(), model(m), beta(b), is_bipartite(false),
-	chooser(), ez_offset(0.)
+        chooser(), ez_offset(0.)
     { 
       looper::generate_virtual_graph(rg, model, virtual_graph);
       is_bipartite = alps::set_parity(virtual_graph.graph);
@@ -86,10 +86,10 @@ struct sse<virtual_graph<G>, M, W, N>
       typename boost::graph_traits<graph_type>::edge_iterator ei, ei_end;
       ez_offset = 0.;
       for (boost::tie(ei, ei_end) = boost::edges(virtual_graph.graph);
-	   ei != ei_end; ++ei)
-	ez_offset +=
-	  weight_type(model.bond(bond_type(*ei, virtual_graph.graph))).
-	    offset();
+           ei != ei_end; ++ei)
+        ez_offset +=
+          weight_type(model.bond(bond_type(*ei, virtual_graph.graph))).
+            offset();
     }
 
     vg_type                   virtual_graph;
@@ -186,7 +186,7 @@ struct sse<virtual_graph<G>, M, W, N>
 
     vertex_iterator vi_end = boost::vertices(vg.graph).second;
     for (vertex_iterator vi = boost::vertices(vg.graph).first;
-	 vi != vi_end; ++vi) {
+         vi != vi_end; ++vi) {
       // all up
       config.bottom[*vi].conf() = 0;
       config.top[*vi].conf() = 0;
@@ -201,7 +201,7 @@ struct sse<virtual_graph<G>, M, W, N>
     config.num_operators = 0;
   }
   static void initialize(config_type& config, const parameter_type& p,
-			 int ni = 16)
+                         int ni = 16)
   { initialize(config, p.virtual_graph, ni); }
 
   static bool check_and_resize(config_type& config)
@@ -210,11 +210,11 @@ struct sse<virtual_graph<G>, M, W, N>
     if (config.num_operators > 0.75 * old_size) {
       config.os.resize(2 * old_size);
       for (int i = old_size - 1; i >= 0; --i) {
-	config.os[2 * i + 1] = config.os[i];
-	config.os[2 * i    ].clear_graph();
-	config.os[2 * i    ].set_to_identity();
-	config.os[    i    ].clear_graph();
-	config.os[    i    ].set_to_identity();
+        config.os[2 * i + 1] = config.os[i];
+        config.os[2 * i    ].clear_graph();
+        config.os[2 * i    ].set_to_identity();
+        config.os[    i    ].clear_graph();
+        config.os[    i    ].set_to_identity();
       }
       return true;
     } else {
@@ -224,9 +224,9 @@ struct sse<virtual_graph<G>, M, W, N>
 
   template<class RNG>
   static void generate_loops(config_type& config, const vg_type& vg,
-			     const model_type& /* model */, double beta,
-			     const bond_chooser<weight_type>& bc,
-			     RNG& uniform_01)
+                             const model_type& /* model */, double beta,
+                             const bond_chooser<weight_type>& bc,
+                             RNG& uniform_01)
   {
     typedef typename config_type::iterator operator_iterator;
 
@@ -243,56 +243,56 @@ struct sse<virtual_graph<G>, M, W, N>
       vertex_iterator vi, vi_end;
       std::vector<int>::iterator itr = curr_conf.begin();
       for (boost::tie(vi, vi_end) = boost::vertices(vg.graph); 
-	   vi != vi_end; ++vi, ++itr) *itr = config.bottom[*vi].conf();
+           vi != vi_end; ++vi, ++itr) *itr = config.bottom[*vi].conf();
     }
     
     // scan over operators
     if (boost::num_edges(vg.graph) > 0) {
       operator_iterator oi_end = config.os.end();
       for (operator_iterator oi = config.os.begin(); oi != oi_end; ++oi) {
-	if (oi->is_identity()) {
-	  // identity operator
-	  int b = bc.choose(uniform_01);
-	  edge_iterator ei = boost::edges(vg.graph).first + b;
-	  if (uniform_01() <
-	      bc.global_weight() * beta *
-	      bc.weight(b).p_accept(curr_conf[boost::source(*ei, vg.graph)],
-				    curr_conf[boost::target(*ei, vg.graph)]) /
-	      double(config.os.size() - config.num_operators)) {
-	    // insert diagonal operator
-	    oi->identity_to_diagonal();
-	    oi->set_bond(b);
-	    ++config.num_operators;
-	    oi->set_new((curr_conf[boost::source(*ei, vg.graph)] ^
-			 curr_conf[boost::target(*ei, vg.graph)]),
-			(uniform_01() < bc.weight(b).p_freeze()));
-	  } else { /* nothing to be done */ }
-	} else if (oi->is_diagonal()) {
-	  // diagonal operator
-	  int b = oi->bond();
-	  edge_iterator ei = boost::edges(vg.graph).first + b;
-	  if (uniform_01() <
-	      double(config.os.size() - config.num_operators + 1) / 
-	      (bc.global_weight() * beta *
-	       bc.weight(b).
-	         p_accept(curr_conf[boost::source(*ei, vg.graph)],
-			  curr_conf[boost::target(*ei, vg.graph)]))) {
-	    // remove diagonal operator
-	    oi->diagonal_to_identity();
-	    --config.num_operators;
-	  } else {
-	    // remain as diagonal operator
-	    oi->set_old((curr_conf[boost::source(*ei, vg.graph)] ^
-			 curr_conf[boost::target(*ei, vg.graph)]));
-	  }
-	} else {
-	  // off-diagonal operator
-	  int b = oi->bond();
-	  edge_iterator ei = boost::edges(vg.graph).first + oi->bond();
-	  curr_conf[boost::source(*ei, vg.graph)] ^= 1;
-	  curr_conf[boost::target(*ei, vg.graph)] ^= 1;
-	  oi->set_old(uniform_01() < bc.weight(b).p_reflect());
-	}
+        if (oi->is_identity()) {
+          // identity operator
+          int b = bc.choose(uniform_01);
+          edge_iterator ei = boost::edges(vg.graph).first + b;
+          if (uniform_01() <
+              bc.global_weight() * beta *
+              bc.weight(b).p_accept(curr_conf[boost::source(*ei, vg.graph)],
+                                    curr_conf[boost::target(*ei, vg.graph)]) /
+              double(config.os.size() - config.num_operators)) {
+            // insert diagonal operator
+            oi->identity_to_diagonal();
+            oi->set_bond(b);
+            ++config.num_operators;
+            oi->set_new((curr_conf[boost::source(*ei, vg.graph)] ^
+                         curr_conf[boost::target(*ei, vg.graph)]),
+                        (uniform_01() < bc.weight(b).p_freeze()));
+          } else { /* nothing to be done */ }
+        } else if (oi->is_diagonal()) {
+          // diagonal operator
+          int b = oi->bond();
+          edge_iterator ei = boost::edges(vg.graph).first + b;
+          if (uniform_01() <
+              double(config.os.size() - config.num_operators + 1) / 
+              (bc.global_weight() * beta *
+               bc.weight(b).
+                 p_accept(curr_conf[boost::source(*ei, vg.graph)],
+                          curr_conf[boost::target(*ei, vg.graph)]))) {
+            // remove diagonal operator
+            oi->diagonal_to_identity();
+            --config.num_operators;
+          } else {
+            // remain as diagonal operator
+            oi->set_old((curr_conf[boost::source(*ei, vg.graph)] ^
+                         curr_conf[boost::target(*ei, vg.graph)]));
+          }
+        } else {
+          // off-diagonal operator
+          int b = oi->bond();
+          edge_iterator ei = boost::edges(vg.graph).first + oi->bond();
+          curr_conf[boost::source(*ei, vg.graph)] ^= 1;
+          curr_conf[boost::target(*ei, vg.graph)] ^= 1;
+          oi->set_old(uniform_01() < bc.weight(b).p_reflect());
+        }
       }
     }
 #ifndef NDEBUG
@@ -301,7 +301,7 @@ struct sse<virtual_graph<G>, M, W, N>
       vertex_iterator vi, vi_end;
       std::vector<int>::iterator itr = curr_conf.begin();
       for (boost::tie(vi, vi_end) = boost::vertices(vg.graph); 
-	   vi != vi_end; ++vi, ++itr) assert(*itr == config.top[*vi].conf());
+           vi != vi_end; ++vi, ++itr) assert(*itr == config.top[*vi].conf());
     }
 #endif
 
@@ -311,39 +311,39 @@ struct sse<virtual_graph<G>, M, W, N>
 
     {
       std::vector<sse_node::segment_type *>
-	curr_ptr(boost::num_vertices(vg.graph));
+        curr_ptr(boost::num_vertices(vg.graph));
       {
-	vertex_iterator vi, vi_end;
-	std::vector<sse_node::segment_type *>::iterator pi = curr_ptr.begin();
-	for (boost::tie(vi, vi_end) = boost::vertices(vg.graph); 
-	     vi != vi_end; ++vi, ++pi)
-	  *pi = &(config.bottom[*vi].loop_segment(0));
+        vertex_iterator vi, vi_end;
+        std::vector<sse_node::segment_type *>::iterator pi = curr_ptr.begin();
+        for (boost::tie(vi, vi_end) = boost::vertices(vg.graph); 
+             vi != vi_end; ++vi, ++pi)
+          *pi = &(config.bottom[*vi].loop_segment(0));
       }
 
       // scan over operators
       {
-	operator_iterator oi_end = config.os.end();
-	for (operator_iterator oi = config.os.begin(); oi != oi_end; ++oi) {
-	  if (!oi->is_identity()) {
-	    edge_iterator ei = boost::edges(vg.graph).first + oi->bond();
-	    union_find::unify(*curr_ptr[boost::source(*ei, vg.graph)],
-			      segment_d(oi, 0));
-	    union_find::unify(*curr_ptr[boost::target(*ei, vg.graph)],
-			      segment_d(oi, 1));
-	    if (oi->is_frozen())
-	      union_find::unify(oi->loop_segment(0), oi->loop_segment(1));
-	    curr_ptr[boost::source(*ei, vg.graph)] = &segment_u(oi, 0);
-	    curr_ptr[boost::target(*ei, vg.graph)] = &segment_u(oi, 1);
-	  }
-	}
+        operator_iterator oi_end = config.os.end();
+        for (operator_iterator oi = config.os.begin(); oi != oi_end; ++oi) {
+          if (!oi->is_identity()) {
+            edge_iterator ei = boost::edges(vg.graph).first + oi->bond();
+            union_find::unify(*curr_ptr[boost::source(*ei, vg.graph)],
+                              segment_d(oi, 0));
+            union_find::unify(*curr_ptr[boost::target(*ei, vg.graph)],
+                              segment_d(oi, 1));
+            if (oi->is_frozen())
+              union_find::unify(oi->loop_segment(0), oi->loop_segment(1));
+            curr_ptr[boost::source(*ei, vg.graph)] = &segment_u(oi, 0);
+            curr_ptr[boost::target(*ei, vg.graph)] = &segment_u(oi, 1);
+          }
+        }
       }
 
       // connect to top
       {
-	vertex_iterator vi, vi_end;
-	for (boost::tie(vi, vi_end) = boost::vertices(vg.graph); 
-	     vi != vi_end; ++vi)
-	  union_find::unify(*curr_ptr[*vi], config.top[*vi].loop_segment(0));
+        vertex_iterator vi, vi_end;
+        for (boost::tie(vi, vi_end) = boost::vertices(vg.graph); 
+             vi != vi_end; ++vi)
+          union_find::unify(*curr_ptr[*vi], config.top[*vi].loop_segment(0));
       }
     }
 
@@ -351,34 +351,34 @@ struct sse<virtual_graph<G>, M, W, N>
     {
       std::vector<int> r, c0, c1;
       for (int i = 0; i < vg.mapping.num_groups(); ++i) {
-	int s2 = vg.mapping.num_virtual_vertices(i);
-	int offset = *(vg.mapping.virtual_vertices(i).first);
-	if (s2 == 1) {
-	  // S=1/2: just connect top and bottom
-	  union_find::unify(config.bottom[offset].loop_segment(0),
-			    config.top   [offset].loop_segment(0));
-	} else {
-	  // S>=1
-	  r.resize(s2);
-	  c0.resize(s2);
-	  c1.resize(s2);
-	  vertex_iterator vi_end = vg.mapping.virtual_vertices(i).second;
-	  for (vertex_iterator vi = vg.mapping.virtual_vertices(i).first;
-	       vi != vi_end; ++vi) {
-	    r[*vi - offset] = *vi - offset;
-	    c0[*vi - offset] = config.bottom[*vi].conf();
-	    c1[*vi - offset] = config.top   [*vi].conf();
-	  }
-	  restricted_random_shuffle(r.begin(), r.end(),
-				    c0.begin(), c0.end(),
-				    c1.begin(), c1.end(),
-				    uniform_01);
-	  for (int j = 0; j < s2; ++j) {
-	    union_find::unify(
-			      config.bottom[offset +   j ].loop_segment(0),
-			      config.top   [offset + r[j]].loop_segment(0));
-	  }
-	}
+        int s2 = vg.mapping.num_virtual_vertices(i);
+        int offset = *(vg.mapping.virtual_vertices(i).first);
+        if (s2 == 1) {
+          // S=1/2: just connect top and bottom
+          union_find::unify(config.bottom[offset].loop_segment(0),
+                            config.top   [offset].loop_segment(0));
+        } else {
+          // S>=1
+          r.resize(s2);
+          c0.resize(s2);
+          c1.resize(s2);
+          vertex_iterator vi_end = vg.mapping.virtual_vertices(i).second;
+          for (vertex_iterator vi = vg.mapping.virtual_vertices(i).first;
+               vi != vi_end; ++vi) {
+            r[*vi - offset] = *vi - offset;
+            c0[*vi - offset] = config.bottom[*vi].conf();
+            c1[*vi - offset] = config.top   [*vi].conf();
+          }
+          restricted_random_shuffle(r.begin(), r.end(),
+                                    c0.begin(), c0.end(),
+                                    c1.begin(), c1.end(),
+                                    uniform_01);
+          for (int j = 0; j < s2; ++j) {
+            union_find::unify(
+                              config.bottom[offset +   j ].loop_segment(0),
+                              config.top   [offset + r[j]].loop_segment(0));
+          }
+        }
       }
     }
 
@@ -387,52 +387,52 @@ struct sse<virtual_graph<G>, M, W, N>
       config.num_loops0 = 0;
       vertex_iterator vi, vi_end;
       for (boost::tie(vi, vi_end) = boost::vertices(vg.graph);
-	   vi != vi_end; ++vi) {
-	if (config.bottom[*vi].loop_segment(0).index ==
-	    loop_segment::undefined) {
-	  if (config.bottom[*vi].loop_segment(0).root()->index ==
-	      loop_segment::undefined)
-	    config.bottom[*vi].loop_segment(0).root()->index =
-	      (config.num_loops0)++;
-	  config.bottom[*vi].loop_segment(0).index =
-	    config.bottom[*vi].loop_segment(0).root()->index;
-	}
-	if (config.top[*vi].loop_segment(0).index ==
-	    loop_segment::undefined) {
-	  if (config.top[*vi].loop_segment(0).root()->index ==
-	      loop_segment::undefined)
-	    config.top[*vi].loop_segment(0).root()->index =
-	      (config.num_loops0)++;
-	  config.top[*vi].loop_segment(0).index =
-	    config.top[*vi].loop_segment(0).root()->index;
-	}
+           vi != vi_end; ++vi) {
+        if (config.bottom[*vi].loop_segment(0).index ==
+            loop_segment::undefined) {
+          if (config.bottom[*vi].loop_segment(0).root()->index ==
+              loop_segment::undefined)
+            config.bottom[*vi].loop_segment(0).root()->index =
+              (config.num_loops0)++;
+          config.bottom[*vi].loop_segment(0).index =
+            config.bottom[*vi].loop_segment(0).root()->index;
+        }
+        if (config.top[*vi].loop_segment(0).index ==
+            loop_segment::undefined) {
+          if (config.top[*vi].loop_segment(0).root()->index ==
+              loop_segment::undefined)
+            config.top[*vi].loop_segment(0).root()->index =
+              (config.num_loops0)++;
+          config.top[*vi].loop_segment(0).index =
+            config.top[*vi].loop_segment(0).root()->index;
+        }
       }
     }
     {
       config.num_loops = config.num_loops0;
       operator_iterator oi_end = config.os.end();
       for (operator_iterator oi = config.os.begin(); oi != oi_end; ++oi) {
-	if (!oi->is_identity()) {
-	  if (oi->loop_segment(0).index == loop_segment::undefined) {
-	    if (oi->loop_segment(0).root()->index == loop_segment::undefined)
-	      oi->loop_segment(0).root()->index = config.num_loops++;
-	    oi->loop_segment(0).index = oi->loop_segment(0).root()->index;
-	  }
-	  if (oi->loop_segment(1).index == loop_segment::undefined) {
-	    if (oi->loop_segment(1).root()->index == loop_segment::undefined)
-	      oi->loop_segment(1).root()->index = config.num_loops++;
-	    oi->loop_segment(1).index = oi->loop_segment(1).root()->index;
-	  }
-	}
+        if (!oi->is_identity()) {
+          if (oi->loop_segment(0).index == loop_segment::undefined) {
+            if (oi->loop_segment(0).root()->index == loop_segment::undefined)
+              oi->loop_segment(0).root()->index = config.num_loops++;
+            oi->loop_segment(0).index = oi->loop_segment(0).root()->index;
+          }
+          if (oi->loop_segment(1).index == loop_segment::undefined) {
+            if (oi->loop_segment(1).root()->index == loop_segment::undefined)
+              oi->loop_segment(1).root()->index = config.num_loops++;
+            oi->loop_segment(1).index = oi->loop_segment(1).root()->index;
+          }
+        }
       }
     }
   }
   template<class RNG>
   static void generate_loops(config_type& config, parameter_type& p,
-			     RNG& uniform_01)
+                             RNG& uniform_01)
   {
     generate_loops(config, p.virtual_graph, p.model, p.beta, p.chooser,
-		   uniform_01);
+                   uniform_01);
   }
 
   template<class RNG>
@@ -444,7 +444,7 @@ struct sse<virtual_graph<G>, M, W, N>
 
     std::vector<int> flip(config.num_loops);
     std::generate(flip.begin(), flip.end(),
-		  boost::variate_generator<rng_type&,
+                  boost::variate_generator<rng_type&,
                                            boost::uniform_smallint<> >(
                     uniform_01, boost::uniform_smallint<>(0, 1)));
 
@@ -452,13 +452,13 @@ struct sse<virtual_graph<G>, M, W, N>
     {
       vertex_iterator vi, vi_end;
       for (boost::tie(vi, vi_end) = boost::vertices(vg.graph);
-	   vi != vi_end; ++vi) {
-	if (flip[config.bottom[*vi].loop_segment(0).index] == 1)
-	  config.bottom[*vi].flip_conf();
-	config.bottom[*vi].clear_graph();
-	if (flip[config.top[*vi].loop_segment(0).index] == 1)
-	  config.top[*vi].flip_conf();
-	config.top[*vi].clear_graph();
+           vi != vi_end; ++vi) {
+        if (flip[config.bottom[*vi].loop_segment(0).index] == 1)
+          config.bottom[*vi].flip_conf();
+        config.bottom[*vi].clear_graph();
+        if (flip[config.top[*vi].loop_segment(0).index] == 1)
+          config.top[*vi].flip_conf();
+        config.top[*vi].clear_graph();
       }
     }
 
@@ -466,11 +466,11 @@ struct sse<virtual_graph<G>, M, W, N>
     {
       operator_iterator oi_end = config.os.end();
       for (operator_iterator oi = config.os.begin(); oi != oi_end; ++oi) {
-	if ((!oi->is_identity()) &&
-	    (flip[oi->loop_segment(0).index] ^
-	     flip[oi->loop_segment(1).index] == 1))
-	  oi->flip_operator();
-	oi->clear_graph();
+        if ((!oi->is_identity()) &&
+            (flip[oi->loop_segment(0).index] ^
+             flip[oi->loop_segment(1).index] == 1))
+          oi->flip_operator();
+        oi->clear_graph();
       }
     }
   }
@@ -503,13 +503,13 @@ struct sse<virtual_graph<G>, M, W, N>
     for (const_operator_iterator oi = config.os.begin(); oi != oi_end; ++oi) {
       sz += c;
       if (oi->is_offdiagonal()) {
-	edge_iterator ei = boost::edges(vg.graph).first + oi->bond();
-	if (boost::source(*ei, vg.graph) == i ||
-	    boost::target(*ei, vg.graph) == i) c = -c;
+        edge_iterator ei = boost::edges(vg.graph).first + oi->bond();
+        if (boost::source(*ei, vg.graph) == i ||
+            boost::target(*ei, vg.graph) == i) c = -c;
       }
     }
     return sz / std::sqrt((double)config.os.size() *
-    			  (double)(config.os.size() + 1));
+                              (double)(config.os.size() + 1));
   }
 
   static int num_offdiagonals(const config_type& config)
@@ -548,13 +548,13 @@ struct sse<virtual_graph<G>, M, W, N>
     std::cout << "operator string:\n";
     for (int i = 0; i < config.os.size(); ++i) {
       if (config.os[i].is_identity()) {
-	std::cout << i << " identity\n";
+        std::cout << i << " identity\n";
       } else if (config.os[i].is_diagonal()) {
-	std::cout << i << " diagonal     at bond " << config.os[i].bond()
-		  << std::endl;
+        std::cout << i << " diagonal     at bond " << config.os[i].bond()
+                  << std::endl;
       } else {
-	std::cout << i << " off-diagonal at bond " << config.os[i].bond()
-		  << std::endl;
+        std::cout << i << " off-diagonal at bond " << config.os[i].bond()
+                  << std::endl;
       }
     }
   }

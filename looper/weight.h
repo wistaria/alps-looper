@@ -1,17 +1,17 @@
 /*****************************************************************************
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
-* 
+*
 * Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+*
+* This software is published under the ALPS Application License; you
+* can use, redistribute it and/or modify it under the terms of the
+* license, either version 1 or (at your option) any later version.
 * 
-* This software is published under the ALPS Application License; you can use,
-* redistribute and/or modify this software under the terms of the license,
-* either version 1 or (at your option) any later version.
-* 
-* You should have received a copy of the ALPS Application License along with
-* the ALPS Library; see the file LICENSE. If not, the license is also
-* available from http://alps.comp-phys.org/.
-* 
+* You should have received a copy of the ALPS Application License
+* along with this software; see the file LICENSE. If not, the license
+* is also available from http://alps.comp-phys.org/.
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 * FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT 
@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: weight.h 604 2004-01-16 08:35:21Z wistaria $
+/* $Id: weight.h 693 2004-03-16 15:48:04Z wistaria $ */
 
 #ifndef LOOPER_WEIGHT_H
 #define LOOPER_WEIGHT_H
@@ -42,10 +42,10 @@ class default_weight
 {
 public:
   default_weight() : density_(0), p_freeze_(0), pa_para_(0),
-		     pa_anti_(0), p_reflect_(0), offset_(0) {}
+                     pa_anti_(0), p_reflect_(0), offset_(0) {}
   template<class P>
   default_weight(const P& p) : density_(0), p_freeze_(0), pa_para_(0),
-			       pa_anti_(0), p_reflect_(0), offset_(0)
+                               pa_anti_(0), p_reflect_(0), offset_(0)
   {
     using std::abs; using std::max;
     double Jxy = abs(p.jxy()); // ignore negative signs
@@ -145,18 +145,18 @@ public:
     gw_ = 0.0;
     if (boost::num_edges(vg.graph) > 0) {
       typename boost::graph_traits<typename G::graph_type>::edge_iterator
-	ei, ei_end;
+        ei, ei_end;
       for (boost::tie(ei, ei_end) = boost::edges(vg.graph);
-	   ei != ei_end; ++ei)
-	weight_.push_back(
-	  weight_type(m.bond(boost::get(edge_type_t(), vg.graph, *ei))));
+           ei != ei_end; ++ei)
+        weight_.push_back(
+          weight_type(m.bond(boost::get(edge_type_t(), vg.graph, *ei))));
 
       std::vector<double> w(0);
       typename std::vector<weight_type>::iterator itr_end = weight_.end();
       for (typename std::vector<weight_type>::iterator itr = weight_.begin();
-	   itr != itr_end; ++itr) {
-	w.push_back(itr->weight());
-	gw_ += itr->weight();
+           itr != itr_end; ++itr) {
+        w.push_back(itr->weight());
+        gw_ += itr->weight();
       }
       rc_.init(w);
     }
