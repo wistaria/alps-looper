@@ -32,37 +32,7 @@
 #include <looper/path_integral.h>
 #include <looper/sse.h>
 #include <looper/measurement.h>
-
-#include <alps/alea.h>
 #include <alps/scheduler.h>
-
-inline double mean(const alps::Observable& o)
-{
-  if (dynamic_cast<const alps::AbstractSimpleObservable<double>*>(&o)) {
-    return dynamic_cast<const alps::AbstractSimpleObservable<double>*>(&o)
-      ->mean();
-  } else if (dynamic_cast<const alps::AbstractSimpleObservable<float>*>(&o)) {
-    return dynamic_cast<const alps::AbstractSimpleObservable<float>*>(&o)
-      ->mean();
-  } else {
-    boost::throw_exception(std::runtime_error("dynamic cast failed"));
-  }
-  return 0; // dummy
-}
-
-inline double error(const alps::Observable& o)
-{
-  if (dynamic_cast<const alps::AbstractSimpleObservable<double>*>(&o)) {
-    return dynamic_cast<const alps::AbstractSimpleObservable<double>*>(&o)
-      ->error();
-  } else if (dynamic_cast<const alps::AbstractSimpleObservable<float>*>(&o)) {
-    return dynamic_cast<const alps::AbstractSimpleObservable<float>*>(&o)
-      ->error();
-  } else {
-    boost::throw_exception(std::runtime_error("dynamic cast failed"));
-  }
-  return 0; // dummy
-}
 
 template<class QMC>
 class qmc_worker
@@ -77,12 +47,11 @@ public:
   template<class G, class MDL>
   qmc_worker(const G& rg, const MDL& model, double beta, double fs,
              alps::ObservableSet& m) :
-    param_(rg, model, beta, fs), config_()
+    param_(rg, model, beta, fs), config_(),
+    e_offset_(looper::energy_offset(param_))
   {
     using alps::RealObservable;
     using alps::make_observable;
-
-    e_offset_ = looper::energy_offset(param_);
 
     qmc::initialize(config_, param_);
 
@@ -107,29 +76,33 @@ public:
       << make_observable(
            RealObservable("beta * Energy^2"), is_signed())
       << make_observable(
-           RealObservable("Susceptibility"), is_signed())
-      << make_observable(
-           RealObservable("Staggered Susceptibility"), is_signed());
+	   RealObservable("Susceptibility"), is_signed());
+    if (is_bipartite()) {
+      m << make_observable(
+             RealObservable("Staggered Susceptibility"), is_signed());
+    }
 
     // improved measurements
     m << make_observable(
            RealObservable("Magnetization^2"),
            "Sign (improved)", double(), is_signed())
       << make_observable(
-           RealObservable("Staggered Magnetization^2"),
-           "Sign (improved)", double(), is_signed())
-      << make_observable(
            RealObservable("Uniform Generalized Magnetization^2"),
            "Sign (improved)", double(), is_signed())
       << make_observable(
            RealObservable("Uniform Generalized Susceptibility"),
-           "Sign (improved)", double(), is_signed())
-      << make_observable(
-           RealObservable("Staggered Generalized Magnetization^2"),
-           "Sign (improved)", double(), is_signed())
-      << make_observable(
-           RealObservable("Staggered Generalized Susceptibility"),
            "Sign (improved)", double(), is_signed());
+    if (is_bipartite()) {
+      m << make_observable(
+             RealObservable("Staggered Magnetization^2"),
+             "Sign (improved)", double(), is_signed())
+	<< make_observable(
+             RealObservable("Staggered Generalized Magnetization^2"),
+             "Sign (improved)", double(), is_signed())
+	<< make_observable(
+             RealObservable("Staggered Generalized Susceptibility"),
+             "Sign (improved)", double(), is_signed());
+    }
   }
 
   template<class RNG>
@@ -142,21 +115,21 @@ public:
     qmc::generate_loops(config_, param_, rng);
 
     //
-    // measure improved quantities below
+    // measure improved quantities
     //
 
     double sign_imp = 1.;
     if (is_signed()) {
-      // calculate improved sign
-      // sign = looper::sign_imp(config_, param_);
+      sign_imp = looper::sign_imp(config_, param_);
       m["Sign (improved)"] << sign_imp;
     }
 
     m["Magnetization^2"] <<
       sign_imp * looper::uniform_sz2_imp(config_, param_);
-
-    m["Staggered Magnetization^2"] <<
-      sign_imp * looper::staggered_sz2_imp(config_, param_);
+    if (is_bipartite()) {
+      m["Staggered Magnetization^2"] <<
+        sign_imp * looper::staggered_sz2_imp(config_, param_);
+    }
 
     double gm2, gs;
     boost::tie(gm2, gs) =
@@ -164,11 +137,13 @@ public:
     m["Uniform Generalized Magnetization^2"] << sign_imp * gm2;
     m["Uniform Generalized Susceptibility"] << sign_imp * gs;
 
-    double sgm2, sgs;
-    boost::tie(sgm2, sgs) =
-      looper::staggered_generalized_susceptibility_imp(config_, param_);
-    m["Staggered Generalized Magnetization^2"] << sign_imp * sgm2;
-    m["Staggered Generalized Susceptibility"] << sign_imp * sgs;
+    if (is_bipartite()) {
+      double sgm2, sgs;
+      boost::tie(sgm2, sgs) =
+	looper::staggered_generalized_susceptibility_imp(config_, param_);
+      m["Staggered Generalized Magnetization^2"] << sign_imp * sgm2;
+      m["Staggered Generalized Susceptibility"] << sign_imp * sgs;
+    }
 
     //
     // flip clusters
@@ -177,12 +152,11 @@ public:
     qmc::flip_and_cleanup(config_, param_, rng);
 
     //
-    // measure unimproved quantities below
+    // measure unimproved quantities
     //
 
     double sign = 1.;
     if (is_signed()) {
-      // calculate unimproved sign
       sign = looper::sign(config_, param_);
       m["Sign"] << sign;
     }
@@ -198,19 +172,22 @@ public:
       sign * std::sqrt((double)param_.virtual_graph.num_real_vertices) *
       param_.beta * (ez + exy);
     m["beta * Energy^2"] <<
-      sign * (double)param_.virtual_graph.num_real_vertices *
+      sign * param_.virtual_graph.num_real_vertices *
       looper::sqr(param_.beta) * e2;
 
-    double m2 = param_.virtual_graph.num_real_vertices *
+    m["Susceptibility"] <<
+      sign * param_.beta * param_.virtual_graph.num_real_vertices *
       looper::sqr(looper::uniform_sz(config_, param_));
-    m["Susceptibility"] << sign * param_.beta * m2;
-
-    m["Staggered Susceptibility"] <<
-      sign * looper::staggered_susceptibility(config_, param_);
+    if (is_bipartite()) {
+      m["Staggered Susceptibility"] <<
+	sign * looper::staggered_susceptibility(config_, param_);
+    }
   }
 
   void output_results(std::ostream& os, alps::ObservableSet& m)
   {
+    using looper::mean; using looper::error;
+
     if (is_signed()) {
       os << mean(m["Sign"]) << ' ' << error(m["Sign"]) << ' '
          << mean(m["Sign (improved)"]) << ' '
@@ -221,19 +198,24 @@ public:
        << mean(m["Specific Heat"]) << ' ' << error(m["Specific Heat"]) << ' '
        << mean(m["Magnetization^2"]) << ' '
        << error(m["Magnetization^2"]) << ' '
-       << mean(m["Susceptibility"]) << ' ' << error(m["Susceptibility"]) << ' '
-       << mean(m["Staggered Magnetization^2"]) << ' '
-       << error(m["Staggered Magnetization^2"]) << ' '
-       << mean(m["Staggered Susceptibility"]) << ' '
-       << error(m["Staggered Susceptibility"]) << ' '
-       << mean(m["Uniform Generalized Magnetization^2"]) << ' '
+       << mean(m["Susceptibility"]) << ' '
+       << error(m["Susceptibility"]) << ' ';
+    if (is_bipartite()) {
+      os << mean(m["Staggered Magnetization^2"]) << ' '
+	 << error(m["Staggered Magnetization^2"]) << ' '
+	 << mean(m["Staggered Susceptibility"]) << ' '
+	 << error(m["Staggered Susceptibility"]) << ' ';
+    }
+    os << mean(m["Uniform Generalized Magnetization^2"]) << ' '
        << error(m["Uniform Generalized Magnetization^2"]) << ' '
        << mean(m["Uniform Generalized Susceptibility"]) << ' '
-       << error(m["Uniform Generalized Susceptibility"]) << ' '
-       << mean(m["Staggered Generalized Magnetization^2"]) << ' '
-       << error(m["Staggered Generalized Magnetization^2"]) << ' '
-       << mean(m["Staggered Generalized Susceptibility"]) << ' '
-       << error(m["Staggered Generalized Susceptibility"]) << ' ';
+       << error(m["Uniform Generalized Susceptibility"]) << ' ';
+    if (is_bipartite()) {
+      os << mean(m["Staggered Generalized Magnetization^2"]) << ' '
+	 << error(m["Staggered Generalized Magnetization^2"]) << ' '
+	 << mean(m["Staggered Generalized Susceptibility"]) << ' '
+	 << error(m["Staggered Generalized Susceptibility"]) << ' ';
+    }
   }
 
   void save(alps::ODump& od) const { config_.save(od); }
@@ -241,6 +223,7 @@ public:
 
 protected:
   bool is_signed() const { return param_.model.is_signed(); }
+  bool is_bipartite() const { return param_.is_bipartite; }
 
 private:
   typename qmc::parameter_type param_;
@@ -273,9 +256,9 @@ public:
     therm_(static_cast<unsigned int>(p["THERMALIZATION"])),
     total_(therm_ + static_cast<unsigned int>(p["SWEEPS"])),
     qmc_worker_(graph(), mdl_, 1.0 / static_cast<double>(p["T"]),
-                static_cast<double>(p.value_or_default("FORCE_SCATTER",
-                  has_sign_problem() ? 0.1 : 0.0)),
-                measurements) {}
+      static_cast<double>(p.value_or_default("FORCE_SCATTER",
+        has_sign_problem() ? 0.1 : 0.0)),
+      measurements) {}
   virtual ~worker() {}
 
   virtual void dostep() {

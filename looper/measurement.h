@@ -26,8 +26,38 @@
 #define LOOPER_MEASUREMENT_H
 
 #include <looper/util.h>
+#include <alps/alea.h>
 
 namespace looper {
+
+inline double mean(const alps::Observable& o)
+{
+  if (dynamic_cast<const alps::AbstractSimpleObservable<double>*>(&o)) {
+    return dynamic_cast<const alps::AbstractSimpleObservable<double>*>(&o)
+      ->mean();
+  } else if (dynamic_cast<const alps::AbstractSimpleObservable<float>*>(&o)) {
+    return dynamic_cast<const alps::AbstractSimpleObservable<float>*>(&o)
+      ->mean();
+  } else {
+    boost::throw_exception(std::runtime_error("dynamic cast failed"));
+  }
+  return 0; // dummy
+}
+
+inline double error(const alps::Observable& o)
+{
+  if (dynamic_cast<const alps::AbstractSimpleObservable<double>*>(&o)) {
+    return dynamic_cast<const alps::AbstractSimpleObservable<double>*>(&o)
+      ->error();
+  } else if (dynamic_cast<const alps::AbstractSimpleObservable<float>*>(&o)) {
+    return dynamic_cast<const alps::AbstractSimpleObservable<float>*>(&o)
+      ->error();
+  } else {
+    boost::throw_exception(std::runtime_error("dynamic cast failed"));
+  }
+  return 0; // dummy
+}
+
 
 //
 // unimproved estimators
@@ -311,9 +341,9 @@ struct sign_imp_helper<path_integral<G, M, W, N> >
          ei != ei_end; ++ei) {
       int bond = boost::get(boost::edge_index, param.virtual_graph.graph, *ei);
       if (param.weight[bond].sign() < 0) {
-        typename qmc_type::config_type::iterator
+        typename qmc_type::config_type::const_iterator
           itr = boost::next(config.wl.series(
-            boost::source(*ei, param.virtual_grtph.graph)).first);
+            boost::source(*ei, param.virtual_graph.graph)).first);
         while (!itr.at_top()) {
           if (itr->bond() == bond) {
             ++nnl[itr->loop_segment(0).index];
