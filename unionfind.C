@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: unionfind.C 400 2003-10-09 14:49:01Z wistaria $
+* $Id: unionfind.C 401 2003-10-09 14:57:41Z wistaria $
 *
 * Copyright (C) 2001-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -46,8 +46,8 @@ using namespace looper;
 
 const int n = 100;
 
-template<class Itr>
-int index(const Itr& itr, const Itr& base) {
+template<class Itr0, class Itr1>
+int index(const Itr0& itr, const Itr1& base) {
   return itr - base;
 }
 

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: unionfind.h 400 2003-10-09 14:49:01Z wistaria $
+* $Id: unionfind.h 401 2003-10-09 14:57:41Z wistaria $
 *
 * Copyright (C) 2001-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -44,6 +44,7 @@
 
 #include <boost/throw_exception.hpp>
 #include <iterator>
+#include <stdexcept>
 #include <vector>
 
 // pointer version

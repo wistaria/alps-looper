@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: permutation.h 400 2003-10-09 14:49:01Z wistaria $
+* $Id: permutation.h 401 2003-10-09 14:57:41Z wistaria $
 *
 * Copyright (C) 2001-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -119,8 +119,8 @@ void restricted_random_shuffle(RandomAccessIter0 perm_first,
   diff_type c = std::count(guide1_first, guide1_last, 0);
 
   // shuffle in each sector
-  random_shuffle(perm_first, perm_first + c, rng);
-  random_shuffle(perm_first + c, perm_last, rng);
+  looper::random_shuffle(perm_first, perm_first + c, rng);
+  looper::random_shuffle(perm_first + c, perm_last, rng);
 
   // reorder permutation according to values in guide0
   looper::guided_sort_binary(perm_first, perm_last,

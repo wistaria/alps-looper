@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: graph.h 398 2003-10-09 10:33:05Z wistaria $
+* $Id: graph.h 401 2003-10-09 14:57:41Z wistaria $
 *
 * Copyright (C) 2001-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -154,7 +154,7 @@ struct simple_hypercubic_graph_helper
   template<class E>
   static std::size_t neighbor(const E& ext, const position_type& base,
 			      dimension_type s, dimension_type d,
-			      position_type::value_type p) {
+			      typename position_type::value_type p) {
     position_type pos = index2pos(ext, base, s);
     pos[d] = (pos[d] + ext[d] + p) % ext[d];
     return pos2index(ext.size(), base, pos);
@@ -186,9 +186,9 @@ void generate_graph(const simple_hypercubic_graph_descriptor<D, S, E>& desc,
   typedef detail::simple_hypercubic_graph_helper<graph_type, descriptor_type>
                                                              helper_type;
 
-  typedef descriptor_type:: dimension_type                   dimension_type;
-  typedef descriptor_type:: size_type                        size_type;
-  typedef helper_type::position_type                         position_type;
+  typedef typename descriptor_type::dimension_type           dimension_type;
+  typedef typename descriptor_type::size_type                size_type;
+  typedef typename helper_type::position_type                position_type;
 
   if (desc.dimension() == 0) 
     boost::throw_exception(std::runtime_error("invalid dimension"));
