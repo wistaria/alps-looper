@@ -23,6 +23,7 @@
 *****************************************************************************/
 
 #include <looper/util.h>
+#include <cstdlib>
 #include <iostream>
 
 int main() {

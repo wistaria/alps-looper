@@ -30,8 +30,8 @@
 #include <stdexcept>
 
 #include <alps/bindings/gels.hpp>
-#include <alps/bindings/syev.hpp>
-#include <alps/bindings/heev.hpp>
+#include <boost/numeric/bindings/lapack/syev.hpp>
+#include <boost/numeric/bindings/lapack/heev.hpp>
 #include <boost/numeric/bindings/traits/ublas_matrix.hpp>
 #include <boost/numeric/bindings/traits/ublas_vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
@@ -106,7 +106,7 @@ inline void diagonalize(Matrix& a, Vector& w, bool need_eigenvectors = true)
   int info;
 
   // call dispatcher
-  info = boost::numeric::bindings::lapack::syev(jobz, uplo, a, w);
+  info = boost::numeric::bindings::lapack::syev(jobz, uplo, a, w, boost::numeric::bindings::lapack::optimal_workspace());
   if (info != 0) throw std::runtime_error("failed in syev");
 }
 
