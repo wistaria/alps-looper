@@ -1,3 +1,7 @@
+2005-03-31  Synge Todo <wistaria@comp-phys.org>
+
+	* Added simple loop code (not tested yet)
+	
 2005-02-23  Synge Todo <wistaria@comp-phys.org>
 
 	* Added support for disordered lattices

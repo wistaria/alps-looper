@@ -33,9 +33,9 @@
 
 template<class T>
 bool parse_range(char const* str, std::pair<T, T>& r,
-		 const alps::Parameters& params = alps::Parameters(),
-		 T min_default = std::numeric_limits<T>::min(),
-		 T max_default = std::numeric_limits<T>::max())
+                 const alps::Parameters& params = alps::Parameters(),
+                 T min_default = std::numeric_limits<T>::min(),
+                 T max_default = std::numeric_limits<T>::max())
 {
   typedef T value_type;
   using namespace boost::spirit;
@@ -78,7 +78,7 @@ try {
     if (parse_range(str.c_str(), r)) {
       std::cout << "parsing succeeded: " << str << std::endl;
       std::cout << "\tmin : " << r.first << std::endl
-		<< "\tmax : " << r.second << std::endl;
+                << "\tmax : " << r.second << std::endl;
     } else {
       std::cout << "parsing failed: " << str << std::endl;
     }
@@ -91,7 +91,7 @@ try {
     if (parse_range(str.c_str(), r)) {
       std::cout << "parsing succeeded: " << str << std::endl;
       std::cout << "\tmin : " << r.first << std::endl
-		<< "\tmax : " << r.second << std::endl;
+                << "\tmax : " << r.second << std::endl;
     } else {
       std::cout << "parsing failed: " << str << std::endl;
     }

@@ -1,4 +1,4 @@
-SUBDIRS = doc test ed check .
+SUBDIRS = doc test ed check simple .
 
 distdir = alps-looper-$(VERSION)
 
