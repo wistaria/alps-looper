@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: weight.h 476 2003-10-29 10:16:12Z wistaria $
+* $Id: weight.h 480 2003-10-29 15:13:08Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -99,49 +99,95 @@ private:
 class uniform_bond_chooser
 {
 public:
-  uniform_bond_chooser() : n_() {}
-  template<class GRAPH, class MODEL>
-  uniform_bond_chooser(const GRAPH& vg, const MODEL& m) : n_()
-  {
-    assert(m.num_bond_types() == 1);
-    n_ = double(boost::num_edges(vg.graph));
-  }
-
-  template<class RNG>
-  int choose(RNG& rng) const { return n_ * rng(); }
-
-private:
-  double n_;
-};
-
-class bond_chooser
-{
-public:
-  bond_chooser() : rc_() {}
+  uniform_bond_chooser() : n_(), w_(), gw_() {}
   template<class G, class M>
-  bond_chooser(const G& vg, const M& m) : rc_() { init (vg, m); }
+  uniform_bond_chooser(const G& vg, const M& m) : n_(), w_(), gw_()
+  { init(vg, m); }
   template<class G, class M, class W>
-  bond_chooser(const G& vg, const M& m, const W& w) : rc_() { init(vg, m, w); }
+  uniform_bond_chooser(const G& vg, const M& m, const W& w) : n_(), w_(), gw_()
+  { init(vg, m, w); }
+  template<class P>
+  uniform_bond_chooser(const P& p) : n_(), w_(), gw_() { init(p); }
 
   template<class G, class M>
   void init(const G& vg, const M& m) { init(vg, m, default_weight()); }
   template<class G, class M, class W>
-  void init(const G& vg, const M& m, const W&)
+  void init(const & vg, const M& m, const W&)
   {
-    std::vector<double> w(0);
+    typedef W weight_type;
+    assert(m.num_bond_types() == 1);
+    n_ = double(boost::num_edges(vg.graph));
+    w_ = weight_type(m.uniform_bond()).weight();
+    gw_ = n_ * w_;
+  }
+  template<class P>
+  void init(const P& p) 
+  { init(p.virtual_graph, p.model, P::weight_type()); }
+
+  template<class RNG>
+  int choose(RNG& rng) const { return n_ * rng(); }
+  template<class RNG>
+  int operator()(RNG& rng) const { return choose(rng); }
+
+  double weight(int) const { return w_; }
+  double global_weight() const { return gw_; }
+
+private:
+  double n_;
+  double w_;
+  double gw_;
+};
+
+template<class W>
+class bond_chooser
+{
+public:
+  typedef W weight_type;
+
+  bond_chooser() : weight_(), rc_(), gw_(0) {}
+  template<class G, class M>
+  bond_chooser(const G& vg, const M& m) : weight_(), rc_(), gw_(0)
+  { init (vg, m); }
+  template<class P>
+  bond_chooser(const P& p) : weight_(), rc_(), gw_(0) { init(p); }
+
+  template<class G, class M>
+  void init(const G& vg, const M& m)
+  {
+    weight_.clear();
     typename boost::graph_traits<typename G::graph_type>::edge_iterator
       ei, ei_end;
-    for (boost::tie(ei, ei_end) = boost::edges(vg.graph); ei != ei_end; ++ei)
-      w.push_back(
-        W(m.bond(boost::get(edge_type_t(), vg.graph, *ei))).weight());
+    for (boost::tie(ei, ei_end) = boost::edges(vg.graph); ei != ei_end; ++ei) {
+      weight_.push_back(
+	weight_type(m.bond(boost::get(edge_type_t(), vg.graph, *ei))));
+    }
+
+    gw_ = 0.0;
+    std::vector<double> w(0);
+    std::vector<weight_type>::iterator itr_end = weight_.end();
+    for (std::vector<weight_type>::iterator itr = weight_.begin();
+	 itr != itr_end; ++itr) {
+      w.push_back(itr->weight());
+      gw_ += itr->weight();
+    }
     rc_.init(w);
   }
+  template<class P>
+  void init(const P& p) { init(p.virtual_graph, p.model); }
 
   template<class RNG>
   int choose(RNG& rng) const { return rc_(rng); }
+  template<class RNG>
+  int operator()(RNG& rng) const { return choose(rng); }
+
+  weight_type weight(int i) { return weight_[i]; }
+  const weight_type& weight(int i) const { return weight_[i]; }
+  double global_weight() const { return gw_; }
 
 private:
+  std::vector<weight_type> weight_;
   random_choice<> rc_;
+  double gw_;
 };
 
 } // namespace looper

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: sse.h 476 2003-10-29 10:16:12Z wistaria $
+* $Id: sse.h 480 2003-10-29 15:13:08Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -68,24 +68,25 @@ struct sse<virtual_graph<G>, M, W>
                                                     vertex_iterator;
   typedef typename boost::graph_traits<graph_type>::vertex_descriptor
                                                     vertex_descriptor;
-  
+
   struct parameter_type
   {
     typedef virtual_graph<G> vg_type;
     typedef typename vg_type::graph_type graph_type;
     typedef typename vg_type::mapping_type mapping_type;
     typedef M model_type;
+    typedef W weight_type;
 
     parameter_type(const vg_type& vg, const model_type& m, double b)
       : virtual_graph(vg), graph(vg.graph), mapping(vg.mapping), model(m),
 	beta(b), chooser(vg, model) {}
 
-    const vg_type&      virtual_graph;
-    const graph_type&   graph;
-    const mapping_type& mapping;
-    const model_type&   model;
-    const double        beta;
-    const bond_chooser  chooser;
+    const vg_type&                  virtual_graph;
+    const graph_type&               graph;
+    const mapping_type&             mapping;
+    const model_type&               model;
+    const double                    beta;
+    const bond_chooser<weight_type> chooser;
   };
 
   struct config_type
@@ -98,10 +99,15 @@ struct sse<virtual_graph<G>, M, W>
     os_type bottom;
     os_type top;
     os_type os;
+    unsigned int num_operators;
+
     unsigned int num_loops0;
     unsigned int num_loops;
   };
 
+  typedef typename config_type::iterator       operator_iterator;
+  typedef typename config_type::const_iterator const_operator_iterator;
+  
   //
   // update functions
   //
@@ -109,8 +115,6 @@ struct sse<virtual_graph<G>, M, W>
   // initialize
   static void initialize(config_type& config, const vg_type& vg, int ni = 16)
   {
-    typedef typename config_type::iterator iterator;
-
     config.bottom.clear();
     config.bottom.resize(boost::num_vertices(vg.graph));
     config.top.clear();
@@ -125,11 +129,12 @@ struct sse<virtual_graph<G>, M, W>
     }
     config.os.clear();
     config.os.resize(ni);
-    iterator oi_end = config.os.end();
-    for (iterator oi = config.os.begin(); oi != oi_end; ++oi) {
+    operator_iterator oi_end = config.os.end();
+    for (operator_iterator oi = config.os.begin(); oi != oi_end; ++oi) {
       oi->clear_graph();
       oi->set_to_identity();
     }
+    config.num_operators = 0;
   }
   static void initialize(config_type& config, const parameter_type& p,
 			 int ni = 16)
@@ -138,18 +143,66 @@ struct sse<virtual_graph<G>, M, W>
   template<class RNG>
   static void generate_loops(config_type& config, const vg_type& vg,
 			     const model_type& model, double beta,
-			     const bond_chooser& bc, RNG& uniform_01)
+			     const bond_chooser<weight_type>& bc,
+			     RNG& uniform_01)
   {
     //
-    // setup
+    // diagonal update & labeling
     //
-    std::vector<std::pair<int, loop_segment*> >
-      tab_(boost::num_vertices(vg.graph));
-    vertex_iterator vi_end = boost::vertices(vg.graph).second;
-    for (vertex_iterator vi = boost::vertices(vg.graph).first;
-	 vi != vi_end; ++vi) {
-      tab_[*vi] = std::make_pair(config.bottom[*vi].conf(),
-				 &(config.bottom[*vi].loop_segment(0)));
+
+    // copy spin configurations at the bottom into a table `curr'
+    std::vector<int> curr(boost::num_vertices(vg.graph));
+    vertex_iterator vi, vi_end;
+    std::vector<int>::iterator itr = curr.begin();
+    for (boost::tie(vi, vi_end) = boost::vertices(vg.graph); 
+	 vi != vi_end; ++vi, ++itr) *itr = config.bottom[*vi].conf();
+    
+    // scan over operators
+    operator_iterator oi_end = config.os.end();
+    for (operator_iterator oi = config.os.begin(); oi != oi_end; ++oi) {
+      if (oi->is_identity()) {
+	// identity operator
+	int b = bc.choose(uniform_01);
+	edge_iterator ei = boost::edges(vg.graph).first + b;
+	if (uniform_01() <
+	    bc.global_weight() *
+	    bc.weight(b).p_accept(curr[boost::source(*ei, vg.graph)],
+				  curr[boost::target(*ei, vg.graph)]) /
+	    double(config.os.size() - config.num_operators)) {
+	  // insert diagonal operator
+	  oi->identity_to_diagonal();
+	  oi->set_bond(b);
+	  ++config.num_operators;
+
+	  oi->set_new((curr[boost::source(*ei, vg.graph)] ^
+		       curr[boost::target(*ei, vg.graph)]),
+		      (uniform_01() < bc.weight(b).p_freeze()));
+	} else { /* nothing to be done */ }
+      } else if (oi->is_diagonal()) {
+	// diagonal operator
+	int b = oi->bond();
+	edge_iterator ei = boost::edges(vg.graph).first + b;
+	if (uniform_01() <
+	    double(config.os.size() - config.num_operators + 1) / 
+	    (bc.global_weight() *
+	     bc.weight(b).p_accept(curr[boost::source(*ei, vg.graph)],
+				   curr[boost::target(*ei, vg.graph)]))) {
+	  // remove diagonal operator
+	  oi->diagonal_to_identity();
+	  --config.num_operators;
+	} else {
+	  // remain as diagonal operator
+	  oi->set_old((curr[boost::source(*ei, vg.graph)] ^
+		       curr[boost::target(*ei, vg.graph)]));
+	}
+      } else {
+	// off-diagonal operator
+	int b = oi->bond();
+	edge_iterator ei = boost::edges(vg.graph).first + oi->bond();
+	curr[boost::source(*ei, vg.graph)] ^= 1;
+	curr[boost::target(*ei, vg.graph)] ^= 1;
+	oi->set_old(uniform_01() < bc.weight(b).p_reflect());
+      }
     }
   }
   template<class RNG>
@@ -162,7 +215,7 @@ struct sse<virtual_graph<G>, M, W>
 
   static double energy_offset(const vg_type& vg, const model_type& model)
   {
-    double offset = 0;
+    double offset = 0.;
     typename alps::property_map<alps::bond_type_t, graph_type, int>::const_type
       bond_type(alps::get_or_default(alps::bond_type_t(), vg.graph, 0));
     edge_iterator ei_end = boost::edges(vg.graph).second;
