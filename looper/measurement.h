@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: measurement.h 577 2003-11-16 00:20:47Z wistaria $
+// $Id: measurement.h 580 2003-11-20 08:37:16Z wistaria $
 
 #ifndef LOOPER_MEASUREMENT_H
 #define LOOPER_MEASUREMENT_H
@@ -284,11 +284,13 @@ struct generalized_susceptibility_imp_helper<path_integral<G, M, W, N> >
   calc(const typename qmc_type::config_type& config,
        const typename qmc_type::parameter_type& param)
   {
-    std::vector<double> len(config.num_loops);
     std::vector<double> mg(config.num_loops0);
+    std::vector<double> len(config.num_loops);
     typename qmc_type::vertex_iterator vi, vi_end;
     for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
 	 vi != vi_end; ++vi) {
+      ++mg[qmc_type::loop_index_0(*vi, config)];
+
       // setup iterators
       typename qmc_type::config_type::const_iterator
 	itrD = config.wl.series(*vi).first;
@@ -300,16 +302,14 @@ struct generalized_susceptibility_imp_helper<path_integral<G, M, W, N> >
 	len[qmc_type::segment_d(itrU).index] += (itrU->time() - itrD->time());
 	if (itrU.at_top()) break;
       }
-
-      ++mg[qmc_type::loop_index_0(*vi, config)];
     }      
 
-    double ss = 0.;
-    for (int i = 0; i < config.num_loops; ++i) ss += sqr(len[i]);
-    ss *= 0.25;
     double m2 = 0.;
     for (int i = 0; i < config.num_loops0; ++i) m2 += sqr(mg[i]);
     m2 *= 0.25;
+    double ss = 0.;
+    for (int i = 0; i < config.num_loops; ++i) ss += sqr(len[i]);
+    ss *= 0.25;
 
     return boost::make_tuple(m2 / param.virtual_graph.num_real_vertices,
 			     param.beta * ss /
@@ -325,15 +325,15 @@ struct generalized_susceptibility_imp_helper<sse<G, M, W, N> >
   calc(const typename qmc_type::config_type& config,
        const typename qmc_type::parameter_type& param)
   {
-    std::vector<double> len(config.num_loops);
     std::vector<double> mg(config.num_loops0);
+    std::vector<double> len(config.num_loops);
 
     std::vector<int> pos(boost::num_vertices(param.virtual_graph.graph), 0);
     int p = 1;
     typename qmc_type::config_type::const_iterator oi_end = config.os.end();
     for (typename qmc_type::config_type::const_iterator oi = config.os.begin();
 	 oi != oi_end; ++oi, ++p) {
-      if (oi->is_offdiagonal()) {
+      if (!oi->is_identity()) {
 	typename qmc_type::edge_iterator ei =
 	  boost::edges(param.virtual_graph.graph).first + oi->bond();
 	typename qmc_type::vertex_descriptor v0 =
@@ -346,7 +346,6 @@ struct generalized_susceptibility_imp_helper<sse<G, M, W, N> >
 	pos[v1] = p;
       }
     }
-
     typename qmc_type::vertex_iterator vi, vi_end;
     for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
 	 vi != vi_end; ++vi) {
@@ -355,23 +354,16 @@ struct generalized_susceptibility_imp_helper<sse<G, M, W, N> >
       ++mg[qmc_type::loop_index_0(*vi, config)];
     }
 
-    double ss = 0.;
-    for (int i = 0; i < config.num_loops; ++i) ss += sqr(len[i]);
-    ss *= 0.25 / sqr((double)config.os.size());
     double m2 = 0.;
     for (int i = 0; i < config.num_loops0; ++i) m2 += sqr(mg[i]);
     m2 *= 0.25;
+    double ss = 0.;
+    for (int i = 0; i < config.num_loops; ++i) ss += sqr(len[i]);
+    ss *= 0.25 / ((double)config.os.size() * (double)(config.os.size() + 1));
 
     return boost::make_tuple(m2 / param.virtual_graph.num_real_vertices,
-			     param.beta *
-			     (ss /* +
-			       m2 / (config.os.size() + 1) */) /
-			     param.virtual_graph.num_real_vertices);
-//     return boost::make_tuple(0.25 * m2 / param.virtual_graph.num_real_vertices,
-// 			     0.25 * param.beta *
-// 			     (ss / config.os.size() +
-// 			      m2 / (config.os.size() + 1)) /
-// 			     param.virtual_graph.num_real_vertices);
+      param.beta * (ss + m2 / (double)(config.os.size() + 1)) /
+      param.virtual_graph.num_real_vertices);
   }
 };
 

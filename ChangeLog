@@ -1,6 +1,11 @@
+2003-11-20  Synge Todo  <wistaria@comp-phys.org>
+
+	* Fixed susceptibility calculation by means of improved estimator
+	in SSE representation.
+	
 2003-11-16  Synge Todo  <wistaria@comp-phys.org>
 
-	* Fixed some measurements.
+	* Fixed specific heat calculation in SSE representation.
 	
 2003-11-14  Synge Todo  <wistaria@comp-phys.org>
 	
