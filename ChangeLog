@@ -1,3 +1,7 @@
+2004-08-19  Synge Todo <wistaria@comp-phys.org>
+
+	* Added support for MKL 7.0
+	
 2004-07-22  Synge Todo  <wistaria@comp-phys.org>
 
         * version 3.0.1 released.
