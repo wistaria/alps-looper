@@ -28,13 +28,15 @@
 #include <boost/call_traits.hpp>
 #include <boost/multi_array.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
-#include <boost/utility/enable_if.hpp>
+#include <boost/spirit/core.hpp>
 #include <boost/throw_exception.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/type_traits/is_arithmetic.hpp>
 #include <boost/type_traits/is_float.hpp>
 #include <boost/type_traits/is_integral.hpp>
+#include <boost/utility/enable_if.hpp>
 #include <complex>
+#include <limits>
 #include <stdexcept>
 
 namespace looper {
@@ -318,39 +320,13 @@ bool is_zero(const std::complex<T>& x)
 
 
 //
-// function numeric_cast
-//
-
-namespace detail {
-
-template<typename U, typename T>
-struct numeric_cast_helper {
-  static U value(typename boost::call_traits<T>::param_type x)
-  {
-    return x;
-  }
-};
-
-template<typename U, typename T>
-struct numeric_cast_helper<U, std::complex<T> > {
-  static U value(const std::complex<T>& x) {
-    if (!is_zero(x.imag()))
-      boost::throw_exception(std::runtime_error("can not convert complex number into real one"));
-    return x.real();
-  }
-};
-
-} // end namespace detail
-
-
-//
-// function range_01
+// function crop_01
 //
 
 #ifndef BOOST_NO_SFINAE
 
 template<typename T>
-T range_01(T x, typename boost::enable_if<boost::is_arithmetic<T> >::type* = 0)
+T crop_01(T x, typename boost::enable_if<boost::is_arithmetic<T> >::type* = 0)
 {
   typedef T value_type;
   using std::min; using std::max;
@@ -358,7 +334,7 @@ T range_01(T x, typename boost::enable_if<boost::is_arithmetic<T> >::type* = 0)
 }
 
 template<typename T>
-T range_01(const T& x, typename boost::disable_if<boost::is_arithmetic<T> >::type* = 0)
+T crop_01(const T& x, typename boost::disable_if<boost::is_arithmetic<T> >::type* = 0)
 {
   typedef T value_type;
   using std::min; using std::max;
@@ -368,7 +344,7 @@ T range_01(const T& x, typename boost::disable_if<boost::is_arithmetic<T> >::typ
 #else
 
 template<typename T>
-T range_01(const T& x)
+T crop_01(const T& x)
 {
   typedef T value_type;
   using std::min; using std::max;
@@ -390,6 +366,67 @@ inline bool is_negative(unsigned short) { return false; }
 inline bool is_negative(unsigned int) { return false; }
 inline bool is_negative(unsigned long) { return false; }
 
+
+//
+// class tempalte integer_range
+//
+
+template<class T>
+class integer_range {
+public:
+  typedef T value_type;
+
+  integer_range() : mi_(), ma_() {}
+  integer_range(value_type v) : mi_(v), ma_(v) {}
+  integer_range(const integer_range& r) : mi_(r.mi_), ma_(r.ma_) {}
+  integer_range(const std::string& str,
+                value_type def_mi = std::numeric_limits<value_type>::min(),
+                value_type def_ma = std::numeric_limits<value_type>::max()) :
+    mi_(), ma_()
+  {
+    using namespace boost::spirit;
+    bool success;
+    value_type mi = def_mi;
+    value_type ma = def_ma;
+    if (std::numeric_limits<value_type>::is_signed) {
+      success = parse(str.c_str(),
+        int_p[assign_a(mi)][assign_a(ma)] |
+        ('[' >> !int_p[assign_a(mi)] >> ':' >> !int_p[assign_a(ma)] >> ']'),
+        space_p).full;
+    } else {
+      success = parse(str.c_str(),
+        uint_p[assign_a(mi)][assign_a(ma)] |
+        ('[' >> !uint_p[assign_a(mi)] >> ':' >> !uint_p[assign_a(ma)] >> ']'),
+        space_p).full;
+    }
+    if (!success)
+      boost::throw_exception(std::runtime_error("parse error"));
+    mi_ = mi;
+    ma_ = ma;
+  }
+
+  value_type min() const { return mi_; }
+  value_type max() const { return ma_; }
+
+private:
+  value_type mi_, ma_;
+};
+
 } // end namespace looper
+
+#ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
+namespace looper {
+#endif
+
+template<class T>
+std::ostream& operator<<(std::ostream& os, const integer_range<T>& ir)
+{
+  os << '[' << ir.min() << ':' << ir.max() << ']';
+  return os;
+}
+
+#ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
+} // end namespace looper
+#endif
 
 #endif // LOOPER_UTIL_H

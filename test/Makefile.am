@@ -12,11 +12,11 @@ check_PROGRAMS = \
 	index_helper \
 	llsp \
 	model_parameter \
-	parse_range \
 	parse_vector \
 	permutation \
 	postorder \
 	random_choice \
+	range \
 	sign \
 	site_matrix \
 	syev \
@@ -37,11 +37,11 @@ dist_noinst_DATA = \
 	index_helper.op \
 	llsp.ip llsp.op \
 	model_parameter.op \
-	parse_range.ip parse_range.op \
 	parse_vector.ip parse_vector.op \
 	permutation.op \
 	postorder.ip postorder.op \
 	random_choice.op \
+	range.ip range.op \
 	sign.ip sign.op \
 	site_matrix.ip site_matrix.op \
 	syev.op \
@@ -69,6 +69,7 @@ parse_vector_SOURCES = parse_vector.C
 permutation_SOURCES = permutation.C
 postorder_SOURCES = postorder.C
 random_choice_SOURCES = random_choice.C
+range_SOURCES = range.C
 sign_SOURCES = sign.C
 site_matrix_SOURCES = site_matrix.C
 syev_SOURCES = syev.C

@@ -36,47 +36,50 @@ int main() {
 try {
 #endif
 
-  typedef looper::parity_graph_type graph_type;
-  typedef graph_type::vertex_iterator vertex_iterator;
-  typedef graph_type::edge_iterator edge_iterator;
+  typedef looper::parity_graph_type rgraph_type;
+  typedef boost::graph_traits<rgraph_type>::vertex_iterator rvertex_iterator;
+  typedef boost::graph_traits<rgraph_type>::edge_iterator redge_iterator;
+
+  typedef looper::virtual_graph<rgraph_type> vgraph_type;
+  typedef boost::graph_traits<vgraph_type>::vertex_iterator vvertex_iterator;
+  typedef boost::graph_traits<vgraph_type>::edge_iterator vedge_iterator;
 
   // real graph
+  rgraph_type rg;
   looper::hypercubic_graph_generator<> gen(2, 2);
-  graph_type rg;
   looper::generate_graph(rg, gen);
-  boost::put(looper::vertex_type_t(), rg, *(boost::vertices(rg).first), 1);
-  alps::set_parity(rg);
+  put(looper::vertex_type_t(), rg, *(vertices(rg).first), 1);
+  set_parity(rg);
   std::cout << rg;
-  for (vertex_iterator vi = boost::vertices(rg).first;
-       vi != boost::vertices(rg).second; ++vi) {
-    std::cout << looper::gauge(*vi, rg) << ' ';
+  rvertex_iterator rvi, rvi_end;
+  for (boost::tie(rvi, rvi_end) = vertices(rg); rvi != rvi_end; ++rvi) {
+    std::cout << looper::gauge(rg, *rvi) << ' ';
   }
   std::cout << std::endl;
 
   // virtual graph
-  graph_type vg;
-  looper::virtual_mapping<graph_type> vm;
+  vgraph_type vg;
   std::vector<alps::half_integer<int> > spins(2);
   spins[0] = 1; spins[1] = 3./2;
-  looper::generate_virtual_graph(rg, spins, vg, vm);
-  alps::set_parity(vg);
+  vg.initialize(rg, spins);
+  set_parity(vg);
 
   std::cout << "number of real vertices = "
-            << boost::num_vertices(rg) << std::endl;
+            << num_vertices(rg) << std::endl;
   std::cout << "number of real edges = "
-            << boost::num_edges(rg) << std::endl;
+            << num_edges(rg) << std::endl;
   std::cout << "number of virtual vertices = "
-            << boost::num_vertices(vg) << std::endl;
+            << num_vertices(vg) << std::endl;
   std::cout << "number of virtual edges = "
-            << boost::num_edges(vg) << std::endl;
+            << num_edges(vg) << std::endl;
 
   std::cout << vg;
-  for (vertex_iterator vi = boost::vertices(vg).first;
-       vi != boost::vertices(vg).second; ++vi) {
-    std::cout << looper::gauge(*vi, vg) << ' ';
+  vvertex_iterator vvi, vvi_end;
+  for (boost::tie(vvi, vvi_end) = vertices(vg); vvi != vvi_end; ++vvi) {
+    std::cout << looper::gauge(vg, *vvi) << ' ';
   }
   std::cout << std::endl;
-  vm.output(std::cout, rg, vg);
+  vg.print_mapping(std::cout, rg);
 
 #ifndef BOOST_NO_EXCEPTIONS
 }

@@ -100,7 +100,7 @@ public:
   {
     double Jxy = std::abs(p.jxy());
     double Jz = p.jz();
-    double a = range_01(force_scatter);
+    double a = crop_01(force_scatter);
     double w12, w11, w13, w22, w23;
     if (!is_zero(Jxy + std::abs(Jz))) {
       if (Jxy + Jz > 2 * a * Jxy) {

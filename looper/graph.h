@@ -75,18 +75,18 @@ typedef boost::adjacency_list<
     boost::property<graph_name_t, std::string > >,
   boost::vecS> parity_graph_type;
 
-template <class G>
-struct graph_traits
-{
-  typedef G                                           graph_type;
-  typedef std::pair<typename boost::graph_traits<graph_type>::vertex_iterator,
-                    typename boost::graph_traits<graph_type>::vertex_iterator>
-                                                      vertex_pair_type;
-  typedef std::vector<std::vector<vertex_pair_type> > vp_type;
-  typedef typename boost::property_traits<
-    typename boost::property_map<graph_type, coordinate_t>::type>::value_type
-                                                      coordinate_type;
-};
+// template <class G>
+// struct graph_traits
+// {
+//   typedef G                                           graph_type;
+//   typedef std::pair<typename boost::graph_traits<graph_type>::vertex_iterator,
+//                     typename boost::graph_traits<graph_type>::vertex_iterator>
+//                                                       vertex_pair_type;
+//   typedef std::vector<std::vector<vertex_pair_type> > vp_type;
+//   typedef typename boost::property_traits<
+//     typename boost::property_map<graph_type, coordinate_t>::type>::value_type
+//                                                       coordinate_type;
+// };
 
 template<class D = std::size_t, class S = D, class E = std::vector<S> >
 class hypercubic_graph_generator
@@ -164,10 +164,10 @@ void generate_graph(G& g, const hypercubic_graph_generator<D, S, E>& desc)
 
 template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
 inline int
-gauge(typename boost::graph_traits<
+gauge(const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g,
+      typename boost::graph_traits<
         boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
-        vertex_descriptor vd,
-      const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g)
+          vertex_descriptor vd)
 {
   BOOST_STATIC_ASSERT(alps::parity::white == 0);
   BOOST_STATIC_ASSERT(alps::parity::black == 1);
@@ -510,6 +510,120 @@ inline void generate_virtual_graph(const RealGraph& rg,
   generate_virtual_graph(rg,
     vg_detail::vector_spin_wrapper<alps::half_integer<IntType> >(v),
     vg, vm);
+}
+
+
+//
+// class template virtual_graph
+//
+
+template<class GRAPH>
+class virtual_graph : public GRAPH {
+public:
+  typedef GRAPH                       graph_type;
+  typedef virtual_mapping<graph_type> mapping_type;
+
+  typedef typename boost::graph_traits<graph_type>::vertex_descriptor
+    vertex_descriptor;
+  typedef typename boost::graph_traits<graph_type>::edge_descriptor
+    edge_descriptor;
+  typedef typename boost::graph_traits<graph_type>::vertex_iterator
+    vertex_iterator;
+  typedef typename boost::graph_traits<graph_type>::edge_iterator
+    edge_iterator;
+  typedef typename boost::graph_traits<graph_type>::vertices_size_type
+    vertices_size_type;
+  typedef typename boost::graph_traits<graph_type>::edges_size_type
+    edges_size_type;
+
+  virtual_graph() {}
+  template<class RG, class M>
+  virtual_graph(const RG& rg, const M& model) { initialize(rg, model); }
+  template<class RG, class I>
+  virtual_graph(const RG& rg, const alps::half_integer<I>& s)
+  { initialize(rg, s); }
+  template<class RG, class I>
+  virtual_graph(const RG& rg, const std::vector<alps::half_integer<I> >& v)
+  { initialize(rg, v); }
+
+  template<class RG>
+  std::pair<vertex_iterator, vertex_iterator>
+  virtual_vertices(const RG& rg,
+    const typename boost::graph_traits<RG>::vertex_descriptor& rv) const
+  { return mapping_.virtual_vertices(rg, rv); }
+  template<class RG>
+  std::pair<edge_iterator, edge_iterator>
+  virtual_edges(const RG& rg,
+    const typename boost::graph_traits<RG>::edge_descriptor& re) const
+  { return mapping_.virtual_edges(rg, re); }
+
+  void clear() { graph_.clear(); mapping_.clear(); }
+  template<class RG, class M>
+  void initialize(const RG& rg, const M& model)
+  { generate_virtual_graph(rg, model, graph_, mapping_); }
+  template<class RG, class I>
+  void initialize(const RG& rg, const alps::half_integer<I>& s)
+  { generate_virtual_graph(rg, s, graph_, mapping_); }
+  template<class RG, class I>
+  void initialize(const RG& rg, const std::vector<alps::half_integer<I> >& v)
+  { generate_virtual_graph(rg, v, graph_, mapping_); }
+
+  const graph_type& graph() const { return graph_; }
+  const mapping_type& mapping() const { return mapping_; }
+
+  template<class RG>
+  void print_mapping(std::ostream& os, const RG& rg) const {
+    mapping_.output(os, rg, graph_);
+  }
+
+private:
+  graph_type graph_;
+  mapping_type mapping_;
+};
+
+template<class RG>
+std::pair<typename virtual_graph<RG>::vertex_iterator,
+          typename virtual_graph<RG>::vertex_iterator>
+vertices(const virtual_graph<RG>& vg) { return vertices(vg.graph()); }
+
+template<class RG>
+typename virtual_graph<RG>::vertices_size_type
+num_vertices(const virtual_graph<RG>& vg) { return num_vertices(vg.graph()); }
+
+template<class RG>
+std::pair<typename virtual_graph<RG>::edge_iterator,
+          typename virtual_graph<RG>::edge_iterator>
+edges(const virtual_graph<RG>& vg) { return edges(vg.graph()); }
+
+template<class RG>
+typename virtual_graph<RG>::edges_size_type
+num_edges(const virtual_graph<RG>& vg) { return num_edges(vg.graph()); }
+
+template<class RG>
+std::pair<typename virtual_graph<RG>::vertex_iterator,
+          typename virtual_graph<RG>::vertex_iterator>
+virtual_vertices(const virtual_graph<RG>& vg, const RG& rg,
+  const typename boost::graph_traits<RG>::vertex_descriptor& rv)
+{ return vg.virtual_vertices(rg, rv); }
+template<class RG>
+std::pair<typename virtual_graph<RG>::edge_iterator,
+          typename virtual_graph<RG>::edge_iterator>
+virtual_edges(const virtual_graph<RG>& vg, const RG& rg,
+  const typename boost::graph_traits<RG>::edge_descriptor& re)
+{ return vg.virtual_edges(rg, re); }
+
+template<class RG>
+int
+gauge(const virtual_graph<RG>& vg,
+      const typename boost::graph_traits<virtual_graph<RG> >::
+        vertex_descriptor& vd)
+{ return gauge(vg.graph(), vd); }
+
+template<class RG>
+std::ostream& operator<<(std::ostream& os, const virtual_graph<RG>& vg)
+{
+  os << vg.graph();
+  return os;
 }
 
 } // end namespace looper
