@@ -26,7 +26,7 @@ if test "$have_autotools" = yes; then
   autoconf
   rm -rf autom4te.cache
 else
-  echo "GNU Autotools not found, or version is too old"
+  echo "GNU Autotools not found, or version is too old.  Stop."
   # set -x
   # test -f aclocal.m4 && touch aclocal.m4
   # test -f looper/config.h.in && touch looper/config.h.in

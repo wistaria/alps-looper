@@ -1,6 +1,6 @@
 2004-06-08  Synge Todo  <wistaria@comp-phys.org>
 
-	* Turned off maintainer mode for automake.
+	* Turned off maintainer mode for GNU autotools.
 	
 2004-06-03  Synge Todo  <wistaria@comp-phys.org>
 
