@@ -102,7 +102,7 @@ public:
     double Jz = p.jz();
     double a = range_01(force_scatter);
     double w12, w11, w13, w22, w23;
-    if (!nearly_zero(Jxy + std::abs(Jz))) {
+    if (!is_zero(Jxy + std::abs(Jz))) {
       if (Jxy + Jz > 2 * a * Jxy) {
         // standard solutions
         w12 = std::min(-std::abs(Jz)/4., -Jxy/4);
@@ -167,15 +167,15 @@ P check(const W& w)
   double w12 = -(w11+ w13 + w22 + w23) / 2;
 
   assert(w11 >= 0. && w13 >= 0. && w22 >= 0. && w23 >= 0.);
-  assert(nearly_equal(w23, w.p_reflect() * (w13 + w23)));
+  assert(equal(w23, w.p_reflect() * (w13 + w23)));
 
   double jxy = 2 * (w13 + w23) * w.sign();
   double jz = 4 * (w12 + w11 + w13);
 
   // for sse
-  assert(nearly_equal(w.offset() + w11 + w13, jz/4));
-  assert(nearly_equal(w.offset() + w22 + w23, -jz/4));
-  assert(nearly_equal(w.sign() * (w13 + w23), jxy/2));
+  assert(equal(w.offset() + w11 + w13, jz/4));
+  assert(equal(w.offset() + w22 + w23, -jz/4));
+  assert(equal(w.sign() * (w13 + w23), jxy/2));
 
   return P(0, jxy, jz);
 }

@@ -32,6 +32,8 @@
 #include <boost/throw_exception.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/type_traits/is_arithmetic.hpp>
+#include <boost/type_traits/is_float.hpp>
+#include <boost/type_traits/is_integral.hpp>
 #include <complex>
 #include <stdexcept>
 
@@ -136,24 +138,171 @@ void flatten_matrix(const boost::multi_array<T, 4>& m_in,
 
 
 //
-// function nearly_equal
+// function equal
 //
 
-inline bool nearly_equal(double x, double y, double tol = 1.0e-12)
+#ifndef BOOST_NO_SFINAE
+
+template<class T, class U>
+bool equal(const T& x, const U& y,
+  typename boost::disable_if<boost::is_arithmetic<T> >::type* = 0,
+  typename boost::disable_if<boost::is_arithmetic<U> >::type* = 0)
+{ return x == y; }
+
+template<class T, class U>
+bool equal(T x, U y,
+  typename boost::enable_if<boost::is_integral<T> >::type* = 0,
+  typename boost::enable_if<boost::is_integral<U> >::type* = 0)
+{ return x == y; }
+
+template<class T, class U>
+bool equal(T x, U y, double tol,
+  typename boost::enable_if<boost::is_float<T> >::type* = 0,
+  typename boost::enable_if<boost::is_float<U> >::type* = 0)
 {
   return (std::abs(x-y) < tol * std::abs(x)) ||
     (std::abs(x) < tol && std::abs(y) < tol);
 }
 
+template<class T, class U>
+bool equal(T x, U y,
+  typename boost::enable_if<boost::is_float<T> >::type* = 0,
+  typename boost::enable_if<boost::is_float<U> >::type* = 0)
+{ return equal(x, y, 1.0e-12); }
 
-//
-// function nearly_zero
-//
+template<class T, class U>
+bool equal(const std::complex<T>& x, const std::complex<U>& y, double tol,
+  typename boost::enable_if<boost::is_float<T> >::type* = 0,
+  typename boost::enable_if<boost::is_float<U> >::type* = 0)
+{ return equal(x.real(), y.real(), tol) && equal(x.imag(), y.imag(), tol); }
 
-inline bool nearly_zero(double x, double tol = 1.0e-12)
+template<class T, class U>
+bool equal(const std::complex<T>& x, const std::complex<U>& y,
+  typename boost::enable_if<boost::is_float<T> >::type* = 0,
+  typename boost::enable_if<boost::is_float<U> >::type* = 0)
+{ return equal(x.real(), y.real()) && equal(x.imag(), y.imag()); }
+
+template<class T, class U>
+bool equal(const std::complex<T>& x, U y, double tol,
+  typename boost::enable_if<boost::is_float<T> >::type* = 0,
+  typename boost::enable_if<boost::is_float<U> >::type* = 0)
+{ return equal(x.real(), y, tol) && equal(x.imag(), 0., tol); }
+
+template<class T, class U>
+bool equal(const std::complex<T>& x, U y,
+  typename boost::enable_if<boost::is_float<T> >::type* = 0,
+  typename boost::enable_if<boost::is_float<U> >::type* = 0)
+{ return equal(x.real(), y) && equal(x.imag(), 0.); }
+
+template<class T, class U>
+bool equal(T x, const std::complex<U>& y, double tol,
+  typename boost::enable_if<boost::is_float<T> >::type* = 0,
+  typename boost::enable_if<boost::is_float<U> >::type* = 0)
+{ return equal(y, x, tol); }
+
+template<class T, class U>
+bool equal(T x, const std::complex<U>& y,
+  typename boost::enable_if<boost::is_float<T> >::type* = 0,
+  typename boost::enable_if<boost::is_float<U> >::type* = 0)
+{ return equal(y, x); }
+
+#else
+
+template<class T, class U>
+bool equal(const T& x, const U& y)
+{ return x == y; }
+
+bool equal(double x, double y, double tol,
 {
-  return std::abs(x) < tol;
+  return (std::abs(x-y) < tol * std::abs(x)) ||
+    (std::abs(x) < tol && std::abs(y) < tol);
 }
+
+template<class T, class U>
+bool equal(double x, double y,
+  typename boost::enable_if<boost::is_float<T> >::type* = 0,
+  typename boost::enable_if<boost::is_float<U> >::type* = 0)
+{ return equal(x, y, 1.0e-12); }
+
+template<class T, class U>
+bool equal(const std::complex<T>& x, const std::complex<U>& y, double tol)
+{ return equal(x.real(), y.real(), tol) && equal(x.imag(), y.imag(), tol); }
+
+template<class T, class U>
+bool equal(const std::complex<T>& x, const std::complex<U>& y)
+{ return equal(x.real(), y.real()) && equal(x.imag(), y.imag()); }
+
+template<class T>
+bool equal(const std::complex<T>& x, double y, double tol)
+{ return equal(x.real(), y, tol) && equal(x.imag(), 0., tol); }
+
+template<class T>
+bool equal(const std::complex<T>& x, double y)
+{ return equal(x.real(), y) && equal(x.imag(), 0.); }
+
+template<class T>
+bool equal(double x, const std::complex<T>& y, double tol)
+{ return equal(y, x, tol); }
+
+template<class T>
+bool equal(double x, const std::complex<T>& y)
+{ return equal(y, x); }
+
+#endif
+
+
+//
+// function is_zero
+//
+
+#ifndef BOOST_NO_SFINAE
+
+template<class T>
+bool is_zero(const T& x,
+  typename boost::disable_if<boost::is_arithmetic<T> >::type* = 0)
+{ return x == 0; }
+
+template<class T>
+bool is_zero(T x,
+  typename boost::enable_if<boost::is_integral<T> >::type* = 0)
+{ return x == 0; }
+
+template<class T>
+bool is_zero(T x, double tol,
+  typename boost::enable_if<boost::is_float<T> >::type* = 0)
+{ return std::abs(x) < tol; }
+
+template<class T>
+bool is_zero(T x,
+  typename boost::enable_if<boost::is_float<T> >::type* = 0)
+{ return is_zero(x, 1.0e-12); }
+
+template<class T>
+bool is_zero(const std::complex<T>& x, double tol)
+{ return is_zero(x.real(), tol) && is_zero(x.imag(), tol); }
+
+template<class T>
+bool is_zero(const std::complex<T>& x)
+{ return is_zero(x.real()) && is_zero(x.imag()); }
+
+#else
+
+template<class T>
+bool is_zero(const T& x) { return x == 0; }
+
+bool is_zero(double x, double tol) { return std::abs(x) < tol; }
+
+bool is_zero(double x) { return is_zero(x, 1.0e-12); }
+
+template<class T>
+bool is_zero(const std::complex<T>& x, double tol)
+{ return is_zero(x.real(), tol) && is_zero(x.imag(), tol); }
+
+template<class T>
+bool is_zero(const std::complex<T>& x)
+{ return is_zero(x.real()) && is_zero(x.imag()); }
+
+#endif
 
 
 //
@@ -173,7 +322,7 @@ struct numeric_cast_helper {
 template<typename U, typename T>
 struct numeric_cast_helper<U, std::complex<T> > {
   static U value(const std::complex<T>& x) {
-    if (x.imag() != 0)
+    if (!is_zero(x.imag()))
       boost::throw_exception(std::runtime_error("can not convert complex number into real one"));
     return x.real();
   }

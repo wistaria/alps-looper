@@ -92,8 +92,8 @@ public:
 
   bool operator==(const site_parameter_hxz& rhs) const
   {
-    return (s() == rhs.s()) && nearly_equal(c(), rhs.c()) &&
-      nearly_equal(hx(), rhs.hx()) && nearly_equal(hz(), rhs.hz());
+    return (s() == rhs.s()) && equal(c(), rhs.c()) &&
+      equal(hx(), rhs.hx()) && equal(hz(), rhs.hz());
   }
 
   bool operator!=(const site_parameter_hxz& rhs) const
@@ -141,7 +141,7 @@ public:
   {
     site_parameter_hxz p;
     bool success = fit2site(mat, p);
-    if (!(success && nearly_equal(p.hx(), 0) && nearly_equal(p.hz(), 0)))
+    if (!(success && equal(p.hx(), 0.) && equal(p.hz(), 0.)))
       boost::throw_exception(std::runtime_error("Error: fitting to site_parameter_noh failed.  This model is not supported by the current looper code."));
     s_ = p.s();
     c_ = p.c();
@@ -149,7 +149,7 @@ public:
 
   bool operator==(const site_parameter_noh& rhs) const
   {
-    return (s() == rhs.s()) && nearly_equal(c(), rhs.c());
+    return (s() == rhs.s()) && equal(c(), rhs.c());
   }
 
   bool operator!=(const site_parameter_noh& rhs) const
@@ -193,8 +193,8 @@ public:
 
   bool operator==(const bond_parameter_xxz& rhs) const
   {
-    return nearly_equal(c(), rhs.c()) && nearly_equal(jxy(), rhs.jxy()) &&
-      nearly_equal(jz(), rhs.jz());
+    return equal(c(), rhs.c()) && equal(jxy(), rhs.jxy()) &&
+      equal(jz(), rhs.jz());
   }
   bool operator!=(const bond_parameter_xxz& rhs) const
   {
@@ -377,23 +377,23 @@ public:
     : sites_(), bonds_(), signed_(), frustrated_()
   { set_parameters(Jxy, Jz, spin, graph, is_signed); }
   template<typename G, typename I>
-  model_parameter(const alps::Parameters params, const G& graph,
+  model_parameter(const alps::Parameters& params, const G& graph,
                   const alps::HamiltonianDescriptor<I>& hd)
     : sites_(), bonds_(), signed_(), frustrated_()
   { set_parameters(params, graph, hd); }
   template<typename G, typename I>
-  model_parameter(const alps::Parameters params, const G& graph,
+  model_parameter(const alps::Parameters& params, const G& graph,
                   const alps::HamiltonianDescriptor<I>& hd,
                   bool is_signed)
     : sites_(), bonds_(), signed_(), frustrated_()
   { set_parameters(params, graph, hd, is_signed); }
   template<typename G>
-  model_parameter(const alps::Parameters params, const G& graph,
+  model_parameter(const alps::Parameters& params, const G& graph,
                   const alps::ModelLibrary& models)
     : sites_(), bonds_(), signed_(), frustrated_()
   { set_parameters(params, graph, models); }
   template<typename G>
-  model_parameter(const alps::Parameters params, const G& graph,
+  model_parameter(const alps::Parameters& params, const G& graph,
                    const alps::ModelLibrary& models, bool is_signed)
     : sites_(), bonds_(), signed_(), frustrated_()
   { set_parameters(params, graph, models, is_signed); }
@@ -417,7 +417,7 @@ public:
     frustrated_ = check_classical_frustration(graph);
   }
   template<typename G, typename I>
-  void set_parameters(alps::Parameters params, const G& graph,
+  void set_parameters(const alps::Parameters& params, const G& graph,
                       const alps::HamiltonianDescriptor<I>& hd)
   {
     set_parameters_impl(params, graph, hd);
@@ -425,7 +425,7 @@ public:
     frustrated_ = check_classical_frustration(graph);
   }
   template<typename G, typename I>
-  void set_parameters(alps::Parameters params, const G& graph,
+  void set_parameters(const alps::Parameters& params, const G& graph,
                       const alps::HamiltonianDescriptor<I>& hd,
                       bool is_signed)
   {
@@ -434,7 +434,7 @@ public:
     frustrated_ = check_classical_frustration(graph);
   }
   template<typename G>
-  void set_parameters(const alps::Parameters params, const G& graph,
+  void set_parameters(const alps::Parameters& params, const G& graph,
                       const alps::ModelLibrary& models)
   {
     // get Hamilton operator from ModelLibrary
@@ -446,7 +446,7 @@ public:
     set_parameters(p, graph, hd);
   }
   template<typename G>
-  void set_parameters(const alps::Parameters params,
+  void set_parameters(const alps::Parameters& params,
                       const G& graph,
                       const alps::ModelLibrary& models,
                       bool is_signed)
@@ -460,28 +460,24 @@ public:
     set_parameters(p, graph, hd, is_signed);
   }
 
-  int num_site_types() const { return sites_.size(); }
-  bool is_uniform_site() const { return num_site_types() == 1; }
-  site_parameter_type site(type_type t) const
-  { return sites_.find(t)->second; }
-  site_parameter_type uniform_site() const
+  bool is_site_disordered() const { return site_disordered_; }
+  template<class GRAPH>
+  site_parameter_type site(const GRAPH& graph,
+    const typename boost::graph_traits<GRAPH>::vertex_descriptort& v) const
   {
-#ifndef NDEBUG
-    assert(is_uniform_site());
-#endif
-    return sites_.begin()->second;
+    return is_site_disordered() ?
+      sites_[boost::get(boost::vertex_index_t(), graph, v)] :
+      sites_[boost::get(alps::vertex_type_t(), graph, v)];
   }
 
-  int num_bond_types() const { return bonds_.size(); }
-  bool is_uniform_bond() const { return num_bond_types() == 1; }
-  bond_parameter_type bond(type_type t) const
-    { return bonds_.find(t)->second; }
-  bond_parameter_type uniform_bond() const
+  bool is_bond_disordered() const { return bond_disordered_; }
+  template<class GRAPH>
+  bond_parameter_type bond(const GRAPH& graph,
+    const typename boost::graph_traits<GRAPH>::edge_descriptort& e) const
   {
-#ifndef NDEBUG
-    assert(is_uniform_bond());
-#endif
-    return bonds_.begin()->second;
+    return is_bond_disordered() ?
+      bonds_[boost::get(boost::edge_index_t(), graph, e)] :
+      bonds_[boost::get(alps::edge_type_t(), graph, e)];
   }
 
   bool is_signed() const { return signed_; }
@@ -524,8 +520,8 @@ protected:
   }
 
   template<typename G, typename I>
-  void set_parameters_impl(alps::Parameters params, const G& graph,
-    const alps::HamiltonianDescriptor<I>& hd)
+  void set_parameters_impl(const alps::Parameters& params, const G& graph,
+    const alps::HamiltonianDescriptor<I>& hamiltonian)
   {
     typedef G graph_type;
     typedef typename boost::graph_traits<graph_type>::vertex_iterator
@@ -533,8 +529,106 @@ protected:
     typedef typename boost::graph_traits<graph_type>::edge_iterator
       edge_iterator;
 
-    // get default couplings
-    params.copy_undefined(hd.default_parameters());
+    typedef double term_type;
+
+    params.copy_undefined(hamiltonian.default_parameters());
+    alps::basis_states_descriptor<short> basis(model.basis(), graph);
+    alps::Disorder::seed(params.value_or_default("DISORDER_SEED",0));
+
+    alps::Parameters p(params);
+
+    // site terms
+    typename alps::property_map<alps::vertex_type_t, graph_type,
+                                alps::type_type>::const_type
+      vertex_type(alps::get_or_default(alps::vertex_type_t(), graph, 0));
+    if (lattice.disordered_sites()) {
+      site_disordered_ = true;
+      alps::graph_traits<graph_type>::vertex_iterator vi, vi_end;
+      for (boost::tie(vi, vi_end) = boost::vertices(graph); vi != vi_end;
+	   ++vi) {
+	// generate site term
+	unsigned int t = site_type[*vi];
+	  lattice.throw_if_xyz_defined(params, *vi);
+	  p << lattice.coordinate_as_parameter(*vi);
+	}
+	site_matrices.insert(std::make_pair(dt, 
+          alps::get_matrix(std::complex<double>(), 
+			   hamiltonian.site_term(t),
+			   hamiltonian.basis().site_basis(t),
+			   p)));
+
+    } else {
+
+      unsigned int dt = lattice.disordered_site_type(*vi);
+      if (site_matrices.find(dt) == site_matrices.end()) {
+	// generate site term
+	unsigned int t = lattice.site_type(*vi);
+	  lattice.throw_if_xyz_defined(params, *vi);
+	  p << lattice.coordinate_as_parameter(*vi);
+	}
+	site_matrices.insert(std::make_pair(dt, 
+          alps::get_matrix(std::complex<double>(), 
+			   hamiltonian.site_term(t),
+			   hamiltonian.basis().site_basis(t),
+			   p)));
+      }
+
+      unsigned int dim = site_matrices[dt].size();
+      std::cout << (*vi+1) << '\t' << dim << std::endl;
+      
+      for (int is = dim-1; is >= 0; --is) {
+        for (int js = dim-1; js >= 0; --js) {
+          std::cout << site_matrices[dt][js][is] << '\t';
+        }
+        std::cout << std::endl;
+      }
+    }
+
+    // bond terms
+    std::map<unsigned int, boost::multi_array<term_type, 4> > bond_matrices;
+    alps::graph_traits<graph_type>::edge_iterator ei, ei_end;
+    for (boost::tie(ei, ei_end) = boost::edges(lattice.graph());
+	 ei != ei_end; ++ei) {
+      unsigned int dt = lattice.disordered_bond_type(*ei);
+      if (bond_matrices.find(dt) == bond_matrices.end()) {
+	// generate bond term
+	unsigned int bt = lattice.bond_type(*ei);
+	unsigned int st0 = lattice.site_type(boost::source(*ei, graph));
+	unsigned int st1 = lattice.site_type(boost::target(*ei, graph));
+	if (lattice.disordered_bonds()) {
+	  lattice.throw_if_xyz_defined(params, *ei);
+	  p << lattice.coordinate_as_parameter(*ei);
+	}
+	bond_matrices.insert(std::make_pair(dt, 
+          alps::get_matrix(std::complex<double>(), 
+			   hamiltonian.bond_term(bt),
+			   hamiltonian.basis().site_basis(st0),
+			   hamiltonian.basis().site_basis(st1),
+			   p)));
+      }
+
+      int s0 = boost::get(boost::vertex_index_t(), graph,
+			  Boost::source(*ei, graph));
+      int s1 = boost::get(boost::vertex_index_t(), graph,
+			  boost::target(*ei, graph));
+      unsigned int ds0 = bond_matrices[dt].size();
+      unsigned int ds1 = bond_matrices[dt][0].size();
+      unsigned int dim = ds0 * ds1;
+      
+      std::cout << (s0+1) << '\t' << (s1+1) << '\t' << dim << std::endl;
+      
+      for (int is0 = ds0-1; is0 >= 0; --is0) {
+        for (int is1 = ds1-1; is1 >= 0; --is1) {
+          for (int js0 = ds0-1; js0 >= 0; --js0) {
+            for (int js1 = ds1-1; js1 >= 0; --js1) {
+              std::cout << bond_matrices[dt][js0][js1][is0][is1] << '\t';
+            }
+          }
+          std::cout << std::endl;
+        }
+      }
+    }
+
 
     // get site parameters
     typename alps::property_map<alps::site_type_t, graph_type,
@@ -546,8 +640,8 @@ protected:
          ++vi) {
       type_type t = site_type[*vi];
       if (!sites_.count(t))
-        sites_[t] = site_parameter_type(alps::get_matrix(0.,hd.site_term(t),
-          hd.basis().site_basis(t), params));
+        sites_[t] = site_parameter_type(alps::get_matrix(0.,hamiltonian.site_term(t),
+          hamiltonian.basis().site_basis(t), params));
     }
 
     // get bond parameters
@@ -563,8 +657,8 @@ protected:
       type_type st1 = site_type[boost::target(*ei, graph)];
       if (!bond_visited[boost::make_tuple(bt, st0, st1)]) {
         bond_visited[boost::make_tuple(bt, st0, st1)] = true;
-        bond_parameter_type p(alps::get_matrix(0., hd.bond_term(bt), 
-          hd.basis().site_basis(st0), hd.basis().site_basis(st1), params));
+        bond_parameter_type p(alps::get_matrix(0., hamiltonian.bond_term(bt), 
+          hamiltonian.basis().site_basis(st0), hamiltonian.basis().site_basis(st1), params));
         if (!bonds_.count(bt)) {
           bonds_[bt] = p;
         } else {
