@@ -27,132 +27,25 @@
 #include <alps/alea.h>
 #include <alps/model.h>
 #include <alps/scheduler.h>
+#include <boost/program_options.hpp>
 #include <boost/random.hpp>
 #include <iostream>
 #include <string>
 
-struct options {
-  boost::uint32_t seed;         // -r seed
-  uint32_t dim;                 // -d spatial dimension
-  uint32_t lsize;               // -l linear size of system
-  alps::half_integer<int> spin; // -s spin size S
-  double Jxy;                   // -x coupling Jxy (positive for ferromagnetic)
-  double Jz;                    // -z coupling Jz (positive for ferromagnetic)
-  double temp;                  // -t temperature
-  uint32_t step_t;              // -m MCS for thermalization
-  uint32_t step_m;              // -n MCS for measurement
-  std::string representation;   // -e use SSE instead of path integral
-  double fs;                    // -c ration of scattering (hidden)
+namespace po = boost::program_options;
 
-  options(int argc, char *argv[]) :
-    // default options
-    seed(2837), dim(1), lsize(16), spin(0.5), Jxy(-1.), Jz(-1.), temp(1.),
-    step_t(1024), step_m(8192), representation("path integral"), fs(0.)
-  {
-    parse(argc, argv);
-  }
-
-  void usage(int status, std::ostream& os = std::cerr) const {
-    os << "[command line options]\n\n"
-       << "  -r int     seed of random number generator\n"
-       << "  -d int     spatial dimension\n"
-       << "  -l int     linear size of system\n"
-       << "  -s double  spin size S\n"
-       << "  -x double  coupling Jxy\n"
-       << "  -z double  coupling Jz\n"
-       << "  -t double  temperature\n"
-       << "  -m int     MCS for thermalization\n"
-       << "  -n int     MCS for measurement\n"
-       << "  -e         use SSE representation instead of path-integral one\n"
-       << "  -h         this help\n\n";
-    if (status) {
-      boost::throw_exception(std::invalid_argument("Invalid command line option(s)"));
-    } else {
-      std::exit(0);
-    }
-  }
-
-  void parse(int argc, char *argv[]) {
-    for (int i = 1; i < argc; ++i) {
-      switch (argv[i][0]) {
-      case '-' :
-        switch (argv[i][1]) {
-        case 'r' :
-          if (i + 1 == argc) usage(1);
-          seed = std::atoi(argv[++i]);
-          break;
-        case 'd' :
-          if (i + 1 == argc) usage(1);
-          dim = std::atoi(argv[++i]);
-          break;
-        case 'l' :
-          if (i + 1 == argc) usage(1);
-          lsize = std::atoi(argv[++i]);
-          break;
-        case 's' :
-          if (i + 1 == argc) usage(1);
-          spin = alps::half_integer<int>(std::atof(argv[++i]));
-          break;
-        case 'x' :
-          if (i + 1 == argc) usage(1);
-          Jxy = std::atof(argv[++i]);
-          break;
-        case 'z' :
-          if (i + 1 == argc) usage(1);
-          Jz = std::atof(argv[++i]);
-          break;
-        case 't' :
-          if (i + 1 == argc) usage(1);
-          temp = std::atof(argv[++i]);
-          break;
-        case 'm' :
-          if (i + 1 == argc) usage(1);
-          step_t = std::atoi(argv[++i]);
-          break;
-        case 'n' :
-          if (i + 1 == argc) usage(1);
-          step_m = std::atoi(argv[++i]);
-          break;
-        case 'e' :
-          representation = "SSE";
-          break;
-        case 'c' :
-          if (i + 1 == argc) usage(1);
-          fs = std::atof(argv[++i]);
-          break;
-        case 'h' :
-          usage(0);
-          break;
-        default :
-          usage(1);
-          break;
-        }
-        break;
-
-      default :
-        usage(1);
-        break;
-      }
-    }
-  }
-
-  void output(std::ostream& os = std::cout) const
-  {
-    os << seed << ' '
-       << dim << ' '
-       << lsize << ' '
-       << spin << ' '
-       << Jxy << ' '
-       << Jz << ' '
-       << temp << ' '
-       << step_t << ' '
-       << step_m << ' ';
-    if (representation == "path integral") {
-      os << "PI";
-    } else if (representation == "SSE") {
-      os << "SSE";
-    }
-  }
+struct options
+{
+  boost::uint32_t seed;
+  unsigned int dim;
+  unsigned int lsize;
+  double spin;
+  double jxy;
+  double jz;
+  double temp;
+  unsigned int step_t;
+  unsigned int step_m;
+  double fs;
 };
 
 
@@ -163,23 +56,62 @@ int main(int argc, char *argv[])
 try {
 #endif
 
-  options opts(argc, argv);
+  // options
+  options opts;
+  po::options_description desc("Command line options");
+  desc.add_options()
+    ("seed,r", po::value<boost::uint32_t>(&opts.seed)->default_value(2837),
+     "seed for random number generator")
+    ("dim,d", po::value<unsigned int>(&opts.dim)->default_value(1),
+     "spatial dimensions")
+    ("size,l", po::value<unsigned int>(&opts.lsize)->default_value(16),
+     "linear size of the system")
+    ("spin,s", po::value<double>(&opts.spin)->default_value(0.5), "spin size S")
+    ("jxy,x", po::value<double>(&opts.jxy)->default_value(1.0),
+     "coupling Jxy (positive for antiferromagnetc)")
+    ("jz,z", po::value<double>(&opts.jz)->default_value(1.0),
+     "coupling Jz (positive for antiferromagnetic)")
+    ("temp,t", po::value<double>(&opts.temp)->default_value(1.0), "temperature")
+    ("therm,m", po::value<unsigned int>(&opts.step_t)->default_value(1024),
+     "MCS for thermalization")
+    ("measure,n", po::value<unsigned int>(&opts.step_m)->default_value(8192),
+     "MCS for measurement")
+    ("sse,e", "use SSE representation instead of path-integral")
+    ("scatter,c", po::value<double>(&opts.fs)->default_value(0.0),
+     "ratio of scattering graph (only for experts)")
+    ("version,v", "print version and exit")
+    ("help,h", "this help")
+    ;
+
+  po::variables_map vm;
+  po::store(po::parse_command_line(argc, argv, desc), vm);
+  po::notify(vm);    
+
+  if (vm.count("help")) {
+    std::cout << desc << "\n";
+    return 0;
+  }  
+  if (vm.count("version")) {
+    looper::print_copyright(std::cout);
+    alps::print_copyright(std::cout);
+    return 0;
+  }
   looper::print_copyright(std::cerr);
   alps::print_copyright(std::cerr);
-  std::cout <<
-    "qmc_cmd: a command-line QMC program for simple hypercubic lattices\n\n";
 
   // simulation parameters
+  alps::half_integer<int> spin(opts.spin);
   std::cout << "r:   seed for RNG           : " << opts.seed << std::endl
-            << "d:   spatial dimension      : " << opts.dim << std::endl
+	    << "d:   spatial dimension      : " << opts.dim << std::endl
             << "l:   linear size            : " << opts.lsize << std::endl
-            << "s:   spin size S            : " << opts.spin << std::endl
-            << "x:   coupling Jxy           : " << opts.Jxy << std::endl
-            << "z:   coupling Jz            : " << opts.Jz << std::endl
+            << "s:   spin size S            : " << spin << std::endl
+            << "x:   coupling Jxy           : " << opts.jxy << std::endl
+            << "z:   coupling Jz            : " << opts.jz << std::endl
             << "t:   temperature            : " << opts.temp << std::endl
             << "m:   MCS for thermalization : " << opts.step_t << std::endl
             << "n:   MCS for measurement    : " << opts.step_m << std::endl
-            << "e:   representation         : " << opts.representation
+            << "e:   representation         : "
+	    << (vm.count("sse") == 0 ? "path integral" : "SSE")
             << std::endl << std::endl;
 
   // random number generator
@@ -195,38 +127,38 @@ try {
 
   // model & inverse temperature
   typedef looper::model_parameter<> model_type;
-  model_type model(opts.Jxy, opts.Jz, opts.spin, g, false);
+  model_type model(-opts.jxy, -opts.jz, spin, g, false);
   double beta = 1./opts.temp;
 
   // measurements
   alps::ObservableSet measurements;
 
-  if (opts.representation == "path integral" ||
-      opts.representation == "SSE") {
+  if (vm.count("sse") == 0) {
 
-    if (opts.representation == "path integral") {
-      // path-integral representation
-      qmc_worker<looper::path_integral<graph_type,
-        model_type> > worker(g, model, beta, opts.fs, measurements);
+    // path-integral representation
+    qmc_worker<looper::path_integral<graph_type,
+      model_type> > worker(g, model, beta, opts.fs, measurements);
 
-      for (int mcs = 0; mcs < opts.step_t + opts.step_m; ++mcs) {
-        if (mcs == opts.step_t) measurements.reset(true);
-        worker.step(rng, measurements);
-      }
-      accumulate(measurements, measurements);
-      looper::print_all(std::cout, measurements);
-    } else {
-      // SSE representation
-      qmc_worker<looper::sse<graph_type,
-        model_type> > worker(g, model, beta, opts.fs, measurements);
-
-      for (int mcs = 0; mcs < opts.step_t + opts.step_m; ++mcs) {
-        if (mcs == opts.step_t) measurements.reset(true);
-        worker.step(rng, measurements);
-      }
-      accumulate(measurements, measurements);
-      looper::print_all(std::cout, measurements);
+    for (int mcs = 0; mcs < opts.step_t + opts.step_m; ++mcs) {
+      if (mcs == opts.step_t) measurements.reset(true);
+      worker.step(rng, measurements);
     }
+    accumulate(measurements, measurements);
+    looper::print_all(std::cout, measurements);
+
+  } else {
+
+    // SSE representation
+    qmc_worker<looper::sse<graph_type,
+      model_type> > worker(g, model, beta, opts.fs, measurements);
+
+    for (int mcs = 0; mcs < opts.step_t + opts.step_m; ++mcs) {
+      if (mcs == opts.step_t) measurements.reset(true);
+      worker.step(rng, measurements);
+    }
+    accumulate(measurements, measurements);
+    looper::print_all(std::cout, measurements);
+
   }
 
 #ifndef BOOST_NO_EXCEPTIONS

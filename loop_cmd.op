@@ -1,11 +1,9 @@
-qmc_cmd: a command-line QMC program for simple hypercubic lattices
-
 r:   seed for RNG           : 2837
 d:   spatial dimension      : 1
 l:   linear size            : 16
 s:   spin size S            : 1/2
-x:   coupling Jxy           : -1
-z:   coupling Jz            : -1
+x:   coupling Jxy           : 1
+z:   coupling Jz            : 1
 t:   temperature            : 1
 m:   MCS for thermalization : 1024
 n:   MCS for measurement    : 8192

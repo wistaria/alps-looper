@@ -1,3 +1,7 @@
+2004-11-25  Synge Todo <wistaria@comp-phys.org>
+
+	* Adopted boost::program_options
+	
 2004-11-07  Synge Todo <wistaria@comp-phys.org>
 
 	* Moved all the operator definitions into site basis (for ALPS 1.3).
