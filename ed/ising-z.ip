@@ -2,9 +2,9 @@ LATTICE = "chain lattice"
 MODEL   = "spin"
 L = 8
 
-Jx = 1
-Jy = 1
-Jz = 2
+Jx = -1
+Jy = -1
+Jz = -2
 
 { T = 3.0 }
 { T = 2.9 }

@@ -28,9 +28,9 @@ cat <<EOF > heisenberg.dat
 # LATTICE = "chain lattice"
 # MODEL   = "spin"
 # L = 8
-# Jx = 1
-# Jy = 1
-# Jz = 1
+# Jx = -1
+# Jy = -1
+# Jz = -1
 # column  1: temperature
 #         2: energy per site
 #         3: specific heat
@@ -47,9 +47,9 @@ cat <<EOF > ising.dat
 # LATTICE = "chain lattice"
 # MODEL   = "spin"
 # L = 8
-# Jx = 1
-# Jy = 1
-# Jz = 2
+# Jx = -1
+# Jy = -1
+# Jz = -2
 # column  1: temperature
 #         2: energy per site
 #         3: specific heat
