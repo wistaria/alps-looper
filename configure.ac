@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-dnl $Id: configure.ac 665 2004-03-06 16:55:44Z wistaria $
+dnl $Id: configure.ac 670 2004-03-07 14:02:24Z wistaria $
 
 dnl 
 dnl Initialization
@@ -8,7 +8,7 @@ dnl
 dnl disable saving cache
 define([AC_CACHE_SAVE], )dnl
 
-AC_PREREQ(2.58)
+AC_PREREQ(2.59)
 AC_INIT([looper], 3.0b4)              dnl check here for release!
 looper_date="2003/11/20"              dnl check here for release!
 AM_INIT_AUTOMAKE
