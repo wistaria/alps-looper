@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-dnl $Id: configure.ac 702 2004-03-17 13:56:51Z wistaria $
+dnl $Id: configure.ac 705 2004-03-18 01:16:30Z wistaria $
 
 dnl 
 dnl Initialization
@@ -23,23 +23,23 @@ AC_DEFINE_UNQUOTED(LOOPER_DATE, "$looper_date",
 AC_MSG_NOTICE([starting configuration for ALPS/looper version $PACKAGE_VERSION ($looper_date)])
 
 dnl
-dnl check for ALPS library
+dnl check for ALPS libraries
 dnl
 
-AC_MSG_CHECKING([for ALPS library])
+AC_MSG_CHECKING([for ALPS Libraries])
 if test -f "$ac_cv_alps_include_mk"; then
   AC_MSG_RESULT([OK])
 else
   AC_MSG_RESULT([not found])
-  AC_MSG_ERROR([ALPS library not found.])
+  AC_MSG_ERROR([ALPS Libraries not found.])
 fi
 
 AC_MSG_CHECKING([for ALPS version])
 AC_MSG_RESULT([$ac_cv_alps_version])
 
 if test "$ac_cv_alps_type" = "full"; then :; else
-  AC_MSG_NOTICE([ALPS Light Libraries are detected.])
-  AC_MSG_ERROR([ALPS/looper requies the full version of ALPS Libraries.])
+  AC_MSG_NOTICE([detected ALPS Light Libraries])
+  AC_MSG_ERROR([ALPS/looper requies the full version of ALPS Libraries])
 fi
 
 dnl
