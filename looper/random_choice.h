@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: random_choice.h 455 2003-10-22 01:04:57Z wistaria $
+* $Id: random_choice.h 457 2003-10-22 01:45:56Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -78,7 +78,7 @@ public:
   template<class Engine>
   result_type operator()(Engine& eng)
   {
-    result_type x = n_ * eng();
+    result_type x = result_type(RealType(n_) * eng());
     return (eng() < cutoff(x)) ? x : alias(x);
   }
 
@@ -112,8 +112,8 @@ public:
       }
     }
 
-    // Note: at this point, `pos_p' points the first non-negative
-    // element in array.
+    // Note: now `pos_p' is pointing the first non-negative element in
+    // the array.
 
     // Assign alias and cutoff values
     for (neg_p = array.begin(); neg_p != array.end(); ++neg_p) {

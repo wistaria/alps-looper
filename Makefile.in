@@ -39,8 +39,8 @@ top_builddir = ./@top_builddir@
 
 include @INCLUDE_MK@
 
-cppflags = $(CPPFLAGS) -I$(top_builddir)
-cppflags_mpi = $(CPPFLAGS_MPI) -I$(top_builddir)
+cppflags = $(CPPFLAGS) -I$(top_srcdir)
+cppflags_mpi = $(CPPFLAGS_MPI) -I$(top_srcdir)
 cxxflags = $(CXXFLAGS)
 ldflags = $(LDFLAGS)
 ldflags_mpi = $(LDFLAGS_MPI)
