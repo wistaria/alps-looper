@@ -33,9 +33,9 @@ AC_DEFUN([AC_BINDINGS],
       fi
     else
       bindings_dir=no
-      for d in $HOME $HOME/src $prefix $prefix/src /usr/local /usr/local/src
+      for d in $prefix $prefix/src $HOME $HOME/src /usr/local /usr/local/src
       do
-        for s in boost-sandbox boost-bindings bindings ublas_bindings
+        for s in include boost-sandbox boost-bindings bindings ublas_bindings 
         do
           if test -f "$d/$s/boost/numeric/bindings/lapack/lapack.hpp"; then
             found=yes
