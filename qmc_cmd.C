@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-/* $Id: qmc_cmd.C 699 2004-03-17 09:55:30Z wistaria $ */
+/* $Id: qmc_cmd.C 700 2004-03-17 10:24:04Z wistaria $ */
 
 #include "qmc_impl.h"
 #include <looper/exact_diag.h>
@@ -197,8 +197,7 @@ try {
 
   // random number generator
   boost::variate_generator<boost::mt19937, boost::uniform_real<> >
-    rng(boost::mt19937(boost::mt19937::result_type(opts.seed)),
-	boost::uniform_real<>());
+    rng(boost::mt19937(opts.seed), boost::uniform_real<>());
   for (int i = 0; i < 19844; ++i) rng();
     
   // hypercubic lattice (real lattice)

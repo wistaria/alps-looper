@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-/* $Id: syev.C 698 2004-03-17 09:23:58Z wistaria $ */
+/* $Id: syev.C 700 2004-03-17 10:24:04Z wistaria $ */
 
 #include <looper/lapack.h>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -96,7 +96,7 @@ int main(int argc, char ** argv)
 
   // random number generator
   boost::variate_generator<boost::mt19937, boost::uniform_real<> >
-    rng(boost::mt19937(uint32_t(opts.seed)), boost::uniform_real<>(-.5, .5));
+    rng(boost::mt19937(opts.seed), boost::uniform_real<>(-.5, .5));
   for (int i = 0; i < 1000; ++i) rng();
 
   const int n = opts.n;
