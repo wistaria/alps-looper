@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: measurement.h 538 2003-11-06 14:59:29Z wistaria $
+* $Id: measurement.h 539 2003-11-06 15:02:52Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -168,7 +168,7 @@ struct staggered_susceptibility_helper<sse<G, M, W, N> >
       sd += gauge(*vi, param.virtual_graph.graph) *
 	qmc_type::dynamic_sz(*vi, config, param.virtual_graph);
       ss += gauge(*vi, param.virtual_graph.graph) *
-	qmc_type::static_sz(*vi, config, param.virtual_graph);
+	qmc_type::static_sz(*vi, config);
     }
     return param.beta * (sqr(sd) + sqr(ss) / (config.os.size() + 1)) /
       param.virtual_graph.num_real_vertices;

@@ -1,5 +1,14 @@
 2003-11-06  Synge Todo  <wistaria@comp-phys.org>
 
+	* version 3.0b2 released.
+
+	- prerequisites: boost-ss-20031102, boost-ss-20031102.patch,
+	  alps-20031105
+	
+	- TODO: improved estimators
+
+2003-11-06  Synge Todo  <wistaria@comp-phys.org>
+	
 	* Moved measurements into looper/measuerment.h
 
 	* Added is_bipartite member in [path_integral,sse]::parameter_type.
