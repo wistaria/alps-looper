@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: path_integral.h 461 2003-10-22 14:34:25Z wistaria $
+* $Id: path_integral.h 462 2003-10-22 15:36:14Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -297,24 +297,32 @@ struct path_integral<virtual_graph<G>, M, W>
     for (int i = 0; i < vg.mapping.num_groups(); ++i) {
       int s2 = vg.mapping.num_virtual_vertices(i);
       int offset = *(vg.mapping.virtual_vertices(i).first);
-      r.resize(s2);
-      c0.resize(s2);
-      c1.resize(s2);
-      vertex_iterator vi_end = vg.mapping.virtual_vertices(i).second;
-      for (vertex_iterator vi = vg.mapping.virtual_vertices(i).first;
-	   vi != vi_end; ++vi) {
-	r[*vi - offset] = *vi - offset;
-	c0[*vi - offset] = config.wl.series(*vi).first->conf();
-	c1[*vi - offset] = config.wl.series(*vi).second->conf();
-      }
-//       restricted_random_shuffle(r.begin(), r.end(),
-// 				c0.begin(), c0.end(),
-// 				c1.begin(), c1.end(),
-// 				uniform_01);
-      for (int j = 0; j < s2; ++j) {
+      if (s2 == 1) {
+	// S=1/2: just connect top and bottom
 	union_find::unify(
-          config.wl.series(offset +   j ).first ->loop_segment(0),
-          config.wl.series(offset + r[j]).second->loop_segment(0));
+          config.wl.series(offset).first ->loop_segment(0),
+          config.wl.series(offset).second->loop_segment(0));
+      } else {
+	// S>=1
+	r.resize(s2);
+	c0.resize(s2);
+	c1.resize(s2);
+	vertex_iterator vi_end = vg.mapping.virtual_vertices(i).second;
+	for (vertex_iterator vi = vg.mapping.virtual_vertices(i).first;
+	     vi != vi_end; ++vi) {
+	  r[*vi - offset] = *vi - offset;
+	  c0[*vi - offset] = config.wl.series(*vi).first->conf();
+	  c1[*vi - offset] = config.wl.series(*vi).second->conf();
+	}
+	restricted_random_shuffle(r.begin(), r.end(),
+				  c0.begin(), c0.end(),
+				  c1.begin(), c1.end(),
+				  uniform_01);
+	for (int j = 0; j < s2; ++j) {
+	  union_find::unify(
+	    config.wl.series(offset +   j ).first ->loop_segment(0),
+	    config.wl.series(offset + r[j]).second->loop_segment(0));
+	}
       }
     }
     
@@ -368,11 +376,13 @@ struct path_integral<virtual_graph<G>, M, W>
   static void flip_and_cleanup(config_type<HasCTime>& config,
 			       const vg_type& vg, RNG& uniform_01)
   {
-    typedef typename config_type<HasCTime>::iterator  iterator;
+    typedef typename config_type<HasCTime>::iterator iterator;
+    typedef RNG rng_type;
 
     std::vector<int> flip(config.num_loops);
     std::generate(flip.begin(), flip.end(),
-		  boost::variate_generator<RNG, boost::uniform_smallint<> >(
+		  boost::variate_generator<rng_type&,
+		                           boost::uniform_smallint<> >(
 		    uniform_01, boost::uniform_smallint<>(0, 1)));
     
     // flip spins
@@ -451,7 +461,7 @@ struct path_integral<virtual_graph<G>, M, W>
   template<bool HasCTime>
   static double energy_z_imp(const config_type<HasCTime>& config,
 			     const vg_type& vg, const model_type& model,
-			     double beta)
+			     double /* beta */)
   {
     typedef typename config_type<HasCTime>::const_iterator const_iterator;
     double ene = 0.;

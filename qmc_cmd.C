@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: qmc_cmd.C 461 2003-10-22 14:34:25Z wistaria $
+* $Id: qmc_cmd.C 462 2003-10-22 15:36:14Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -235,7 +235,7 @@ try {
 	template get<alps::RealObservable>("uniform magnetization") << sz;
       measurements.
 	template get<alps::RealObservable>("uniform susceptibility") <<
-	beta * sz * sz;
+	beta * vg.num_real_vertices * sz * sz;
     }
   } else {
     // SSE representation
