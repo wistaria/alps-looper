@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: sse.h 481 2003-10-29 15:18:42Z wistaria $
+* $Id: sse.h 484 2003-10-30 03:20:35Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -150,14 +150,14 @@ struct sse<virtual_graph<G>, M, W>
     // diagonal update & labeling
     //
 
-    // copy spin configurations at the bottom into a table `curr'
-    std::vector<int> curr(boost::num_vertices(vg.graph));
+    // copy spin configurations at the bottom
+    std::vector<int> curr_conf(boost::num_vertices(vg.graph));
     vertex_iterator vi, vi_end;
-    std::vector<int>::iterator itr = curr.begin();
+    std::vector<int>::iterator itr = curr_conf.begin();
     for (boost::tie(vi, vi_end) = boost::vertices(vg.graph); 
 	 vi != vi_end; ++vi, ++itr) *itr = config.bottom[*vi].conf();
     
-    // scan over operators
+   // scan over operators
     operator_iterator oi_end = config.os.end();
     for (operator_iterator oi = config.os.begin(); oi != oi_end; ++oi) {
       if (oi->is_identity()) {
@@ -166,16 +166,16 @@ struct sse<virtual_graph<G>, M, W>
 	edge_iterator ei = boost::edges(vg.graph).first + b;
 	if (uniform_01() <
 	    bc.global_weight() * beta *
-	    bc.weight(b).p_accept(curr[boost::source(*ei, vg.graph)],
-				  curr[boost::target(*ei, vg.graph)]) /
+	    bc.weight(b).p_accept(curr_conf[boost::source(*ei, vg.graph)],
+				  curr_conf[boost::target(*ei, vg.graph)]) /
 	    double(config.os.size() - config.num_operators)) {
 	  // insert diagonal operator
 	  oi->identity_to_diagonal();
 	  oi->set_bond(b);
 	  ++config.num_operators;
 
-	  oi->set_new((curr[boost::source(*ei, vg.graph)] ^
-		       curr[boost::target(*ei, vg.graph)]),
+	  oi->set_new((curr_conf[boost::source(*ei, vg.graph)] ^
+		       curr_conf[boost::target(*ei, vg.graph)]),
 		      (uniform_01() < bc.weight(b).p_freeze()));
 	} else { /* nothing to be done */ }
       } else if (oi->is_diagonal()) {
@@ -185,23 +185,93 @@ struct sse<virtual_graph<G>, M, W>
 	if (uniform_01() <
 	    double(config.os.size() - config.num_operators + 1) / 
 	    (bc.global_weight() * beta *
-	     bc.weight(b).p_accept(curr[boost::source(*ei, vg.graph)],
-				   curr[boost::target(*ei, vg.graph)]))) {
+	     bc.weight(b).p_accept(curr_conf[boost::source(*ei, vg.graph)],
+				   curr_conf[boost::target(*ei, vg.graph)]))) {
 	  // remove diagonal operator
 	  oi->diagonal_to_identity();
 	  --config.num_operators;
 	} else {
 	  // remain as diagonal operator
-	  oi->set_old((curr[boost::source(*ei, vg.graph)] ^
-		       curr[boost::target(*ei, vg.graph)]));
+	  oi->set_old((curr_conf[boost::source(*ei, vg.graph)] ^
+		       curr_conf[boost::target(*ei, vg.graph)]));
 	}
       } else {
 	// off-diagonal operator
 	int b = oi->bond();
 	edge_iterator ei = boost::edges(vg.graph).first + oi->bond();
-	curr[boost::source(*ei, vg.graph)] ^= 1;
-	curr[boost::target(*ei, vg.graph)] ^= 1;
+	curr_conf[boost::source(*ei, vg.graph)] ^= 1;
+	curr_conf[boost::target(*ei, vg.graph)] ^= 1;
 	oi->set_old(uniform_01() < bc.weight(b).p_reflect());
+      }
+    }
+#ifndef NDEBUG
+    // check consistency of spin configuration
+    itr = curr_conf.begin();
+    for (boost::tie(vi, vi_end) = boost::vertices(vg.graph); 
+	 vi != vi_end; ++vi, ++itr) assert(*itr == config.top[*vi].conf());
+#endif
+
+    //
+    // cluster identification by using union-find algorithm
+    //
+    std::vector<loop_segment *> curr_ptr(boost::num_vertices(vg.graph));
+    std::vector<loop_segment *>::iterator pi = curr_ptr.begin();
+    for (boost::tie(vi, vi_end) = boost::vertices(vg.graph); 
+	 vi != vi_end; ++vi, ++itr)
+      *pi = &(config.bottom[*vi].loop_segment(0));
+
+   // scan over operators
+    oi_end = config.os.end();
+    for (operator_iterator oi = config.os.begin(); oi != oi_end; ++oi) {
+      if (!oi->is_identity()) {
+	int b = oi->bond();
+	edge_iterator ei = boost::edges(vg.graph).first + oi->bond();
+	union_find::unify(*curr_ptr[boost::source(*ei, vg.graph)],
+			  segment_d(oi, 0));
+	union_find::unify(*curr_ptr[boost::target(*ei, vg.graph)],
+			  segment_d(oi, 1));
+	if (oi->is_frozen())
+	  union_find::unify(oi->loop_segment(0), oi->loop_segment(1));
+	curr_ptr[boost::source(*ei, vg.graph)] = &segment_u(oi, 0);
+	curr_ptr[boost::target(*ei, vg.graph)] = &segment_u(oi, 1);
+      }
+    }
+
+    // connect to top
+    for (boost::tie(vi, vi_end) = boost::vertices(vg.graph); 
+	 vi != vi_end; ++vi, ++itr)
+      union_find::unify(*curr_ptr_[*vi], config.top[*vi].loop_segment(0));
+
+    // connect bottom and top with random permutation
+    std::vector<int> r, c0, c1;
+    for (int i = 0; i < vg.mapping.num_groups(); ++i) {
+      int s2 = vg.mapping.num_virtual_vertices(i);
+      int offset = *(vg.mapping.virtual_vertices(i).first);
+      if (s2 == 1) {
+        // S=1/2: just connect top and bottom
+        union_find::unify(config.bottom[*vi].loop_segment(0),
+			  config.top[*vi]   .loop_segment(0));
+      } else {
+        // S>=1
+        r.resize(s2);
+        c0.resize(s2);
+        c1.resize(s2);
+        vertex_iterator vi_end = vg.mapping.virtual_vertices(i).second;
+        for (vertex_iterator vi = vg.mapping.virtual_vertices(i).first;
+             vi != vi_end; ++vi) {
+          r[*vi - offset] = *vi - offset;
+          c0[*vi - offset] = config.bottom[*vi].conf();
+          c1[*vi - offset] = config.top[*vi]   .conf();
+        }
+        restricted_random_shuffle(r.begin(), r.end(),
+                                  c0.begin(), c0.end(),
+                                  c1.begin(), c1.end(),
+                                  uniform_01);
+        for (int j = 0; j < s2; ++j) {
+          union_find::unify(
+            config.bottom[offset +   j ].loop_segment(0),
+            config.top   [offset + r[j]].loop_segment(0));
+        }
       }
     }
   }

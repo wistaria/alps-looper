@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: node.h 470 2003-10-28 05:59:14Z wistaria $
+* $Id: node.h 484 2003-10-30 03:20:35Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -41,6 +41,7 @@
 
 #include <alps/osiris.h>
 #include <boost/integer_traits.hpp>
+#include <boost/iterator.hpp>
 #include <boost/static_assert.hpp>
 #include <bitset>
 
@@ -216,9 +217,11 @@ private:
 };
 
 
+// for path-integral
+
 template<class Itr>
-inline
-typename Itr::value_type::segment_type& segment_d(const Itr& itr)
+inline typename Itr::value_type::segment_type&
+segment_d(const Itr& itr)
 {
   if (itr.at_boundary()) {
     return itr->loop_segment(0);
@@ -232,8 +235,8 @@ typename Itr::value_type::segment_type& segment_d(const Itr& itr)
 }
 
 template<class Itr>
-inline
-typename Itr::value_type::segment_type& segment_u(const Itr& itr)
+inline typename Itr::value_type::segment_type&
+segment_u(const Itr& itr)
 {
   if (itr.at_boundary()) {
     return itr->loop_segment(0);
@@ -243,6 +246,30 @@ typename Itr::value_type::segment_type& segment_u(const Itr& itr)
     } else {
       return itr->loop_segment(1-itr.leg());
     }
+  }
+}
+
+// for sse
+
+template<class Itr>
+inline typename boost::iterator_value<Itr>::type::segment_type&
+segment_d(const Itr& itr, int leg)
+{
+  if (itr->is_refl()) {
+    return itr->loop_segment(1);
+  } else {
+    return itr->loop_segment(leg);
+  }
+}
+
+template<class Itr>
+inline typename boost::iterator_value<Itr>::type::segment_type&
+segment_u(const Itr& itr, int leg)
+{
+  if (itr->is_refl()) {
+    return itr->loop_segment(0);
+  } else {
+    return itr->loop_segment(1-leg);
   }
 }
 
