@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: pathintegral.h 432 2003-10-16 13:24:54Z wistaria $
+* $Id: pathintegral.h 433 2003-10-16 14:38:03Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -304,10 +304,9 @@ void initialize(amida<N>& config, const VG& vg, const VM&)
   }
 }
 
-template<class N, class VG, class VM, class M, class RNG, class WEIGHT>
-void do_labeling(amida<N>& config, const VG& vg, const VM& vm,
-		 const M& model, double beta, RNG& uniform_01,
-		 const WEIGHT& weight)
+template<class N, class VG, class VM, class M, class RNG, class W>
+int do_update(amida<N>& config, const VG& vg, const VM& vm, const M& model,
+	     double beta, RNG& uniform_01, const W& weight)
 {
   typedef typename amida<N>::iterator iterator;
   typedef typename amida<N>::value_type node_type;
@@ -315,7 +314,7 @@ void do_labeling(amida<N>& config, const VG& vg, const VM& vm,
     vertex_iterator;
   typedef typename boost::graph_traits<VG>::edge_iterator
     edge_iterator;
-  typedef WEIGHT weight_type;
+  typedef W weight_type;
   
   //
   // labeling
@@ -342,10 +341,8 @@ void do_labeling(amida<N>& config, const VG& vg, const VM& vm,
     for (std::vector<double>::const_iterator ti = trials.begin();
 	 ti != ti_end; ++ti) {
       while (itr0->time() < *ti) { 
-	if (itr0->bond() == bond) {
-	  // labeling existing link
+	if (itr0->bond() == bond) // labeling existing link
 	  itr0->set_old((uniform_01() < weight.p_reflect ? 1 : 0), 0);
-	}
 	if (itr0->is_old_node()) c0 ^= 1;
 	++itr0;
       }
@@ -357,19 +354,14 @@ void do_labeling(amida<N>& config, const VG& vg, const VM& vm,
 	// insert new link
 	iterator itr_new =
 	  config.insert_link_prev(node_type(), itr0, itr1).first;
-	bool fz = (uniform_01() < weight.p_freeze);
 	itr_new->set_time(*ti);
 	itr_new->set_new(boost::get(edge_index_t(), vg, *ei), c0 ^ c1,
-			 (fz ? 1 : 0), 0, 0);
-	if (fz) unionfind::unify(itr_new->loop_segment(0),
-				 itr_new->loop_segment(0));
+			 (uniform_01() < weight.p_freeze ? 1 : 0), 0, 0);
       }
     }
     while (!itr0.at_top()) { 
-      if (itr0->bond() == bond) {
-	// labeling existing link
+      if (itr0->bond() == bond)	// labeling existing link
 	itr0->set_old((uniform_01() < weight.p_reflect ? 1 : 0), 0);
-      }
       ++itr0;
     }
   }
@@ -387,15 +379,30 @@ void do_labeling(amida<N>& config, const VG& vg, const VM& vm,
     iterator itrU = itrD + 1;
     
     // iteration up to t = 1
-    while (!itrU.at_top()) {
-      // connect loop segments // FIXME
-      itrD = itrU++;
+    while (true) {
+      if (itrU.at_top()) {
+	if (itrD.at_bottom())
+	  unionfind::unify(itrU->loop_segment(0),
+			   itrD->loop_segment(0));
+	else
+	  unionfind::unify(itrU->loop_segment(0),
+			   itrD->loop_segment(!(itrD.leg()|itrD->is_refl())));
+	break; // finish
+      } else {
+	if (itrU.leg() == 0 && itrU->is_frozen()) // frozen link
+	  unionfind::unify(itrU->loop_segment(0), itrU->loop_segment(0));
+	if (itrD.at_bottom())
+	  unionfind::unify(itrU->loop_segment(itrU.leg()|itrU->is_refl()),
+			   itrD->loop_segment(0));
+	else
+	  unionfind::unify(itrU->loop_segment(itrU.leg()|itrU->is_refl()),
+			   itrD->loop_segment(!(itrD.leg()|itrD->is_refl())));
+	itrD = itrU++; // next
+      }
     }
   }
   
-  std::vector<int> r;
-  std::vector<int> c0;
-  std::vector<int> c1;
+  std::vector<int> r, c0, c1;
   for (int i = 0; i < vm.num_groups(); ++i) {
     int s2 = vm.num_virtual_vertices(i);
     int offset = *(vm.virtual_vertices(i).first);
@@ -419,13 +426,40 @@ void do_labeling(amida<N>& config, const VG& vg, const VM& vm,
         config.series(*vi            ).first ->loop_segment(0),
         config.series(r[*vi - offset]).second->loop_segment(0));
   }
+
+  int num_loops = 0;
+  vi_end = boost::vertices(vg).second;
+  for (vertex_iterator vi = boost::vertices(vg).first; vi != vi_end; ++vi) {
+    
+    // setup iterators
+    iterator itr = config.series(*vi).first;
+    
+    // iteration up to t = 1
+    while (true) {
+      if (itr.at_boundary()) {
+	if (itr->loop_segment(0).is_root())
+	  itr->loop_segment(0).index = num_loops++;
+      } else {
+	if (itr.leg() == 0) {
+	  if (itr->loop_segment(0).is_root())
+	    itr->loop_segment(0).index = num_loops++;
+	  if (itr->loop_segment(1).is_root())
+	    itr->loop_segment(1).index = num_loops++;
+	}
+      }
+      if (itr.at_top()) break;
+      ++itr;
+    }
+  }
   std::cout << "identification done.\n";
+
+  return num_loops; // return number of loops
 }
 
 template<class N, class VG, class VM, class M, class RNG>
-void do_labeling(amida<N>& config, const VG& vg, const VM& vm,
-		 const M& model, double beta, RNG& uniform_01)
-{ do_labeling(config, vg, vm, model, beta, uniform_01, weight()); }
+int do_update(amida<N>& config, const VG& vg, const VM& vm, const M& model,
+	     double beta, RNG& uniform_01)
+{ return do_update(config, vg, vm, model, beta, uniform_01, weight()); }
 
 } // namespace path_integral
 

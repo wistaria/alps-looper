@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: simple_pi.C 432 2003-10-16 13:24:54Z wistaria $
+* $Id: simple_pi.C 433 2003-10-16 14:38:03Z wistaria $
 *
 * Copyright (C) 2001-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -190,7 +190,7 @@ try {
   // measurements
   alps::ObservableSet measurements;
 
-  looper::path_integral::do_labeling(config, vg, vm, model, 1./opts.temp, rng);
+  std::cout << looper::path_integral::do_update(config, vg, vm, model, 1./opts.temp, rng) << std::endl;
 
   // output results
   std::cout << measurements;
