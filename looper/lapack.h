@@ -92,6 +92,9 @@ inline double solve_llsp(
   double tol = 1.0e-10)
 {
   using namespace boost::numeric;
+#ifdef BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
+  using ublas::norm_inf; using ublas::norm_2; using ublas::prod;
+#endif
 
   typedef T value_type;
   typedef ublas::matrix<value_type, ublas::column_major> matrix_type;
