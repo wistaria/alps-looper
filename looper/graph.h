@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-/* $Id: graph.h 708 2004-03-19 04:01:27Z wistaria $ */
+/* $Id: graph.h 717 2004-03-23 09:16:54Z wistaria $ */
 
 #ifndef LOOPER_GRAPH_H__
 #define LOOPER_GRAPH_H__
@@ -65,7 +65,7 @@ typedef boost::adjacency_list<boost::vecS,
                               boost::undirectedS,
                               boost::property<coordinate_t,
                                               alps::detail::coordinate_type,
-                                boost::property<parity_t, int8_t,
+                                boost::property<parity_t, int,
                                 boost::property<vertex_type_t, int > > >,
                               boost::property<edge_type_t, int,
                                 boost::property<edge_index_t, int > >,
@@ -86,7 +86,7 @@ struct graph_traits
                                                       coordinate_type;
 };
 
-template<class D = unsigned int, class S = D, class E = std::vector<S> >
+template<class D = std::size_t, class S = D, class E = std::vector<S> >
 class hypercubic_graph_generator
 {
 public:
@@ -109,133 +109,42 @@ private:
   extent_type ext_;
 };
 
-namespace detail {
-
-template<class G, class D>
-struct hypercubic_graph_helper
-{
-  typedef G                                                  graph_type;
-  typedef D                                                  descriptor_type;
-  typedef typename descriptor_type::dimension_type           dimension_type;
-  typedef typename descriptor_type::size_type                index_type;
-  typedef typename descriptor_type::extent_type              base_type;
-  typedef base_type                                          position_type;
-  typedef typename graph_traits<graph_type>::coordinate_type coordinate_type;
-
-  template<class E>
-  static position_type index2pos(const E& ext, const base_type& base,
-                                 index_type i) {
-    position_type pos(ext.size());
-    for (dimension_type d = 0; d < ext.size(); ++d) {
-      pos[d] = (i / base[d]) % ext[d];
-    }
-    return pos;
-  }
-
-  static index_type pos2index(dimension_type dim, const base_type& base,
-                              const position_type& pos) {
-    index_type i = 0;
-    for (dimension_type d = 0; d < dim; ++d) i += base[d] * pos[d];
-    return i;
-  }
-
-  template<class E>
-  static std::size_t neighbor(const E& ext, const position_type& base,
-                              dimension_type s, dimension_type d,
-                              typename position_type::value_type p) {
-    position_type pos = index2pos(ext, base, s);
-    pos[d] = (pos[d] + ext[d] + p) % ext[d];
-    return pos2index(ext.size(), base, pos);
-  }
-
-  static coordinate_type pos2coord(const position_type& pos) {
-    coordinate_type coord(pos.size());
-    for (dimension_type i = 0; i < pos.size(); ++i) coord[i] = pos[i];
-    return coord;
-  }
-};
-
-} // end namespace detail
-
 template<class D, class S, class E, class G>
-void generate_graph(const hypercubic_graph_generator<D, S, E>& desc,
-                    G& g)
+void generate_graph(G& g, const hypercubic_graph_generator<D, S, E>& desc)
 {
-  typedef G graph_type;
-  typedef typename boost::graph_traits<graph_type>::vertex_iterator
-    vertex_iterator;
-  typedef typename boost::graph_traits<graph_type>::vertex_descriptor
-    vertex_descriptor;
-  typedef typename boost::graph_traits<graph_type>::edge_descriptor
-    edge_descriptor;
-  typedef typename graph_traits<graph_type>::coordinate_type coordinate_type;
+  std::size_t dim(desc.dimension());
 
-  typedef hypercubic_graph_generator<D, S, E>                descriptor_type;
-  typedef detail::hypercubic_graph_helper<graph_type, descriptor_type>
-                                                             helper_type;
+  typedef alps::hypercubic_lattice<
+    alps::coordinate_lattice<alps::simple_lattice<alps::GraphUnitCell> > >
+    lattice_type;
 
-  typedef typename descriptor_type::dimension_type           dimension_type;
-  typedef typename descriptor_type::size_type                size_type;
-  typedef typename helper_type::position_type                position_type;
-
-  if (desc.dimension() == 0) 
-    boost::throw_exception(std::runtime_error("invalid dimension"));
-  for (dimension_type d = 0; d < desc.dimension(); ++d) {
-    if (desc.length(d) == 0)
-      boost::throw_exception(std::runtime_error("invalid extent"));
+  // unit cell
+  alps::lattice_traits<lattice_type>::unit_cell_type uc(dim);
+  uc.add_vertex(0, alps::lattice_traits<lattice_type>::unit_cell_type::
+                coordinate_type(dim, 0.0));
+  alps::lattice_traits<lattice_type>::offset_type so(dim, 0), to(dim, 0);
+  for (std::size_t d = 0; d < dim; ++d) {
+    to[d] = 1; uc.add_edge(d, 1, so, 1, to); to[d] = 0;
   }
 
+  // basis vectors
+  lattice_type::parent_lattice_type cl(uc);
+  std::vector<double> b(dim, 0.0);
+  for (std::size_t d = 0; d < dim; ++d) {
+    b[d] = 1.0; cl.add_basis_vector(b); b[d] = 0.0;
+  }
+
+  // boundary condition
+  std::vector<std::string> bc(dim, "periodic");
+  for (std::size_t d = 0; d < dim; ++d)
+    if (desc.extent()[d] <= 2) bc[d] = "open";
+
+  // generate graph
   g.clear();
   boost::get_property(g, graph_name_t()) = "simple hypercubic graph";
-  boost::get_property(g, dimension_t()) = desc.dimension();
-
-  size_type size = 1;
-  position_type base(desc.dimension());
-  for (dimension_type d = 0; d < desc.dimension(); ++d) {
-    base[d] = size;
-    size *= desc.length(d);
-  }
-  
-  // setup vertices
-  for (size_type i = 0; i < size; ++i) {
-    vertex_descriptor vd = boost::add_vertex(g);
-    coordinate_type coord =
-      helper_type::pos2coord(helper_type::index2pos(desc.extent(), base, i));
-    boost::put(vertex_type_t(), g, vd, 0);
-    boost::put(coordinate_t(), g, vd, coord);
-  }
-  
-  // setup edges
-  for (size_type i = 0; i < size; ++i) {
-    vertex_iterator vsi = boost::vertices(g).first + i;
-    for (dimension_type d = 0; d < desc.dimension(); ++d) {
-      if (desc.length(d) == 1) {
-        // nothing to do
-      } else {
-        // avoid double bond
-        if (desc.length(d) > 2 ||
-            helper_type::index2pos(desc.extent(), base, i)[d] + 1
-              != desc.length(d)) {
-          vertex_iterator vti = boost::vertices(g).first +
-            helper_type::neighbor(desc.extent(), base, i, d, 1);
-          edge_descriptor ed = boost::add_edge(*vsi, *vti, g).first;
-          boost::put(edge_index_t(), g, ed, boost::num_edges(g) - 1);
-          boost::put(edge_type_t(), g, ed, d);
-        }
-      }
-    }
-  }
-
-  // // simple unitcell
-  // alps::GraphUnitCell unit_cell("simple unitcell", desc.dimension());
-  // unit_cell.add_vertex(0, coordinate_type(desc.dimension(),
-  //                                         coordinate_type::value_type(0)));
-  // alps::GraphUnitCell::offset_type so(desc.dimension(), 0);
-  // for (std::size_t d = 0; d < desc.dimension(); ++d) {
-  //   alps::GraphUnitCell::offset_type to(desc.dimension(), 0);
-  //   to[d] = 1;
-  //   unit_cell.add_edge(d, 1, so, 1, to);
-  // }
+  make_graph_from_lattice(g,
+    lattice_type(cl, desc.extent().begin(), desc.extent().end(),
+                 bc.begin(), bc.end()));
 }
 
 template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>

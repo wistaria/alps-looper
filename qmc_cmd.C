@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-/* $Id: qmc_cmd.C 700 2004-03-17 10:24:04Z wistaria $ */
+/* $Id: qmc_cmd.C 717 2004-03-23 09:16:54Z wistaria $ */
 
 #include "qmc_impl.h"
 #include <looper/exact_diag.h>
@@ -203,8 +203,8 @@ try {
   // hypercubic lattice (real lattice)
   typedef looper::parity_graph_type graph_type;
   graph_type g;
-  looper::generate_graph(
-    looper::hypercubic_graph_generator<>(opts.dim, opts.lsize), g);
+  looper::generate_graph(g,
+    looper::hypercubic_graph_generator<>(opts.dim, opts.lsize));
 
   // model & inverse temperature
   typedef looper::xxz_model model_type;

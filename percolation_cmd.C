@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-/* $Id: percolation_cmd.C 700 2004-03-17 10:24:04Z wistaria $ */
+/* $Id: percolation_cmd.C 717 2004-03-23 09:16:54Z wistaria $ */
 
 // percolation_cmd - a command-line percolation program for simple
 // hypercubic lattices
@@ -140,8 +140,8 @@ try {
 
   // hypercubic lattice
   looper::graph_type g;
-  looper::generate_graph(
-    looper::hypercubic_graph_generator<>(opts.dim, opts.lsize), g);
+  looper::generate_graph(g,
+    looper::hypercubic_graph_generator<>(opts.dim, opts.lsize));
 
   // measurements
   alps::ObservableSet measurements;

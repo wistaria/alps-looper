@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-/* $Id: path_integral.h 693 2004-03-16 15:48:04Z wistaria $ */
+/* $Id: path_integral.h 717 2004-03-23 09:16:54Z wistaria $ */
 
 #ifndef LOOPER_PATH_INTEGRAL_H
 #define LOOPER_PATH_INTEGRAL_H
@@ -144,7 +144,7 @@ struct path_integral<virtual_graph<G>, M, W, N>
     parameter_type(const RG& rg, const model_type& m, double b)
       : virtual_graph(), model(m), beta(b), is_bipartite(false)
     {
-      generate_virtual_graph(rg, model, virtual_graph);
+      generate_virtual_graph(virtual_graph, rg, model);
       is_bipartite = alps::set_parity(virtual_graph.graph);
     }
 

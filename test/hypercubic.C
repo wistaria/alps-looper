@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-/* $Id: hypercubic.C 693 2004-03-16 15:48:04Z wistaria $ */
+/* $Id: hypercubic.C 717 2004-03-23 09:16:54Z wistaria $ */
 
 #include <looper/graph.h>
 #include <iostream>
@@ -50,7 +50,7 @@ int main() {
 
   looper::hypercubic_graph_generator<> gen(ext);
   graph_type graph;
-  looper::generate_graph(gen, graph);
+  looper::generate_graph(graph, gen);
 
   std::cout << graph;
 }

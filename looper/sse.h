@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-/* $Id: sse.h 693 2004-03-16 15:48:04Z wistaria $ */
+/* $Id: sse.h 717 2004-03-23 09:16:54Z wistaria $ */
 
 #ifndef LOOPER_SSE_H
 #define LOOPER_SSE_H
@@ -75,7 +75,7 @@ struct sse<virtual_graph<G>, M, W, N>
       : virtual_graph(), model(m), beta(b), is_bipartite(false),
         chooser(), ez_offset(0.)
     { 
-      looper::generate_virtual_graph(rg, model, virtual_graph);
+      looper::generate_virtual_graph(virtual_graph, rg, model);
       is_bipartite = alps::set_parity(virtual_graph.graph);
       chooser.init(virtual_graph, model);
       update_offset();

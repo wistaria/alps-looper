@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-/* $Id: virtual_graph.C 693 2004-03-16 15:48:04Z wistaria $ */
+/* $Id: virtual_graph.C 717 2004-03-23 09:16:54Z wistaria $ */
 
 #include <looper/graph.h>
 #include <looper/virtual_graph.h>
@@ -46,7 +46,7 @@ try {
   // real graph
   looper::hypercubic_graph_generator<> gen(2, 2);
   graph_type rg;
-  looper::generate_graph(gen, rg);
+  looper::generate_graph(rg, gen);
   boost::put(looper::vertex_type_t(), rg, *(boost::vertices(rg).first), 1);
   alps::set_parity(rg);
   std::cout << rg;
@@ -60,7 +60,7 @@ try {
   looper::virtual_graph<graph_type> vg;
   std::vector<alps::half_integer<int> > spins(2);
   spins[0] = 1; spins[1] = 3./2;
-  looper::generate_virtual_graph(rg, spins, vg);
+  looper::generate_virtual_graph(vg, rg, spins);
   alps::set_parity(vg);
 
   std::cout << "number of original real vertices = " << vg.num_real_vertices

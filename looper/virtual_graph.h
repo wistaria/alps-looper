@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-/* $Id: virtual_graph.h 693 2004-03-16 15:48:04Z wistaria $ */
+/* $Id: virtual_graph.h 717 2004-03-23 09:16:54Z wistaria $ */
 
 #ifndef LOOPER_VIRTUAL_GRAPH_H
 #define LOOPER_VIRTUAL_GRAPH_H
@@ -120,8 +120,8 @@ struct virtual_graph
 // function generate_virtual_graph
 
 template<class RG, class MDL, class G>
-inline void generate_virtual_graph(const RG& rg, const MDL& model,
-                                   virtual_graph<G>& vg)
+inline void generate_virtual_graph(virtual_graph<G>& vg, const RG& rg,
+                                   const MDL& model)
 {
   typedef RG                                      rgraph_type;
   typedef typename virtual_graph<G>::graph_type   vgraph_type;
@@ -211,21 +211,19 @@ struct const_spin_wrapper
 }
 
 template<class G, class IntType>
-inline void generate_virtual_graph(const G& rg,
-                                   const alps::half_integer<IntType>& s,
-                                   virtual_graph<G>& vg)
+inline void generate_virtual_graph(virtual_graph<G>& vg, const G& rg,
+                                   const alps::half_integer<IntType>& s)
 {
-  generate_virtual_graph(rg,
-    vg_detail::const_spin_wrapper<alps::half_integer<IntType> >(s), vg);
+  generate_virtual_graph(vg, rg,
+    vg_detail::const_spin_wrapper<alps::half_integer<IntType> >(s));
 }
 
 template<class G, class IntType>
-inline void generate_virtual_graph(const G& rg,
-                                   const std::vector<alps::half_integer<IntType> >& v,
-                                   virtual_graph<G>& vg)
+inline void generate_virtual_graph(virtual_graph<G>& vg, const G& rg,
+  const std::vector<alps::half_integer<IntType> >& v)
 {
-  generate_virtual_graph(rg,
-    vg_detail::vector_spin_wrapper<alps::half_integer<IntType> >(v), vg);
+  generate_virtual_graph(vg, rg,
+    vg_detail::vector_spin_wrapper<alps::half_integer<IntType> >(v));
 }
   
 } // end namespace looper
