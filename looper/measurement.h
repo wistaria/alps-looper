@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: measurement.h 549 2003-11-09 22:28:20Z wistaria $
+* $Id: measurement.h 550 2003-11-10 09:48:49Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -277,8 +277,10 @@ struct generalized_susceptibility_imp_helper<path_integral<G, M, W, N> >
     for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
 	 vi != vi_end; ++vi) {
       // setup iterators
-      qmc_type::config_type::const_iterator itrD = config.wl.series(*vi).first;
-      qmc_type::config_type::const_iterator itrU = boost::next(itrD);
+      typename qmc_type::config_type::const_iterator
+	itrD = config.wl.series(*vi).first;
+      typename qmc_type::config_type::const_iterator
+	itrU = boost::next(itrD);
         
       // iteration up to t = 1
       for (;; itrD = itrU, ++itrU) {
@@ -315,15 +317,15 @@ struct generalized_susceptibility_imp_helper<sse<G, M, W, N> >
 
     std::vector<int> pos(boost::num_vertices(param.virtual_graph.graph), 0);
     int p = 1;
-    qmc_type::config_type::const_iterator oi_end = config.os.end();
-    for (qmc_type::config_type::const_iterator oi = config.os.begin();
+    typename qmc_type::config_type::const_iterator oi_end = config.os.end();
+    for (typename qmc_type::config_type::const_iterator oi = config.os.begin();
 	 oi != oi_end; ++oi, ++p) {
       if (oi->is_offdiagonal()) {
-	qmc_type::edge_iterator ei =
+	typename qmc_type::edge_iterator ei =
 	  boost::edges(param.virtual_graph.graph).first + oi->bond();
-	qmc_type::vertex_descriptor v0 =
+	typename qmc_type::vertex_descriptor v0 =
 	  boost::source(*ei, param.virtual_graph.graph);
-	qmc_type::vertex_descriptor v1 =
+	typename qmc_type::vertex_descriptor v1 =
 	  boost::target(*ei, param.virtual_graph.graph);
 	len[qmc_type::segment_d(oi, 0).index] += (p - pos[v0]);
 	len[qmc_type::segment_d(oi, 1).index] += (p - pos[v1]);
