@@ -198,6 +198,10 @@ try {
   // model & inverse temperature
   typedef looper::xxz_model model_type;
   model_type model(opts.Jxy, opts.Jz, opts.spin, g);
+  double beta = 1./opts.temp;
+
+  // measurements
+  alps::ObservableSet measurements;
 
   if (opts.representation == "path integral" ||
       opts.representation == "SSE") {
@@ -208,60 +212,48 @@ try {
     rng.base().seed(boost::mt19937::result_type(opts.seed));
     for (int i = 0; i < 19844; ++i) rng();
     
-    // measurements
-    alps::ObservableSet measurements;
-    
     if (opts.representation == "path integral") {
       // path-integral representation
       qmc_worker<looper::path_integral<looper::virtual_graph<graph_type>,
-	model_type> > worker(g, model, 1./opts.temp, measurements);
+	model_type> > worker(g, model, beta, measurements);
       
       for (int mcs = 0; mcs < opts.step_t + opts.step_m; ++mcs) {
 	if (mcs == opts.step_t) measurements.reset(true);
 	worker.step(rng, measurements);
       }
-      
       worker.accumulate(measurements);
-      
+
       std::cout << measurements << std::endl; 
-      opts.output();
-      std::cout << ' ';
+      opts.output(); std::cout << ' ';
       worker.output_results(std::cout, measurements);
       std::cout << std::endl;
     } else {
       // SSE representation
       qmc_worker<looper::sse<looper::virtual_graph<graph_type>,
-	model_type> > worker(g, model, 1./opts.temp, measurements);
+	model_type> > worker(g, model, beta, measurements);
       
       for (int mcs = 0; mcs < opts.step_t + opts.step_m; ++mcs) {
 	if (mcs == opts.step_t) measurements.reset(true);
 	worker.step(rng, measurements);
       }
-      
       worker.accumulate(measurements);
       
       std::cout << measurements << std::endl; 
-      opts.output();
-      std::cout << ' ';
+      opts.output(); std::cout << ' ';
       worker.output_results(std::cout, measurements);
       std::cout << std::endl;
     }
   } else {
     // exact diagonalization
-    typedef looper::exact_diagonalization<graph_type, model_type> ed_type;
-    ed_type::parameter_type param(g, model, 1./opts.temp);
-    ed_type::config_type config;
-    ed_type::generate_matrix(param, config);
-    ed_type::diagonalize(param, config);
-    double e, e2, c;
-    boost::tie(e, e2, c) = ed_type::energy(param, config);
-    double umag2, usus, smag2, ssus;
-    boost::tie(umag2, usus, smag2, ssus) =
-      ed_type::magnetization(param, config);
-    opts.output();
-    std::cout << ' ' << e << ' ' << e2 << ' ' << c << ' '
-	      << umag2 << ' ' << usus << ' ' << smag2 << ' ' << ssus
-	      << std::endl;
+    ed_worker<looper::exact_diagonalization<graph_type, model_type> >
+      worker(g, model, beta, measurements);
+    worker.step(rng, measurements);
+    worker.accumulate(measurements);
+
+    std::cout << measurements << std::endl; 
+    opts.output(); std::cout << ' ';
+    worker.output_results(std::cout, measurements);
+    std::cout << std::endl;
   }
 
 #ifndef BOOST_NO_EXCEPTIONS

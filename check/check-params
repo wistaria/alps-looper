@@ -1,0 +1,35 @@
+LATTICE = "chain lattice"
+MODEL = "spin"
+L  = 2
+Jxy  = -1
+Jz = -1
+MCS = 11000
+thermalization = 1000
+
+representation = "path integral"
+{
+temperature = 0.1
+}
+{
+temperature = 0.2
+}
+{
+temperature = 0.5
+}
+{
+temperature = 1.0
+}
+
+representation = "SSE"
+{
+temperature = 0.1
+}
+{
+temperature = 0.2
+}
+{
+temperature = 0.5
+}
+{
+temperature = 1.0
+}

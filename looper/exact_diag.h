@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-// $Id: exact_diag.h 562 2003-11-13 03:00:53Z wistaria $
+// $Id: exact_diag.h 564 2003-11-13 08:08:07Z wistaria $
 
 #ifndef LOOPER_EXACT_DIAG_H
 #define LOOPER_EXACT_DIAG_H
@@ -53,13 +53,15 @@ struct exact_diagonalization
 
   struct parameter_type
   {
-    parameter_type(graph_type& g, const model_type& m, double b)
-      : graph(g), model(m), beta(b)
+    template<class RG>
+    parameter_type(const RG& g, const model_type& m, double b)
+      : graph(), model(m), beta(b)
     {
+      alps::copy_graph(g, graph);
       is_bipartite = alps::set_parity(graph);
     }
 
-    graph_type& graph;
+    graph_type        graph;
     const model_type& model;
     double            beta;
     bool              is_bipartite;
@@ -120,8 +122,8 @@ struct exact_diagonalization
       vertex_iterator vi, vi_end;
       for (boost::tie(vi, vi_end) = boost::vertices(param.graph);
 	   vi != vi_end; ++vi) {
-	typename vector_type::iterator s = config.mtab.begin();
-	typename vector_type::iterator s_end = config.mtab.end();
+	typename vector_type::iterator s = config.stab.begin();
+	typename vector_type::iterator s_end = config.stab.end();
 	int state = 0;
 	for (; s != s_end; ++s, ++state) {
 	  *s += gauge(*vi, param.graph) * sz(state, *vi, config);
@@ -167,12 +169,10 @@ struct exact_diagonalization
 	  // diagonal element
 	  config.hamiltonian(s, s) +=
 	    m[index(s0, s1, d0, d1)][index(s0, s1, d0, d1)];
-	  //// std::cout << "diag: " << s << std::endl;
 	}
 	{
 	  // up-down
 	  int t = down(up(s, v0, config), v1, config);
-	  //// std::cout << "offdiag 1: " << s << ' ' << t << std::endl;
 	  if (t > 0) {
 	    int t0 = sz2(t, v0, config);
 	    int t1 = sz2(t, v1, config);
@@ -183,7 +183,6 @@ struct exact_diagonalization
 	{
 	  // down-up
 	  int t = up(down(s, v0, config), v1, config);
-	  //// std::cout << "offdiag 2: " << s << ' ' << t << std::endl;
 	  if (t > 0) {
 	    int t0 = sz2(t, v0, config);
 	    int t1 = sz2(t, v1, config);
@@ -195,8 +194,6 @@ struct exact_diagonalization
     }
 
     config.eigenvalues.resize(config.dimension);
-
-    //// std::cout << config.hamiltonian;
   }
 
   static void diagonalize(const parameter_type& /* param */,
@@ -212,12 +209,10 @@ struct exact_diagonalization
     double ene = 0.;
     double ene2 = 0.;
     double gs_ene = config.eigenvalues(0);
-    //// std::cout << gs_ene << std::endl;
     typename vector_type::const_reverse_iterator ev_end =
       config.eigenvalues.rend();
     for (typename vector_type::const_reverse_iterator ev =
 	   config.eigenvalues.rbegin(); ev != ev_end; ++ev) {
-      //// std::cout << *ev << std::endl;
       // Boltzman weight
       double weight;
       weight = std::exp(-param.beta * (*ev - gs_ene));
