@@ -8,8 +8,6 @@ fi
 srcdir="$1"
 prog=`basename $2`
 
-echo $prog
-
 if test -f ${prog}.input; then
   if test -f ${prog}.output; then
     echo ./${prog} '<' ${prog}.input '|' diff ${prog}.output -
