@@ -203,6 +203,7 @@ try {
     //
 
     matrix_type hamiltonian(dim, dim);
+    hamiltonian.clear();
     alps::graph_traits<graph_type>::vertex_iterator vi, vi_end;
     for (boost::tie(vi, vi_end) = boost::vertices(lattice.graph());
          vi != vi_end; ++vi)
@@ -260,6 +261,7 @@ try {
     //
 
     diagonal_matrix_type uniform_sz(dim);
+    uniform_sz.clear();
     for (boost::tie(vi, vi_end) = boost::vertices(lattice.graph());
          vi != vi_end; ++vi) {
       looper::add_to_diagonal_matrix(uniform_sz,
@@ -281,6 +283,7 @@ try {
 
     if (is_bipartite) {
       diagonal_matrix_type staggered_sz(dim);
+      staggered_sz.clear();
       for (boost::tie(vi, vi_end) = boost::vertices(lattice.graph());
            vi != vi_end; ++vi) {
         if (boost::get(alps::parity_t(), lattice.graph(), *vi) ==
