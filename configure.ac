@@ -93,4 +93,6 @@ dnl generate files
 dnl
 
 AC_CONFIG_HEADERS(looper/config.h)
-AC_OUTPUT(Makefile doc/Makefile test/Makefile ed/Makefile ed/diag.ip)
+AC_CONFIG_FILES(Makefile doc/Makefile test/Makefile ed/Makefile)
+AC_CONFIG_FILES(test/xxz_model.ip ed/diag.ip)
+AC_OUTPUT

@@ -11,3 +11,11 @@ TESTS = $(check_PROGRAMS)
 TESTS_ENVIRONMENT = $(top_srcdir)/run-test $(srcdir)
 
 diag_SOURCES = diag.C
+
+clean: clean-am clean-extra
+clean-extra:
+	rm -f $(check_PROGRAMS)
+distclean: distclean-extra distclean-am
+distclean-extra: clean-extra
+	rm -rf ./$(DEPDIR)
+	rm -f Makefile

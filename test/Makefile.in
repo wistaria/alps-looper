@@ -44,7 +44,7 @@ check_PROGRAMS = amida$(EXEEXT) fill_duration$(EXEEXT) \
 @HAVE_LAPACK_TRUE@am__append_1 = syev
 subdir = test
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in
+	$(srcdir)/Makefile.in $(srcdir)/xxz_model.ip.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/ac_lapack.m4 \
 	$(top_srcdir)/config/ac_lapack.m4 $(top_srcdir)/configure.ac
@@ -52,7 +52,7 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(mkdir_p)
 CONFIG_HEADER = $(top_builddir)/looper/config.h
-CONFIG_CLEAN_FILES =
+CONFIG_CLEAN_FILES = xxz_model.ip
 @HAVE_LAPACK_TRUE@am__EXEEXT_1 = syev$(EXEEXT)
 am_amida_OBJECTS = amida.$(OBJEXT)
 amida_OBJECTS = $(am_amida_OBJECTS)
@@ -277,6 +277,8 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
+xxz_model.ip: $(top_builddir)/config.status $(srcdir)/xxz_model.ip.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 clean-checkPROGRAMS:
 	-test -z "$(check_PROGRAMS)" || rm -f $(check_PROGRAMS)
@@ -535,9 +537,6 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean-am: clean-checkPROGRAMS clean-generic mostlyclean-am
 
-distclean: distclean-am
-	-rm -rf ./$(DEPDIR)
-	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
 
@@ -594,7 +593,11 @@ uninstall-am: uninstall-info-am
 
 clean: clean-am clean-extra
 clean-extra:
-	rm -f $(chech_PROGRAMS) amida.xdr
+	rm -f $(check_PROGRAMS) amida.xdr
+distclean: distclean-extra distclean-am
+distclean-extra: clean-extra
+	rm -rf ./$(DEPDIR)
+	rm -f Makefile
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

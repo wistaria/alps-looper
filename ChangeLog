@@ -1,5 +1,14 @@
-2004-04-06  Synge Todo  <wistaria@comp-phys.org>
+2004-04-07  Synge Todo  <wistaria@comp-phys.org>
 
+        * version 3.0b5 released.
+        - prerequisites: boost_1_31_0, alps-20040407
+	- TODO: optimization, improved estimators, more measurements,
+          license issue.  Bug fixes for some mesurements...
+
+2004-04-06  Synge Todo  <wistaria@comp-phys.org>
+	
+	* Added exact diagonalization checking program.
+	
 	* Moved percolation programs into an independent package.
 	
 2004-04-03  Synge Todo  <wistaria@comp-phys.org>
@@ -45,10 +54,8 @@
 2003-11-20  Synge Todo  <wistaria@comp-phys.org>
 
         * version 3.0b4 released.
-
         - prerequisites: boost-ss-20031116, boost-ss-20031116.patch,
           alps-20031116
-
         - TODO: optimization, more measurements, license issue.  Bug fixes
           for some mesurements (specific heat in path integral?)...
         
@@ -64,10 +71,8 @@
 2003-11-14  Synge Todo  <wistaria@comp-phys.org>
         
         * version 3.0b3 released.
-
         - prerequisites: boost-ss-20031109, boost-ss-20031109.patch,
           alps-20031114
-
         - TODO: optimization, improved estimators, more measurements,
           license issue.  Bug fixes for some mesurements...
 
@@ -91,10 +96,8 @@
 2003-11-06  Synge Todo  <wistaria@comp-phys.org>
         
         * version 3.0b2 released.
-
         - prerequisites: boost-ss-20031102, boost-ss-20031102.patch,
           alps-20031105
-
         - TODO: optimization, improved estimators, more measurements,
           license issue.
 
@@ -121,7 +124,5 @@
 2003-11-05  Synge Todo  <wistaria@comp-phys.org>
         
         * version 3.0b1 released.
-
         - prerequisites: boost-ss-20031102, boost-ss-20031102.patch,
           alps-20031105
-

@@ -28,4 +28,8 @@ syev_SOURCES = syev.C
 
 clean: clean-am clean-extra
 clean-extra:
-	rm -f $(chech_PROGRAMS) amida.xdr
+	rm -f $(check_PROGRAMS) amida.xdr
+distclean: distclean-extra distclean-am
+distclean-extra: clean-extra
+	rm -rf ./$(DEPDIR)
+	rm -f Makefile
