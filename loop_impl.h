@@ -165,8 +165,9 @@ public:
        << m.template get<alps::RealObservable>("Staggered Generalized Magnetization^2").mean() << ' '
        << m.template get<alps::RealObservable>("Staggered Generalized Magnetization^2").error() << ' '
        << m.template get<alps::RealObservable>("Staggered Generalized Susceptibility").mean() << ' '
-       << m.template get<alps::RealObservable>("Staggered Generalized Susceptibility").error() << ' ';
+       << m.template get<alps::RealObservable>("Staggered Generalized Susceptibility").error() << ' '
 #endif
+      ;
   }
 
   void save(alps::ODump& od) const { config_.save(od); }
