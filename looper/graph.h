@@ -157,6 +157,32 @@ gauge(typename boost::graph_traits<
   return 1 - 2 * (int)boost::get(parity_t(), g, vd);
 }
 
+struct uniform
+{
+  template<class T0, class T1, class T2, class T3, class T4, class T5,
+           class T6>
+  static double
+  value(typename boost::graph_traits<
+          boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
+          vertex_descriptor,
+        const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>&) {
+    return 1.;
+  }
+};
+
+struct staggered
+{
+  template<class T0, class T1, class T2, class T3, class T4, class T5,
+           class T6>
+  static double
+  value(typename boost::graph_traits<
+          boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
+          vertex_descriptor vd,
+        const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g) {
+    return 1. - 2. * boost::get(parity_t(), g, vd);
+  }
+};
+
 template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
 inline int
 site_type(typename boost::graph_traits<

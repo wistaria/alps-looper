@@ -1,9 +1,9 @@
-ALPS/looper version 3.0b5 (2004/04/07)
+ALPS/looper version 3.0b6 (2004/06/03)
   multi-cluster quantum Monte Carlo algorithms for spin systems
   available from http://wistaria.comp-phys.org/looper/
   copyright (c) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
 
-based on the ALPS libraries version 1.0
+based on the ALPS libraries version 1.1b0
   available from http://alps.comp-phys.org/
   copyright (c) 1994-2004 by the ALPS collaboration.
   consult above web page or use the -l command line option for license details.
@@ -21,46 +21,46 @@ m:   MCS for thermalization : 1024
 n:   MCS for measurement    : 8192
 e:   representation         : path integral
 
-Energy: -3.34961 +/- 0.0521329; tau = 1.51556
-    bin #1   : 8192     entries: error = 0.0259656
-    bin #2   : 4096     entries: error = 0.0324692
-    bin #3   : 2048     entries: error = 0.0392003
-    bin #4   : 1024     entries: error = 0.0449635
-    bin #5   : 512      entries: error = 0.0477729
-    bin #6   : 256      entries: error = 0.0516112
-    bin #7   : 128      entries: error = 0.0521329
-Energy Density: -0.209351 +/- 0.00325831; tau = 1.51556
-    bin #1   : 8192     entries: error = 0.00162285
-    bin #2   : 4096     entries: error = 0.00202932
-    bin #3   : 2048     entries: error = 0.00245002
-    bin #4   : 1024     entries: error = 0.00281022
-    bin #5   : 512      entries: error = 0.00298581
-    bin #6   : 256      entries: error = 0.0032257
-    bin #7   : 128      entries: error = 0.00325831
-Energy Density^2: 0.0566921 +/- 0.00152977; tau = 1.29213
-    bin #1   : 8192     entries: error = 0.000808026
-    bin #2   : 4096     entries: error = 0.000996261
-    bin #3   : 2048     entries: error = 0.00118564
-    bin #4   : 1024     entries: error = 0.00134635
-    bin #5   : 512      entries: error = 0.00142869
-    bin #6   : 256      entries: error = 0.00153028
-    bin #7   : 128      entries: error = 0.00152977
-Energy for SH: -0.837402 +/- 0.0130332; tau = 1.51556
-    bin #1   : 8192     entries: error = 0.00649141
-    bin #2   : 4096     entries: error = 0.00811729
-    bin #3   : 2048     entries: error = 0.00980008
-    bin #4   : 1024     entries: error = 0.0112409
-    bin #5   : 512      entries: error = 0.0119432
-    bin #6   : 256      entries: error = 0.0129028
-    bin #7   : 128      entries: error = 0.0130332
-Energy^2 for SH: 0.907074 +/- 0.0244763; tau = 1.29213
-    bin #1   : 8192     entries: error = 0.0129284
-    bin #2   : 4096     entries: error = 0.0159402
-    bin #3   : 2048     entries: error = 0.0189703
-    bin #4   : 1024     entries: error = 0.0215416
-    bin #5   : 512      entries: error = 0.022859
-    bin #6   : 256      entries: error = 0.0244844
-    bin #7   : 128      entries: error = 0.0244763
+Energy: -3.35111 +/- 0.0518522; tau = 1.51706
+    bin #1   : 8192     entries: error = 0.0258163
+    bin #2   : 4096     entries: error = 0.0323428
+    bin #3   : 2048     entries: error = 0.0390768
+    bin #4   : 1024     entries: error = 0.0449823
+    bin #5   : 512      entries: error = 0.0476149
+    bin #6   : 256      entries: error = 0.051567
+    bin #7   : 128      entries: error = 0.0518522
+Energy Density: -0.209444 +/- 0.00324076; tau = 1.51706
+    bin #1   : 8192     entries: error = 0.00161352
+    bin #2   : 4096     entries: error = 0.00202143
+    bin #3   : 2048     entries: error = 0.0024423
+    bin #4   : 1024     entries: error = 0.00281139
+    bin #5   : 512      entries: error = 0.00297593
+    bin #6   : 256      entries: error = 0.00322294
+    bin #7   : 128      entries: error = 0.00324076
+Energy Density^2: 0.056484 +/- 0.00151704; tau = 1.30681
+    bin #1   : 8192     entries: error = 0.000798044
+    bin #2   : 4096     entries: error = 0.0009865
+    bin #3   : 2048     entries: error = 0.00117715
+    bin #4   : 1024     entries: error = 0.00134334
+    bin #5   : 512      entries: error = 0.00141653
+    bin #6   : 256      entries: error = 0.00152525
+    bin #7   : 128      entries: error = 0.00151704
+Energy for SH: -0.837778 +/- 0.0129631; tau = 1.51706
+    bin #1   : 8192     entries: error = 0.00645406
+    bin #2   : 4096     entries: error = 0.0080857
+    bin #3   : 2048     entries: error = 0.00976919
+    bin #4   : 1024     entries: error = 0.0112456
+    bin #5   : 512      entries: error = 0.0119037
+    bin #6   : 256      entries: error = 0.0128917
+    bin #7   : 128      entries: error = 0.0129631
+Energy^2 for SH: 0.903744 +/- 0.0242727; tau = 1.30681
+    bin #1   : 8192     entries: error = 0.0127687
+    bin #2   : 4096     entries: error = 0.015784
+    bin #3   : 2048     entries: error = 0.0188343
+    bin #4   : 1024     entries: error = 0.0214935
+    bin #5   : 512      entries: error = 0.0226644
+    bin #6   : 256      entries: error = 0.024404
+    bin #7   : 128      entries: error = 0.0242727
 Generalized Magnetization^2: 0.425987 +/- 0.00140444; tau = 0.310622
     bin #1   : 8192     entries: error = 0.00110301
     bin #2   : 4096     entries: error = 0.00121773
@@ -85,7 +85,7 @@ Magnetization^2: 0.136162 +/- 0.000636683; tau = 0.618919
     bin #5   : 512      entries: error = 0.000598719
     bin #6   : 256      entries: error = 0.000623822
     bin #7   : 128      entries: error = 0.000636683
-Specific Heat: 0.206001 +/- 0.00763773
+Specific Heat: 0.20204 +/- 0.00752724
 Staggered Magnetization^2: 0.425987 +/- 0.00140444; tau = 0.310622
     bin #1   : 8192     entries: error = 0.00110301
     bin #2   : 4096     entries: error = 0.00121773
@@ -111,4 +111,4 @@ Susceptibility: 0.137199 +/- 0.0021704; tau = -0.0116292
     bin #6   : 256      entries: error = 0.00231282
     bin #7   : 128      entries: error = 0.0021704
 
-2837 1 16 1/2 -1 -1 1 1024 8192 PI -3.34961 0.0521329 -0.209351 0.00325831 0.206001 0.00763773 0.136162 0.000636683 0.137199 0.0021704 0.425987 0.00140444 0.395955 0.00569143 0.425987 0.00140444 0.382611 0.00116673 
+2837 1 16 1/2 -1 -1 1 1024 8192 PI -3.35111 0.0518522 -0.209444 0.00324076 0.20204 0.00752724 0.136162 0.000636683 0.137199 0.0021704 0.425987 0.00140444 0.395955 0.00569143 0.425987 0.00140444 0.382611 0.00116673 

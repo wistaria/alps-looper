@@ -1,0 +1,114 @@
+ALPS/looper version 3.0b6 (2004/06/03)
+  multi-cluster quantum Monte Carlo algorithms for spin systems
+  available from http://wistaria.comp-phys.org/looper/
+  copyright (c) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+
+based on the ALPS libraries version 1.1b0
+  available from http://alps.comp-phys.org/
+  copyright (c) 1994-2004 by the ALPS collaboration.
+  consult above web page or use the -l command line option for license details.
+
+qmc_cmd: a command-line QMC program for simple hypercubic lattices
+
+r:   seed for RNG           : 2837
+d:   spatial dimension      : 1
+l:   linear size            : 16
+s:   spin size S            : 1/2
+x:   coupling Jxy           : -1
+z:   coupling Jz            : -1
+t:   temperature            : 1
+m:   MCS for thermalization : 1024
+n:   MCS for measurement    : 8192
+e:   representation         : SSE
+
+Energy: -3.26318 +/- 0.0573308; tau = 0.795741
+    bin #1   : 8192     entries: error = 0.0356134
+    bin #2   : 4096     entries: error = 0.0429886
+    bin #3   : 2048     entries: error = 0.0496806
+    bin #4   : 1024     entries: error = 0.0547288
+    bin #5   : 512      entries: error = 0.0571114
+    bin #6   : 256      entries: error = 0.0561412
+    bin #7   : 128      entries: error = 0.0573308
+Energy Density: -0.203949 +/- 0.00358318; tau = 0.795741
+    bin #1   : 8192     entries: error = 0.00222584
+    bin #2   : 4096     entries: error = 0.00268679
+    bin #3   : 2048     entries: error = 0.00310504
+    bin #4   : 1024     entries: error = 0.00342055
+    bin #5   : 512      entries: error = 0.00356946
+    bin #6   : 256      entries: error = 0.00350883
+    bin #7   : 128      entries: error = 0.00358318
+Energy Density^2: 0.0537996 +/- 0.00173031; tau = 0.665209
+    bin #1   : 8192     entries: error = 0.00113346
+    bin #2   : 4096     entries: error = 0.00134217
+    bin #3   : 2048     entries: error = 0.00152331
+    bin #4   : 1024     entries: error = 0.00168051
+    bin #5   : 512      entries: error = 0.00173385
+    bin #6   : 256      entries: error = 0.00169203
+    bin #7   : 128      entries: error = 0.00173031
+Energy for SH: -0.815796 +/- 0.0143327; tau = 0.795741
+    bin #1   : 8192     entries: error = 0.00890336
+    bin #2   : 4096     entries: error = 0.0107472
+    bin #3   : 2048     entries: error = 0.0124201
+    bin #4   : 1024     entries: error = 0.0136822
+    bin #5   : 512      entries: error = 0.0142778
+    bin #6   : 256      entries: error = 0.0140353
+    bin #7   : 128      entries: error = 0.0143327
+Energy^2 for SH: 0.860794 +/- 0.0276849; tau = 0.665209
+    bin #1   : 8192     entries: error = 0.0181354
+    bin #2   : 4096     entries: error = 0.0214747
+    bin #3   : 2048     entries: error = 0.024373
+    bin #4   : 1024     entries: error = 0.0268881
+    bin #5   : 512      entries: error = 0.0277415
+    bin #6   : 256      entries: error = 0.0270724
+    bin #7   : 128      entries: error = 0.0276849
+Generalized Magnetization^2: 0.426319 +/- 0.00143808; tau = 0.324237
+    bin #1   : 8192     entries: error = 0.00112006
+    bin #2   : 4096     entries: error = 0.00121119
+    bin #3   : 2048     entries: error = 0.00125356
+    bin #4   : 1024     entries: error = 0.00126821
+    bin #5   : 512      entries: error = 0.00131398
+    bin #6   : 256      entries: error = 0.00133609
+    bin #7   : 128      entries: error = 0.00143808
+Generalized Susceptibility: 0.384154 +/- 0.0011861; tau = 0.177756
+    bin #1   : 8192     entries: error = 0.00101875
+    bin #2   : 4096     entries: error = 0.00108521
+    bin #3   : 2048     entries: error = 0.00110061
+    bin #4   : 1024     entries: error = 0.00109695
+    bin #5   : 512      entries: error = 0.00112676
+    bin #6   : 256      entries: error = 0.00115105
+    bin #7   : 128      entries: error = 0.0011861
+Magnetization^2: 0.136456 +/- 0.000545516; tau = 0.316094
+    bin #1   : 8192     entries: error = 0.000426994
+    bin #2   : 4096     entries: error = 0.00047399
+    bin #3   : 2048     entries: error = 0.000507031
+    bin #4   : 1024     entries: error = 0.000526861
+    bin #5   : 512      entries: error = 0.000556185
+    bin #6   : 256      entries: error = 0.00053952
+    bin #7   : 128      entries: error = 0.000545516
+Specific Heat: 0.195477 +/- 0.0124881
+Staggered Magnetization^2: 0.426319 +/- 0.00143808; tau = 0.324237
+    bin #1   : 8192     entries: error = 0.00112006
+    bin #2   : 4096     entries: error = 0.00121119
+    bin #3   : 2048     entries: error = 0.00125356
+    bin #4   : 1024     entries: error = 0.00126821
+    bin #5   : 512      entries: error = 0.00131398
+    bin #6   : 256      entries: error = 0.00133609
+    bin #7   : 128      entries: error = 0.00143808
+Staggered Susceptibility: 0.38262 +/- 0.00594032; tau = 0.051256
+    bin #1   : 8192     entries: error = 0.00565742
+    bin #2   : 4096     entries: error = 0.00578977
+    bin #3   : 2048     entries: error = 0.00587328
+    bin #4   : 1024     entries: error = 0.00582776
+    bin #5   : 512      entries: error = 0.00564042
+    bin #6   : 256      entries: error = 0.00569343
+    bin #7   : 128      entries: error = 0.00594032
+Susceptibility: 0.137169 +/- 0.00222259; tau = 0.038499
+    bin #1   : 8192     entries: error = 0.00214167
+    bin #2   : 4096     entries: error = 0.00216405
+    bin #3   : 2048     entries: error = 0.0022331
+    bin #4   : 1024     entries: error = 0.00225423
+    bin #5   : 512      entries: error = 0.00229407
+    bin #6   : 256      entries: error = 0.00231047
+    bin #7   : 128      entries: error = 0.00222259
+
+2837 1 16 1/2 -1 -1 1 1024 8192 SSE -3.26318 0.0573308 -0.203949 0.00358318 0.195477 0.0124881 0.136456 0.000545516 0.137169 0.00222259 0.426319 0.00143808 0.38262 0.00594032 0.426319 0.00143808 0.384154 0.0011861 

@@ -90,7 +90,7 @@ public:
 
     double gm2, gs;
     boost::tie(gm2, gs) =
-      looper::generalized_susceptibility_imp(config_, param_);
+      looper::uniform_generalized_susceptibility_imp(config_, param_);
     m.template get<alps::RealObservable>("Generalized Magnetization^2") << gm2;
     m.template get<alps::RealObservable>("Generalized Susceptibility") << gs;
 

@@ -1944,8 +1944,8 @@ INSTALL_STRIP_PROGRAM="\${SHELL} \$(install_sh) -c -s"
 
 
 
-{ echo "$as_me:$LINENO: starting configuration for ALPS/looper version 3.0b6 (2004/05/20)" >&5
-echo "$as_me: starting configuration for ALPS/looper version 3.0b6 (2004/05/20)" >&6;}
+{ echo "$as_me:$LINENO: starting configuration for ALPS/looper version 3.0b6 (2004/06/03)" >&5
+echo "$as_me: starting configuration for ALPS/looper version 3.0b6 (2004/06/03)" >&6;}
 
 
 

@@ -1,5 +1,11 @@
-2004-05-17  Synge Todo  <wistaria@comp-phys.org>
+2004-06-03  Synge Todo  <wistaria@comp-phys.org>
 
+	* Added new measurement staggered_generalized_susceptibility_imp.
+	Renamed generalized_susceptibility_imp as
+	uniform_generalized_susceptibility_imp.
+
+2004-05-17  Synge Todo  <wistaria@comp-phys.org>
+	
 	* Updated automake version to 1.8.5.
 
 2004-05-14  Synge Todo  <wistaria@comp-phys.org>
