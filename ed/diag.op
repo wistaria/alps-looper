@@ -1,0 +1,37 @@
+LATTICE = dimer
+MODEL = spin
+T = 0.5
+J = -1
+h = 0
+Gamma = 0
+dimension of matrix = 4
+diagonalization... done
+ground state energy          = -0.75
+ground state energy per site = -0.375
+energy per site              = -0.230617
+specific heat                = 0.41076
+uniform magnetization        = 0
+uniform magnetization^2      = 0.0962551
+uniform susceptibility       = 0.19251
+staggered magnetization      = 0
+staggered magnetization^2    = 0.403745
+staggered susceptibility     = 0.614979
+LATTICE = chain lattice
+MODEL = spin
+L = 4
+T = 0.25
+J = -1
+h = 0
+Gamma = 0
+dimension of matrix = 16
+diagonalization... done
+ground state energy          = -2
+ground state energy per site = -0.5
+energy per site              = -0.485876
+specific heat                = 0.231684
+uniform magnetization        = 0
+uniform magnetization^2      = 0.0089931
+uniform susceptibility       = 0.0359724
+staggered magnetization      = 0
+staggered magnetization^2    = 0.656827
+staggered susceptibility     = 1.25365

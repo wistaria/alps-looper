@@ -31,7 +31,7 @@
     - h*Sz - Gamma/2*(Splus+Sminus)
   </SITETERM> 
   <BONDTERM source="i" target="j">
-    - Jz*Sz(i)*Sz(j) - (Jx-Jy)*(Splus(i)+Sminus(i)*(Splus(j)+Sminus(j)/4
+    - Jz*Sz(i)*Sz(j) - (Jx-Jy)*(Splus(i)+Sminus(i))*(Splus(j)+Sminus(j))/4
     - Jy*(Splus(i)*Sminus(j)+Sminus(i)*Splus(j))/2
   </BONDTERM>
 </HAMILTONIAN>
