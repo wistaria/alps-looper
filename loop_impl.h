@@ -27,6 +27,8 @@
 #ifndef LOOP_IMPL_H
 #define LOOP_IMPL_H
 
+#define MEASURE_GENERAL_SUSCEPTIBILITIES
+
 #include <looper/copyright.h>
 #include <looper/model.h>
 #include <looper/path_integral.h>
@@ -65,10 +67,12 @@ public:
     m << alps::RealObservable("Susceptibility");
     m << alps::RealObservable("Staggered Magnetization^2");
     m << alps::RealObservable("Staggered Susceptibility");
+#ifdef MEASURE_GENERAL_SUSCEPTIBILITIES
     m << alps::RealObservable("Uniform Generalized Magnetization^2");
     m << alps::RealObservable("Uniform Generalized Susceptibility");
     m << alps::RealObservable("Staggered Generalized Magnetization^2");
     m << alps::RealObservable("Staggered Generalized Susceptibility");
+#endif
   }
 
   template<class RNG>
@@ -90,6 +94,7 @@ public:
     m.template get<alps::RealObservable>("Staggered Magnetization^2") <<
       looper::staggered_sz2_imp(config_, param_);
 
+#ifdef MEASURE_GENERAL_SUSCEPTIBILITIES
     double gm2, gs;
     boost::tie(gm2, gs) =
       looper::uniform_generalized_susceptibility_imp(config_, param_);
@@ -101,7 +106,7 @@ public:
       looper::staggered_generalized_susceptibility_imp(config_, param_);
     m.template get<alps::RealObservable>("Staggered Generalized Magnetization^2") << sgm2;
     m.template get<alps::RealObservable>("Staggered Generalized Susceptibility") << sgs;
-
+#endif
 
     //
     // flip clusters
@@ -152,6 +157,7 @@ public:
        << m.template get<alps::RealObservable>("Staggered Magnetization^2").error() << ' '
        << m.template get<alps::RealObservable>("Staggered Susceptibility").mean() << ' '
        << m.template get<alps::RealObservable>("Staggered Susceptibility").error() << ' '
+#ifdef MEASURE_GENERAL_SUSCEPTIBILITIES
        << m.template get<alps::RealObservable>("Uniform Generalized Magnetization^2").mean() << ' '
        << m.template get<alps::RealObservable>("Uniform Generalized Magnetization^2").error() << ' '
        << m.template get<alps::RealObservable>("Uniform Generalized Susceptibility").mean() << ' '
@@ -160,6 +166,7 @@ public:
        << m.template get<alps::RealObservable>("Staggered Generalized Magnetization^2").error() << ' '
        << m.template get<alps::RealObservable>("Staggered Generalized Susceptibility").mean() << ' '
        << m.template get<alps::RealObservable>("Staggered Generalized Susceptibility").error() << ' ';
+#endif
   }
 
   void save(alps::ODump& od) const { config_.save(od); }
