@@ -25,77 +25,16 @@
 #ifndef LOOPER_LAPACK_H
 #define LOOPER_LAPACK_H
 
-#include <looper/config.h>
-
 #include <algorithm>
 #include <complex>
 #include <stdexcept>
-
-#include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/vector.hpp>
-
-#ifdef HAVE_BINDINGS
 
 #include <alps/bindings/gels.hpp>
 #include <alps/bindings/syev.hpp>
 #include <boost/numeric/bindings/traits/ublas_matrix.hpp>
 #include <boost/numeric/bindings/traits/ublas_vector.hpp>
-
-#else
-
-#if defined(c_plusplus) || defined(__cplusplus)
-extern "C" {
-#endif
-
-void dsyev_ (const char& jobz, const char& uplo, const int& n,
-             double a[], const int& lda, double w[], double work[], const int& lwork,
-             int& info);
-
-
-void dgels_ (const char& trans, const int& m, const int& n, const int& nrhs,
-             double a[], const int& lda, double b[], const int& ldb,
-             double work[], const int& lwork, int& info);
-
-#if defined(c_plusplus) || defined(__cplusplus)
-}
-#endif
-
-namespace looper {
-
-namespace lapack {
-
-inline void syev(const char& jobz, const char& uplo, const int& n,
-                 double a[], const int& lda, double w[],
-                 int& info) {
-  // check optimal size of lwork
-  int lwork = -1;
-  double* work  = new double[1];
-  dsyev_(jobz, uplo, n, a, lda, w, work, lwork, info);
-  lwork = static_cast<int>(work[0]);
-  delete [] work;
-
-  // do real work
-  work  = new double[lwork];
-  dsyev_(jobz, uplo, n, a, lda, w, work, lwork, info);
-  delete [] work;
-}
-
-inline void gels(const char& trans, const int& m, const int& n,
-                 const int& nrhs,
-                 double a[], const int& lda,
-                 double b[], const int& ldb,
-                 int& info) {
-  int lwork = std::min(m,n) + std::max(std::max(1,m), std::max(n,nrhs)) * 64;
-  double* work  = new double[lwork];
-  dgels_(trans, m, n, nrhs, a, lda, b, ldb, work, lwork,info);
-  delete [] work;
-}
-
-} // namespace lapack
-
-} // namespace looper
-
-#endif
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/vector.hpp>
 
 namespace {
 
@@ -161,16 +100,7 @@ inline void diagonalize(Matrix& a, Vector& w, bool need_eigenvectors = true)
   int info;
 
   // call dispatcher
-#ifdef HAVE_BINDINGS
   info = boost::numeric::bindings::lapack::syev(jobz, uplo, a, w);
-#else
-  lapack::syev(jobz, uplo,
-               vector_helper<Vector>::size(w),
-               matrix_helper<Matrix>::begin_ptr(a),
-               vector_helper<Vector>::size(w),
-               vector_helper<Vector>::begin_ptr(w),
-               info);
-#endif
   if (info != 0) throw std::runtime_error("failed in syev");
 }
 
@@ -189,56 +119,28 @@ inline void solve_llsp(Matrix& a, Vector& b, Vector& x)
   if (matrix_helper<Matrix>::is_column_major) {
     trans = 'N';
     if (m >= n) {
-#ifdef HAVE_BINDINGS
       info = boost::numeric::bindings::lapack::gels(trans, m, n, 1,
                matrix_helper<Matrix>::begin_ptr(a), m,
                vector_helper<Vector>::begin_ptr(b), m);
-#else
-      lapack::gels(trans, m, n, 1,
-                   matrix_helper<Matrix>::begin_ptr(a), m,
-                   vector_helper<Vector>::begin_ptr(b), m,
-                   info);
-#endif
       std::copy(b.begin(), b.begin() + n, x.begin());
     } else {
       std::copy(b.begin(), b.begin() + m, x.begin());
-#ifdef HAVE_BINDINGS
       info = boost::numeric::bindings::lapack::gels(trans, m, n, 1,
                matrix_helper<Matrix>::begin_ptr(a), m,
                vector_helper<Vector>::begin_ptr(x), n);
-#else
-      lapack::gels(trans, m, n, 1,
-                   matrix_helper<Matrix>::begin_ptr(a), m,
-                   vector_helper<Vector>::begin_ptr(x), n,
-                   info);
-#endif
     }
   } else {
     trans = 'T';
     if (m >= n) {
-#ifdef HAVE_BINDINGS
       info = boost::numeric::bindings::lapack::gels(trans, n, m, 1,
                matrix_helper<Matrix>::begin_ptr(a), n,
                vector_helper<Vector>::begin_ptr(b), m);
-#else
-      lapack::gels(trans, n, m, 1,
-                   matrix_helper<Matrix>::begin_ptr(a), n,
-                   vector_helper<Vector>::begin_ptr(b), m,
-                   info);
-#endif
       std::copy(b.begin(), b.begin() + n, x.begin());
     } else {
       std::copy(b.begin(), b.begin() + m, x.begin());
-#ifdef HAVE_BINDINGS
       info = boost::numeric::bindings::lapack::gels(trans, n, m, 1,
                matrix_helper<Matrix>::begin_ptr(a), n,
                vector_helper<Vector>::begin_ptr(x), n);
-#else
-      lapack::gels(trans, n, m, 1,
-                   matrix_helper<Matrix>::begin_ptr(a), n,
-                   vector_helper<Vector>::begin_ptr(x), n,
-                   info);
-#endif
     }
   }
   if (info != 0) throw std::runtime_error("failed in gels");
@@ -246,4 +148,4 @@ inline void solve_llsp(Matrix& a, Vector& b, Vector& x)
 
 } // end namespace looper
 
-#endif // LOOPER_LAPACK_H
+#endif /* ! LOOPER_LAPACK_H */

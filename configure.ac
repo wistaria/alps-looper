@@ -1,25 +1,30 @@
+dnl configuration script for ALPS/looper
 dnl Process this file with autoconf to produce a configure script.
+
+dnl disable saving cache
+define([AC_CACHE_SAVE], )dnl
+AC_PREREQ(2.59)
+
+dnl
+dnl Version Section ---------------------------------------------------------
+dnl
+
+define([looper_version], [esyscmd(config/extract_version.sh)])
+define([looper_date], [esyscmd(config/extract_date.sh)])
 
 dnl 
 dnl Initialization
 dnl
 
-dnl disable saving cache
-define([AC_CACHE_SAVE], )dnl
-
-AC_PREREQ(2.59)
-AC_INIT([looper], 3.0b5)              dnl check here for release!
-looper_date="2004/04/07"
-
+AC_INIT([looper], lopper_version)
 AC_CONFIG_AUX_DIR([config])
 AM_INIT_AUTOMAKE
-
 AC_PREFIX_DEFAULT([$HOME/ALPS])
 
-AC_MSG_NOTICE([starting configuration for ALPS/looper version $PACKAGE_VERSION ($looper_date)])
+AC_MSG_NOTICE([starting configuration for ALPS/looper version looper_version (looper_date)])
 
-AC_DEFINE_UNQUOTED(LOOPER_VERSION, "$PACKAGE_VERSION")
-AC_DEFINE_UNQUOTED(LOOPER_DATE, "$looper_date")
+undefine([looper_version])
+undefine([looper_date])
 
 dnl
 dnl check for ALPS libraries
@@ -42,56 +47,12 @@ if test "$ac_cv_alps_type" = "full"; then :; else
 fi
 
 AC_PROG_CXX
+AC_PROG_LIBTOOL
 
 CPPFLAGS="$ac_cv_alps_cppflags"
 CXXFLAGS="$ac_cv_alps_cxxflags"
 LDFLAGS="$ac_cv_alps_ldflags"
 LIBS="$ac_cv_alps_libs"
-
-AC_LANG_CPLUSPLUS
-
-AC_PROG_LIBTOOL
-
-dnl
-dnl check for LAPACK
-dnl
-
-AC_LAPACK
-AM_CONDITIONAL(HAVE_LAPACK, test "$ac_cv_alps_have_lapack" = yes)
-if test "$ac_cv_have_lapack" = no; then
-  AC_MSG_ERROR([LAPACK Library not found.])
-fi
-
-dnl
-dnl check for uBLAS LAPACK bindings
-dnl
-
-AC_BINDINGS
-AM_CONDITIONAL(HAVE_BINDINGS, test "$ac_cv_alps_have_bindings" = yes)
-
-dnl
-dnl check for MPI library
-dnl
-
-AC_MSG_CHECKING([for MPI library])
-if test "$ac_cv_alps_have_mpi" = yes; then
-  AC_MSG_RESULT([yes])
-else
-  AC_MSG_RESULT([no])
-fi
-AM_CONDITIONAL(HAVE_MPI, test "$ac_cv_alps_have_mpi" = yes)
-
-dnl
-dnl check for PVM library
-dnl
-
-AC_MSG_CHECKING([for PVM library])
-if test "$ac_cv_alps_have_pvm" = yes; then
-  AC_MSG_RESULT([yes])
-else
-  AC_MSG_RESULT([no])
-fi
-AM_CONDITIONAL(HAVE_PVM, test "$ac_cv_alps_have_pvm" = yes)
 
 AC_SUBST([CXXFLAGS], $ac_cv_alps_cxxflags)
 AC_SUBST([DEFAULT_INCLUDES], '-I$(top_srcdir) -I$(top_builddir)')
@@ -107,6 +68,43 @@ AC_SUBST([LIBS_MPI], $ac_cv_alps_libs_mpi)
 AC_SUBST([CPPFLAGS_PVM], $ac_cv_alps_cppflags_pvm)
 AC_SUBST([LDFLAGS_PVM], $ac_cv_alps_ldflags_pvm)
 AC_SUBST([LIBS_PVM], $ac_cv_alps_libs_pvm)
+
+AC_LANG_CPLUSPLUS
+
+dnl
+dnl check for LAPACK
+dnl
+
+AC_LAPACK
+AM_CONDITIONAL(HAVE_LAPACK, test "$ac_cv_alps_have_lapack" = yes)
+if test "$ac_cv_have_lapack" != yes; then
+  AC_MSG_ERROR([LAPACK Library not found.])
+fi
+
+dnl
+dnl check for uBLAS LAPACK bindings
+dnl
+
+AC_BINDINGS
+if test "$ac_cv_have_bindings" != yes; then
+  AC_MSG_ERROR([uBLAS LAPACK bindings not found.])
+fi
+
+dnl
+dnl check for MPI library
+dnl
+
+AC_MSG_CHECKING([for MPI library])
+AC_MSG_RESULT([$ac_cv_alps_have_mpi])
+AM_CONDITIONAL(HAVE_MPI, test "$ac_cv_alps_have_mpi" = yes)
+
+dnl
+dnl check for PVM library
+dnl
+
+AC_MSG_CHECKING([for PVM library])
+AC_MSG_RESULT([$ac_cv_alps_have_pvm])
+AM_CONDITIONAL(HAVE_PVM, test "$ac_cv_alps_have_pvm" = yes)
 
 dnl
 dnl generate files
