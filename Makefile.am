@@ -12,12 +12,12 @@ CPPFLAGS_PVM = @CPPFLAGS_PVM@ @LAPACK_CPPFLAGS@
 LDFLAGS_PVM = -L$(top_builddir) @LDFLAGS_PVM@ @LAPACK_LDFLAGS@
 LIBS_PVM = @LAPACK_LIBS@ @LIBS_PVM@
 
-bin_PROGRAMS = qmc evaluate qmc_cmd
+noinst_PROGRAMS = qmc evaluate qmc_cmd
 if HAVE_MPI
-bin_PROGRAMS += qmc_mpi
+noinst_PROGRAMS += qmc_mpi
 endif
 if HAVE_PVM
-bin_PROGRAMS += qmc_pvm
+noinst_PROGRAMS += qmc_pvm
 endif
 
 nodist_pkginclude_HEADERS = looper/config.h
