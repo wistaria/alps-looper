@@ -31,7 +31,7 @@
 #include <string>
 
 struct options {
-  uint32_t seed;                // -r seed
+  boost::uint32_t seed;         // -r seed
   uint32_t dim;                 // -d spatial dimension
   uint32_t lsize;               // -l linear size of system
   alps::half_integer<int> spin; // -s spin size S
@@ -195,8 +195,7 @@ try {
 
   // random number generator
   boost::variate_generator<boost::mt19937, boost::uniform_real<> >
-    rng(boost::mt19937(boost::mt19937::result_type(opts.seed)),
-        boost::uniform_real<>());
+    rng(boost::mt19937(opts.seed), boost::uniform_real<>());
   for (int i = 0; i < 19844; ++i) rng();
 
   // hypercubic lattice (real lattice)
@@ -225,7 +224,7 @@ try {
         if (mcs == opts.step_t) measurements.reset(true);
         worker.step(rng, measurements);
       }
-      worker.accumulate(measurements);
+      worker.accumulate(measurements, measurements);
 
       std::cout << measurements << std::endl;
       opts.output(); std::cout << ' ';
@@ -240,7 +239,7 @@ try {
         if (mcs == opts.step_t) measurements.reset(true);
         worker.step(rng, measurements);
       }
-      worker.accumulate(measurements);
+      worker.accumulate(measurements, measurements);
 
       std::cout << measurements << std::endl;
       opts.output(); std::cout << ' ';
@@ -254,7 +253,7 @@ try {
       worker(g, model, beta, measurements);
     measurements.reset(true);
     worker.step(rng, measurements);
-    worker.accumulate(measurements);
+    worker.accumulate(measurements, measurements);
 
     std::cout << measurements << std::endl;
     opts.output(); std::cout << ' ';

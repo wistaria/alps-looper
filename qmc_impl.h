@@ -66,14 +66,14 @@ public:
     m << measurement_type("Energy");
     m << measurement_type("Energy Density");
     m << measurement_type("Energy Density^2");
+    m << measurement_type("Energy for SH");
+    m << measurement_type("Energy^2 for SH");
     m << measurement_type("Magnetization^2");
     m << measurement_type("Susceptibility");
     m << measurement_type("Staggered Magnetization^2");
     m << measurement_type("Staggered Susceptibility");
     m << measurement_type("Generalized Magnetization^2");
     m << measurement_type("Generalized Susceptibility");
-
-    m << evaluator_type("Specific Heat");
   }
 
   template<class RNG>
@@ -119,6 +119,13 @@ public:
     m.template get<measurement_type>("Energy Density") << ez + exy;
     m.template get<measurement_type>("Energy Density^2") << e2;
 
+    m.template get<measurement_type>("Energy for SH") <<
+      std::sqrt((double)param_.virtual_graph.num_real_vertices) *
+      param_.beta * (ez + exy);
+    m.template get<measurement_type>("Energy^2 for SH") <<
+      (double)param_.virtual_graph.num_real_vertices *
+      looper::sqr(param_.beta) * e2;
+
     double m2 = param_.virtual_graph.num_real_vertices *
       looper::sqr(looper::uniform_sz(config_, param_));
     m.template get<measurement_type>("Susceptibility") << param_.beta * m2;
@@ -127,15 +134,20 @@ public:
       looper::staggered_susceptibility(config_, param_);
   }
 
-  void accumulate(alps::ObservableSet& m)
+  template<class T>
+  void accumulate(const alps::ObservableSet& m_in, T& m_out)
   {
-    evaluator_type obse_e = m.template get<measurement_type>("Energy Density");
+    evaluator_type obse_e =
+      m_in.template get<measurement_type>("Energy for SH");
     evaluator_type obse_e2 =
-      m.template get<measurement_type>("Energy Density^2");
-    m.template get<evaluator_type>("Specific Heat") =
-      (double)param_.virtual_graph.num_real_vertices *
-      looper::sqr(param_.beta) * (obse_e2 - obse_e * obse_e);
+      m_in.template get<measurement_type>("Energy^2 for SH");
+    evaluator_type eval = (obse_e2 - obse_e * obse_e);
+    eval.rename("Specific Heat");
+    m_out << eval;
   }
+
+  static void accumulate(alps::scheduler::MCSimulation& sim)
+  { accumulate(sim.get_measurements(), sim); }
 
   static void output_results(std::ostream& os, alps::ObservableSet& m)
   {
@@ -192,12 +204,12 @@ public:
     m << measurement_type("Energy");
     m << measurement_type("Energy Density");
     m << measurement_type("Energy Density^2");
+    m << measurement_type("Energy for SH");
+    m << measurement_type("Energy^2 for SH");
     m << measurement_type("Magnetization^2");
     m << measurement_type("Susceptibility");
     m << measurement_type("Staggered Magnetization^2");
     m << measurement_type("Staggered Susceptibility");
-
-    m << evaluator_type("Specific Heat");
   }
 
   template<class RNG>
@@ -229,15 +241,20 @@ public:
     done_ = true;
   }
 
-  void accumulate(alps::ObservableSet& m)
+  template<class T>
+  void accumulate(const alps::ObservableSet& m_in, T& m_out)
   {
-    evaluator_type obse_e = m.template get<measurement_type>("Energy Density");
+    evaluator_type obse_e =
+      m_in.template get<measurement_type>("Energy for SH");
     evaluator_type obse_e2 =
-      m.template get<measurement_type>("Energy Density^2");
-    m.template get<evaluator_type>("Specific Heat") =
-      (double)boost::num_vertices(param_.graph) *
-      looper::sqr(param_.beta) * (obse_e2 - obse_e * obse_e);
+      m_in.template get<measurement_type>("Energy^2 for SH");
+    evaluator_type eval = (obse_e2 - obse_e * obse_e);
+    eval.rename("Specific Heat");
+    m_out << eval;
   }
+
+  static void accumulate(alps::scheduler::MCSimulation& sim)
+  { accumulate(sim.get_measurements(), sim); }
 
   static void output_results(std::ostream& os, alps::ObservableSet& m)
   {
