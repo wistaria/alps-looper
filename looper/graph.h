@@ -327,12 +327,13 @@ public:
       vertex_range_type vr = virtual_vertices(rg, *vi);
       if (vr.first == vr.second) {
         os << "null\n";
-      } else if (vr.first == --vr.second) {
+      } else if (vr.first == boost::prior(vr.second)) {
         os << boost::get(boost::vertex_index, vg, *vr.first) << '\n';
       } else {
         os << '['
            << boost::get(boost::vertex_index, vg, *vr.first) << ','
-           << boost::get(boost::vertex_index, vg, *(--vr.second)) << "]\n";
+           << boost::get(boost::vertex_index, vg, *boost::prior(vr.second))
+           << "]\n";
       }
     }
     os << "  number of edge groups = " << boost::num_edges(rg) << '\n';
@@ -343,12 +344,13 @@ public:
       edge_range_type er = virtual_edges(rg, *ei);
       if (er.first == er.second) {
         os << "null\n";
-      } else if (er.first == --er.second) {
+      } else if (er.first == boost::prior(er.second)) {
         os << boost::get(boost::edge_index, vg, *er.first) << '\n';
       } else {
         os << '['
            << boost::get(boost::edge_index, vg, *er.first) << ','
-           << boost::get(boost::edge_index, vg, *(--er.second)) << "]\n";
+           << boost::get(boost::edge_index, vg, *boost::prior(er.second))
+           << "]\n";
       }
     }
   }
@@ -398,6 +400,18 @@ inline void generate_virtual_graph(const RealGraph& rg,
         alps::copy_property(parity_t(), rg, *rvi, vg, vvd);
       }
     }
+    // setup mapping
+    typename boost::graph_traits<vgraph_type>::vertex_iterator
+      vvi_first = boost::vertices(vg).first;
+    typename boost::graph_traits<vgraph_type>::vertex_iterator
+      vvi_last = vvi_first;
+    for (boost::tie(rvi, rvi_end) = boost::vertices(rg);
+         rvi != rvi_end; ++rvi) {
+      int t = boost::get(alps::vertex_type_t(), rg, *rvi);
+      vvi_last += model.site(t).s().get_twice();
+      vm.add_vertex(rg, *rvi, vvi_first, vvi_last);
+      vvi_first = vvi_last;
+    }
   }
 
   // setup edges
@@ -427,27 +441,11 @@ inline void generate_virtual_graph(const RealGraph& rg,
         }
       }
     }
-  }
-
-  // setup mapping
-  {
-    typename boost::graph_traits<vgraph_type>::vertex_iterator
-      vvi_first = boost::vertices(vg).first;
-    typename boost::graph_traits<vgraph_type>::vertex_iterator
-      vvi_last = vvi_first;
-    typename boost::graph_traits<rgraph_type>::vertex_iterator rvi, rvi_end;
-    for (boost::tie(rvi, rvi_end) = boost::vertices(rg);
-         rvi != rvi_end; ++rvi) {
-      vvi_last +=
-        model.site(boost::get(alps::vertex_type_t(), rg, *rvi)).s().get_twice();
-      vm.add_vertex(rg, *rvi, vvi_first, vvi_last);
-      vvi_first = vvi_last;
-    }
+    // setup mapping
     typename boost::graph_traits<vgraph_type>::edge_iterator
       vei_first = boost::edges(vg).first;
     typename boost::graph_traits<vgraph_type>::edge_iterator
       vei_last = vei_first;
-    typename boost::graph_traits<rgraph_type>::edge_iterator rei, rei_end;
     for (boost::tie(rei, rei_end) = boost::edges(rg); rei != rei_end; ++rei) {
       int st = boost::get(alps::vertex_type_t(), rg, boost::source(*rei, rg));
       int tt = boost::get(alps::vertex_type_t(), rg, boost::target(*rei, rg));
