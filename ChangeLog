@@ -1,6 +1,9 @@
 2004-09-14  Synge Todo <wistaria@comp-phys.org>
 
 	* Fixed for non-bipartite lattices.
+
+	* Added (hidden) simulation parameters STRICT_MCS and FIXED_SEED
+	  for debugging.
 	
 2004-09-13  Synge Todo <wistaria@comp-phys.org>
 

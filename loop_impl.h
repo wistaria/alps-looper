@@ -38,8 +38,6 @@ template<class QMC>
 class qmc_worker
 {
 public:
-  BOOST_STATIC_CONSTANT(bool, is_qmc = true);
-
   typedef QMC                      qmc;
   typedef typename qmc::graph_type graph_type;
   typedef typename qmc::model_type model_type;
@@ -76,7 +74,7 @@ public:
       << make_observable(
            RealObservable("beta * Energy^2"), is_signed())
       << make_observable(
-	   RealObservable("Susceptibility"), is_signed());
+           RealObservable("Susceptibility"), is_signed());
     if (is_bipartite()) {
       m << make_observable(
              RealObservable("Staggered Susceptibility"), is_signed());
@@ -96,10 +94,10 @@ public:
       m << make_observable(
              RealObservable("Staggered Magnetization^2"),
              "Sign (improved)", double(), is_signed())
-	<< make_observable(
+        << make_observable(
              RealObservable("Staggered Generalized Magnetization^2"),
              "Sign (improved)", double(), is_signed())
-	<< make_observable(
+        << make_observable(
              RealObservable("Staggered Generalized Susceptibility"),
              "Sign (improved)", double(), is_signed());
     }
@@ -140,7 +138,7 @@ public:
     if (is_bipartite()) {
       double sgm2, sgs;
       boost::tie(sgm2, sgs) =
-	looper::staggered_generalized_susceptibility_imp(config_, param_);
+        looper::staggered_generalized_susceptibility_imp(config_, param_);
       m["Staggered Generalized Magnetization^2"] << sign_imp * sgm2;
       m["Staggered Generalized Susceptibility"] << sign_imp * sgs;
     }
@@ -180,7 +178,7 @@ public:
       looper::sqr(looper::uniform_sz(config_, param_));
     if (is_bipartite()) {
       m["Staggered Susceptibility"] <<
-	sign * looper::staggered_susceptibility(config_, param_);
+        sign * looper::staggered_susceptibility(config_, param_);
     }
   }
 
@@ -202,9 +200,9 @@ public:
        << error(m["Susceptibility"]) << ' ';
     if (is_bipartite()) {
       os << mean(m["Staggered Magnetization^2"]) << ' '
-	 << error(m["Staggered Magnetization^2"]) << ' '
-	 << mean(m["Staggered Susceptibility"]) << ' '
-	 << error(m["Staggered Susceptibility"]) << ' ';
+         << error(m["Staggered Magnetization^2"]) << ' '
+         << mean(m["Staggered Susceptibility"]) << ' '
+         << error(m["Staggered Susceptibility"]) << ' ';
     }
     os << mean(m["Uniform Generalized Magnetization^2"]) << ' '
        << error(m["Uniform Generalized Magnetization^2"]) << ' '
@@ -212,9 +210,9 @@ public:
        << error(m["Uniform Generalized Susceptibility"]) << ' ';
     if (is_bipartite()) {
       os << mean(m["Staggered Generalized Magnetization^2"]) << ' '
-	 << error(m["Staggered Generalized Magnetization^2"]) << ' '
-	 << mean(m["Staggered Generalized Susceptibility"]) << ' '
-	 << error(m["Staggered Generalized Susceptibility"]) << ' ';
+         << error(m["Staggered Generalized Magnetization^2"]) << ' '
+         << mean(m["Staggered Generalized Susceptibility"]) << ' '
+         << error(m["Staggered Generalized Susceptibility"]) << ' ';
     }
   }
 
@@ -255,14 +253,16 @@ public:
     mdl_(p, graph(), operators(), model(), has_sign_problem()), mcs_(0),
     therm_(static_cast<unsigned int>(p["THERMALIZATION"])),
     total_(therm_ + static_cast<unsigned int>(p["SWEEPS"])),
+    strict_mcs_(p.defined("STRICT_MCS")),
     qmc_worker_(graph(), mdl_, 1.0 / static_cast<double>(p["T"]),
       static_cast<double>(p.value_or_default("FORCE_SCATTER",
         has_sign_problem() ? 0.1 : 0.0)),
-      measurements) {}
+      measurements)
+  { if (p.defined("FIXED_SEED")) random.seed(parms["FIXED_SEED"]); }
   virtual ~worker() {}
 
   virtual void dostep() {
-    if (QMC_WORKER::is_qmc || is_thermalized())
+    if (!strict_mcs_ || mcs_ < total_)
       qmc_worker_.step(random_01, measurements);
     ++mcs_;
   }
@@ -285,6 +285,7 @@ public:
 private:
   typename QMC_WORKER::model_type mdl_;
   unsigned int mcs_, therm_, total_;
+  bool strict_mcs_;
   QMC_WORKER qmc_worker_;
 };
 
