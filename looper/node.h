@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: node.h 455 2003-10-22 01:04:57Z wistaria $
+* $Id: node.h 464 2003-10-23 15:49:10Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -36,6 +36,8 @@
 
 #ifndef LOOPER_NODE_H
 #define LOOPER_NODE_H
+
+#include <looper/union_find.h>
 
 #include <alps/osiris.h>
 #include <boost/integer_traits.hpp>
@@ -143,16 +145,15 @@ public:
     prop_.flip(bits::DIAG);
   }
 
-  void output(std::ostream& os) const {
-    os << "node_property = " << prop_;
+  std::ostream& output(std::ostream& os) const {
+    return os << "node_property = " << prop_;
   }
-  void save(alps::ODump& od) const {
-    uint32_t b = prop_.to_ulong();
-    od << b;
+  alps::ODump& save(alps::ODump& od) const {
+    return od << uint32_t(prop_.to_ulong());
   }
-  void load(alps::IDump& id) {
-    uint32_t b; id >> b;
-    prop_ = bitset(b);
+  alps::IDump& load(alps::IDump& id) {
+    prop_ = bitset(uint32_t(id));
+    return id;
   }
   
 private:
@@ -169,6 +170,50 @@ struct loop_segment
   void reset() { index = undefined; }
   loop_segment& operator+=(const loop_segment&) { return *this; }
 };
+
+class qmc_node : public node_property
+{
+public:
+  typedef union_find::node<looper::loop_segment> segment_type;
+
+  qmc_node() : node_property(), bond_(0), segment0_(), segment1_() {}
+
+  uint32_t bond() const { return bond_; }
+  void set_bond(uint32_t b) { bond_ = b; }
+
+  segment_type& loop_segment(int i) {
+    return (i == 0 ? segment0_ : segment1_);
+  }
+  const segment_type& loop_segment(int i) const {
+    return (i == 0 ? segment0_ : segment1_);
+  }
+  int& loop_index(int i) { return loop_segment(i).root()->index; }
+  int loop_index(int i) const { return loop_segment(i).root()->index; }
+  
+  void clear() {
+    node_property::clear_graph();
+    segment0_.reset();
+    segment1_.reset();
+  }
+  
+  std::ostream& output(std::ostream& os) const {
+    return node_property::output(os) << " bond = " << bond_;
+  }
+  alps::ODump& save(alps::ODump& od) const {
+    return node_property::save(od) << bond_;
+    // segment[01]_ are not saved
+  }
+  alps::IDump& load(alps::IDump& id) {
+    return node_property::load(id) >> bond_;
+    // segment[01]_ are not restored
+  }
+  
+private:
+  uint32_t bond_;
+  segment_type segment0_;
+  segment_type segment1_;
+};
+
 
 template<class Itr>
 inline

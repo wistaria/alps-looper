@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: path_integral.h 463 2003-10-23 15:27:30Z wistaria $
+* $Id: path_integral.h 464 2003-10-23 15:49:10Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -58,69 +58,53 @@ namespace looper {
 template<bool HasCTime = false> class pi_node;
   
 template<>
-class pi_node<false> : public node_property
+class pi_node<false> : public qmc_node
 {
+protected:
+#ifdef M_PI
+  BOOST_STATIC_CONSTANT(double, two_pi = (2.0 * M_PI));
+#else
+  BOOST_STATIC_CONSTANT(double, two_pi = (2.0 * 3.1415926535897932385));
+#endif
+
 public:
-  typedef union_find::node<looper::loop_segment> segment_type;
-  typedef double time_type;
-  
+  typedef qmc_node                base_type;
+  typedef double                  time_type;
+  typedef std::complex<time_type> ctime_type;
   BOOST_STATIC_CONSTANT(bool, has_ctime = false);
   
-  pi_node() : node_property(), time_(0), bond_(0), segment0_(), segment1_() {}
+  pi_node() : base_type(), time_(0.) {}
   
   time_type time() const { return time_; }
-  uint32_t bond() const { return bond_; }
-  
-  void set_bond(uint32_t b) { bond_ = b; }
+  ctime_type ctime() const { return std::exp(two_pi * time_); }
   void set_time(time_type t) { time_ = t; }
   
-  segment_type& loop_segment(int i) {
-    return (i == 0 ? segment0_ : segment1_);
-  }
-  const segment_type& loop_segment(int i) const {
-    return (i == 0 ? segment0_ : segment1_);
-  }
-  int& loop_index(int i) { return loop_segment(i).root()->index; }
-  int loop_index(int i) const { return loop_segment(i).root()->index; }
-  
   void clear() {
-    node_property::clear_graph();
-    segment0_.reset();
-    segment1_.reset();
+    base_type::clear();
+    time_ = time_type(0.);
   }
   
-  void output(std::ostream& os) const {
-    node_property::output(os);
-    os << " time = " << time_ << " bond = " << bond_ ;
+  std::ostream& output(std::ostream& os) const {
+    return base_type::output(os) << " time = " << time_;
   }
-  
-  void save(alps::ODump& od) const {
-    node_property::save(od);
-    od << time_ << bond_;
-    // segment[01]_ are not saved
+  alps::ODump& save(alps::ODump& od) const {
+    return base_type::save(od) << time_;
   }
-  void load(alps::IDump& id) {
-    node_property::load(id);
-    id >> time_ >> bond_;
-    // segment[01]_ are not restored
+  alps::IDump& load(alps::IDump& id) {
+    return base_type::load(id) >> time_;
   }
   
 private:
   time_type time_;
-  uint32_t bond_;
-  segment_type segment0_;
-  segment_type segment1_;
 };
 
-template<>  
+template<> 
 class pi_node<true> : public pi_node<false>
 {
 public:
   typedef pi_node<false> base_type;
-  typedef base_type::segment_type segment_type;
   typedef base_type::time_type time_type;
   typedef std::complex<time_type> ctime_type;
-  
   BOOST_STATIC_CONSTANT(bool, has_ctime = true);
   
   pi_node() : base_type(), ctime_() {}
@@ -129,25 +113,17 @@ public:
   
   void set_time(time_type t) {
     base_type::set_time(t);
-#ifdef M_PI
-    ctime_ = std::exp(2 * M_PI * t);
-#else
-    ctime_ = std::exp(2 * 3.1415926535897932385 * t);
-#endif
+    ctime_ = std::exp(two_pi * t);
   }
   
-  void output(std::ostream& os) const {
-    base_type::output(os);
-    os << " ctime = " << ctime_;
+  std::ostream& output(std::ostream& os) const {
+    return base_type::output(os) << " ctime = " << ctime_;
   }
-  
-  void save(alps::ODump& od) const {
-    base_type::save(od);
-    od << ctime_;
-  }
-  void load(alps::IDump& id) {
+  alps::ODump& save(alps::ODump& od) const { return base_type::save(od); }
+  alps::IDump& load(alps::IDump& id) {
     base_type::load(id);
-    id >> ctime_;
+    ctime_ = std::exp(two_pi * time());
+    return id;
   }
   
 private:
@@ -174,10 +150,7 @@ struct path_integral<virtual_graph<G>, M, W>
   typedef typename boost::graph_traits<graph_type>::vertex_descriptor
     vertex_descriptor;
   
-  //
-  // struct types
-  //
-  
+
   template<bool HasCTime = false>
   struct config_type
   {
@@ -186,7 +159,7 @@ struct path_integral<virtual_graph<G>, M, W>
     typedef typename wl_type::const_iterator const_iterator;
     typedef typename wl_type::value_type     node_type;
 
-    wl_type      wl;
+    wl_type wl;
     unsigned int num_loops0;
     unsigned int num_loops;
   };
@@ -205,10 +178,11 @@ struct path_integral<virtual_graph<G>, M, W>
     vertex_iterator vi_end = boost::vertices(vg.graph).second;
     for (vertex_iterator vi = boost::vertices(vg.graph).first;
 	 vi != vi_end; ++vi) {
-      config.wl.series(*vi).first ->set_time(0.);
-      config.wl.series(*vi).second->set_time(1.);
+      // all up
       config.wl.series(*vi).first ->conf() = 0;
       config.wl.series(*vi).second->conf() = 0;
+      config.wl.series(*vi).first ->set_time(0.);
+      config.wl.series(*vi).second->set_time(1.);
     }
   }
 

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: sse.h 455 2003-10-22 01:04:57Z wistaria $
+* $Id: sse.h 464 2003-10-23 15:49:10Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -47,7 +47,8 @@
 
 namespace looper {
 
-class sse_node;
+typedef qmc_node sse_node;
+
 
 template<class G, class M, class W = default_weight> struct sse;
 
@@ -67,6 +68,61 @@ struct sse<virtual_graph<G>, M, W>
     vertex_iterator;
   typedef typename boost::graph_traits<graph_type>::vertex_descriptor
     vertex_descriptor;
+
+
+  struct config_type
+  {
+    typedef std::vector<sse_node>            os_type;
+    typedef typename os_type::iterator       iterator;
+    typedef typename os_type::const_iterator const_iterator;
+    typedef typename os_type::value_type     node_type;
+
+    os_type bottom;
+    os_type top;
+    os_type os;
+    unsigned int num_loops0;
+    unsigned int num_loops;
+  };
+
+  //
+  // update functions
+  //
+  
+  // initialize
+  static void initialize(config_type& config, const vg_type& vg)
+  {
+    config.bottom.clear();
+    config.bottom.resize(boost::num_vertices(vg.graph));
+    config.top.clear();
+    config.top.resize(boost::num_vertices(vg.graph));
+
+    vertex_iterator vi_end = boost::vertices(vg.graph).second;
+    for (vertex_iterator vi = boost::vertices(vg.graph).first;
+	 vi != vi_end; ++vi) {
+      // all up
+      config.bottom[*vi].conf() = 0;
+      config.top[*vi].conf() = 0;
+    }
+    config.os.clear();
+  }
+
+  template<class RNG>
+  static void generate_loops(config_type& config, const vg_type& vg,
+			     const model_type& model, double beta,
+			     RNG& uniform_01)
+  {
+    //
+    // setup
+    //
+    std::vector<std::pair<int, loop_segment*> >
+      tab_(boost::num_vertices(vg.graph));
+    vertex_iterator vi_end = boost::vertices(vg.graph).second;
+    for (vertex_iterator vi = boost::vertices(vg.graph).first;
+	 vi != vi_end; ++vi) {
+      tab_[*vi] = std::make_pair(config.bottom[*vi],
+				 &(config.bottom[*vi].loop_segment(0)));
+    }
+  }
 
   static double energy_offset(const vg_type& vg, const model_type& model)
   {
