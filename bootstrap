@@ -2,8 +2,8 @@
 
 have_autotools=yes
 
-am_version=`automake --version | head -1 | cut -d ' ' -f 4`
-ac_version=`autoconf --version | head -1 | cut -d ' ' -f 4`
+am_version=`automake --version 2>&1 | head -1 | cut -d ' ' -f 4`
+ac_version=`autoconf --version 2>&1 | head -1 | cut -d ' ' -f 4`
 
 if test "x$am_version" != "x1.8.4"; then
   have_autotools=no

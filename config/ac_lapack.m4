@@ -334,9 +334,9 @@ AC_DEFUN([AC_LAPACK],
       AC_MSG_NOTICE([checking for SGI SCSL Library])
       LDFLAGS="$ac_save_LDFLAGS"
       LIBS="$ac_save_LIBS"
-      AC_CHECK_LIB(scsl, dgemm_, 
-        [AC_CHECK_LIB(scsl, dsyev_,
-          [LAPACK_LDFLAGS=; LAPACK_LIBS="-lscsl";
+      AC_CHECK_LIB(scs, dgemm_, 
+        [AC_CHECK_LIB(scs, dsyev_,
+          [LAPACK_LDFLAGS=; LAPACK_LIBS="-lscs";
            found_blas=yes; found_lapack=yes])
         ]
       )

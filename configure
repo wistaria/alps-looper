@@ -1278,7 +1278,8 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-              am__api_version="1.8"
+              looper_date="2004/04/07"
+am__api_version="1.8"
 ac_aux_dir=
 for ac_dir in $srcdir $srcdir/.. $srcdir/../..; do
   if test -f $ac_dir/install-sh; then
@@ -4042,13 +4043,13 @@ echo "$as_me: error: Digital Extended Math Library not found." >&2;}
 echo "$as_me: checking for SGI SCSL Library" >&6;}
       LDFLAGS="$ac_save_LDFLAGS"
       LIBS="$ac_save_LIBS"
-      echo "$as_me:$LINENO: checking for dgemm_ in -lscsl" >&5
-echo $ECHO_N "checking for dgemm_ in -lscsl... $ECHO_C" >&6
-if test "${ac_cv_lib_scsl_dgemm_+set}" = set; then
+      echo "$as_me:$LINENO: checking for dgemm_ in -lscs" >&5
+echo $ECHO_N "checking for dgemm_ in -lscs... $ECHO_C" >&6
+if test "${ac_cv_lib_scs_dgemm_+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lscsl  $LIBS"
+LIBS="-lscs  $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -4093,27 +4094,27 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_lib_scsl_dgemm_=yes
+  ac_cv_lib_scs_dgemm_=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-ac_cv_lib_scsl_dgemm_=no
+ac_cv_lib_scs_dgemm_=no
 fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_scsl_dgemm_" >&5
-echo "${ECHO_T}$ac_cv_lib_scsl_dgemm_" >&6
-if test $ac_cv_lib_scsl_dgemm_ = yes; then
-  echo "$as_me:$LINENO: checking for dsyev_ in -lscsl" >&5
-echo $ECHO_N "checking for dsyev_ in -lscsl... $ECHO_C" >&6
-if test "${ac_cv_lib_scsl_dsyev_+set}" = set; then
+echo "$as_me:$LINENO: result: $ac_cv_lib_scs_dgemm_" >&5
+echo "${ECHO_T}$ac_cv_lib_scs_dgemm_" >&6
+if test $ac_cv_lib_scs_dgemm_ = yes; then
+  echo "$as_me:$LINENO: checking for dsyev_ in -lscs" >&5
+echo $ECHO_N "checking for dsyev_ in -lscs... $ECHO_C" >&6
+if test "${ac_cv_lib_scs_dsyev_+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lscsl  $LIBS"
+LIBS="-lscs  $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -4158,21 +4159,21 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_lib_scsl_dsyev_=yes
+  ac_cv_lib_scs_dsyev_=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-ac_cv_lib_scsl_dsyev_=no
+ac_cv_lib_scs_dsyev_=no
 fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_scsl_dsyev_" >&5
-echo "${ECHO_T}$ac_cv_lib_scsl_dsyev_" >&6
-if test $ac_cv_lib_scsl_dsyev_ = yes; then
-  LAPACK_LDFLAGS=; LAPACK_LIBS="-lscsl";
+echo "$as_me:$LINENO: result: $ac_cv_lib_scs_dsyev_" >&5
+echo "${ECHO_T}$ac_cv_lib_scs_dsyev_" >&6
+if test $ac_cv_lib_scs_dsyev_ = yes; then
+  LAPACK_LDFLAGS=; LAPACK_LIBS="-lscs";
            found_blas=yes; found_lapack=yes
 fi
 
