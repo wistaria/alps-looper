@@ -5,6 +5,8 @@
 	* Added is_bipartite member in [path_integral,sse]::parameter_type.
 
 	* Removed check_and_resize from path_integral.h.
+
+	* Added specific heat measurement.
 	
 2003-11-05  Synge Todo  <wistaria@comp-phys.org>
 	

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: measurement.h 534 2003-11-06 04:22:01Z wistaria $
+* $Id: measurement.h 536 2003-11-06 08:01:36Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -38,7 +38,13 @@
 #define LOOPER_MEASUREMENT_H
 
 namespace looper {
-  
+
+template<class T> T sqr(T t) { return t * t; }
+
+//
+// unimproved estimators
+//
+
 template<class P>
 inline double energy_offset(const P& param)
 {
@@ -63,26 +69,6 @@ inline double energy_z(const C& config, const P& param)
 }
 
 template<class C, class P>
-inline double energy_z_imp(const C& config, const P& param)
-{
-  typedef typename C::qmc_type qmc_type;
-
-  double ene = 0.;
-  typename qmc_type::edge_iterator ei, ei_end;
-  for (boost::tie(ei, ei_end) = boost::edges(param.virtual_graph.graph);
-       ei != ei_end; ++ei) {
-    typename qmc_type::vertex_descriptor v0 =
-      boost::source(*ei, param.virtual_graph.graph);
-    typename qmc_type::vertex_descriptor v1 =
-      boost::target(*ei, param.virtual_graph.graph);
-    if (loop_index_0(v0, config) == loop_index_0(v1, config))
-      ene -= model.bond(bond_type(*ei, param.virtual_graph.graph)).jz() *
-	static_sz(v0, config) * static_sz(v1, config);
-    }
-  return ene / param.virtual_graph.num_real_vertices;
-}
-
-template<class C, class P>
 inline double energy_xy(const C& config, const P& param)
 {
   typedef typename C::qmc_type qmc_type;
@@ -91,11 +77,16 @@ inline double energy_xy(const C& config, const P& param)
 }
 
 template<class C, class P>
-inline std::pair<double, double>
+inline boost::tuple<double, double, double>
 energy(const C& config, const P& param)
 {
-  return std::make_pair(energy_z(config, param),
-			energy_xy(config, param));
+  typedef typename C::qmc_type qmc_type;
+  double ez = energy_z(config, param);
+  double exy = energy_xy(config, param);
+  double e2 = sqr(ez + exy) -
+    (double)qmc_type::num_offdiagonals(config) /
+    sqr(param.beta * param.virtual_graph.num_real_vertices);
+  return boost::make_tuple(ez, exy, e2);
 }
 
 template<class C, class P>
@@ -144,6 +135,30 @@ inline double staggered_susceptibility(const C& config, const P& param)
   } else {
     return 0.;
   }
+}
+
+//
+// improved estimators
+//
+
+template<class C, class P>
+inline double energy_z_imp(const C& config, const P& param)
+{
+  typedef typename C::qmc_type qmc_type;
+
+  double ene = 0.;
+  typename qmc_type::edge_iterator ei, ei_end;
+  for (boost::tie(ei, ei_end) = boost::edges(param.virtual_graph.graph);
+       ei != ei_end; ++ei) {
+    typename qmc_type::vertex_descriptor v0 =
+      boost::source(*ei, param.virtual_graph.graph);
+    typename qmc_type::vertex_descriptor v1 =
+      boost::target(*ei, param.virtual_graph.graph);
+    if (loop_index_0(v0, config) == loop_index_0(v1, config))
+      ene -= model.bond(bond_type(*ei, param.virtual_graph.graph)).jz() *
+	static_sz(v0, config) * static_sz(v1, config);
+    }
+  return ene / param.virtual_graph.num_real_vertices;
 }
 
 } // namespace looper

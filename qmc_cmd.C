@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: qmc_cmd.C 513 2003-11-05 03:41:16Z wistaria $
+* $Id: qmc_cmd.C 536 2003-11-06 08:01:36Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -210,6 +210,8 @@ try {
       worker.step(rng, measurements);
     }
 
+    worker.accumulate(measurements);
+
     std::cout << measurements << std::endl; 
     opts.output();
     std::cout << ' ';
@@ -224,6 +226,8 @@ try {
       if (mcs == opts.step_t) measurements.reset(true);
       worker.step(rng, measurements);
     }
+
+    worker.accumulate(measurements);
 
     std::cout << measurements << std::endl; 
     opts.output();

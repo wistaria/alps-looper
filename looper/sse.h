@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: sse.h 535 2003-11-06 04:58:35Z wistaria $
+* $Id: sse.h 536 2003-11-06 08:01:36Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -42,7 +42,7 @@
 #include <looper/virtual_graph.h>
 #include <looper/weight.h>
 #include <boost/throw_exception.hpp>
-#include <cmath>
+#include <cmath> // for std::sqrt
 #include <stdexcept>
 
 namespace looper {
@@ -456,9 +456,7 @@ struct sse<virtual_graph<G>, M, W, N>
   { return config.bottom[i].loop_segment(0).index; }
 
   static double static_sz(int i, const config_type& config)
-  {
-    return 0.5 - double(config.bottom[i].conf());
-  }
+  { return 0.5 - (double)config.bottom[i].conf(); }
 
   static double dynamic_sz(int i, const config_type& config, const vg_type& vg)
   {
@@ -468,16 +466,17 @@ struct sse<virtual_graph<G>, M, W, N>
 
     double c = static_sz(i, config);
     const_operator_iterator oi_end = config.os.end();
-    sz += c;
     for (const_operator_iterator oi = config.os.begin(); oi != oi_end; ++oi) {
+      sz += c;
       if (oi->is_offdiagonal()) {
 	edge_iterator ei = boost::edges(vg.graph).first + oi->bond();
 	if (boost::source(*ei, vg.graph) == i ||
-	    boost::target(*ei, vg.graph) == i) c *= -1;
+	    boost::target(*ei, vg.graph) == i) c = -c;
       }
-      sz += c;
     }
-    return sz / (config.os.size() + 1);
+    //return sz / std::sqrt((double)config.os.size() *
+    //			  (double)(config.os.size() + 1));
+    return sz / config.os.size();
   }
 
   static int num_offdiagonals(const config_type& config)

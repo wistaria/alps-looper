@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: qmc_impl.h 534 2003-11-06 04:22:01Z wistaria $
+* $Id: qmc_impl.h 536 2003-11-06 08:01:36Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -53,6 +53,7 @@ public:
   typedef QMC                      qmc;
   typedef typename qmc::graph_type graph_type;
   typedef alps::RealObservable     measurement_type;
+  typedef alps::RealObsevaluator   evaluator_type;
 
   template<class G, class MDL>
   qmc_worker(const G& rg, const MDL& model, double beta,
@@ -68,11 +69,14 @@ public:
     m << measurement_type("diagonal energy (improved)");
     m << measurement_type("off-diagonal energy");
     m << measurement_type("energy");
+    m << measurement_type("energy^2");
     m << measurement_type("uniform magnetization"); ////
     m << measurement_type("uniform susceptibility");
     m << measurement_type("staggered magnetization"); ////
     m << measurement_type("staggered magnetization^2");
     m << measurement_type("staggered susceptibility");
+
+    m << evaluator_type("specific heat");
   }
     
   template<class RNG>
@@ -85,12 +89,13 @@ public:
     qmc::flip_and_cleanup(config_, param_, rng);
       
     // measure unimproved quantities here
-    double ez, exy;
-    boost::tie(ez, exy) = looper::energy(config_, param_);
+    double ez, exy, e2;
+    boost::tie(ez, exy, e2) = looper::energy(config_, param_);
     ez += e_offset_;
     m.template get<measurement_type>("diagonal energy") << ez;
     m.template get<measurement_type>("off-diagonal energy") << exy;
     m.template get<measurement_type>("energy") << ez + exy;
+    m.template get<measurement_type>("energy^2") << e2;
 
     double sz = looper::uniform_sz(config_, param_);
     m.template get<measurement_type>("uniform magnetization") << sz; ////
@@ -105,14 +110,21 @@ public:
       looper::staggered_susceptibility(config_, param_);
   }
 
+  void accumulate(alps::ObservableSet& m)
+  {
+    evaluator_type obse_e = m.template get<measurement_type>("energy");
+    evaluator_type obse_e2 = m.template get<measurement_type>("energy^2");
+    m.template get<evaluator_type>("specific heat") = 
+      (double)param_.virtual_graph.num_real_vertices *
+      looper::sqr(param_.beta) * (obse_e2 - obse_e * obse_e);
+  }
+
   static void output_results(std::ostream& os, alps::ObservableSet& m)
   {
-    os << m.template get<measurement_type>("diagonal energy").mean() << ' '
-       << m.template get<measurement_type>("diagonal energy").error() << ' '
-       << m.template get<measurement_type>("off-diagonal energy").mean() << ' '
-       << m.template get<measurement_type>("off-diagonal energy").error() << ' '
-       << m.template get<measurement_type>("energy").mean() << ' '
+    os << m.template get<measurement_type>("energy").mean() << ' '
        << m.template get<measurement_type>("energy").error() << ' '
+       << m.template get<evaluator_type>("specific heat").mean() << ' '
+       << m.template get<evaluator_type>("specific heat").error() << ' '
        << m.template get<measurement_type>("uniform susceptibility").mean() << ' '
        << m.template get<measurement_type>("uniform susceptibility").error() << ' '
        << m.template get<measurement_type>("staggered magnetization^2").mean() << ' '
