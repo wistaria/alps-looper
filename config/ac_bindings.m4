@@ -35,7 +35,7 @@ AC_DEFUN([AC_BINDINGS],
       bindings_dir=no
       for d in $HOME $HOME/src $prefix $prefix/src /usr/local /usr/local/src
       do
-        for s in bindings ublas_bindings boost-sandbox bindings_2003_09_11
+        for s in boost-sandbox boost-bindings bindings ublas_bindings
         do
           if test -f "$d/$s/boost/numeric/bindings/lapack/lapack.hpp"; then
             found=yes
@@ -60,6 +60,20 @@ AC_DEFUN([AC_BINDINGS],
     ac_cv_have_bindings=no
     ac_cv_bindings_dir=
     BINDINGS_CPPFLAGS=
+  fi
+
+  if test "$ac_cv_have_bindings" = yes; then
+    AC_LANG_SAVE
+    AC_LANG_CPLUSPLUS
+    ac_save_CPPFLAGS="$CPPFLAGS"
+    CPPFLAGS="$CPPFLAGS $BINDINGS_CPPFLAGS"
+    AC_CHECK_HEADER([boost/numeric/bindings/lapack/syev.hpp])
+    CPPFLAGS="$ac_save_CPPFLAGS"
+    AC_LANG_RESTORE
+  
+    if test "$ac_cv_header_boost_numeric_bindings_lapack_syev_hpp" = yes; then
+      AC_DEFINE(HAVE_BOOST_NUMERIC_BINDINGS_LAPACK_SYEV_HPP)
+    fi
   fi
   ]
 )
