@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: deque.h 422 2003-10-15 10:50:28Z wistaria $
+* $Id: deque.h 423 2003-10-15 21:45:18Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -45,64 +45,89 @@
 
 namespace looper {
   
-template<class D>
-class deque_index_helper
+template<class C> class index_helper;
+
+template<class T, class Alloc>
+class index_helper<std::deque<T, Alloc> >
 {
 public:
-  typedef typename D::value_type value_type;
-  typedef typename D::size_type size_type;
-  typedef std::pair<value_type *, size_type> pair_type;
-  typedef std::vector<std::pair<value_type *, size_type> > map_type;
+  typedef typename std::deque<T, Alloc>::value_type              value_type;
+  typedef typename std::deque<T, Alloc>::size_type               size_type;
+  typedef std::vector<std::pair<const value_type *, size_type> > map_type;
 
-  deque_index_helper(const D& d) { build(d); }
+  index_helper(const std::deque<T, Alloc>& a) { init(a); }
 
-  struct comp
+  size_type num_chunks() const { return map_.size(); }
+
+  void init(const std::deque<T, Alloc>& a)
   {
-    bool operator()(const std::pair<value_type *, size_type>& x,
-		    const value_type* y) const
-    {
-      return x.first < y;
-    }
-  };
+    map_.clear();
 
-  void build(const D& d)
-  {
-    // start address of first chunk
-    map_.push_back(std::make_pair(&d[0], 0));
-
-    size_type base = 0;
-    for (;;) {
-      if (base >= d.size()) break; // finish
-      size_type step = 1;
+    if (a.size()) {
+      // start address of first chunk
+      map_.push_back(std::make_pair(&a[0], 0));
+      
+      size_type base = 0;
       for (;;) {
-	if (base + step >= d.size()) { step >>= 1; break; }
-	step <<= 1;
+	if (base >= a.size()) break; // finish
+	size_type step = 1;
+	for (;;) {
+	  if (base + step > a.size()) { step >>= 1; break; }
+	  step <<= 1;
+	}
+	size_type pos = base;
+	for (;;) {
+	  if (&a[pos + step] - &a[base] == pos + step - base) { pos += step; }
+	  if (step == 1) break;
+	  step >>= 1;
+	}
+	base = pos + 1;
+	if (base < a.size())
+	  map_.push_back(std::make_pair(&a[base], base));
       }
-      size_type pos = base;
-      for (;;) {
-	if (&d[pos + step] - &d[base] == pos + step - base) { pos += step; }
-	if (step == 1) break;
-	step >>= 1;
-      }
-      base = pos + 1;
-      if (base != d.size()) {
-	map_type::iterator p = 
-	  std::lower_bound(map_.begin(), map_.end(), std::make_pair(&d[base], 0), std::less<pair_type>());
-	map_.insert(p, std::make_pair(&d[base], base));
-      }
+      std::sort(map_.begin(), map_.end());
     }
   }
 
-  size_type index(const value_type* ptr) const
+  struct match
   {
-    map_type::const_iterator p = 
-      std::lower_bound(map_.begin(), map_.end(), std::make_pair(ptr, 0), 
-		       std::less<pair_type>());
-    if (ptr != p->first) --p;
+    bool operator() (const std::pair<const value_type *, size_type>& x,
+		     const std::pair<const value_type *, size_type>& y) const
+    {
+      return x < y;
+    }
+  };
+
+  size_type index(const value_type* ptr, bool debug = false) const
+  {
+    typename map_type::const_iterator p = 
+      std::lower_bound(map_.begin(), map_.end(), std::make_pair(ptr, 0),
+		       //match());
+    std::less<std::pair<const value_type *, size_type> >());
+    //if (debug) {
+    //std::cout << ptr << ' ' << (p->first) << std::endl;
+    //}
+    if (p == map_.end() || ptr != p->first) --p;
+    if (debug) {
+      std::cout << "p: " << ptr << " = " << p->second << " + "
+		<< (ptr - (p->first)) << std::endl;
+      // std::cout << ptr << ' ' << (p->first) << std::endl;
+    }
+
     return p->second
       + ((size_type)ptr - (size_type)(p->first)) / sizeof(value_type);
   }
 
+  // for debugging
+  void output() const
+  {
+    std::cout << "number of chunks = " << map_.size() << std::endl;
+    for (typename map_type::const_iterator itr = map_.begin();
+	 itr != map_.end(); ++itr) {
+      std::cout << itr->first << ' ' << itr->second << std::endl;
+    }
+    std::cout << map_.end()->first << ' ' << map_.end()->second << std::endl;
+  }
 private:
   map_type map_;
 };
