@@ -45,19 +45,23 @@ namespace looper {
 // diagonalize matrix
 //
 
-template <class Matrix, class Vector>
-inline void diagonalize(Matrix& a, Vector& w, bool need_eigenvectors = true)
+template <class T, class R, class A, class Vector>
+inline void diagonalize(
+  boost::numeric::ublas::matrix<T,R,A>& a,
+  Vector& w, bool need_eigenvectors = true)
 {
-  typedef Matrix matrix_type;
-  typedef Vector vector_type;
+  using namespace boost::numeric;
+
+  BOOST_STATIC_ASSERT((boost::is_same<typename R::orientation_category,
+    ublas::column_major_tag>::value)); 
 
   const char jobz = (need_eigenvectors ? 'V' : 'N');
   const char uplo = 'L';
 
   // call dispatcher
-  int info = boost::numeric::bindings::lapack::syev(jobz, uplo, a, w,
-    boost::numeric::bindings::lapack::optimal_workspace());
-  if (info != 0) throw std::runtime_error("failed in syev");
+  int info = bindings::lapack::syev(jobz, uplo, a, w,
+    bindings::lapack::optimal_workspace());
+  if (info != 0) throw std::runtime_error("failed in heev");
 }
 
 template <class T, class R, class A, class Vector>
@@ -67,8 +71,8 @@ inline void diagonalize(
 {
   using namespace boost::numeric;
 
-  typedef ublas::matrix<std::complex<T>,R,A> matrix_type;
-  typedef Vector                             vector_type;
+  BOOST_STATIC_ASSERT((boost::is_same<typename R::orientation_category,
+    ublas::column_major_tag>::value)); 
 
   const char jobz = (need_eigenvectors ? 'V' : 'N');
   const char uplo = 'L';
@@ -84,9 +88,9 @@ inline void diagonalize(
 // solve_llsp: solving linear least-squares problem
 //
 
-template <typename T, typename C>
+template <typename T, typename R, typename A>
 inline double solve_llsp(
-  const boost::numeric::ublas::matrix<T, C>& a,
+  const boost::numeric::ublas::matrix<T, R, A>& a,
   const boost::numeric::ublas::vector<T>& b,
   boost::numeric::ublas::vector<T>& x,
   double tol = 1.0e-10)
@@ -96,8 +100,11 @@ inline double solve_llsp(
   using ublas::norm_inf; using ublas::norm_2; using ublas::prod;
 #endif
 
+  BOOST_STATIC_ASSERT((boost::is_same<typename R::orientation_category,
+    ublas::column_major_tag>::value)); 
+
   typedef T value_type;
-  typedef ublas::matrix<value_type, ublas::column_major> matrix_type;
+  typedef ublas::matrix<value_type, R, A> matrix_type;
   typedef ublas::vector<value_type> vector_type;
 
   int const m = bindings::traits::matrix_size1(a);

@@ -100,10 +100,11 @@ int main(int argc, char ** argv)
 
   const int n = opts.n;
   boost::numeric::ublas::vector<double> vec(n);
-  boost::numeric::ublas::matrix<double> mat(n, n);
+  boost::numeric::ublas::matrix<double,
+    boost::numeric::ublas::column_major> mat(n, n);
   for (int i = 0; i < n; ++i)
     for (int j = i; j < n; ++j)
-      mat(i, j) = rng();
+      mat(i, j) = mat(j, i) = rng();
   std::cout << "done\n";
 
   boost::posix_time::ptime t0 =

@@ -113,9 +113,9 @@ T sqr(const T& t) { return t * t; }
 // function flatten_matrix
 //
 
-template<typename T, typename U>
+template<typename T, typename U, typename R, typename A>
 void flatten_matrix(const boost::multi_array<T, 4>& m_in,
-                    boost::numeric::ublas::matrix<U>& m_out)
+                    boost::numeric::ublas::matrix<U, R, A>& m_out)
 {
 #ifndef NDEBUG
   assert(m_in.shape()[0] == m_in.shape()[2]);

@@ -58,11 +58,11 @@ double static_average(double beta, double offset,
   typedef MAT matrix_type;
   typename vector_type::const_reverse_iterator eval = evals.rbegin();
   typename vector_type::const_reverse_iterator eval_end = evals.rend();
-  typename matrix_type::const_reverse_iterator1 evec = evecs.rbegin1();
+  typename matrix_type::const_reverse_iterator2 evec = evecs.rbegin2();
   double val = 0.0;
   for (; eval != eval_end; ++eval, ++evec) {
     double weight = std::exp(- beta * (*eval - offset)); // Boltzman weight
-    typename matrix_type::const_iterator2 j = evec.begin();
+    typename matrix_type::const_iterator1 j = evec.begin();
     typename vector_type::const_iterator op = diagonal_matrix.begin();
     double v = 0.0;
     for (; j != evec.end(); ++j, ++op) v += looper::sqr(*j) * (*op);
@@ -79,12 +79,12 @@ std::pair<double, double> static_average2(double beta, double offset,
   typedef MAT matrix_type;
   typename vector_type::const_reverse_iterator eval = evals.rbegin();
   typename vector_type::const_reverse_iterator eval_end = evals.rend();
-  typename matrix_type::const_reverse_iterator1 evec = evecs.rbegin1();
+  typename matrix_type::const_reverse_iterator2 evec = evecs.rbegin2();
   double val = 0.0;
   double val2 = 0.0;
   for (; eval != eval_end; ++eval, ++evec) {
     double weight = std::exp(- beta * (*eval - offset)); // Boltzman weight
-    typename matrix_type::const_iterator2 j = evec.begin();
+    typename matrix_type::const_iterator1 j = evec.begin();
     typename vector_type::const_iterator op = diagonal_matrix.begin();
     double v = 0.0;
     double v2 = 0.0;
@@ -106,18 +106,18 @@ double dynamic_average2(double beta, double offset,
   typedef MAT matrix_type;
   typename vector_type::const_reverse_iterator eval0 = evals.rbegin();
   typename vector_type::const_reverse_iterator eval0_end = evals.rend();
-  typename matrix_type::const_reverse_iterator1 evec0 = evecs.rbegin1();
+  typename matrix_type::const_reverse_iterator2 evec0 = evecs.rbegin2();
   double val = 0.0;
   for (; eval0 != eval0_end; ++eval0, ++evec0) {
     double weight = std::exp(- beta * (*eval0 - offset)); // Boltzman weight
     typename vector_type::const_reverse_iterator eval1 = evals.rbegin();
-    typename matrix_type::const_reverse_iterator1 evec1 = evecs.rbegin1();
+    typename matrix_type::const_reverse_iterator2 evec1 = evecs.rbegin2();
     for (; evec1 != evec0; ++eval1, ++evec1) {
       // for evec0 != evec1
       double v = 0.;
-      typename matrix_type::const_iterator2 v0 = evec0.begin();
-      typename matrix_type::const_iterator2 v0_end = evec0.end();
-      typename matrix_type::const_iterator2 v1 = evec1.begin();
+      typename matrix_type::const_iterator1 v0 = evec0.begin();
+      typename matrix_type::const_iterator1 v0_end = evec0.end();
+      typename matrix_type::const_iterator1 v1 = evec1.begin();
       typename vector_type::const_iterator op = diagonal_matrix.begin();
       for (; v0 != v0_end; ++v0, ++v1, ++op) v += (*v0) * (*op) * (*v1);
       double wij;
@@ -131,9 +131,9 @@ double dynamic_average2(double beta, double offset,
     {
       // for evec0 = evec1
       double v = 0.;
-      typename matrix_type::const_iterator2 v0 = evec0.begin();
-      typename matrix_type::const_iterator2 v0_end = evec0.end();
-      typename matrix_type::const_iterator2 v1 = evec1.begin();
+      typename matrix_type::const_iterator1 v0 = evec0.begin();
+      typename matrix_type::const_iterator1 v0_end = evec0.end();
+      typename matrix_type::const_iterator1 v1 = evec1.begin();
       typename vector_type::const_iterator op = diagonal_matrix.begin();
       for (; v0 != v0_end; ++v0, ++v1, ++op) v += (*v0) * (*op) * (*v1);
       double wij = beta * weight;
@@ -151,7 +151,8 @@ try {
 #endif
 
   typedef boost::numeric::ublas::vector<double> vector_type;
-  typedef boost::numeric::ublas::matrix<double> matrix_type;
+  typedef boost::numeric::ublas::matrix<double,
+    boost::numeric::ublas::column_major> matrix_type;
   typedef boost::numeric::ublas::vector<double> diagonal_matrix_type;
 
   using looper::sqr;
