@@ -22,48 +22,46 @@
 *
 *****************************************************************************/
 
+#include <alps/expression.h>
+#include <alps/parameters.h>
 #include <boost/spirit/core.hpp>
-#include <boost/spirit/actor.hpp>
-#include <iostream>
+// #include <boost/spirit/actor.hpp>
+// #include <boost/spirit/utility/lists.hpp>
 #include <cstdlib>
+#include <iostream>
+#include <limits>
 
 template<class T>
-bool parse_vector(char const* str, T& v)
+bool parse_range(char const* str, std::pair<T, T>& r,
+		 const alps::Parameters& params = alps::Parameters(),
+		 T min_default = std::numeric_limits<T>::min(),
+		 T max_default = std::numeric_limits<T>::max())
 {
+  typedef T value_type;
   using namespace boost::spirit;
 
-  subrule<0> vec;
-  subrule<1> elem;
-
-  return parse(str,
-    (
-    vec  = '[' >> elem >> *(',' >> elem) >> ']',
-    elem = (+(anychar_p - ',' - ']'))[push_back_a(v)]
-    ),
+  std::string min_str, max_str;
+  bool success = parse(str,
+    '[' >> (*(anychar_p - ':' - ']'))[assign_a(min_str)] >> ':' >> 
+    (*(anychar_p - ':' - ']'))[assign_a(max_str)] >> ']',
     space_p).full;
-}
+  if (!success) return false;
 
-template<class T>
-bool parse_vectors(char const* str, T& c)
-{
-  using namespace boost::spirit;
+  if (min_str.empty()) {
+    r.first = min_default;
+  } else {
+    if (!alps::can_evaluate(min_str, params)) return false;
+    r.first = alps::evaluate<double>(min_str, params);
+  }
 
-  typename T::value_type v;
-  v.clear();
+  if (max_str.empty()) {
+    r.first = max_default;
+  } else {
+    if (!alps::can_evaluate(max_str, params)) return false;
+    r.first = alps::evaluate<double>(max_str, params);
+  }
 
-  subrule<0> cont;
-  subrule<1> vec;
-  subrule<2> elem;
-
-  return parse(str,
-    (
-    cont  = '[' >> vec >> *(',' >> vec) >> ']',
-    vec   = eps_p[clear_a(v)] >>
-            '[' >> elem >> *(',' >> elem) >> ']' >>
-            eps_p[push_back_a(c, v)],
-    elem  = (+(anychar_p - ',' - ']'))[push_back_a(v)]
-    ),
-    space_p).full;
+  return true;
 }
 
 int main()
@@ -73,15 +71,14 @@ try {
 #endif
 
   std::string str;
-
   while (std::getline(std::cin, str)) {
     if (str[0] == 'q') break;
 
-    std::vector<std::string> v;
-    if (parse_vector(str.c_str(), v)) {
+    std::pair<double, double> r;
+    if (parse_range(str.c_str(), r)) {
       std::cout << "parsing succeeded: " << str << std::endl;
-      for (int i = 0; i < v.size(); ++i)
-        std::cout << '\t' << i << ": " << v[i] << std::endl;
+      std::cout << "\tmin : " << r.first << std::endl
+		<< "\tmax : " << r.second << std::endl;
     } else {
       std::cout << "parsing failed: " << str << std::endl;
     }
@@ -90,12 +87,11 @@ try {
   while (std::getline(std::cin, str)) {
     if (str[0] == 'q') break;
 
-    std::vector<std::vector<std::string> > c;
-    if (parse_vectors(str.c_str(), c)) {
+    std::pair<unsigned int, unsigned int> r;
+    if (parse_range(str.c_str(), r)) {
       std::cout << "parsing succeeded: " << str << std::endl;
-      for (int i = 0; i < c.size(); ++i)
-        for (int j = 0; j < c[i].size(); ++j)
-          std::cout << '\t' << i << ' ' << j << ": " << c[i][j] << std::endl;
+      std::cout << "\tmin : " << r.first << std::endl
+		<< "\tmax : " << r.second << std::endl;
     } else {
       std::cout << "parsing failed: " << str << std::endl;
     }

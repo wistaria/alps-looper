@@ -12,6 +12,7 @@ check_PROGRAMS = \
 	index_helper \
 	llsp \
 	model_parameter \
+	parse_range \
 	parse_vector \
 	permutation \
 	postorder \
@@ -36,6 +37,7 @@ dist_noinst_DATA = \
 	index_helper.op \
 	llsp.ip llsp.op \
 	model_parameter.op \
+	parse_range.ip parse_range.op \
 	parse_vector.ip parse_vector.op \
 	permutation.op \
 	postorder.ip postorder.op \
