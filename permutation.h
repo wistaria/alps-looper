@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: permutation.h 399 2003-10-09 10:54:38Z wistaria $
+* $Id: permutation.h 400 2003-10-09 14:49:01Z wistaria $
 *
 * Copyright (C) 2001-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -37,7 +37,7 @@
 #ifndef LOOPER_PERMUTATION_H
 #define LOOPER_PERMUTATION_H
 
-// #include <looper/config.h>
+#include <boost/random/uniform_int.hpp>
 #include <iterator>
 #include <algorithm> // for std::iter_swap, std::random_shuffle
 

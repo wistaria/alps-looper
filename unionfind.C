@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: unionfind.C 399 2003-10-09 10:54:38Z wistaria $
+* $Id: unionfind.C 400 2003-10-09 14:49:01Z wistaria $
 *
 * Copyright (C) 2001-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -46,6 +46,11 @@ using namespace looper;
 
 const int n = 100;
 
+template<class Itr>
+int index(const Itr& itr, const Itr& base) {
+  return itr - base;
+}
+
 int main()
 {
   typedef std::vector<looper::unionfind::node<> > vector_type;
@@ -71,12 +76,14 @@ int main()
 
   for (vector_type::iterator itr = tree.begin(); itr != tree.end(); ++itr) {
     if (itr->is_root()) {
-      std::cout << "node " << /* index(tree, itr) << */ " is root and tree size is "
+      std::cout << "node " << index(itr, tree.begin())
+		<< " is root and tree size is "
 		<< itr->weight() << std::endl;
     } else {
-      //      std::cout << "node " << index(tree, itr);
-      //      std::cout << "'s parent is " << parent_index(tree, itr);
-      //      std::cout << " and its root is " << root_index(tree, itr) << std::endl;
+      std::cout << "node " << index(itr, tree.begin());
+      std::cout << "'s parent is " << index(itr->parent(), tree.begin());
+      std::cout << " and its root is " << index(itr->root(), tree.begin())
+		<< std::endl;
     }
   }
 }

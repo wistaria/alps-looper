@@ -53,7 +53,7 @@ PROGRAM_MPI =
 PROGRAM = @PROGRAM_MPI@
 
 LOCAL_CONFIG = lattices.xml models.xml amida.xdr
-TESTOK = amida.ok permutation.ok simplegraph.ok xxz_matrix.ok xxz_model.ok virtualgraph.ok
+TESTOK = amida.ok permutation.ok simplegraph.ok unionfind.ok xxz_matrix.ok xxz_model.ok virtualgraph.ok
 
 include $(RULES_MK)
 include $(srcdir)/Makefile.dep

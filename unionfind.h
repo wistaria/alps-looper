@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: unionfind.h 399 2003-10-09 10:54:38Z wistaria $
+* $Id: unionfind.h 400 2003-10-09 14:49:01Z wistaria $
 *
 * Copyright (C) 2001-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -42,6 +42,7 @@
 #ifndef LOOPER_UNIONFIND_H
 #define LOOPER_UNIONFIND_H
 
+#include <boost/throw_exception.hpp>
 #include <iterator>
 #include <vector>
 
@@ -77,60 +78,61 @@ public:
   typedef  BASE base_type;
   typedef W    weight_type;
 
-  node() : base_type(), _parent(0), _weight(1) {}
-  node(const node& n) : base_type(n), _parent(n.is_root() ? 0 : n._parent),
-			_weight(n._weight) {}
+  node() : base_type(), parent_(0), weight_(1) {}
+  node(const node& n) : base_type(n), parent_(n.is_root() ? 0 : n.parent_),
+			weight_(n.weight_) {}
  
-  bool is_root() const { return _parent == 0; }
+  bool is_root() const { return parent_ == 0; }
   node* root() {
     if (is_root()) {
       return this;
     } else {
-      _parent = _parent->root();
-      return _parent;
+      parent_ = parent_->root();
+      return parent_;
     }
   }
   const node* root() const {
     if (is_root()) {
       return this;
     } else {
-      _parent = _parent->root();
-      return _parent;
+      parent_ = parent_->root();
+      return parent_;
     }
   }
 
-  void set_parent(node* p) { _parent = p; }
-  node* parent() { return _parent; }
-  const node* parent() const { return _parent; }
+  void set_parent(node* p) { parent_ = p; }
+  node* parent() { return parent_; }
+  const node* parent() const { return parent_; }
  
   weight_type weight() const {
 #ifndef NDEBUG
     if (!is_root())
       boost::throw_exception(std::logic_error("unionfind::node::weight() : not a root node"));
 #endif
-    return _weight;
+    return weight_;
   }
   
-  node& operator+=(const node& c) {
+  node& operator+=(node& c) {
     base_type::operator+=(c);
-    _weight += c->weight();
+    weight_ += c.weight();
     c.set_parent(this);
+    return *this;
   }
   
   void reset() {
     base_type::reset();
-    _parent = 0;
-    _weight = weight_type(1);
+    parent_ = 0;
+    weight_ = weight_type(1);
   }
   
 private:
   // root node     : 0
   // non-root node : points my parent node
-  mutable node* _parent;
+  mutable node* parent_;
  
   // root node     : weight of cluster (number of nodes in the cluster)
   // non-root node : meaningless
-  weight_type _weight;
+  weight_type weight_;
 };
 
 
@@ -152,9 +154,9 @@ inline bool unify(node<T>& node0, node<T>& node1)
   } else {
     // both node belong to different trees
     if (root0->weight() >= root1->weight()) {
-      root0 += root1;
+      *root0 += *root1;
     } else {
-      root1 += root0;
+      *root1 += *root0;
     }
     return true;
   }
