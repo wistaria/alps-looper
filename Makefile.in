@@ -16,7 +16,7 @@
 
 
 
-SOURCES = $(qmc_SOURCES) $(qmc_cmd_SOURCES) $(qmc_mpi_SOURCES) $(qmc_pvm_SOURCES)
+SOURCES = $(evaluate_SOURCES) $(qmc_SOURCES) $(qmc_cmd_SOURCES) $(qmc_mpi_SOURCES) $(qmc_pvm_SOURCES)
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -38,8 +38,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = qmc$(EXEEXT) qmc_cmd$(EXEEXT) $(am__EXEEXT_1) \
-	$(am__EXEEXT_2)
+bin_PROGRAMS = qmc$(EXEEXT) evaluate$(EXEEXT) qmc_cmd$(EXEEXT) \
+	$(am__EXEEXT_1) $(am__EXEEXT_2)
 @HAVE_MPI_TRUE@am__append_1 = qmc_mpi
 @HAVE_PVM_TRUE@am__append_2 = qmc_pvm
 subdir = .
@@ -63,9 +63,12 @@ CONFIG_CLEAN_FILES =
 am__installdirs = $(DESTDIR)$(bindir) $(DESTDIR)$(pkgincludedir) $(DESTDIR)$(pkgincludedir)
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
+am_evaluate_OBJECTS = evaluate-evaluate.$(OBJEXT)
+evaluate_OBJECTS = $(am_evaluate_OBJECTS)
+am__DEPENDENCIES_1 =
+evaluate_DEPENDENCIES = $(am__DEPENDENCIES_1)
 am_qmc_OBJECTS = qmc-qmc.$(OBJEXT)
 qmc_OBJECTS = $(am_qmc_OBJECTS)
-am__DEPENDENCIES_1 =
 qmc_DEPENDENCIES = $(am__DEPENDENCIES_1)
 am_qmc_cmd_OBJECTS = qmc_cmd-qmc_cmd.$(OBJEXT)
 qmc_cmd_OBJECTS = $(am_qmc_cmd_OBJECTS)
@@ -79,7 +82,8 @@ qmc_pvm_DEPENDENCIES = $(am__DEPENDENCIES_1)
 SCRIPTS = $(dist_noinst_SCRIPTS)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/qmc-qmc.Po \
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/evaluate-evaluate.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/qmc-qmc.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/qmc_cmd-qmc_cmd.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/qmc_mpi-qmc.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/qmc_pvm-qmc.Po
@@ -92,10 +96,10 @@ COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(qmc_SOURCES) $(qmc_cmd_SOURCES) $(qmc_mpi_SOURCES) \
-	$(qmc_pvm_SOURCES)
-DIST_SOURCES = $(qmc_SOURCES) $(qmc_cmd_SOURCES) $(qmc_mpi_SOURCES) \
-	$(qmc_pvm_SOURCES)
+SOURCES = $(evaluate_SOURCES) $(qmc_SOURCES) $(qmc_cmd_SOURCES) \
+	$(qmc_mpi_SOURCES) $(qmc_pvm_SOURCES)
+DIST_SOURCES = $(evaluate_SOURCES) $(qmc_SOURCES) $(qmc_cmd_SOURCES) \
+	$(qmc_mpi_SOURCES) $(qmc_pvm_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-exec-recursive install-info-recursive \
@@ -213,6 +217,10 @@ qmc_SOURCES = qmc.C qmc_impl.h
 qmc_CPPFLAGS = $(CPPFLAGS_SGL)
 qmc_LDFLAGS = $(LDFLAGS_SGL)
 qmc_LDADD = $(LIBS_SGL)
+evaluate_SOURCES = evaluate.C qmc_impl.h
+evaluate_CPPFLAGS = $(CPPFLAGS_SGL)
+evaluate_LDFLAGS = $(LDFLAGS_SGL)
+evaluate_LDADD = $(LIBS_SGL)
 qmc_mpi_SOURCES = qmc.C qmc_impl.h
 qmc_mpi_CPPFLAGS = $(CPPFLAGS_MPI)
 qmc_mpi_LDFLAGS = $(LDFLAGS_MPI)
@@ -302,6 +310,9 @@ uninstall-binPROGRAMS:
 
 clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
+evaluate$(EXEEXT): $(evaluate_OBJECTS) $(evaluate_DEPENDENCIES) 
+	@rm -f evaluate$(EXEEXT)
+	$(CXXLINK) $(evaluate_LDFLAGS) $(evaluate_OBJECTS) $(evaluate_LDADD) $(LIBS)
 qmc$(EXEEXT): $(qmc_OBJECTS) $(qmc_DEPENDENCIES) 
 	@rm -f qmc$(EXEEXT)
 	$(CXXLINK) $(qmc_LDFLAGS) $(qmc_OBJECTS) $(qmc_LDADD) $(LIBS)
@@ -321,6 +332,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/evaluate-evaluate.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qmc-qmc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qmc_cmd-qmc_cmd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qmc_mpi-qmc.Po@am__quote@
@@ -341,6 +353,22 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+evaluate-evaluate.o: evaluate.C
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(evaluate_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT evaluate-evaluate.o -MD -MP -MF "$(DEPDIR)/evaluate-evaluate.Tpo" -c -o evaluate-evaluate.o `test -f 'evaluate.C' || echo '$(srcdir)/'`evaluate.C; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/evaluate-evaluate.Tpo" "$(DEPDIR)/evaluate-evaluate.Po"; else rm -f "$(DEPDIR)/evaluate-evaluate.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='evaluate.C' object='evaluate-evaluate.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/evaluate-evaluate.Po' tmpdepfile='$(DEPDIR)/evaluate-evaluate.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(evaluate_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o evaluate-evaluate.o `test -f 'evaluate.C' || echo '$(srcdir)/'`evaluate.C
+
+evaluate-evaluate.obj: evaluate.C
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(evaluate_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT evaluate-evaluate.obj -MD -MP -MF "$(DEPDIR)/evaluate-evaluate.Tpo" -c -o evaluate-evaluate.obj `if test -f 'evaluate.C'; then $(CYGPATH_W) 'evaluate.C'; else $(CYGPATH_W) '$(srcdir)/evaluate.C'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/evaluate-evaluate.Tpo" "$(DEPDIR)/evaluate-evaluate.Po"; else rm -f "$(DEPDIR)/evaluate-evaluate.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='evaluate.C' object='evaluate-evaluate.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/evaluate-evaluate.Po' tmpdepfile='$(DEPDIR)/evaluate-evaluate.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(evaluate_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o evaluate-evaluate.obj `if test -f 'evaluate.C'; then $(CYGPATH_W) 'evaluate.C'; else $(CYGPATH_W) '$(srcdir)/evaluate.C'; fi`
 
 qmc-qmc.o: qmc.C
 @am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(qmc_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT qmc-qmc.o -MD -MP -MF "$(DEPDIR)/qmc-qmc.Tpo" -c -o qmc-qmc.o `test -f 'qmc.C' || echo '$(srcdir)/'`qmc.C; \

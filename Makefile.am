@@ -12,7 +12,7 @@ CPPFLAGS_PVM = @CPPFLAGS_PVM@ @LAPACK_CPPFLAGS@
 LDFLAGS_PVM = -L$(top_builddir) @LDFLAGS_PVM@ @LAPACK_LDFLAGS@
 LIBS_PVM = @LAPACK_LIBS@ @LIBS_PVM@
 
-bin_PROGRAMS = qmc qmc_cmd
+bin_PROGRAMS = qmc evaluate qmc_cmd
 if HAVE_MPI
 bin_PROGRAMS += qmc_mpi
 endif
@@ -29,6 +29,11 @@ qmc_SOURCES = qmc.C qmc_impl.h
 qmc_CPPFLAGS = $(CPPFLAGS_SGL)
 qmc_LDFLAGS = $(LDFLAGS_SGL)
 qmc_LDADD = $(LIBS_SGL)
+
+evaluate_SOURCES = evaluate.C qmc_impl.h
+evaluate_CPPFLAGS = $(CPPFLAGS_SGL)
+evaluate_LDFLAGS = $(LDFLAGS_SGL)
+evaluate_LDADD = $(LIBS_SGL)
 
 qmc_mpi_SOURCES = qmc.C qmc_impl.h
 qmc_mpi_CPPFLAGS = $(CPPFLAGS_MPI)

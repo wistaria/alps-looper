@@ -224,7 +224,7 @@ try {
         if (mcs == opts.step_t) measurements.reset(true);
         worker.step(rng, measurements);
       }
-      worker.accumulate(measurements, measurements);
+      accumulate(measurements, measurements);
 
       std::cout << measurements << std::endl;
       opts.output(); std::cout << ' ';
@@ -239,7 +239,7 @@ try {
         if (mcs == opts.step_t) measurements.reset(true);
         worker.step(rng, measurements);
       }
-      worker.accumulate(measurements, measurements);
+      accumulate(measurements, measurements);
 
       std::cout << measurements << std::endl;
       opts.output(); std::cout << ' ';
@@ -253,7 +253,7 @@ try {
       worker(g, model, beta, measurements);
     measurements.reset(true);
     worker.step(rng, measurements);
-    worker.accumulate(measurements, measurements);
+    accumulate(measurements, measurements);
 
     std::cout << measurements << std::endl;
     opts.output(); std::cout << ' ';

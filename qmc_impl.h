@@ -134,21 +134,6 @@ public:
       looper::staggered_susceptibility(config_, param_);
   }
 
-  template<class T>
-  void accumulate(const alps::ObservableSet& m_in, T& m_out)
-  {
-    evaluator_type obse_e =
-      m_in.template get<measurement_type>("Energy for SH");
-    evaluator_type obse_e2 =
-      m_in.template get<measurement_type>("Energy^2 for SH");
-    evaluator_type eval = (obse_e2 - obse_e * obse_e);
-    eval.rename("Specific Heat");
-    m_out << eval;
-  }
-
-  static void accumulate(alps::scheduler::MCSimulation& sim)
-  { accumulate(sim.get_measurements(), sim); }
-
   static void output_results(std::ostream& os, alps::ObservableSet& m)
   {
     os << m.template get<measurement_type>("Energy").mean() << ' '
@@ -249,21 +234,6 @@ public:
     done_ = true;
   }
 
-  template<class T>
-  void accumulate(const alps::ObservableSet& m_in, T& m_out)
-  {
-    evaluator_type obse_e =
-      m_in.template get<measurement_type>("Energy for SH");
-    evaluator_type obse_e2 =
-      m_in.template get<measurement_type>("Energy^2 for SH");
-    evaluator_type eval = (obse_e2 - obse_e * obse_e);
-    eval.rename("Specific Heat");
-    m_out << eval;
-  }
-
-  static void accumulate(alps::scheduler::MCSimulation& sim)
-  { accumulate(sim.get_measurements(), sim); }
-
   static void output_results(std::ostream& os, alps::ObservableSet& m)
   {
     os << m.template get<measurement_type>("Energy").mean() << ' '
@@ -292,6 +262,25 @@ private:
 };
 
 #endif // HAVE_LAPACK
+
+
+template<class T>
+inline void accumulate(const alps::ObservableSet& m_in, T& m_out)
+{
+  typedef alps::RealObservable     measurement_type;
+  typedef alps::RealObsevaluator   evaluator_type;
+  evaluator_type obse_e =
+    m_in.template get<measurement_type>("Energy for SH");
+  evaluator_type obse_e2 =
+    m_in.template get<measurement_type>("Energy^2 for SH");
+  evaluator_type eval = (obse_e2 - obse_e * obse_e);
+  eval.rename("Specific Heat");
+  m_out << eval;
+}
+
+inline void accumulate(alps::scheduler::MCSimulation& sim)
+{ accumulate(sim.get_measurements(), sim); }
+
 
 template<class QMC_WORKER>
 class worker : public alps::scheduler::LatticeModelMCRun<>
