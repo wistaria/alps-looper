@@ -8,8 +8,8 @@ dnl disable saving cache
 define([AC_CACHE_SAVE], )dnl
 
 AC_PREREQ(2.59)
-AC_INIT([looper], 3.0b4)              dnl check here for release!
-looper_date="2003/11/20"              dnl check here for release!
+AC_INIT([looper], 3.0b5)              dnl check here for release!
+looper_date="2004/04/07"              dnl check here for release!
 AM_INIT_AUTOMAKE
 
 AC_PREFIX_DEFAULT([$HOME/ALPS])
