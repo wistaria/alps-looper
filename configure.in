@@ -8,7 +8,7 @@ dnl disable saving cache
 define([AC_CACHE_SAVE], )dnl
 
 AC_PREREQ(2.54)
-AC_INIT([alps-loop], [1.0])
+AC_INIT([alpsaps-loop], [1.0.0b])
 AC_PREFIX_DEFAULT([$HOME/ALPS])
 
 dnl
