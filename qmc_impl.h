@@ -34,10 +34,6 @@
 #include <looper/sse.h>
 #include <looper/measurement.h>
 
-#ifdef HAVE_LAPACK
-# include <looper/exact_diag.h>
-#endif
-
 #include <alps/alea.h>
 #include <alps/scheduler.h>
 
@@ -50,8 +46,6 @@ public:
   typedef QMC                      qmc;
   typedef typename qmc::graph_type graph_type;
   typedef typename qmc::model_type model_type;
-  typedef alps::RealObservable     measurement_type;
-  typedef alps::RealObsevaluator   evaluator_type;
 
   template<class G, class MDL>
   qmc_worker(const G& rg, const MDL& model, double beta,
@@ -63,17 +57,17 @@ public:
     qmc::initialize(config_, param_);
 
     // measurements
-    m << measurement_type("Energy");
-    m << measurement_type("Energy Density");
-    m << measurement_type("Energy Density^2");
-    m << measurement_type("Energy for SH");
-    m << measurement_type("Energy^2 for SH");
-    m << measurement_type("Magnetization^2");
-    m << measurement_type("Susceptibility");
-    m << measurement_type("Staggered Magnetization^2");
-    m << measurement_type("Staggered Susceptibility");
-    m << measurement_type("Generalized Magnetization^2");
-    m << measurement_type("Generalized Susceptibility");
+    m << alps::RealObservable("Energy");
+    m << alps::RealObservable("Energy Density");
+    m << alps::RealObservable("Energy Density^2");
+    m << alps::RealObservable("Energy for SH");
+    m << alps::RealObservable("Energy^2 for SH");
+    m << alps::RealObservable("Magnetization^2");
+    m << alps::RealObservable("Susceptibility");
+    m << alps::RealObservable("Staggered Magnetization^2");
+    m << alps::RealObservable("Staggered Susceptibility");
+    m << alps::RealObservable("Generalized Magnetization^2");
+    m << alps::RealObservable("Generalized Susceptibility");
   }
 
   template<class RNG>
@@ -89,17 +83,17 @@ public:
     // measure improved quantities below
     //
 
-    m.template get<measurement_type>("Magnetization^2") <<
+    m.template get<alps::RealObservable>("Magnetization^2") <<
       looper::uniform_sz2_imp(config_, param_);
 
-    m.template get<measurement_type>("Staggered Magnetization^2") <<
+    m.template get<alps::RealObservable>("Staggered Magnetization^2") <<
       looper::staggered_sz2_imp(config_, param_);
 
     double gm2, gs;
     boost::tie(gm2, gs) =
       looper::generalized_susceptibility_imp(config_, param_);
-    m.template get<measurement_type>("Generalized Magnetization^2") << gm2;
-    m.template get<measurement_type>("Generalized Susceptibility") << gs;
+    m.template get<alps::RealObservable>("Generalized Magnetization^2") << gm2;
+    m.template get<alps::RealObservable>("Generalized Susceptibility") << gs;
 
     //
     // flip clusters
@@ -114,46 +108,46 @@ public:
     double ez, exy, e2;
     boost::tie(ez, exy, e2) = looper::energy(config_, param_);
     ez += e_offset_;
-    m.template get<measurement_type>("Energy") <<
+    m.template get<alps::RealObservable>("Energy") <<
       param_.virtual_graph.num_real_vertices * (ez + exy);
-    m.template get<measurement_type>("Energy Density") << ez + exy;
-    m.template get<measurement_type>("Energy Density^2") << e2;
+    m.template get<alps::RealObservable>("Energy Density") << ez + exy;
+    m.template get<alps::RealObservable>("Energy Density^2") << e2;
 
-    m.template get<measurement_type>("Energy for SH") <<
+    m.template get<alps::RealObservable>("Energy for SH") <<
       std::sqrt((double)param_.virtual_graph.num_real_vertices) *
       param_.beta * (ez + exy);
-    m.template get<measurement_type>("Energy^2 for SH") <<
+    m.template get<alps::RealObservable>("Energy^2 for SH") <<
       (double)param_.virtual_graph.num_real_vertices *
       looper::sqr(param_.beta) * e2;
 
     double m2 = param_.virtual_graph.num_real_vertices *
       looper::sqr(looper::uniform_sz(config_, param_));
-    m.template get<measurement_type>("Susceptibility") << param_.beta * m2;
+    m.template get<alps::RealObservable>("Susceptibility") << param_.beta * m2;
 
-    m.template get<measurement_type>("Staggered Susceptibility") <<
+    m.template get<alps::RealObservable>("Staggered Susceptibility") <<
       looper::staggered_susceptibility(config_, param_);
   }
 
   static void output_results(std::ostream& os, alps::ObservableSet& m)
   {
-    os << m.template get<measurement_type>("Energy").mean() << ' '
-       << m.template get<measurement_type>("Energy").error() << ' '
-       << m.template get<measurement_type>("Energy Density").mean() << ' '
-       << m.template get<measurement_type>("Energy Density").error() << ' '
-       << m.template get<evaluator_type>("Specific Heat").mean() << ' '
-       << m.template get<evaluator_type>("Specific Heat").error() << ' '
-       << m.template get<measurement_type>("Magnetization^2").mean() << ' '
-       << m.template get<measurement_type>("Magnetization^2").error() << ' '
-       << m.template get<measurement_type>("Susceptibility").mean() << ' '
-       << m.template get<measurement_type>("Susceptibility").error() << ' '
-       << m.template get<measurement_type>("Staggered Magnetization^2").mean() << ' '
-       << m.template get<measurement_type>("Staggered Magnetization^2").error() << ' '
-       << m.template get<measurement_type>("Staggered Susceptibility").mean() << ' '
-       << m.template get<measurement_type>("Staggered Susceptibility").error() << ' '
-       << m.template get<measurement_type>("Generalized Magnetization^2").mean() << ' '
-       << m.template get<measurement_type>("Generalized Magnetization^2").error() << ' '
-       << m.template get<measurement_type>("Generalized Susceptibility").mean() << ' '
-       << m.template get<measurement_type>("Generalized Susceptibility").error() << ' ';
+    os << m.template get<alps::RealObservable>("Energy").mean() << ' '
+       << m.template get<alps::RealObservable>("Energy").error() << ' '
+       << m.template get<alps::RealObservable>("Energy Density").mean() << ' '
+       << m.template get<alps::RealObservable>("Energy Density").error() << ' '
+       << m.template get<alps::RealObsevaluator>("Specific Heat").mean() << ' '
+       << m.template get<alps::RealObsevaluator>("Specific Heat").error() << ' '
+       << m.template get<alps::RealObservable>("Magnetization^2").mean() << ' '
+       << m.template get<alps::RealObservable>("Magnetization^2").error() << ' '
+       << m.template get<alps::RealObservable>("Susceptibility").mean() << ' '
+       << m.template get<alps::RealObservable>("Susceptibility").error() << ' '
+       << m.template get<alps::RealObservable>("Staggered Magnetization^2").mean() << ' '
+       << m.template get<alps::RealObservable>("Staggered Magnetization^2").error() << ' '
+       << m.template get<alps::RealObservable>("Staggered Susceptibility").mean() << ' '
+       << m.template get<alps::RealObservable>("Staggered Susceptibility").error() << ' '
+       << m.template get<alps::RealObservable>("Generalized Magnetization^2").mean() << ' '
+       << m.template get<alps::RealObservable>("Generalized Magnetization^2").error() << ' '
+       << m.template get<alps::RealObservable>("Generalized Susceptibility").mean() << ' '
+       << m.template get<alps::RealObservable>("Generalized Susceptibility").error() << ' ';
   }
 
   void save(alps::ODump& od) const { config_.save(od); }
@@ -165,122 +159,20 @@ private:
   double                       e_offset_;
 };
 
-#ifdef HAVE_LAPACK
-
-template<class ED>
-class ed_worker
-{
-public:
-  BOOST_STATIC_CONSTANT(bool, is_qmc = false);
-
-  typedef ED                      ed;
-  typedef typename ed::graph_type graph_type;
-  typedef typename ed::model_type model_type;
-  typedef alps::BasicSimpleObservable<double, alps::NoBinning<double> >
-    measurement_type;
-  typedef alps::RealObsevaluator   evaluator_type;
-
-  template<class G, class MDL>
-  ed_worker(const G& rg, const MDL& model, double beta,
-            alps::ObservableSet& m) :
-    param_(rg, model, beta), config_(), done_(false)
-  {
-    // measurements
-    m << measurement_type("Energy");
-    m << measurement_type("Energy Density");
-    m << measurement_type("Energy Density^2");
-    m << measurement_type("Energy for SH");
-    m << measurement_type("Energy^2 for SH");
-    m << measurement_type("Magnetization^2");
-    m << measurement_type("Susceptibility");
-    m << measurement_type("Staggered Magnetization^2");
-    m << measurement_type("Staggered Susceptibility");
-  }
-
-  template<class RNG>
-  void step(RNG& /* rng */, alps::ObservableSet& m)
-  {
-    if (done_) return;
-
-    // generate Hamiltonian matrix
-    ed::generate_matrix(param_, config_);
-
-    // diagonalize matrix
-    ed::diagonalize(param_, config_);
-
-    // measure quantities
-    double e, e2, c;
-    boost::tie(e, e2, c) = ed::energy(param_, config_);
-    double umag2, usus, smag2, ssus;
-    boost::tie(umag2, usus, smag2, ssus) = ed::magnetization(param_, config_);
-
-    m.template get<measurement_type>("Energy") <<
-      (double)boost::num_vertices(param_.graph) * e;
-    m.template get<measurement_type>("Energy Density") << e;
-    m.template get<measurement_type>("Energy Density^2") << e2;
-
-    m.template get<measurement_type>("Energy for SH") <<
-      std::sqrt((double)boost::num_vertices(param_.graph)) *
-      param_.beta * e;
-    m.template get<measurement_type>("Energy^2 for SH") <<
-      (double)boost::num_vertices(param_.graph) *
-      looper::sqr(param_.beta) * e2;
-
-    m.template get<measurement_type>("Magnetization^2") << umag2;
-    m.template get<measurement_type>("Susceptibility") << usus;
-    m.template get<measurement_type>("Staggered Magnetization^2") << smag2;
-    m.template get<measurement_type>("Staggered Susceptibility") << ssus;
-
-    done_ = true;
-  }
-
-  static void output_results(std::ostream& os, alps::ObservableSet& m)
-  {
-    os << m.template get<measurement_type>("Energy").mean() << ' '
-       << m.template get<measurement_type>("Energy").error() << ' '
-       << m.template get<measurement_type>("Energy Density").mean() << ' '
-       << m.template get<measurement_type>("Energy Density").error() << ' '
-       << m.template get<evaluator_type>("Specific Heat").mean() << ' '
-       << m.template get<evaluator_type>("Specific Heat").error() << ' '
-       << m.template get<measurement_type>("Magnetization^2").mean() << ' '
-       << m.template get<measurement_type>("Magnetization^2").error() << ' '
-       << m.template get<measurement_type>("Susceptibility").mean() << ' '
-       << m.template get<measurement_type>("Susceptibility").error() << ' '
-       << m.template get<measurement_type>("Staggered Magnetization^2").mean() << ' '
-       << m.template get<measurement_type>("Staggered Magnetization^2").error() << ' '
-       << m.template get<measurement_type>("Staggered Susceptibility").mean() << ' '
-       << m.template get<measurement_type>("Staggered Susceptibility").error() << ' ';
-  }
-
-  void save(alps::ODump& /* od */) const {}
-  void load(alps::IDump& /* id */) {}
-
-private:
-  typename ed::parameter_type param_;
-  typename ed::config_type    config_;
-  bool                        done_;
-};
-
-#endif // HAVE_LAPACK
-
-
 template<class T>
 inline void accumulate(const alps::ObservableSet& m_in, T& m_out)
 {
-  typedef alps::RealObservable     measurement_type;
-  typedef alps::RealObsevaluator   evaluator_type;
-  evaluator_type obse_e =
-    m_in.template get<measurement_type>("Energy for SH");
-  evaluator_type obse_e2 =
-    m_in.template get<measurement_type>("Energy^2 for SH");
-  evaluator_type eval = (obse_e2 - obse_e * obse_e);
-  eval.rename("Specific Heat");
+  alps::RealObsevaluator obse_e = m_in["Energy for SH"];
+  alps::RealObsevaluator obse_e2 = m_in["Energy^2 for SH"];
+  alps::RealObsevaluator eval("Specific Heat");
+  eval = (obse_e2 - obse_e * obse_e);
+  // alps::RealObsevaluator eval = (obse_e2 - obse_e * obse_e);
+  // eval.rename("Specific Heat");
   m_out << eval;
 }
 
 inline void accumulate(alps::scheduler::MCSimulation& sim)
 { accumulate(sim.get_measurements(), sim); }
-
 
 template<class QMC_WORKER>
 class worker : public alps::scheduler::LatticeModelMCRun<>
@@ -349,12 +241,6 @@ class factory : public alps::scheduler::Factory
       return new worker<qmc_worker<looper::sse<
                           looper::virtual_graph<looper::parity_graph_type>,
                           looper::xxz_model<> > > >(w, p, n);
-#ifdef HAVE_LAPACK
-    } else if (p["REPRESENTATION"] == "exact diagonalization") {
-      return new worker<ed_worker<looper::exact_diagonalization<
-                          looper::parity_graph_type,
-                          looper::xxz_model<> > > >(w, p, n);
-#endif // HAVE_LAPACK
     } else {
       boost::throw_exception(std::invalid_argument("unknwon representation"));
     }

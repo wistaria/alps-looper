@@ -23,7 +23,6 @@
 *****************************************************************************/
 
 #include "qmc_impl.h"
-#include <looper/exact_diag.h>
 
 #include <alps/alea.h>
 #include <boost/random.hpp>
@@ -63,9 +62,6 @@ struct options {
        << "  -m int     MCS for thermalization\n"
        << "  -n int     MCS for measurement\n"
        << "  -e         use SSE representation instead of path-integral one\n"
-#ifdef HAVE_LAPACK
-       << "  -g         use exact diagonalization instead of QMC\n"
-#endif // HAVE_LAPACK
        << "  -h         this help\n\n";
     if (status) {
       boost::throw_exception(std::invalid_argument("Invalid command line option(s)"));
@@ -118,11 +114,6 @@ struct options {
         case 'e' :
           representation = "SSE";
           break;
-#ifdef HAVE_LAPACK
-        case 'g' :
-          representation = "exact diagonalization";
-          break;
-#endif // HAVE_LAPACK
         case 'h' :
           usage(0);
           break;
@@ -154,10 +145,6 @@ struct options {
       os << "PI";
     } else if (representation == "SSE") {
       os << "SSE";
-#ifdef HAVE_LAPACK
-    } else {
-      os << "ED";
-#endif // HAVE_LAPACK
     }
   }
 };
@@ -186,11 +173,7 @@ try {
             << "t:   temperature            : " << opts.temp << std::endl
             << "m:   MCS for thermalization : " << opts.step_t << std::endl
             << "n:   MCS for measurement    : " << opts.step_m << std::endl
-#ifdef HAVE_LAPACK
-            << "e,g: representation         : " << opts.representation
-#else
             << "e:   representation         : " << opts.representation
-#endif // HAVE_LAPACK
             << std::endl << std::endl;
 
   // random number generator
@@ -246,20 +229,6 @@ try {
       worker.output_results(std::cout, measurements);
       std::cout << std::endl;
     }
-#ifdef HAVE_LAPACK
-  } else {
-    // exact diagonalization
-    ed_worker<looper::exact_diagonalization<graph_type, model_type> >
-      worker(g, model, beta, measurements);
-    measurements.reset(true);
-    worker.step(rng, measurements);
-    accumulate(measurements, measurements);
-
-    std::cout << measurements << std::endl;
-    opts.output(); std::cout << ' ';
-    worker.output_results(std::cout, measurements);
-    std::cout << std::endl;
-#endif // HAVE_LAPACK
   }
 
 #ifndef BOOST_NO_EXCEPTIONS
