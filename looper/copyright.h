@@ -31,6 +31,7 @@
 
 namespace looper {
 
+inline
 std::ostream& print_copyright(std::ostream& os = std::cout)
 {
   os << "ALPS/looper version " LOOPER_VERSION " (" LOOPER_DATE ")\n"
@@ -41,6 +42,7 @@ std::ostream& print_copyright(std::ostream& os = std::cout)
   return os;
 }
 
+inline
 std::ostream& print_license(std::ostream& os = std::cout)
 {
   os << "Please look at the file LICENSE for the license conditions.\n";

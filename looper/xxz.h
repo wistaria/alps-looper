@@ -460,6 +460,7 @@ private:
 namespace looper {
 #endif
 
+inline
 std::ostream& operator<<(std::ostream& os, const looper::xxz_parameter& p)
 {
   os << "C = " << p.c() << ", Jxy = " << p.jxy() << ", Jz = " << p.jz();
@@ -467,8 +468,7 @@ std::ostream& operator<<(std::ostream& os, const looper::xxz_parameter& p)
 }
 
 template <class T>
-inline std::ostream& operator<<(std::ostream& os,
-                                const looper::xxz_matrix<T>& m)
+std::ostream& operator<<(std::ostream& os, const looper::xxz_matrix<T>& m)
 {
   boost::numeric::ublas::matrix<T> mat;
   flatten_matrix(m.matrix(), mat);
