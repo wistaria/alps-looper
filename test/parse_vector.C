@@ -29,25 +29,41 @@
 #include <cstdlib>
 
 template<class T>
-bool parse_vector(char const* str, T& vec)
+bool parse_vector(char const* str, T& v)
 {
   using namespace boost::spirit;
+
+  subrule<0> vec;
+  subrule<1> elem;
+
   return parse(str,
-    '[' >> list_p((+anychar_p)[push_back_a(vec)], ',', ']') >> ']',
+    (
+    vec  = '[' >> elem >> *(',' >> elem) >> ']',
+    elem = (+(anychar_p - ',' - ']'))[push_back_a(v)]
+    ),
     space_p).full;
 }
 
 template<class T>
-bool parse_vectors(char const* str, T& cont)
+bool parse_vectors(char const* str, T& c)
 {
   using namespace boost::spirit;
 
-  typename T::value_type vec;
-  vec.clear();
+  typename T::value_type v;
+  v.clear();
+
+  subrule<0> cont;
+  subrule<1> vec;
+  subrule<2> elem;
+
   return parse(str,
-    '[' >>
-    list_p(('[' >> list_p((+anychar_p)[push_back_a(vec)], ',', ']') >> ']')
-           [push_back_a(cont, vec)][clear_a(vec)], ',') >> ']',
+    (
+    cont  = '[' >> vec >> *(',' >> vec) >> ']',
+    vec   = eps_p[clear_a(v)] >>
+            '[' >> elem >> *(',' >> elem) >> ']' >>
+            eps_p[push_back_a(c, v)],
+    elem  = (+(anychar_p - ',' - ']'))[push_back_a(v)]
+    ),
     space_p).full;
 }
 
