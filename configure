@@ -272,7 +272,7 @@ PACKAGE_STRING='looper 3.0b5'
 PACKAGE_BUGREPORT=''
 
 ac_default_prefix=$HOME/ALPS
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE LAPACK_CPPFLAGS LAPACK_LDFLAGS LAPACK_LIBS HAVE_LAPACK_TRUE HAVE_LAPACK_FALSE HAVE_MPI_TRUE HAVE_MPI_FALSE HAVE_PVM_TRUE HAVE_PVM_FALSE DEFAULT_INCLUDES CPPFLAGS_SGL LDFLAGS_SGL LIBS_SGL CPPFLAGS_MPI LDFLAGS_MPI LIBS_MPI CPPFLAGS_PVM LDFLAGS_PVM LIBS_PVM LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE LAPACK_LDFLAGS LAPACK_LIBS HAVE_LAPACK_TRUE HAVE_LAPACK_FALSE HAVE_MPI_TRUE HAVE_MPI_FALSE HAVE_PVM_TRUE HAVE_PVM_FALSE DEFAULT_INCLUDES CPPFLAGS_SGL LDFLAGS_SGL LIBS_SGL CPPFLAGS_MPI LDFLAGS_MPI LIBS_MPI CPPFLAGS_PVM LDFLAGS_PVM LIBS_PVM LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -812,9 +812,16 @@ Optional Features:
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-lapack=DIR       use LAPACK Library
+  --with-atlas=LIBS       use ATLAS Library
+  --with-atlas-dir=DIR    ATLAS lib directory
+  --with-blas=LIBS        use BLAS Library
+  --with-blas-dir=DIR     BLAS lib directory
+  --with-dxml             use Digital Extended Math Library
+  --with-lapack=LIBS      use LAPACK library
+  --with-lapack-dir=DIR   BLAS lib directory
   --with-mkl=PROC         use Intel Math Kernel Library (PROC=p3, p4, itp)
   --with-scsl             use SGI SCSL Scientific Library
+  --with-veclib           use vecLib framework on Mac OS X
 
 Some influential environment variables:
   CXX         C++ compiler command
@@ -2479,20 +2486,88 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 
 
+# Check whether --with-atlas or --without-atlas was given.
+if test "${with_atlas+set}" = set; then
+  withval="$with_atlas"
+
+    if test "x$withval" = xno; then
+      atlas=no
+    else
+      atlas=yes
+      if test "x$withval" != xyes; then
+        atlas_flags=`echo "$withval" | sed 's,//*,/,g' | sed 's,/$,,'`
+      fi
+    fi
+
+
+fi;
+
+# Check whether --with-atlas-dir or --without-atlas-dir was given.
+if test "${with_atlas_dir+set}" = set; then
+  withval="$with_atlas_dir"
+  atlas_dir=`echo "$withval" | sed 's,//*,/,g' | sed 's,/$,,'`
+
+fi;
+
+
+# Check whether --with-blas or --without-blas was given.
+if test "${with_blas+set}" = set; then
+  withval="$with_blas"
+
+    if test "x$withval" = xno; then
+      blas=no
+    else
+      blas=yes
+      if test "x$withval" != xyes; then
+        blas_flags=`echo "$withval" | sed 's,//*,/,g' | sed 's,/$,,'`
+      fi
+    fi
+
+
+fi;
+
+# Check whether --with-blas-dir or --without-blas-dir was given.
+if test "${with_blas_dir+set}" = set; then
+  withval="$with_blas_dir"
+  blas_dir=`echo "$withval" | sed 's,//*,/,g' | sed 's,/$,,'`
+
+fi;
+
+
+# Check whether --with-dxml or --without-dxml was given.
+if test "${with_dxml+set}" = set; then
+  withval="$with_dxml"
+
+    if test "x$withval" = xno; then
+      dxml=no
+    else
+      dxml=yes
+    fi
+
+
+fi;
+
 
 # Check whether --with-lapack or --without-lapack was given.
 if test "${with_lapack+set}" = set; then
   withval="$with_lapack"
 
-    if test "x$withval" = "xno"; then
+    if test "x$withval" = xno; then
       lapack=no
     else
       lapack=yes
-      if test "x$withval" != "xyes"; then
-        lapack_dir=`echo "$withval" | sed 's,//*,/,g' | sed 's,/$,,'`
+      if test "x$withval" != xyes; then
+        lapack_flags=`echo "$withval" | sed 's,//*,/,g' | sed 's,/$,,'`
       fi
     fi
 
+
+fi;
+
+# Check whether --with-lapack-dir or --without-lapack-dir was given.
+if test "${with_lapack_dir+set}" = set; then
+  withval="$with_lapack_dir"
+  atlas_dir=`echo "$withval" | sed 's,//*,/,g' | sed 's,/$,,'`
 
 fi;
 
@@ -2501,26 +2576,27 @@ fi;
 if test "${with_mkl+set}" = set; then
   withval="$with_mkl"
 
-    case "x$withval" in
-      xno)
-        mkl=no
-        ;;
-      xp3)
-        mkl=yes
-	mkl_proc="p3"
-        ;;
-      xp4)
-        mkl=yes
-	mkl_proc="p4"
-        ;;
-      xitp)
-        mkl=yes
-	mkl_proc="itp"
-        ;;
-      *)
-        mkl=yes
-	mkl_proc="p4"
-    esac
+    if test "x$withval" = xno; then
+      mkl=no
+    else
+      case "x$withval" in
+        xp3)
+          mkl=yes
+          mkl_proc="p3"
+          ;;
+        xp4)
+          mkl=yes
+          mkl_proc="p4"
+          ;;
+        xitp)
+          mkl=yes
+          mkl_proc="itp"
+          ;;
+        *)
+          mkl=yes
+          mkl_proc="p4"
+      esac
+    fi
 
 
 fi;
@@ -2530,96 +2606,208 @@ fi;
 if test "${with_scsl+set}" = set; then
   withval="$with_scsl"
 
-    case "x$withval" in
-      xno)
-        scsl=no
-        ;;
-      *)
-        scsl=yes
-    esac
+    if test "x$withval" = xno; then
+      scsl=no
+    else
+      scsl=yes
+    fi
 
 
 fi;
 
-  if test "$mkl" != no; then
 
-    echo "$as_me:$LINENO: checking for Math Kernel Library" >&5
-echo $ECHO_N "checking for Math Kernel Library... $ECHO_C" >&6
-    if test -n "$lapack_dir" && test -d "$lapack_dir"; then
-      mkl_basedir="$lapack_dir"
-      echo "$as_me:$LINENO: result: $lapack_dir" >&5
-echo "${ECHO_T}$lapack_dir" >&6
-    elif test -d "/opt/intel/mkl61"; then
-      mkl_basedir=/opt/intel/mkl61
-      echo "$as_me:$LINENO: result: $mkl_basedir" >&5
-echo "${ECHO_T}$mkl_basedir" >&6
-    elif test -d "/opt/intel/mkl"; then
-      mkl_basedir=/opt/intel/mkl
-      echo "$as_me:$LINENO: result: $mkl_basedir" >&5
-echo "${ECHO_T}$mkl_basedir" >&6
+# Check whether --with-veclib or --without-veclib was given.
+if test "${with_veclib+set}" = set; then
+  withval="$with_veclib"
+
+    if test "x$withval" = xno; then
+      veclib=no
     else
-      echo "$as_me:$LINENO: result: OK" >&5
-echo "${ECHO_T}OK" >&6
+      veclib=yes
     fi
 
-    echo "$as_me:$LINENO: checking for processor type" >&5
-echo $ECHO_N "checking for processor type... $ECHO_C" >&6
-    case "x$mkl_proc" in
-      xp3)
-        mkl_procname="Pentium 3"
-        mkl_dir="32"
-        mkl_lib="mkl_p3"
-        ;;
-      xp4)
-        mkl_procname="Pentium 4"
-        mkl_dir="32"
-        mkl_lib="mkl_p4"
-        ;;
-      xitp)
-        mkl_procname="Itanium"
-        mkl_dir="64"
-        mkl_lib="mkl_itp"
-        ;;
-      *)
-        mkl_procname="Pentium 4"
-        mkl_dir="32"
-        mkl_lib="mkl_p4"
-    esac
-    if test "$mkl_dir" = "32"; then
-      if test -f "$mkl_basedir/lib/$mkl_dir/libmkl_ia32.a"; then
-        # version 6
-        mkl_lib="mkl_ia32"
-      fi
+
+fi;
+
+  if test "x$atlas" = xyes; then
+    if test "x$blas" = xyes; then
+      { { echo "$as_me:$LINENO: error: more than one BLAS-like libraries specified." >&5
+echo "$as_me: error: more than one BLAS-like libraries specified." >&2;}
+   { (exit 1); exit 1; }; }
     fi
-    if test "$mkl_dir" = "64"; then
-      if test -f "$mkl_basedir/lib/$mkl_dir/libmkl_ipf.a"; then
-        # version 6
-        mkl_lib="mkl_ipf"
-      fi
+    if test "x$dxml" = xyes; then
+      { { echo "$as_me:$LINENO: error: more than one BLAS-like libraries specified." >&5
+echo "$as_me: error: more than one BLAS-like libraries specified." >&2;}
+   { (exit 1); exit 1; }; }
     fi
-    echo "$as_me:$LINENO: result: $mkl_procname" >&5
-echo "${ECHO_T}$mkl_procname" >&6
-    LAPACK_LDFLAGS="-L$mkl_basedir/lib/$mkl_dir"
+    if test "x$mkl" = xyes; then
+      { { echo "$as_me:$LINENO: error: more than one BLAS-like libraries specified." >&5
+echo "$as_me: error: more than one BLAS-like libraries specified." >&2;}
+   { (exit 1); exit 1; }; }
+    fi
+    if test "x$scsl" = xyes; then
+      { { echo "$as_me:$LINENO: error: more than one BLAS-like libraries specified." >&5
+echo "$as_me: error: more than one BLAS-like libraries specified." >&2;}
+   { (exit 1); exit 1; }; }
+    fi
+    if test "x$veclib" = xyes; then
+      { { echo "$as_me:$LINENO: error: more than one BLAS-like libraries specified." >&5
+echo "$as_me: error: more than one BLAS-like libraries specified." >&2;}
+   { (exit 1); exit 1; }; }
+    fi
+  fi
+  if test "x$blas" = xyes; then
+    if test "x$dxml" = xyes; then
+      { { echo "$as_me:$LINENO: error: more than one BLAS-like libraries specified." >&5
+echo "$as_me: error: more than one BLAS-like libraries specified." >&2;}
+   { (exit 1); exit 1; }; }
+    fi
+    if test "x$mkl" = xyes; then
+      { { echo "$as_me:$LINENO: error: more than one BLAS-like libraries specified." >&5
+echo "$as_me: error: more than one BLAS-like libraries specified." >&2;}
+   { (exit 1); exit 1; }; }
+    fi
+    if test "x$scsl" = xyes; then
+      { { echo "$as_me:$LINENO: error: more than one BLAS-like libraries specified." >&5
+echo "$as_me: error: more than one BLAS-like libraries specified." >&2;}
+   { (exit 1); exit 1; }; }
+    fi
+    if test "x$veclib" = xyes; then
+      { { echo "$as_me:$LINENO: error: more than one BLAS-like libraries specified." >&5
+echo "$as_me: error: more than one BLAS-like libraries specified." >&2;}
+   { (exit 1); exit 1; }; }
+    fi
+  fi
+  if test "x$dxml" = xyes; then
+    if test "x$mkl" = xyes; then
+      { { echo "$as_me:$LINENO: error: more than one BLAS-like libraries specified." >&5
+echo "$as_me: error: more than one BLAS-like libraries specified." >&2;}
+   { (exit 1); exit 1; }; }
+    fi
+    if test "x$scsl" = xyes; then
+      { { echo "$as_me:$LINENO: error: more than one BLAS-like libraries specified." >&5
+echo "$as_me: error: more than one BLAS-like libraries specified." >&2;}
+   { (exit 1); exit 1; }; }
+    fi
+    if test "x$veclib" = xyes; then
+      { { echo "$as_me:$LINENO: error: more than one BLAS-like libraries specified." >&5
+echo "$as_me: error: more than one BLAS-like libraries specified." >&2;}
+   { (exit 1); exit 1; }; }
+    fi
+  fi
+  if test "x$mkl" = xyes; then
+    if test "x$scsl" = xyes; then
+      { { echo "$as_me:$LINENO: error: more than one BLAS-like libraries specified." >&5
+echo "$as_me: error: more than one BLAS-like libraries specified." >&2;}
+   { (exit 1); exit 1; }; }
+    fi
+    if test "x$veclib" = xyes; then
+      { { echo "$as_me:$LINENO: error: more than one BLAS-like libraries specified." >&5
+echo "$as_me: error: more than one BLAS-like libraries specified." >&2;}
+   { (exit 1); exit 1; }; }
+    fi
+  fi
+  if test "x$scsl" = xyes; then
+    if test "x$veclib" = xyes; then
+      { { echo "$as_me:$LINENO: error: more than one BLAS-like libraries specified." >&5
+echo "$as_me: error: more than one BLAS-like libraries specified." >&2;}
+   { (exit 1); exit 1; }; }
+    fi
+  fi
 
 
 
-    ac_ext=cc
+  ac_ext=cc
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
-    ac_save_CPPFLAGS=$CPPFLAGS
-    ac_save_LDFLAGS=$LDFLAGS
-    ac_save_LIBS=$LIBS
-    CPPFLAGS="$LAPACK_CPPFLAGS $CPPFLAGS"
-    LDFLAGS="$LAPACK_LDFLAGS $LDFLAGS"
+  ac_save_LDFLAGS="$LDFLAGS"
+  ac_save_LIBS="$LIBS"
 
-    found=no
+  found_blas=no
+  found_lapack=no
 
-    LAPACK_LIBS=""
-    if test "$mkl_proc" != "itp"; then
-      echo "$as_me:$LINENO: checking for d_abs" >&5
+  # for Math Kernel Library
+  if test "$found_blas" = no; then
+    if test "x$mkl" != xno; then
+
+      { echo "$as_me:$LINENO: checking for Math Kernel Library" >&5
+echo "$as_me: checking for Math Kernel Library" >&6;}
+      mkl_basedir=
+      if test -d "/opt/intel/mkl61"; then
+        mkl_basedir=/opt/intel/mkl61
+        echo "$as_me:$LINENO: checking MKL directory" >&5
+echo $ECHO_N "checking MKL directory... $ECHO_C" >&6
+        echo "$as_me:$LINENO: result: $mkl_basedir" >&5
+echo "${ECHO_T}$mkl_basedir" >&6
+      elif test -d "/opt/intel/mkl"; then
+        mkl_basedir=/opt/intel/mkl
+        echo "$as_me:$LINENO: checking MKL directory" >&5
+echo $ECHO_N "checking MKL directory... $ECHO_C" >&6
+        echo "$as_me:$LINENO: result: $mkl_basedir" >&5
+echo "${ECHO_T}$mkl_basedir" >&6
+      fi
+
+      case "x$mkl_proc" in
+      xp3)
+        mkl_procname="Pentium 3"
+        mkl_dir="32"
+        mkl_lib="mkl_p3"
+        echo "$as_me:$LINENO: checking for processor type" >&5
+echo $ECHO_N "checking for processor type... $ECHO_C" >&6
+        echo "$as_me:$LINENO: result: $mkl_procname" >&5
+echo "${ECHO_T}$mkl_procname" >&6
+        ;;
+      xp4)
+        mkl_procname="Pentium 4"
+        mkl_dir="32"
+        mkl_lib="mkl_p4"
+        echo "$as_me:$LINENO: checking for processor type" >&5
+echo $ECHO_N "checking for processor type... $ECHO_C" >&6
+        echo "$as_me:$LINENO: result: $mkl_procname" >&5
+echo "${ECHO_T}$mkl_procname" >&6
+        ;;
+      xitp)
+        mkl_procname="Itanium"
+        mkl_dir="64"
+        mkl_lib="mkl_itp"
+        echo "$as_me:$LINENO: checking for processor type" >&5
+echo $ECHO_N "checking for processor type... $ECHO_C" >&6
+        echo "$as_me:$LINENO: result: $mkl_procname" >&5
+echo "${ECHO_T}$mkl_procname" >&6
+        ;;
+      *)
+        mkl_procname="Pentium 4"
+        mkl_dir="32"
+        mkl_lib="mkl_p4"
+      esac
+      if test "$mkl_dir" = "32"; then
+        if test -f "$mkl_basedir/lib/$mkl_dir/libmkl_ia32.a"; then
+          # version 6
+          mkl_lib="mkl_ia32"
+        fi
+      fi
+      if test "$mkl_dir" = "64"; then
+        if test -f "$mkl_basedir/lib/$mkl_dir/libmkl_ipf.a"; then
+          # version 6
+          mkl_lib="mkl_ipf"
+        fi
+      fi
+
+      if test -d "$mkl_basedir/lib/$mkl_dir"; then
+        mkl_ldflags="-L$mkl_basedir/lib/$mkl_dir"
+      else
+        mkl_ldflags=
+      fi
+      LDFLAGS="$mkl_ldflags $ac_save_LDFLAGS"
+
+      mkl_libs=
+      found=no
+
+      if test "$mkl_proc" != "itp"; then
+        echo "$as_me:$LINENO: checking for d_abs" >&5
 echo $ECHO_N "checking for d_abs... $ECHO_C" >&6
 if test "${ac_cv_func_d_abs+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -2712,8 +2900,7 @@ echo "${ECHO_T}$ac_cv_func_d_abs" >&6
 if test $ac_cv_func_d_abs = yes; then
   :
 else
-
-      echo "$as_me:$LINENO: checking for d_abs in -lg2c" >&5
+  echo "$as_me:$LINENO: checking for d_abs in -lg2c" >&5
 echo $ECHO_N "checking for d_abs in -lg2c... $ECHO_C" >&6
 if test "${ac_cv_lib_g2c_d_abs+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -2778,13 +2965,9 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_lib_g2c_d_abs" >&5
 echo "${ECHO_T}$ac_cv_lib_g2c_d_abs" >&6
 if test $ac_cv_lib_g2c_d_abs = yes; then
-
-      LAPACK_LIBS="-lg2c $LAPACK_LIBS"
-      LIBS="$LAPACK_LIBS $ac_save_LIBS"
-
+  mkl_libs="-lg2c"; LIBS="$mkl_libs $ac_save_LIBS"
 else
-
-      echo "$as_me:$LINENO: checking for d_abs in -lF90" >&5
+  echo "$as_me:$LINENO: checking for d_abs in -lF90" >&5
 echo $ECHO_N "checking for d_abs in -lF90... $ECHO_C" >&6
 if test "${ac_cv_lib_F90_d_abs+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -2849,19 +3032,17 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_lib_F90_d_abs" >&5
 echo "${ECHO_T}$ac_cv_lib_F90_d_abs" >&6
 if test $ac_cv_lib_F90_d_abs = yes; then
-
-      LAPACK_LIBS="-lF90 $LAPACK_LIBS"
-      LIBS="$LAPACK_LIBS $ac_save_LIBS"
-
+  mkl_libs="-lF90 $mkl_libs"; LIBS="$mkl_libs $ac_save_LIBS"
 fi
 
 
 fi
 
 
+
 fi
 
-      echo "$as_me:$LINENO: checking for omp_in_parallel_ in -lguide" >&5
+        echo "$as_me:$LINENO: checking for omp_in_parallel_ in -lguide" >&5
 echo $ECHO_N "checking for omp_in_parallel_ in -lguide... $ECHO_C" >&6
 if test "${ac_cv_lib_guide_omp_in_parallel_+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -2926,12 +3107,11 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_lib_guide_omp_in_parallel_" >&5
 echo "${ECHO_T}$ac_cv_lib_guide_omp_in_parallel_" >&6
 if test $ac_cv_lib_guide_omp_in_parallel_ = yes; then
-
-      LAPACK_LIBS="-lguide $LAPACK_LIBS"
-      LIBS="$LAPACK_LIBS $ac_save_LIBS"
-      as_ac_Lib=`echo "ac_cv_lib_$mkl_lib''_sasum_" | $as_tr_sh`
-echo "$as_me:$LINENO: checking for sasum_ in -l$mkl_lib" >&5
-echo $ECHO_N "checking for sasum_ in -l$mkl_lib... $ECHO_C" >&6
+  mkl_libs="-lguide $mkl_libs"
+           LIBS="$mkl_libs $ac_save_LIBS"
+           as_ac_Lib=`echo "ac_cv_lib_$mkl_lib''_dgemm_" | $as_tr_sh`
+echo "$as_me:$LINENO: checking for dgemm_ in -l$mkl_lib" >&5
+echo $ECHO_N "checking for dgemm_ in -l$mkl_lib... $ECHO_C" >&6
 if eval "test \"\${$as_ac_Lib+set}\" = set"; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
@@ -2950,11 +3130,11 @@ extern "C"
 #endif
 /* We use char because int might match the return type of a gcc2
    builtin and then its argument prototype would still apply.  */
-char sasum_ ();
+char dgemm_ ();
 int
 main ()
 {
-sasum_ ();
+dgemm_ ();
   ;
   return 0;
 }
@@ -2995,10 +3175,9 @@ fi
 echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_Lib'}'`" >&5
 echo "${ECHO_T}`eval echo '${'$as_ac_Lib'}'`" >&6
 if test `eval echo '${'$as_ac_Lib'}'` = yes; then
-
-      LAPACK_LIBS="-l$mkl_lib $LAPACK_LIBS"
-      LIBS="$LAPACK_LIBS $ac_save_LIBS"
-      echo "$as_me:$LINENO: checking for dsyev_ in -lmkl_lapack" >&5
+  mkl_libs="-l$mkl_lib $mkl_libs"
+             LIBS="$mkl_libs $ac_save_LIBS"
+             echo "$as_me:$LINENO: checking for dsyev_ in -lmkl_lapack" >&5
 echo $ECHO_N "checking for dsyev_ in -lmkl_lapack... $ECHO_C" >&6
 if test "${ac_cv_lib_mkl_lapack_dsyev_+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -3063,17 +3242,18 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_lib_mkl_lapack_dsyev_" >&5
 echo "${ECHO_T}$ac_cv_lib_mkl_lapack_dsyev_" >&6
 if test $ac_cv_lib_mkl_lapack_dsyev_ = yes; then
-  LAPACK_LIBS="-lmkl_lapack $LAPACK_LIBS"; found=yes
+  mkl_libs="-lmkl_lapack $mkl_libs"; found=yes
 fi
 
 
 fi
 
 
+
 fi
 
-    else
-      echo "$as_me:$LINENO: checking for d_abs" >&5
+      else
+        echo "$as_me:$LINENO: checking for d_abs" >&5
 echo $ECHO_N "checking for d_abs... $ECHO_C" >&6
 if test "${ac_cv_func_d_abs+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -3166,8 +3346,7 @@ echo "${ECHO_T}$ac_cv_func_d_abs" >&6
 if test $ac_cv_func_d_abs = yes; then
   :
 else
-
-      echo "$as_me:$LINENO: checking for d_abs in -lg2c" >&5
+  echo "$as_me:$LINENO: checking for d_abs in -lg2c" >&5
 echo $ECHO_N "checking for d_abs in -lg2c... $ECHO_C" >&6
 if test "${ac_cv_lib_g2c_d_abs+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -3232,13 +3411,9 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_lib_g2c_d_abs" >&5
 echo "${ECHO_T}$ac_cv_lib_g2c_d_abs" >&6
 if test $ac_cv_lib_g2c_d_abs = yes; then
-
-      LAPACK_LIBS="-lg2c $LAPACK_LIBS"
-      LIBS="$LAPACK_LIBS $ac_save_LIBS"
-
+  mkl_libs="-lg2c $mkl_libs"; LIBS="$mkl_libs $ac_save_LIBS"
 else
-
-      echo "$as_me:$LINENO: checking for d_abs in -lF90" >&5
+  echo "$as_me:$LINENO: checking for d_abs in -lF90" >&5
 echo $ECHO_N "checking for d_abs in -lF90... $ECHO_C" >&6
 if test "${ac_cv_lib_F90_d_abs+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -3303,19 +3478,17 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_lib_F90_d_abs" >&5
 echo "${ECHO_T}$ac_cv_lib_F90_d_abs" >&6
 if test $ac_cv_lib_F90_d_abs = yes; then
-
-      LAPACK_LIBS="-lF90 $LAPACK_LIBS"
-      LIBS="$LAPACK_LIBS $ac_save_LIBS"
-
+  mkl_libs="-lF90 $mkl_libs"; LIBS="$mkl_libs $ac_save_LIBS"
 fi
 
 
 fi
 
 
+
 fi
 
-      echo "$as_me:$LINENO: checking for f_concat" >&5
+        echo "$as_me:$LINENO: checking for f_concat" >&5
 echo $ECHO_N "checking for f_concat... $ECHO_C" >&6
 if test "${ac_cv_func_f_concat+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -3408,8 +3581,7 @@ echo "${ECHO_T}$ac_cv_func_f_concat" >&6
 if test $ac_cv_func_f_concat = yes; then
   :
 else
-
-      echo "$as_me:$LINENO: checking for f_concat in -lIEPCF90" >&5
+  echo "$as_me:$LINENO: checking for f_concat in -lIEPCF90" >&5
 echo $ECHO_N "checking for f_concat in -lIEPCF90... $ECHO_C" >&6
 if test "${ac_cv_lib_IEPCF90_f_concat+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -3474,16 +3646,14 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_lib_IEPCF90_f_concat" >&5
 echo "${ECHO_T}$ac_cv_lib_IEPCF90_f_concat" >&6
 if test $ac_cv_lib_IEPCF90_f_concat = yes; then
-
-      LAPACK_LIBS="-lIEPCF90 $LAPACK_LIBS"
-      LIBS="$LAPACK_LIBS $ac_save_LIBS"
-
+  mkl_libs="-lIEPCF90 $mkl_libs"; LIBS="$mkl_libs $ac_save_LIBS"
 fi
 
 
+
 fi
 
-      echo "$as_me:$LINENO: checking for omp_in_parallel_ in -lguide" >&5
+        echo "$as_me:$LINENO: checking for omp_in_parallel_ in -lguide" >&5
 echo $ECHO_N "checking for omp_in_parallel_ in -lguide... $ECHO_C" >&6
 if test "${ac_cv_lib_guide_omp_in_parallel_+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -3548,12 +3718,11 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_lib_guide_omp_in_parallel_" >&5
 echo "${ECHO_T}$ac_cv_lib_guide_omp_in_parallel_" >&6
 if test $ac_cv_lib_guide_omp_in_parallel_ = yes; then
-
-      LAPACK_LIBS="-lguide $LAPACK_LIBS"
-      LIBS="$LAPACK_LIBS $ac_save_LIBS"
-      as_ac_Lib=`echo "ac_cv_lib_$mkl_lib''_sasum_" | $as_tr_sh`
-echo "$as_me:$LINENO: checking for sasum_ in -l$mkl_lib" >&5
-echo $ECHO_N "checking for sasum_ in -l$mkl_lib... $ECHO_C" >&6
+  mkl_libs="-lguide $mkl_libs"
+           LIBS="$mkl_libs $ac_save_LIBS"
+           as_ac_Lib=`echo "ac_cv_lib_$mkl_lib''_dgemm_" | $as_tr_sh`
+echo "$as_me:$LINENO: checking for dgemm_ in -l$mkl_lib" >&5
+echo $ECHO_N "checking for dgemm_ in -l$mkl_lib... $ECHO_C" >&6
 if eval "test \"\${$as_ac_Lib+set}\" = set"; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
@@ -3572,11 +3741,11 @@ extern "C"
 #endif
 /* We use char because int might match the return type of a gcc2
    builtin and then its argument prototype would still apply.  */
-char sasum_ ();
+char dgemm_ ();
 int
 main ()
 {
-sasum_ ();
+dgemm_ ();
   ;
   return 0;
 }
@@ -3617,10 +3786,9 @@ fi
 echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_Lib'}'`" >&5
 echo "${ECHO_T}`eval echo '${'$as_ac_Lib'}'`" >&6
 if test `eval echo '${'$as_ac_Lib'}'` = yes; then
-
-      LAPACK_LIBS="-l$mkl_lib $LAPACK_LIBS"
-      LIBS="$LAPACK_LIBS $ac_save_LIBS"
-      echo "$as_me:$LINENO: checking for dsyev_ in -lmkl_lapack" >&5
+  mkl_libs="-l$mkl_lib $mkl_libs"
+             LIBS="$mkl_libs $ac_save_LIBS"
+             echo "$as_me:$LINENO: checking for dsyev_ in -lmkl_lapack" >&5
 echo $ECHO_N "checking for dsyev_ in -lmkl_lapack... $ECHO_C" >&6
 if test "${ac_cv_lib_mkl_lapack_dsyev_+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -3685,603 +3853,43 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_lib_mkl_lapack_dsyev_" >&5
 echo "${ECHO_T}$ac_cv_lib_mkl_lapack_dsyev_" >&6
 if test $ac_cv_lib_mkl_lapack_dsyev_ = yes; then
-  LAPACK_LIBS="-lmkl_lapack $LAPACK_LIBS"; found=yes
+  mkl_libs="-lmkl_lapack $mkl_libs"; found=yes
 fi
 
 
 fi
 
 
+
 fi
 
-    fi
-
-    if test "$found" = no; then
-      if test "$mkl" = yes; then
-        { { echo "$as_me:$LINENO: error: check for Math Kernel Library failed" >&5
-echo "$as_me: error: check for Math Kernel Library failed" >&2;}
-   { (exit 1); exit 1; }; }
-      else
-        mkl=no
       fi
-    else
-      mkl=yes
+      if test "$found" = yes; then
+        LAPACK_LDFLAGS="$mkl_ldflags"
+        LAPACK_LIBS="$mkl_libs"
+        found_blas=yes
+        found_lapack=yes
+      fi
     fi
-
-    CPPFLAGS=$ac_save_CPPFLAGS
-    LDFLAGS=$ac_save_LDFLAGS
-    LIBS=$ac_save_LIBS
-    ac_ext=cc
-ac_cpp='$CXXCPP $CPPFLAGS'
-ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
-
+    if test "x$mkl" = xyes; then
+      if test "$found_blas" = no; then
+        { { echo "$as_me:$LINENO: error: Math Kernel Library not found." >&5
+echo "$as_me: error: Math Kernel Library not found." >&2;}
+   { (exit 1); exit 1; }; }
+      fi
+    fi
   fi
 
-  if test "$mkl" != yes && test "$scsl" != no; then
-    { echo "$as_me:$LINENO: checking for SGI SCSL library" >&5
-echo "$as_me: checking for SGI SCSL library" >&6;}
-
-
-    ac_ext=cc
-ac_cpp='$CXXCPP $CPPFLAGS'
-ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
-
-    ac_save_CPPFLAGS=$CPPFLAGS
-    ac_save_LDFLAGS=$LDFLAGS
-    ac_save_LIBS=$LIBS
-    CPPFLAGS="$LAPACK_CPPFLAGS $CPPFLAGS"
-    LDFLAGS="$LAPACK_LDFLAGS $LDFLAGS"
-
-    found=no
-
-    if test "$found" = no; then
-      echo "$as_me:$LINENO: checking for dsyev_ in -lscs" >&5
-echo $ECHO_N "checking for dsyev_ in -lscs... $ECHO_C" >&6
-if test "${ac_cv_lib_scs_dsyev_+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lscs  $LIBS"
-cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-/* Override any gcc2 internal prototype to avoid an error.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-/* We use char because int might match the return type of a gcc2
-   builtin and then its argument prototype would still apply.  */
-char dsyev_ ();
-int
-main ()
-{
-dsyev_ ();
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_cxx_werror_flag"
-			 || test ! -s conftest.err'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  ac_cv_lib_scs_dsyev_=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-ac_cv_lib_scs_dsyev_=no
-fi
-rm -f conftest.err conftest.$ac_objext \
-      conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_scs_dsyev_" >&5
-echo "${ECHO_T}$ac_cv_lib_scs_dsyev_" >&6
-if test $ac_cv_lib_scs_dsyev_ = yes; then
-  LAPACK_LIBS="-lscs"; found=yes
-fi
-
-    fi
-
-    if test "$found" = no; then
-      if test "$scsl" = yes; then
-        { { echo "$as_me:$LINENO: error: check for SGI SCSL library failed" >&5
-echo "$as_me: error: check for SGI SCSL library failed" >&2;}
-   { (exit 1); exit 1; }; }
-      else
-        scsl=no
-      fi
-    else
-      scsl=yes
-    fi
-
-    CPPFLAGS=$ac_save_CPPFLAGS
-    LDFLAGS=$ac_save_LDFLAGS
-    LIBS=$ac_save_LIBS
-    ac_ext=cc
-ac_cpp='$CXXCPP $CPPFLAGS'
-ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
-
-  fi
-
-  if test "$mkl" != yes && test "$scsl" != yes && test "$lapack" != "no"; then
-    echo "$as_me:$LINENO: checking for LAPACK root directory" >&5
-echo $ECHO_N "checking for LAPACK root directory... $ECHO_C" >&6
-    if test "x$lapack_dir" = "x"; then
-      for d in $HOME $HOME/src $prefix $prefix/src /usr/local /usr/local/src; do
-        if test -f "$d/lib/liblapack.a"; then
-          lapack_dir="$d"
-          break
-        fi
-        if test -f "$d/lapack/lib"; then
-          lapack_dir="$d/lapack"
-          break
-        fi
-      done
-      if test -n "$lapack_dir"; then
-        echo "$as_me:$LINENO: result: $lapack_dir" >&5
-echo "${ECHO_T}$lapack_dir" >&6
-      else
-        echo "$as_me:$LINENO: result: " >&5
-echo "${ECHO_T}" >&6
-      fi
-    else
-      echo "$as_me:$LINENO: result: $lapack_dir" >&5
-echo "${ECHO_T}$lapack_dir" >&6
-      if test -d "$lapack_dir"; then :; else
-        { { echo "$as_me:$LINENO: error: $lapack_dir not found" >&5
-echo "$as_me: error: $lapack_dir not found" >&2;}
-   { (exit 1); exit 1; }; }
-      fi
-    fi
-
-    if test -n "$lapack_dir"; then
-      if test -f "$lapack_dir/lib"; then
-        LAPACK_LDFLAGS="-L$lapack_dir/lib"
-      fi
-    fi
-
-
-
-    ac_ext=cc
-ac_cpp='$CXXCPP $CPPFLAGS'
-ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
-
-    ac_save_CPPFLAGS=$CPPFLAGS
-    ac_save_LDFLAGS=$LDFLAGS
-    ac_save_LIBS=$LIBS
-    CPPFLAGS="$LAPACK_CPPFLAGS $CPPFLAGS"
-    LDFLAGS="$LAPACK_LDFLAGS $LDFLAGS"
-
-    found=no
-
-    if test "$found" = no; then
-      echo "$as_me:$LINENO: checking for d_abs" >&5
-echo $ECHO_N "checking for d_abs... $ECHO_C" >&6
-if test "${ac_cv_func_d_abs+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-/* Define d_abs to an innocuous variant, in case <limits.h> declares d_abs.
-   For example, HP-UX 11i <limits.h> declares gettimeofday.  */
-#define d_abs innocuous_d_abs
-
-/* System header to define __stub macros and hopefully few prototypes,
-    which can conflict with char d_abs (); below.
-    Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
-    <limits.h> exists even on freestanding compilers.  */
-
-#ifdef __STDC__
-# include <limits.h>
-#else
-# include <assert.h>
-#endif
-
-#undef d_abs
-
-/* Override any gcc2 internal prototype to avoid an error.  */
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-/* We use char because int might match the return type of a gcc2
-   builtin and then its argument prototype would still apply.  */
-char d_abs ();
-/* The GNU C library defines this for functions which it implements
-    to always fail with ENOSYS.  Some functions are actually named
-    something starting with __ and the normal name is an alias.  */
-#if defined (__stub_d_abs) || defined (__stub___d_abs)
-choke me
-#else
-char (*f) () = d_abs;
-#endif
-#ifdef __cplusplus
-}
-#endif
-
-int
-main ()
-{
-return f != d_abs;
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_cxx_werror_flag"
-			 || test ! -s conftest.err'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  ac_cv_func_d_abs=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-ac_cv_func_d_abs=no
-fi
-rm -f conftest.err conftest.$ac_objext \
-      conftest$ac_exeext conftest.$ac_ext
-fi
-echo "$as_me:$LINENO: result: $ac_cv_func_d_abs" >&5
-echo "${ECHO_T}$ac_cv_func_d_abs" >&6
-if test $ac_cv_func_d_abs = yes; then
-  :
-else
-
-      echo "$as_me:$LINENO: checking for d_abs in -lg2c" >&5
-echo $ECHO_N "checking for d_abs in -lg2c... $ECHO_C" >&6
-if test "${ac_cv_lib_g2c_d_abs+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lg2c  $LIBS"
-cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-/* Override any gcc2 internal prototype to avoid an error.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-/* We use char because int might match the return type of a gcc2
-   builtin and then its argument prototype would still apply.  */
-char d_abs ();
-int
-main ()
-{
-d_abs ();
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_cxx_werror_flag"
-			 || test ! -s conftest.err'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  ac_cv_lib_g2c_d_abs=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-ac_cv_lib_g2c_d_abs=no
-fi
-rm -f conftest.err conftest.$ac_objext \
-      conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_g2c_d_abs" >&5
-echo "${ECHO_T}$ac_cv_lib_g2c_d_abs" >&6
-if test $ac_cv_lib_g2c_d_abs = yes; then
-
-      LAPACK_LIBS="-lg2c $LAPACK_LIBS"
-      LIBS="$LAPACK_LIBS $ac_save_LIBS"
-
-else
-
-      echo "$as_me:$LINENO: checking for d_abs in -lF90" >&5
-echo $ECHO_N "checking for d_abs in -lF90... $ECHO_C" >&6
-if test "${ac_cv_lib_F90_d_abs+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lF90  $LIBS"
-cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-/* Override any gcc2 internal prototype to avoid an error.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-/* We use char because int might match the return type of a gcc2
-   builtin and then its argument prototype would still apply.  */
-char d_abs ();
-int
-main ()
-{
-d_abs ();
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_cxx_werror_flag"
-			 || test ! -s conftest.err'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  ac_cv_lib_F90_d_abs=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-ac_cv_lib_F90_d_abs=no
-fi
-rm -f conftest.err conftest.$ac_objext \
-      conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_F90_d_abs" >&5
-echo "${ECHO_T}$ac_cv_lib_F90_d_abs" >&6
-if test $ac_cv_lib_F90_d_abs = yes; then
-
-      LAPACK_LIBS="-lF90 $LAPACK_LIBS"
-      LIBS="$LAPACK_LIBS $ac_save_LIBS"
-
-fi
-
-
-fi
-
-
-fi
-
-      echo "$as_me:$LINENO: checking for sasum_ in -lblas" >&5
-echo $ECHO_N "checking for sasum_ in -lblas... $ECHO_C" >&6
-if test "${ac_cv_lib_blas_sasum_+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lblas  $LIBS"
-cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-/* Override any gcc2 internal prototype to avoid an error.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-/* We use char because int might match the return type of a gcc2
-   builtin and then its argument prototype would still apply.  */
-char sasum_ ();
-int
-main ()
-{
-sasum_ ();
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_cxx_werror_flag"
-			 || test ! -s conftest.err'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  ac_cv_lib_blas_sasum_=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-ac_cv_lib_blas_sasum_=no
-fi
-rm -f conftest.err conftest.$ac_objext \
-      conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_blas_sasum_" >&5
-echo "${ECHO_T}$ac_cv_lib_blas_sasum_" >&6
-if test $ac_cv_lib_blas_sasum_ = yes; then
-
-      LAPACK_LIBS="-lblas $LAPACK_LIBS"
-      LIBS="$LAPACK_LIBS $ac_save_LIBS"
-      echo "$as_me:$LINENO: checking for dsyev_ in -llapack" >&5
-echo $ECHO_N "checking for dsyev_ in -llapack... $ECHO_C" >&6
-if test "${ac_cv_lib_lapack_dsyev_+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-llapack  $LIBS"
-cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-/* Override any gcc2 internal prototype to avoid an error.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-/* We use char because int might match the return type of a gcc2
-   builtin and then its argument prototype would still apply.  */
-char dsyev_ ();
-int
-main ()
-{
-dsyev_ ();
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_cxx_werror_flag"
-			 || test ! -s conftest.err'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  ac_cv_lib_lapack_dsyev_=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-ac_cv_lib_lapack_dsyev_=no
-fi
-rm -f conftest.err conftest.$ac_objext \
-      conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_lapack_dsyev_" >&5
-echo "${ECHO_T}$ac_cv_lib_lapack_dsyev_" >&6
-if test $ac_cv_lib_lapack_dsyev_ = yes; then
-  LAPACK_LIBS="-llapack $LAPACK_LIBS"; found=yes
-fi
-
-
-fi
-
-    fi
-
-    # for Digital Extended Math Library
-    if test "$found" = no; then
+  # for Digital Extended Math Library
+  if test "$found_blas" = no; then
+    if test "x$dxml" != xno; then
       { echo "$as_me:$LINENO: checking for Digital Extended Math Library" >&5
 echo "$as_me: checking for Digital Extended Math Library" >&6;}
-      LAPACK_CPPFLAGS=
-      LAPACK_LDFLAGS=
-      LAPACK_LIBS=
-      CPPFLAGS="$ac_save_CPPFLAGS"
-      LDFLAGS=$ac_save_LDFLAGS
-      LIBS=$ac_save_LIBS
-      echo "$as_me:$LINENO: checking for sasum_ in -ldxml" >&5
-echo $ECHO_N "checking for sasum_ in -ldxml... $ECHO_C" >&6
-if test "${ac_cv_lib_dxml_sasum_+set}" = set; then
+      LDFLAGS="$ac_save_LDFLAGS"
+      LIBS="$ac_save_LIBS"
+      echo "$as_me:$LINENO: checking for dgemm_ in -ldxml" >&5
+echo $ECHO_N "checking for dgemm_ in -ldxml... $ECHO_C" >&6
+if test "${ac_cv_lib_dxml_dgemm_+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
@@ -4299,11 +3907,11 @@ extern "C"
 #endif
 /* We use char because int might match the return type of a gcc2
    builtin and then its argument prototype would still apply.  */
-char sasum_ ();
+char dgemm_ ();
 int
 main ()
 {
-sasum_ ();
+dgemm_ ();
   ;
   return 0;
 }
@@ -4330,22 +3938,21 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_lib_dxml_sasum_=yes
+  ac_cv_lib_dxml_dgemm_=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-ac_cv_lib_dxml_sasum_=no
+ac_cv_lib_dxml_dgemm_=no
 fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_dxml_sasum_" >&5
-echo "${ECHO_T}$ac_cv_lib_dxml_sasum_" >&6
-if test $ac_cv_lib_dxml_sasum_ = yes; then
-
-      echo "$as_me:$LINENO: checking for dsyev_ in -ldxml" >&5
+echo "$as_me:$LINENO: result: $ac_cv_lib_dxml_dgemm_" >&5
+echo "${ECHO_T}$ac_cv_lib_dxml_dgemm_" >&6
+if test $ac_cv_lib_dxml_dgemm_ = yes; then
+  echo "$as_me:$LINENO: checking for dsyev_ in -ldxml" >&5
 echo $ECHO_N "checking for dsyev_ in -ldxml... $ECHO_C" >&6
 if test "${ac_cv_lib_dxml_dsyev_+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -4410,76 +4017,56 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_lib_dxml_dsyev_" >&5
 echo "${ECHO_T}$ac_cv_lib_dxml_dsyev_" >&6
 if test $ac_cv_lib_dxml_dsyev_ = yes; then
-  LAPACK_LIBS="-ldxml"; found=yes
+  LAPACK_LDFLAGS=; LAPACK_LIBS="-ldxml";
+           found_blas=yes; found_lapack=yes
 fi
+
 
 
 fi
 
     fi
+    if test "x$dxml" = xyes; then
+      if test "$found_blas" = no; then
+        { { echo "$as_me:$LINENO: error: Digital Extended Math Library not found." >&5
+echo "$as_me: error: Digital Extended Math Library not found." >&2;}
+   { (exit 1); exit 1; }; }
+      fi
+    fi
+  fi
 
-    # for vecLib on Mac OS X
-    if test "$found" = no; then
-      { echo "$as_me:$LINENO: checking for vecLib framework on Mac OS X" >&5
-echo "$as_me: checking for vecLib framework on Mac OS X" >&6;}
-      LAPACK_CPPFLAGS=
-      LAPACK_LDFLAGS=
-      LAPACK_LIBS=
-      CPPFLAGS=$ac_save_CPPFLAGS
-      LDFLAGS="$ac_save_LDFLAGS -faltivec -framework vecLib"
-      LIBS=$ac_save_LIBS
-      echo "$as_me:$LINENO: checking for dsyev_" >&5
-echo $ECHO_N "checking for dsyev_... $ECHO_C" >&6
-if test "${ac_cv_func_dsyev_+set}" = set; then
+  # for SGI SCSL
+  if test "$found_blas" = no; then
+    if test "x$scsl" != xno; then
+      { echo "$as_me:$LINENO: checking for SGI SCSL Library" >&5
+echo "$as_me: checking for SGI SCSL Library" >&6;}
+      LDFLAGS="$ac_save_LDFLAGS"
+      LIBS="$ac_save_LIBS"
+      echo "$as_me:$LINENO: checking for dgemm_ in -lscsl" >&5
+echo $ECHO_N "checking for dgemm_ in -lscsl... $ECHO_C" >&6
+if test "${ac_cv_lib_scsl_dgemm_+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-  cat >conftest.$ac_ext <<_ACEOF
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lscsl  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-/* Define dsyev_ to an innocuous variant, in case <limits.h> declares dsyev_.
-   For example, HP-UX 11i <limits.h> declares gettimeofday.  */
-#define dsyev_ innocuous_dsyev_
-
-/* System header to define __stub macros and hopefully few prototypes,
-    which can conflict with char dsyev_ (); below.
-    Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
-    <limits.h> exists even on freestanding compilers.  */
-
-#ifdef __STDC__
-# include <limits.h>
-#else
-# include <assert.h>
-#endif
-
-#undef dsyev_
 
 /* Override any gcc2 internal prototype to avoid an error.  */
 #ifdef __cplusplus
 extern "C"
-{
 #endif
 /* We use char because int might match the return type of a gcc2
    builtin and then its argument prototype would still apply.  */
-char dsyev_ ();
-/* The GNU C library defines this for functions which it implements
-    to always fail with ENOSYS.  Some functions are actually named
-    something starting with __ and the normal name is an alias.  */
-#if defined (__stub_dsyev_) || defined (__stub___dsyev_)
-choke me
-#else
-char (*f) () = dsyev_;
-#endif
-#ifdef __cplusplus
-}
-#endif
-
+char dgemm_ ();
 int
 main ()
 {
-return f != dsyev_;
+dgemm_ ();
   ;
   return 0;
 }
@@ -4506,62 +4093,877 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_func_dsyev_=yes
+  ac_cv_lib_scsl_dgemm_=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-ac_cv_func_dsyev_=no
+ac_cv_lib_scsl_dgemm_=no
 fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
 fi
-echo "$as_me:$LINENO: result: $ac_cv_func_dsyev_" >&5
-echo "${ECHO_T}$ac_cv_func_dsyev_" >&6
-if test $ac_cv_func_dsyev_ = yes; then
+echo "$as_me:$LINENO: result: $ac_cv_lib_scsl_dgemm_" >&5
+echo "${ECHO_T}$ac_cv_lib_scsl_dgemm_" >&6
+if test $ac_cv_lib_scsl_dgemm_ = yes; then
+  echo "$as_me:$LINENO: checking for dsyev_ in -lscsl" >&5
+echo $ECHO_N "checking for dsyev_ in -lscsl... $ECHO_C" >&6
+if test "${ac_cv_lib_scsl_dsyev_+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lscsl  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
 
-      LAPACK_LDFLAGS="-faltivec -framework vecLib"; found=yes
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char dsyev_ ();
+int
+main ()
+{
+dsyev_ ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_scsl_dsyev_=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_scsl_dsyev_=no
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_scsl_dsyev_" >&5
+echo "${ECHO_T}$ac_cv_lib_scsl_dsyev_" >&6
+if test $ac_cv_lib_scsl_dsyev_ = yes; then
+  LAPACK_LDFLAGS=; LAPACK_LIBS="-lscsl";
+           found_blas=yes; found_lapack=yes
+fi
+
+
 
 fi
 
     fi
-
-    if test "$found" = no; then
-      if test "$lapack" = yes; then
-        { { echo "$as_me:$LINENO: error: check for LAPACK library failed" >&5
-echo "$as_me: error: check for LAPACK library failed" >&2;}
+    if test "x$scsl" = xyes; then
+      if test "$found_blas" = no; then
+        { { echo "$as_me:$LINENO: error: SCSL Library not found." >&5
+echo "$as_me: error: SCSL Library not found." >&2;}
    { (exit 1); exit 1; }; }
       fi
-      lapack=no
     fi
+  fi
 
-    CPPFLAGS=$ac_save_CPPFLAGS
-    LDFLAGS=$ac_save_LDFLAGS
-    LIBS=$ac_save_LIBS
-    ac_ext=cc
+  # for vecLib on Mac OS X
+  if test "$found_blas" = no; then
+    if test "x$veclib" != xno; then
+      { echo "$as_me:$LINENO: checking for vecLib framework on Mac OS X" >&5
+echo "$as_me: checking for vecLib framework on Mac OS X" >&6;}
+      veclib_ldflags="-faltivec -framework vecLib"
+      LDFLAGS="$veclib_ldflags $ac_save_LDFLAGS"
+      LIBS="$ac_save_LIBS"
+      echo "$as_me:$LINENO: checking for dgemm_() in $veclib_ldflags" >&5
+echo $ECHO_N "checking for dgemm_() in $veclib_ldflags... $ECHO_C" >&6
+      cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+extern "C" char dgemm_();
+int
+main ()
+{
+dgemm_();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+         echo "$as_me:$LINENO: checking for dsyev_() in $veclib_ldflags" >&5
+echo $ECHO_N "checking for dsyev_() in $veclib_ldflags... $ECHO_C" >&6
+         cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+extern "C" char dsyev_();
+int
+main ()
+{
+dsyev_();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+                      LAPACK_LDFLAGS="$veclib_ldflags"; LAPACK_LIBS=
+                      found_blas=yes; found_lapack=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+    fi
+    if test "x$veclib" = xyes; then
+      if test "$found_blas" = no; then
+        { { echo "$as_me:$LINENO: error: Mac OS X vecLib framework not found." >&5
+echo "$as_me: error: Mac OS X vecLib framework not found." >&2;}
+   { (exit 1); exit 1; }; }
+      fi
+    fi
+  fi
+
+  # for ATLAS
+  if test "$found_blas" = no; then
+    if test "x$atlas" != xno; then
+      { echo "$as_me:$LINENO: checking for ATLAS Library" >&5
+echo "$as_me: checking for ATLAS Library" >&6;}
+      found=no
+      if test -n "$atlas_dir"; then
+        echo "$as_me:$LINENO: checking for ATLAS library directory" >&5
+echo $ECHO_N "checking for ATLAS library directory... $ECHO_C" >&6
+        if test -d "$atlas_dir"; then
+          echo "$as_me:$LINENO: result: $atlas_dir" >&5
+echo "${ECHO_T}$atlas_dir" >&6
+          atlas_ldflags="-L$atlas_dir"
+        else
+          echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+          { { echo "$as_me:$LINENO: error: $atlas_dir not found." >&5
+echo "$as_me: error: $atlas_dir not found." >&2;}
+   { (exit 1); exit 1; }; }
+        fi
+      fi
+      if test -n "$atlas_flags"; then
+        atlas_libs="$atlas_flags"
+        LDFLAGS="$atlas_ldflags $ac_save_LDFLAGS"
+        LIBS="$atlas_libs $ac_save_LIBS"
+        echo "$as_me:$LINENO: checking for dgemm_() in $atlas_ldflags $atlas_libs" >&5
+echo $ECHO_N "checking for dgemm_() in $atlas_ldflags $atlas_libs... $ECHO_C" >&6
+        cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+extern "C" char dgemm_();
+int
+main ()
+{
+dgemm_();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; found=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+      fi
+      if test "$found" = no; then
+        for atlas_libs in '-latlas' '-lf77blas -latlas' '-lf77blas -latlas -lg2c' '-lf77blas -latlas -lI77 -lF77'; do
+          LDFLAGS="$atlas_ldflags $ac_save_LDFLAGS"
+          LIBS="$atlas_libs $ac_save_LIBS"
+          echo "$as_me:$LINENO: checking for dgemm_() in $atlas_ldflags $atlas_libs" >&5
+echo $ECHO_N "checking for dgemm_() in $atlas_ldflags $atlas_libs... $ECHO_C" >&6
+          cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+extern "C" char dgemm_();
+int
+main ()
+{
+dgemm_();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; found=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+          if test "$found" = no; then
+            if test -z "$atlas_dir"; then
+              for d in $HOME $HOME/src $prefix /usr/local /usr/local/src; do
+                if test -d "$d/lib"; then
+                  atlas_ldflags="-L$d/lib"
+                  LDFLAGS="$atlas_ldflags $ac_save_LDFLAGS"
+                  echo "$as_me:$LINENO: checking for dgemm_() in $atlas_ldflags $atlas_libs" >&5
+echo $ECHO_N "checking for dgemm_() in $atlas_ldflags $atlas_libs... $ECHO_C" >&6
+                  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+extern "C" char dgemm_();
+int
+main ()
+{
+dgemm_();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; found=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+                  if test "$found" = yes; then
+                    break
+                  fi
+                  atlas_ldflags=
+                fi
+              done
+            fi
+          fi
+          if test "$found" = yes; then
+            break
+          fi
+        done
+      fi
+
+      if test "$found" = yes; then
+        found_blas=yes
+        LAPACK_LDFLAGS="$atlas_ldflags"
+        LAPACK_LIBS="$atlas_libs"
+      fi
+    fi
+  fi
+
+  # for BLAS
+  if test "$found_blas" = no; then
+    if test "x$blas" != xno ; then
+      { echo "$as_me:$LINENO: checking for BLAS Library" >&5
+echo "$as_me: checking for BLAS Library" >&6;}
+      found=no
+      if test -n "$blas_dir"; then
+        echo "$as_me:$LINENO: checking for BLAS library directory" >&5
+echo $ECHO_N "checking for BLAS library directory... $ECHO_C" >&6
+        if test -d "$blas_dir"; then
+          echo "$as_me:$LINENO: result: $blas_dir" >&5
+echo "${ECHO_T}$blas_dir" >&6
+          blas_ldflags="-L$blas_dir"
+        else
+          echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+          { { echo "$as_me:$LINENO: error: $blas_dir not found." >&5
+echo "$as_me: error: $blas_dir not found." >&2;}
+   { (exit 1); exit 1; }; }
+        fi
+      fi
+      if test -n "$blas_flags"; then
+        blas_libs="$blas_flags"
+        LDFLAGS="$blas_ldflags $ac_save_LDFLAGS"
+        LIBS="$blas_libs $ac_save_LIBS"
+        echo "$as_me:$LINENO: checking for dgemm_() in $blas_ldflags $blas_libs" >&5
+echo $ECHO_N "checking for dgemm_() in $blas_ldflags $blas_libs... $ECHO_C" >&6
+        cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+extern "C" char dgemm_();
+int
+main ()
+{
+dgemm_();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; found=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+      fi
+      if test "$found" = no ;  then
+        for blas_libs in '-lblas' '-lblas -lg2c' '-lblas -lpgftnrtl -lpgc'; do
+          LDFLAGS="$blas_ldflags $ac_save_LDFLAGS"
+          LIBS="$blas_libs $ac_save_LIBS"
+          echo "$as_me:$LINENO: checking for dgemm() in $blas_ldflags $blas_flags" >&5
+echo $ECHO_N "checking for dgemm() in $blas_ldflags $blas_flags... $ECHO_C" >&6
+          cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+extern "C" char dgemm_();
+int
+main ()
+{
+dgemm_();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; found=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+          if test "$found" = no; then
+            if test -z "$blas_dir"; then
+              for d in $HOME $HOME/src $prefix /usr/local /usr/local/src; do
+                if test -d "$d/lib"; then
+                  blas_ldflags="-L$d/lib"
+                  LDFLAGS="$blas_ldflags $ac_save_LDFLAGS"
+                  echo "$as_me:$LINENO: checking for dgemm_() in $blas_ldflags $blas_libs" >&5
+echo $ECHO_N "checking for dgemm_() in $blas_ldflags $blas_libs... $ECHO_C" >&6
+                  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+extern "C" char dgemm_();
+int
+main ()
+{
+dgemm_();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; found=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+                  if test "$found" = yes; then
+                    break
+                  fi
+                  blas_ldflags=
+                fi
+              done
+            fi
+          fi
+          if test "$found" = yes; then
+            break
+          fi
+        done
+      fi
+
+      if test "$found" = yes; then
+        found_blas=yes
+        LAPACK_LDFLAGS="$blas_ldflags"
+        LAPACK_LIBS="$blas_libs"
+      fi
+    fi
+  fi
+
+  # for LAPACK
+  if test "$found_blas" = yes; then
+    if test "$found_lapack" = no; then
+      if test "$lapack" != no ; then
+        { echo "$as_me:$LINENO: checking for LAPACK Library" >&5
+echo "$as_me: checking for LAPACK Library" >&6;}
+        found=no
+        if test -n "$lapack_dir"; then
+          echo "$as_me:$LINENO: checking for LAPACK library directory" >&5
+echo $ECHO_N "checking for LAPACK library directory... $ECHO_C" >&6
+          if test -d "$lapack_dir"; then
+            echo "$as_me:$LINENO: result: $lapack_dir" >&5
+echo "${ECHO_T}$lapack_dir" >&6
+            lapack_ldflags="-L$lapack_dir"
+          else
+            echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+            { { echo "$as_me:$LINENO: error: $lapack_dir not found." >&5
+echo "$as_me: error: $lapack_dir not found." >&2;}
+   { (exit 1); exit 1; }; }
+          fi
+        fi
+        if test -n "$lapack_flags"; then
+          lapack_libs="$lapack_flags"
+          LDFLAGS="$lapack_ldflags $LAPACK_LDFLAGS $ac_save_LDFLAGS"
+          LIBS="$lapack_libs $LAPACK_LIBS $ac_save_LIBS"
+          echo "$as_me:$LINENO: checking for dsyev_() in $lapack_ldflags $lapack_libs" >&5
+echo $ECHO_N "checking for dsyev_() in $lapack_ldflags $lapack_libs... $ECHO_C" >&6
+          cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+extern "C" char dsyev_();
+int
+main ()
+{
+dsyev_();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; found=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+        fi
+        if test "$found" = no; then
+          for lapack_libs in '-llapack'; do
+            LDFLAGS="$lapack_ldflags $LAPACK_LDFLAGS $ac_save_LDFLAGS"
+            LIBS="$lapack_libs $LAPACK_LIBS $ac_save_LIBS"
+            echo "$as_me:$LINENO: checking for dsyev_() in $lapack_ldflags $lapack_libs" >&5
+echo $ECHO_N "checking for dsyev_() in $lapack_ldflags $lapack_libs... $ECHO_C" >&6
+            cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+extern "C" char dsyev_();
+int
+main ()
+{
+dsyev_();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; found=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+            if test "$found" = no; then
+              if test -z "$lapack_dir"; then
+                for d in $HOME $HOME/src $prefix /usr/local /usr/local/src; do
+                  if test -d "$d/lib"; then
+                    lapack_ldflags="-L$d/lib"
+                  LDFLAGS="$lapack_ldflags $LAPACK_LDFLAGS $ac_save_LDFLAGS"
+                    echo "$as_me:$LINENO: checking for dsyev_() in $lapack_ldflags $lapack_libs" >&5
+echo $ECHO_N "checking for dsyev_() in $lapack_ldflags $lapack_libs... $ECHO_C" >&6
+                    cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+extern "C" char dsyev_();
+int
+main ()
+{
+dsyev_();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_cxx_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; found=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+                    if test "$found" = yes; then
+                      break
+                    fi
+                    lapack_ldflags=
+                  fi
+                done
+              fi
+            fi
+            if test "$found" = yes; then
+              break
+            fi
+          done
+        fi
+
+        if test "$found" = yes; then
+          found_lapack=yes
+          LAPACK_LDFLAGS="$lapack_ldflags $LAPACK_LDFLAGS"
+          LAPACK_LIBS="$lapack_libs $LAPACK_LIBS"
+        fi
+      fi
+    fi
+  fi
+
+  LDFLAGS=$ac_save_LDFLAGS
+  LIBS=$ac_save_LIBS
+  ac_ext=cc
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
+
+  if test "$found_blas" = yes; then
+    ac_cv_have_blas=yes
+    { echo "$as_me:$LINENO: enabling BLAS support" >&5
+echo "$as_me: enabling BLAS support" >&6;}
+  else
+    ac_cv_have_blas=no
+    { echo "$as_me:$LINENO: disabling BLAS support" >&5
+echo "$as_me: disabling BLAS support" >&6;}
   fi
 
-  if test "$lapack" != no; then
-    { echo "$as_me:$LINENO: LAPACK enabled" >&5
-echo "$as_me: LAPACK enabled" >&6;}
-
-cat >>confdefs.h <<\_ACEOF
-#define HAVE_LAPACK
-_ACEOF
-
+  if test "$found_lapack" = yes; then
     ac_cv_have_lapack=yes
+    { echo "$as_me:$LINENO: enabling LAPACK support" >&5
+echo "$as_me: enabling LAPACK support" >&6;}
   else
-    { echo "$as_me:$LINENO: LAPACK disabled" >&5
-echo "$as_me: LAPACK disabled" >&6;}
     ac_cv_have_lapack=no
-    LAPACK_CPPFLAGS=
-    LAPACK_LDFLAGS=
-    LAPACK_LIBS=
+    { echo "$as_me:$LINENO: disabling LAPACK support" >&5
+echo "$as_me: disabling LAPACK support" >&6;}
   fi
 
 
@@ -5297,7 +5699,6 @@ s,@AMDEPBACKSLASH@,$AMDEPBACKSLASH,;t t
 s,@CXXDEPMODE@,$CXXDEPMODE,;t t
 s,@am__fastdepCXX_TRUE@,$am__fastdepCXX_TRUE,;t t
 s,@am__fastdepCXX_FALSE@,$am__fastdepCXX_FALSE,;t t
-s,@LAPACK_CPPFLAGS@,$LAPACK_CPPFLAGS,;t t
 s,@LAPACK_LDFLAGS@,$LAPACK_LDFLAGS,;t t
 s,@LAPACK_LIBS@,$LAPACK_LIBS,;t t
 s,@HAVE_LAPACK_TRUE@,$HAVE_LAPACK_TRUE,;t t

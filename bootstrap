@@ -1,0 +1,28 @@
+#!/bin/sh
+
+have_autotools=yes
+
+am_version=`automake --version | head -1 | cut -d ' ' -f 4`
+ac_version=`autoconf --version | head -1 | cut -d ' ' -f 4`
+
+if test "x$am_version" != "x1.8.4"; then
+  have_autotools=no
+fi
+if test "x$ac_version" != "x2.59"; then
+  have_autotools=no
+fi
+
+if test "$have_autotools" = yes; then
+  set -x
+  aclocal -I config
+  autoheader
+  automake --foreign --add-missing --copy
+  autoconf
+else
+  for f in aclocal.m4 looper/config.h.in Makefile.in ed/Makefile.in doc/Makefile.in test/Makefile.in configure; do
+    if test -f $f; then
+      echo +touch $f
+      touch $f
+    fi
+  done
+fi

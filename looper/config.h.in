@@ -1,8 +1,5 @@
 /* looper/config.h.in.  Generated from configure.ac by autoheader.  */
 
-/* Define if you have LAPACK library */
-#undef HAVE_LAPACK
-
 /* Name of package */
 #undef PACKAGE
 
