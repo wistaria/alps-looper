@@ -42,7 +42,7 @@ try {
 
   alps::scheduler::SimpleMCFactory<alps::scheduler::DummyMCRun> factory;
   alps::scheduler::init(factory);
-  
+
   if (argc != 2) {
     std::cerr << "Usage: " << argv[0] << " inputfile\n";
     std::exit(-1);

@@ -45,7 +45,6 @@ dnl
 dnl check for LAPACK
 dnl
 
-sinclude(config/ac_lapack.m4)
 AC_LAPACK
 AM_CONDITIONAL(HAVE_LAPACK, test "$ac_cv_have_lapack" = yes)
 
