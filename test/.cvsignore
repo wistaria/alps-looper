@@ -1,3 +1,4 @@
+.deps
 Makefile
 amida
 fill_duration
@@ -11,6 +12,4 @@ virtual_graph
 weight
 xxz_matrix
 xxz_model
-*.ok
-*.xdr
-*.xml
+amida.xdr

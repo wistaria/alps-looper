@@ -324,12 +324,12 @@ AC_DEFUN([AC_LAPACK],
       LAPACK_CPPFLAGS=
       LAPACK_LDFLAGS=
       LAPACK_LIBS=
-      CPPFLAGS="$ac_save_CPPFLAGS -faltivec -framework vecLib"
-      LDFLAGS=$ac_save_LDFLAGS
+      CPPFLAGS=$ac_save_CPPFLAGS
+      LDFLAGS="$ac_save_LDFLAGS -faltivec -framework vecLib"
       LIBS=$ac_save_LIBS
       AC_CHECK_FUNC(dsyev_,
       [
-      LAPACK_CPPFLAGS="-faltivec -framework vecLib"; found=yes
+      LAPACK_LDFLAGS="-faltivec -framework vecLib"; found=yes
       ])
     fi
 
@@ -348,7 +348,7 @@ AC_DEFUN([AC_LAPACK],
   
   if test "$lapack" != no; then
     AC_MSG_NOTICE([LAPACK enabled])
-    AC_DEFINE(HAVE_LAPACK)
+    AC_DEFINE(HAVE_LAPACK, [], [Define if you have LAPACK library])
     ac_cv_have_lapack=yes
   else
     AC_MSG_NOTICE([LAPACK disabled])

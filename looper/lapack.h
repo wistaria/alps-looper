@@ -25,7 +25,7 @@
 #ifndef LOOPER_LAPACK_H
 #define LOOPER_LAPACK_H
 
-#include <looper/config.h>
+#include <looper/fortran.h>
 #include <algorithm>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>

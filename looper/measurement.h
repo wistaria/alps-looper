@@ -22,12 +22,12 @@
 *
 *****************************************************************************/
 
-// $Id: measurement.h 604 2004-01-16 08:35:21Z wistaria $
+// $Id: measurement.h 664 2004-03-06 16:55:43Z wistaria $
 
 #ifndef LOOPER_MEASUREMENT_H
 #define LOOPER_MEASUREMENT_H
 
-#include <looper/config.h>
+#include <looper/util.h>
 
 namespace looper {
 
