@@ -52,8 +52,8 @@ OBJ_PROGRAM_MPI = $(OBJ_PROGRAM)
 PROGRAM_MPI =
 PROGRAM = @PROGRAM_MPI@
 
-LOCAL_CONFIG = lattices.xml models.xml
-TESTOK = xxz_matrix.ok xxz_model.ok
+LOCAL_CONFIG = lattices.xml models.xml amida.xdr
+TESTOK = amida.ok simplegraph.ok xxz_matrix.ok xxz_model.ok virtualgraph.ok
 
 include $(RULES_MK)
 include $(srcdir)/Makefile.dep
@@ -64,8 +64,10 @@ bootstrap :
 
 # dependency for tests
 
-xxz_model.ok : $(srcdir)/xxz_model.input models.xml lattices.xml
-xxz_matrix.ok : $(srcdir)/xxz_matrix.input
+amida.ok : $(srcdir)/amida.output
+simplegraph.ok : $(srcdir)/simplegraph.input $(srcdir)/simplegraph.output
+xxz_model.ok : $(srcdir)/xxz_model.input $(srcdir)/xxz_model.output models.xml lattices.xml
+xxz_matrix.ok : $(srcdir)/xxz_matrix.input $(srcdir)/xxz_matrix.output
 
 # dependency for inputs
 

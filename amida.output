@@ -1,0 +1,138 @@
+[[amida test]]
+node connecting 3 and 0 inserted at 8
+node connecting 1 and 0 inserted at 9
+node connecting 3 and 1 inserted at 10
+node connecting 0 and 3 inserted at 11
+node connecting 1 and 3 inserted at 12
+node connecting 2 and 3 inserted at 13
+node connecting 1 and 3 inserted at 14
+node connecting 2 and 1 inserted at 15
+node connecting 0 and 2 inserted at 16
+node connecting 3 and 0 inserted at 17
+node connecting 2 and 3 inserted at 18
+node connecting 1 and 3 inserted at 19
+node connecting 0 and 1 inserted at 20
+node connecting 1 and 2 inserted at 21
+node connecting 0 and 1 inserted at 22
+node connecting 1 and 0 inserted at 23
+node connecting 2 and 3 inserted at 24
+node connecting 3 and 0 inserted at 25
+node connecting 2 and 0 inserted at 26
+node connecting 0 and 2 inserted at 27
+node connecting 1 and 0 inserted at 28
+node connecting 2 and 0 inserted at 29
+node connecting 1 and 3 inserted at 30
+node connecting 2 and 1 inserted at 31
+node connecting 0 and 3 inserted at 32
+node connecting 2 and 1 inserted at 33
+node connecting 2 and 0 inserted at 34
+node connecting 1 and 2 inserted at 35
+node connecting 2 and 0 inserted at 36
+node connecting 1 and 2 inserted at 37
+node connecting 1 and 2 inserted at 38
+node connecting 2 and 0 inserted at 39
+node connecting 3 and 1 inserted at 40
+node connecting 2 and 1 inserted at 41
+node connecting 2 and 1 inserted at 42
+node connecting 2 and 3 inserted at 43
+node connecting 2 and 1 inserted at 44
+node connecting 2 and 1 inserted at 45
+node connecting 1 and 3 inserted at 46
+node connecting 1 and 0 inserted at 47
+node connecting 2 and 3 inserted at 48
+node connecting 2 and 3 inserted at 49
+node connecting 0 and 1 inserted at 50
+node connecting 3 and 1 inserted at 51
+node connecting 1 and 2 inserted at 52
+node connecting 0 and 1 inserted at 53
+node connecting 2 and 0 inserted at 54
+node connecting 0 and 3 inserted at 55
+node connecting 2 and 0 inserted at 56
+node connecting 2 and 3 inserted at 57
+
+[amida Information]
+0	root at 0 :	next node is 56  node: 0, contents: 0
+1	root at 1 :	next node is 53  node: 1, contents: 0
+2	root at 2 :	next node is 57  node: 2, contents: 0
+3	root at 3 :	next node is 57  node: 3, contents: 0
+4	goal at 0 :	prev node is 8  node: 4, contents: 0
+5	goal at 1 :	prev node is 9  node: 5, contents: 0
+6	goal at 2 :	prev node is 13  node: 6, contents: 0
+7	goal at 3 :	prev node is 8  node: 7, contents: 0
+8	node connecting 3 and 0 :	7 11 4 9	node: 8, contents: 0
+9	node connecting 1 and 0 :	5 14 8 11	node: 9, contents: 0
+11	node connecting 0 and 3 :	9 20 8 13	node: 11, contents: 0
+13	node connecting 2 and 3 :	6 15 11 14	node: 13, contents: 0
+14	node connecting 1 and 3 :	9 15 13 18	node: 14, contents: 0
+15	node connecting 2 and 1 :	13 18 14 19	node: 15, contents: 0
+18	node connecting 2 and 3 :	15 21 14 19	node: 18, contents: 0
+19	node connecting 1 and 3 :	15 20 18 24	node: 19, contents: 0
+20	node connecting 0 and 1 :	11 22 19 21	node: 20, contents: 0
+21	node connecting 1 and 2 :	20 22 18 24	node: 21, contents: 0
+22	node connecting 0 and 1 :	20 23 21 23	node: 22, contents: 0
+23	node connecting 1 and 0 :	22 28 22 25	node: 23, contents: 0
+24	node connecting 2 and 3 :	21 26 19 25	node: 24, contents: 0
+25	node connecting 3 and 0 :	24 30 23 26	node: 25, contents: 0
+26	node connecting 2 and 0 :	24 27 25 27	node: 26, contents: 0
+27	node connecting 0 and 2 :	26 28 26 29	node: 27, contents: 0
+28	node connecting 1 and 0 :	23 30 27 29	node: 28, contents: 0
+29	node connecting 2 and 0 :	27 31 28 32	node: 29, contents: 0
+30	node connecting 1 and 3 :	28 31 25 32	node: 30, contents: 0
+31	node connecting 2 and 1 :	29 33 30 33	node: 31, contents: 0
+32	node connecting 0 and 3 :	29 34 30 40	node: 32, contents: 0
+33	node connecting 2 and 1 :	31 34 31 35	node: 33, contents: 0
+34	node connecting 2 and 0 :	33 35 32 36	node: 34, contents: 0
+35	node connecting 1 and 2 :	33 37 34 36	node: 35, contents: 0
+36	node connecting 2 and 0 :	35 37 34 39	node: 36, contents: 0
+37	node connecting 1 and 2 :	35 38 36 38	node: 37, contents: 0
+38	node connecting 1 and 2 :	37 40 37 39	node: 38, contents: 0
+39	node connecting 2 and 0 :	38 41 36 47	node: 39, contents: 0
+40	node connecting 3 and 1 :	32 43 38 41	node: 40, contents: 0
+41	node connecting 2 and 1 :	39 42 40 42	node: 41, contents: 0
+42	node connecting 2 and 1 :	41 43 41 44	node: 42, contents: 0
+43	node connecting 2 and 3 :	42 44 40 46	node: 43, contents: 0
+44	node connecting 2 and 1 :	43 45 42 45	node: 44, contents: 0
+45	node connecting 2 and 1 :	44 48 44 46	node: 45, contents: 0
+46	node connecting 1 and 3 :	45 47 43 48	node: 46, contents: 0
+47	node connecting 1 and 0 :	46 50 39 50	node: 47, contents: 0
+48	node connecting 2 and 3 :	45 49 46 49	node: 48, contents: 0
+49	node connecting 2 and 3 :	48 52 48 51	node: 49, contents: 0
+50	node connecting 0 and 1 :	47 53 47 51	node: 50, contents: 0
+51	node connecting 3 and 1 :	49 55 50 52	node: 51, contents: 0
+52	node connecting 1 and 2 :	51 53 49 54	node: 52, contents: 0
+53	node connecting 0 and 1 :	50 54 52 1	node: 53, contents: 0
+54	node connecting 2 and 0 :	52 56 53 55	node: 54, contents: 0
+55	node connecting 0 and 3 :	54 56 51 57	node: 55, contents: 0
+56	node connecting 2 and 0 :	54 57 55 0	node: 56, contents: 0
+57	node connecting 2 and 3 :	56 2 55 3	node: 57, contents: 0
+[amida Stack Information]
+12->17->16->10->NULL
+
+[[ trace along series ]]
+0	(0,0)->(56,1)->(55,0)->(54,1)->(53,0)->(50,0)->(47,1)->(39,1)->(36,1)->(34,1)->(32,0)->(29,1)->(28,1)->(27,0)->(26,1)->(25,1)->(23,1)->(22,0)->(20,0)->(11,0)->(9,1)->(8,1)->(4,0)
+1	(1,0)->(53,1)->(52,0)->(51,1)->(50,1)->(47,0)->(46,0)->(45,1)->(44,1)->(42,1)->(41,1)->(40,1)->(38,0)->(37,0)->(35,0)->(33,1)->(31,1)->(30,0)->(28,0)->(23,0)->(22,1)->(21,0)->(20,1)->(19,0)->(15,1)->(14,0)->(9,0)->(5,0)
+2	(2,0)->(57,0)->(56,0)->(54,0)->(52,1)->(49,0)->(48,0)->(45,0)->(44,0)->(43,0)->(42,0)->(41,0)->(39,0)->(38,1)->(37,1)->(36,0)->(35,1)->(34,0)->(33,0)->(31,0)->(29,0)->(27,1)->(26,0)->(24,0)->(21,1)->(18,0)->(15,0)->(13,0)->(6,0)
+3	(3,0)->(57,1)->(55,1)->(51,0)->(49,1)->(48,1)->(46,1)->(43,1)->(40,0)->(32,1)->(30,1)->(25,0)->(24,1)->(19,1)->(18,1)->(14,1)->(13,1)->(11,1)->(8,0)->(7,0)
+
+[[ trace along world line ]]
+[0,0]->(56,0)->(56,2)->(54,2)->(54,0)->(53,0)->(53,1)->(52,1)->(52,2)->(49,2)->(49,3)->(48,3)->(48,2)->(45,2)->(45,1)->(44,1)->(44,2)->(43,2)->(43,3)->(40,3)->(40,1)->(38,1)->(38,2)->(37,2)->(37,1)->(35,1)->(35,2)->(34,2)->(34,0)->(32,0)->(32,3)->(30,3)->(30,1)->(28,1)->(28,0)->(27,0)->(27,2)->(26,2)->(26,0)->(25,0)->(25,3)->(24,3)->(24,2)->(21,2)->(21,1)->(20,1)->(20,0)->(11,0)->(11,3)->(8,3)->(8,0)->[4,0]
+[1,1]->(53,1)->(53,0)->(50,0)->(50,1)->(47,1)->(47,0)->(39,0)->(39,2)->(38,2)->(38,1)->(37,1)->(37,2)->(36,2)->(36,0)->(34,0)->(34,2)->(33,2)->(33,1)->(31,1)->(31,2)->(29,2)->(29,0)->(28,0)->(28,1)->(23,1)->(23,0)->(22,0)->(22,1)->(21,1)->(21,2)->(18,2)->(18,3)->(14,3)->(14,1)->(9,1)->(9,0)->(8,0)->(8,3)->[7,3]
+[2,2]->(57,2)->(57,3)->(55,3)->(55,0)->(54,0)->(54,2)->(52,2)->(52,1)->(51,1)->(51,3)->(49,3)->(49,2)->(48,2)->(48,3)->(46,3)->(46,1)->(45,1)->(45,2)->(44,2)->(44,1)->(42,1)->(42,2)->(41,2)->(41,1)->(40,1)->(40,3)->(32,3)->(32,0)->(29,0)->(29,2)->(27,2)->(27,0)->(26,0)->(26,2)->(24,2)->(24,3)->(19,3)->(19,1)->(15,1)->(15,2)->(13,2)->(13,3)->(11,3)->(11,0)->(9,0)->(9,1)->[5,1]
+[3,3]->(57,3)->(57,2)->(56,2)->(56,0)->(55,0)->(55,3)->(51,3)->(51,1)->(50,1)->(50,0)->(47,0)->(47,1)->(46,1)->(46,3)->(43,3)->(43,2)->(42,2)->(42,1)->(41,1)->(41,2)->(39,2)->(39,0)->(36,0)->(36,2)->(35,2)->(35,1)->(33,1)->(33,2)->(31,2)->(31,1)->(30,1)->(30,3)->(25,3)->(25,0)->(23,0)->(23,1)->(22,1)->(22,0)->(20,0)->(20,1)->(19,1)->(19,3)->(18,3)->(18,2)->(15,2)->(15,1)->(14,1)->(14,3)->(13,3)->(13,2)->[6,2]
+
+[[ trace along loop ]]
+[0,0]->(56,0)->(56,2)->(57,2)->(57,3)->(55,3)->(55,0)->(56,0)->(56,2)->(54,2)->(54,0)->(55,0)->(55,3)->(51,3)->(51,1)->(52,1)->(52,2)->(49,2)->(49,3)->(51,3)->(51,1)->(50,1)->(50,0)->(53,0)->(53,1)->(52,1)->(52,2)->(54,2)->(54,0)->(53,0)->(53,1)->[1,1]
+[1,1]->(53,1)->(53,0)->(54,0)->(54,2)->(52,2)->(52,1)->(53,1)->(53,0)->(50,0)->(50,1)->(51,1)->(51,3)->(49,3)->(49,2)->(52,2)->(52,1)->(51,1)->(51,3)->(55,3)->(55,0)->(54,0)->(54,2)->(56,2)->(56,0)->(55,0)->(55,3)->(57,3)->(57,2)->(56,2)->(56,0)->[0,0]
+[2,2]->(57,2)->(57,3)->[3,3]
+[3,3]->(57,3)->(57,2)->[2,2]
+[4,0]->(8,0)->(8,3)->[7,3]
+[5,1]->(9,1)->(9,0)->(8,0)->(8,3)->(11,3)->(11,0)->(9,0)->(9,1)->(14,1)->(14,3)->(13,3)->(13,2)->(15,2)->(15,1)->(14,1)->(14,3)->(18,3)->(18,2)->(15,2)->(15,1)->(19,1)->(19,3)->(18,3)->(18,2)->(21,2)->(21,1)->(20,1)->(20,0)->(22,0)->(22,1)->(21,1)->(21,2)->(24,2)->(24,3)->(19,3)->(19,1)->(20,1)->(20,0)->(11,0)->(11,3)->(13,3)->(13,2)->[6,2]
+[6,2]->(13,2)->(13,3)->(11,3)->(11,0)->(20,0)->(20,1)->(19,1)->(19,3)->(24,3)->(24,2)->(21,2)->(21,1)->(22,1)->(22,0)->(20,0)->(20,1)->(21,1)->(21,2)->(18,2)->(18,3)->(19,3)->(19,1)->(15,1)->(15,2)->(18,2)->(18,3)->(14,3)->(14,1)->(15,1)->(15,2)->(13,2)->(13,3)->(14,3)->(14,1)->(9,1)->(9,0)->(11,0)->(11,3)->(8,3)->(8,0)->(9,0)->(9,1)->[5,1]
+[7,3]->(8,3)->(8,0)->[4,0]
+[Save & load test]
+Saving to amida.xdr...
+Loading from amida.xdr...
+[4,0]->(8,0)->(8,3)->[7,3]
+[5,1]->(9,1)->(9,0)->(8,0)->(8,3)->(11,3)->(11,0)->(9,0)->(9,1)->(14,1)->(14,3)->(13,3)->(13,2)->(15,2)->(15,1)->(14,1)->(14,3)->(18,3)->(18,2)->(15,2)->(15,1)->(19,1)->(19,3)->(18,3)->(18,2)->(21,2)->(21,1)->(20,1)->(20,0)->(22,0)->(22,1)->(21,1)->(21,2)->(24,2)->(24,3)->(19,3)->(19,1)->(20,1)->(20,0)->(11,0)->(11,3)->(13,3)->(13,2)->[6,2]
+[6,2]->(13,2)->(13,3)->(11,3)->(11,0)->(20,0)->(20,1)->(19,1)->(19,3)->(24,3)->(24,2)->(21,2)->(21,1)->(22,1)->(22,0)->(20,0)->(20,1)->(21,1)->(21,2)->(18,2)->(18,3)->(19,3)->(19,1)->(15,1)->(15,2)->(18,2)->(18,3)->(14,3)->(14,1)->(15,1)->(15,2)->(13,2)->(13,3)->(14,3)->(14,1)->(9,1)->(9,0)->(11,0)->(11,3)->(8,3)->(8,0)->(9,0)->(9,1)->[5,1]
+[7,3]->(8,3)->(8,0)->[4,0]
