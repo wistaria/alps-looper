@@ -233,6 +233,14 @@ public:
       (double)boost::num_vertices(param_.graph) * e;
     m.template get<measurement_type>("Energy Density") << e;
     m.template get<measurement_type>("Energy Density^2") << e2;
+
+    m.template get<measurement_type>("Energy for SH") <<
+      std::sqrt((double)boost::num_vertices(param_.graph)) *
+      param_.beta * e;
+    m.template get<measurement_type>("Energy^2 for SH") <<
+      (double)boost::num_vertices(param_.graph) *
+      looper::sqr(param_.beta) * e2;
+
     m.template get<measurement_type>("Magnetization^2") << umag2;
     m.template get<measurement_type>("Susceptibility") << usus;
     m.template get<measurement_type>("Staggered Magnetization^2") << smag2;

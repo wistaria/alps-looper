@@ -4640,7 +4640,7 @@ LIBS_PVM=$ac_cv_alps_libs_pvm
 
           ac_config_headers="$ac_config_headers looper/config.h"
 
-                                                  ac_config_files="$ac_config_files Makefile doc/Makefile test/Makefile ed/Makefile ed/param"
+                                                  ac_config_files="$ac_config_files Makefile doc/Makefile test/Makefile ed/Makefile ed/diag.ip"
 
 
 test "x$prefix" = xNONE && prefix=$ac_default_prefix
@@ -5162,7 +5162,7 @@ do
   "doc/Makefile" ) CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
   "test/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
   "ed/Makefile" ) CONFIG_FILES="$CONFIG_FILES ed/Makefile" ;;
-  "ed/param" ) CONFIG_FILES="$CONFIG_FILES ed/param" ;;
+  "ed/diag.ip" ) CONFIG_FILES="$CONFIG_FILES ed/diag.ip" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
   "looper/config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS looper/config.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
