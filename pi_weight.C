@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: weight.h 408 2003-10-10 09:34:54Z wistaria $
+* $Id: pi_weight.C 418 2003-10-15 01:55:10Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -34,49 +34,42 @@
 *
 **************************************************************************/
 
-#ifndef LOOPER_WEIGHT_H
-#define LOOPER_WEIGHT_H
+#include "pathintegral.h"
+#include "xxz.h"
+#include <alps/parameterlist.h>
+#include <iostream>
 
-#include <boost/throw_exception.hpp>
-#include <cmath>
-#include <stdexcept>
-
-namespace looper {
-
-class path_integral_weight
+int main()
 {
-public:
-  path_integral_weight(double Jxy = 1, double Jz = 1)
-  {
-    Jxy = std::abs(Jxy); // ignore negative signs
-    if (Jxy == 0 && Jz == 0)
-      boost::throw_exception(std::invalid_argument("Invalid value for coupling constants"));
+#ifndef BOOST_NO_EXCEPTIONS
+try {
+#endif
 
-    density_ = std::max(std::abs(Jz) / 2, (Jxy + std::abs(Jz)) / 4);
-    if (std::abs(Jz) > Jxy) {
-      freeze_ = 1 - Jxy / std::abs(Jz);
-    } else {
-      freeze_ = 0;
-    }
-    accept_p_ = std::max((Jxy + Jz) / (Jxy + std::abs(Jz)), double(0));
-    accept_a_ = std::max((Jxy - Jz) / (Jxy + std::abs(Jz)), double(0));
+  alps::ParameterList params;
+  std::cin >> params;
+
+  for (alps::ParameterList::iterator p = params.begin(); p != params.end();
+       ++p) {
+    looper::xxz_parameter xxz(0, (*p)["Jxy"], (*p)["Jz"]);
+    looper::path_integral::weight w(xxz);
+    std::cout << "Jxy = " << (*p)["Jxy"]
+	      << ", Jz = " << (*p)["Jz"]
+	      << " : r = " << w.density()
+	      << ", P_f = " << w.freeze()
+	      << ", P_p = " << w.accept_p()
+	      << ", P_a = " << w.accept_a()
+	      << std::endl;
   }
-
-  double density() const { return density_; }
-  double freeze() const { return freeze_; }
-  double accept_p() const { return accept_p_; }
-  double accept_a() const { return accept_a_; }
-  double accept(int c0, int c1) const {
-    return (c0 ^ c1) ? accept_a_ : accept_p_;
-  }
-
-private:
-  double density_;
-  double freeze_;
-  double accept_p_;
-  double accept_a_;
-};
-
-} // end namespace looper
-
-#endif // LOOPER_WEIGHT_H
+  
+#ifndef BOOST_NO_EXCEPTIONS
+}
+catch (std::exception& exc) {
+  std::cerr << exc.what() << "\n";
+  return -1;
+}
+catch (...) {
+  std::cerr << "Fatal Error: Unknown Exception!\n";
+  return -2;
+}
+#endif
+}

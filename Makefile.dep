@@ -1,9 +1,9 @@
 amida.o amida_mpi.o amida_pvm.o amida amida_mpi amida_pvm: $(srcdir)/amida.h
 fill_duration.o fill_duration_mpi.o fill_duration_pvm.o fill_duration fill_duration_mpi fill_duration_pvm: $(srcdir)/random.h
 permutation.o permutation_mpi.o permutation_pvm.o permutation permutation_mpi permutation_pvm: $(srcdir)/permutation.h
+pi_weight.o pi_weight_mpi.o pi_weight_pvm.o pi_weight pi_weight_mpi pi_weight_pvm: $(srcdir)/pathintegral.h $(srcdir)/graph.h $(srcdir)/xxz.h
 simplegraph.o simplegraph_mpi.o simplegraph_pvm.o simplegraph simplegraph_mpi simplegraph_pvm: $(srcdir)/graph.h
 unionfind.o unionfind_mpi.o unionfind_pvm.o unionfind unionfind_mpi unionfind_pvm: $(srcdir)/unionfind.h
 virtualgraph.o virtualgraph_mpi.o virtualgraph_pvm.o virtualgraph virtualgraph_mpi virtualgraph_pvm: $(srcdir)/graph.h $(srcdir)/virtualgraph.h
-weight.o weight_mpi.o weight_pvm.o weight weight_mpi weight_pvm: $(srcdir)/weight.h
 xxz_matrix.o xxz_matrix_mpi.o xxz_matrix_pvm.o xxz_matrix xxz_matrix_mpi xxz_matrix_pvm: $(srcdir)/xxz.h
 xxz_model.o xxz_model_mpi.o xxz_model_pvm.o xxz_model xxz_model_mpi xxz_model_pvm: $(srcdir)/xxz.h

@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: weight.C 408 2003-10-10 09:34:54Z wistaria $
+* $Id: pathintegral.h 418 2003-10-15 01:55:10Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -34,40 +34,70 @@
 *
 **************************************************************************/
 
-#include "weight.h"
-#include <alps/parameterlist.h>
-#include <iostream>
+#ifndef LOOPER_PATHINTEGRAL_H
+#define LOOPER_PATHINTEGRAL_H
 
-int main()
+#include "graph.h"
+#include <boost/throw_exception.hpp>
+#include <cmath>
+#include <stdexcept>
+
+namespace looper {
+
+namespace path_integral {
+
+template<class M, class G>
+double energy_offset(const M& model, const G& graph)
 {
-#ifndef BOOST_NO_EXCEPTIONS
-try {
-#endif
+  typedef typename boost::graph_traits<G>::edge_iterator edge_iterator;
 
-  alps::ParameterList params;
-  std::cin >> params;
+  double offset = 0;
+  typename alps::property_map<alps::bond_type_t, G, int>::const_type
+    bond_type(alps::get_or_default(alps::bond_type_t(), graph, 0));
+  edge_iterator ei_end = boost::edges(graph).second;
+  for (edge_iterator ei = boost::edges(graph).first; ei != ei_end; ++ei)
+    offset += model.bond(bond_type[*ei]).C;
+  return offset;
+}
 
-  for (alps::ParameterList::iterator p = params.begin(); p != params.end();
-       ++p) {
-    looper::path_integral_weight w((*p)["Jxy"], (*p)["Jz"]);
-    std::cout << "Jxy = " << (*p)["Jxy"]
-	      << ", Jz = " << (*p)["Jz"]
-	      << " : r = " << w.density()
-	      << ", P_f = " << w.freeze()
-	      << ", P_p = " << w.accept_p()
-	      << ", P_a = " << w.accept_a()
-	      << std::endl;
+class weight
+{
+public:
+  template<class P>
+  weight(const P& p)
+  {
+    double Jxy = std::abs(p.Jxy); // ignore negative signs
+    double Jz = p.Jz;
+    if (Jxy == 0 && Jz == 0)
+      boost::throw_exception(std::invalid_argument("Invalid values for coupling constants"));
+    
+    density_ = std::max(std::abs(Jz) / 2, (Jxy + std::abs(Jz)) / 4);
+    if (std::abs(Jz) > Jxy) {
+      freeze_ = 1 - Jxy / std::abs(Jz);
+    } else {
+      freeze_ = 0;
+    }
+    accept_p_ = std::max((Jxy + Jz) / (Jxy + std::abs(Jz)), double(0));
+    accept_a_ = std::max((Jxy - Jz) / (Jxy + std::abs(Jz)), double(0));
   }
-  
-#ifndef BOOST_NO_EXCEPTIONS
-}
-catch (std::exception& exc) {
-  std::cerr << exc.what() << "\n";
-  return -1;
-}
-catch (...) {
-  std::cerr << "Fatal Error: Unknown Exception!\n";
-  return -2;
-}
-#endif
-}
+
+  double density() const { return density_; }
+  double freeze() const { return freeze_; }
+  double accept_p() const { return accept_p_; }
+  double accept_a() const { return accept_a_; }
+  double accept(int c0, int c1) const {
+    return (c0 ^ c1) ? accept_a_ : accept_p_;
+  }
+
+private:
+  double density_;
+  double freeze_;
+  double accept_p_;
+  double accept_a_;
+};
+
+} // end namespace path_integral
+
+} // end namespace looper
+
+#endif // LOOPER_PATHINTEGRAL_H
