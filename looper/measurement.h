@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: measurement.h 536 2003-11-06 08:01:36Z wistaria $
+* $Id: measurement.h 537 2003-11-06 14:47:54Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -45,6 +45,8 @@ template<class T> T sqr(T t) { return t * t; }
 // unimproved estimators
 //
 
+// energy offset
+
 template<class P>
 inline double energy_offset(const P& param)
 {
@@ -68,6 +70,9 @@ inline double energy_z(const C& config, const P& param)
   return ene / param.virtual_graph.num_real_vertices;
 }
 
+
+// energy
+
 template<class C, class P>
 inline double energy_xy(const C& config, const P& param)
 {
@@ -89,6 +94,9 @@ energy(const C& config, const P& param)
   return boost::make_tuple(ez, exy, e2);
 }
 
+
+// total Sz
+
 template<class C, class P>
 inline double uniform_sz(const C& config, const P& param)
 {
@@ -103,28 +111,38 @@ inline double uniform_sz(const C& config, const P& param)
   return sz / param.virtual_graph.num_real_vertices;
 }
 
+
+// total stsaggered Sz
+
 template<class C, class P>
 inline double staggered_sz(const C& config, const P& param)
 {
   typedef typename C::qmc_type qmc_type;
-  if (param.is_bipartite) {
-    double ss = 0.;
-    typename qmc_type::vertex_iterator vi, vi_end;
-    for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
-	 vi != vi_end; ++vi)
-      ss += gauge(*vi, param.virtual_graph.graph) *
-	qmc_type::static_sz(*vi, config);
-    return ss / param.virtual_graph.num_real_vertices;
-  } else {
-    return 0.;
-  }
+  if (!param.is_bipartite)
+    boost::throw_exception(std::runtime_error("lattice is not bipartitle"));
+  double ss = 0.;
+  typename qmc_type::vertex_iterator vi, vi_end;
+  for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
+       vi != vi_end; ++vi)
+    ss += gauge(*vi, param.virtual_graph.graph) *
+      qmc_type::static_sz(*vi, config);
+  return ss / param.virtual_graph.num_real_vertices;
 }
 
-template<class C, class P>
-inline double staggered_susceptibility(const C& config, const P& param)
+
+// staggered susceptilibity
+
+namespace {
+
+template<class Q> struct staggered_susceptibility_helper;
+
+template<class G, class M, class W, class N>
+struct staggered_susceptibility_helper<path_integral<G, M, W, N> >
 {
-  typedef typename C::qmc_type qmc_type;
-  if (param.is_bipartite) {
+  typedef path_integral<G, M, W, N> qmc_type;
+  static double calc(const qmc_type::config_type& config,
+		     const qmc_type::parameter_type& param)
+  {
     double ss = 0.;
     typename qmc_type::vertex_iterator vi, vi_end;
     for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
@@ -132,10 +150,42 @@ inline double staggered_susceptibility(const C& config, const P& param)
       ss += gauge(*vi, param.virtual_graph.graph) *
 	qmc_type::dynamic_sz(*vi, config, param.virtual_graph);
     return param.beta * ss * ss / param.virtual_graph.num_real_vertices;
-  } else {
-    return 0.;
   }
+};
+
+template<class G, class M, class W, class N>
+struct staggered_susceptibility_helper<sse<G, M, W, N> >
+{
+  typedef sse<G, M, W, N> qmc_type;
+  static double calc(const qmc_type::config_type& config,
+		     const qmc_type::parameter_type& param)
+  {
+    double sd = 0.;
+    double ss = 0.;
+    typename qmc_type::vertex_iterator vi, vi_end;
+    for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
+	 vi != vi_end; ++vi) {
+      sd += gauge(*vi, param.virtual_graph.graph) *
+	qmc_type::dynamic_sz(*vi, config, param.virtual_graph);
+      ss += gauge(*vi, param.virtual_graph.graph) *
+	qmc_type::static_sz(*vi, config, param.virtual_graph);
+    }
+    return param.beta * (sqr(sd) + sqr(ss) / (config.os.size() + 1)) /
+      param.virtual_graph.num_real_vertices;
+  }
+};
+
+} // end namespace
+
+template<class C, class P>
+inline double staggered_susceptibility(const C& config, const P& param)
+{
+  if (!param.is_bipartite)
+    boost::throw_exception(std::runtime_error("lattice is not bipartitle"));
+  return staggered_susceptibility_helper<typename C::qmc_type>::
+    calc(config, param);
 }
+
 
 //
 // improved estimators
