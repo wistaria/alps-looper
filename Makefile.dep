@@ -1,2 +1,2 @@
-model.o model_mpi.o model_pvm.o model model_mpi model_pvm: $(srcdir)/xxz_model.h $(srcdir)/xxz_matrix.h
 xxz_matrix.o xxz_matrix_mpi.o xxz_matrix_pvm.o xxz_matrix xxz_matrix_mpi xxz_matrix_pvm: $(srcdir)/xxz_matrix.h
+xxz_model.o xxz_model_mpi.o xxz_model_pvm.o xxz_model xxz_model_mpi xxz_model_pvm: $(srcdir)/xxz_model.h $(srcdir)/xxz_matrix.h
