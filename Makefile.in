@@ -45,11 +45,11 @@ noinst_PROGRAMS = copyright$(EXEEXT) qmc$(EXEEXT) qmc_cmd$(EXEEXT) \
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(pkginclude_HEADERS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(srcdir)/include-looper.mk.in $(srcdir)/lattices.xml.in \
-	$(srcdir)/models.xml.in $(srcdir)/percolation-params.in \
-	$(srcdir)/qmc-params.in $(top_srcdir)/configure \
-	$(top_srcdir)/looper/config.h.in AUTHORS COPYING ChangeLog \
-	INSTALL NEWS configure configure.ac depcomp install-sh missing
+	$(srcdir)/lattices.xml.in $(srcdir)/models.xml.in \
+	$(srcdir)/percolation-params.in $(srcdir)/qmc-params.in \
+	$(top_srcdir)/configure $(top_srcdir)/looper/config.h.in \
+	AUTHORS COPYING ChangeLog INSTALL NEWS configure configure.ac \
+	depcomp install-sh missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/ac_lapack.m4 \
 	$(top_srcdir)/configure.ac
@@ -59,8 +59,8 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno
 mkinstalldirs = $(mkdir_p)
 CONFIG_HEADER = $(top_builddir)/looper/config.h
-CONFIG_CLEAN_FILES = include-looper.mk lattices.xml models.xml \
-	percolation-params qmc-params
+CONFIG_CLEAN_FILES = lattices.xml models.xml percolation-params \
+	qmc-params
 @HAVE_MPI_TRUE@am__EXEEXT_1 = qmc_mpi$(EXEEXT) \
 @HAVE_MPI_TRUE@	percolation_mpi$(EXEEXT)
 @HAVE_PVM_TRUE@am__EXEEXT_2 = qmc_pvm$(EXEEXT) \
@@ -326,8 +326,6 @@ $(top_srcdir)/looper/config.h.in:  $(am__configure_deps)
 
 distclean-hdr:
 	-rm -f looper/config.h looper/stamp-h1
-include-looper.mk: $(top_builddir)/config.status $(srcdir)/include-looper.mk.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
 lattices.xml: $(top_builddir)/config.status $(srcdir)/lattices.xml.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 models.xml: $(top_builddir)/config.status $(srcdir)/models.xml.in

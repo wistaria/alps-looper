@@ -4623,7 +4623,7 @@ LIBS_PVM=$ac_cv_alps_libs_pvm
 
           ac_config_headers="$ac_config_headers looper/config.h"
 
-                                                                                ac_config_files="$ac_config_files include-looper.mk Makefile test/Makefile doc/Makefile lattices.xml models.xml percolation-params qmc-params"
+                                                                      ac_config_files="$ac_config_files Makefile test/Makefile doc/Makefile lattices.xml models.xml percolation-params qmc-params"
 
 
 test "x$prefix" = xNONE && prefix=$ac_default_prefix
@@ -5141,7 +5141,6 @@ for ac_config_target in $ac_config_targets
 do
   case "$ac_config_target" in
   # Handling of arguments.
-  "include-looper.mk" ) CONFIG_FILES="$CONFIG_FILES include-looper.mk" ;;
   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
   "test/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
   "doc/Makefile" ) CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
