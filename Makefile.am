@@ -11,7 +11,29 @@ noinst_PROGRAMS += loop_pvm
 endif
 
 nodist_pkginclude_HEADERS = looper/config.h
-pkginclude_HEADERS = looper/amida.h looper/copyright.h looper/exact_diag.h looper/fill_duration.h looper/graph.h looper/lapack.h looper/measurement.h looper/model.h looper/node.h looper/operator.h looper/path_integral.h looper/permutation.h looper/random_choice.h looper/sse.h looper/union_find.h looper/util.h looper/vector_helper.h looper/version.h looper/virtual_graph.h looper/weight.h looper/xxz.h
+pkginclude_HEADERS = \
+	looper/amida.h \
+	looper/copyright.h \
+	looper/exact_diag.h \
+	looper/fill_duration.h \
+	looper/find_bridges.h \
+	looper/graph.h \
+	looper/lapack.h \
+	looper/measurement.h \
+	looper/model.h \
+	looper/node.h \
+	looper/operator.h \
+	looper/path_integral.h \
+	looper/permutation.h \
+	looper/random_choice.h \
+	looper/sse.h \
+	looper/union_find.h \
+	looper/util.h \
+	looper/vector_helper.h \
+	looper/version.h \
+	looper/virtual_graph.h \
+	looper/weight.h \
+	looper/xxz.h
 
 dist_noinst_SCRIPTS = config/run-test config/update_preamble
 dist_noinst_DATA = CITATIONS.txt LICENSE lattices.xml models.xml

@@ -3,12 +3,16 @@ Makefile
 .libs
 alternating_tensor
 amida
+edge_type
 fill_duration
+filtered_graph
+find_bridges
 gels
 generate_01
 hypercubic
 index_helper
 permutation
+postorder
 random_choice
 syev
 union_find

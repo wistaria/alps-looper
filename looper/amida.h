@@ -42,27 +42,27 @@
 
 namespace looper {
 
-struct amida_node_base
-{
+struct amida_node_base {
   // Convention
   //               link  cut bottom top   vacant
-  //  series[0] :   s1    s1   s1    s1    max
-  //  series[1] :   s2    s1   max   max   0
-  //  next[0]   :   X1    X1   X1    0     X1       goal flag
-  //  prev[0]   :   X2    X2   0     X1    X1       root flag
+  //  series[0] :   s1    s1   s1    s1    MAX_
+  //  series[1] :   s2    s1   MAX_  MAX_  0
+  //  next[0]   :   X1    X1   X1    0     X1       top flag
+  //  prev[0]   :   X2    X2   0     X1    X1       bottom flag
   //  next[1]   :   X3    X1   0     0     0        normal flag
   //  prev[1]   :   X4    0    0     0     0        link flag
 
-  bool at_bottom() const { return prev[0] == 0; }
-  bool at_top() const { return next[0] == 0; }
-  bool at_boundary() const { return series[1] == _node_max; }
-  bool is_link() const { return prev[1] != 0; }
+public:
+  bool at_bottom() const { return !prev[0]; }
+  bool at_top() const { return !next[0]; }
+  bool at_boundary() const { return series[1] == MAX_; }
+  bool is_link() const { return prev[1]; }
   bool is_cut() const { return series[0] == series[1]; }
-  bool is_node() const { return series[0] != _node_max; }
-  bool is_vacant() const { return series[0] == _node_max; }
+  bool is_vacant() const { return series[0] == MAX_; }
+  bool is_node() const { return !is_vacant(); }
 
   void set_as_vacant(amida_node_base* t) {
-    series[0] = _node_max;
+    series[0] = MAX_;
     series[1] = 0;
     next[0] = t;
     prev[0] = t;
@@ -72,7 +72,7 @@ struct amida_node_base
 
   void set_as_bottom(amida_node_base* t, std::size_t s) {
     series[0] = s;
-    series[1] = _node_max;
+    series[1] = MAX_;
     next[0] = t;
     prev[0] = 0;
     next[1] = 0;
@@ -81,7 +81,7 @@ struct amida_node_base
 
   void set_as_top(amida_node_base* b, std::size_t s) {
     series[0] = s;
-    series[1] = _node_max;
+    series[1] = MAX_;
     next[0] = 0;
     prev[0] = b;
     next[1] = 0;
@@ -92,14 +92,13 @@ struct amida_node_base
   amida_node_base* next[2];
   amida_node_base* prev[2];
 
-private:
-  static const std::size_t _node_max = ~0; // = 111...111
+  static const std::size_t MAX_ = ~0; // = 111...111
 };
 
 
 template<class T>
-struct amida_node : public amida_node_base
-{
+class amida_node : public amida_node_base {
+public:
   amida_node() : amida_node_base(), data_() {}
 
   T data_;
@@ -131,7 +130,7 @@ struct amida_node : public amida_node_base
 };
 
 
-struct amida_series_iterator_base
+struct amida_iterator_base
 {
   typedef std::size_t                     size_type;
   typedef std::ptrdiff_t                  difference_type;
@@ -141,8 +140,8 @@ struct amida_series_iterator_base
   size_type ser_;
   size_type leg_;
 
-  amida_series_iterator_base() : node_(), ser_(), leg_() {}
-  amida_series_iterator_base(amida_node_base* x, size_type s)
+  amida_iterator_base() : node_(), ser_(), leg_() {}
+  amida_iterator_base(amida_node_base* x, size_type s)
     : node_(x), ser_(s), leg_()
   {
     if (node_)
@@ -151,7 +150,7 @@ struct amida_series_iterator_base
       else
         leg_ = 1;
   }
-  ~amida_series_iterator_base() {}
+  ~amida_iterator_base() {}
 
   void jump() { leg_ ^= 1; ser_ = node_->series[leg_]; }
 
@@ -177,27 +176,27 @@ struct amida_series_iterator_base
       leg_ = 1;
   }
 
-  bool operator==(const amida_series_iterator_base& x) const
+  bool operator==(const amida_iterator_base& x) const
   { return node_ == x.node_ && ser_ == x.ser_; }
 
-  bool operator!=(const amida_series_iterator_base& x) const
+  bool operator!=(const amida_iterator_base& x) const
   { return node_ != x.node_ || ser_ != x.ser_; }
 };
 
 
 template<class T>
-struct amida_const_series_iterator : public amida_series_iterator_base
+struct amida_const_iterator : public amida_iterator_base
 {
   typedef std::size_t   size_type;
   typedef T             value_type;
   typedef const T&      const_reference;
   typedef const T*      const_pointer;
   typedef amida_node<T> node_type;
-  typedef amida_const_series_iterator<T> self_;
+  typedef amida_const_iterator<T> self_;
 
-  amida_const_series_iterator() {}
-  amida_const_series_iterator(node_type* x, size_type s)
-    : amida_series_iterator_base(x, s) {}
+  amida_const_iterator() {}
+  amida_const_iterator(node_type* x, size_type s)
+    : amida_iterator_base(x, s) {}
 
   const_reference operator*() const { return ((node_type*)node_)->data_; }
   const_pointer operator->() const { return &(operator*()); }
@@ -210,18 +209,18 @@ struct amida_const_series_iterator : public amida_series_iterator_base
 
 
 template<class T>
-struct amida_series_iterator : public amida_const_series_iterator<T>
+struct amida_iterator : public amida_const_iterator<T>
 {
-  typedef amida_const_series_iterator<T> base_;
+  typedef amida_const_iterator<T> base_;
   typedef typename base_::size_type      size_type;
   typedef T                              value_type;
   typedef T&                             reference;
   typedef T*                             pointer;
   typedef amida_node<T>                  node_type;
-  typedef amida_series_iterator<T>       self_;
+  typedef amida_iterator<T>       self_;
 
-  amida_series_iterator() {}
-  amida_series_iterator(node_type* x, size_type s) : base_(x, s) {}
+  amida_iterator() {}
+  amida_iterator(node_type* x, size_type s) : base_(x, s) {}
 
   reference operator*() const { return ((node_type*)base_::node_)->data_; }
   pointer operator->() const { return &(operator*()); }
@@ -237,15 +236,15 @@ template<class T>
 class amida
 {
 public:
-  typedef std::size_t                    size_type;
-  typedef T                              value_type;
-  typedef T&                             reference;
-  typedef const T&                       const_reference;
-  typedef T*                             pointer;
-  typedef const T*                       const_pointer;
-  typedef amida_series_iterator<T>       iterator;
-  typedef amida_const_series_iterator<T> const_iterator;
-  typedef amida_node<T>                  node_type;
+  typedef std::size_t             size_type;
+  typedef T                       value_type;
+  typedef T&                      reference;
+  typedef const T&                const_reference;
+  typedef T*                      pointer;
+  typedef const T*                const_pointer;
+  typedef amida_iterator<T>       iterator;
+  typedef amida_const_iterator<T> const_iterator;
+  typedef amida_node<T>           node_type;
 
   // constructors
   explicit amida(size_type r = 0)
