@@ -1,5 +1,5 @@
-LATTICE_LIBRARY = "@srcdir@/lattices.xml"
-MODEL_LIBRARY = "@srcdir@/models.xml"
+LATTICE_LIBRARY = "@top_srcdir@/lattices.xml"
+MODEL_LIBRARY = "@top_srcdir@/models.xml"
 
 {
 LATTICE = "dimer"

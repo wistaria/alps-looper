@@ -210,14 +210,14 @@ try {
       looper::add_to_matrix(hamiltonian,
         model.model().site_term(boost::get(alps::vertex_type_t(),
                                            lattice.graph(), *vi)),
-        model.operators(), basis_set, *vi, lattice.graph(), params);
+        basis_set, *vi, lattice.graph(), params);
     alps::graph_traits<graph_type>::edge_iterator ei, ei_end;
     for (boost::tie(ei, ei_end) = boost::edges(lattice.graph());
          ei != ei_end; ++ei)
       looper::add_to_matrix(hamiltonian,
         model.model().bond_term(boost::get(alps::edge_type_t(),
                                            lattice.graph(), *ei)),
-        model.operators(), basis_set,
+        basis_set,
         boost::source(*ei, lattice.graph()),
         boost::target(*ei, lattice.graph()),
         lattice.graph(), params);
@@ -272,7 +272,7 @@ try {
     for (boost::tie(vi, vi_end) = boost::vertices(lattice.graph());
          vi != vi_end; ++vi) {
       looper::add_to_diagonal_matrix(uniform_sz,
-        alps::SiteTermDescriptor<short>("Sz"), model.operators(),
+        alps::SiteTermDescriptor<short>("Sz"),
         basis_set, *vi, lattice.graph());
     }
 
@@ -297,11 +297,11 @@ try {
         if (boost::get(alps::parity_t(), lattice.graph(), *vi) ==
             alps::parity::white) {
           looper::add_to_diagonal_matrix(staggered_sz,
-            alps::SiteTermDescriptor<short>("Sz"), model.operators(),
+            alps::SiteTermDescriptor<short>("Sz"),
             basis_set, *vi, lattice.graph());
         } else {
           looper::add_to_diagonal_matrix(staggered_sz,
-            alps::SiteTermDescriptor<short>("-Sz"), model.operators(),
+            alps::SiteTermDescriptor<short>("-Sz"),
             basis_set, *vi, lattice.graph());
         }
       }

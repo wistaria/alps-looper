@@ -33,12 +33,37 @@ typedef alps::SiteBasisDescriptor<short> site_basis_descriptor;
 typedef std::map<std::string, alps::OperatorDescriptor<short> >
   operator_map_type;
 
+inline operator_map_type
+spin_operators()
+{
+  operator_map_type ops;
+
+  // identity operator
+  ops["Identity"] = alps::OperatorDescriptor<short>("Identity", "1");
+
+  // Sz
+  ops["Sz"] = alps::OperatorDescriptor<short>("Sz", "Sz");
+
+  // S+
+  alps::OperatorDescriptor<short> splus("Splus", "sqrt(S*(S+1)-Sz*(Sz+1))");
+  splus["Sz"] = 1;
+  ops["Splus"] = splus;
+
+  // S-
+  alps::OperatorDescriptor<short> sminus("Sminus", "sqrt(S*(S+1)-Sz*(Sz-1))");
+  sminus["Sz"] = -1;
+  ops["Sminus"] = sminus;
+  
+  return ops;
+}
+
 template<class I>
 site_basis_descriptor spin_basis(const alps::half_integer<I>& s)
 {
   alps::Parameters p;
-  p["S"] = s;
-  site_basis_descriptor sb("spin", p);
+  p["loc_S"] = s;
+  site_basis_descriptor sb("spin", p, spin_operators());
+  sb.push_back(alps::QuantumNumberDescriptor<short>("S", "loc_S", "loc_S"));
   sb.push_back(alps::QuantumNumberDescriptor<short>("Sz", "-S", "S"));
   sb.set_parameters(alps::Parameters()); // required for re-evaluation
   return sb;
@@ -47,58 +72,10 @@ site_basis_descriptor spin_basis(const alps::half_integer<I>& s)
 inline site_basis_descriptor spin_basis(double s = 0.5)
 { return spin_basis(alps::half_integer<short>(s)); }
 
-inline operator_map_type
-spin_operators(const std::set<std::string>& suffixes = std::set<std::string>())
-{
-  operator_map_type ops;
-
-  // identity operator
-  ops["Identity"] = alps::OperatorDescriptor<short>("Identity", "1");
-
-  if (suffixes.empty()) {
-    // Sz
-    ops["Sz"] = alps::OperatorDescriptor<short>("Sz", "Sz");
-
-    // S+
-    alps::OperatorDescriptor<short> splus("Splus", "sqrt(S*(S+1)-Sz*(Sz+1))");
-    splus["Sz"] = 1;
-    ops["Splus"] = splus;
-
-    // S-
-    alps::OperatorDescriptor<short> sminus("Sminus", "sqrt(S*(S+1)-Sz*(Sz-1))");
-    sminus["Sz"] = -1;
-    ops["Sminus"] = sminus;
-  } else {
-    std::set<std::string>::const_iterator itr_end = suffixes.end();
-    for (std::set<std::string>::const_iterator itr = suffixes.begin();
-         itr != itr_end; ++itr) {
-      std::string es2 = "S" + *itr + "*(S" + *itr + "+1)";
-
-      // Sz
-      ops["Sz" + *itr] = alps::OperatorDescriptor<short>("Sz" + *itr, "Sz");
-
-      // S+
-      alps::OperatorDescriptor<short> splus("Splus" + *itr, "sqrt(" + es2 +
-                                            "-Sz*(Sz+1))");
-      splus["Sz"] = 1;
-      ops["Splus" + *itr] = splus;
-
-      // S-
-      alps::OperatorDescriptor<short> sminus("Sminus" + *itr, "sqrt(" + es2 +
-                                             "-Sz*(Sz-1))");
-      sminus["Sz"] = -1;
-      ops["Sminus" + *itr] = sminus;
-    }
-  }
-
-  return ops;
-}
-
 template<class MATRIX, class I, class GRAPH>
 void add_to_matrix(
   MATRIX& matrix,
   const alps::SiteTermDescriptor<I>& term,
-  const operator_map_type& ops,
   const alps::basis_states<I>& basis_states,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd,
   const GRAPH& graph,
@@ -113,7 +90,7 @@ void add_to_matrix(
 
   boost::multi_array<value_type, 2>
     site_matrix(alps::get_matrix(
-      value_type(), term, basis_states.basis().get_site_basis(s), ops, params));
+      value_type(), term, basis_states.basis().get_site_basis(s), params));
 
   for (int i = 0; i < dim; ++i) {
     typename basis_state_type::value_type state = basis_states[i];
@@ -133,7 +110,6 @@ template<class VECTOR, class I, class GRAPH>
 void apply_to_vector(
   const VECTOR& vec_in, VECTOR& vec_out,
   const alps::SiteTermDescriptor<I>& term,
-  const operator_map_type& ops,
   const alps::basis_states<I>& basis_states,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd,
   const GRAPH& graph,
@@ -148,7 +124,7 @@ void apply_to_vector(
 
   boost::multi_array<value_type, 2>
     site_matrix(alps::get_matrix(
-      value_type(), term, basis_states.basis().get_site_basis(s), ops, params));
+      value_type(), term, basis_states.basis().get_site_basis(s), params));
 
   for (int i = 0; i < dim; ++i) {
     typename basis_state_type::value_type state = basis_states[i];
@@ -168,7 +144,6 @@ template<class MATRIX, class I, class GRAPH>
 void add_to_matrix(
   MATRIX& matrix,
   const alps::BondTermDescriptor<I>& term,
-  const operator_map_type& ops,
   const alps::basis_states<I>& basis_states,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd0,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd1,
@@ -189,7 +164,7 @@ void add_to_matrix(
       value_type(), term,
       basis_states.basis().get_site_basis(s0),
       basis_states.basis().get_site_basis(s1),
-      ops, params));
+      params));
 
   for (int i = 0; i < dim; ++i) {
     typename basis_state_type::value_type state = basis_states[i];
@@ -213,7 +188,6 @@ template<class VECTOR, class I, class GRAPH>
 void apply_to_vector(
   const VECTOR& vec_in, VECTOR& vec_out,
   const alps::BondTermDescriptor<I>& term,
-  const operator_map_type& ops,
   const alps::basis_states<I>& basis_states,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd0,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd1,
@@ -234,7 +208,7 @@ void apply_to_vector(
       value_type(), term,
       basis_states.basis().get_site_basis(s0),
       basis_states.basis().get_site_basis(s1),
-      ops, params));
+      params));
 
   for (int i = 0; i < dim; ++i) {
     typename basis_state_type::value_type state = basis_states[i];
@@ -259,7 +233,6 @@ template<class VECTOR, class I, class GRAPH>
 void add_to_diagonal_matrix(
   VECTOR& vector,
   const alps::SiteTermDescriptor<I>& term,
-  const operator_map_type& ops,
   const alps::basis_states<I>& basis_states,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd,
   const GRAPH& graph,
@@ -275,7 +248,7 @@ void add_to_diagonal_matrix(
 
   boost::multi_array<value_type, 2>
     site_matrix(alps::get_matrix(
-      value_type(), term, basis_states.basis().get_site_basis(s), ops, params));
+      value_type(), term, basis_states.basis().get_site_basis(s), params));
   for (int is = 0; is < ds; ++is) {
     for (int js = 0; js < ds; ++js) {
       if ((is != js) && (std::abs(site_matrix[is][js]) > tol)) {
@@ -295,7 +268,6 @@ template<class VECTOR, class I, class GRAPH>
 void apply_diagonal_to_vector(
   const VECTOR& vec_in, VECTOR& vec_out,
   const alps::SiteTermDescriptor<I>& term,
-  const operator_map_type& ops,
   const alps::basis_states<I>& basis_states,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd,
   const GRAPH& graph,
@@ -311,7 +283,7 @@ void apply_diagonal_to_vector(
 
   boost::multi_array<value_type, 2>
     site_matrix(alps::get_matrix(
-      value_type(), term, basis_states.basis().get_site_basis(s), ops, params));
+      value_type(), term, basis_states.basis().get_site_basis(s), params));
   for (int is = 0; is < ds; ++is) {
     for (int js = 0; js < ds; ++js) {
       if ((is != js) && (std::abs(site_matrix[is][js]) > tol)) {
@@ -331,7 +303,6 @@ template<class VECTOR, class I, class GRAPH>
 void add_to_diagonal_matrix(
   VECTOR& vector,
   const alps::BondTermDescriptor<I>& term,
-  const operator_map_type& ops,
   const alps::basis_states<I>& basis_states,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd0,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd1,
@@ -353,7 +324,7 @@ void add_to_diagonal_matrix(
       value_type(), term,
       basis_states.basis().get_site_basis(s0),
       basis_states.basis().get_site_basis(s1),
-      ops, params));
+      params));
   for (int is0 = 0; is0 < ds0; ++is0) {
     for (int is1 = 0; is1 < ds1; ++is1) {
       for (int js0 = 0; js0 < ds0; ++js0) {
@@ -379,7 +350,6 @@ template<class VECTOR, class I, class GRAPH>
 void apply_diagonal_to_vector(
   const VECTOR& vec_in, VECTOR& vec_out,
   const alps::BondTermDescriptor<I>& term,
-  const operator_map_type& ops,
   const alps::basis_states<I>& basis_states,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd0,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd1,
@@ -401,7 +371,7 @@ void apply_diagonal_to_vector(
       value_type(), term,
       basis_states.basis().get_site_basis(s0),
       basis_states.basis().get_site_basis(s1),
-      ops, params));
+      params));
   for (int is0 = 0; is0 < ds0; ++is0) {
     for (int is1 = 0; is1 < ds1; ++is1) {
       for (int js0 = 0; js0 < ds0; ++js0) {

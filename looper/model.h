@@ -50,10 +50,14 @@ class bond_parameter_xxz; // most generic & default
 template<typename T = double> class site_matrix; // support hxz
 template<typename T = double> class bond_matrix; // support xxz
 
-template<typename T> bool fit2site(const boost::multi_array<T, 2>& mat, site_parameter_hxz& param, T tol = 1.0e-10);
-template<typename T> bool fit2bond(const boost::multi_array<T, 4>& mat, bond_parameter_xxz& param, T tol = 1.0e-10);
+template<typename T> bool fit2site(const boost::multi_array<T, 2>& mat,
+  site_parameter_hxz& param, T tol = 1.0e-10);
+template<typename T> bool fit2bond(const boost::multi_array<T, 4>& mat,
+  bond_parameter_xxz& param, T tol = 1.0e-10);
 
-template<typename SITE_P = site_parameter_noh, typename BOND_P = bond_parameter_xxz> class model_parameter;
+template<typename SITE_P = site_parameter_noh,
+         typename BOND_P = bond_parameter_xxz>
+class model_parameter;
 
 
 //
@@ -169,7 +173,8 @@ class bond_parameter_xxz
 {
 public:
   bond_parameter_xxz() : c_(), jxy_(), jz_() {}
-  bond_parameter_xxz(double c, double jxy, double jz) : c_(c), jxy_(jxy), jz_(jz) {}
+  bond_parameter_xxz(double c, double jxy, double jz) 
+    : c_(c), jxy_(jxy), jz_(jz) {}
   bond_parameter_xxz(const boost::multi_array<double, 4>& mat)
   {
     bool success = fit2bond(mat, *this);
@@ -373,20 +378,18 @@ public:
   { set_parameters(Jxy, Jz, spin, graph, is_signed); }
   template<typename G, typename I>
   model_parameter(const alps::Parameters params, const G& graph,
-                  const alps::ModelLibrary::OperatorDescriptorMap& ops,
                   const alps::HamiltonianDescriptor<I>& hd)
     : sites_(), bonds_(), signed_(), frustrated_()
-  { set_parameters(params, graph, ops, hd); }
+  { set_parameters(params, graph, hd); }
   template<typename G, typename I>
   model_parameter(const alps::Parameters params, const G& graph,
-                  const alps::ModelLibrary::OperatorDescriptorMap& ops,
                   const alps::HamiltonianDescriptor<I>& hd,
                   bool is_signed)
     : sites_(), bonds_(), signed_(), frustrated_()
-  { set_parameters(params, graph, ops, hd, is_signed); }
+  { set_parameters(params, graph, hd, is_signed); }
   template<typename G>
   model_parameter(const alps::Parameters params, const G& graph,
-                   const alps::ModelLibrary& models)
+                  const alps::ModelLibrary& models)
     : sites_(), bonds_(), signed_(), frustrated_()
   { set_parameters(params, graph, models); }
   template<typename G>
@@ -415,20 +418,18 @@ public:
   }
   template<typename G, typename I>
   void set_parameters(alps::Parameters params, const G& graph,
-                      const alps::ModelLibrary::OperatorDescriptorMap& ops,
                       const alps::HamiltonianDescriptor<I>& hd)
   {
-    set_parameters_impl(params, graph, ops, hd);
+    set_parameters_impl(params, graph, hd);
     signed_ = check_sign(graph);
     frustrated_ = check_classical_frustration(graph);
   }
   template<typename G, typename I>
   void set_parameters(alps::Parameters params, const G& graph,
-                      const alps::ModelLibrary::OperatorDescriptorMap& ops,
                       const alps::HamiltonianDescriptor<I>& hd,
                       bool is_signed)
   {
-    set_parameters_impl(params, graph, ops, hd);
+    set_parameters_impl(params, graph, hd);
     signed_ = is_signed;
     frustrated_ = check_classical_frustration(graph);
   }
@@ -442,7 +443,7 @@ public:
     alps::Parameters p(params);
     p.copy_undefined(hd.default_parameters());
     hd.set_parameters(p);
-    set_parameters(p, graph, models.operators(), hd);
+    set_parameters(p, graph, hd);
   }
   template<typename G>
   void set_parameters(const alps::Parameters params,
@@ -456,7 +457,7 @@ public:
     alps::Parameters p(params);
     p.copy_undefined(hd.default_parameters());
     hd.set_parameters(p);
-    set_parameters(p, graph, models.operators(), hd, is_signed);
+    set_parameters(p, graph, hd, is_signed);
   }
 
   int num_site_types() const { return sites_.size(); }
@@ -524,7 +525,6 @@ protected:
 
   template<typename G, typename I>
   void set_parameters_impl(alps::Parameters params, const G& graph,
-    const alps::ModelLibrary::OperatorDescriptorMap& ops,
     const alps::HamiltonianDescriptor<I>& hd)
   {
     typedef G graph_type;
@@ -547,7 +547,7 @@ protected:
       type_type t = site_type[*vi];
       if (!sites_.count(t))
         sites_[t] = site_parameter_type(alps::get_matrix(0.,hd.site_term(t),
-          hd.basis().site_basis(t), ops, params));
+          hd.basis().site_basis(t), params));
     }
 
     // get bond parameters
@@ -564,8 +564,7 @@ protected:
       if (!bond_visited[boost::make_tuple(bt, st0, st1)]) {
         bond_visited[boost::make_tuple(bt, st0, st1)] = true;
         bond_parameter_type p(alps::get_matrix(0., hd.bond_term(bt), 
-          hd.basis().site_basis(st0), hd.basis().site_basis(st1),
-          ops, params));
+          hd.basis().site_basis(st0), hd.basis().site_basis(st1), params));
         if (!bonds_.count(bt)) {
           bonds_[bt] = p;
         } else {
@@ -631,7 +630,8 @@ private:
 //
 
 template<typename T>
-bool fit2site(const boost::multi_array<T, 2>& mat, site_parameter_hxz& param, T tol)
+bool fit2site(const boost::multi_array<T, 2>& mat, site_parameter_hxz& param,
+              T tol)
 {
   typedef T value_type;
 
@@ -649,15 +649,15 @@ bool fit2site(const boost::multi_array<T, 2>& mat, site_parameter_hxz& param, T 
   boost::multi_array<value_type, 2> mat_c(
     alps::get_matrix(value_type(),
                      alps::SiteTermDescriptor<short>("1"),
-                     basis, spin_operators(), alps::Parameters()));
+                     basis, alps::Parameters()));
   boost::multi_array<value_type, 2> mat_hx(
     alps::get_matrix(value_type(),
                      alps::SiteTermDescriptor<short>("-(Splus+Sminus)/2"),
-                     basis, spin_operators(), alps::Parameters()));
+                     basis, alps::Parameters()));
   boost::multi_array<value_type, 2> mat_hz(
     alps::get_matrix(value_type(),
                      alps::SiteTermDescriptor<short>("-Sz"),
-                     basis, spin_operators(), alps::Parameters()));
+                     basis, alps::Parameters()));
 
   boost::numeric::ublas::matrix<value_type,
     boost::numeric::ublas::column_major> a(m, n);
@@ -697,7 +697,8 @@ bool fit2site(const site_matrix<T>& mat, site_parameter_hxz& param, T tol)
 
 
 template<typename T>
-bool fit2bond(const boost::multi_array<T, 4>& mat, bond_parameter_xxz& param, T tol)
+bool fit2bond(const boost::multi_array<T, 4>& mat, bond_parameter_xxz& param,
+              T tol)
 {
 #ifndef NDEBUG
   assert(mat.shape()[0] == mat.shape()[2]);
@@ -712,32 +713,22 @@ bool fit2bond(const boost::multi_array<T, 4>& mat, bond_parameter_xxz& param, T 
   int m = dim * dim;
   int n = 3;
 
-  alps::Parameters p;
-  p["S0"] = (double)(d0 - 1)/2;
-  p["S1"] = (double)(d1 - 1)/2;
   alps::SiteBasisDescriptor<short> basis0(spin_basis((double)(d0 - 1)/2));
   alps::SiteBasisDescriptor<short> basis1(spin_basis((double)(d1 - 1)/2));
-
-  std::set<std::string> suffixes;
-  suffixes.insert("0");
-  suffixes.insert("1");
 
   boost::multi_array<value_type, 4> mat_c(
     alps::get_matrix(value_type(),
                      alps::BondTermDescriptor<short>("1"),
-                     basis0, basis1, spin_operators(suffixes),
-                     p));
+                     basis0, basis1));
   boost::multi_array<value_type, 4> mat_jxy(
     alps::get_matrix(value_type(),
                      alps::BondTermDescriptor<short>(
-                       "-(Splus0(i)*Sminus1(j)+Sminus0(i)*Splus1(j))/2"),
-                     basis0, basis1, spin_operators(suffixes),
-                     p));
+                       "-(Splus(i)*Sminus(j)+Sminus(i)*Splus(j))/2"),
+                     basis0, basis1));
   boost::multi_array<value_type, 4> mat_jz(
     alps::get_matrix(value_type(),
-                     alps::BondTermDescriptor<short>("-Sz0(i)*Sz1(j)"),
-                     basis0, basis1, spin_operators(suffixes), 
-                     p));
+                     alps::BondTermDescriptor<short>("-Sz(i)*Sz(j)"),
+                     basis0, basis1));
 
   boost::numeric::ublas::matrix<value_type,
     boost::numeric::ublas::column_major> a(m, n);

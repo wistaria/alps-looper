@@ -11,7 +11,7 @@ m:   MCS for thermalization : 1024
 n:   MCS for measurement    : 8192
 e:   representation         : path integral
 
-Diagonal Energy Density: -0.0701623 +/- 0.000829; tau = 0.357 WARNING: check error convergence
+Diagonal Energy Density: -0.0701623 +/- 0.000829; tau = 0.357
     bin #1   : 8192     entries: error = 0.000633652
     bin #2   : 4096     entries: error = 0.000700549
     bin #3   : 2048     entries: error = 0.000740065
@@ -51,7 +51,7 @@ Energy Density^2: 0.056484 +/- 0.00152; tau = 1.31
     bin #5   : 512      entries: error = 0.00141653
     bin #6   : 256      entries: error = 0.00152525
     bin #7   : 128      entries: error = 0.00151704
-Magnetization^2: 0.136162 +/- 0.000637; tau = 0.619 WARNING: check error convergence
+Magnetization^2: 0.136162 +/- 0.000637; tau = 0.619
     bin #1   : 8192     entries: error = 0.000425607
     bin #2   : 4096     entries: error = 0.000481433
     bin #3   : 2048     entries: error = 0.000531263
@@ -60,7 +60,7 @@ Magnetization^2: 0.136162 +/- 0.000637; tau = 0.619 WARNING: check error converg
     bin #6   : 256      entries: error = 0.000623822
     bin #7   : 128      entries: error = 0.000636683
 Specific Heat: 0.20204 +/- 0.00753
-Staggered Generalized Magnetization^2: 0.136162 +/- 0.000637; tau = 0.619 WARNING: check error convergence
+Staggered Generalized Magnetization^2: 0.136162 +/- 0.000637; tau = 0.619
     bin #1   : 8192     entries: error = 0.000425607
     bin #2   : 4096     entries: error = 0.000481433
     bin #3   : 2048     entries: error = 0.000531263
@@ -68,7 +68,7 @@ Staggered Generalized Magnetization^2: 0.136162 +/- 0.000637; tau = 0.619 WARNIN
     bin #5   : 512      entries: error = 0.000598719
     bin #6   : 256      entries: error = 0.000623822
     bin #7   : 128      entries: error = 0.000636683
-Staggered Generalized Susceptibility: 0.136162 +/- 0.000637; tau = 0.619 WARNING: check error convergence
+Staggered Generalized Susceptibility: 0.136162 +/- 0.000637; tau = 0.619
     bin #1   : 8192     entries: error = 0.000425607
     bin #2   : 4096     entries: error = 0.000481433
     bin #3   : 2048     entries: error = 0.000531263
