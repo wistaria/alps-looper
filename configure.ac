@@ -54,21 +54,6 @@ CXXFLAGS="$ac_cv_alps_cxxflags"
 LDFLAGS="$ac_cv_alps_ldflags"
 LIBS="$ac_cv_alps_libs"
 
-AC_SUBST([CXXFLAGS], $ac_cv_alps_cxxflags)
-AC_SUBST([DEFAULT_INCLUDES], '-I$(top_srcdir) -I$(top_builddir)')
-
-AC_SUBST([CPPFLAGS_SGL], $ac_cv_alps_cppflags)
-AC_SUBST([LDFLAGS_SGL], $ac_cv_alps_ldflags)
-AC_SUBST([LIBS_SGL], $ac_cv_alps_libs)
-
-AC_SUBST([CPPFLAGS_MPI], $ac_cv_alps_cppflags_mpi)
-AC_SUBST([LDFLAGS_MPI], $ac_cv_alps_ldflags_mpi)
-AC_SUBST([LIBS_MPI], $ac_cv_alps_libs_mpi)
-
-AC_SUBST([CPPFLAGS_PVM], $ac_cv_alps_cppflags_pvm)
-AC_SUBST([LDFLAGS_PVM], $ac_cv_alps_ldflags_pvm)
-AC_SUBST([LIBS_PVM], $ac_cv_alps_libs_pvm)
-
 AC_LANG_CPLUSPLUS
 
 dnl
@@ -105,6 +90,25 @@ dnl
 AC_MSG_CHECKING([for PVM library])
 AC_MSG_RESULT([$ac_cv_alps_have_pvm])
 AM_CONDITIONAL(HAVE_PVM, test "$ac_cv_alps_have_pvm" = yes)
+
+dnl
+dnl compile flags
+dnl
+
+CXXFLAGS="$ac_cv_alps_cxxflags"
+CPPFLAGS="$BINDINGS_CPPFLAGS $LAPACK_CPPFLAGS $ac_cv_alps_cppflags"
+LDFLAGS="$LAPACK_LDFLAGS $ac_cv_alps_ldflags"
+LIBS=
+AC_SUBST([DEFAULT_INCLUDES], '-I$(top_srcdir) -I$(top_builddir)')
+AC_SUBST([LDADD], "$LAPACK_LIBS $ac_cv_alps_libs")
+
+AC_SUBST([CPPFLAGS_MPI], "$BINDINGS_CPPFLAGS $LAPACK_CPPFLAGS $ac_cv_alps_cppflags_mpi")
+AC_SUBST([LDFLAGS_MPI], "$LAPACK_LDFLAGS $ac_cv_alps_ldflags_mpi")
+AC_SUBST([LIBS_MPI], "$LAPACK_LIBS $ac_cv_alps_libs_mpi")
+
+AC_SUBST([CPPFLAGS_PVM], "$BINDINGS_CPPFLAGS $LAPACK_CPPFLAGS $ac_cv_alps_cppflags_pvm")
+AC_SUBST([LDFLAGS_PVM], "$LAPACK_LDFLAGS $ac_cv_alps_ldflags_pvm")
+AC_SUBST([LIBS_PVM], "$LAPACK_LIBS $ac_cv_alps_libs_pvm")
 
 dnl
 dnl generate files

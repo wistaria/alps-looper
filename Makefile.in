@@ -65,28 +65,29 @@ CONFIG_CLEAN_FILES =
 @HAVE_MPI_TRUE@am__EXEEXT_1 = loop_mpi$(EXEEXT)
 @HAVE_PVM_TRUE@am__EXEEXT_2 = loop_pvm$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
-am_evaluate_OBJECTS = evaluate-evaluate.$(OBJEXT)
+am_evaluate_OBJECTS = evaluate.$(OBJEXT)
 evaluate_OBJECTS = $(am_evaluate_OBJECTS)
-am__DEPENDENCIES_1 =
-evaluate_DEPENDENCIES = $(am__DEPENDENCIES_1)
-am_loop_OBJECTS = loop-loop.$(OBJEXT)
+evaluate_LDADD = $(LDADD)
+evaluate_DEPENDENCIES =
+am_loop_OBJECTS = loop.$(OBJEXT)
 loop_OBJECTS = $(am_loop_OBJECTS)
-loop_DEPENDENCIES = $(am__DEPENDENCIES_1)
-am_loop_cmd_OBJECTS = loop_cmd-loop_cmd.$(OBJEXT)
+loop_LDADD = $(LDADD)
+loop_DEPENDENCIES =
+am_loop_cmd_OBJECTS = loop_cmd.$(OBJEXT)
 loop_cmd_OBJECTS = $(am_loop_cmd_OBJECTS)
-loop_cmd_DEPENDENCIES = $(am__DEPENDENCIES_1)
+loop_cmd_LDADD = $(LDADD)
+loop_cmd_DEPENDENCIES =
 am_loop_mpi_OBJECTS = loop_mpi-loop.$(OBJEXT)
 loop_mpi_OBJECTS = $(am_loop_mpi_OBJECTS)
-loop_mpi_DEPENDENCIES = $(am__DEPENDENCIES_1)
+loop_mpi_DEPENDENCIES =
 am_loop_pvm_OBJECTS = loop_pvm-loop.$(OBJEXT)
 loop_pvm_OBJECTS = $(am_loop_pvm_OBJECTS)
-loop_pvm_DEPENDENCIES = $(am__DEPENDENCIES_1)
+loop_pvm_DEPENDENCIES =
 SCRIPTS = $(dist_noinst_SCRIPTS)
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/evaluate-evaluate.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/loop-loop.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/loop_cmd-loop_cmd.Po \
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/evaluate.Po ./$(DEPDIR)/loop.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/loop_cmd.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/loop_mpi-loop.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/loop_pvm-loop.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -96,14 +97,6 @@ LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
 	$(AM_CXXFLAGS) $(CXXFLAGS)
 CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
-	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
-	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) \
-	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
-	$(AM_CFLAGS) $(CFLAGS)
-CCLD = $(CC)
-LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 SOURCES = $(evaluate_SOURCES) $(loop_SOURCES) $(loop_cmd_SOURCES) \
 	$(loop_mpi_SOURCES) $(loop_pvm_SOURCES)
@@ -148,9 +141,8 @@ CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
-CPPFLAGS_MPI = @CPPFLAGS_MPI@ @LAPACK_CPPFLAGS@ @BINDINGS_CPPFLAGS@
-CPPFLAGS_PVM = @CPPFLAGS_PVM@ @LAPACK_CPPFLAGS@ @BINDINGS_CPPFLAGS@
-CPPFLAGS_SGL = @CPPFLAGS_SGL@ @LAPACK_CPPFLAGS@ @BINDINGS_CPPFLAGS@
+CPPFLAGS_MPI = @CPPFLAGS_MPI@
+CPPFLAGS_PVM = @CPPFLAGS_PVM@
 CXX = @CXX@
 CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
@@ -180,15 +172,14 @@ INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LAPACK_CPPFLAGS = @LAPACK_CPPFLAGS@
 LAPACK_LDFLAGS = @LAPACK_LDFLAGS@
 LAPACK_LIBS = @LAPACK_LIBS@
+LDADD = @LDADD@
 LDFLAGS = @LDFLAGS@
-LDFLAGS_MPI = -L$(top_builddir) @LDFLAGS_MPI@ @LAPACK_LDFLAGS@
-LDFLAGS_PVM = -L$(top_builddir) @LDFLAGS_PVM@ @LAPACK_LDFLAGS@
-LDFLAGS_SGL = -L$(top_builddir) @LDFLAGS_SGL@ @LAPACK_LDFLAGS@
+LDFLAGS_MPI = @LDFLAGS_MPI@
+LDFLAGS_PVM = @LDFLAGS_PVM@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
-LIBS_MPI = @LAPACK_LIBS@ @LIBS_MPI@
-LIBS_PVM = @LAPACK_LIBS@ @LIBS_PVM@
-LIBS_SGL = @LAPACK_LIBS@ @LIBS_SGL@
+LIBS_MPI = @LIBS_MPI@
+LIBS_PVM = @LIBS_PVM@
 LIBTOOL = @LIBTOOL@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
@@ -253,26 +244,17 @@ nodist_pkginclude_HEADERS = looper/config.h
 pkginclude_HEADERS = looper/amida.h looper/copyright.h looper/exact_diag.h looper/fill_duration.h looper/graph.h looper/lapack.h looper/measurement.h looper/model.h looper/node.h looper/operator.h looper/path_integral.h looper/permutation.h looper/random_choice.h looper/sse.h looper/union_find.h looper/util.h looper/vector_helper.h looper/virtual_graph.h looper/weight.h looper/xxz.h
 dist_noinst_SCRIPTS = config/run-test config/update_preamble
 dist_noinst_DATA = CITATIONS.txt LICENSE lattices.xml models.xml
-loop_SOURCES = loop.C loop_impl.h
-loop_CPPFLAGS = $(CPPFLAGS_SGL)
-loop_LDFLAGS = $(LDFLAGS_SGL)
-loop_LDADD = $(LIBS_SGL)
-evaluate_SOURCES = evaluate.C loop_impl.h
-evaluate_CPPFLAGS = $(CPPFLAGS_SGL)
-evaluate_LDFLAGS = $(LDFLAGS_SGL)
-evaluate_LDADD = $(LIBS_SGL)
-loop_mpi_SOURCES = loop.C loop_impl.h
-loop_mpi_CPPFLAGS = $(CPPFLAGS_MPI)
-loop_mpi_LDFLAGS = $(LDFLAGS_MPI)
-loop_mpi_LDADD = $(LIBS_MPI)
-loop_pvm_SOURCES = loop.C loop_impl.h
-loop_pvm_CPPFLAGS = $(CPPFLAGS_PVM)
-loop_pvm_LDFLAGS = $(LDFLAGS_PVM)
-loop_pvm_LDADD = $(LIBS_PVM)
-loop_cmd_SOURCES = loop_cmd.C loop_impl.h
-loop_cmd_CPPFLAGS = $(CPPFLAGS_SGL)
-loop_cmd_LDFLAGS = $(LDFLAGS_SGL)
-loop_cmd_LDADD = $(LIBS_SGL)
+loop_SOURCES = loop.C
+evaluate_SOURCES = evaluate.C
+loop_cmd_SOURCES = loop_cmd.C
+loop_mpi_SOURCES = loop.C
+loop_mpi_CPPFLAGS = @CPPFLAGS_MPI@
+loop_mpi_LDFLAGS = @LDFLAGS_MPI@
+loop_mpi_LDADD = @LIBS_MPI@
+loop_pvm_SOURCES = loop.C
+loop_pvm_CPPFLAGS = @CPPFLAGS_PVM@
+loop_pvm_LDFLAGS = @LDFLAGS_PVM@
+loop_pvm_LDADD = @LIBS_PVM@
 all: all-recursive
 
 .SUFFIXES:
@@ -356,9 +338,9 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/evaluate-evaluate.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop-loop.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_cmd-loop_cmd.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/evaluate.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_cmd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_mpi-loop.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_pvm-loop.Po@am__quote@
 
@@ -385,78 +367,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/$*.Plo' tmpdepfile='$(DEPDIR)/$*.TPlo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
-
-evaluate-evaluate.o: evaluate.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(evaluate_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT evaluate-evaluate.o -MD -MP -MF "$(DEPDIR)/evaluate-evaluate.Tpo" -c -o evaluate-evaluate.o `test -f 'evaluate.C' || echo '$(srcdir)/'`evaluate.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/evaluate-evaluate.Tpo" "$(DEPDIR)/evaluate-evaluate.Po"; else rm -f "$(DEPDIR)/evaluate-evaluate.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='evaluate.C' object='evaluate-evaluate.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/evaluate-evaluate.Po' tmpdepfile='$(DEPDIR)/evaluate-evaluate.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(evaluate_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o evaluate-evaluate.o `test -f 'evaluate.C' || echo '$(srcdir)/'`evaluate.C
-
-evaluate-evaluate.obj: evaluate.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(evaluate_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT evaluate-evaluate.obj -MD -MP -MF "$(DEPDIR)/evaluate-evaluate.Tpo" -c -o evaluate-evaluate.obj `if test -f 'evaluate.C'; then $(CYGPATH_W) 'evaluate.C'; else $(CYGPATH_W) '$(srcdir)/evaluate.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/evaluate-evaluate.Tpo" "$(DEPDIR)/evaluate-evaluate.Po"; else rm -f "$(DEPDIR)/evaluate-evaluate.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='evaluate.C' object='evaluate-evaluate.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/evaluate-evaluate.Po' tmpdepfile='$(DEPDIR)/evaluate-evaluate.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(evaluate_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o evaluate-evaluate.obj `if test -f 'evaluate.C'; then $(CYGPATH_W) 'evaluate.C'; else $(CYGPATH_W) '$(srcdir)/evaluate.C'; fi`
-
-evaluate-evaluate.lo: evaluate.C
-@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(evaluate_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT evaluate-evaluate.lo -MD -MP -MF "$(DEPDIR)/evaluate-evaluate.Tpo" -c -o evaluate-evaluate.lo `test -f 'evaluate.C' || echo '$(srcdir)/'`evaluate.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/evaluate-evaluate.Tpo" "$(DEPDIR)/evaluate-evaluate.Plo"; else rm -f "$(DEPDIR)/evaluate-evaluate.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='evaluate.C' object='evaluate-evaluate.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/evaluate-evaluate.Plo' tmpdepfile='$(DEPDIR)/evaluate-evaluate.TPlo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(evaluate_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o evaluate-evaluate.lo `test -f 'evaluate.C' || echo '$(srcdir)/'`evaluate.C
-
-loop-loop.o: loop.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop-loop.o -MD -MP -MF "$(DEPDIR)/loop-loop.Tpo" -c -o loop-loop.o `test -f 'loop.C' || echo '$(srcdir)/'`loop.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop-loop.Tpo" "$(DEPDIR)/loop-loop.Po"; else rm -f "$(DEPDIR)/loop-loop.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop.C' object='loop-loop.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/loop-loop.Po' tmpdepfile='$(DEPDIR)/loop-loop.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop-loop.o `test -f 'loop.C' || echo '$(srcdir)/'`loop.C
-
-loop-loop.obj: loop.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop-loop.obj -MD -MP -MF "$(DEPDIR)/loop-loop.Tpo" -c -o loop-loop.obj `if test -f 'loop.C'; then $(CYGPATH_W) 'loop.C'; else $(CYGPATH_W) '$(srcdir)/loop.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop-loop.Tpo" "$(DEPDIR)/loop-loop.Po"; else rm -f "$(DEPDIR)/loop-loop.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop.C' object='loop-loop.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/loop-loop.Po' tmpdepfile='$(DEPDIR)/loop-loop.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop-loop.obj `if test -f 'loop.C'; then $(CYGPATH_W) 'loop.C'; else $(CYGPATH_W) '$(srcdir)/loop.C'; fi`
-
-loop-loop.lo: loop.C
-@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop-loop.lo -MD -MP -MF "$(DEPDIR)/loop-loop.Tpo" -c -o loop-loop.lo `test -f 'loop.C' || echo '$(srcdir)/'`loop.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop-loop.Tpo" "$(DEPDIR)/loop-loop.Plo"; else rm -f "$(DEPDIR)/loop-loop.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop.C' object='loop-loop.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/loop-loop.Plo' tmpdepfile='$(DEPDIR)/loop-loop.TPlo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop-loop.lo `test -f 'loop.C' || echo '$(srcdir)/'`loop.C
-
-loop_cmd-loop_cmd.o: loop_cmd.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_cmd_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_cmd-loop_cmd.o -MD -MP -MF "$(DEPDIR)/loop_cmd-loop_cmd.Tpo" -c -o loop_cmd-loop_cmd.o `test -f 'loop_cmd.C' || echo '$(srcdir)/'`loop_cmd.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_cmd-loop_cmd.Tpo" "$(DEPDIR)/loop_cmd-loop_cmd.Po"; else rm -f "$(DEPDIR)/loop_cmd-loop_cmd.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_cmd.C' object='loop_cmd-loop_cmd.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/loop_cmd-loop_cmd.Po' tmpdepfile='$(DEPDIR)/loop_cmd-loop_cmd.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_cmd_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_cmd-loop_cmd.o `test -f 'loop_cmd.C' || echo '$(srcdir)/'`loop_cmd.C
-
-loop_cmd-loop_cmd.obj: loop_cmd.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_cmd_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_cmd-loop_cmd.obj -MD -MP -MF "$(DEPDIR)/loop_cmd-loop_cmd.Tpo" -c -o loop_cmd-loop_cmd.obj `if test -f 'loop_cmd.C'; then $(CYGPATH_W) 'loop_cmd.C'; else $(CYGPATH_W) '$(srcdir)/loop_cmd.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_cmd-loop_cmd.Tpo" "$(DEPDIR)/loop_cmd-loop_cmd.Po"; else rm -f "$(DEPDIR)/loop_cmd-loop_cmd.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_cmd.C' object='loop_cmd-loop_cmd.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/loop_cmd-loop_cmd.Po' tmpdepfile='$(DEPDIR)/loop_cmd-loop_cmd.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_cmd_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_cmd-loop_cmd.obj `if test -f 'loop_cmd.C'; then $(CYGPATH_W) 'loop_cmd.C'; else $(CYGPATH_W) '$(srcdir)/loop_cmd.C'; fi`
-
-loop_cmd-loop_cmd.lo: loop_cmd.C
-@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_cmd_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_cmd-loop_cmd.lo -MD -MP -MF "$(DEPDIR)/loop_cmd-loop_cmd.Tpo" -c -o loop_cmd-loop_cmd.lo `test -f 'loop_cmd.C' || echo '$(srcdir)/'`loop_cmd.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_cmd-loop_cmd.Tpo" "$(DEPDIR)/loop_cmd-loop_cmd.Plo"; else rm -f "$(DEPDIR)/loop_cmd-loop_cmd.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_cmd.C' object='loop_cmd-loop_cmd.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/loop_cmd-loop_cmd.Plo' tmpdepfile='$(DEPDIR)/loop_cmd-loop_cmd.TPlo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_cmd_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_cmd-loop_cmd.lo `test -f 'loop_cmd.C' || echo '$(srcdir)/'`loop_cmd.C
 
 loop_mpi-loop.o: loop.C
 @am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_mpi-loop.o -MD -MP -MF "$(DEPDIR)/loop_mpi-loop.Tpo" -c -o loop_mpi-loop.o `test -f 'loop.C' || echo '$(srcdir)/'`loop.C; \
@@ -929,6 +839,16 @@ update-preamble:
 	if test -f config/update_preamble; then \
 	  find . -type f -name '*\.h' -or -name '*\.C' -or -name '*\.hpp' -or -name '*\.h\.in' | xargs ./config/update_preamble; \
 	fi
+
+.PHONY : release snapshot
+release : dist
+snapshot :
+	$(MAKE) dist
+	tar zxf $(distdir).tar.gz
+	date=`date +%Y%m%d`; \
+        mv -f $(distdir) alps-looper-$$date; \
+	tar zcf alps-looper-$$date.tar.gz alps-looper-$$date; \
+	rm -rf alps-looper-$$date
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

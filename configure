@@ -463,7 +463,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE build build_cpu build_vendor build_os host host_cpu host_vendor host_os CC CFLAGS ac_ct_CC CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE EGREP LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL DEFAULT_INCLUDES CPPFLAGS_SGL LDFLAGS_SGL LIBS_SGL CPPFLAGS_MPI LDFLAGS_MPI LIBS_MPI CPPFLAGS_PVM LDFLAGS_PVM LIBS_PVM LAPACK_CPPFLAGS LAPACK_LDFLAGS LAPACK_LIBS HAVE_LAPACK_TRUE HAVE_LAPACK_FALSE BINDINGS_CPPFLAGS HAVE_MPI_TRUE HAVE_MPI_FALSE HAVE_PVM_TRUE HAVE_PVM_FALSE LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE build build_cpu build_vendor build_os host host_cpu host_vendor host_os CC CFLAGS ac_ct_CC CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE EGREP LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL LAPACK_CPPFLAGS LAPACK_LDFLAGS LAPACK_LIBS HAVE_LAPACK_TRUE HAVE_LAPACK_FALSE BINDINGS_CPPFLAGS HAVE_MPI_TRUE HAVE_MPI_FALSE HAVE_PVM_TRUE HAVE_PVM_FALSE DEFAULT_INCLUDES LDADD CPPFLAGS_MPI LDFLAGS_MPI LIBS_MPI CPPFLAGS_PVM LDFLAGS_PVM LIBS_PVM LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -19084,32 +19084,6 @@ CXXFLAGS="$ac_cv_alps_cxxflags"
 LDFLAGS="$ac_cv_alps_ldflags"
 LIBS="$ac_cv_alps_libs"
 
-CXXFLAGS=$ac_cv_alps_cxxflags
-
-DEFAULT_INCLUDES='-I$(top_srcdir) -I$(top_builddir)'
-
-
-CPPFLAGS_SGL=$ac_cv_alps_cppflags
-
-LDFLAGS_SGL=$ac_cv_alps_ldflags
-
-LIBS_SGL=$ac_cv_alps_libs
-
-
-CPPFLAGS_MPI=$ac_cv_alps_cppflags_mpi
-
-LDFLAGS_MPI=$ac_cv_alps_ldflags_mpi
-
-LIBS_MPI=$ac_cv_alps_libs_mpi
-
-
-CPPFLAGS_PVM=$ac_cv_alps_cppflags_pvm
-
-LDFLAGS_PVM=$ac_cv_alps_ldflags_pvm
-
-LIBS_PVM=$ac_cv_alps_libs_pvm
-
-
 ac_ext=cc
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -21739,6 +21713,30 @@ fi
 
 
 
+CXXFLAGS="$ac_cv_alps_cxxflags"
+CPPFLAGS="$BINDINGS_CPPFLAGS $LAPACK_CPPFLAGS $ac_cv_alps_cppflags"
+LDFLAGS="$LAPACK_LDFLAGS $ac_cv_alps_ldflags"
+LIBS=
+DEFAULT_INCLUDES='-I$(top_srcdir) -I$(top_builddir)'
+
+LDADD="$LAPACK_LIBS $ac_cv_alps_libs"
+
+
+CPPFLAGS_MPI="$BINDINGS_CPPFLAGS $LAPACK_CPPFLAGS $ac_cv_alps_cppflags_mpi"
+
+LDFLAGS_MPI="$LAPACK_LDFLAGS $ac_cv_alps_ldflags_mpi"
+
+LIBS_MPI="$LAPACK_LIBS $ac_cv_alps_libs_mpi"
+
+
+CPPFLAGS_PVM="$BINDINGS_CPPFLAGS $LAPACK_CPPFLAGS $ac_cv_alps_cppflags_pvm"
+
+LDFLAGS_PVM="$LAPACK_LDFLAGS $ac_cv_alps_ldflags_pvm"
+
+LIBS_PVM="$LAPACK_LIBS $ac_cv_alps_libs_pvm"
+
+
+
           ac_config_headers="$ac_config_headers looper/config.h"
 
                                         ac_config_files="$ac_config_files Makefile doc/Makefile test/Makefile ed/Makefile"
@@ -22425,16 +22423,6 @@ s,@F77@,$F77,;t t
 s,@FFLAGS@,$FFLAGS,;t t
 s,@ac_ct_F77@,$ac_ct_F77,;t t
 s,@LIBTOOL@,$LIBTOOL,;t t
-s,@DEFAULT_INCLUDES@,$DEFAULT_INCLUDES,;t t
-s,@CPPFLAGS_SGL@,$CPPFLAGS_SGL,;t t
-s,@LDFLAGS_SGL@,$LDFLAGS_SGL,;t t
-s,@LIBS_SGL@,$LIBS_SGL,;t t
-s,@CPPFLAGS_MPI@,$CPPFLAGS_MPI,;t t
-s,@LDFLAGS_MPI@,$LDFLAGS_MPI,;t t
-s,@LIBS_MPI@,$LIBS_MPI,;t t
-s,@CPPFLAGS_PVM@,$CPPFLAGS_PVM,;t t
-s,@LDFLAGS_PVM@,$LDFLAGS_PVM,;t t
-s,@LIBS_PVM@,$LIBS_PVM,;t t
 s,@LAPACK_CPPFLAGS@,$LAPACK_CPPFLAGS,;t t
 s,@LAPACK_LDFLAGS@,$LAPACK_LDFLAGS,;t t
 s,@LAPACK_LIBS@,$LAPACK_LIBS,;t t
@@ -22445,6 +22433,14 @@ s,@HAVE_MPI_TRUE@,$HAVE_MPI_TRUE,;t t
 s,@HAVE_MPI_FALSE@,$HAVE_MPI_FALSE,;t t
 s,@HAVE_PVM_TRUE@,$HAVE_PVM_TRUE,;t t
 s,@HAVE_PVM_FALSE@,$HAVE_PVM_FALSE,;t t
+s,@DEFAULT_INCLUDES@,$DEFAULT_INCLUDES,;t t
+s,@LDADD@,$LDADD,;t t
+s,@CPPFLAGS_MPI@,$CPPFLAGS_MPI,;t t
+s,@LDFLAGS_MPI@,$LDFLAGS_MPI,;t t
+s,@LIBS_MPI@,$LIBS_MPI,;t t
+s,@CPPFLAGS_PVM@,$CPPFLAGS_PVM,;t t
+s,@LDFLAGS_PVM@,$LDFLAGS_PVM,;t t
+s,@LIBS_PVM@,$LIBS_PVM,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
 CEOF
