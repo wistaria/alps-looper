@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: simplegraph.C 408 2003-10-10 09:34:54Z wistaria $
+* $Id: fill_duration.C 447 2003-10-18 08:35:39Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -34,34 +34,54 @@
 *
 **************************************************************************/
 
-#include "graph.h"
+#include "random.h"
+
+#include <alps/alea.h>
+#include <boost/random.hpp>
 #include <iostream>
 
-#ifdef BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
-using namespace alps;
+int main()
+{
+#ifndef BOOST_NO_EXCEPTIONS
+try {
 #endif
 
-int main() {
-  typedef looper::graph_type graph_type;
-  typedef graph_type::vertex_iterator vertex_iterator;
+  double r, tmax;
+  int trial;
+  std::cin >> r >> tmax >> trial;
 
-  std::vector<int> ext;
-  int dim;
-  std::cin >> dim;
-  ext.resize(dim);
-  for (std::vector<int>::iterator itr = ext.begin(); itr != ext.end(); ++itr) {
-    std::cin >> *itr;
+  boost::mt19937 base_rng;
+  boost::uniform_01<boost::mt19937> uniform_01(base_rng);
+  for (int i = 0; i < trial; ++i) uniform_01();
+
+  std::cout << "filling duration [0," << tmax << "]\n";
+  std::vector<double> a;
+  looper::fill_duration(uniform_01, a, r, tmax);
+  for (std::vector<double>::iterator itr = a.begin(); itr != a.end(); ++itr) {
+    std::cout << *itr << ' ';
   }
-
-  std::cout << "[test of simple_hypercubic_graph class]\n";
-  std::cout << "dimension = " << dim << std::endl;
-  for (int d = 0; d < dim; ++d) {
-    std::cout << "extent[" << d << "] = " << ext[d] << std::endl;
+  std::cout << std::endl;
+  
+  std::cout << "filling duration " << trial << " times\n";
+  alps::BasicSimpleObservable<double, alps::NoBinning<double> >
+    n("average density");
+  n.reset(true);
+  for (int i = 0; i < trial; ++i) {
+    looper::fill_duration(uniform_01, a, r, tmax);
+    n << a.size() / tmax;
   }
+  std::cout << n;
+  std::cout << "exact density: " << r << std::endl;
 
-  looper::simple_hypercubic_graph_descriptor<> shgd(ext);
-  graph_type graph;
-  looper::generate_graph(shgd, graph);
-
-  std::cout << graph;
+#ifndef BOOST_NO_EXCEPTIONS
+}
+catch (std::exception& exc) {
+  std::cerr << exc.what() << "\n";
+  return -1;
+}
+catch (...) {
+  std::cerr << "Fatal Error: Unknown Exception!\n";
+  return -2;
+}
+#endif
 }

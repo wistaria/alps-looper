@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: weight.C 434 2003-10-16 14:45:06Z wistaria $
+* $Id: simplegraph.C 447 2003-10-18 08:35:39Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -34,44 +34,34 @@
 *
 **************************************************************************/
 
-#include "xxz.h"
-#include "weight.h"
-
-#include <alps/parameterlist.h>
+#include "graph.h"
 #include <iostream>
 
-int main()
-{
-#ifndef BOOST_NO_EXCEPTIONS
-try {
+#ifdef BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
+using namespace alps;
 #endif
 
-  alps::ParameterList params;
-  std::cin >> params;
+int main() {
+  typedef looper::graph_type graph_type;
+  typedef graph_type::vertex_iterator vertex_iterator;
 
-  for (alps::ParameterList::iterator p = params.begin();
-       p != params.end(); ++p) {
-    looper::xxz_parameter xxz(0, (*p)["Jxy"], (*p)["Jz"]);
-    looper::default_weight w(xxz);
-    std::cout << "Jxy = " << (*p)["Jxy"]
-	      << ", Jz = " << (*p)["Jz"]
-	      << " : r = " << w.density
-	      << ", P_f = " << w.p_freeze
-	      << ", P_p = " << w.p_accept_para
-	      << ", P_a = " << w.p_accept_anti
-	      << ", P_r = " << w.p_reflect
-	      << std::endl;
+  std::vector<int> ext;
+  int dim;
+  std::cin >> dim;
+  ext.resize(dim);
+  for (std::vector<int>::iterator itr = ext.begin(); itr != ext.end(); ++itr) {
+    std::cin >> *itr;
   }
-  
-#ifndef BOOST_NO_EXCEPTIONS
-}
-catch (std::exception& exc) {
-  std::cerr << exc.what() << "\n";
-  return -1;
-}
-catch (...) {
-  std::cerr << "Fatal Error: Unknown Exception!\n";
-  return -2;
-}
-#endif
+
+  std::cout << "[test of simple_hypercubic_graph class]\n";
+  std::cout << "dimension = " << dim << std::endl;
+  for (int d = 0; d < dim; ++d) {
+    std::cout << "extent[" << d << "] = " << ext[d] << std::endl;
+  }
+
+  looper::simple_hypercubic_graph_descriptor<> shgd(ext);
+  graph_type graph;
+  looper::generate_graph(shgd, graph);
+
+  std::cout << graph;
 }

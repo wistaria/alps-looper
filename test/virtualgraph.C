@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: xxz_matrix.C 408 2003-10-10 09:34:54Z wistaria $
+* $Id: virtualgraph.C 447 2003-10-18 08:35:39Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -34,34 +34,49 @@
 *
 **************************************************************************/
 
-#include "xxz.h"
+#include "graph.h"
+#include "virtualgraph.h"
+#include <alps/model.h>
 #include <iostream>
 
-int main()
-{
-  int n;
-  std::cin >> n;
-  for (int i = 0; i < n; ++i) {
-    double s0_in, s1_in, e0, jxy, jz;
-    std::cin >> s0_in >> s1_in >> e0 >> jxy >> jz;
-    alps::half_integer<int> s0(s0_in);
-    alps::half_integer<int> s1(s1_in);
-    looper::xxz_matrix<> xxz(s0, s1, e0, jxy, jz);
+#ifdef BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
+using namespace alps;
+#endif
 
-    std::cout << "input parameters: S0 = " << s0 << ", S1 = " << s1
-	      << ", e0 = " << e0 << ", Jxy = " << jxy << ", Jz = " << jz
-	      << std::endl << xxz << std::endl;
+int main() {
 
-    boost::tuple<bool, double, double, double> fit =
-      looper::fit2xxz(s0, s1, xxz);
+#ifndef BOOST_NO_EXCEPTIONS
+try {
+#endif
 
-    if (fit.get<0>()) {
-      std::cout << "fitting result: e0 = " << fit.get<1>()
-		<< ", Jxy = " << fit.get<2>()
-		<< ", Jz = " << fit.get<3>()
-		<< std::endl;
-    } else {
-      std::cout << "fitting failed\n";
-    }
-  }
+  typedef looper::graph_type graph_type;
+  typedef graph_type::vertex_iterator vertex_iterator;
+  typedef graph_type::edge_iterator edge_iterator;
+
+  // real graph
+  looper::simple_hypercubic_graph_descriptor<> shgd(2, 2);
+  graph_type rg;
+  looper::generate_graph(shgd, rg);
+  boost::put(looper::vertex_type_t(), rg, *(boost::vertices(rg).first), 1);
+  std::cout << rg;
+  
+  // virtual graph
+  looper::virtual_graph<graph_type> vg;
+  std::vector<alps::half_integer<int> > spins(2);
+  spins[0] = 1; spins[1] = 3./2;
+  looper::generate_virtual_graph(rg, spins, vg);
+
+  std::cout << vg.graph;
+  std::cout << vg.mapping;
+
+#ifndef BOOST_NO_EXCEPTIONS
+} 
+catch (const std::exception& excp) {
+  std::cerr << excp.what() << std::endl;
+  std::exit(-1); }
+catch (...) {
+  std::cerr << "Unknown exception occurred!" << std::endl;
+  std::exit(-1); }
+#endif
+
 }

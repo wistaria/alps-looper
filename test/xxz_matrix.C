@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: fill_duration.C 442 2003-10-18 03:00:15Z wistaria $
+* $Id: xxz_matrix.C 447 2003-10-18 08:35:39Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -34,54 +34,34 @@
 *
 **************************************************************************/
 
-#include "random.h"
-
-#include <alps/alea.h>
-#include <boost/random.hpp>
+#include "xxz.h"
 #include <iostream>
 
 int main()
 {
-#ifndef BOOST_NO_EXCEPTIONS
-try {
-#endif
+  int n;
+  std::cin >> n;
+  for (int i = 0; i < n; ++i) {
+    double s0_in, s1_in, e0, jxy, jz;
+    std::cin >> s0_in >> s1_in >> e0 >> jxy >> jz;
+    alps::half_integer<int> s0(s0_in);
+    alps::half_integer<int> s1(s1_in);
+    looper::xxz_matrix<> xxz(s0, s1, e0, jxy, jz);
 
-  double r, tmax;
-  int trial;
-  std::cin >> r >> tmax >> trial;
+    std::cout << "input parameters: S0 = " << s0 << ", S1 = " << s1
+	      << ", e0 = " << e0 << ", Jxy = " << jxy << ", Jz = " << jz
+	      << std::endl << xxz << std::endl;
 
-  boost::mt19937 base_rng;
-  boost::uniform_01<boost::mt19937> uniform_01(base_rng);
-  for (int i = 0; i < trial; ++i) uniform_01();
+    boost::tuple<bool, double, double, double> fit =
+      looper::fit2xxz(s0, s1, xxz);
 
-  std::cout << "filling duration [0," << tmax << "]\n";
-  std::vector<double> a;
-  looper::fill_duration(uniform_01, a, r, tmax);
-  for (std::vector<double>::iterator itr = a.begin(); itr != a.end(); ++itr) {
-    std::cout << *itr << ' ';
+    if (fit.get<0>()) {
+      std::cout << "fitting result: e0 = " << fit.get<1>()
+		<< ", Jxy = " << fit.get<2>()
+		<< ", Jz = " << fit.get<3>()
+		<< std::endl;
+    } else {
+      std::cout << "fitting failed\n";
+    }
   }
-  std::cout << std::endl;
-  
-  std::cout << "filling duration " << trial << " times\n";
-  alps::BasicSimpleObservable<double, alps::NoBinning<double> >
-    n("average density");
-  n.reset(true);
-  for (int i = 0; i < trial; ++i) {
-    looper::fill_duration(uniform_01, a, r, tmax);
-    n << a.size() / tmax;
-  }
-  std::cout << n;
-  std::cout << "exact density: " << r << std::endl;
-
-#ifndef BOOST_NO_EXCEPTIONS
-}
-catch (std::exception& exc) {
-  std::cerr << exc.what() << "\n";
-  return -1;
-}
-catch (...) {
-  std::cerr << "Fatal Error: Unknown Exception!\n";
-  return -2;
-}
-#endif
 }

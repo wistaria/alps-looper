@@ -8,7 +8,7 @@ dnl disable saving cache
 define([AC_CACHE_SAVE], )dnl
 
 AC_PREREQ(2.54)
-AC_INIT([alpsaps-loop], [1.0.0b])
+AC_INIT([alps-looper], [3.0b1])
 AC_PREFIX_DEFAULT([$HOME/ALPS])
 
 dnl
@@ -42,6 +42,7 @@ dnl
 dnl generate files
 dnl
 
-AC_CONFIG_FILES(Makefile)
+AC_CONFIG_FILES(Makefile test/Makefile)
 AC_CONFIG_FILES(lattices.xml models.xml)
+AC_CONFIG_FILES(test/lattices.xml test/models.xml)
 AC_OUTPUT
