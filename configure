@@ -19590,19 +19590,15 @@ echo "$as_me: checking for Math Kernel Library" >&6;}
       echo "$as_me:$LINENO: checking MKL directory" >&5
 echo $ECHO_N "checking MKL directory... $ECHO_C" >&6
       if test -z "$mkl_dir"; then
-        if test -d "/opt/intel/mkl70"; then
-          mkl_dir=/opt/intel/mkl70
-          echo "$as_me:$LINENO: result: $mkl_dir" >&5
+        for d in mkl72 mkl70 mkl61 mkl; do
+          if test -d "/opt/intel/$d"; then
+            mkl_dir="/opt/intel/$d"
+            echo "$as_me:$LINENO: result: $mkl_dir" >&5
 echo "${ECHO_T}$mkl_dir" >&6
-        elif test -d "/opt/intel/mkl61"; then
-          mkl_dir=/opt/intel/mkl61
-          echo "$as_me:$LINENO: result: $mkl_dir" >&5
-echo "${ECHO_T}$mkl_dir" >&6
-        elif test -d "/opt/intel/mkl"; then
-          mkl_dir=/opt/intel/mkl
-          echo "$as_me:$LINENO: result: $mkl_dir" >&5
-echo "${ECHO_T}$mkl_dir" >&6
-        else
+            break;
+          fi
+        done
+        if test -z "$mkl_dir"; then
           echo "$as_me:$LINENO: result: not found" >&5
 echo "${ECHO_T}not found" >&6
         fi

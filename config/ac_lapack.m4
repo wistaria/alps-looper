@@ -252,16 +252,14 @@ AC_DEFUN([AC_LAPACK],
       AC_MSG_NOTICE([checking for Math Kernel Library])
       AC_MSG_CHECKING([MKL directory])
       if test -z "$mkl_dir"; then
-        if test -d "/opt/intel/mkl70"; then
-          mkl_dir=/opt/intel/mkl70
-          AC_MSG_RESULT([$mkl_dir])
-        elif test -d "/opt/intel/mkl61"; then
-          mkl_dir=/opt/intel/mkl61
-          AC_MSG_RESULT([$mkl_dir])
-        elif test -d "/opt/intel/mkl"; then
-          mkl_dir=/opt/intel/mkl
-          AC_MSG_RESULT([$mkl_dir])
-        else
+        for d in mkl72 mkl70 mkl61 mkl; do
+          if test -d "/opt/intel/$d"; then
+            mkl_dir="/opt/intel/$d"
+            AC_MSG_RESULT([$mkl_dir])
+            break;
+          fi
+        done
+        if test -z "$mkl_dir"; then
           AC_MSG_RESULT([not found])
         fi
       else
