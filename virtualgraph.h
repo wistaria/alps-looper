@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: virtualgraph.h 408 2003-10-10 09:34:54Z wistaria $
+* $Id: virtualgraph.h 438 2003-10-17 03:56:37Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -34,8 +34,10 @@
 *
 **************************************************************************/
 
-#ifndef LOOPER_VIRTUAL_GRAPH_H
-#define LOOPER_VIRTUAL_GRAPH_H
+#ifndef LOOPER_VIRTUALGRAPH_H
+#define LOOPER_VIRTUALGRAPH_H
+
+#include "graph.h"
 
 #include <alps/model.h>
 #include <utility>                 // std::pair, std::make_pair
@@ -110,38 +112,39 @@ private:
 };
 
   
-// class template virtual_graph_type
-// for choosing proper type for virtual graph and mapping
+// class template virtual_graph
 
 template<class G>
-struct virtual_graph_type
+struct virtual_graph
 {
-  typedef G                    graph_type;
+  typedef G                    base_type;
+  typedef base_type            graph_type;
   typedef vmapping<graph_type> mapping_type;
+
+  graph_type   graph;
+  mapping_type mapping;
 };
 
 
 // function generate_virtual_graph
-// for generating virtual graph and mapping from real graph
 
 template<class G, class IntType>
 inline void generate_virtual_graph(const G& rg,
   const std::vector<alps::half_integer<IntType> >& spins,
-  typename virtual_graph_type<G>::graph_type& vg,
-  typename virtual_graph_type<G>::mapping_type& mp)
+  virtual_graph<G>& vg)
 {
-  typedef G                                            rgraph_type;
-  typedef alps::half_integer<IntType>                  spin_type;
-  typedef typename virtual_graph_type<G>::graph_type   vgraph_type;
-  typedef typename virtual_graph_type<G>::mapping_type mapping_type;
+  typedef G                                       rgraph_type;
+  typedef alps::half_integer<IntType>             spin_type;
+  typedef typename virtual_graph<G>::graph_type   vgraph_type;
+  typedef typename virtual_graph<G>::mapping_type mapping_type;
 
-  vg.clear();
-  mp.clear();
+  vg.graph.clear();
+  vg.mapping.clear();
 
   // setup graph properties
-  boost::get_property(vg, graph_name_t())
+  boost::get_property(vg.graph, graph_name_t())
     = "virtual graph of " + boost::get_property(rg, graph_name_t());
-  boost::get_property(vg, dimension_t())
+  boost::get_property(vg.graph, dimension_t())
     = boost::get_property(rg, dimension_t());
 
   // setup vertices
@@ -150,23 +153,25 @@ inline void generate_virtual_graph(const G& rg,
     int t = boost::get(vertex_type_t(), rg, *rvi);
     for (int i = 0; i < spins.at(t).get_twice(); ++i) {
       // add vertices to virtual graph
-      typename vgraph_type::vertex_descriptor vvd = boost::add_vertex(vg);
+      typename vgraph_type::vertex_descriptor
+	vvd = boost::add_vertex(vg.graph);
 
       // copy vertex properties
-      alps::copy_property(vertex_type_t(), rg, *rvi, vg, vvd);
-      alps::copy_property(coordinate_t(), rg, *rvi, vg, vvd);
-      alps::copy_property(parity_t(), rg, *rvi, vg, vvd);
+      alps::copy_property(vertex_type_t(), rg, *rvi, vg.graph, vvd);
+      alps::copy_property(coordinate_t(), rg, *rvi, vg.graph, vvd);
+      alps::copy_property(parity_t(), rg, *rvi, vg.graph, vvd);
     }
   }
 
   // setup mapping
-  typename vgraph_type::vertex_iterator vvi_first = boost::vertices(vg).first;
+  typename vgraph_type::vertex_iterator
+    vvi_first = boost::vertices(vg.graph).first;
   typename vgraph_type::vertex_iterator vvi_last = vvi_first;
   for (boost::tie(rvi, rvi_end) = boost::vertices(rg); rvi != rvi_end; ++rvi) {
     int t = boost::get(vertex_type_t(), rg, *rvi);
     for (int i = 0; i < spins.at(t).get_twice(); ++i)
       ++vvi_last;
-    mp.add(vvi_first, vvi_last);
+    vg.mapping.add(vvi_first, vvi_last);
     vvi_first = vvi_last;
   }
 
@@ -176,36 +181,36 @@ inline void generate_virtual_graph(const G& rg,
     typename rgraph_type::vertex_descriptor rs = boost::source(*rei, rg);
     typename rgraph_type::vertex_descriptor rt = boost::target(*rei, rg);
     typename vgraph_type::vertex_iterator vvsi, vvsi_end;
-    for (boost::tie(vvsi, vvsi_end) = mp.virtual_vertices(rs);
+    for (boost::tie(vvsi, vvsi_end) = vg.mapping.virtual_vertices(rs);
 	 vvsi != vvsi_end; ++vvsi) {
       typename vgraph_type::vertex_iterator vvti, vvti_end;
-      for (boost::tie(vvti, vvti_end) = mp.virtual_vertices(rt);
+      for (boost::tie(vvti, vvti_end) = vg.mapping.virtual_vertices(rt);
 	   vvti != vvti_end; ++vvti) {
 	// add edges to virtual graph
 	typename vgraph_type::edge_descriptor ved =
-	  boost::add_edge(*vvsi, *vvti, vg).first;
+	  boost::add_edge(*vvsi, *vvti, vg.graph).first;
 	  
 	// setup edge properties
-	boost::put(edge_index_t(), vg, ved, boost::num_edges(vg));
-	alps::copy_property(edge_type_t(), rg, *rei, vg, ved);
+	boost::put(edge_index_t(), vg.graph, ved, boost::num_edges(vg.graph));
+	alps::copy_property(edge_type_t(), rg, *rei, vg.graph, ved);
       }
     }
   }
 }
 
 template<class G, class IntType>
-inline void generate_virtual_graph(const G& rg, alps::half_integer<IntType> s,
-  typename virtual_graph_type<G>::graph_type& vg,
-  typename virtual_graph_type<G>::mapping_type& mp)
+inline void generate_virtual_graph(const G& rg,
+				   alps::half_integer<IntType> s,
+				   virtual_graph<G>& vg)
 {
   int maxtype = 0;
-  typename G::vertex_iterator vi, vi_end;
+  typename boost::graph_traits<G>::vertex_iterator vi, vi_end;
   for (boost::tie(vi, vi_end) = boost::vertices(rg); vi != vi_end; ++vi)
     maxtype = std::max(maxtype, boost::get(vertex_type_t(), rg, *vi));
   std::vector<alps::half_integer<IntType> > spins(maxtype + 1, s);
-  generate_virtual_graph(rg, spins, vg, mp);
+  generate_virtual_graph(rg, spins, vg);
 }
   
 } // end namespace looper
 
-#endif // LOOPER_VIRTUAL_GRAPH_H
+#endif // LOOPER_VIRTUALGRAPH_H

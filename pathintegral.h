@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: pathintegral.h 435 2003-10-16 14:45:07Z wistaria $
+* $Id: pathintegral.h 438 2003-10-17 03:56:37Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -38,118 +38,47 @@
 #define LOOPER_PATHINTEGRAL_H
 
 #include "amida.h"
-#include "graph.h"
 #include "loop.h"
+#include "node.h"
 #include "permutation.h"
 #include "unionfind.h"
+#include "virtualgraph.h"
 #include "weight.h"
+
 #include <boost/integer_traits.hpp>
 #include <boost/throw_exception.hpp>
 #include <cmath>
+#include <complex>
 #include <stdexcept>
 
 namespace looper {
 
 namespace path_integral {
 
-template<class M, class G>
-double energy_offset(const M& model, const G& graph)
+template<class G, class M, class W>
+inline double
+energy_offset(const virtual_graph<G>& vg, const M& model, const W& /* weight*/)
 {
-  typedef typename boost::graph_traits<G>::edge_iterator edge_iterator;
+  typedef typename virtual_graph<G>::graph_type graph_type;
+  typedef typename boost::graph_traits<graph_type>::edge_iterator
+    edge_iterator;
   
   double offset = 0;
-  typename alps::property_map<alps::bond_type_t, G, int>::const_type
-    bond_type(alps::get_or_default(alps::bond_type_t(), graph, 0));
-  edge_iterator ei_end = boost::edges(graph).second;
-  for (edge_iterator ei = boost::edges(graph).first; ei != ei_end; ++ei)
+  typename alps::property_map<alps::bond_type_t, graph_type, int>::const_type
+    bond_type(alps::get_or_default(alps::bond_type_t(), vg.graph, 0));
+  edge_iterator ei_end = boost::edges(vg.graph).second;
+  for (edge_iterator ei = boost::edges(vg.graph).first; ei != ei_end; ++ei)
     offset += model.bond(bond_type[*ei]).C;
   return offset;
 }
-  
-template<class U = uint32_t>
-class node_flag
+
+template<class G, class M>
+inline double energy_offset(const virtual_graph<G>& vg, const M& model)
 {
-public:
-  typedef U uint_type;
-  
-  BOOST_STATIC_CONSTANT(uint_type, B_ADDD = 0);
-  BOOST_STATIC_CONSTANT(uint_type, B_REFL = 1);
-  BOOST_STATIC_CONSTANT(uint_type, B_FREZ = 2);
-  BOOST_STATIC_CONSTANT(uint_type, B_ANTI = 3); // only for XYZ
-  BOOST_STATIC_CONSTANT(uint_type, B_CONF = 4);
-  
-  // set for newly-added node
-  BOOST_STATIC_CONSTANT(uint_type, M_ADDD = 1 << B_ADDD);
-  
-  BOOST_STATIC_CONSTANT(uint_type, M_REFL = 1 << B_REFL); 
-  BOOST_STATIC_CONSTANT(uint_type, M_FREZ = 1 << B_FREZ);
-  BOOST_STATIC_CONSTANT(uint_type, M_ANTI = 1 << B_ANTI); // only for XYZ
-  BOOST_STATIC_CONSTANT(uint_type, M_CONF = 1 << B_CONF);
-  
-  // bit mask for clear()
-  BOOST_STATIC_CONSTANT(uint_type, M_CLEAR = M_ANTI | M_CONF);
-  
-private:
-  BOOST_STATIC_ASSERT((boost::integer_traits<uint_type>::is_integral));
-  BOOST_STATIC_ASSERT((boost::integer_traits<uint_type>::const_min == 0));
-};
+  return energy_offset(vg, model, default_weight());
+}
 
-template<class U = uint32_t>
-class node_type : private node_flag<U>
-{
-public:
-  typedef U uint_type;
   
-  node_type() : type_(0) {}
-  
-  bool is_refl() const { return type_ & M_REFL; }
-  bool is_frozen() const { return type_ & M_FREZ; }
-  bool is_new_node() const { return type_ & M_ADDD; }
-  bool is_old_node() const { return !is_new_node(); }
-  
-  uint_type refl() const { return ( type_ >> B_REFL ) & 1; }
-  uint_type frozen() const { return ( type_ >> B_FREZ ) & 1; }
-  uint_type new_node() const { return ( type_ >> B_ADDD ) & 1; }
-  uint_type old_node() const { return 1 ^ (( type_ >> B_ADDD ) & 1); }
-  
-  uint_type phase() const { return ( type_ >> B_ANTI ) & 1; }
-  uint_type conf() const { return (type_ >> B_CONF) & 1; }
-  
-  void set_type(uint_type t) { type_ = t; }
-  void clear() { type_ &= M_CLEAR; }
-  
-  void set_conf(uint_type c) {
-    type_ = ((0xffffffff ^ M_CONF) & type_) | (c << B_CONF); }
-  void flip_conf(uint_type c = 1) { type_ ^= (c << B_CONF); }
-  
-  void set_new(uint_type is_refl, uint_type is_frozen, uint_type conf,
-	       uint_type phase) {
-    type_ = M_ADDD | (is_refl << B_REFL) | (is_frozen << B_FREZ) 
-      | (conf << B_CONF) | (phase << B_ANTI);
-  }
-  void set_old(uint_type is_refl, uint_type is_frozen) {
-    type_ |= (is_refl << B_REFL) | (is_frozen << B_FREZ);
-  }
-  
-  void output(std::ostream& os) const {
-    os << "refl = " << refl()
-       << " frozen = " << frozen()
-       << " new_node = " << new_node()
-       << " phase = " << phase()
-       << " conf = " << conf();
-  }
-  
-  void save(alps::ODump& od) const { od << type_; }
-  void load(alps::IDump& id) { id >> type_; }
-  
-private:
-  BOOST_STATIC_ASSERT((boost::integer_traits<uint_type>::is_integral));
-  BOOST_STATIC_ASSERT((boost::integer_traits<uint_type>::const_min == 0));
-  
-  uint_type type_;
-};
-
-
 template<bool HasCTime = false, class U = uint32_t> class node;
 
 template<class U>
@@ -252,15 +181,16 @@ private:
 };
 
 // initialize
-template<class N, class VG, class VM>
-void initialize(amida<N>& config, const VG& vg, const VM&)
+template<class N, class G>
+inline void initialize(amida<N>& config, const virtual_graph<G>& vg)
 {
-  typedef typename boost::graph_traits<VG>::vertex_iterator vertex_iterator;
+  typedef typename boost::graph_traits<
+    typename virtual_graph<G>::graph_type>::vertex_iterator vertex_iterator;
   
-  config.init(boost::num_vertices(vg));
+  config.init(boost::num_vertices(vg.graph));
   
-  vertex_iterator vi_end = boost::vertices(vg).second;
-  for (vertex_iterator vi = boost::vertices(vg).first; vi != vi_end; ++vi) {
+  vertex_iterator vi_end = boost::vertices(vg.graph).second;
+  for (vertex_iterator vi = boost::vertices(vg.graph).first; vi != vi_end; ++vi) {
     config.series(*vi).first ->set_time(0.);
     config.series(*vi).second->set_time(1.);
     config.series(*vi).first ->set_conf(0);
@@ -268,15 +198,17 @@ void initialize(amida<N>& config, const VG& vg, const VM&)
   }
 }
 
-template<class N, class VG, class VM, class M, class RNG, class W>
-int do_update(amida<N>& config, const VG& vg, const VM& vm, const M& model,
-	      double beta, RNG& uniform_01, const W& /* weight */)
+template<class N, class G, class M, class RNG, class W>
+inline std::pair<int, int>
+do_update(amida<N>& config, const virtual_graph<G>& vg, const M& model,
+	  double beta, RNG& uniform_01, const W& /* weight */)
 {
-  typedef typename amida<N>::iterator iterator;
-  typedef typename amida<N>::value_type node_type;
-  typedef typename boost::graph_traits<VG>::vertex_iterator
+  typedef typename amida<N>::iterator           iterator;
+  typedef typename amida<N>::value_type         node_type;
+  typedef typename virtual_graph<G>::graph_type graph_type;
+  typedef typename boost::graph_traits<graph_type>::vertex_iterator
     vertex_iterator;
-  typedef typename boost::graph_traits<VG>::edge_iterator
+  typedef typename boost::graph_traits<graph_type>::edge_iterator
     edge_iterator;
   typedef W weight_type;
   
@@ -284,19 +216,19 @@ int do_update(amida<N>& config, const VG& vg, const VM& vm, const M& model,
   // labeling
   //
   
-  edge_iterator ei_end = boost::edges(vg).second;
-  for (edge_iterator ei = boost::edges(vg).first; ei != ei_end; ++ei) {
+  edge_iterator ei_end = boost::edges(vg.graph).second;
+  for (edge_iterator ei = boost::edges(vg.graph).first; ei != ei_end; ++ei) {
     
-    int bond = boost::get(edge_index_t(), vg, *ei); // bond index
+    int bond = boost::get(edge_index_t(), vg.graph, *ei); // bond index
     
     // setup iterators
-    iterator itr0 = config.series(boost::source(*ei, vg)).first;
-    iterator itr1 = config.series(boost::target(*ei, vg)).first;
+    iterator itr0 = config.series(boost::source(*ei, vg.graph)).first;
+    iterator itr1 = config.series(boost::target(*ei, vg.graph)).first;
     int c0 = itr0->conf();    
     int c1 = itr1->conf();
     
     // setup bond weight
-    weight_type weight(model.bond(boost::get(edge_type_t(), vg, *ei)));
+    weight_type weight(model.bond(boost::get(edge_type_t(), vg.graph, *ei)));
     std::vector<double> trials;
     fill_duration(uniform_01, trials, beta * weight.density, 1.);
     
@@ -319,7 +251,7 @@ int do_update(amida<N>& config, const VG& vg, const VM& vm, const M& model,
 	iterator itr_new =
 	  config.insert_link_prev(node_type(), itr0, itr1).first;
 	itr_new->set_time(*ti);
-	itr_new->set_new(boost::get(edge_index_t(), vg, *ei), c0 ^ c1,
+	itr_new->set_new(boost::get(edge_index_t(), vg.graph, *ei), c0 ^ c1,
 			 (uniform_01() < weight.p_freeze ? 1 : 0), 0, 0);
       }
     }
@@ -335,8 +267,8 @@ int do_update(amida<N>& config, const VG& vg, const VM& vm, const M& model,
   // cluster identification using union-find algorithm
   //
   
-  vertex_iterator vi_end = boost::vertices(vg).second;
-  for (vertex_iterator vi = boost::vertices(vg).first; vi != vi_end; ++vi) {
+  vertex_iterator vi_end = boost::vertices(vg.graph).second;
+  for (vertex_iterator vi = boost::vertices(vg.graph).first; vi != vi_end; ++vi) {
     
     // setup iterators
     iterator itrD = config.series(*vi).first;
@@ -350,31 +282,31 @@ int do_update(amida<N>& config, const VG& vg, const VM& vm, const M& model,
 			   itrD->loop_segment(0));
 	else
 	  unionfind::unify(itrU->loop_segment(0),
-			   itrD->loop_segment(!(itrD.leg()|itrD->is_refl())));
+			   itrD->loop_segment(1^(itrD.leg()|itrD->refl())));
 	break; // finish
       } else {
 	if (itrU.leg() == 0 && itrU->is_frozen()) // frozen link
 	  unionfind::unify(itrU->loop_segment(0), itrU->loop_segment(0));
 	if (itrD.at_bottom())
-	  unionfind::unify(itrU->loop_segment(itrU.leg()|itrU->is_refl()),
+	  unionfind::unify(itrU->loop_segment(itrU.leg()|itrU->refl()),
 			   itrD->loop_segment(0));
 	else
-	  unionfind::unify(itrU->loop_segment(itrU.leg()|itrU->is_refl()),
-			   itrD->loop_segment(!(itrD.leg()|itrD->is_refl())));
+	  unionfind::unify(itrU->loop_segment(itrU.leg()|itrU->refl()),
+			   itrD->loop_segment(1^(itrD.leg()|itrD->refl())));
 	itrD = itrU++; // next
       }
     }
   }
   
   std::vector<int> r, c0, c1;
-  for (int i = 0; i < vm.num_groups(); ++i) {
-    int s2 = vm.num_virtual_vertices(i);
-    int offset = *(vm.virtual_vertices(i).first);
+  for (int i = 0; i < vg.mapping.num_groups(); ++i) {
+    int s2 = vg.mapping.num_virtual_vertices(i);
+    int offset = *(vg.mapping.virtual_vertices(i).first);
     r.resize(s2);
     c0.resize(s2);
     c1.resize(s2);
-    vertex_iterator vi_end = vm.virtual_vertices(i).second;
-    for (vertex_iterator vi = vm.virtual_vertices(i).first;
+    vertex_iterator vi_end = vg.mapping.virtual_vertices(i).second;
+    for (vertex_iterator vi = vg.mapping.virtual_vertices(i).first;
 	 vi != vi_end; ++vi) {
       r[*vi - offset] = *vi - offset;
       c0[*vi - offset] = config.series(*vi).first->conf();
@@ -384,48 +316,54 @@ int do_update(amida<N>& config, const VG& vg, const VM& vm, const M& model,
 			      c0.begin(), c0.end(),
 			      c1.begin(), c1.end(),
 			      uniform_01);
-    for (vertex_iterator vi = vm.virtual_vertices(i).first;
+    for (vertex_iterator vi = vg.mapping.virtual_vertices(i).first;
 	 vi != vi_end; ++vi)
       unionfind::unify(
         config.series(*vi            ).first ->loop_segment(0),
         config.series(r[*vi - offset]).second->loop_segment(0));
   }
 
-  int num_loops = 0;
-  vi_end = boost::vertices(vg).second;
-  for (vertex_iterator vi = boost::vertices(vg).first; vi != vi_end; ++vi) {
+  int num_loops0 = 0;
+  vi_end = boost::vertices(vg.graph).second;
+  for (vertex_iterator vi = boost::vertices(vg.graph).first;
+       vi != vi_end; ++vi) {
+    iterator itr = config.series(*vi).first;
+    if (itr->loop_segment(0).root()->index == loop_segment::undefined)
+      itr->loop_segment(0).root()->index = num_loops0++;
+  }
+  int num_loops = num_loops0;
+  vi_end = boost::vertices(vg.graph).second;
+  for (vertex_iterator vi = boost::vertices(vg.graph).first;
+       vi != vi_end; ++vi) {
     
     // setup iterators
-    iterator itr = config.series(*vi).first;
+    iterator itr = ++config.series(*vi).first;
     
     // iteration up to t = 1
-    while (true) {
-      if (itr.at_boundary()) {
-	if (itr->loop_segment(0).is_root())
+    while (!itr.at_top()) {
+      if (itr.leg() == 0) {
+	if (itr->loop_segment(0).is_root() &&
+	    itr->loop_segment(0).index == loop_segment::undefined)
 	  itr->loop_segment(0).index = num_loops++;
-      } else {
-	if (itr.leg() == 0) {
-	  if (itr->loop_segment(0).is_root())
-	    itr->loop_segment(0).index = num_loops++;
-	  if (itr->loop_segment(1).is_root())
-	    itr->loop_segment(1).index = num_loops++;
-	}
+	if (itr->loop_segment(1).is_root() &&
+	    itr->loop_segment(1).index == loop_segment::undefined)
+	  itr->loop_segment(1).index = num_loops++;
       }
-      if (itr.at_top()) break;
       ++itr;
     }
   }
   std::cout << "identification done.\n";
 
-  return num_loops; // return number of loops
+  return std::make_pair(num_loops0, num_loops); // return number of loops
 }
 
-template<class N, class VG, class VM, class M, class RNG>
-int do_update(amida<N>& config, const VG& vg, const VM& vm, const M& model,
-	      double beta, RNG& uniform_01)
+template<class N, class G, class M, class RNG>
+inline
+std::pair<int, int>
+do_update(amida<N>& config, const virtual_graph<G>& vg, const M& model,
+	  double beta, RNG& uniform_01)
 {
-  return do_update(config, vg, vm, model, beta, uniform_01,
-		   default_weight());
+  return do_update(config, vg, model, beta, uniform_01, default_weight());
 }
 
 } // namespace path_integral

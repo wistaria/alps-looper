@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: sse.h 432 2003-10-16 13:24:54Z wistaria $
+* $Id: sse.h 438 2003-10-17 03:56:37Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -37,68 +37,46 @@
 #ifndef LOOPER_SSE_H
 #define LOOPER_SSE_H
 
-#include "graph.h"
+#include "loop.h"
+#include "permutation.h"
+#include "unionfind.h"
+#include "virtualgraph.h"
+#include "weight.h"
 #include <boost/throw_exception.hpp>
 #include <cmath>
 #include <stdexcept>
 
 namespace looper {
 
-struct path_integral
+namespace SSE {
+
+template<class G, class M, class W>
+double energy_offset(const virtual_graph<G>& vg, const M& model,
+		     const W& /* weight*/)
 {
-  template<class M, class G>
-  static double energy_offset(const M& model, const G& graph)
-  {
-    typedef typename boost::graph_traits<G>::edge_iterator edge_iterator;
-    
-    double offset = 0;
-    typename alps::property_map<alps::bond_type_t, G, int>::const_type
-      bond_type(alps::get_or_default(alps::bond_type_t(), graph, 0));
-    edge_iterator ei_end = boost::edges(graph).second;
-    for (edge_iterator ei = boost::edges(graph).first; ei != ei_end; ++ei)
-      offset += model.bond(bond_type[*ei]).C;
-    return offset;
-  }
+  typedef typename virtual_graph<G>::graph_type graph_type;
+  typedef typename boost::graph_traits<graph_type>::edge_iterator
+    edge_iterator;
+  typedef W weight_type;
   
-  struct weight
-  {
-    double offset;
-    double density;
-    double p_freeze;
-    double p_accept_para;
-    double p_accept_anti;
-    double p_reflect;
-    
-    template<class P>
-    weight(const P& p)
-    {
-      double Jxy = std::abs(p.Jxy); // ignore negative signs
-      double Jz = p.Jz;
-      if (Jxy == 0 && Jz == 0) {
-	density = 0;
-      } else {
-	offset = max(abs(Jz) / 4, Jxy / 4);
-	density = std::max(std::abs(Jz) / 2, (Jxy + std::abs(Jz)) / 4);
-	p_freeze = range_01(1 - Jxy / std::abs(Jz));
-	p_accept_para = range_01((Jxy + Jz) / (Jxy + std::abs(Jz)));
-	p_accept_anti = range_01((Jxy - Jz) / (Jxy + std::abs(Jz)));
-	p_reflect = range_01((Jxy - Jz) / (2 * Jxy));
-      }
-    }
-    
-    double p_accept(int c0, int c1) const {
-      return (c0 ^ c1) ? p_accept_anti : p_accept_para;
-    }
-    
-  protected:
-    static double range_01(double x)
-    {
-      return std::min(std::max(x, double(0.)), double(1.));
-    }
-  };
+  double offset = 0;
+  typename alps::property_map<alps::bond_type_t, graph_type, int>::const_type
+    bond_type(alps::get_or_default(alps::bond_type_t(), vg.graph, 0));
+  edge_iterator ei_end = boost::edges(vg.graph).second;
+  for (edge_iterator ei = boost::edges(vg.graph).first; ei != ei_end; ++ei)
+    offset += model.bond(bond_type[*ei]).C +
+      weight(model.bond(bond_type[*ei])).offset;
+  return offset;
+}
+
+template<class G, class M>
+double energy_offset(const virtual_graph<G>& vg, const M& model)
+{
+  return energy_offset(vg, model, default_weight());
+}
   
-};
-  
+} // end namespace SSE
+
 } // end namespace looper
 
 #endif // LOOPER_SSE_H

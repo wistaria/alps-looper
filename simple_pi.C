@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: simple_pi.C 433 2003-10-16 14:38:03Z wistaria $
+* $Id: simple_pi.C 438 2003-10-17 03:56:37Z wistaria $
 *
 * Copyright (C) 2001-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -34,11 +34,13 @@
 *
 **************************************************************************/
 
-#include "graph.h"
 #include "pathintegral.h"
+
+#include "model.h"
 #include "random.h"
-#include "virtualgraph.h"
-#include "xxz.h"
+
+#include "pathintegral.h"
+#include "sse.h"
 
 #include <alps/alea.h>
 #include <iostream>
@@ -175,22 +177,27 @@ try {
   looper::generate_graph(shgd, g);
 
   // virtual graph
-  looper::virtual_graph_type<graph_type>::graph_type vg;
-  looper::virtual_graph_type<graph_type>::mapping_type vm;
+  looper::virtual_graph<graph_type> vg;
   std::vector<alps::half_integer<int> > spin(opts.dim, opts.spin);
-  looper::generate_virtual_graph(g, spin, vg, vm);
+  looper::generate_virtual_graph(g, spin, vg);
 
   // model
   looper::xxz_model model(opts.Jxy, opts.Jz, opts.spin, g);
 
   // world line configration
   looper::amida<looper::path_integral::node<> > config;
-  looper::path_integral::initialize(config, vg, vm);
+  looper::path_integral::initialize(config, vg);
+
+  // energy offset
+  double e_offset = looper::path_integral::energy_offset(vg, model);
+  std::cout << e_offset << std::endl;
 
   // measurements
   alps::ObservableSet measurements;
 
-  std::cout << looper::path_integral::do_update(config, vg, vm, model, 1./opts.temp, rng) << std::endl;
+  int num_loops0, num_loops;
+  boost::tie(num_loops0, num_loops) =
+    looper::path_integral::do_update(config, vg, model, 1./opts.temp, rng);
 
   // output results
   std::cout << measurements;

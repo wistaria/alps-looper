@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: loop.h 438 2003-10-17 03:56:37Z wistaria $
+* $Id: model.h 438 2003-10-17 03:56:37Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -34,54 +34,11 @@
 *
 **************************************************************************/
 
-#ifndef LOOPER_LOOP_H
-#define LOOPER_LOOP_H
+#ifndef LOOPER_MODEL_H
+#define LOOPER_MODEL_H
 
-#include <boost/config.hpp> // for BOOST_STATIC_CONSTANT
+#include "graph.h"
+#include "virtualgraph.h"
+#include "xxz.h"
 
-namespace looper {
-
-struct loop_segment
-{
-  BOOST_STATIC_CONSTANT(int, undefined = -1);
-
-  int index;
-
-  loop_segment() : index(undefined) {}
-  void reset() { index = undefined; }
-  loop_segment& operator+=(const loop_segment&) { return *this; }
-};
-
-// helper functions
-
-struct loop
-{
-  template<class T>
-  static int index(const T& t)
-  {
-    t.root()->index;
-  }
-
-  template<class CONTAINER>
-  static int set_indices(CONTAINER& cont)
-  {
-    typedef CONTAINER container_type;
-    typedef typename container_type::iterator iterator;
-
-    int n = 0; // number of loops
-    
-    iterator itr_end = cont.end();
-    for (iterator itr = cont.begin(); itr != itr_end; ++itr) {
-      if (itr->is_root()) {
-	itr->index = n;
-	++n;
-      }
-    }
-    
-    return n;
-  }
-};
-
-} // end namespace looper
-
-#endif // LOOPER_LOOP_H
+#endif // LOOPER_MODEL_H

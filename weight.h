@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: weight.h 436 2003-10-16 15:01:29Z wistaria $
+* $Id: weight.h 438 2003-10-17 03:56:37Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -35,9 +35,10 @@
 **************************************************************************/
 
 #ifndef LOOPER_WEIGHT_H
-#define LOOPER_WEITHT_H
+#define LOOPER_WEIGHT_H
 
-#include <cmath>
+#include <algorithm> // for std::max, std::min
+#include <cmath> // for std::abs
 
 namespace looper {
 
@@ -52,21 +53,24 @@ struct default_weight
   double p_accept_para;
   double p_accept_anti;
   double p_reflect;
+  double offset;
   
   default_weight() : density(0), p_freeze(0), p_accept_para(0),
-		     p_accept_anti(0), p_reflect(0) {}
+		     p_accept_anti(0), p_reflect(0), offset(0) {}
   template<class P>
   default_weight(const P& p) : density(0), p_freeze(0), p_accept_para(0),
-			       p_accept_anti(0), p_reflect(0)
+			       p_accept_anti(0), p_reflect(0), offset(0)
   {
-    double Jxy = std::abs(p.Jxy); // ignore negative signs
+    using std::abs; using std::max;
+    double Jxy = abs(p.Jxy); // ignore negative signs
     double Jz = p.Jz;
-    if (Jxy + std::abs(Jz) > 1.0e-10) {
-      density = std::max(std::abs(Jz) / 2, (Jxy + std::abs(Jz)) / 4);
-      p_freeze = range_01(1 - Jxy / std::abs(Jz));
-      p_accept_para = range_01((Jxy + Jz) / (Jxy + std::abs(Jz)));
-      p_accept_anti = range_01((Jxy - Jz) / (Jxy + std::abs(Jz)));
+    if (Jxy + abs(Jz) > 1.0e-10) {
+      density = max(abs(Jz) / 2, (Jxy + abs(Jz)) / 4);
+      p_freeze = range_01(1 - Jxy / abs(Jz));
+      p_accept_para = range_01((Jxy + Jz) / (Jxy + abs(Jz)));
+      p_accept_anti = range_01((Jxy - Jz) / (Jxy + abs(Jz)));
       p_reflect = range_01((Jxy - Jz) / (2 * Jxy));
+      offset = max(abs(Jz) / 4, Jxy / 4);
     }
   }
   
@@ -75,12 +79,11 @@ struct default_weight
   }
   
 protected:
-  static double range_01(double x)
-  {
-    return std::min(std::max(x, double(0.)), double(1.));
+  double range_01(double x) const {
+    return std::min(std::max(x, 0.), 1.);
   }
 };
   
 } // namespace looper
 
-#endif // LOOPER_PATHINTEGRAL_H
+#endif // LOOPER_WEIGHT_H
