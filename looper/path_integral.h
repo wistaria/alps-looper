@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: path_integral.h 491 2003-10-31 11:19:49Z wistaria $
+* $Id: path_integral.h 492 2003-10-31 13:48:54Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -201,9 +201,7 @@ struct path_integral<virtual_graph<G>, M, W>
   template<bool HasCTime>
   static void initialize(config_type<HasCTime>& config,
 			 const parameter_type& p)
-  {
-    initialize(config, p.virtual_graph);
-  }
+  { initialize(config, p.virtual_graph); }
 
   template<bool HasCTime, class RNG>
   static void generate_loops(config_type<HasCTime>& config, const vg_type& vg,
@@ -228,10 +226,11 @@ struct path_integral<virtual_graph<G>, M, W>
 	iterator itr1 = config.wl.series(boost::target(*ei, vg.graph)).first;
 	int c0 = itr0->conf();    
 	int c1 = itr1->conf();
+	++itr0;
+	++itr1;
 	
 	// setup bond weight
-	weight_type
-	  weight(model.bond(boost::get(edge_type_t(), vg.graph, *ei)));
+	weight_type weight(model.bond(bond_type(*ei, vg.graph)));
 	std::vector<double> trials;
 	fill_duration(uniform_01, trials, beta * weight.density());
 	
@@ -283,9 +282,9 @@ struct path_integral<virtual_graph<G>, M, W>
 	// iteration up to t = 1
 	for (;; itrD = itrU++) {
 	  union_find::unify(segment_d(itrU), segment_u(itrD));
+	  if (itrU.at_top()) break; // finish
 	  if (itrU.leg() == 0 && itrU->is_frozen()) // frozen link
 	    union_find::unify(itrU->loop_segment(0), itrU->loop_segment(1));
-	  if (itrU.at_top()) break; // finish
 	}
       }
     }
@@ -333,12 +332,16 @@ struct path_integral<virtual_graph<G>, M, W>
 	   vi != vi_end; ++vi) {
 	iterator itrB, itrT;
 	boost::tie(itrB, itrT) = config.wl.series(*vi);
-	if (itrB->loop_segment(0).root()->index == loop_segment::undefined)
-	  itrB->loop_segment(0).root()->index = (config.num_loops0)++;
-	itrB->loop_segment(0).index = itrB->loop_segment(0).root()->index;
-	if (itrT->loop_segment(0).root()->index == loop_segment::undefined)
-	  itrT->loop_segment(0).root()->index = (config.num_loops0)++;
-	itrT->loop_segment(0).index = itrT->loop_segment(0).root()->index;
+	if (itrB->loop_segment(0).index == loop_segment::undefined) {
+	  if (itrB->loop_segment(0).root()->index == loop_segment::undefined)
+	    itrB->loop_segment(0).root()->index = (config.num_loops0)++;
+	  itrB->loop_segment(0).index = itrB->loop_segment(0).root()->index;
+	}
+	if (itrT->loop_segment(0).index == loop_segment::undefined) {
+	  if (itrT->loop_segment(0).root()->index == loop_segment::undefined)
+	    itrT->loop_segment(0).root()->index = (config.num_loops0)++;
+	  itrT->loop_segment(0).index = itrT->loop_segment(0).root()->index;
+	}
       }
     }
 
@@ -356,13 +359,13 @@ struct path_integral<virtual_graph<G>, M, W>
 	    if (itr->loop_segment(0).index == loop_segment::undefined) {
 	      if (itr->loop_segment(0).root()->index ==
 		  loop_segment::undefined)
-		itr->loop_segment(0).root()->index = config.num_loops++;
+		itr->loop_segment(0).root()->index = (config.num_loops)++;
 	      itr->loop_segment(0).index = itr->loop_segment(0).root()->index;
 	    }
 	    if (itr->loop_segment(1).index == loop_segment::undefined) {
 	      if (itr->loop_segment(1).root()->index ==
 		  loop_segment::undefined)
-		itr->loop_segment(1).root()->index = config.num_loops++;
+		itr->loop_segment(1).root()->index = (config.num_loops)++;
 	      itr->loop_segment(1).index = itr->loop_segment(1).root()->index;
 	    }
 	  }
@@ -377,9 +380,7 @@ struct path_integral<virtual_graph<G>, M, W>
   static void generate_loops(config_type<HasCTime>& config, 
 			     const parameter_type& p,
 			     RNG& uniform_01)
-  {
-    generate_loops(config, p.virtual_graph, p.model, p.beta, uniform_01);
-  }
+  { generate_loops(config, p.virtual_graph, p.model, p.beta, uniform_01); }
 
   template<bool HasCTime, class RNG>
   static void flip_and_cleanup(config_type<HasCTime>& config,
@@ -395,52 +396,53 @@ struct path_integral<virtual_graph<G>, M, W>
 		    uniform_01, boost::uniform_smallint<>(0, 1)));
     
     // flip spins
-    vertex_iterator vi_end = boost::vertices(vg.graph).second;
-    for (vertex_iterator vi = boost::vertices(vg.graph).first;
-	 vi != vi_end; ++vi) {
-      iterator itrB, itrT;
-      boost::tie(itrB, itrT) = config.wl.series(*vi);
-      if (flip[itrB->loop_segment(0).index] == 1) itrB->flip_conf();
-      itrB->clear_graph();
-      if (flip[itrT->loop_segment(0).index] == 1) itrT->flip_conf();
-      itrT->clear_graph();
-      //// std::cout << itrT->conf() << ' ';
+    {
+      vertex_iterator vi, vi_end;
+      for (boost::tie(vi, vi_end) = boost::vertices(vg.graph);
+	   vi != vi_end; ++vi) {
+	iterator itrB, itrT;
+	boost::tie(itrB, itrT) = config.wl.series(*vi);
+	if (flip[itrB->loop_segment(0).index] == 1) itrB->flip_conf();
+	itrB->clear_graph();
+	if (flip[itrT->loop_segment(0).index] == 1) itrT->flip_conf();
+	itrT->clear_graph();
+	//// std::cout << itrT->conf() << ' ';
+      }
     }
     //// std::cout << std::endl;
     
     // upating links
-    vi_end = boost::vertices(vg.graph).second;
-    for (vertex_iterator vi = boost::vertices(vg.graph).first;
-	 vi != vi_end; ++vi) {
-      // setup iterator
-      iterator itr = boost::next(config.wl.series(*vi).first);
+    {
+      vertex_iterator vi, vi_end;
+      for (boost::tie(vi, vi_end) = boost::vertices(vg.graph);
+	   vi != vi_end; ++vi) {
+	// setup iterator
+	iterator itr = boost::next(config.wl.series(*vi).first);
       
-      // iteration up to t = 1
-      while (!itr.at_top()) {
-	if (itr.leg() == 0) {
-	  if (itr->is_new() ^
-	      (flip[itr->loop_segment(0).index] ^
-	       flip[itr->loop_segment(1).index] == 0)) {
-	    ++itr;
-	    config.wl.erase(boost::prior(itr));
+	// iteration up to t = 1
+	while (!itr.at_top()) {
+	  if (itr.leg() == 0) {
+	    if (itr->is_new() ^
+		(flip[itr->loop_segment(0).index] ^
+		 flip[itr->loop_segment(1).index] == 1)) {
+	      ++itr;
+	      config.wl.erase(boost::prior(itr));
+	    } else {
+	      itr->clear_graph();
+	      ++itr;
+	    }
 	  } else {
-	    itr->clear_graph();
 	    ++itr;
 	  }
-	} else {
-	  ++itr;
 	}
       }
     }
   }
-
   template<bool HasCTime, class RNG>
   static void flip_and_cleanup(config_type<HasCTime>& config,
 			       const parameter_type& p,
 			       RNG& uniform_01)
-  {
-    flip_and_cleanup(config, p.virtual_graph, uniform_01);
-  }
+  { flip_and_cleanup(config, p.virtual_graph, uniform_01); }
 
   // measurements
 

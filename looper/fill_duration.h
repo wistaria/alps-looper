@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: fill_duration.h 455 2003-10-22 01:04:57Z wistaria $
+* $Id: fill_duration.h 492 2003-10-31 13:48:54Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -58,7 +58,7 @@ void fill_duration(RNG& uniform_01, C& array,
   if (r <= value_type(0.)) return;
 
   boost::exponential_distribution<value_type> exp_rng(r);
-  value_type t(value_type(0.));
+  value_type t = value_type(0.);
   while (true) {
     t += exp_rng(uniform_01);
     if (t >= tmax) break;
