@@ -380,16 +380,18 @@ public:
   { set_parameters(g, spin, Jxy, Jz); }
   template<typename G, typename I>
   model_parameter(const alps::Parameters& params,
-                  const G& g, bool disordered_sites, bool disordered_bond,
+                  const G& g, bool inhomogeneous_sites, bool inhomogeneous_bond,
                   const alps::model_helper<I>& mh)
     : sites_(), bonds_()
-  { set_parameters(params, g, disordered_sites, disordered_bond, mh); }
+  { set_parameters(params, g, inhomogeneous_sites, inhomogeneous_bond, mh); }
   template<typename G, typename I>
   model_parameter(const alps::Parameters& params,
-                  const G& g, bool disordered_sites, bool disordered_bond,
+                  const G& g, bool inhomogeneous_sites, bool inhomogeneous_bond,
                   const alps::model_helper<I>& mh, bool is_signed)
     : sites_(), bonds_()
-  { set_parameters(params, g, disordered_sites, disordered_bond, mh, is_signed); }
+  { set_parameters(params, g, inhomogeneous_sites, inhomogeneous_bond,
+                   mh, is_signed);
+  }
 
   // set_parameters
 
@@ -403,44 +405,46 @@ public:
   }
   template<typename G, typename I>
   void set_parameters(const alps::Parameters& params,
-                      const G& g, bool disordered_sites, bool disordered_bond,
+                      const G& g, bool inhomogeneous_sites,
+                      bool inhomogeneous_bond,
                       const alps::model_helper<I>& mh)
   {
-    set_parameters_impl(params, g, disordered_sites, disordered_bond, mh);
+    set_parameters_impl(params, g, inhomogeneous_sites, inhomogeneous_bond, mh);
     signed_ = check_sign(g);
     frustrated_ = check_classical_frustration(g);
   }
   template<typename G, typename I>
   void set_parameters(const alps::Parameters& params,
-                      const G& g, bool disordered_sites, bool disordered_bond,
+                      const G& g, bool inhomogeneous_sites,
+                      bool inhomogeneous_bond,
                       const alps::model_helper<I>& mh, bool is_signed)
   {
-    set_parameters_impl(params, g, disordered_sites, disordered_bond, mh);
+    set_parameters_impl(params, g, inhomogeneous_sites, inhomogeneous_bond, mh);
     signed_ = is_signed;
     frustrated_ = check_classical_frustration(g);
   }
 
   bool uniform_site() const { return sites_.size() == 1; }
-  bool disordered_site() const { return use_site_index_; }
+  bool inhomogeneous_site() const { return use_site_index_; }
   template<class G>
   site_parameter_type site(
     const typename boost::graph_traits<G>::vertex_descriptor& v,
     const G& g) const
   {
-    return disordered_site() ?
+    return inhomogeneous_site() ?
       sites_[boost::get(vertex_index_t(), g, v)] : 
       (uniform_site() ? sites_[0] :
        sites_[boost::get(vertex_type_t(), g, v)]);
   }
 
   bool uniform_bond() const { return bonds_.size() == 1; }
-  bool disordered_bond() const { return use_bond_index_; }
+  bool inhomogeneous_bond() const { return use_bond_index_; }
   template<class G>
   bond_parameter_type bond(
     const typename alps::graph_traits<G>::edge_descriptor& e,
     const G& g) const
   {
-    return disordered_bond() ?
+    return inhomogeneous_bond() ?
       bonds_[boost::get(edge_index_t(), g, e)] :
       (uniform_bond() ? bonds_[0] :
        bonds_[boost::get(edge_type_t(), g, e)]);
@@ -467,7 +471,7 @@ protected:
 
   template<typename G, typename I>
   void set_parameters_impl(alps::Parameters params, const G& g,
-    bool disordered_sites, bool disordered_bond,
+    bool inhomogeneous_sites, bool inhomogeneous_bond,
     const alps::model_helper<I>& mh)
   {
     using boost::get;
@@ -485,7 +489,7 @@ protected:
     
     // check type range and resize 'sites_'
     bool use_site_index_ = false;
-    if (disordered_sites) {
+    if (inhomogeneous_sites) {
       use_site_index_ = true;
       sites_.resize(boost::num_vertices(g));
     } else {
@@ -509,7 +513,7 @@ protected:
       alps::Parameters p(params);
       vertex_iterator vi, vi_end;
       for (boost::tie(vi, vi_end) = boost::vertices(g); vi != vi_end; ++vi) {
-        if (disordered_sites) {
+        if (inhomogeneous_sites) {
           alps::throw_if_xyz_defined(params, g);
           p << alps::coordinate_as_parameter(g, *vi);
         }
@@ -535,7 +539,7 @@ protected:
 
     // check type range and resize 'bonds_'
     use_bond_index_ = false;
-    if (disordered_bond) {
+    if (inhomogeneous_bond) {
       use_bond_index_ = true;
       bonds_.resize(boost::num_edges(g));
     } else {
@@ -575,7 +579,7 @@ protected:
       alps::Parameters p(params);
       edge_iterator ei, ei_end;
       for (boost::tie(ei, ei_end) = boost::edges(g); ei != ei_end; ++ei) {
-        if (disordered_bond) {
+        if (inhomogeneous_bond) {
           alps::throw_if_xyz_defined(params, g);
           p << alps::coordinate_as_parameter(g, *ei);
         }
