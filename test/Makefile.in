@@ -302,7 +302,6 @@ dist_noinst_DATA = \
 	fill_duration.ip fill_duration.op \
 	filtered_graph.ip filtered_graph.op \
 	find_bridges.ip find_bridges.op \
-	generate_01.op \
 	gesvd.ip gesvd.op \
 	hypercubic.ip hypercubic.op \
 	index_helper.op \

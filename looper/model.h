@@ -488,7 +488,7 @@ protected:
     //
     
     // check type range and resize 'sites_'
-    bool use_site_index_ = false;
+    use_site_index_ = false;
     if (inhomogeneous_sites) {
       use_site_index_ = true;
       sites_.resize(boost::num_vertices(g));
@@ -500,11 +500,11 @@ protected:
         type_min = std::min(type_min, get(vertex_type_t(), g, *vi));
         type_max = std::max(type_min, get(vertex_type_t(), g, *vi));
       }
-      if (is_negative(type_min) || type_max >= boost::num_vertices(g)) {
+      if (is_negative(type_min) || type_max > boost::num_vertices(g)) {
         use_site_index_ = true;
         sites_.resize(boost::num_vertices(g));
       } else {
-        sites_.resize(type_max);
+        sites_.resize(type_max+1);
       }
     }
 
@@ -524,12 +524,16 @@ protected:
                            mh.model().basis().site_basis(t), p));
       }
     } else {
+      std::vector<bool> checked(sites_.size(), false);
       vertex_iterator vi, vi_end;
       for (boost::tie(vi, vi_end) = boost::vertices(g); vi != vi_end; ++vi) {
         unsigned int t = get(vertex_type_t(), g, *vi);
-        sites_[t] = site_parameter_type(
-          alps::get_matrix(double(), mh.model().site_term(t),
-                           mh.model().basis().site_basis(t), params));
+        if (!checked[t]) {
+          sites_[t] = site_parameter_type(
+            alps::get_matrix(double(), mh.model().site_term(t),
+                             mh.model().basis().site_basis(t), params));
+          checked[t] = true;
+        }
       }
     }
 
@@ -566,11 +570,11 @@ protected:
         }
       }
       if (use_bond_index_ || is_negative(type_min) ||
-          type_max >= boost::num_edges(g)) {
+          type_max > boost::num_edges(g)) {
         use_bond_index_ = true;
         bonds_.resize(boost::num_edges(g));
       } else {
-        bonds_.resize(type_max);
+        bonds_.resize(type_max+1);
       }
     }
 
@@ -593,15 +597,19 @@ protected:
                            mh.model().basis().site_basis(st1), p));
       }
     } else {
+      std::vector<bool> checked(bonds_.size(), false);
       edge_iterator ei, ei_end;
       for (boost::tie(ei, ei_end) = boost::edges(g); ei != ei_end; ++ei) {
         unsigned int t = get(edge_type_t(), g, *ei);
-        unsigned int st0 = get(vertex_type_t(), g, boost::source(*ei, g));
-        unsigned int st1 = get(vertex_type_t(), g, boost::target(*ei, g));
-        bonds_[t] = bond_parameter_type(
-          alps::get_matrix(double(), mh.model().bond_term(t),
-                           mh.model().basis().site_basis(st0),
-                           mh.model().basis().site_basis(st1), params));
+        if (!checked[t]) {
+          unsigned int st0 = get(vertex_type_t(), g, boost::source(*ei, g));
+          unsigned int st1 = get(vertex_type_t(), g, boost::target(*ei, g));
+          bonds_[t] = bond_parameter_type(
+            alps::get_matrix(double(), mh.model().bond_term(t),
+                             mh.model().basis().site_basis(st0),
+                             mh.model().basis().site_basis(st1), params));
+          checked[t] = true;
+        }
       }
     }
   }

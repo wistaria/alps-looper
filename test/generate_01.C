@@ -39,11 +39,18 @@ void generate(RNG& uniform_01)
   std::generate(array.begin(), array.end(),
                 boost::variate_generator<rng_type&, boost::uniform_smallint<> >
                 (uniform_01, boost::uniform_smallint<>(0, 1)));
+  std::vector<int> result(20,0);
+  result[0] = 1; result[4] = 1; result[7] = 1; result[9] = 1;
+  result[10] = 1; result[11] = 1; result[13] = 1; result[14] = 1;
+  result[17] = 1; result[18] = 1;
 
-  std::vector<int>::const_iterator itr_end = array.end();
-  for (std::vector<int>::const_iterator itr = array.begin(); itr != itr_end;
-       ++itr) std::cout << *itr << ' ';
-  std::cout << std::endl;
+  for (unsigned int i = 0; i < array.size(); ++i) {
+    if (array[i] != result[i]) {
+      std::cerr << "Encountered Intel CXX bug!\n";
+      return;
+    }
+  }
+  std::cerr << "No bug found.\n";
 }
 
 int main()
