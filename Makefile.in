@@ -22,7 +22,7 @@
 #
 ##############################################################################
 
-# $Id: Makefile.in 553 2003-11-12 02:08:39Z wistaria $
+# $Id: Makefile.in 554 2003-11-12 02:36:24Z wistaria $
 # top-level Makefile
 
 srcdir = @srcdir@
@@ -44,15 +44,15 @@ libs_program = -lalps -lcomm-sgl $(HDF5_LIBS) $(XML_LIBS) $(BASE_LIBS)
 libs_program_mpi = -lalps -lcomm-mpi $(HDF5_LIBS) $(XML_LIBS) $(MPI_LIBS) $(BASE_LIBS)
 
 LOCAL_CONFIG = lattices.xml models.xml percolation-params qmc-params
-PROGRAM_MPI = qmc_mpi
-PROGRAM = copyright qmc qmc_cmd @PROGRAM_MPI@
-EXAMPLE_MPI = percolation_mpi
-EXAMPLE = percolation percolation_cmd @EXAMPLE_MPI@
+PROGRAM_MPI =
+PROGRAM =
+EXAMPLE_MPI = qmc_mpi percolation_mpi
+EXAMPLE = copyright qmc qmc_cmd percolation percolation_cmd @EXAMPLE_MPI@
 
 SCRIPTS = configure
 ERASE =
 
-default programs all :
+default programs all : $(EXAMPLE)
 
 # rules for tests
 
