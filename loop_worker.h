@@ -226,11 +226,13 @@ private:
 template<class T>
 inline void accumulate(const alps::ObservableSet& m_in, T& m_out)
 {
-  alps::RealObsevaluator obse_e = m_in["beta * Energy / sqrt(N)"];
-  alps::RealObsevaluator obse_e2 = m_in["beta * Energy^2"];
-  alps::RealObsevaluator eval("Specific Heat");
-  eval = (obse_e2 - obse_e * obse_e);
-  m_out << eval;
+  if (m_in.has("beta * Energy / sqrt(N)") && m_in.has("beta * Energy^2")) {
+    alps::RealObsevaluator obse_e = m_in["beta * Energy / sqrt(N)"];
+    alps::RealObsevaluator obse_e2 = m_in["beta * Energy^2"];
+    alps::RealObsevaluator eval("Specific Heat");
+    eval = (obse_e2 - obse_e * obse_e);
+    m_out << eval;
+  }
 }
 
 inline void accumulate(alps::scheduler::MCSimulation& sim)
