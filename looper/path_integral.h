@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: path_integral.h 521 2003-11-05 10:37:21Z wistaria $
+* $Id: path_integral.h 524 2003-11-05 14:33:04Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -166,6 +166,9 @@ struct path_integral<virtual_graph<G>, M, W, N>
     typedef amida<node_type>                 wl_type;
     typedef typename wl_type::iterator       iterator;
     typedef typename wl_type::const_iterator const_iterator;
+
+    BOOST_STATIC_CONSTANT(bool, is_path_integral = true);
+    BOOST_STATIC_CONSTANT(bool, is_sse = false);
 
     wl_type wl;
     unsigned int num_loops0;
