@@ -4,7 +4,7 @@
 	percolation_mpi) will also be built.
 
 	* Added measurement for staggered susceptibility (unimproved
-	estimator).
+	estimator).  (SSE output seems still incorrect.)
 	
 2003-11-05  Synge Todo  <wistaria@comp-phys.org>
 	
