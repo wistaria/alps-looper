@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: graph.h 717 2004-03-23 09:16:54Z wistaria $ */
-
 #ifndef LOOPER_GRAPH_H__
 #define LOOPER_GRAPH_H__
 
@@ -142,7 +140,7 @@ void generate_graph(G& g, const hypercubic_graph_generator<D, S, E>& desc)
   // generate graph
   g.clear();
   boost::get_property(g, graph_name_t()) = "simple hypercubic graph";
-  make_graph_from_lattice(g,
+  alps::make_graph_from_lattice(g,
     lattice_type(cl, desc.extent().begin(), desc.extent().end(),
                  bc.begin(), bc.end()));
 }

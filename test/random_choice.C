@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: random_choice.C 698 2004-03-17 09:23:58Z wistaria $ */
-
 // Define the following macro if you want the original initialization
 // routine of O(N^2).
 
@@ -65,7 +63,7 @@ try {
   } else {
     std::cout << "check failed\n";
     std::exit(-1);
-  }    
+  }
 
   std::vector<double> accum(n, 0);
   for (unsigned int t = 0; t < samples; ++t) ++accum[rc(rng)];
@@ -78,9 +76,9 @@ try {
               << "    \t" << diff << "    \t" << sigma << "    \t" << (diff / sigma)
               << std::endl;
   }
-  
+
 #ifndef BOOST_NO_EXCEPTIONS
-} 
+}
 catch (const std::exception& excp) {
   std::cerr << excp.what() << std::endl;
   std::exit(-1); }

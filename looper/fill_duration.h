@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: fill_duration.h 693 2004-03-16 15:48:04Z wistaria $ */
-
 #ifndef LOOPER_FILL_DURATION_H
 #define LOOPER_FILL_DURATION_H
 
@@ -37,7 +35,7 @@ namespace looper {
 // fill duration [0,tmax] uniformly with density r
 
 template<class RNG, class C>
-void fill_duration(RNG& uniform_01, C& array, 
+void fill_duration(RNG& uniform_01, C& array,
                    typename C::value_type r, typename C::value_type tmax)
 {
   typedef typename C::value_type value_type;

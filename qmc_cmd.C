@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: qmc_cmd.C 717 2004-03-23 09:16:54Z wistaria $ */
-
 #include "qmc_impl.h"
 #include <looper/exact_diag.h>
 
@@ -45,14 +43,14 @@ struct options {
   std::string representation;   // -e use SSE instead of path integral
                                 // -g use exact diagonalization
 
-  options(int argc, char *argv[]) : 
+  options(int argc, char *argv[]) :
     // default options
     seed(2837), dim(1), lsize(16), spin(0.5), Jxy(-1.), Jz(-1.), temp(1.),
     step_t(1024), step_m(8192), representation("path integral")
   {
     parse(argc, argv);
   }
-  
+
   void usage(int status, std::ostream& os = std::cerr) const {
     os << "[command line options]\n\n"
        << "  -r int     seed of random number generator\n"
@@ -133,7 +131,7 @@ struct options {
           break;
         }
         break;
-        
+
       default :
         usage(1);
         break;
@@ -199,7 +197,7 @@ try {
   boost::variate_generator<boost::mt19937, boost::uniform_real<> >
     rng(boost::mt19937(opts.seed), boost::uniform_real<>());
   for (int i = 0; i < 19844; ++i) rng();
-    
+
   // hypercubic lattice (real lattice)
   typedef looper::parity_graph_type graph_type;
   graph_type g;
@@ -216,19 +214,19 @@ try {
 
   if (opts.representation == "path integral" ||
       opts.representation == "SSE") {
-    
+
     if (opts.representation == "path integral") {
       // path-integral representation
       qmc_worker<looper::path_integral<looper::virtual_graph<graph_type>,
         model_type> > worker(g, model, beta, measurements);
-      
+
       for (int mcs = 0; mcs < opts.step_t + opts.step_m; ++mcs) {
         if (mcs == opts.step_t) measurements.reset(true);
         worker.step(rng, measurements);
       }
       worker.accumulate(measurements);
 
-      std::cout << measurements << std::endl; 
+      std::cout << measurements << std::endl;
       opts.output(); std::cout << ' ';
       worker.output_results(std::cout, measurements);
       std::cout << std::endl;
@@ -236,14 +234,14 @@ try {
       // SSE representation
       qmc_worker<looper::sse<looper::virtual_graph<graph_type>,
         model_type> > worker(g, model, beta, measurements);
-      
+
       for (int mcs = 0; mcs < opts.step_t + opts.step_m; ++mcs) {
         if (mcs == opts.step_t) measurements.reset(true);
         worker.step(rng, measurements);
       }
       worker.accumulate(measurements);
-      
-      std::cout << measurements << std::endl; 
+
+      std::cout << measurements << std::endl;
       opts.output(); std::cout << ' ';
       worker.output_results(std::cout, measurements);
       std::cout << std::endl;
@@ -257,7 +255,7 @@ try {
     worker.step(rng, measurements);
     worker.accumulate(measurements);
 
-    std::cout << measurements << std::endl; 
+    std::cout << measurements << std::endl;
     opts.output(); std::cout << ' ';
     worker.output_results(std::cout, measurements);
     std::cout << std::endl;
@@ -265,7 +263,7 @@ try {
   }
 
 #ifndef BOOST_NO_EXCEPTIONS
-} 
+}
 catch (const std::exception& excp) {
   std::cerr << excp.what() << std::endl;
   std::exit(-1); }

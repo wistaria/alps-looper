@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: qmc.C 693 2004-03-16 15:48:04Z wistaria $ */
-
 // qmc.C - main program for QMC simulations
 
 #include "qmc_impl.h"

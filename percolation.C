@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: percolation.C 693 2004-03-16 15:48:04Z wistaria $ */
-
 // percolation.C - main program for site and bond percolation simulations
 
 #include "percolation_impl.h"

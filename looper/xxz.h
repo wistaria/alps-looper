@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: xxz.h 693 2004-03-16 15:48:04Z wistaria $ */
-
 #ifndef LOOPER_XXZ_H
 #define LOOPER_XXZ_H
 
@@ -57,7 +55,7 @@ public:
 
   double c() const { return c_; }
   double& c() { return c_; }
-  
+
   double jxy() const { return jxy_; }
   double& jxy() { return jxy_; }
 
@@ -89,7 +87,7 @@ public:
   xxz_matrix(const alps::half_integer<I>& s0, const alps::half_integer<I>& s1,
              const xxz_parameter& p) : matrix_()
   { build(s0, s1, p.c(), p.jxy(), p.jz()); }
-  
+
   // access to matrix
   matrix_type& matrix() { return matrix_; }
   const matrix_type& matrix() const { return matrix_; }
@@ -107,7 +105,7 @@ public:
              double e0, double jxy, double jz)
   {
     typedef alps::half_integer<I> half_integer_type;
-    
+
     // set matrix dimension
     int dim = (s0.get_twice()+1) * (s1.get_twice()+1);
     matrix_.resize(dim, dim);
@@ -119,7 +117,7 @@ public:
     for (half_integer_type sz0 = s0; sz0 >= -s0; --sz0) {
       for (half_integer_type sz1 = s1; sz1 >= -s1; --sz1) {
         matrix_[detail::index(s0, s1, sz0, sz1)]
-               [detail::index(s0, s1, sz0, sz1)] = 
+               [detail::index(s0, s1, sz0, sz1)] =
           e0 - jz * double(sz0) * double(sz1);
       }
     }
@@ -130,7 +128,7 @@ public:
         matrix_[detail::index(s0, s1, sz0+1, sz1-1)]
                [detail::index(s0, s1, sz0, sz1)] =
           - 0.5 * jxy *
-          std::sqrt(double(s0-sz0) * double(s0+sz0+1)) * 
+          std::sqrt(double(s0-sz0) * double(s0+sz0+1)) *
           std::sqrt(double(s1+sz1) * double(s1-sz1+1));
       }
     }
@@ -141,7 +139,7 @@ public:
         matrix_[detail::index(s0, s1, sz0-1, sz1+1)]
                [detail::index(s0, s1, sz0, sz1)] =
           - 0.5 * jxy *
-          std::sqrt(double(s0+sz0) * double(s0-sz0+1)) * 
+          std::sqrt(double(s0+sz0) * double(s0-sz0+1)) *
           std::sqrt(double(s1-sz1) * double(s1+sz1+1));
       }
     }
@@ -166,23 +164,23 @@ inline std::ostream& operator<<(std::ostream& os, const xxz_matrix<T, M>& m)
 template <class I, class M>
 inline boost::tuple<bool, typename M::value_type, typename M::value_type,
                     typename M::value_type>
-fit2xxz(const alps::half_integer<I>& s0, const alps::half_integer<I>& s1, 
+fit2xxz(const alps::half_integer<I>& s0, const alps::half_integer<I>& s1,
         const M& mat, typename M::value_type tol = 1.0e-10)
 {
   typedef M matrix_type;
   typedef typename M::value_type value_type;
-  
+
   int dim = (s0.get_twice()+1) * (s1.get_twice()+1);
   xxz_matrix<value_type> m1(s0, s1, 0, 1, 1);
-  
+
   // e0
   value_type e0 = 0.;
   for (int i = 0; i < dim; ++i) e0 += mat[i][i];
   e0 /= dim;
-  
+
   // jz
   value_type jz = (mat[0][0] - e0) / m1[0][0];
-  
+
   // jxy
   double jxy = 0;
   for (int i = 0; i < dim; ++i) {
@@ -194,7 +192,7 @@ fit2xxz(const alps::half_integer<I>& s0, const alps::half_integer<I>& s1,
     }
     if (jxy != 0) break;
   }
-  
+
   // check
   bool success = true;
   xxz_matrix<value_type> m(s0, s1, e0, jxy, jz);
@@ -203,13 +201,13 @@ fit2xxz(const alps::half_integer<I>& s0, const alps::half_integer<I>& s1,
       if (std::abs(mat[i][j] - m[i][j]) > tol) success = false;
     }
   }
-  
+
   return boost::make_tuple(success, e0, jxy, jz);
 }
 
 template <class I, class T>
 inline boost::tuple<bool, T, T, T>
-fit2xxz(const alps::half_integer<I>& s0, const alps::half_integer<I>& s1, 
+fit2xxz(const alps::half_integer<I>& s0, const alps::half_integer<I>& s1,
         const boost::multi_array<T, 4>& mat, T tol = 1.0e-10)
 {
   typedef T value_type;
@@ -250,7 +248,7 @@ public:
   xxz_model(const alps::Parameters params, const G& graph,
             const alps::ModelLibrary& models) : spin_(), bond_()
   { set_parameters(params, graph, models); }
-  
+
   template<class G, class I>
   void set_parameters(double Jxy, double Jz, const alps::half_integer<I>& spin,
                       const G& graph)
@@ -260,7 +258,7 @@ public:
       vertex_iterator;
     typedef typename boost::graph_traits<graph_type>::edge_iterator
       edge_iterator;
-    
+
     // set site parameters
     typename alps::property_map<alps::site_type_t, graph_type,
                                 type_type>::const_type
@@ -284,7 +282,7 @@ public:
       if (!bond_.count(t)) bond_[t] = xxz_parameter(0., Jxy, Jz);
     }
   }
-  
+
   template<class G, class IntType>
   void set_parameters(alps::Parameters params, const G& graph,
                       const alps::ModelLibrary::OperatorDescriptorMap& ops,
@@ -295,10 +293,10 @@ public:
       vertex_iterator;
     typedef typename boost::graph_traits<graph_type>::edge_iterator
       edge_iterator;
-    
+
         // get default couplings
         params.copy_undefined(hd.default_parameters());
-        
+
     // get site parameters
     typename alps::property_map<alps::site_type_t, graph_type,
                                 type_type>::const_type
@@ -347,7 +345,7 @@ public:
       }
     }
   }
-  
+
   template<class G>
   void set_parameters(const alps::Parameters params,
                       const G& graph,
@@ -360,7 +358,7 @@ public:
     hd.set_parameters(p);
     set_parameters(p, graph, models.simple_operators(), hd);
   }
-  
+
   int num_spin_types() const { return spin_.size(); }
   bool is_uniform_spin() const { return num_spin_types() == 1; }
   alps::half_integer<int> spin(type_type t) const

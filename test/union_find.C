@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: union_find.C 698 2004-03-17 09:23:58Z wistaria $ */
-
 #include <looper/union_find.h>
 #include <boost/random.hpp>
 #include <iostream>
@@ -47,7 +45,7 @@ int main()
   // random number generator
   boost::variate_generator<boost::mt19937, boost::uniform_int<> >
     rng(boost::mt19937(4357), boost::uniform_int<>(0, n - 1));
-  
+
   std::cout << "[[union find test]]\n";
 
   vector_type tree(n);

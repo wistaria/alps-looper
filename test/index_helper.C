@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: index_helper.C 698 2004-03-17 09:23:58Z wistaria $ */
-
 #include <looper/vector_helper.h>
 #include <boost/random.hpp>
 #include <iostream>

@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: virtual_graph.C 717 2004-03-23 09:16:54Z wistaria $ */
-
 #include <looper/graph.h>
 #include <looper/virtual_graph.h>
 #include <alps/model.h>
@@ -55,7 +53,7 @@ try {
     std::cout << looper::gauge(*vi, rg) << ' ';
   }
   std::cout << std::endl;
-  
+
   // virtual graph
   looper::virtual_graph<graph_type> vg;
   std::vector<alps::half_integer<int> > spins(2);
@@ -77,7 +75,7 @@ try {
   std::cout << vg.mapping;
 
 #ifndef BOOST_NO_EXCEPTIONS
-} 
+}
 catch (const std::exception& excp) {
   std::cerr << excp.what() << std::endl;
   std::exit(-1); }

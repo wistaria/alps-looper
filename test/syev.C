@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: syev.C 700 2004-03-17 10:24:04Z wistaria $ */
-
 #include <looper/lapack.h>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
@@ -35,12 +33,12 @@
 struct Options {
   uint32_t n;        // -n dimension of matrix
   uint32_t seed;     // -r seed
-  
-  Options(int argc, char *argv[]) : 
+
+  Options(int argc, char *argv[]) :
     // default options
     n(128), seed(2837)
   { parse(argc, argv); }
-  
+
   void usage(int status, std::ostream& os = std::cerr) const {
     os << "[command line options]\n\n"
        << "  -n int     dimension of matrix\n"
@@ -72,7 +70,7 @@ struct Options {
           break;
         }
         break;
-        
+
       default :
         usage(1);
         break;

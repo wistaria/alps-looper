@@ -22,11 +22,9 @@
 *
 *****************************************************************************/
 
-/* $Id: union_find.h 693 2004-03-16 15:48:04Z wistaria $ */
-
 // Weighted Union-Find Algorithm
 // Reference:
-//   D. Knuth, 
+//   D. Knuth,
 //   `The Art of Computer Programming, Vol. 1, Fundamental Algorithms'
 //   3rd edition (Addison Wesley, Reading, 1997) Sec 2.3.3.
 
@@ -69,7 +67,7 @@ public:
   node() : base_type(), parent_(0), weight_(1) {}
   node(const node& n) : base_type(n), parent_(n.is_root() ? 0 : n.parent_),
                         weight_(n.weight_) {}
- 
+
   bool is_root() const { return parent_ == 0; }
   node* root() {
     node* r = this;
@@ -97,7 +95,7 @@ public:
   void set_parent(const node* p) const { parent_ = const_cast<node*>(p); }
   node* parent() { return parent_; }
   const node* parent() const { return parent_; }
- 
+
   weight_type weight() const {
 #ifndef NDEBUG
     if (!is_root())
@@ -105,14 +103,14 @@ public:
 #endif
     return weight_;
   }
-  
+
   node& operator+=(node& c) {
     base_type::operator+=(c);
     weight_ += c.weight();
     c.set_parent(this);
     return *this;
   }
-  
+
   void reset() {
     base_type::reset();
     parent_ = 0;
@@ -123,7 +121,7 @@ private:
   // root node     : 0
   // non-root node : points my parent node
   mutable node* parent_;
- 
+
   // root node     : weight of cluster (number of nodes in the cluster)
   // non-root node : meaningless
   weight_type weight_;

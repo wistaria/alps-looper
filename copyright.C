@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: copyright.C 693 2004-03-16 15:48:04Z wistaria $ */
-
 // copyright - print copyright and/or license information
 
 #include "looper/copyright.h"
@@ -70,7 +68,7 @@ struct options
           break;
         }
         break;
-        
+
       default :
         usage(1);
         break;
@@ -92,7 +90,7 @@ try {
   if (opts.license) looper::print_license(std::cout);
 
 #ifndef BOOST_NO_EXCEPTIONS
-} 
+}
 catch (const std::exception& excp) {
   std::cerr << excp.what() << std::endl;
   std::exit(-1); }

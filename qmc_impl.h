@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: qmc_impl.h 693 2004-03-16 15:48:04Z wistaria $ */
-
 // qmc_impl.h - implementation of worker for QMC simulation
 
 #ifndef QMC_IMPL_H
@@ -77,7 +75,7 @@ public:
 
     m << evaluator_type("Specific Heat");
   }
-    
+
   template<class RNG>
   void step(RNG& rng, alps::ObservableSet& m)
   {
@@ -91,10 +89,10 @@ public:
     // measure improved quantities below
     //
 
-    m.template get<measurement_type>("Magnetization^2") << 
+    m.template get<measurement_type>("Magnetization^2") <<
       looper::uniform_sz2_imp(config_, param_);
 
-    m.template get<measurement_type>("Staggered Magnetization^2") << 
+    m.template get<measurement_type>("Staggered Magnetization^2") <<
       looper::staggered_sz2_imp(config_, param_);
 
     double gm2, gs;
@@ -108,7 +106,7 @@ public:
     //
 
     qmc::flip_and_cleanup(config_, param_, rng);
-      
+
     //
     // measure unimproved quantities below
     //
@@ -116,7 +114,7 @@ public:
     double ez, exy, e2;
     boost::tie(ez, exy, e2) = looper::energy(config_, param_);
     ez += e_offset_;
-    m.template get<measurement_type>("Energy") << 
+    m.template get<measurement_type>("Energy") <<
       param_.virtual_graph.num_real_vertices * (ez + exy);
     m.template get<measurement_type>("Energy Density") << ez + exy;
     m.template get<measurement_type>("Energy Density^2") << e2;
@@ -125,7 +123,7 @@ public:
       looper::sqr(looper::uniform_sz(config_, param_));
     m.template get<measurement_type>("Susceptibility") << param_.beta * m2;
 
-    m.template get<measurement_type>("Staggered Susceptibility") << 
+    m.template get<measurement_type>("Staggered Susceptibility") <<
       looper::staggered_susceptibility(config_, param_);
   }
 
@@ -134,7 +132,7 @@ public:
     evaluator_type obse_e = m.template get<measurement_type>("Energy Density");
     evaluator_type obse_e2 =
       m.template get<measurement_type>("Energy Density^2");
-    m.template get<evaluator_type>("Specific Heat") = 
+    m.template get<evaluator_type>("Specific Heat") =
       (double)param_.virtual_graph.num_real_vertices *
       looper::sqr(param_.beta) * (obse_e2 - obse_e * obse_e);
   }
@@ -198,10 +196,10 @@ public:
     m << measurement_type("Susceptibility");
     m << measurement_type("Staggered Magnetization^2");
     m << measurement_type("Staggered Susceptibility");
-    
+
     m << evaluator_type("Specific Heat");
   }
-    
+
   template<class RNG>
   void step(RNG& /* rng */, alps::ObservableSet& m)
   {
@@ -236,7 +234,7 @@ public:
     evaluator_type obse_e = m.template get<measurement_type>("Energy Density");
     evaluator_type obse_e2 =
       m.template get<measurement_type>("Energy Density^2");
-    m.template get<evaluator_type>("Specific Heat") = 
+    m.template get<evaluator_type>("Specific Heat") =
       (double)boost::num_vertices(param_.graph) *
       looper::sqr(param_.beta) * (obse_e2 - obse_e * obse_e);
   }
@@ -279,12 +277,12 @@ public:
   worker(const alps::ProcessList& w, const alps::Parameters& p, int n) :
     alps::scheduler::LatticeModelMCRun<>(w, p, n),
     mdl_(p, graph(), simple_operators(), model()),
-    mcs_(0), therm_(static_cast<unsigned int>(p["THERMALIZATION"])), 
+    mcs_(0), therm_(static_cast<unsigned int>(p["THERMALIZATION"])),
     total_(therm_ + static_cast<unsigned int>(p["SWEEPS"])),
     qmc_worker_(graph(), mdl_, 1.0 / static_cast<double>(p["T"]),
                 measurements) {}
   virtual ~worker() {}
-    
+
   virtual void dostep() {
     if (QMC_WORKER::is_qmc || is_thermalized())
       qmc_worker_.step(random_01, measurements);
@@ -295,7 +293,7 @@ public:
     return is_thermalized() ?
       double(mcs_ - therm_) / (total_ - therm_) : 0.0;
   }
-  
+
   virtual void save(alps::ODump& od) const {
     od << mcs_;
     qmc_worker_.save(od);
@@ -311,7 +309,7 @@ private:
   unsigned int mcs_, therm_, total_;
   QMC_WORKER qmc_worker_;
 };
-  
+
 class factory : public alps::scheduler::Factory
 {
   alps::scheduler::MCSimulation* make_task(const alps::ProcessList& w,

@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: permutation.h 693 2004-03-16 15:48:04Z wistaria $ */
-
 #ifndef LOOPER_PERMUTATION_H
 #define LOOPER_PERMUTATION_H
 
@@ -37,7 +35,7 @@ namespace looper {
 
 template<class RandomAccessIter,
          class RandomNumberGenerator>
-void random_shuffle(RandomAccessIter first, 
+void random_shuffle(RandomAccessIter first,
                     RandomAccessIter last,
                     RandomNumberGenerator& rng)
 {
@@ -61,7 +59,7 @@ void random_shuffle(RandomAccessIter first,
 //          guide : does not change
 
 template<class RandomAccessIterator0, class RandomAccessIterator1>
-void guided_sort_binary(RandomAccessIterator0 first_perm, 
+void guided_sort_binary(RandomAccessIterator0 first_perm,
                         RandomAccessIterator0 last_perm,
                         RandomAccessIterator1 first_guide,
                         RandomAccessIterator1 last_guide) {
@@ -98,7 +96,7 @@ void guided_sort_binary(RandomAccessIterator0 first_perm,
 
 template<class RandomAccessIter0, class RandomAccessIter1,
          class RandomNumberGenerator>
-void restricted_random_shuffle(RandomAccessIter0 perm_first, 
+void restricted_random_shuffle(RandomAccessIter0 perm_first,
                                RandomAccessIter0 perm_last,
                                RandomAccessIter1 guide0_first,
                                RandomAccessIter1 guide0_last,

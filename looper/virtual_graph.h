@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: virtual_graph.h 717 2004-03-23 09:16:54Z wistaria $ */
-
 #ifndef LOOPER_VIRTUAL_GRAPH_H
 #define LOOPER_VIRTUAL_GRAPH_H
 
@@ -47,7 +45,7 @@ public:
   typedef std::pair<vertex_iterator, vertex_iterator> range_type;
 
   vmapping() : map_(1, vertex_iterator()) {}
-  
+
   int num_groups() const { return map_.size() - 1; }
   int num_virtual_vertices(int g) const {
     return *map_[g + 1] - *map_[g];
@@ -96,12 +94,12 @@ public:
     map.output(os);
     return os;
   }
-  
+
 private:
   std::vector<vertex_iterator> map_;
 };
 
-  
+
 // class template virtual_graph
 
 template<class G>
@@ -180,7 +178,7 @@ inline void generate_virtual_graph(virtual_graph<G>& vg, const RG& rg,
         // add edges to virtual graph
         typename vgraph_type::edge_descriptor ved =
           boost::add_edge(*vvsi, *vvti, vg.graph).first;
-          
+
         // setup edge properties
         boost::put(edge_index_t(), vg.graph, ved,
                    boost::num_edges(vg.graph) - 1);
@@ -225,7 +223,7 @@ inline void generate_virtual_graph(virtual_graph<G>& vg, const G& rg,
   generate_virtual_graph(vg, rg,
     vg_detail::vector_spin_wrapper<alps::half_integer<IntType> >(v));
 }
-  
+
 } // end namespace looper
 
 #endif // LOOPER_VIRTUAL_GRAPH_H

@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: measurement.h 693 2004-03-16 15:48:04Z wistaria $ */
-
 #ifndef LOOPER_MEASUREMENT_H
 #define LOOPER_MEASUREMENT_H
 
@@ -63,7 +61,7 @@ struct energy_helper<path_integral<G, M, W, N> >
     for (boost::tie(ei, ei_end) = boost::edges(param.virtual_graph.graph);
          ei != ei_end; ++ei) {
       ez -= param.model.bond(bond_type(*ei, param.virtual_graph.graph)).jz()
-        * qmc_type::static_correlation(config, 
+        * qmc_type::static_correlation(config,
            boost::source(*ei, param.virtual_graph.graph),
            boost::target(*ei, param.virtual_graph.graph));
     }
@@ -101,7 +99,7 @@ struct energy_helper<sse<G, M, W, N> >
 };
 
 } // end namespace
-  
+
 template<class C, class P>
 inline boost::tuple<double, double, double>
 energy(const C& config, const P& param)
@@ -116,7 +114,7 @@ template<class C, class P>
 inline double uniform_sz(const C& config, const P& param)
 {
   typedef typename C::qmc_type qmc_type;
-  
+
   double sz = 0.;
   typename qmc_type::vertex_iterator vi, vi_end;
   for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
@@ -241,7 +239,7 @@ uniform_sz2_imp(const C& config, const P& param)
   for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
        vi != vi_end; ++vi)
     m[qmc_type::loop_index_0(*vi, config)] += qmc_type::static_sz(*vi, config);
-  
+
   double m2 = 0.;
   for (int i = 0; i < config.num_loops0; ++i) m2 += sqr(m[i]);
 
@@ -260,9 +258,9 @@ staggered_sz2_imp(const C& config, const P& param)
   typename qmc_type::vertex_iterator vi, vi_end;
   for (boost::tie(vi, vi_end) = boost::vertices(param.virtual_graph.graph);
        vi != vi_end; ++vi)
-    m[qmc_type::loop_index_0(*vi, config)] += 
+    m[qmc_type::loop_index_0(*vi, config)] +=
       gauge(*vi, param.virtual_graph.graph) * qmc_type::static_sz(*vi, config);
-  
+
   double m2 = 0.;
   for (int i = 0; i < config.num_loops0; ++i) m2 += sqr(m[i]);
 
@@ -296,13 +294,13 @@ struct generalized_susceptibility_imp_helper<path_integral<G, M, W, N> >
         itrD = config.wl.series(*vi).first;
       typename qmc_type::config_type::const_iterator
         itrU = boost::next(itrD);
-        
+
       // iteration up to t = 1
       for (;; itrD = itrU, ++itrU) {
         len[qmc_type::segment_d(itrU).index] += (itrU->time() - itrD->time());
         if (itrU.at_top()) break;
       }
-    }      
+    }
 
     double m2 = 0.;
     for (int i = 0; i < config.num_loops0; ++i) m2 += sqr(mg[i]);

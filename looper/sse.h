@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: sse.h 717 2004-03-23 09:16:54Z wistaria $ */
-
 #ifndef LOOPER_SSE_H
 #define LOOPER_SSE_H
 
@@ -74,7 +72,7 @@ struct sse<virtual_graph<G>, M, W, N>
     parameter_type(const RG& rg, const model_type& m, double b)
       : virtual_graph(), model(m), beta(b), is_bipartite(false),
         chooser(), ez_offset(0.)
-    { 
+    {
       looper::generate_virtual_graph(virtual_graph, rg, model);
       is_bipartite = alps::set_parity(virtual_graph.graph);
       chooser.init(virtual_graph, model);
@@ -173,7 +171,7 @@ struct sse<virtual_graph<G>, M, W, N>
   //
   // update functions
   //
-  
+
   // initialize
   static void initialize(config_type& config, const vg_type& vg, int ni = 16)
   {
@@ -242,10 +240,10 @@ struct sse<virtual_graph<G>, M, W, N>
     {
       vertex_iterator vi, vi_end;
       std::vector<int>::iterator itr = curr_conf.begin();
-      for (boost::tie(vi, vi_end) = boost::vertices(vg.graph); 
+      for (boost::tie(vi, vi_end) = boost::vertices(vg.graph);
            vi != vi_end; ++vi, ++itr) *itr = config.bottom[*vi].conf();
     }
-    
+
     // scan over operators
     if (boost::num_edges(vg.graph) > 0) {
       operator_iterator oi_end = config.os.end();
@@ -272,7 +270,7 @@ struct sse<virtual_graph<G>, M, W, N>
           int b = oi->bond();
           edge_iterator ei = boost::edges(vg.graph).first + b;
           if (uniform_01() <
-              double(config.os.size() - config.num_operators + 1) / 
+              double(config.os.size() - config.num_operators + 1) /
               (bc.global_weight() * beta *
                bc.weight(b).
                  p_accept(curr_conf[boost::source(*ei, vg.graph)],
@@ -300,7 +298,7 @@ struct sse<virtual_graph<G>, M, W, N>
     {
       vertex_iterator vi, vi_end;
       std::vector<int>::iterator itr = curr_conf.begin();
-      for (boost::tie(vi, vi_end) = boost::vertices(vg.graph); 
+      for (boost::tie(vi, vi_end) = boost::vertices(vg.graph);
            vi != vi_end; ++vi, ++itr) assert(*itr == config.top[*vi].conf());
     }
 #endif
@@ -315,7 +313,7 @@ struct sse<virtual_graph<G>, M, W, N>
       {
         vertex_iterator vi, vi_end;
         std::vector<sse_node::segment_type *>::iterator pi = curr_ptr.begin();
-        for (boost::tie(vi, vi_end) = boost::vertices(vg.graph); 
+        for (boost::tie(vi, vi_end) = boost::vertices(vg.graph);
              vi != vi_end; ++vi, ++pi)
           *pi = &(config.bottom[*vi].loop_segment(0));
       }
@@ -341,7 +339,7 @@ struct sse<virtual_graph<G>, M, W, N>
       // connect to top
       {
         vertex_iterator vi, vi_end;
-        for (boost::tie(vi, vi_end) = boost::vertices(vg.graph); 
+        for (boost::tie(vi, vi_end) = boost::vertices(vg.graph);
              vi != vi_end; ++vi)
           union_find::unify(*curr_ptr[*vi], config.top[*vi].loop_segment(0));
       }
@@ -558,7 +556,7 @@ struct sse<virtual_graph<G>, M, W, N>
       }
     }
   }
-  
+
 }; // struct sse
 
 } // end namespace looper

@@ -1,0 +1,5 @@
+Any publication for which any part of the ALPS/looper Library was used has to
+acknowledge the use of the ALPS libraries, and the papers listed below.
+
+  - reference the ALPS/looper web page
+    http://wistaria.comp-phys.org/alps-looper/

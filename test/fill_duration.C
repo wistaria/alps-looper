@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: fill_duration.C 698 2004-03-17 09:23:58Z wistaria $ */
-
 #include <looper/fill_duration.h>
 #include <alps/alea.h>
 #include <boost/random.hpp>
@@ -50,7 +48,7 @@ try {
     std::cout << *itr << ' ';
   }
   std::cout << std::endl;
-  
+
   std::cout << "filling duration " << trial << " times\n";
   alps::BasicSimpleObservable<double, alps::NoBinning<double> >
     n("average density");

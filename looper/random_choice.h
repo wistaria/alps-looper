@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: random_choice.h 699 2004-03-17 09:55:30Z wistaria $ */
-
 #ifndef LOOPER_RANDOM_CHOICE_H
 #define LOOPER_RANDOM_CHOICE_H
 

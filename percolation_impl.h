@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: percolation_impl.h 693 2004-03-16 15:48:04Z wistaria $ */
-
 // percolation_impl.h - implementation of worker for percolation simulation
 
 #ifndef PERCOLATION_IMPL_H
@@ -49,7 +47,7 @@ struct percolation
 
 
   template<class RNG, bool BOND_P> struct initializer;
-  
+
   template<class RNG>
   struct initializer<RNG, false>
   {
@@ -69,7 +67,7 @@ struct percolation
 
 
   template<class G, class V, class RNG, bool BOND_P> struct unifier;
-  
+
   template<class G, class V, class RNG>
   struct unifier<G, V, RNG, false>
   {
@@ -109,11 +107,11 @@ struct percolation
   {
   public:
     typedef alps::SimpleRealObservable measurement_type;
-    
+
     template<class G>
     worker_base(const G& g, double p, bool bp) :
       bond_p_(bp), vertices_(boost::num_vertices(g)), prob_(p) {}
-    
+
     template<class G>
     worker_base(const G& g, double p, bool bp, alps::ObservableSet& m) :
       bond_p_(bp), vertices_(boost::num_vertices(g)), prob_(p)
@@ -125,7 +123,7 @@ struct percolation
       m << measurement_type("Connected Susceptiblity");
       m.reset(true);
     }
-    
+
     template<class G, class RNG>
     void step(const G& g, RNG& random_01, alps::ObservableSet& m)
     {
@@ -136,7 +134,7 @@ struct percolation
       else
         std::for_each(vertices_.begin(), vertices_.end(),
                       initializer<RNG, true>());
-      
+
       // union_find
       if (!bond_p_)
          std::for_each(boost::edges(g).first, boost::edges(g).second,
@@ -145,7 +143,7 @@ struct percolation
          std::for_each(boost::edges(g).first, boost::edges(g).second,
                        unifier<G, vector_type, RNG, true>(g, vertices_, prob_,
                                                           random_01));
-      
+
       // measurement
       int num_clusters = 0;
       double max_weight = 0.;
@@ -160,7 +158,7 @@ struct percolation
           sc += w * w;
         }
       }
-      
+
       double nv = double(boost::num_vertices(g));
       m.template get<measurement_type>("Number of Clusters") <<
         double(num_clusters) / nv;
@@ -198,7 +196,7 @@ struct percolation
       samples_(int(p["SAMPLES"])), samples_done_(0),
       wb_(graph(), prob_, (p["TYPE"] == "bond"), measurements) {}
     virtual ~worker() {}
-    
+
     virtual void dostep() {
       ++samples_done_;
       wb_.step(graph(), random_01, measurements);
@@ -207,7 +205,7 @@ struct percolation
     virtual double work_done() const {
       return double(samples_done_) / samples_;
     }
-    
+
     virtual void save(alps::ODump& od) const {
       od << prob_ << samples_ << samples_done_;
     }
@@ -222,7 +220,7 @@ struct percolation
     unsigned int samples_done_;
     worker_base wb_;
   };
-  
+
   class factory : public alps::scheduler::Factory
   {
     alps::scheduler::MCSimulation* make_task(const alps::ProcessList& w,

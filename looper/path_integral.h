@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: path_integral.h 717 2004-03-23 09:16:54Z wistaria $ */
-
 #ifndef LOOPER_PATH_INTEGRAL_H
 #define LOOPER_PATH_INTEGRAL_H
 
@@ -55,13 +53,13 @@ public:
   typedef double                  time_type;
   typedef std::complex<time_type> ctime_type;
   BOOST_STATIC_CONSTANT(bool, has_ctime = false);
-  
+
   pi_node() : base_type(), time_(0.) {}
-  
+
   time_type time() const { return time_; }
   ctime_type ctime() const { return std::exp(2 * M_PI * time_); }
   void set_time(time_type t) { time_ = t; }
-  
+
   std::ostream& output(std::ostream& os) const {
     return base_type::output(os) << " time = " << time_;
   }
@@ -71,12 +69,12 @@ public:
   alps::IDump& load(alps::IDump& id) {
     return base_type::load(id) >> time_;
   }
-  
+
 private:
   time_type time_;
 };
 
-template<> 
+template<>
 class pi_node<true> : public pi_node<false>
 {
 public:
@@ -84,15 +82,15 @@ public:
   typedef base_type::time_type    time_type;
   typedef std::complex<time_type> ctime_type;
   BOOST_STATIC_CONSTANT(bool, has_ctime = true);
-  
+
   pi_node() : base_type(), ctime_() {}
-  
+
   ctime_type ctime() const { return ctime_; }
   void set_time(time_type t) {
     base_type::set_time(t);
     ctime_ = std::exp(2 * M_PI * t);
   }
-  
+
   std::ostream& output(std::ostream& os) const {
     return base_type::output(os) << " ctime = " << ctime_;
   }
@@ -102,7 +100,7 @@ public:
     ctime_ = std::exp(2 * M_PI * time());
     return id;
   }
-  
+
 private:
   ctime_type ctime_;
 };
@@ -128,7 +126,7 @@ struct path_integral<virtual_graph<G>, M, W, N>
                                                     vertex_iterator;
   typedef typename boost::graph_traits<graph_type>::vertex_descriptor
                                                     vertex_descriptor;
-  
+
   struct parameter_type
   {
     typedef path_integral<virtual_graph<G>, M, W, N> qmc_type;
@@ -173,7 +171,7 @@ struct path_integral<virtual_graph<G>, M, W, N>
     alps::ODump& save(alps::ODump& od) const { return od << wl; }
     alps::IDump& load(alps::IDump& id) { return id >> wl; }
   };
-  
+
   // helper functions: segment_d, segment_u
 
   static typename node_type::segment_type&
@@ -231,16 +229,16 @@ struct path_integral<virtual_graph<G>, M, W, N>
       }
     }
   }
-  
+
   //
   // update functions
   //
-  
+
   // initialize
   static void initialize(config_type& config, const vg_type& vg)
   {
     config.wl.init(boost::num_vertices(vg.graph));
-    
+
     vertex_iterator vi_end = boost::vertices(vg.graph).second;
     for (vertex_iterator vi = boost::vertices(vg.graph).first;
          vi != vi_end; ++vi) {
@@ -263,7 +261,7 @@ struct path_integral<virtual_graph<G>, M, W, N>
   {
     typedef typename config_type::iterator  iterator;
     typedef typename config_type::node_type node_type;
-    
+
     //
     // labeling
     //
@@ -273,25 +271,25 @@ struct path_integral<virtual_graph<G>, M, W, N>
       for (boost::tie(ei, ei_end) = boost::edges(vg.graph);
            ei != ei_end; ++ei) {
         int bond = boost::get(edge_index_t(), vg.graph, *ei); // bond index
-        
+
         // setup iterators
         iterator itr0 = config.wl.series(boost::source(*ei, vg.graph)).first;
         iterator itr1 = config.wl.series(boost::target(*ei, vg.graph)).first;
-        int c0 = itr0->conf();    
+        int c0 = itr0->conf();
         int c1 = itr1->conf();
         ++itr0;
         ++itr1;
-        
+
         // setup bond weight
         weight_type weight(model.bond(bond_type(*ei, vg.graph)));
         std::vector<double> trials;
         fill_duration(uniform_01, trials, beta * weight.density());
-        
+
         // iteration up to t = 1
         std::vector<double>::const_iterator ti_end = trials.end();
         for (std::vector<double>::const_iterator ti = trials.begin();
              ti != ti_end; ++ti) {
-          while (itr0->time() < *ti) { 
+          while (itr0->time() < *ti) {
             if (itr0->bond() == bond) // labeling existing link
               itr0->set_old(uniform_01() < weight.p_reflect());
             if (itr0->is_old()) c0 ^= 1;
@@ -310,18 +308,18 @@ struct path_integral<virtual_graph<G>, M, W, N>
             itr_new->set_new(c0 ^ c1, (uniform_01() < weight.p_freeze()));
           }
         }
-        while (!itr0.at_top()) { 
+        while (!itr0.at_top()) {
           if (itr0->bond() == bond)        // labeling existing link
             itr0->set_old(uniform_01() < weight.p_reflect());
           ++itr0;
         }
       }
     }
-    
+
     //
     // cluster identification using union-find algorithm
     //
-    
+
     {
       vertex_iterator vi_end = boost::vertices(vg.graph).second;
       for (vertex_iterator vi = boost::vertices(vg.graph).first;
@@ -329,7 +327,7 @@ struct path_integral<virtual_graph<G>, M, W, N>
         // setup iterators
         iterator itrD = config.wl.series(*vi).first;
         iterator itrU = boost::next(itrD);
-        
+
         // iteration up to t = 1
         for (;; itrD = itrU++) {
           union_find::unify(segment_d(itrU), segment_u(itrD));
@@ -339,7 +337,7 @@ struct path_integral<virtual_graph<G>, M, W, N>
         }
       }
     }
-    
+
     // connect bottom and top with random permutation
     {
       std::vector<int> r, c0, c1;
@@ -374,7 +372,7 @@ struct path_integral<virtual_graph<G>, M, W, N>
         }
       }
     }
-    
+
     // counting and indexing loops
     {
       config.num_loops0 = 0;
@@ -403,7 +401,7 @@ struct path_integral<virtual_graph<G>, M, W, N>
            vi != vi_end; ++vi) {
         // setup iterator
         iterator itr = boost::next(config.wl.series(*vi).first);
-        
+
         // iteration up to t = 1
         while (!itr.at_top()) {
           if (itr.leg() == 0) {
@@ -427,7 +425,7 @@ struct path_integral<virtual_graph<G>, M, W, N>
   }
 
   template<class RNG>
-  static void generate_loops(config_type& config, 
+  static void generate_loops(config_type& config,
                              const parameter_type& p,
                              RNG& uniform_01)
   { generate_loops(config, p.virtual_graph, p.model, p.beta, uniform_01); }
@@ -444,7 +442,7 @@ struct path_integral<virtual_graph<G>, M, W, N>
                   boost::variate_generator<rng_type&,
                                            boost::uniform_smallint<> >(
                     uniform_01, boost::uniform_smallint<>(0, 1)));
-    
+
     // flip spins
     {
       vertex_iterator vi, vi_end;
@@ -458,7 +456,7 @@ struct path_integral<virtual_graph<G>, M, W, N>
         itrT->clear_graph();
       }
     }
-    
+
     // upating links
     {
       vertex_iterator vi, vi_end;
@@ -466,7 +464,7 @@ struct path_integral<virtual_graph<G>, M, W, N>
            vi != vi_end; ++vi) {
         // setup iterator
         iterator itr = boost::next(config.wl.series(*vi).first);
-      
+
         // iteration up to t = 1
         while (!itr.at_top()) {
           if (itr.leg() == 0) {
@@ -513,7 +511,7 @@ struct path_integral<virtual_graph<G>, M, W, N>
     const_iterator itrD = config.wl.series(i).first;
     const_iterator itrU = boost::next(itrD);
     double c = static_sz(i, config);
-        
+
     // iteration up to t = 1
     for (;; itrD = itrU, ++itrU, c *= -1) {
       sz += c * (itrU->time() - itrD->time());
@@ -527,7 +525,7 @@ struct path_integral<virtual_graph<G>, M, W, N>
                                    const vertex_descriptor& v1)
   {
     typedef typename config_type::const_iterator const_iterator;
-    
+
     double corr = 0.;
     double t = 0.;
 

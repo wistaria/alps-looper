@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: fortran.h 693 2004-03-16 15:48:04Z wistaria $ */
-
 #ifndef LOOPER_FORTRAN_H
 #define LOOPER_FORTRAN_H
 

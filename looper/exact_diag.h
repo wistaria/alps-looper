@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: exact_diag.h 693 2004-03-16 15:48:04Z wistaria $ */
-
 #ifndef LOOPER_EXACT_DIAG_H
 #define LOOPER_EXACT_DIAG_H
 
@@ -115,7 +113,7 @@ struct exact_diagonalization
     }
   }
 
-  static void generate_stab(const parameter_type& param, 
+  static void generate_stab(const parameter_type& param,
                             const config_type& config)
   {
     if (param.is_bipartite && config.stab.size() == 0) {
@@ -220,7 +218,7 @@ struct exact_diagonalization
 
       // partition function
       part += weight;
-    
+
       // energy
       ene += (*ev) * weight;
       ene2 += sqr(*ev) * weight;
@@ -233,7 +231,7 @@ struct exact_diagonalization
 
     double c = sqr(param.beta) * boost::num_vertices(param.graph) *
       (ene2 - sqr(ene));
-    
+
     return boost::make_tuple(ene, ene2, c);
   }
 
@@ -263,7 +261,7 @@ struct exact_diagonalization
 
       // partition function
       part += weight;
-    
+
       // uniform and staggered magnetization
       if (param.is_bipartite) {
         double m2 = 0.;

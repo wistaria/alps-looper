@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: permutation.C 693 2004-03-16 15:48:04Z wistaria $ */
-
 #include <looper/permutation.h>
 #include <boost/random.hpp>
 #include <algorithm> // for std::random_shuffle
@@ -49,7 +47,7 @@ int main() {
   std::cout << "[[random permutaion test 1]]\n";
   // shuffle_rng sr(rng);
 
-  std::cout << "generating " << trial1 << " random permutations of " 
+  std::cout << "generating " << trial1 << " random permutations of "
        << n << " integers [0..." << n - 1 << "]\n";
 
   for (unsigned int i = 0; i < trial1; ++i) {
@@ -61,7 +59,7 @@ int main() {
     }
     std::cout << std::endl;
   }
-  
+
   std::cout << "\n[[random permutaion test 2 (with restrictions)]]\n";
 
   std::cout << "generating " << trial2 << " restricted random permutations\n" ;
@@ -77,11 +75,11 @@ int main() {
     std::cout << "conf0";
     for (unsigned int i = 0; i < n; i++) std::cout << '\t' << config0[i];
     std::cout << std::endl;
-    
+
     std::cout << "conf1";
     for (unsigned int i = 0; i < n; i++) std::cout << '\t' << config1[i];
     std::cout << std::endl;
-    
+
     vector_type result(n);
     for (unsigned int j = 0; j < n; ++j) result[j] = j;
 
@@ -106,4 +104,4 @@ int main() {
 
     std::cout << std::endl;
   }
-} 
+}

@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: percolation_cmd.C 717 2004-03-23 09:16:54Z wistaria $ */
-
 // percolation_cmd - a command-line percolation program for simple
 // hypercubic lattices
 
@@ -41,14 +39,14 @@ struct Options {
   uint32_t lsize;        // -l linear size of system
   uint32_t nm;           // -m number of samples
   double   p;            // -p occupation probability
-  
-  Options(int argc, char *argv[]) : 
+
+  Options(int argc, char *argv[]) :
     // default options
     seed(2837), bond(false), dim(2), lsize(32), nm(128), p(-1)
   {
     parse(argc, argv);
   }
-  
+
   void usage(int status, std::ostream& os = std::cerr) const {
     os << "[command line options]\n\n"
        << "  -p double  concentration (REQUIED)\n"
@@ -103,7 +101,7 @@ struct Options {
           break;
         }
         break;
-        
+
       default :
         usage(1);
         break;
@@ -148,7 +146,7 @@ try {
 
   percolation::worker_base wb(g, opts.p, opts.bond, measurements);
   for (int s = 0; s < opts.nm; s++) wb.step(g, rng, measurements);
-  
+
   // output results
   std::cout << measurements;
   std::cout << std::endl
@@ -162,7 +160,7 @@ try {
   std::cout << std::endl;
 
 #ifndef BOOST_NO_EXCEPTIONS
-} 
+}
 catch (const std::exception& excp) {
   std::cerr << excp.what() << std::endl;
   std::exit(-1); }

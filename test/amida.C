@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: amida.C 698 2004-03-17 09:23:58Z wistaria $ */
-
 #include <looper/amida.h>
 #include <looper/vector_helper.h>
 
@@ -74,9 +72,9 @@ try {
     while (n0 == n1) n1 = rng();
     looper::amida<std::size_t>::iterator r0 = amida.series(n0).first;
     looper::amida<std::size_t>::iterator r1 = amida.series(n1).first;
-    looper::amida<std::size_t>::iterator r = 
+    looper::amida<std::size_t>::iterator r =
       amida.insert_link_next(0, r0, r1).first;
-    std::cout << "node connecting " << n0 << " and " << n1 
+    std::cout << "node connecting " << n0 << " and " << n1
               << " inserted at " << index(amida, r) << std::endl;
   }
 
@@ -179,7 +177,7 @@ try {
   }
 
 #ifndef BOOST_NO_EXCEPTIONS
-} 
+}
 catch (const std::exception& excp) {
   std::cerr << excp.what() << std::endl;
   std::exit(-1); }

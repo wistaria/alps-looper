@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: node.h 693 2004-03-16 15:48:04Z wistaria $ */
-
 #ifndef LOOPER_NODE_H
 #define LOOPER_NODE_H
 
@@ -43,7 +41,7 @@ struct bits
 {
   // number of bits
   BOOST_STATIC_CONSTANT(unsigned int, N = 7);
-  
+
   BOOST_STATIC_CONSTANT(unsigned int, CONF = 0); // bit denoting spin direction
 
   BOOST_STATIC_CONSTANT(unsigned int, REFL = 1);
@@ -52,11 +50,11 @@ struct bits
 
   // for path integral
   BOOST_STATIC_CONSTANT(unsigned int, ADDD = 4); // set for newly-added node
-  
+
   // for SSE
   BOOST_STATIC_CONSTANT(unsigned int, IDNT = 5); // identity operator
   BOOST_STATIC_CONSTANT(unsigned int, DIAG = 6); // diagonal operator
-  
+
   // bit mask for clear()
   BOOST_STATIC_CONSTANT(unsigned int,
                         M_CLEAR = (1 << CONF) | (1 << IDNT) | (1 << DIAG));
@@ -78,7 +76,7 @@ public:
   reference conf() { return prop_[bits::CONF]; }
   bool conf() const { return prop_[bits::CONF]; }
   void flip_conf() { prop_.flip(bits::CONF); }
-  
+
   bool is_refl() const { return prop_.test(bits::REFL); }
   bool is_frozen() const { return prop_.test(bits::FREZ); }
   bool is_anti() const { return prop_.test(bits::ANTI); }
@@ -100,7 +98,7 @@ public:
     set_old(is_refl);
     prop_.set(bits::FREZ, is_frozen);
   }
-  
+
   // for SSE
   bool is_identity() const { return prop_[bits::IDNT]; }
   bool is_diagonal() const { return prop_[bits::DIAG]; }
@@ -147,7 +145,7 @@ public:
     prop_ = bitset(uint32_t(id));
     return id;
   }
-  
+
 private:
   bitset prop_;
 };
@@ -181,13 +179,13 @@ public:
   }
   int& loop_index(int i) { return loop_segment(i).root()->index; }
   int loop_index(int i) const { return loop_segment(i).root()->index; }
-  
+
   void clear_graph() {
     node_property::clear_graph();
     segment0_.reset();
     segment1_.reset();
   }
-  
+
   std::ostream& output(std::ostream& os) const {
     return node_property::output(os) << " bond = " << bond_;
   }
@@ -199,7 +197,7 @@ public:
     return node_property::load(id) >> bond_;
     // segment[01]_ are not restored
   }
-  
+
 private:
   uint32_t bond_;
   segment_type segment0_;

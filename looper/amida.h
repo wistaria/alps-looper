@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: amida.h 693 2004-03-16 15:48:04Z wistaria $ */
-
 #ifndef LOOPER_AMIDA_H
 #define LOOPER_AMIDA_H
 
@@ -80,7 +78,7 @@ struct amida_node_base
     next[1] = 0;
     prev[1] = 0;
   }
-    
+
   void set_as_top(amida_node_base* b, std::size_t s) {
     series[0] = s;
     series[1] = _node_max;
@@ -89,7 +87,7 @@ struct amida_node_base
     next[1] = 0;
     prev[1] = 0;
   }
-    
+
   std::size_t series[2];
   amida_node_base* next[2];
   amida_node_base* prev[2];
@@ -138,7 +136,7 @@ struct amida_series_iterator_base
   typedef std::size_t                     size_type;
   typedef std::ptrdiff_t                  difference_type;
   typedef std::bidirectional_iterator_tag iterator_category;
-  
+
   amida_node_base* node_;
   size_type ser_;
   size_type leg_;
@@ -264,11 +262,11 @@ public:
       array_[i              ].set_as_bottom(&array_[i + num_series_], i);
       array_[i + num_series_].set_as_top   (&array_[i              ], i);
     }
-    
+
     // setup stack of vacant nodes
     largest_ = array_.size();
     vacant_ = 0;
-    
+
     // set current number of nodes, etc.
     num_nodes_ = 2 * num_series_;
     num_links_ = 0;
@@ -305,21 +303,21 @@ public:
     // get a new node
     node_type* n = static_cast<node_type *>(new_node());
     n->data_ = t;
-  
+
     n->series[0] = prev0.ser_;
     n->series[1] = prev1.ser_;
-  
+
     // adjust link pointers
     n->prev[0] = prev0.node_;
     n->prev[1] = prev1.node_;
     prev0.node_->next[prev0.leg_] = n;
     prev1.node_->next[prev1.leg_] = n;
-  
+
     n->next[0] = next0.node_;
     n->next[1] = next1.node_;
     next0.node_->prev[next0.leg_] = n;
     next1.node_->prev[next1.leg_] = n;
-  
+
     ++num_links_;
     return std::make_pair(iterator(n, n->series[0]),
                           iterator(n, n->series[1]));
@@ -330,7 +328,7 @@ public:
     return insert_link(t, prev0, prev1,
                        boost::next(prev0), boost::next(prev1));
   }
-    
+
   std::pair<iterator, iterator>
   insert_link_prev(const T& t, const iterator& next0, const iterator& next1) {
     return insert_link(t, boost::prior(next0), boost::prior(next1),
@@ -368,10 +366,10 @@ public:
     } else {
       boost::throw_exception(std::logic_error("amida<>::erase() : couldn't erase node"));
     }
-    
+
     delete_node(itr.node_);
   }
-  
+
   void save(alps::ODump& od) const
   {
     index_helper<std::deque<node_type> > helper(array_);
@@ -420,7 +418,7 @@ protected:
     vacant_ = n;
     --num_nodes_;
   }
-  
+
 private:
   std::deque<node_type> array_;
   amida_node_base * vacant_;    // pointer to the top of vacant node stack
@@ -485,7 +483,7 @@ void output_serial(const amida<T>& a, std::ostream& os = std::cout)
           os << std::endl;
         } else {
           os << index(a, s0) << '\t' << "goal at " << s0.ser_;
-          os << " :\t" << "prev node is " 
+          os << " :\t" << "prev node is "
              << index(a, boost::prior(s0));
           os << "  ";
           os << "node: " << index(a, s0) << ", contents: " << p->data_;

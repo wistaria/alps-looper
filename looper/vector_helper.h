@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: vector_helper.h 693 2004-03-16 15:48:04Z wistaria $ */
-
 #ifndef LOOPER_VECTOR_HELPER_H
 #define LOOPER_VECTOR_HELPER_H
 
@@ -34,7 +32,7 @@
 #include <vector>
 
 namespace looper {
-  
+
 namespace { struct nulltype {}; }
 
 template<class C = nulltype>
@@ -105,10 +103,10 @@ public:
       std::sort(map_.begin(), map_.end());
     }
   }
-    
+
   size_type index(const void* ptr) const
   {
-    typename map_type::const_iterator p = 
+    typename map_type::const_iterator p =
       std::lower_bound(map_.begin(), map_.end(),
                        std::make_pair((size_type)ptr, 0),
                        std::less<std::pair<size_type, size_type> >());
@@ -122,7 +120,7 @@ private:
 
 
 //
-// alternative implementation based on pointers for deque 
+// alternative implementation based on pointers for deque
 // (incorrect outputs for ICC??)
 //
 
@@ -152,10 +150,10 @@ private:
 //       std::sort(map_.begin(), map_.end());
 //     }
 //   }
-//    
+//
 //   size_type index(const value_type* ptr) const
 //   {
-//     typename map_type::const_iterator p = 
+//     typename map_type::const_iterator p =
 //       std::lower_bound(map_.begin(), map_.end(), std::make_pair(ptr, 0),
 //                        std::less<std::pair<const value_type *, size_type> >());
 //     if (p == map_.end() || ptr != p->first) --p;
@@ -183,7 +181,7 @@ private:
 //   index_helper(const array_type& a) { init(a); }
 //
 //   void init(const array_type& a) { array_ptr_ = &a; }
-// 
+//
 //   size_type index(const value_type* ptr) const
 //   {
 //     int i = 0;

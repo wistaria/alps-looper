@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: xxz_model.C 693 2004-03-16 15:48:04Z wistaria $ */
-
 #include <looper/xxz.h>
 #include <iostream>
 
@@ -50,7 +48,7 @@ void output(const G& graph, const looper::xxz_model& m)
     std::cout << "site " << *vi << ": type = " << t << ", S = " << m.spin(t)
               << std::endl;
   }
-  
+
   // bond parameters
   std::cout << "number of bond types = " << m.num_bond_types() << std::endl;
   if (m.is_uniform_bond()) {

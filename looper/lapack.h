@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: lapack.h 693 2004-03-16 15:48:04Z wistaria $ */
-
 #ifndef LOOPER_LAPACK_H
 #define LOOPER_LAPACK_H
 
@@ -49,7 +47,7 @@ void LOOPER_FCALL(ssyev,SSYEV)(const char& jobz, const char& uplo, const int& n,
                              float w[],
                              float work[],
                              const int& lwork, int& info);
-  
+
 // DSYEV: compute all eigenvalues and, optionally, eigenvectors of a
 // real symmetric matrix (double precision, simple driver)
 void LOOPER_FCALL(dsyev,DSYEV)(const char& jobz, const char& uplo, const int& n,

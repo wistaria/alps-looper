@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: weight.C 693 2004-03-16 15:48:04Z wistaria $ */
-
 #include <looper/xxz.h>
 #include <looper/weight.h>
 #include <alps/parameterlist.h>
@@ -51,7 +49,7 @@ try {
               << ", P_r = " << w.p_reflect()
               << std::endl;
   }
-  
+
 #ifndef BOOST_NO_EXCEPTIONS
 }
 catch (std::exception& exc) {

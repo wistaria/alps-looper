@@ -22,8 +22,6 @@
 *
 *****************************************************************************/
 
-/* $Id: weight.h 693 2004-03-16 15:48:04Z wistaria $ */
-
 #ifndef LOOPER_WEIGHT_H
 #define LOOPER_WEIGHT_H
 
@@ -84,7 +82,7 @@ private:
   double p_reflect_;
   double offset_;
 };
-  
+
 
 template<class W>
 class uniform_bond_chooser
