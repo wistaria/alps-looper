@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: sse.h 488 2003-10-30 21:42:47Z wistaria $
+* $Id: sse.h 489 2003-10-31 02:48:35Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -436,7 +436,7 @@ struct sse<virtual_graph<G>, M, W>
 
   // measurements
 
-  static double static_sz(const config_type& config, int i)
+  static double static_sz(int i, const config_type& config)
   {
     return 0.5 - double(config.bottom[i].conf());
   }
@@ -444,12 +444,10 @@ struct sse<virtual_graph<G>, M, W>
   static double energy_offset(const vg_type& vg, const model_type& model)
   {
     double offset = 0.;
-    typename alps::property_map<alps::bond_type_t, graph_type, int>::const_type
-      bond_type(alps::get_or_default(alps::bond_type_t(), vg.graph, 0));
     edge_iterator ei_end = boost::edges(vg.graph).second;
     for (edge_iterator ei = boost::edges(vg.graph).first; ei != ei_end; ++ei)
-      offset += model.bond(bond_type[*ei]).c() +
-	weight_type(model.bond(bond_type[*ei])).offset();
+      offset += model.bond(bond_type(*ei, vg.graph)).c() +
+	weight_type(model.bond(bond_type(*ei, vg.graph))).offset();
     return offset;
   }
   static double energy_offset(const parameter_type& p)
@@ -459,13 +457,11 @@ struct sse<virtual_graph<G>, M, W>
 			 const model_type& model)
   {
     double ene = 0.;
-    typename alps::property_map<alps::bond_type_t, graph_type, int>::const_type
-      bond_type(alps::get_or_default(alps::bond_type_t(), vg.graph, 0));
     edge_iterator ei, ei_end;
     for (boost::tie(ei, ei_end) = boost::edges(vg.graph); ei != ei_end; ++ei) {
-      ene += model.bond(bond_type[*ei]).jz() *
-	static_sz(config, boost::source(*ei, vg.graph)) *
-	static_sz(config, boost::target(*ei, vg.graph));
+      ene += model.bond(bond_type(*ei, vg.graph)).jz() *
+	static_sz(boost::source(*ei, vg.graph), config) *
+	static_sz(boost::target(*ei, vg.graph), config);
     }
     return ene / double(vg.num_real_vertices);
   }
@@ -479,7 +475,7 @@ struct sse<virtual_graph<G>, M, W>
     vertex_iterator vi, vi_end;
     for (boost::tie(vi, vi_end) = boost::vertices(vg.graph); 
 	 vi != vi_end; ++vi) {
-      sz += static_sz(config, *vi);
+      sz += static_sz(*vi, config);
     }
     return sz / double(vg.num_real_vertices);
   }
@@ -490,14 +486,13 @@ struct sse<virtual_graph<G>, M, W>
   static double staggered_sz(const config_type& config,
 			   const vg_type& vg)
   {
-    double sz = 0.;
+    double ss = 0.;
     vertex_iterator vi, vi_end;
     for (boost::tie(vi, vi_end) = boost::vertices(vg.graph); 
 	 vi != vi_end; ++vi) {
-      sz += double(0.5 - boost::get(parity_t(), *vi, vg.graph)) * 
-	static_sz(config, *vi);
+      ss += gauge(*vi, vg.graph) * static_sz(*vi, config);
     }
-    return sz / double(vg.num_real_vertices);
+    return ss / double(vg.num_real_vertices);
   }
   static double staggered_sz(const config_type& config,
 			   const parameter_type& p)

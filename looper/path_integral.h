@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: path_integral.h 488 2003-10-30 21:42:47Z wistaria $
+* $Id: path_integral.h 489 2003-10-31 02:48:35Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -444,14 +444,18 @@ struct path_integral<virtual_graph<G>, M, W>
 
   // measurements
 
+  template<bool HasCTime>
+  static double static_sz(int i, const config_type<HasCTime>& config)
+  {
+    return 0.5 - double(config.wl.series(i).first->conf());
+  }
+
   static double energy_offset(const vg_type& vg, const M& model)
   {
-    double offset = 0;
-    typename alps::property_map<alps::bond_type_t, graph_type, int>::const_type
-      bond_type(alps::get_or_default(alps::bond_type_t(), vg.graph, 0));
+    double offset = 0.;
     edge_iterator ei, ei_end;
     for (boost::tie(ei, ei_end) = boost::edges(vg.graph); ei != ei_end; ++ei)
-      offset += model.bond(bond_type[*ei]).c();
+      offset += model.bond(bond_type(*ei, vg.graph)).c();
     return offset / double(vg.num_real_edges);
   }
   static double energy_offset(const parameter_type& p)
@@ -463,16 +467,11 @@ struct path_integral<virtual_graph<G>, M, W>
   {
     typedef typename config_type<HasCTime>::const_iterator const_iterator;
     double ene = 0.;
-    typename alps::property_map<alps::bond_type_t, graph_type, int>::const_type
-      bond_type(alps::get_or_default(alps::bond_type_t(), vg.graph, 0));
     edge_iterator ei, ei_end;
     for (boost::tie(ei, ei_end) = boost::edges(vg.graph); ei != ei_end; ++ei) {
-      const_iterator
-	itr0 = config.wl.series(boost::source(*ei, vg.graph)).first;
-      const_iterator
-	itr1 = config.wl.series(boost::target(*ei, vg.graph)).first;
-      ene += model.bond(bond_type[*ei]).jz() *
-	(0.5 - double(itr0->conf())) * (0.5 - double(itr1->conf()));
+      ene += model.bond(bond_type(*ei, vg.graph)).jz() *
+	static_sz(boost::source(*ei, vg.graph), config) *
+	static_sz(boost::target(*ei, vg.graph), config);
     }
     return ene / double(vg.num_real_vertices);
   }
@@ -485,22 +484,18 @@ struct path_integral<virtual_graph<G>, M, W>
   static double energy_z_imp(const config_type<HasCTime>& config,
 			     const vg_type& vg, const model_type& model)
   {
-    typedef typename config_type<HasCTime>::const_iterator const_iterator;
     double ene = 0.;
-    typename alps::property_map<alps::bond_type_t, graph_type, int>::const_type
-      bond_type(alps::get_or_default(alps::bond_type_t(), vg.graph, 0));
     edge_iterator ei, ei_end;
     for (boost::tie(ei, ei_end) = boost::edges(vg.graph); ei != ei_end; ++ei) {
-      const_iterator
-	itr0 = config.wl.series(boost::source(*ei, vg.graph)).first;
-      const_iterator
-	itr1 = config.wl.series(boost::target(*ei, vg.graph)).first;
-      if (itr0->loop_segment(0).index == itr1->loop_segment(0).index) {
-	ene += model.bond(bond_type[*ei]).jz() *
-	  (0.5 - double(itr0->conf())) * (0.5 - double(itr1->conf()));
+      vertex_descriptor v0 = boost::source(*ei, vg.graph);
+      vertex_descriptor v1 = boost::target(*ei, vg.graph);
+      if (config.wl.series(v0).first->loop_segment(0).index == 
+	  config.wl.series(v1).first->loop_segment(0).index) {
+	ene += model.bond(bond_type(*ei, vg.graph)).jz() *
+	  static_sz(v0, config) * static_sz(v1, config);
       }
     }
-    std::cout << ene << ' ' << vg.num_real_vertices << std::endl;////
+    // std::cout << ene << ' ' << vg.num_real_vertices << std::endl;////
     return ene / double(vg.num_real_vertices);
   }
   template<bool HasCTime>
@@ -517,11 +512,10 @@ struct path_integral<virtual_graph<G>, M, W>
     vertex_iterator vi, vi_end;
     for (boost::tie(vi, vi_end) = boost::vertices(vg.graph);
  	 vi != vi_end; ++vi) {
-      const_iterator itr = config.wl.series(*vi).first;
-      std::cout << (0.5 - double(itr->conf())) << ' ';
-      sz += (0.5 - double(itr->conf()));
+      // std::cout << static_sz(*vi, config) << ' '; ////
+      sz += static_sz(*vi, config);
     }
-    std::cout << std::endl;
+    // std::cout << std::endl; ////
     return sz / double(vg.num_real_vertices);
   }
   template<bool HasCTime>
@@ -537,11 +531,8 @@ struct path_integral<virtual_graph<G>, M, W>
     double ss = 0.;
     vertex_iterator vi, vi_end;
     for (boost::tie(vi, vi_end) = boost::vertices(vg.graph);
-	 vi != vi_end; ++vi) {
-      const_iterator itr = config.wl.series(*vi).first;
-      sz += double(0.5 - boost::get(parity_t(), *vi, vg.graph)) *
-	(0.5 - double(itr->conf()));
-    }
+	 vi != vi_end; ++vi)
+      ss += gauge(*vi, vg.graph) * static_sz(*vi, config);
     return ss / double(vg.num_real_vertices);
   }
   template<bool HasCTime>

@@ -1,8 +1,7 @@
-# 1: diagonal energy
-# 2: offdiagonal energy
-# 3: uniform susceptibility
-# 4: staggered magnetization^2
-# 5: staggered susceptibility
+# 1: energy
+# 2: uniform susceptibility
+# 3: staggered magnetization^2
+# 4: staggered susceptibility
 
 # S=1/2 single spin
 OPT: -l 1 -t 0.5
@@ -13,18 +12,20 @@ OPT: -s 1 -l 1 -t 0.3
 RES: 0 0 2.22222 0.66667 2.22222
 
 # S=1/2 dimer
+OPT: -d 1 -l 2 -z -1 -x -1 -t 0.1
+Res: -0.75 0 0.5 0.5
+
 OPT: -d 1 -l 2 -z -1 -x -1 -t 0.5
 RES: -0.69791 0.03472 0.48264 0.46528
 
+OPT: -d 1 -l 2 -z -1 -x -1 -t 2.3
+RES: -0.19299 0.08073 0.31433 0.12866
+
 # ferro dimer
 OPT: -d 1 -l 2 -z 1 -x 1 -t 0.1
-RES: -0.25 0.33333 0.16667 0.16667(?)
+RES: -0.25 3.33333 0.16667 0.16667
 
 OPT: -d 1 -l 2 -z 1 -x 1 -t 1
-RES: -0.20684 0.31895 0.18105 0.13789(?)
-
-# S=1/2 dimer
-OPT: -d 1 -l 2 -z -1 -x 1 -t 0.1
-RES: 0.75 0 0.5 0.5(?)
+RES: -0.20684 0.31895 0.18105 0.13789
 
 # S=1 dimer

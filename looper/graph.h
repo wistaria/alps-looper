@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: graph.h 488 2003-10-30 21:42:47Z wistaria $
+* $Id: graph.h 489 2003-10-31 02:48:35Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -60,36 +60,36 @@ typedef alps::edge_type_t     edge_type_t;
 // required for QMC in SSE representation.
 
 typedef boost::adjacency_list<boost::vecS,
- 			      boost::vecS,
- 			      boost::undirectedS,
- 			      boost::property<coordinate_t,
-					      alps::detail::coordinate_type,
+                              boost::vecS,
+                              boost::undirectedS,
+                              boost::property<coordinate_t,
+                                              alps::detail::coordinate_type,
                                 boost::property<vertex_type_t, int > >,
                               boost::property<edge_type_t, int,
                                 boost::property<edge_index_t, int > >,
                               boost::property<dimension_t, std::size_t,
                                 boost::property<graph_name_t, std::string > >,
-			      boost::vecS> graph_type;
+                              boost::vecS> graph_type;
 
 typedef boost::adjacency_list<boost::vecS,
- 			      boost::vecS,
- 			      boost::undirectedS,
- 			      boost::property<coordinate_t,
-					      alps::detail::coordinate_type,
+                              boost::vecS,
+                              boost::undirectedS,
+                              boost::property<coordinate_t,
+                                              alps::detail::coordinate_type,
                                 boost::property<parity_t, int8_t,
                                 boost::property<vertex_type_t, int > > >,
                               boost::property<edge_type_t, int,
                                 boost::property<edge_index_t, int > >,
                               boost::property<dimension_t, std::size_t,
                                 boost::property<graph_name_t, std::string > >,
-			      boost::vecS> parity_graph_type;
+                              boost::vecS> parity_graph_type;
 
 template <class G>
 struct graph_traits
 {
   typedef G                                           graph_type;
   typedef std::pair<typename boost::graph_traits<graph_type>::vertex_iterator,
-		    typename boost::graph_traits<graph_type>::vertex_iterator>
+                    typename boost::graph_traits<graph_type>::vertex_iterator>
                                                       vertex_pair_type;
   typedef std::vector<std::vector<vertex_pair_type> > vp_type;
   typedef typename boost::property_traits<
@@ -135,7 +135,7 @@ struct hypercubic_graph_helper
 
   template<class E>
   static position_type index2pos(const E& ext, const base_type& base,
-				 index_type i) {
+                                 index_type i) {
     position_type pos(ext.size());
     for (dimension_type d = 0; d < ext.size(); ++d) {
       pos[d] = (i / base[d]) % ext[d];
@@ -144,7 +144,7 @@ struct hypercubic_graph_helper
   }
 
   static index_type pos2index(dimension_type dim, const base_type& base,
-			      const position_type& pos) {
+                              const position_type& pos) {
     index_type i = 0;
     for (dimension_type d = 0; d < dim; ++d) i += base[d] * pos[d];
     return i;
@@ -152,8 +152,8 @@ struct hypercubic_graph_helper
 
   template<class E>
   static std::size_t neighbor(const E& ext, const position_type& base,
-			      dimension_type s, dimension_type d,
-			      typename position_type::value_type p) {
+                              dimension_type s, dimension_type d,
+                              typename position_type::value_type p) {
     position_type pos = index2pos(ext, base, s);
     pos[d] = (pos[d] + ext[d] + p) % ext[d];
     return pos2index(ext.size(), base, pos);
@@ -170,7 +170,7 @@ struct hypercubic_graph_helper
 
 template<class D, class S, class E, class G>
 void generate_graph(const hypercubic_graph_generator<D, S, E>& desc,
-		    G& g)
+                    G& g)
 {
   typedef G graph_type;
   typedef typename boost::graph_traits<graph_type>::vertex_iterator
@@ -221,30 +221,41 @@ void generate_graph(const hypercubic_graph_generator<D, S, E>& desc,
     vertex_iterator vsi = boost::vertices(g).first + i;
     for (dimension_type d = 0; d < desc.dimension(); ++d) {
       if (desc.length(d) == 1) {
-	// nothing to do
+        // nothing to do
       } else {
-	// avoid double bond
-	if (desc.length(d) > 2 ||
-	    helper_type::index2pos(desc.extent(), base, i)[d] + 1
+        // avoid double bond
+        if (desc.length(d) > 2 ||
+            helper_type::index2pos(desc.extent(), base, i)[d] + 1
               != desc.length(d)) {
-	  vertex_iterator vti = boost::vertices(g).first +
-	    helper_type::neighbor(desc.extent(), base, i, d, 1);
-	  edge_descriptor ed = boost::add_edge(*vsi, *vti, g).first;
-	  boost::put(edge_index_t(), g, ed, boost::num_edges(g));
-	  boost::put(edge_type_t(), g, ed, d);
-	}
+          vertex_iterator vti = boost::vertices(g).first +
+            helper_type::neighbor(desc.extent(), base, i, d, 1);
+          edge_descriptor ed = boost::add_edge(*vsi, *vti, g).first;
+          boost::put(edge_index_t(), g, ed, boost::num_edges(g));
+          boost::put(edge_type_t(), g, ed, d);
+        }
       }
     }
   }
 }
 
 template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
-inline int gauge(const typename boost::graph_traits<
-                   boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
-                   vertex_descriptor desc,
-		 const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g)
+inline int
+gauge(typename boost::graph_traits<
+        boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
+        vertex_descriptor vd,
+      const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g)
 {
-  return 1 - 2 * (int)boost::get(parity_t(), desc, g);
+  return 1 - 2 * (int)boost::get(parity_t(), g, vd);
+}
+
+template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
+inline int
+bond_type(typename boost::graph_traits<
+            boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
+            edge_descriptor ed,
+          const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g)
+{
+  return boost::get(alps::bond_type_t(), g, ed);
 }
 
 } // end namespace looper
