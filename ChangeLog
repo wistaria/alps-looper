@@ -4,8 +4,8 @@
 
 	- prerequisites: boost-ss-20031102, boost-ss-20031102.patch,
 	  alps-20031105
-	
-	- TODO: improved estimators
+
+	- TODO: improved estimators, more measurements
 
 2003-11-06  Synge Todo  <wistaria@comp-phys.org>
 	
