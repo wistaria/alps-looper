@@ -22,27 +22,13 @@
 *
 *****************************************************************************/
 
-#include "loop_factory.h"
+#ifndef LOOPER_H
+#define LOOPER_H
 
-#include <alps/osiris.h>
-#include <alps/scheduler.h>
+#include <looper/version.h>
+#include <looper/model.h>
+#include <looper/path_integral.h>
+#include <looper/sse.h>
+#include <looper/measurement.h>
 
-int main(int argc, char** argv)
-{
-#ifndef BOOST_NO_EXCEPTIONS
-  try {
-#endif
-    return alps::scheduler::start(argc, argv, factory());
-#ifndef BOOST_NO_EXCEPTIONS
-  }
-  catch (std::exception& exc) {
-    std::cerr << exc.what() << "\n";
-    alps::comm_exit(true);
-    return -1;
-  }
-  catch (...) {
-    std::cerr << "Fatal Error: Unknown Exception!\n";
-    return -2;
-  }
-#endif
-}
+#endif /* ! LOOPER_H */

@@ -11,6 +11,7 @@ noinst_PROGRAMS += loop_pvm
 endif
 
 pkginclude_HEADERS = \
+	looper.h \
 	looper/amida.h \
 	looper/exact_diag.h \
 	looper/fill_duration.h \
@@ -36,16 +37,16 @@ pkginclude_HEADERS = \
 dist_noinst_SCRIPTS = config/run-test config/update_preamble
 dist_noinst_DATA = CITATIONS.txt LICENSE lattices.xml models.xml
 
-loop_SOURCES = loop.C loop_impl.h
-loop_evaluate_SOURCES = evaluate.C
-loop_cmd_SOURCES = loop_cmd.C
+loop_SOURCES = loop.C loop_factory.C loop_factory.h loop_worker.h
+loop_evaluate_SOURCES = loop_evaluate.C loop_worker.h
+loop_cmd_SOURCES = loop_cmd.C loop_worker.h
 
-loop_mpi_SOURCES = loop.C
+loop_mpi_SOURCES = loop.C loop_factory.C loop_factory.h loop_worker.h
 loop_mpi_CPPFLAGS = @CPPFLAGS_MPI@
 loop_mpi_LDFLAGS = @LDFLAGS_MPI@
 loop_mpi_LDADD = @LIBS_MPI@
 
-loop_pvm_SOURCES = loop.C
+loop_pvm_SOURCES = loop.C loop_factory.C loop_factory.h loop_worker.h
 loop_pvm_CPPFLAGS = @CPPFLAGS_PVM@
 loop_pvm_LDFLAGS = @LDFLAGS_PVM@
 loop_pvm_LDADD = @LIBS_PVM@

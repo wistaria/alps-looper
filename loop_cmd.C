@@ -22,9 +22,11 @@
 *
 *****************************************************************************/
 
-#include "loop_impl.h"
+#include "loop_worker.h"
 
 #include <alps/alea.h>
+#include <alps/model.h>
+#include <alps/scheduler.h>
 #include <boost/random.hpp>
 #include <iostream>
 #include <string>

@@ -22,27 +22,15 @@
 *
 *****************************************************************************/
 
-#include "loop_factory.h"
-
-#include <alps/osiris.h>
 #include <alps/scheduler.h>
 
-int main(int argc, char** argv)
+class factory : public alps::scheduler::Factory
 {
-#ifndef BOOST_NO_EXCEPTIONS
-  try {
-#endif
-    return alps::scheduler::start(argc, argv, factory());
-#ifndef BOOST_NO_EXCEPTIONS
-  }
-  catch (std::exception& exc) {
-    std::cerr << exc.what() << "\n";
-    alps::comm_exit(true);
-    return -1;
-  }
-  catch (...) {
-    std::cerr << "Fatal Error: Unknown Exception!\n";
-    return -2;
-  }
-#endif
-}
+  alps::scheduler::MCSimulation* make_task(const alps::ProcessList& w,
+    const boost::filesystem::path& fn) const;
+  alps::scheduler::MCSimulation* make_task(const alps::ProcessList& w,
+    const boost::filesystem::path& fn, const alps::Parameters&) const;
+  alps::scheduler::MCRun* make_worker(const alps::ProcessList& w,
+    const alps::Parameters& p, int n) const;
+  void print_copyright(std::ostream& os) const;
+};

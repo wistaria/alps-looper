@@ -23,26 +23,37 @@
 *****************************************************************************/
 
 #include "loop_factory.h"
+#include "loop_worker.h"
 
-#include <alps/osiris.h>
-#include <alps/scheduler.h>
-
-int main(int argc, char** argv)
+alps::scheduler::MCSimulation* factory::make_task(const alps::ProcessList& w,
+  const boost::filesystem::path& fn) const
 {
-#ifndef BOOST_NO_EXCEPTIONS
-  try {
-#endif
-    return alps::scheduler::start(argc, argv, factory());
-#ifndef BOOST_NO_EXCEPTIONS
-  }
-  catch (std::exception& exc) {
-    std::cerr << exc.what() << "\n";
-    alps::comm_exit(true);
-    return -1;
-  }
-  catch (...) {
-    std::cerr << "Fatal Error: Unknown Exception!\n";
-    return -2;
-  }
-#endif
+  return new alps::scheduler::MCSimulation(w, fn);
 }
+
+alps::scheduler::MCSimulation* factory::make_task(const alps::ProcessList& w,
+  const boost::filesystem::path& fn, const alps::Parameters&) const
+{
+  return new alps::scheduler::MCSimulation(w, fn);
+}
+
+alps::scheduler::MCRun* factory::make_worker(const alps::ProcessList& w,
+  const alps::Parameters& p, int n) const
+{
+  if (!p.defined("REPRESENTATION") ||
+      p["REPRESENTATION"] == "path integral") {
+    return new worker<qmc_worker<looper::path_integral<
+    looper::virtual_graph<looper::parity_graph_type>,
+      looper::model_parameter<> > > >(w, p, n);
+  } else if (p["REPRESENTATION"] == "SSE") {
+    return new worker<qmc_worker<looper::sse<
+    looper::virtual_graph<looper::parity_graph_type>,
+      looper::model_parameter<> > > >(w, p, n);
+  } else {
+    boost::throw_exception(std::invalid_argument("unknwon representation"));
+  }
+  return 0;
+}
+
+void factory::print_copyright(std::ostream& os) const
+{ looper::print_copyright(os); }
