@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: random_choice.C 453 2003-10-21 06:07:38Z wistaria $
+* $Id: random_choice.C 454 2003-10-22 00:41:25Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -39,7 +39,8 @@
 
 /* #define USE_INIT_WALKER1977 */
 
-#include "random_choice.h"
+#include <looper/random_choice.h>
+
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_01.hpp>
 #include <vector>
