@@ -20,6 +20,7 @@ AC_INIT([looper], lopper_version)
 AC_CONFIG_AUX_DIR([config])
 AM_INIT_AUTOMAKE
 AC_PREFIX_DEFAULT([$HOME/ALPS])
+AM_MAINTAINER_MODE
 
 AC_MSG_NOTICE([starting configuration for ALPS/looper version looper_version (looper_date)])
 
