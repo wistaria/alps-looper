@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: sse.h 484 2003-10-30 03:20:35Z wistaria $
+* $Id: sse.h 485 2003-10-30 03:27:54Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -142,7 +142,7 @@ struct sse<virtual_graph<G>, M, W>
 
   template<class RNG>
   static void generate_loops(config_type& config, const vg_type& vg,
-			     const model_type& model, double beta,
+			     const model_type& /* model */, double beta,
 			     const bond_chooser<weight_type>& bc,
 			     RNG& uniform_01)
   {
@@ -214,8 +214,9 @@ struct sse<virtual_graph<G>, M, W>
     //
     // cluster identification by using union-find algorithm
     //
-    std::vector<loop_segment *> curr_ptr(boost::num_vertices(vg.graph));
-    std::vector<loop_segment *>::iterator pi = curr_ptr.begin();
+    std::vector<sse_node::segment_type *>
+      curr_ptr(boost::num_vertices(vg.graph));
+    std::vector<sse_node::segment_type *>::iterator pi = curr_ptr.begin();
     for (boost::tie(vi, vi_end) = boost::vertices(vg.graph); 
 	 vi != vi_end; ++vi, ++itr)
       *pi = &(config.bottom[*vi].loop_segment(0));
@@ -224,7 +225,6 @@ struct sse<virtual_graph<G>, M, W>
     oi_end = config.os.end();
     for (operator_iterator oi = config.os.begin(); oi != oi_end; ++oi) {
       if (!oi->is_identity()) {
-	int b = oi->bond();
 	edge_iterator ei = boost::edges(vg.graph).first + oi->bond();
 	union_find::unify(*curr_ptr[boost::source(*ei, vg.graph)],
 			  segment_d(oi, 0));
@@ -240,7 +240,7 @@ struct sse<virtual_graph<G>, M, W>
     // connect to top
     for (boost::tie(vi, vi_end) = boost::vertices(vg.graph); 
 	 vi != vi_end; ++vi, ++itr)
-      union_find::unify(*curr_ptr_[*vi], config.top[*vi].loop_segment(0));
+      union_find::unify(*curr_ptr[*vi], config.top[*vi].loop_segment(0));
 
     // connect bottom and top with random permutation
     std::vector<int> r, c0, c1;
