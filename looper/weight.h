@@ -226,22 +226,28 @@ public:
   typedef WEIGHT weight_type;
 
   bond_chooser() : weight_(), rc_(), gw_(0) {}
-  template<class G, class I>
-  bond_chooser(const alps::graph_helper<G>& gh, const alps::model_helper<I>& mh,
-               double fs = 0)
+  template<class G, class M>
+  bond_chooser(const G& rg, const G& vg, const virtual_mapping<G>& vm,
+	       const M& m, double fs = 0)
     : weight_(), rc_(), gw_(0)
-  { init (g, m, fs); }
+  { init (rg, vg, vm, m, fs); }
 
-  template<class G, class I>
-  void init(const alps::graph_helper<G>& gh, const alps::model_helper<I>& mh,
-            double fs = 0)
+  template<class G, class M>
+  void init(const G& rg, const G& vg, const virtual_mapping<G>& vm,
+	    const M& m, double fs = 0)
   {
     weight_.clear();
     gw_ = 0.0;
-    if (gh.num_edges() > 0) {
-      typename alps::graph_helper<G>::edge_iterator ei, ei_end;
-      for (boost::tie(ei, ei_end) = gh.edges(); ei != ei_end; ++ei)
-        weight_.push_back(weight_type(m.bond(gh, *ei), fs));
+    if (boost::num_edges(vg) > 0) {
+      typename boost::graph_traits<G>::edge_iterator rei, rei_end;
+      for (boost::tie(rei, rei_end) = boost::edges(rg);
+	   rei != rei_end; ++rei) {
+	typename boost::graph_traits<G>::edge_iterator vei, vei_end;
+	for (boost::tie(vei, vei_end) = vm.virtual_edges(rg, *rei);
+	     vei != vei_end; ++vei) {
+	  weight_.push_back(weight_type(m.bond(*rei, rg), fs));
+	}
+      }
 
       std::vector<double> w(0);
       typename std::vector<weight_type>::iterator itr_end = weight_.end();

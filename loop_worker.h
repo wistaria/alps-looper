@@ -34,9 +34,9 @@ public:
   typedef typename qmc::model_type model_type;
 
   template<class G, class MDL>
-  qmc_worker(const alps::graph_helper<G>& gh, const MDL& model,
+  qmc_worker(const G& g, const MDL& model,
              double beta, double fs, alps::ObservableSet& m) :
-    param_(gh, model, beta, fs), config_()
+    param_(g, model, beta, fs), config_()
   {
     using alps::RealObservable;
     using alps::make_observable;
@@ -154,16 +154,16 @@ public:
     
     double ez, exy, e2;
     boost::tie(ez, exy, e2) = looper::energy(config_, param_);
-    m["Energy"] << param_.num_real_vertices * (ez + exy);
+    m["Energy"] << boost::num_vertices(param_.rgraph) * (ez + exy);
     m["Energy Density"] << (ez + exy);
     m["Energy Density^2"] << e2;
     m["Diagonal Energy Density"] << ez;
 
     m["beta * Energy / sqrt(N)"] <<
-      std::sqrt((double)param_.num_real_vertices) *
+      std::sqrt((double)boost::num_vertices(param_.rgraph)) *
       param_.beta * (ez + exy);
     m["beta * Energy^2"] <<
-      param_.num_real_vertices * looper::sqr(param_.beta) * e2;
+      boost::num_vertices(param_.rgraph) * looper::sqr(param_.beta) * e2;
 
     m["Susceptibility"] <<
       looper::uniform_susceptibility(config_, param_);
@@ -246,7 +246,8 @@ public:
 
   worker(const alps::ProcessList& w, const alps::Parameters& p, int n) :
     alps::scheduler::LatticeModelMCRun<>(w, p, n),
-    mdl_(p, *this, *this, has_sign_problem()), mcs_(0),
+    mdl_(p, this->graph(), this->disordered_sites(), this->disordered_bonds(),
+	 *this, has_sign_problem()), mcs_(0),
     therm_(static_cast<unsigned int>(p["THERMALIZATION"])),
     total_(therm_ + static_cast<unsigned int>(p["SWEEPS"])),
     strict_mcs_(p.defined("STRICT_MCS")),

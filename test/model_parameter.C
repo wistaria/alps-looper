@@ -37,14 +37,14 @@ void output(const alps::graph_helper<G>& gh,
   vertex_iterator vi, vi_end;
   for (boost::tie(vi, vi_end) = gh.vertices(); vi != vi_end; ++vi) {
     std::cout << "site " << *vi << ": type = " << gh.vertex_type(*vi)
-              << ", S = " << m.site(gh, *vi).s() << std::endl;
+              << ", S = " << m.site(*vi, gh.graph()).s() << std::endl;
   }
 
   // bond parameters
   edge_iterator ei, ei_end;
   for (boost::tie(ei, ei_end) = gh.edges(); ei != ei_end; ++ei) {
     std::cout << "bond " << *ei << ": type = " << gh.edge_type(*ei)
-              << ", " << m.bond(gh, *ei) << std::endl;
+              << ", " << m.bond(*ei, gh.graph()) << std::endl;
   }
 }
 
@@ -64,11 +64,13 @@ try {
   alps::model_helper<> mh(params);
 
   // construct from model library
-  looper::model_parameter<> m0(params, gh, mh, false);
+  looper::model_parameter<> m0(params, gh.graph(), gh.disordered_sites(),
+			       gh.disordered_bonds(), mh);
   output(gh, m0);
 
   // construct from parameters
-  looper::model_parameter<> m1(-2, -1, alps::half_integer<int>(1.5), gh, false);
+  looper::model_parameter<> m1(gh.graph(), alps::half_integer<int>(1.5),
+			       -2, -1);
   output(gh, m1);
 
 #ifndef BOOST_NO_EXCEPTIONS

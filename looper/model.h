@@ -52,7 +52,11 @@ template<typename T = double> class bond_matrix; // support xxz
 
 template<typename T> bool fit2site(const boost::multi_array<T, 2>& mat,
   site_parameter_hxz& param, T tol = 1.e-10);
+template<typename T> bool fit2site(const site_matrix<T>& mat,
+  site_parameter_hxz& param, T tol = 1.e-10);
 template<typename T> bool fit2bond(const boost::multi_array<T, 4>& mat,
+  bond_parameter_xxz& param, T tol = 1.e-10);
+template<typename T> bool fit2bond(const bond_matrix<T>& mat,
   bond_parameter_xxz& param, T tol = 1.e-10);
 
 template<typename SITE_P = site_parameter_noh,
@@ -213,18 +217,17 @@ private:
 //
 
 template<typename T>
-class site_matrix : public boost::multi_array<T, 2>
+class site_matrix
 {
 public:
-  typedef boost::multi_array<T, 2>      base_type;
-  typedef T                             value_type;
-  typedef typename base_type::size_type size_type;
+  typedef boost::multi_array<T, 2>        matrix_type;
+  typedef T                               value_type;
+  typedef typename matrix_type::size_type size_type;
 
-  site_matrix() : base_type() {}
-  site_matrix(const site_matrix& m) : base_type(m) {}
-  site_matrix(const base_type& m) : base_type(m) {}
+  site_matrix() : mat_() {}
+  site_matrix(const site_matrix& m) : mat_(m.mat_) {}
   template<typename SITE_P>
-  site_matrix(const SITE_P& sp) : base_type()
+  site_matrix(const SITE_P& sp) : mat_()
   {
     using std::sqrt; using alps::to_double;
     typedef typename SITE_P::spin_type spin_type;
@@ -233,48 +236,67 @@ public:
 
     // set matrix dimension
     int dim = s.get_twice()+1;
-    base_type::resize(boost::extents[dim][dim]);
+    mat_.resize(boost::extents[dim][dim]);
     for (int i = 0; i < dim; ++i)
       for (int j = 0; j < dim; ++j)
-        (*this)[i][j] = value_type(0);
+        mat_[i][j] = value_type(0);
 
     // diagonal elements: c - hz sz
     for (spin_type sz = -s; sz <= s; ++sz)
-      (*this)[sz.distance(-s)][sz.distance(-s)] =
-        sp.c() - sp.hz() * to_double(sz);
-
+      mat_[sz.distance(-s)][sz.distance(-s)] =
+	sp.c() - sp.hz() * to_double(sz);
+    
     // off-diagonal elements: hx s+ / 2
     for (spin_type sz = -s; sz <= s-1; ++sz)
-      (*this)[sz.distance(-s)+1][sz.distance(-s)] =
-        - 0.5 * sp.hx() * sqrt(to_double(s-sz) * to_double(s+sz+1));
-
+      mat_[sz.distance(-s)+1][sz.distance(-s)] =
+	- 0.5 * sp.hx() * sqrt(to_double(s-sz) * to_double(s+sz+1));
+    
     // off-diagonal elements: hx s- / 2
     for (spin_type sz = -s+1; sz <= s; ++sz)
-      (*this)[sz.distance(-s)-1][sz.distance(-s)] = 
-        - 0.5 * sp.hx() * sqrt(to_double(s+sz) * to_double(s-sz+1));
+      mat_[sz.distance(-s)-1][sz.distance(-s)] = 
+	- 0.5 * sp.hx() * sqrt(to_double(s+sz) * to_double(s-sz+1));
   }
+
+  value_type& operator()(size_type i, size_type j) { return mat_[i][j]; }
+  const value_type& operator()(size_type i, size_type j) const
+  { return mat_[i][j]; }
+
+  matrix_type& matrix() { return mat_; }
+  const matrix_type& matrix() const { return mat_; }
+
+private:
+  boost::multi_array<T, 2> mat_;
 };
 
 
 template<typename T>
-class bond_matrix : public boost::multi_array<T, 4>
+class bond_matrix
 {
 public:
-  typedef boost::multi_array<T, 4>      base_type;
-  typedef T                             value_type;
-  typedef typename base_type::size_type size_type;
+  typedef boost::multi_array<T, 4>        matrix_type;
+  typedef T                               value_type;
+  typedef typename matrix_type::size_type size_type;
 
-  bond_matrix() : base_type() {}
-  bond_matrix(const bond_matrix& m) : base_type(m) {}
-  bond_matrix(const base_type& m) : base_type(m) {}
+  bond_matrix() : mat_() {}
+  bond_matrix(const bond_matrix& m) : mat_(m.mat_) {}
   template<typename I, typename BOND_P>
   bond_matrix(const alps::half_integer<I>& s0, const alps::half_integer<I>& s1,
-              const BOND_P& bp) : base_type()
+              const BOND_P& bp) : mat_()
   { build(s0, s1, bp); }
   template<typename SITE_P, typename BOND_P>
   bond_matrix(const SITE_P& sp0, const SITE_P& sp1, const BOND_P& bp) :
-    base_type()
+    mat_()
   { build(sp0.s(), sp1.s(), bp); }
+
+  value_type&
+  operator()(size_type i, size_type j, size_type k, size_type l)
+  { return mat_[i][j][k][l]; }
+  const value_type&
+  operator()(size_type i, size_type j, size_type k, size_type l) const
+  { return mat_[i][j][k][l]; }
+
+  matrix_type& matrix() { return mat_; }
+  const matrix_type& matrix() const { return mat_; }
 
 protected:
   template<typename I, typename BOND_P>
@@ -287,17 +309,17 @@ protected:
     // set matrix dimension
     int d0 = s0.get_twice()+1;
     int d1 = s1.get_twice()+1;
-    base_type::resize(boost::extents[d0][d1][d0][d1]);
+    mat_.resize(boost::extents[d0][d1][d0][d1]);
     for (int i0 = 0; i0 < d0; ++i0)
       for (int i1 = 0; i1 < d1; ++i1)
         for (int j0 = 0; j0 < d0; ++j0)
           for (int j1 = 0; j1 < d1; ++j1)
-            (*this)[i0][i1][j0][j1] = value_type(0);
+            mat_[i0][i1][j0][j1] = value_type(0);
 
     // diagonal elements: c - jz sz0 sz1
     for (spin_type sz0 = -s0; sz0 <= s0; ++sz0) {
       for (spin_type sz1 = -s1; sz1 <= s1; ++sz1) {
-        (*this)[sz0.distance(-s0)][sz1.distance(-s1)]
+        mat_[sz0.distance(-s0)][sz1.distance(-s1)]
           [sz0.distance(-s0)][sz1.distance(-s1)] =
           bp.c() - bp.jz() * to_double(sz0) * to_double(sz1);
       }
@@ -306,7 +328,7 @@ protected:
     // off-diagonal elements: - jxy s0+ s1- / 2
     for (spin_type sz0 = -s0; sz0 <= s0-1; ++sz0) {
       for (spin_type sz1 = -s1+1; sz1 <= s1; ++sz1) {
-        (*this)[sz0.distance(-s0)+1][sz1.distance(-s1)-1]
+        mat_[sz0.distance(-s0)+1][sz1.distance(-s1)-1]
           [sz0.distance(-s0)][sz1.distance(-s1)] =
           - 0.5 * bp.jxy() *
           sqrt(to_double(s0-sz0) * to_double(s0+sz0+1)) *
@@ -317,7 +339,7 @@ protected:
     // off-diagonal elements: - jxy s0- s1+ / 2
     for (spin_type sz0 = -s0+1; sz0 <= s0; ++sz0) {
       for (spin_type sz1 = -s1; sz1 <= s1-1; ++sz1) {
-        (*this)[sz0.distance(-s0)-1][sz1.distance(-s1)+1]
+        mat_[sz0.distance(-s0)-1][sz1.distance(-s1)+1]
           [sz0.distance(-s0)][sz1.distance(-s1)] =
           - 0.5 * bp.jxy() *
           sqrt(to_double(s0+sz0) * to_double(s0-sz0+1)) *
@@ -325,6 +347,9 @@ protected:
       }
     }
   }
+
+private:
+  boost::multi_array<T, 4> mat_;
 };
 
 
@@ -342,126 +367,108 @@ public:
   typedef std::vector<bond_parameter_type> bond_map_type;
   typedef typename site_parameter_type::spin_type spin_type;
 
-  template<typename I, typename G>
-  model_parameter(double Jxy, double Jz, const alps::half_integer<I>& spin,
-                  const alps::graph_helper<G>& gh)
-    : sites_(), bonds_(), disordered_site_(), disordered_bond_(),
-      signed_(), frustrated_()
-  { set_parameters(Jxy, Jz, spin, gh); }
-  template<typename I, typename G>
-  model_parameter(double Jxy, double Jz, const alps::half_integer<I>& spin,
-                  const alps::graph_helper<G>& gh, bool is_signed)
-    : sites_(), bonds_(), disordered_site_(), disordered_bond_(),
-      signed_(), frustrated_()
-  { set_parameters(Jxy, Jz, spin, gh, is_signed); }
+  template<typename G, typename I>
+  model_parameter(const G& g, const alps::half_integer<I>& spin,
+		  double Jxy, double Jz)
+    : sites_(), bonds_()
+  { set_parameters(g, spin, Jxy, Jz); }
   template<typename G, typename I>
   model_parameter(const alps::Parameters& params,
-                  const alps::graph_helper<G>& gh,
-                  const alps::model_helper<I>& mh)
-    : sites_(), bonds_(), disordered_site_(), disordered_bond_(),
-      signed_(), frustrated_()
-  { set_parameters(params, gh, mh); }
+                  const G& g, bool ds, bool db,
+		  const alps::model_helper<I>& mh)
+    : sites_(), bonds_()
+  { set_parameters(params, g, ds, db, mh); }
   template<typename G, typename I>
   model_parameter(const alps::Parameters& params,
-                  const alps::graph_helper<G>& gh,
-                  const alps::model_helper<I>& mh,
-                  bool is_signed)
-    : sites_(), bonds_(), disordered_site_(), disordered_bond_(),
-      signed_(), frustrated_()
-  { set_parameters(params, gh, mh, is_signed); }
+                  const G& g, bool ds, bool db,
+		  const alps::model_helper<I>& mh, bool is_signed)
+    : sites_(), bonds_()
+  { set_parameters(params, g, ds, db, mh, is_signed); }
 
   // set_parameters
 
-  template<typename I, typename G>
-  void set_parameters(double Jxy, double Jz, const alps::half_integer<I>& spin,
-                      const alps::graph_helper<G>& gh)
+  template<typename G, typename I>
+  void set_parameters(const G& g, const alps::half_integer<I>& spin, 
+		      double Jxy, double Jz)
   {
-    set_parameters_impl(Jxy, Jz, spin, gh);
-    signed_ = check_sign(gh);
-    frustrated_ = check_classical_frustration(gh);
-  }
-  template<typename I, typename G>
-  void set_parameters(double Jxy, double Jz, const alps::half_integer<I>& spin,
-                      const alps::graph_helper<G>& gh, bool is_signed)
-  {
-    set_parameters_impl(Jxy, Jz, spin, gh);
-    signed_ = is_signed;
-    frustrated_ = check_classical_frustration(gh);
+    set_parameters_impl(g, spin, Jxy, Jz);
+    signed_ = check_sign(g);
+    frustrated_ = check_classical_frustration(g);
   }
   template<typename G, typename I>
   void set_parameters(const alps::Parameters& params,
-                      const alps::graph_helper<G>& gh,
-                      const alps::model_helper<I>& mh)
+                      const G& g, bool ds, bool db,
+		      const alps::model_helper<I>& mh)
   {
-    set_parameters_impl(params, gh, mh);
-    signed_ = check_sign(gh);
-    frustrated_ = check_classical_frustration(gh);
+    set_parameters_impl(params, g, ds, db, mh);
+    signed_ = check_sign(g);
+    frustrated_ = check_classical_frustration(g);
   }
   template<typename G, typename I>
   void set_parameters(const alps::Parameters& params,
-                      const alps::graph_helper<G>& gh,
-                      const alps::model_helper<I>& mh,
-                      bool is_signed)
+                      const G& g, bool ds, bool db,
+		      const alps::model_helper<I>& mh, bool is_signed)
   {
-    set_parameters_impl(params, gh, mh);
+    set_parameters_impl(params, g, ds, db, mh);
     signed_ = is_signed;
-    frustrated_ = check_classical_frustration(gh);
+    frustrated_ = check_classical_frustration(g);
   }
 
   bool uniform_site() const { return sites_.size() == 1; }
-  bool disordered_site() const { return disordered_site_; }
-  template<class G, class V>
-  site_parameter_type site(const alps::graph_helper<G>& gh,
-    const V& v) const
+  bool disordered_site() const { return use_site_index_; }
+  template<class G>
+  site_parameter_type site(
+    const typename boost::graph_traits<G>::vertex_descriptor& v,
+    const G& g) const
   {
-    return disordered_site() ? sites_[gh.vertex_index(v)] : 
-      (uniform_site() ? sites_[0] : sites_[gh.vertex_type(v)]);
+    return disordered_site() ?
+      sites_[boost::get(vertex_index_t(), g, v)] : 
+      (uniform_site() ? sites_[0] :
+       sites_[boost::get(vertex_type_t(), g, v)]);
   }
 
   bool uniform_bond() const { return bonds_.size() == 1; }
-  bool disordered_bond() const { return disordered_bond_; }
-  template<class G, class E>
-  bond_parameter_type bond(const alps::graph_helper<G>& gh,
-    const E& e) const
+  bool disordered_bond() const { return use_bond_index_; }
+  template<class G>
+  bond_parameter_type bond(
+    const typename alps::graph_traits<G>::edge_descriptor& e,
+    const G& g) const
   {
-    return disordered_bond() ? bonds_[gh.edge_index(e)] : 
-      (uniform_bond() ? bonds_[0] : bonds_[gh.edge_type(e)]);
+    return disordered_bond() ?
+      bonds_[boost::get(edge_index_t(), g, e)] :
+      (uniform_bond() ? bonds_[0] :
+       bonds_[boost::get(edge_type_t(), g, e)]);
   }
 
   bool is_signed() const { return signed_; }
   bool is_classically_frustrated() const { return frustrated_; }
 
 protected:
-  template<typename I, typename G>
-  void set_parameters_impl(double Jxy, double Jz,
-                           const alps::half_integer<I>& spin,
-                           const alps::graph_helper<G>& /* gh */)
+  template<typename G, typename I>
+  void set_parameters_impl(const G& /* g */, const alps::half_integer<I>& spin,
+			   double Jxy, double Jz)
   {
     // set site parameters
-    disordered_site_ = false;
+    use_site_index_ = false;
     sites_.resize(1);
     sites_[0].s() = spin;
 
     // set bond parameters
-    disordered_bond_ = false;
+    use_bond_index_ = false;
     bonds_.resize(1);
     bonds_[0] = bond_parameter_xxz(0., Jxy, Jz);
   }
 
   template<typename G, typename I>
   void set_parameters_impl(alps::Parameters params,
-                           const alps::graph_helper<G>& gh,
+                           const G& g, bool ds, bool db,
                            const alps::model_helper<I>& mh)
   {
-    typedef typename alps::graph_helper<G>::vertex_iterator vertex_iterator;
-    typedef typename alps::graph_helper<G>::edge_iterator edge_iterator;
-    typename alps::graph_helper<G>::vertex_type_map_type
-      vertex_type(gh.vertex_type_map());
-    typename alps::graph_helper<G>::edge_type_map_type
-      edge_type(gh.edge_type_map());
+    typedef typename boost::graph_traits<G>::vertex_iterator vertex_iterator;
+    typedef typename boost::graph_traits<G>::edge_iterator edge_iterator;
 
     params.copy_undefined(mh.model().default_parameters());
-    alps::basis_states_descriptor<I> basis(mh.model().basis(), gh.graph());
+    alps::basis_states_descriptor<I> basis(mh.model().basis(), g);
     alps::Disorder::seed(params.value_or_default("DISORDER_SEED",0));
 
     //
@@ -469,46 +476,48 @@ protected:
     //
     
     // check type range and resize 'sites_'
-    disordered_site_ = gh.disordered_sites();
-    if (disordered_site_) {
-      sites_.resize(gh.num_vertices());
+    bool use_site_index_ = false;
+    if (ds) {
+      use_site_index_ = true;
+      sites_.resize(boost::num_vertices(g));
     } else {
       alps::type_type type_min = 0;
       alps::type_type type_max = 0;
       vertex_iterator vi, vi_end;
-      for (boost::tie(vi, vi_end) = gh.vertices(); vi != vi_end; ++vi) {
-        type_min = std::min(type_min, vertex_type[*vi]);
-        type_max = std::max(type_min, vertex_type[*vi]);
+      for (boost::tie(vi, vi_end) = boost::vertices(g); vi != vi_end; ++vi) {
+        type_min = std::min(type_min, boost::get(vertex_type_t(), g, *vi));
+        type_max = std::max(type_min, boost::get(vertex_type_t(), g, *vi));
       }
-      if (is_negative(type_min) || type_max >= gh.num_vertices()) {
-        disordered_site_ = true;
-        sites_.resize(gh.num_vertices());
+      if (is_negative(type_min) || type_max >= boost::num_vertices(g)) {
+        use_site_index_ = true;
+        sites_.resize(boost::num_vertices(g));
       } else {
         sites_.resize(type_max);
       }
     }
 
     // generate site matrices and set site parameters
-    if (disordered_site_) {
+    if (use_site_index_) {
       alps::Parameters p(params);
       vertex_iterator vi, vi_end;
-      for (boost::tie(vi, vi_end) = gh.vertices(); vi != vi_end; ++vi) {
-        if (gh.disordered_sites()) {
-          gh.throw_if_xyz_defined(params, *vi);
-          p << gh.coordinate_as_parameter(*vi);
+      for (boost::tie(vi, vi_end) = boost::vertices(g); vi != vi_end; ++vi) {
+        if (ds) {
+          alps::throw_if_xyz_defined(params, g);
+          p << alps::coordinate_as_parameter(g, *vi);
         }
-        sites_[gh.vertex_index(*vi)] = site_parameter_type(
-          alps::get_matrix(double(), mh.model().site_term(vertex_type[*vi]),
-                           mh.model().basis().site_basis(vertex_type[*vi]),
-                           p));
+	unsigned int i = boost::get(vertex_index_t(), g, *vi);
+	unsigned int t = boost::get(vertex_type_t(), g, *vi);
+        sites_[i] = site_parameter_type(
+          alps::get_matrix(double(), mh.model().site_term(t),
+                           mh.model().basis().site_basis(t), p));
       }
     } else {
       vertex_iterator vi, vi_end;
-      for (boost::tie(vi, vi_end) = gh.vertices(); vi != vi_end; ++vi) {
-        sites_[vertex_type[*vi]] = site_parameter_type(
-          alps::get_matrix(double(), mh.model().site_term(vertex_type[*vi]),
-                           mh.model().basis().site_basis(vertex_type[*vi]),
-                           params));
+      for (boost::tie(vi, vi_end) = boost::vertices(g); vi != vi_end; ++vi) {
+	unsigned int t = boost::get(vertex_type_t(), g, *vi);
+        sites_[t] = site_parameter_type(
+          alps::get_matrix(double(), mh.model().site_term(t),
+                           mh.model().basis().site_basis(t), params));
       }
     }
 
@@ -517,110 +526,125 @@ protected:
     //
 
     // check type range and resize 'bonds_'
-    disordered_bond_ = gh.disordered_bonds();
-    if (disordered_bond_) {
-      bonds_.resize(gh.num_edges());
+    use_bond_index_ = false;
+    if (db) {
+      use_bond_index_ = true;
+      bonds_.resize(boost::num_edges(g));
     } else {
       alps::type_type type_min = 0;
       alps::type_type type_max = 0;
-      std::map<alps::type_type, 
-        std::pair<alps::type_type, alps::type_type> > vtype;
+      std::map<alps::type_type, std::pair<alps::type_type, alps::type_type> >
+	vtype;
       edge_iterator ei, ei_end;
-      for (boost::tie(ei, ei_end) = gh.edges(); ei != ei_end; ++ei) {
-        type_min = std::min(type_min, edge_type[*ei]);
-        type_max = std::max(type_min, edge_type[*ei]);
-        if (vtype.find(edge_type[*ei]) == vtype.end()) {
-          vtype[edge_type[*ei]] =
-            std::make_pair(vertex_type(gh.source(*ei)),
-                           vertex_type(gh.target(*ei)));
+      for (boost::tie(ei, ei_end) = boost::edges(g); ei != ei_end; ++ei) {
+        type_min = std::min(type_min, boost::get(edge_type_t(), g, *ei));
+        type_max = std::max(type_max, boost::get(edge_type_t(), g, *ei));
+	unsigned int t = boost::get(edge_type_t(), g, *ei);
+        if (vtype.find(t) == vtype.end()) {
+          vtype[t] = std::make_pair(
+              boost::get(vertex_type_t(), g, boost::source(*ei, g)),
+              boost::get(vertex_type_t(), g, boost::target(*ei, g)));
         } else {
-          if (vtype[edge_type[*ei]] !=
-              std::make_pair(vertex_type(gh.source(*ei)),
-                             vertex_type(gh.target(*ei)))) {
-            disordered_bond_ = true;
+          if (vtype[t] != std::make_pair(
+              boost::get(vertex_type_t(), g, boost::source(*ei, g)),
+              boost::get(vertex_type_t(), g, boost::target(*ei, g)))) {
+            use_bond_index_ = true;
             break;
           }
         }
       }
-      if (disordered_bond_ || is_negative(type_min) ||
-          type_max >= gh.num_edges()) {
-        disordered_bond_ = true;
-        bonds_.resize(gh.num_edges());
+      if (use_bond_index_ || is_negative(type_min) ||
+          type_max >= boost::num_edges(g)) {
+        use_bond_index_ = true;
+        bonds_.resize(boost::num_edges(g));
       } else {
         bonds_.resize(type_max);
       }
     }
 
+    std::cout << use_bond_index_ << std::endl;
+
     // generate bond matrices and set bond parameters
-    if (disordered_bond_) {
+    if (use_bond_index_) {
       alps::Parameters p(params);
       edge_iterator ei, ei_end;
-      for (boost::tie(ei, ei_end) = gh.edges(); ei != ei_end; ++ei) {
-        if (gh.disordered_bonds()) {
-          gh.throw_if_xyz_defined(params, *ei);
-          p << gh.coordinate_as_parameter(*ei);
+      for (boost::tie(ei, ei_end) = boost::edges(g); ei != ei_end; ++ei) {
+        if (db) {
+          alps::throw_if_xyz_defined(params, g);
+          p << alps::coordinate_as_parameter(g, *ei);
         }
-        bonds_[gh.edge_index(*ei)] = bond_parameter_type(
-          alps::get_matrix(double(), mh.model().bond_term(edge_type[*ei]),
-            mh.model().basis().site_basis(vertex_type[gh.source(*ei)]),
-            mh.model().basis().site_basis(vertex_type[gh.target(*ei)]),
-            p));
+	unsigned int i = boost::get(edge_index_t(), g, *ei);
+	unsigned int t = boost::get(edge_type_t(), g, *ei);
+	unsigned int st0 = boost::get(vertex_type_t(), g,
+				      boost::source(*ei, g));
+	unsigned int st1 = boost::get(vertex_type_t(), g,
+				     boost::target(*ei, g));
+        bonds_[i] = bond_parameter_type(
+          alps::get_matrix(double(), mh.model().bond_term(i),
+			   mh.model().basis().site_basis(st0),
+			   mh.model().basis().site_basis(st1), p));
       }
     } else {
       edge_iterator ei, ei_end;
-      for (boost::tie(ei, ei_end) = gh.edges(); ei != ei_end; ++ei) {
-        bonds_[gh.edge_type(*ei)] = bond_parameter_type(
-          alps::get_matrix(double(), mh.model().bond_term(edge_type[*ei]),
-            mh.model().basis().site_basis(vertex_type[gh.source(*ei)]),
-            mh.model().basis().site_basis(vertex_type[gh.target(*ei)]),
-            params));
+      for (boost::tie(ei, ei_end) = boost::edges(g); ei != ei_end; ++ei) {
+	unsigned int t = boost::get(edge_type_t(), g, *ei);
+	unsigned int st0 = boost::get(vertex_type_t(), g,
+				      boost::source(*ei, g));
+	unsigned int st1 = boost::get(vertex_type_t(), g,
+				     boost::target(*ei, g));
+        bonds_[t] = bond_parameter_type(
+          alps::get_matrix(double(), mh.model().bond_term(t),
+			   mh.model().basis().site_basis(st0),
+			   mh.model().basis().site_basis(st1), params));
       }
     }
   }
 
   template<typename G>
-  bool check_sign(const alps::graph_helper<G>& gh) const
+  bool check_sign(const G& g) const
   {
-    std::vector<double> w(boost::num_edges(gh.graph()));
-    typename alps::graph_helper<G>::edge_iterator ei, ei_end;
-    for (boost::tie(ei, ei_end) = gh.edges(); ei != ei_end; ++ei) {
-      if (bond(gh, *ei).jxy() > 0.) {
-        w[gh.edge_index(*ei)] = 1.;
-      } else if (bond(gh, *ei).jxy() < 0.) {
-        w[gh.edge_index(*ei)] = -1.;
+    std::vector<double> w(boost::num_edges(g));
+    typename boost::graph_traits<G>::edge_iterator ei, ei_end;
+    for (boost::tie(ei, ei_end) = boost::edges(g); ei != ei_end; ++ei) {
+      unsigned int i = boost::get(edge_index_t(), g, *ei);
+      if (bond(*ei, g).jxy() > 0.) {
+        w[i] = 1.;
+      } else if (bond(*ei, g).jxy() < 0.) {
+        w[i] = -1.;
       } else {
-        w[gh.edge_index(*ei)] = 0.;
+        w[i] = 0.;
       }
     }
-    return alps::is_frustrated(gh.graph(),
+    return alps::is_frustrated(g,
              boost::make_iterator_property_map(w.begin(),
-               boost::get(boost::edge_index, gh.graph())));
+               boost::get(edge_index_t(), g)));
   }
 
   template<typename G>
-  bool check_classical_frustration(const alps::graph_helper<G>& gh) const
+  bool check_classical_frustration(const G& g) const
   {
-    std::vector<double> w(gh.num_edges());
-    typename alps::graph_helper<G>::edge_iterator ei, ei_end;
-    for (boost::tie(ei, ei_end) = gh.edges(); ei != ei_end; ++ei) {
-      if (bond(gh, *ei).jz() > 0.) {
-        w[gh.edge_index(*ei)] = 1.;
-      } else if (bond(gh, *ei).jz() < 0.) {
-        w[gh.edge_index(*ei)] = -1.;
+    std::vector<double> w(boost::num_edges(g));
+    typename boost::graph_traits<G>::edge_iterator ei, ei_end;
+    for (boost::tie(ei, ei_end) = boost::edges(g); ei != ei_end; ++ei) {
+      unsigned int i = boost::get(edge_index_t(), g, *ei);
+      if (bond(*ei, g).jz() > 0.) {
+        w[i] = 1.;
+      } else if (bond(*ei, g).jz() < 0.) {
+        w[i] = -1.;
       } else {
-        w[gh.edge_index(*ei)] = 0.;
+        w[i] = 0.;
       }
     }
-    return alps::is_frustrated(gh.graph(),
+    return alps::is_frustrated(g,
       boost::make_iterator_property_map(w.begin(),
-        boost::get(boost::edge_index, gh.graph())));
+        boost::get(edge_index_t(), g)));
   }
 
 private:
   site_map_type sites_;
   bond_map_type bonds_;
-  bool disordered_site_;
-  bool disordered_bond_;
+  bool use_site_index_;
+  bool use_bond_index_;
   bool signed_;
   bool frustrated_;
 };
@@ -642,29 +666,24 @@ bool fit2site(const boost::multi_array<T, 2>& mat, site_parameter_hxz& param,
   int m = dim * dim;
   int n = 3;
   
-#if 1
   alps::half_integer<short> s((double)(dim-1)/2);
-  boost::multi_array<value_type, 2> mat_c =
-    site_matrix<>(site_parameter_hxz(s, 1, 0, 0));
-  boost::multi_array<value_type, 2> mat_hx =
-    site_matrix<>(site_parameter_hxz(s, 0, 1, 0));
-  boost::multi_array<value_type, 2> mat_hz =
-    site_matrix<>(site_parameter_hxz(s, 0, 0, 1));
-#else
-  alps::SiteBasisDescriptor<short> basis(spin_basis(s));
-  boost::multi_array<value_type, 2> mat_c(
-    alps::get_matrix(value_type(),
-                     alps::SiteTermDescriptor("1"),
-                     basis, alps::Parameters()));
-  boost::multi_array<value_type, 2> mat_hx(
-    alps::get_matrix(value_type(),
-                     alps::SiteTermDescriptor("-(Splus(i)+Sminus(i))/2", "i"),
-                     basis, alps::Parameters()));
-  boost::multi_array<value_type, 2> mat_hz(
-    alps::get_matrix(value_type(),
-                     alps::SiteTermDescriptor("-Sz(i)", "i"),
-                     basis, alps::Parameters()));
-#endif
+  site_matrix<> mat_c(site_parameter_hxz(s, 1, 0, 0));
+  site_matrix<> mat_hx(site_parameter_hxz(s, 0, 1, 0));
+  site_matrix<> mat_hz(site_parameter_hxz(s, 0, 0, 1));
+
+//   alps::SiteBasisDescriptor<short> basis(spin_basis(s));
+//   boost::multi_array<value_type, 2> mat_c(
+//     alps::get_matrix(value_type(),
+//                      alps::SiteTermDescriptor("1"),
+//                      basis, alps::Parameters()));
+//   boost::multi_array<value_type, 2> mat_hx(
+//     alps::get_matrix(value_type(),
+//                      alps::SiteTermDescriptor("-(Splus(i)+Sminus(i))/2", "i"),
+//                      basis, alps::Parameters()));
+//   boost::multi_array<value_type, 2> mat_hz(
+//     alps::get_matrix(value_type(),
+//                      alps::SiteTermDescriptor("-Sz(i)", "i"),
+//                      basis, alps::Parameters()));
 
   boost::numeric::ublas::matrix<value_type,
     boost::numeric::ublas::column_major> a(m, n);
@@ -674,9 +693,9 @@ bool fit2site(const boost::multi_array<T, 2>& mat, site_parameter_hxz& param,
     for (int j = 0; j < dim; ++j) {
       int k = dim * i + j;
       b(k) = mat[i][j];
-      a(k, 0) = mat_c[i][j];
-      a(k, 1) = mat_hx[i][j];
-      a(k, 2) = mat_hz[i][j];
+      a(k, 0) = mat_c(i,j);
+      a(k, 1) = mat_hx(i,j);
+      a(k, 2) = mat_hz(i,j);
     }
   }
   
@@ -695,11 +714,10 @@ bool fit2site(const boost::multi_array<T, 2>& mat, site_parameter_hxz& param,
   return success;
 }
 
-
 template<typename T>
 bool fit2site(const site_matrix<T>& mat, site_parameter_hxz& param, T tol)
 {
-  return fit2site(mat, param, tol);
+  return fit2site(mat.matrix(), param, tol);
 }
 
 
@@ -718,32 +736,27 @@ bool fit2bond(const boost::multi_array<T, 4>& mat, bond_parameter_xxz& param,
   int m = dim * dim;
   int n = 3;
 
-#if 1
   alps::half_integer<short> s0((double)(d0-1)/2);
   alps::half_integer<short> s1((double)(d1-1)/2);
-  boost::multi_array<value_type, 4> mat_c =
-    bond_matrix<>(s0, s1, bond_parameter_xxz(1, 0, 0));
-  boost::multi_array<value_type, 4> mat_jxy =
-    bond_matrix<>(s0, s1, bond_parameter_xxz(0, 1, 0));
-  boost::multi_array<value_type, 4> mat_jz =
-    bond_matrix<>(s0, s1, bond_parameter_xxz(0, 0, 1));
-#else
-  alps::SiteBasisDescriptor<short> basis0(spin_basis((double)(d0 - 1)/2));
-  alps::SiteBasisDescriptor<short> basis1(spin_basis((double)(d1 - 1)/2));
-  boost::multi_array<value_type, 4> mat_c(
-    alps::get_matrix(value_type(),
-                     alps::BondTermDescriptor("1"),
-                     basis0, basis1));
-  boost::multi_array<value_type, 4> mat_jxy(
-    alps::get_matrix(value_type(),
-                     alps::BondTermDescriptor(
-                       "-(Splus(i)*Sminus(j)+Sminus(i)*Splus(j))/2"),
-                     basis0, basis1));
-  boost::multi_array<value_type, 4> mat_jz(
-    alps::get_matrix(value_type(),
-                     alps::BondTermDescriptor("-Sz(i)*Sz(j)"),
-                     basis0, basis1));
-#endif
+  bond_matrix<> mat_c(s0, s1, bond_parameter_xxz(1, 0, 0));
+  bond_matrix<> mat_jxy(s0, s1, bond_parameter_xxz(0, 1, 0));
+  bond_matrix<> mat_jz(s0, s1, bond_parameter_xxz(0, 0, 1));
+
+//   alps::SiteBasisDescriptor<short> basis0(spin_basis((double)(d0 - 1)/2));
+//   alps::SiteBasisDescriptor<short> basis1(spin_basis((double)(d1 - 1)/2));
+//   boost::multi_array<value_type, 4> mat_c(
+//     alps::get_matrix(value_type(),
+//                      alps::BondTermDescriptor("1"),
+//                      basis0, basis1));
+//   boost::multi_array<value_type, 4> mat_jxy(
+//     alps::get_matrix(value_type(),
+//                      alps::BondTermDescriptor(
+//                        "-(Splus(i)*Sminus(j)+Sminus(i)*Splus(j))/2"),
+//                      basis0, basis1));
+//   boost::multi_array<value_type, 4> mat_jz(
+//     alps::get_matrix(value_type(),
+//                      alps::BondTermDescriptor("-Sz(i)*Sz(j)"),
+//                      basis0, basis1));
 
   boost::numeric::ublas::matrix<value_type,
     boost::numeric::ublas::column_major> a(m, n);
@@ -755,9 +768,9 @@ bool fit2bond(const boost::multi_array<T, 4>& mat, bond_parameter_xxz& param,
         for (int j1 = 0; j1 < d1; ++j1) {
           int k = dim * (i0 * d1 + i1) + (j0 * d1 + j1);
           b(k) = mat[i0][i1][j0][j1];
-          a(k, 0) = mat_c[i0][i1][j0][j1];
-          a(k, 1) = mat_jxy[i0][i1][j0][j1];
-          a(k, 2) = mat_jz[i0][i1][j0][j1];
+          a(k, 0) = mat_c(i0,i1,j0,j1);
+          a(k, 1) = mat_jxy(i0,i1,j0,j1);
+          a(k, 2) = mat_jz(i0,i1,j0,j1);
         }
       }
     }
@@ -782,7 +795,7 @@ bool fit2bond(const boost::multi_array<T, 4>& mat, bond_parameter_xxz& param,
 template<typename T>
 bool fit2bond(const bond_matrix<T>& mat, bond_parameter_xxz& param, T tol)
 {
-  return fit2bond(mat, param, tol);
+  return fit2bond(mat.matrix(), param, tol);
 }
 
 
@@ -797,7 +810,7 @@ template<typename T>
 std::ostream& operator<<(std::ostream& os, const looper::site_matrix<T>& m)
 {
   boost::numeric::ublas::matrix<T> mat;
-  flatten_matrix(m, mat);
+  flatten_matrix(m.matrix(), mat);
   os << mat;
   return os;
 }
@@ -806,7 +819,7 @@ template<typename T>
 std::ostream& operator<<(std::ostream& os, const looper::bond_matrix<T>& m)
 {
   boost::numeric::ublas::matrix<T> mat;
-  flatten_matrix(m, mat);
+  flatten_matrix(m.matrix(), mat);
   os << mat;
   return os;
 }

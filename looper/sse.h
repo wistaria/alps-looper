@@ -64,37 +64,41 @@ struct sse
     typedef M                           model_type;
     typedef W                           weight_type;
 
-    template<class RealGraph>
-    parameter_type(const RealGraph& rg, const model_type& m, double b,
-                   double fs)
-      : model(m), vgraph(), vmap(),
-        num_real_vertices(boost::num_vertices(rg)),
-        num_real_edges(boost::num_edges(rg)),
+    parameter_type(const graph_type& g, const model_type& m,
+		   double b, double fs)
+      : rgraph(g), model(m), vgraph(), vmap(),
+        /* num_real_vertices(boost::num_vertices(g)), */
+        /* num_real_edges(boost::num_edges(g)), */
         beta(b), sz_conserved(true), is_bipartite(false), chooser(),
         ez_offset(0.0)
     {
-      generate_virtual_graph(rg, model, vgraph, vmap);
+      generate_virtual_graph(g, model, vgraph, vmap);
       is_bipartite = alps::set_parity(vgraph);
 
       // if (model.is_signed() || model.is_classically_frustrated())
       //   fs = std::max(fs, 0.1);
       if (model.is_classically_frustrated()) fs = std::max(fs, 0.1);
 
-      chooser.init(vgraph, model, fs);
+      chooser.init(rgraph, vgraph, vmap, model, fs);
 
-      edge_iterator ei, ei_end;
-      for (boost::tie(ei, ei_end) = boost::edges(vgraph);
-           ei != ei_end; ++ei)
-        ez_offset +=
-          model.bond(bond_type(*ei, vgraph)).c() -
-          chooser.weight(bond_index(*ei, vgraph)).offset();
+      edge_iterator rei, rei_end;
+      for (boost::tie(rei, rei_end) = boost::edges(rgraph);
+           rei != rei_end; ++rei) {
+	edge_iterator vei, vei_end;
+	for (boost::tie(vei, vei_end) = vmap.virtual_edges(rgraph, *rei);
+	     vei != vei_end; ++vei) {
+	  ez_offset += model.bond(*rei, rgraph).c() -
+	    chooser.weight(bond_index(*vei, vgraph)).offset();
+	}
+      }
     }
 
+    const graph_type&         rgraph;
     const model_type&         model;
     graph_type                vgraph;
     mapping_type              vmap;
-    unsigned int              num_real_vertices;
-    unsigned int              num_real_edges;
+    /* unsigned int              num_real_vertices; */
+    /* unsigned int              num_real_edges; */
     double                    beta;
     bool                      sz_conserved;
     bool                      is_bipartite;
@@ -362,9 +366,14 @@ struct sse
     // connect bottom and top with random permutation
     {
       std::vector<int> r, c0, c1;
-      for (int i = 0; i < param.vmap.num_groups(); ++i) {
-        int s2 = param.vmap.num_virtual_vertices(i);
-        int offset = *(param.vmap.virtual_vertices(i).first);
+      vertex_iterator rvi, rvi_end;
+      for (boost::tie(rvi, rvi_end) = boost::vertices(param.rgraph);
+	   rvi != rvi_end; ++rvi) {
+        unsigned int s2 = param.model.site(*rvi, param.rgraph).s().get_twice();
+	vertex_iterator vvi, vvi_end;
+	boost::tie(vvi, vvi_end) =
+	  param.vmap.virtual_vertices(param.rgraph, *rvi);
+        int offset = boost::get(boost::vertex_index, param.vgraph, *vvi);
         if (s2 == 1) {
           // S=1/2: just connect top and bottom
           union_find::unify(config.bottom[offset].loop_segment(0),
@@ -374,14 +383,10 @@ struct sse
           r.resize(s2);
           c0.resize(s2);
           c1.resize(s2);
-          vertex_iterator vi_end =
-            param.vmap.virtual_vertices(i).second;
-          for (vertex_iterator vi =
-                 param.vmap.virtual_vertices(i).first;
-               vi != vi_end; ++vi) {
-            r[*vi - offset] = *vi - offset;
-            c0[*vi - offset] = config.bottom[*vi].conf();
-            c1[*vi - offset] = config.top   [*vi].conf();
+          for (; vvi != vvi_end; ++vvi) {
+            r[*vvi - offset] = *vvi - offset;
+            c0[*vvi - offset] = config.bottom[*vvi].conf();
+            c1[*vvi - offset] = config.top   [*vvi].conf();
           }
           restricted_random_shuffle(r.begin(), r.end(),
                                     c0.begin(), c0.end(),

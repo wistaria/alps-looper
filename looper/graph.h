@@ -371,8 +371,8 @@ inline void generate_virtual_graph(const RealGraph& rg,
                                    VirtualGraph& vg,
                                    virtual_mapping<VirtualGraph>& vm)
 {
-  typedef RealGraph             rgraph_type;
-  typedef VirtualGraph          vgraph_type;
+  typedef RealGraph    rgraph_type;
+  typedef VirtualGraph vgraph_type;
 
   vg.clear();
   vm.clear();
@@ -388,8 +388,7 @@ inline void generate_virtual_graph(const RealGraph& rg,
     typename boost::graph_traits<rgraph_type>::vertex_iterator rvi, rvi_end;
     for (boost::tie(rvi, rvi_end) = boost::vertices(rg);
          rvi != rvi_end; ++rvi) {
-      int t = boost::get(vertex_type_t(), rg, *rvi);
-      for (int i = 0; i < model.site(t).s().get_twice(); ++i) {
+      for (int i = 0; i < model.site(*rvi, rg).s().get_twice(); ++i) {
         // add vertices to virtual graph
         typename boost::graph_traits<vgraph_type>::vertex_descriptor
           vvd = boost::add_vertex(vg);
@@ -407,8 +406,7 @@ inline void generate_virtual_graph(const RealGraph& rg,
       vvi_last = vvi_first;
     for (boost::tie(rvi, rvi_end) = boost::vertices(rg);
          rvi != rvi_end; ++rvi) {
-      int t = boost::get(alps::vertex_type_t(), rg, *rvi);
-      vvi_last += model.site(t).s().get_twice();
+      vvi_last += model.site(*rvi, rg).s().get_twice();
       vm.add_vertex(rg, *rvi, vvi_first, vvi_last);
       vvi_first = vvi_last;
     }
@@ -417,7 +415,8 @@ inline void generate_virtual_graph(const RealGraph& rg,
   // setup edges
   {
     typename boost::graph_traits<rgraph_type>::edge_iterator rei, rei_end;
-    for (boost::tie(rei, rei_end) = boost::edges(rg); rei != rei_end; ++rei) {
+    for (boost::tie(rei, rei_end) = boost::edges(rg);
+	 rei != rei_end; ++rei) {
       typename boost::graph_traits<rgraph_type>::vertex_descriptor
         rs = boost::source(*rei, rg);
       typename boost::graph_traits<rgraph_type>::vertex_descriptor
@@ -446,11 +445,14 @@ inline void generate_virtual_graph(const RealGraph& rg,
       vei_first = boost::edges(vg).first;
     typename boost::graph_traits<vgraph_type>::edge_iterator
       vei_last = vei_first;
-    for (boost::tie(rei, rei_end) = boost::edges(rg); rei != rei_end; ++rei) {
-      int st = boost::get(alps::vertex_type_t(), rg, boost::source(*rei, rg));
-      int tt = boost::get(alps::vertex_type_t(), rg, boost::target(*rei, rg));
-      vei_last +=
-        model.site(st).s().get_twice() * model.site(tt).s().get_twice();
+    for (boost::tie(rei, rei_end) = boost::edges(rg);
+	 rei != rei_end; ++rei) {
+      typename boost::graph_traits<vgraph_type>::vertex_descriptor
+	v0 = boost::source(*rei, rg);
+      typename boost::graph_traits<vgraph_type>::vertex_descriptor
+	v1 = boost::target(*rei, rg);
+      vei_last += model.site(v0, rg).s().get_twice() *
+	model.site(v1, rg).s().get_twice();
       vm.add_edge(rg, *rei, vei_first, vei_last);
       vei_first = vei_last;
     }
@@ -471,7 +473,9 @@ template<class T>
 struct vector_spin_wrapper
 {
   vector_spin_wrapper(const std::vector<T>& v) : vec_(v) {}
-  spin_wrapper<T> site(int i) const { return spin_wrapper<T>(vec_[i]); }
+  template<class V, class G>
+  spin_wrapper<T> site(const V& v, const G& g) const
+  { return spin_wrapper<T>(vec_[boost::get(vertex_type_t(), g, v)]); }
   const std::vector<T>& vec_;
 };
 
@@ -479,7 +483,9 @@ template<class T>
 struct const_spin_wrapper
 {
   const_spin_wrapper(const T& t) : t_(t) {}
-  spin_wrapper<T> site(int) const { return spin_wrapper<T>(t_); }
+  template<class V, class G>
+  spin_wrapper<T> site(const V&, const G&) const
+  { return spin_wrapper<T>(t_); }
   const T& t_;
 };
 
