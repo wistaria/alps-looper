@@ -29,7 +29,7 @@
 #define LOOPER_VERSION "3.1.3b"
 
 /* Define the published date of ALPS/looper */
-#define LOOPER_DATE "2004/10/08"
+#define LOOPER_DATE "2004/10/12"
 
 #include <looper/model.h>
 #include <looper/path_integral.h>
