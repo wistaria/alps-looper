@@ -1,5 +1,13 @@
-2003-11-05  Synge Todo  <wistaria@comp-phys.org>
+2003-11-06  Synge Todo  <wistaria@comp-phys.org>
 
+	* Moved measurements into looper/measuerment.h
+
+	* Added is_bipartite member in [path_integral,sse]::parameter_type.
+
+	* Removed check_and_resize from path_integral.h.
+	
+2003-11-05  Synge Todo  <wistaria@comp-phys.org>
+	
 	* Modified Makefile.in so that MPI version of programs (qmc_mpi,
 	percolation_mpi) will also be built.
 

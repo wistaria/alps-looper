@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: qmc_impl.h 521 2003-11-05 10:37:21Z wistaria $
+* $Id: qmc_impl.h 534 2003-11-06 04:22:01Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -41,6 +41,7 @@
 #include <looper/model.h>
 #include <looper/path_integral.h>
 #include <looper/sse.h>
+#include <looper/measurement.h>
 
 #include <alps/alea.h>
 #include <alps/scheduler.h>
@@ -58,8 +59,7 @@ public:
 	     alps::ObservableSet& m) :
     param_(rg, model, beta), config_()
   {
-    is_bipartite = alps::set_parity(param_.virtual_graph.graph);
-    e_offset_ = qmc::energy_offset(param_);
+    e_offset_ = looper::energy_offset(param_);
 
     qmc::initialize(config_, param_);
 
@@ -78,7 +78,6 @@ public:
   template<class RNG>
   void step(RNG& rng, alps::ObservableSet& m)
   {
-    qmc::check_and_resize(config_); // meaningful only for SSE
     qmc::generate_loops(config_, param_, rng);
 
     // measure improved quantities here
@@ -87,23 +86,23 @@ public:
       
     // measure unimproved quantities here
     double ez, exy;
-    boost::tie(ez, exy) = qmc::energy(config_, param_);
+    boost::tie(ez, exy) = looper::energy(config_, param_);
     ez += e_offset_;
     m.template get<measurement_type>("diagonal energy") << ez;
     m.template get<measurement_type>("off-diagonal energy") << exy;
     m.template get<measurement_type>("energy") << ez + exy;
 
-    double sz = qmc::uniform_sz(config_, param_);
+    double sz = looper::uniform_sz(config_, param_);
     m.template get<measurement_type>("uniform magnetization") << sz; ////
     m.template get<measurement_type>("uniform susceptibility") <<
       param_.beta * param_.virtual_graph.num_real_vertices * sz * sz;
 
-    double ss = qmc::staggered_sz(config_, param_);
+    double ss = looper::staggered_sz(config_, param_);
     m.template get<measurement_type>("staggered magnetization") << ss; ////
     m.template get<measurement_type>("staggered magnetization^2") <<
       param_.virtual_graph.num_real_vertices * ss * ss;
     m.template get<measurement_type>("staggered susceptibility") << 
-      qmc::staggered_susceptibility(config_, param_);
+      looper::staggered_susceptibility(config_, param_);
   }
 
   static void output_results(std::ostream& os, alps::ObservableSet& m)
