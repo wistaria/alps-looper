@@ -356,10 +356,10 @@ AC_DEFUN([AC_LAPACK],
       veclib_ldflags="-faltivec -framework vecLib"
       LDFLAGS="$veclib_ldflags $ac_save_LDFLAGS"
       LIBS="$ac_save_LIBS"
-      AC_MSG_CHECKING([for dgemm_() in $veclib_ldflags])
+      AC_MSG_CHECKING([for dgemm_ in $veclib_ldflags])
       AC_TRY_LINK([extern "C" char dgemm_();],[dgemm_();],
         [AC_MSG_RESULT(yes)
-         AC_MSG_CHECKING([for dsyev_() in $veclib_ldflags])
+         AC_MSG_CHECKING([for dsyev_ in $veclib_ldflags])
          AC_TRY_LINK([extern "C" char dsyev_();],[dsyev_();],
                      [AC_MSG_RESULT(yes)
                       LAPACK_LDFLAGS="$veclib_ldflags"; LAPACK_LIBS=
@@ -394,7 +394,7 @@ AC_DEFUN([AC_LAPACK],
         atlas_libs="$atlas_flags"
         LDFLAGS="$atlas_ldflags $ac_save_LDFLAGS"
         LIBS="$atlas_libs $ac_save_LIBS"
-        AC_MSG_CHECKING([for dgemm_() in $atlas_ldflags $atlas_libs])
+        AC_MSG_CHECKING([for dgemm_ in $atlas_ldflags $atlas_libs])
         AC_TRY_LINK([extern "C" char dgemm_();],[dgemm_();],
                     [AC_MSG_RESULT(yes); found=yes],[AC_MSG_RESULT(no)])
       fi
@@ -402,7 +402,7 @@ AC_DEFUN([AC_LAPACK],
         for atlas_libs in '-latlas' '-lf77blas -latlas' '-lf77blas -latlas -lg2c' '-lf77blas -latlas -lI77 -lF77'; do
           LDFLAGS="$atlas_ldflags $ac_save_LDFLAGS"
           LIBS="$atlas_libs $ac_save_LIBS"
-          AC_MSG_CHECKING([for dgemm_() in $atlas_ldflags $atlas_libs])
+          AC_MSG_CHECKING([for dgemm_ in $atlas_ldflags $atlas_libs])
           AC_TRY_LINK([extern "C" char dgemm_();],[dgemm_();],
                       [AC_MSG_RESULT(yes); found=yes],[AC_MSG_RESULT(no)])
           if test "$found" = no; then
@@ -411,7 +411,7 @@ AC_DEFUN([AC_LAPACK],
                 if test -d "$d/lib"; then
                   atlas_ldflags="-L$d/lib"
                   LDFLAGS="$atlas_ldflags $ac_save_LDFLAGS"
-                  AC_MSG_CHECKING([for dgemm_() in $atlas_ldflags $atlas_libs])
+                  AC_MSG_CHECKING([for dgemm_ in $atlas_ldflags $atlas_libs])
                   AC_TRY_LINK([extern "C" char dgemm_();],[dgemm_();],
                               [AC_MSG_RESULT(yes); found=yes],
                               [AC_MSG_RESULT(no)])
@@ -456,7 +456,7 @@ AC_DEFUN([AC_LAPACK],
         blas_libs="$blas_flags"
         LDFLAGS="$blas_ldflags $ac_save_LDFLAGS"
         LIBS="$blas_libs $ac_save_LIBS"
-        AC_MSG_CHECKING([for dgemm_() in $blas_ldflags $blas_libs])
+        AC_MSG_CHECKING([for dgemm_ in $blas_ldflags $blas_libs])
         AC_TRY_LINK([extern "C" char dgemm_();],[dgemm_();],
                     [AC_MSG_RESULT(yes); found=yes],[AC_MSG_RESULT(no)])
       fi
@@ -464,7 +464,7 @@ AC_DEFUN([AC_LAPACK],
         for blas_libs in '-lblas' '-lblas -lg2c' '-lblas -lpgftnrtl -lpgc'; do
           LDFLAGS="$blas_ldflags $ac_save_LDFLAGS"
           LIBS="$blas_libs $ac_save_LIBS"
-          AC_MSG_CHECKING([for dgemm() in $blas_ldflags $blas_flags])
+          AC_MSG_CHECKING([for dgemm_ in $blas_ldflags $blas_libs])
           AC_TRY_LINK([extern "C" char dgemm_();],[dgemm_();],
                       [AC_MSG_RESULT(yes); found=yes],[AC_MSG_RESULT(no)])
           if test "$found" = no; then
@@ -473,7 +473,7 @@ AC_DEFUN([AC_LAPACK],
                 if test -d "$d/lib"; then
                   blas_ldflags="-L$d/lib"
                   LDFLAGS="$blas_ldflags $ac_save_LDFLAGS"
-                  AC_MSG_CHECKING([for dgemm_() in $blas_ldflags $blas_libs])
+                  AC_MSG_CHECKING([for dgemm_ in $blas_ldflags $blas_libs])
                   AC_TRY_LINK([extern "C" char dgemm_();],[dgemm_();],
                               [AC_MSG_RESULT(yes); found=yes],
                               [AC_MSG_RESULT(no)])
@@ -519,7 +519,7 @@ AC_DEFUN([AC_LAPACK],
           lapack_libs="$lapack_flags"
           LDFLAGS="$lapack_ldflags $LAPACK_LDFLAGS $ac_save_LDFLAGS"
           LIBS="$lapack_libs $LAPACK_LIBS $ac_save_LIBS"
-          AC_MSG_CHECKING([for dsyev_() in $lapack_ldflags $lapack_libs])
+          AC_MSG_CHECKING([for dsyev_ in $lapack_ldflags $lapack_libs])
           AC_TRY_LINK([extern "C" char dsyev_();],[dsyev_();],
                       [AC_MSG_RESULT(yes); found=yes],[AC_MSG_RESULT(no)])
         fi
@@ -527,7 +527,7 @@ AC_DEFUN([AC_LAPACK],
           for lapack_libs in '-llapack'; do
             LDFLAGS="$lapack_ldflags $LAPACK_LDFLAGS $ac_save_LDFLAGS"
             LIBS="$lapack_libs $LAPACK_LIBS $ac_save_LIBS"
-            AC_MSG_CHECKING([for dsyev_() in $lapack_ldflags $lapack_libs])
+            AC_MSG_CHECKING([for dsyev_ in $lapack_ldflags $lapack_libs])
             AC_TRY_LINK([extern "C" char dsyev_();],[dsyev_();],
                         [AC_MSG_RESULT(yes); found=yes],[AC_MSG_RESULT(no)])
             if test "$found" = no; then
@@ -536,7 +536,7 @@ AC_DEFUN([AC_LAPACK],
                   if test -d "$d/lib"; then
                     lapack_ldflags="-L$d/lib"
                   LDFLAGS="$lapack_ldflags $LAPACK_LDFLAGS $ac_save_LDFLAGS"
-                    AC_MSG_CHECKING([for dsyev_() in $lapack_ldflags $lapack_libs])
+                    AC_MSG_CHECKING([for dsyev_ in $lapack_ldflags $lapack_libs])
                     AC_TRY_LINK([extern "C" char dsyev_();],[dsyev_();],
                                 [AC_MSG_RESULT(yes); found=yes],
                                 [AC_MSG_RESULT(no)])
