@@ -25,9 +25,9 @@
 #ifndef LOOPER_WEIGHT_H
 #define LOOPER_WEIGHT_H
 
-#include <looper/model.h>
 #include <looper/random_choice.h>
-#include <algorithm> // for std::max
+#include <looper/util.h>
+#include <algorithm> // for std::min std::max
 #include <cmath>     // for std::abs
 
 namespace looper {
@@ -98,20 +98,18 @@ public:
     density_(0), pa_para_(0), pa_anti_(0), pf_para_(0), pf_anti_(0),
     p_reflect_(0), offset_(0), sign_(1)
   {
-    using std::abs; using std::max; using std::min;
-
-    double Jxy = abs(p.jxy());
+    double Jxy = std::abs(p.jxy());
     double Jz = p.jz();
     double a = range_01(force_scatter);
     double w12, w11, w13, w22, w23;
-    if (Jxy + abs(Jz) > 1.0e-10) {
+    if (!nearly_zero(Jxy + std::abs(Jz))) {
       if (Jxy + Jz > 2 * a * Jxy) {
         // standard solutions
-        w12 = min(-abs(Jz)/4, -Jxy/4);
-        w11 = max((Jz - Jxy)/2, 0.);
-        w13 = max(min(Jxy/2, (Jz + Jxy)/4), 0.);
-        w22 = max(-(Jz + Jxy)/2, 0.);
-        w23 = max(min(Jxy/2, (-Jz + Jxy)/4), 0.);
+        w12 = std::min(-std::abs(Jz)/4, -Jxy/4);
+        w11 = std::max((Jz - Jxy)/2, 0.);
+        w13 = std::max(std::min(Jxy/2, (Jz + Jxy)/4), 0.);
+        w22 = std::max(-(Jz + Jxy)/2, 0.);
+        w23 = std::max(std::min(Jxy/2, (-Jz + Jxy)/4), 0.);
       } else {
         // "ergodic" solutions
         w12 = (Jz - 2*a*Jxy)/4;
@@ -121,13 +119,13 @@ public:
         w23 = (1-a)*Jxy/2;
       }
 
-      density_ = max(w11+w13, w22+w23);
+      density_ = std::max(w11+w13, w22+w23);
       pa_para_ = (w11+w13)/density_;
       pa_anti_ = (w22+w23)/density_;
       pf_para_ = (w11+w13>0) ? w11/(w11+w13) : 0;
       pf_anti_ = (w22+w23>0) ? w22/(w22+w23) : 0;
       p_reflect_ = (w13+w23>0) ? w23/(w13+w23) : 0;
-      offset_ = -max(abs(Jz) / 4, Jxy / 4);
+      offset_ = -std::max(std::abs(Jz)/4, Jxy/4);
       sign_ = (p.jxy() >= 0 ? 1 : -1);
     }
   }
@@ -157,8 +155,8 @@ private:
   double sign_;
 };
 
-template<typename W>
-bond_parameter_xxz check(const W& w, double tol = 1.0e-10)
+template<typename P, typename W>
+P check(const W& w)
 {
   double rp = w.density() * w.p_accept_para();
   double w11 = rp * w.p_freeze_para();
@@ -168,13 +166,13 @@ bond_parameter_xxz check(const W& w, double tol = 1.0e-10)
   double w23 = ra - w22;
   double w12 = -(w11+ w13 + w22 + w23) / 2;
 
-  assert(w11 > -tol && w13 > -tol && w22 > -tol && w23 > -tol);
+  assert(w11 >= 0. && w13 >= 0. && w22 >= 0. && w23 >= 0.);
   assert(nearly_equal(w23, w.p_reflect() * (w13 + w23)));
 
   double jxy = 2 * (w13 + w23) * w.sign();
   double jz = 4 * (w12 + w11 + w13);
 
-  return bond_parameter_xxz(0, jxy, jz);
+  return P(0, jxy, jz);
 }
 
 } // end namespace weight

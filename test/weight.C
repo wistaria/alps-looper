@@ -58,7 +58,7 @@ void output(const alps::Parameters& param, const W& weight, const BOND_P&)
   }
   std::cout << std::endl;
 
-  bond_parameter_type p = looper::weight::check(weight);
+  bond_parameter_type p = looper::weight::check<bond_parameter_type>(weight);
   assert(looper::nearly_equal(param["Jxy"], p.jxy()));
   assert(looper::nearly_equal(param["Jz"], p.jz()));
 }
