@@ -1,4 +1,4 @@
-ALPS/looper version 3.0b4 (2003/11/20)
+ALPS/looper version 3.0b5 (2004/04/07)
   multi-cluster quantum Monte Carlo algorithms for spin systems
   available from http://wistaria.comp-phys.org/looper/
   copyright (c) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
@@ -19,7 +19,7 @@ z:   coupling Jz            : -1
 t:   temperature            : 1
 m:   MCS for thermalization : 1024
 n:   MCS for measurement    : 8192
-e,g: representation         : path integral
+e:   representation         : path integral
 
 Energy: -3.34961 +/- 0.0521329; tau = 1.51556
     bin #1   : 8192     entries: error = 0.0259656

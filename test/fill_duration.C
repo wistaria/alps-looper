@@ -50,7 +50,7 @@ try {
   std::cout << std::endl;
 
   std::cout << "filling duration " << trial << " times\n";
-  alps::BasicSimpleObservable<double, alps::NoBinning<double> >
+  alps::SimpleObservable<double, alps::NoBinning<double> >
     n("average density");
   n.reset(true);
   for (int i = 0; i < trial; ++i) {

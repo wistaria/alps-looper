@@ -38,7 +38,7 @@ site_basis_descriptor spin_basis(const alps::half_integer<short>& s = 0.5)
   alps::Parameters p;
   p["S"] = s;
   site_basis_descriptor sb("spin", p);
-  sb.push_back(alps::QuantumNumber<short>("Sz", "-S", "S"));
+  sb.push_back(alps::QuantumNumberDescriptor<short>("Sz", "-S", "S"));
   sb.set_parameters(alps::Parameters()); // required for re-evaluation
   return sb;
 }
@@ -70,32 +70,32 @@ template<class MATRIX, class I, class GRAPH>
 void add_to_matrix(MATRIX& matrix,
                    const alps::SiteTermDescriptor<I>& term,
                    const operator_map_type& ops,
-                   const alps::BasisStates<I>& basis_set,
+                   const alps::basis_states<I>& basis_states,
                    const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd,
                    const GRAPH& graph,
                    const alps::Parameters& params = alps::Parameters())
 {
-  typedef alps::BasisStates<I> basis_set_type;
+  typedef alps::basis_states<I> basis_state_type;
 
   int s = boost::get(boost::vertex_index_t(), graph, vd);
-  int dim = basis_set.size();
-  int ds = basis_set.basis().site_basis(s).num_states();
+  int dim = basis_states.size();
+  int ds = basis_states.basis().get_site_basis(s).num_states();
 
   boost::multi_array<double, 2>
     site_matrix(alps::get_matrix(double(),
                                  term,
-                                 basis_set.basis().site_basis(s),
+                                 basis_states.basis().get_site_basis(s),
                                  ops,
                                    params));
 
   for (int i = 0; i < dim; ++i) {
-    typename basis_set_type::value_type state = basis_set[i];
+    typename basis_state_type::value_type state = basis_states[i];
     int is = state[s];
     for (int js = 0; js < ds; ++js) {
       if (site_matrix[is][js] != 0.0) {
-        typename basis_set_type::value_type target = state;
+        typename basis_state_type::value_type target = state;
         target[s] = js;
-        int j = basis_set.index(target);
+        int j = basis_states.index(target);
         if (j < dim) matrix(i,j) += site_matrix[is][js];
       }
     }
@@ -106,32 +106,32 @@ template<class VECTOR, class I, class GRAPH>
 void apply_to_vector(const VECTOR& vec_in, VECTOR& vec_out,
                      const alps::SiteTermDescriptor<I>& term,
                      const operator_map_type& ops,
-                     const alps::BasisStates<I>& basis_set,
+                     const alps::basis_states<I>& basis_states,
                      const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd,
                      const GRAPH& graph,
                      const alps::Parameters& params = alps::Parameters())
 {
-  typedef alps::BasisStates<I> basis_set_type;
+  typedef alps::basis_states<I> basis_state_type;
 
   int s = boost::get(boost::vertex_index_t(), graph, vd);
-  int dim = basis_set.size();
-  int ds = basis_set.basis().site_basis(s).num_states();
+  int dim = basis_states.size();
+  int ds = basis_states.basis().get_site_basis(s).num_states();
 
   boost::multi_array<double, 2>
     site_matrix(alps::get_matrix(double(),
                                  term,
-                                 basis_set.basis().site_basis(s),
+                                 basis_states.basis().get_site_basis(s),
                                  ops,
                                    params));
 
   for (int i = 0; i < dim; ++i) {
-    typename basis_set_type::value_type state = basis_set[i];
+    typename basis_state_type::value_type state = basis_states[i];
     int is = state[s];
     for (int js = 0; js < ds; ++js) {
       if (site_matrix[is][js] != 0.0) {
-        typename basis_set_type::value_type target = state;
+        typename basis_state_type::value_type target = state;
         target[s] = js;
-        int j = basis_set.index(target);
+        int j = basis_states.index(target);
         if (j < dim) vec_out(j) += site_matrix[is][js] * vec_in(i);
       }
     }
@@ -142,39 +142,39 @@ template<class MATRIX, class I, class GRAPH>
 void add_to_matrix(MATRIX& matrix,
                    const alps::BondTermDescriptor<I>& term,
                    const operator_map_type& ops,
-                   const alps::BasisStates<I>& basis_set,
+                   const alps::basis_states<I>& basis_states,
                    const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd0,
                    const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd1,
                    const GRAPH& graph,
                    const alps::Parameters& params = alps::Parameters())
 {
-  typedef alps::BasisStates<I> basis_set_type;
+  typedef alps::basis_states<I> basis_state_type;
 
   int s0 = boost::get(boost::vertex_index_t(), graph, vd0);
   int s1 = boost::get(boost::vertex_index_t(), graph, vd1);
-  int dim = basis_set.size();
-  int ds0 = basis_set.basis().site_basis(s0).num_states();
-  int ds1 = basis_set.basis().site_basis(s1).num_states();
+  int dim = basis_states.size();
+  int ds0 = basis_states.basis().get_site_basis(s0).num_states();
+  int ds1 = basis_states.basis().get_site_basis(s1).num_states();
 
   boost::multi_array<double, 4>
     bond_matrix(alps::get_matrix(double(),
                                  term,
-                                 basis_set.basis().site_basis(s0),
-                                 basis_set.basis().site_basis(s1),
+                                 basis_states.basis().get_site_basis(s0),
+                                 basis_states.basis().get_site_basis(s1),
                                  ops,
                                    params));
 
   for (int i = 0; i < dim; ++i) {
-    typename basis_set_type::value_type state = basis_set[i];
+    typename basis_state_type::value_type state = basis_states[i];
     int is0 = state[s0];
     int is1 = state[s1];
     for (int js0 = 0; js0 < ds0; ++js0) {
       for (int js1 = 0; js1 < ds1; ++js1) {
         if (bond_matrix[is0][is1][js0][js1] != 0.0) {
-          typename basis_set_type::value_type target = state;
+          typename basis_state_type::value_type target = state;
           target[s0] = js0;
           target[s1] = js1;
-          int j = basis_set.index(target);
+          int j = basis_states.index(target);
           if (j < dim) matrix(i,j) += bond_matrix[is0][is1][js0][js1];
         }
       }
@@ -186,39 +186,39 @@ template<class VECTOR, class I, class GRAPH>
 void apply_to_vector(const VECTOR& vec_in, VECTOR& vec_out,
                      const alps::BondTermDescriptor<I>& term,
                      const operator_map_type& ops,
-                     const alps::BasisStates<I>& basis_set,
+                     const alps::basis_states<I>& basis_states,
                      const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd0,
                      const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd1,
                      const GRAPH& graph,
                      const alps::Parameters& params = alps::Parameters())
 {
-  typedef alps::BasisStates<I> basis_set_type;
+  typedef alps::basis_states<I> basis_state_type;
 
   int s0 = boost::get(boost::vertex_index_t(), graph, vd0);
   int s1 = boost::get(boost::vertex_index_t(), graph, vd1);
-  int dim = basis_set.size();
-  int ds0 = basis_set.basis().site_basis(s0).num_states();
-  int ds1 = basis_set.basis().site_basis(s1).num_states();
+  int dim = basis_states.size();
+  int ds0 = basis_states.basis().get_site_basis(s0).num_states();
+  int ds1 = basis_states.basis().get_site_basis(s1).num_states();
 
   boost::multi_array<double, 4>
     bond_matrix(alps::get_matrix(double(),
                                  term,
-                                 basis_set.basis().site_basis(s0),
-                                 basis_set.basis().site_basis(s1),
+                                 basis_states.basis().get_site_basis(s0),
+                                 basis_states.basis().get_site_basis(s1),
                                  ops,
                                    params));
 
   for (int i = 0; i < dim; ++i) {
-    typename basis_set_type::value_type state = basis_set[i];
+    typename basis_state_type::value_type state = basis_states[i];
     int is0 = state[s0];
     int is1 = state[s1];
     for (int js0 = 0; js0 < ds0; ++js0) {
       for (int js1 = 0; js1 < ds1; ++js1) {
         if (bond_matrix[is0][is1][js0][js1] != 0.0) {
-          typename basis_set_type::value_type target = state;
+          typename basis_state_type::value_type target = state;
           target[s0] = js0;
           target[s1] = js1;
-          int j = basis_set.index(target);
+          int j = basis_states.index(target);
           if (j < dim) vec_out(j) += bond_matrix[is0][is1][js0][js1] * vec_in(i);
         }
       }
@@ -230,22 +230,22 @@ template<class VECTOR, class I, class GRAPH>
 void add_to_diagonal_matrix(VECTOR& vector,
                             const alps::SiteTermDescriptor<I>& term,
                             const operator_map_type& ops,
-                            const alps::BasisStates<I>& basis_set,
+                            const alps::basis_states<I>& basis_states,
                             const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd,
                             const GRAPH& graph,
                             const alps::Parameters& params = alps::Parameters(),
                             double tol = 1.0e-10)
 {
-  typedef alps::BasisStates<I> basis_set_type;
+  typedef alps::basis_states<I> basis_state_type;
 
   int s = boost::get(boost::vertex_index_t(), graph, vd);
-  int dim = basis_set.size();
-  int ds = basis_set.basis().site_basis(s).num_states();
+  int dim = basis_states.size();
+  int ds = basis_states.basis().get_site_basis(s).num_states();
 
   boost::multi_array<double, 2>
     site_matrix(alps::get_matrix(double(),
                                  term,
-                                 basis_set.basis().site_basis(s),
+                                 basis_states.basis().get_site_basis(s),
                                  ops,
                                    params));
   for (int is = 0; is < ds; ++is) {
@@ -257,7 +257,7 @@ void add_to_diagonal_matrix(VECTOR& vector,
   }
 
   for (int i = 0; i < dim; ++i) {
-    typename basis_set_type::value_type state = basis_set[i];
+    typename basis_state_type::value_type state = basis_states[i];
     int is = state[s];
     vector(i) += site_matrix[is][is];
   }
@@ -267,22 +267,22 @@ template<class VECTOR, class I, class GRAPH>
 void apply_diagonal_to_vector(const VECTOR& vec_in, VECTOR& vec_out,
                               const alps::SiteTermDescriptor<I>& term,
                               const operator_map_type& ops,
-                              const alps::BasisStates<I>& basis_set,
+                              const alps::basis_states<I>& basis_states,
                               const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd,
                               const GRAPH& graph,
                               const alps::Parameters& params = alps::Parameters(),
                               double tol = 1.0e-10)
 {
-  typedef alps::BasisStates<I> basis_set_type;
+  typedef alps::basis_states<I> basis_state_type;
 
   int s = boost::get(boost::vertex_index_t(), graph, vd);
-  int dim = basis_set.size();
-  int ds = basis_set.basis().site_basis(s).num_states();
+  int dim = basis_states.size();
+  int ds = basis_states.basis().get_site_basis(s).num_states();
 
   boost::multi_array<double, 2>
     site_matrix(alps::get_matrix(double(),
                                  term,
-                                 basis_set.basis().site_basis(s),
+                                 basis_states.basis().get_site_basis(s),
                                  ops,
                                    params));
   for (int is = 0; is < ds; ++is) {
@@ -294,7 +294,7 @@ void apply_diagonal_to_vector(const VECTOR& vec_in, VECTOR& vec_out,
   }
 
   for (int i = 0; i < dim; ++i) {
-    typename basis_set_type::value_type state = basis_set[i];
+    typename basis_state_type::value_type state = basis_states[i];
     int is = state[s];
     vec_out(i) = site_matrix[is][is] * vec_in(i);
   }
@@ -304,26 +304,26 @@ template<class VECTOR, class I, class GRAPH>
 void add_to_diagonal_matrix(VECTOR& vector,
                             const alps::BondTermDescriptor<I>& term,
                             const operator_map_type& ops,
-                            const alps::BasisStates<I>& basis_set,
+                            const alps::basis_states<I>& basis_states,
                             const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd0,
                             const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd1,
                             const GRAPH& graph,
                             const alps::Parameters& params = alps::Parameters(),
                             double tol = 1.0e-10)
 {
-  typedef alps::BasisStates<I> basis_set_type;
+  typedef alps::basis_states<I> basis_state_type;
 
   int s0 = boost::get(boost::vertex_index_t(), graph, vd0);
   int s1 = boost::get(boost::vertex_index_t(), graph, vd1);
-  int dim = basis_set.size();
-  int ds0 = basis_set.basis().site_basis(s0).num_states();
-  int ds1 = basis_set.basis().site_basis(s1).num_states();
+  int dim = basis_states.size();
+  int ds0 = basis_states.basis().get_site_basis(s0).num_states();
+  int ds1 = basis_states.basis().get_site_basis(s1).num_states();
 
   boost::multi_array<double, 4>
     bond_matrix(alps::get_matrix(double(),
                                  term,
-                                 basis_set.basis().site_basis(s0),
-                                 basis_set.basis().site_basis(s1),
+                                 basis_states.basis().get_site_basis(s0),
+                                 basis_states.basis().get_site_basis(s1),
                                  ops,
                                    params));
   for (int is0 = 0; is0 < ds0; ++is0) {
@@ -340,7 +340,7 @@ void add_to_diagonal_matrix(VECTOR& vector,
   }
 
   for (int i = 0; i < dim; ++i) {
-    typename basis_set_type::value_type state = basis_set[i];
+    typename basis_state_type::value_type state = basis_states[i];
     int is0 = state[s0];
     int is1 = state[s1];
     vector(i) += bond_matrix[is0][is1][is0][is1];
@@ -351,26 +351,26 @@ template<class VECTOR, class I, class GRAPH>
 void apply_diagonal_to_vector(const VECTOR& vec_in, VECTOR& vec_out,
                               const alps::BondTermDescriptor<I>& term,
                               const operator_map_type& ops,
-                              const alps::BasisStates<I>& basis_set,
+                              const alps::basis_states<I>& basis_states,
                               const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd0,
                               const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd1,
                               const GRAPH& graph,
                               const alps::Parameters& params = alps::Parameters(),
                               double tol = 1.0e-10)
 {
-  typedef alps::BasisStates<I> basis_set_type;
+  typedef alps::basis_states<I> basis_state_type;
 
   int s0 = boost::get(boost::vertex_index_t(), graph, vd0);
   int s1 = boost::get(boost::vertex_index_t(), graph, vd1);
-  int dim = basis_set.size();
-  int ds0 = basis_set.basis().site_basis(s0).num_states();
-  int ds1 = basis_set.basis().site_basis(s1).num_states();
+  int dim = basis_states.size();
+  int ds0 = basis_states.basis().get_site_basis(s0).num_states();
+  int ds1 = basis_states.basis().get_site_basis(s1).num_states();
 
   boost::multi_array<double, 4>
     bond_matrix(alps::get_matrix(double(),
                                  term,
-                                 basis_set.basis().site_basis(s0),
-                                 basis_set.basis().site_basis(s1),
+                                 basis_states.basis().get_site_basis(s0),
+                                 basis_states.basis().get_site_basis(s1),
                                  ops,
                                    params));
   for (int is0 = 0; is0 < ds0; ++is0) {
@@ -387,7 +387,7 @@ void apply_diagonal_to_vector(const VECTOR& vec_in, VECTOR& vec_out,
   }
 
   for (int i = 0; i < dim; ++i) {
-    typename basis_set_type::value_type state = basis_set[i];
+    typename basis_state_type::value_type state = basis_states[i];
     int is0 = state[s0];
     int is1 = state[s1];
     vec_out(i) += bond_matrix[is0][is1][is0][is1] * vec_in(i);

@@ -391,11 +391,12 @@ public:
                       const alps::ModelLibrary& models)
   {
     // get Hamilton operator from ModelLibrary
-    alps::HamiltonianDescriptor<short> hd(models.hamiltonian(params["MODEL"]));
+    alps::HamiltonianDescriptor<short>
+      hd(models.get_hamiltonian(params["MODEL"]));
     alps::Parameters p(params);
     p.copy_undefined(hd.default_parameters());
     hd.set_parameters(p);
-    set_parameters(p, graph, models.simple_operators(), hd);
+    set_parameters(p, graph, models.operators(), hd);
   }
 
   int num_site_types() const { return site_.size(); }
