@@ -180,7 +180,7 @@ public:
 
   worker(const alps::ProcessList& w, const alps::Parameters& p, int n) :
     alps::scheduler::LatticeModelMCRun<>(w, p, n),
-    mdl_(p, graph(), simple_operators(), model()),
+    mdl_(p, graph(), operators(), model()),
     mcs_(0), therm_(static_cast<unsigned int>(p["THERMALIZATION"])),
     total_(therm_ + static_cast<unsigned int>(p["SWEEPS"])),
     qmc_worker_(graph(), mdl_, 1.0 / static_cast<double>(p["T"]),
