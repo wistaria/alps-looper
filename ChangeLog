@@ -1,3 +1,12 @@
+2004-09-23  Synge Todo <wistaria@comp-phys.org>
+
+        * version 3.1
+
+	- prerequisites: boost-1.31, alps-1.2, lapack
+
+        - TODO: optimization, more measurements, bug fix for improved
+	estimator with negative sign problem
+
 2004-09-21  Synge Todo <wistaria@comp-phys.org>
 
         * version 3.1b3
