@@ -439,9 +439,10 @@ public:
   {
     // get Hamilton operator from ModelLibrary
     alps::HamiltonianDescriptor<short>
-      hd(models.get_hamiltonian(params["MODEL"]), params);
+      hd(models.get_hamiltonian(params["MODEL"]));
     alps::Parameters p(params);
     p.copy_undefined(hd.default_parameters());
+    hd.set_parameters(p);
     set_parameters(p, graph, hd);
   }
   template<typename G>
@@ -452,9 +453,10 @@ public:
   {
     // get Hamilton operator from ModelLibrary
     alps::HamiltonianDescriptor<short>
-      hd(models.get_hamiltonian(params["MODEL"]), params);
+      hd(models.get_hamiltonian(params["MODEL"]));
     alps::Parameters p(params);
     p.copy_undefined(hd.default_parameters());
+    hd.set_parameters(p);
     set_parameters(p, graph, hd, is_signed);
   }
 
@@ -650,11 +652,11 @@ bool fit2site(const boost::multi_array<T, 2>& mat, site_parameter_hxz& param,
                      basis, alps::Parameters()));
   boost::multi_array<value_type, 2> mat_hx(
     alps::get_matrix(value_type(),
-                     alps::SiteTermDescriptor("-(Splus+Sminus)/2"),
+                     alps::SiteTermDescriptor("-(Splus(i)+Sminus(i))/2", "i"),
                      basis, alps::Parameters()));
   boost::multi_array<value_type, 2> mat_hz(
     alps::get_matrix(value_type(),
-                     alps::SiteTermDescriptor("-Sz"),
+                     alps::SiteTermDescriptor("-Sz(i)", "i"),
                      basis, alps::Parameters()));
 
   boost::numeric::ublas::matrix<value_type,

@@ -273,8 +273,8 @@ try {
     for (boost::tie(vi, vi_end) = boost::vertices(lattice.graph());
          vi != vi_end; ++vi) {
       looper::add_to_diagonal_matrix(uniform_sz,
-        alps::SiteTermDescriptor<short>("Sz"),
-        basis_set, *vi, lattice.graph());
+        alps::SiteTermDescriptor("Sz(i)", "i"),
+        basis_set, *vi, lattice.graph(), params);
     }
 
     double umag, umag2;
@@ -298,12 +298,12 @@ try {
         if (boost::get(alps::parity_t(), lattice.graph(), *vi) ==
             alps::parity::white) {
           looper::add_to_diagonal_matrix(staggered_sz,
-            alps::SiteTermDescriptor<short>("Sz"),
-            basis_set, *vi, lattice.graph());
+            alps::SiteTermDescriptor("Sz(i)", "i"),
+            basis_set, *vi, lattice.graph(), params);
         } else {
           looper::add_to_diagonal_matrix(staggered_sz,
-            alps::SiteTermDescriptor<short>("-Sz"),
-            basis_set, *vi, lattice.graph());
+            alps::SiteTermDescriptor("-Sz(i)", "i"),
+            basis_set, *vi, lattice.graph(), params);
         }
       }
 

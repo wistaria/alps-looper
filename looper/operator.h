@@ -72,16 +72,16 @@ site_basis_descriptor spin_basis(const alps::half_integer<I>& s)
 inline site_basis_descriptor spin_basis(double s = 0.5)
 { return spin_basis(alps::half_integer<short>(s)); }
 
-template<class MATRIX, class I, class GRAPH>
+template<class MATRIX, class I, class S, class SS, class GRAPH>
 void add_to_matrix(
   MATRIX& matrix,
   const alps::SiteTermDescriptor& term,
-  const alps::basis_states<I>& basis_states,
+  const alps::basis_states<I,S,SS>& basis_states,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd,
   const GRAPH& graph,
-  const alps::Parameters& params = alps::Parameters())
+  const alps::Parameters& params /* = alps::Parameters() */)
 {
-  typedef alps::basis_states<I> basis_state_type;
+  typedef alps::basis_states<I,S,SS> basis_state_type;
   typedef typename MATRIX::value_type value_type;
 
   int s = boost::get(boost::vertex_index, graph, vd);
@@ -106,16 +106,16 @@ void add_to_matrix(
   }
 }
 
-template<class VECTOR, class I, class GRAPH>
+template<class VECTOR, class I, class S, class SS, class GRAPH>
 void apply_to_vector(
   const VECTOR& vec_in, VECTOR& vec_out,
   const alps::SiteTermDescriptor& term,
-  const alps::basis_states<I>& basis_states,
+  const alps::basis_states<I,S,SS>& basis_states,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd,
   const GRAPH& graph,
-  const alps::Parameters& params = alps::Parameters())
+  const alps::Parameters& params /* = alps::Parameters() */)
 {
-  typedef alps::basis_states<I> basis_state_type;
+  typedef alps::basis_states<I,S,SS> basis_state_type;
   typedef typename VECTOR::value_type value_type;
 
   int s = boost::get(boost::vertex_index, graph, vd);
@@ -140,17 +140,17 @@ void apply_to_vector(
   }
 }
 
-template<class MATRIX, class I, class GRAPH>
+template<class MATRIX, class I, class S, class SS, class GRAPH>
 void add_to_matrix(
   MATRIX& matrix,
   const alps::BondTermDescriptor& term,
-  const alps::basis_states<I>& basis_states,
+  const alps::basis_states<I,S,SS>& basis_states,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd0,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd1,
   const GRAPH& graph,
-  const alps::Parameters& params = alps::Parameters())
+  const alps::Parameters& params /* = alps::Parameters() */)
 {
-  typedef alps::basis_states<I> basis_state_type;
+  typedef alps::basis_states<I,S,SS> basis_state_type;
   typedef typename MATRIX::value_type value_type;
 
   int s0 = boost::get(boost::vertex_index, graph, vd0);
@@ -184,17 +184,17 @@ void add_to_matrix(
   }
 }
 
-template<class VECTOR, class I, class GRAPH>
+template<class VECTOR, class I, class S, class SS, class GRAPH>
 void apply_to_vector(
   const VECTOR& vec_in, VECTOR& vec_out,
   const alps::BondTermDescriptor& term,
-  const alps::basis_states<I>& basis_states,
+  const alps::basis_states<I,S,SS>& basis_states,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd0,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd1,
   const GRAPH& graph,
-  const alps::Parameters& params = alps::Parameters())
+  const alps::Parameters& params /* = alps::Parameters() */)
 {
-  typedef alps::basis_states<I> basis_state_type;
+  typedef alps::basis_states<I,S,SS> basis_state_type;
   typedef typename VECTOR::value_type value_type;
 
   int s0 = boost::get(boost::vertex_index, graph, vd0);
@@ -229,17 +229,17 @@ void apply_to_vector(
   }
 }
 
-template<class VECTOR, class I, class GRAPH>
+template<class VECTOR, class I, class S, class SS, class GRAPH>
 void add_to_diagonal_matrix(
   VECTOR& vector,
   const alps::SiteTermDescriptor& term,
-  const alps::basis_states<I>& basis_states,
+  const alps::basis_states<I,S,SS>& basis_states,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd,
   const GRAPH& graph,
-  const alps::Parameters& params = alps::Parameters(),
+  const alps::Parameters& params /* = alps::Parameters() */,
   double tol = 1.0e-10)
 {
-  typedef alps::basis_states<I> basis_state_type;
+  typedef alps::basis_states<I,S,SS> basis_state_type;
   typedef typename VECTOR::value_type value_type;
 
   int s = boost::get(boost::vertex_index, graph, vd);
@@ -264,17 +264,17 @@ void add_to_diagonal_matrix(
   }
 }
 
-template<class VECTOR, class I, class GRAPH>
+template<class VECTOR, class I, class S, class SS, class GRAPH>
 void apply_diagonal_to_vector(
   const VECTOR& vec_in, VECTOR& vec_out,
   const alps::SiteTermDescriptor& term,
-  const alps::basis_states<I>& basis_states,
+  const alps::basis_states<I,S,SS>& basis_states,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd,
   const GRAPH& graph,
-  const alps::Parameters& params = alps::Parameters(),
+  const alps::Parameters& params /* = alps::Parameters() */,
   double tol = 1.0e-10)
 {
-  typedef alps::basis_states<I> basis_state_type;
+  typedef alps::basis_states<I,S,SS> basis_state_type;
   typedef typename VECTOR::value_type value_type;
 
   int s = boost::get(boost::vertex_index, graph, vd);
@@ -299,18 +299,18 @@ void apply_diagonal_to_vector(
   }
 }
 
-template<class VECTOR, class I, class GRAPH>
+template<class VECTOR, class I, class S, class SS, class GRAPH>
 void add_to_diagonal_matrix(
   VECTOR& vector,
   const alps::BondTermDescriptor& term,
-  const alps::basis_states<I>& basis_states,
+  const alps::basis_states<I,S,SS>& basis_states,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd0,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd1,
   const GRAPH& graph,
-  const alps::Parameters& params = alps::Parameters(),
+  const alps::Parameters& params /* = alps::Parameters() */,
   double tol = 1.0e-10)
 {
-  typedef alps::basis_states<I> basis_state_type;
+  typedef alps::basis_states<I,S,SS> basis_state_type;
   typedef typename VECTOR::value_type value_type;
 
   int s0 = boost::get(boost::vertex_index, graph, vd0);
@@ -346,18 +346,18 @@ void add_to_diagonal_matrix(
   }
 }
 
-template<class VECTOR, class I, class GRAPH>
+template<class VECTOR, class I, class S, class SS, class GRAPH>
 void apply_diagonal_to_vector(
   const VECTOR& vec_in, VECTOR& vec_out,
   const alps::BondTermDescriptor& term,
-  const alps::basis_states<I>& basis_states,
+  const alps::basis_states<I,S,SS>& basis_states,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd0,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd1,
   const GRAPH& graph,
-  const alps::Parameters& params = alps::Parameters(),
+  const alps::Parameters& params /* = alps::Parameters() */,
   double tol = 1.0e-10)
 {
-  typedef alps::basis_states<I> basis_state_type;
+  typedef alps::basis_states<I,S,SS> basis_state_type;
   typedef typename VECTOR::value_type value_type;
 
   int s0 = boost::get(boost::vertex_index, graph, vd0);
