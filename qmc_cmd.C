@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: qmc_cmd.C 487 2003-10-30 09:55:12Z wistaria $
+* $Id: qmc_cmd.C 488 2003-10-30 21:42:47Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>
 *
@@ -180,8 +180,7 @@ try {
   graph_type g;
   looper::generate_graph(
     looper::hypercubic_graph_generator<>(opts.dim, opts.lsize), g);
-  bool is_bipartite = alps::set_parity(g);
-  std::cout << "is_bipartite " << is_bipartite << std::endl;
+  assert(alps::set_parity(g));
 
   // virtual graph
   typedef looper::virtual_graph<graph_type> vg_type;
@@ -200,6 +199,9 @@ try {
   measurements << alps::RealObservable("diagonal energy (improved)");
   measurements << alps::RealObservable("uniform magnetization");
   measurements << alps::RealObservable("uniform susceptibility");
+  measurements << alps::RealObservable("staggered magnetization");
+  measurements << alps::RealObservable("staggered magnetization^2");
+  measurements << alps::RealObservable("staggered susceptibility");
 
   if (!opts.sse) {
     // path-integral representation
@@ -240,6 +242,13 @@ try {
       measurements.
 	template get<alps::RealObservable>("uniform susceptibility") <<
 	beta * vg.num_real_vertices * sz * sz;
+
+      double ss = qmc::staggered_sz(config, param);
+      measurements.
+	template get<alps::RealObservable>("staggered magnetization") << ss;
+      measurements.
+	template get<alps::RealObservable>("staggered magnetization^2") <<
+	vg.num_real_vertices * ss * ss;
     }
   } else {
     // SSE representation
@@ -279,12 +288,20 @@ try {
       measurements.
  	template get<alps::RealObservable>("diagonal energy") <<
  	e_offset + qmc::energy_z(config, param);
+
       double sz = qmc::uniform_sz(config, param);
       measurements.
  	template get<alps::RealObservable>("uniform magnetization") << sz;
       measurements.
  	template get<alps::RealObservable>("uniform susceptibility") <<
  	beta * vg.num_real_vertices * sz * sz;
+
+      double ss = qmc::staggered_sz(config, param);
+      measurements.
+	template get<alps::RealObservable>("staggered magnetization") << ss;
+      measurements.
+	template get<alps::RealObservable>("staggered magnetization^2") <<
+	vg.num_real_vertices * ss * ss;
     }
   }
 

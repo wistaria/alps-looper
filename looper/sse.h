@@ -3,7 +3,7 @@
 * alps/looper: multi-cluster quantum Monte Carlo algorithm for spin systems
 *              in path-integral and SSE representations
 *
-* $Id: sse.h 487 2003-10-30 09:55:12Z wistaria $
+* $Id: sse.h 488 2003-10-30 21:42:47Z wistaria $
 *
 * Copyright (C) 1997-2003 by Synge Todo <wistaria@comp-phys.org>,
 *
@@ -486,6 +486,22 @@ struct sse<virtual_graph<G>, M, W>
   static double uniform_sz(const config_type& config,
 			   const parameter_type& p)
   { return uniform_sz(config, p.virtual_graph); }
+
+  static double staggered_sz(const config_type& config,
+			   const vg_type& vg)
+  {
+    double sz = 0.;
+    vertex_iterator vi, vi_end;
+    for (boost::tie(vi, vi_end) = boost::vertices(vg.graph); 
+	 vi != vi_end; ++vi) {
+      sz += double(0.5 - boost::get(parity_t(), *vi, vg.graph)) * 
+	static_sz(config, *vi);
+    }
+    return sz / double(vg.num_real_vertices);
+  }
+  static double staggered_sz(const config_type& config,
+			   const parameter_type& p)
+  { return staggered_sz(config, p.virtual_graph); }
 
   // for debugging
 
