@@ -77,6 +77,6 @@ union_find_SOURCES = union_find.C
 virtual_graph_SOURCES = virtual_graph.C
 weight_SOURCES = weight.C
 
-test tests : check
+test tests : $(check_PROGRAMS)
 clean-local :
 	rm -f amida.xdr

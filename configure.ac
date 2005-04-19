@@ -89,7 +89,8 @@ dnl
 dnl check for LAPACK
 dnl
 
-AC_LAPACK
+AC_MSG_CHECKING([for LAPACK library])
+AC_MSG_RESULT([$ac_cv_have_lapack])
 if test "$ac_cv_have_lapack" != yes; then
   AC_MSG_ERROR([LAPACK Library not found.])
 fi
@@ -99,19 +100,19 @@ dnl compile flags
 dnl
 
 CXXFLAGS="$ac_cv_alps_cxxflags -DBOOST_NUMERIC_BINDINGS_POOR_MANS_TRAITS"
-CPPFLAGS="$ac_cv_alps_cppflags $LAPACK_CPPFLAGS"
-LDFLAGS="$ac_cv_alps_ldflags $LAPACK_LDFLAGS"
+CPPFLAGS="$ac_cv_alps_cppflags"
+LDFLAGS="$ac_cv_alps_ldflags"
 LIBS=
 AC_SUBST([DEFAULT_INCLUDES], '-I$(top_srcdir) -I$(top_builddir)')
-AC_SUBST([LDADD], "$LAPACK_LIBS $ac_cv_alps_libs")
+AC_SUBST([LDADD], "$ac_cv_alps_libs")
 
-AC_SUBST([CPPFLAGS_MPI], "$ac_cv_alps_cppflags_mpi $LAPACK_CPPFLAGS")
-AC_SUBST([LDFLAGS_MPI], "$ac_cv_alps_ldflags_mpi $LAPACK_LDFLAGS")
-AC_SUBST([LIBS_MPI], "$LAPACK_LIBS $ac_cv_alps_libs_mpi")
+AC_SUBST([CPPFLAGS_MPI], "$ac_cv_alps_cppflags_mpi")
+AC_SUBST([LDFLAGS_MPI], "$ac_cv_alps_ldflags_mpi")
+AC_SUBST([LIBS_MPI], "$ac_cv_alps_libs_mpi")
 
-AC_SUBST([CPPFLAGS_PVM], "$ac_cv_alps_cppflags_pvm $LAPACK_CPPFLAGS")
-AC_SUBST([LDFLAGS_PVM], "$ac_cv_alps_ldflags_pvm $LAPACK_LDFLAGS")
-AC_SUBST([LIBS_PVM], "$LAPACK_LIBS $ac_cv_alps_libs_pvm")
+AC_SUBST([CPPFLAGS_PVM], "$ac_cv_alps_cppflags_pvm")
+AC_SUBST([LDFLAGS_PVM], "$ac_cv_alps_ldflags_pvm")
+AC_SUBST([LIBS_PVM], "$ac_cv_alps_libs_pvm")
 
 dnl
 dnl generate files

@@ -52,7 +52,8 @@ loop_pvm_LDADD = @LIBS_PVM@
 
 .PHONY : test tests
 test tests :
-	$(MAKE) -C test check
+	$(MAKE) -C test $@
+	$(MAKE) -C simple $@
 
 .PHONY : update-preamble
 update-preamble:
