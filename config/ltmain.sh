@@ -1356,8 +1356,11 @@ EOF
 	  continue
 	  ;;
         darwin_framework)
-	  compiler_flags="$compiler_flags $arg"
+	  linker_flags="$linker_flags -framework $arg"
+	  compiler_flags="$compiler_flags -framework $arg"
 	  prev=
+	  compile_command="$compile_command -framework $arg"
+	  finalize_command="$finalize_command -framework $arg"
 	  continue
 	  ;;
 	*)
@@ -1420,7 +1423,6 @@ EOF
 
       -framework)
         prev=darwin_framework
-        compiler_flags="$compiler_flags $arg"
         continue
         ;;
 
