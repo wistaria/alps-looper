@@ -8,7 +8,7 @@ fi
 # required version of autotools
 am_require=1.9.5
 ac_require=2.59
-lt_require=1.5.14
+lt_require=1.5.16
 
 am_version=`automake --version 2>&1 | head -1 | cut -d ' ' -f 4`
 ac_version=`autoconf --version 2>&1 | head -1 | cut -d ' ' -f 4`
@@ -46,15 +46,3 @@ find . -name config.h.in | xargs touch
 automake --foreign --add-missing --copy
 autoconf
 rm -rf autom4te.cache
-
-# patch to libtool (workaround for 1.5.14)
-uudecode -p << EOF | gzip -dc | patch $patch_flags
-begin-base64 644 ltmain.patch.gz
-H4sICPLBFkIAA2x0bWFpbi5wYXRjaACdUUFugzAQPMMrtlEuceMUg0lbolz7gT4AuY2hVoyJHNpI
-fX3BrsGBIkXdi7Xr3dnZGYQQvNeqEOWDbCom1Ob8sam1KINX1sALfwPyDCTOaJSlEcRRlIYY48nI
-uDvNCLHd6Dq6HEiypWuSPBIwJYAAOsRGqE9us92ufV0cmL4IlReaVfxS6+MqvLMT1UlIrvNCsvK8
-XyyvC7BkulxYuJPmX/vZPQFamaMcLQpthv9LSwp19Ej5KeC++ZfdTYdMpryb7j2AvH0rpg4DgqtM
-IcxcIRST4tsfHJdmls+o+KfZNH5aE5pQZ3YvIfakG2Q1d421DXH/f6vtQ39P1YXhay2nCenIba3l
-P4bAFukOAwAA
-====
-EOF
