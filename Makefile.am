@@ -1,5 +1,7 @@
 SUBDIRS = doc test ed check simple .
 
+REMOVE_FOR_RELEASE =
+
 distdir = alps-looper-$(VERSION)
 
 noinst_PROGRAMS = loop loop_evaluate loop_cmd
@@ -62,11 +64,19 @@ update-preamble:
 	fi
 
 .PHONY : release snapshot
-release : dist
-snapshot :
+release snapshot :
+	rm -rf $(distdir)
 	$(MAKE) dist
 	tar zxf $(distdir).tar.gz
-	date=`date +%Y%m%d`; \
-        mv -f $(distdir) alps-looper-$$date; \
-	tar zcf alps-looper-$$date.tar.gz alps-looper-$$date; \
-	rm -rf alps-looper-$$date
+	rm -f $(distdir).tar.gz
+	cd $(distdir); rm -rf $(REMOVE_FOR_RELEASE)
+	if test "$@" = "snapshot"; then \
+	  date=`date +%Y%m%d`; \
+	  rm -rf alps-looper-$$date; \
+	  mv -f $(distdir) alps-looper-$$date; \
+	  tar zcf alps-looper-$$date.tar.gz alps-looper-$$date; \
+	  rm -rf alps-looper-$$date; \
+	else \
+	  tar zcf $(distdir).tar.gz $(distdir); \
+	  rm -rf $(distdir); \
+	fi
