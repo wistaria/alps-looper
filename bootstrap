@@ -8,7 +8,7 @@ fi
 # required version of autotools
 am_require=1.9.5
 ac_require=2.59
-lt_require=1.5.16
+lt_require=1.5.18
 
 am_version=`automake --version 2>&1 | head -1 | cut -d ' ' -f 4`
 ac_version=`autoconf --version 2>&1 | head -1 | cut -d ' ' -f 4`
@@ -48,13 +48,13 @@ autoconf
 rm -rf autom4te.cache
 
 # patch to libtool (workaround for 1.5.16)
-uudecode -p << EOF | gzip -dc | patch $patch_flags
-begin-base64 644 ltmain.patch.gz
-H4sICGezbUIAA2x0bWFpbi5wYXRjaACdUUFugzAQPMMrNlEuoXEKBqyUKIf+oXdkNYZaMQY5SSP1
-9QW7BhOKFGUPtna9M56dDYIAPmtZ8PJVXCrK5fb8ta0VL72PK4P3RgEmEIVZgjP8BjgMUx8hNIGM
-unEWxVmYmu5gHF0OUZySTRSTGHQJwIOO8cLllZlsv29vG0eqblzmhaIVu9XqtPYXBlE1XDCVF4KW
-58NyNS7Aiqpyaegaxb4Ps/94wVoPZWURaDP0rCzB5ckR5aaA+uY/dQ8NMkE5M704BHl7V1QeBwZb
-mVJoXMElFfzHBd6XZj6fcfHfZSc43LQHscvuLUSOdYOteq57b33Uvz+69qG/l2pD6zUrT3DciduZ
-lf8CtTiWZg4DAAA=
-====
-EOF
+# uudecode -p << EOF | gzip -dc | patch $patch_flags
+# begin-base64 644 ltmain.patch.gz
+# H4sICGezbUIAA2x0bWFpbi5wYXRjaACdUUFugzAQPMMrNlEuoXEKBqyUKIf+oXdkNYZaMQY5SSP1
+# 9QW7BhOKFGUPtna9M56dDYIAPmtZ8PJVXCrK5fb8ta0VL72PK4P3RgEmEIVZgjP8BjgMUx8hNIGM
+# unEWxVmYmu5gHF0OUZySTRSTGHQJwIOO8cLllZlsv29vG0eqblzmhaIVu9XqtPYXBlE1XDCVF4KW
+# 58NyNS7Aiqpyaegaxb4Ps/94wVoPZWURaDP0rCzB5ckR5aaA+uY/dQ8NMkE5M704BHl7V1QeBwZb
+# mVJoXMElFfzHBd6XZj6fcfHfZSc43LQHscvuLUSOdYOteq57b33Uvz+69qG/l2pD6zUrT3DciduZ
+# lf8CtTiWZg4DAAA=
+# ====
+# EOF
