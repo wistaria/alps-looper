@@ -1,4 +1,4 @@
-SUBDIRS = doc test ed check simple .
+SUBDIRS = doc test ed check .
 
 REMOVE_FOR_RELEASE =
 

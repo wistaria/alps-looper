@@ -34,9 +34,6 @@ fi
 
 if test -d config; then
   aclocal_flags='-I config'
-  patch_flags=-p0
-else
-  patch_flags=-p1
 fi
 
 set -x
