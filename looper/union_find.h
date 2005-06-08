@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2005 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -33,10 +33,70 @@
 
 #include <boost/throw_exception.hpp>
 #include <stdexcept>
+#include <vector>
 
 namespace looper {
 
 namespace union_find {
+
+//
+// index based implementation
+//
+
+struct node_idx_base {
+  node_idx_base() : parent(-1) {}
+  bool is_root() const { return parent < 0; }
+  int weight() const { return -parent; }
+  int add_weight(const node_idx_base& f) const { return parent += f.parent; }
+  mutable int parent;  // negative for root fragment
+};
+
+struct node_idx : public node_idx_base {
+  node_idx() : node_idx_base(), id() {}
+  unsigned int id;
+};
+
+template<class T>
+int add_node(std::vector<T>& v)
+{
+  v.push_back(T());
+  return v.size() - 1; // return index of new node
+}
+
+template<class T>
+inline int root_index(const std::vector<T>& v, int g)
+{ while (!v[g].is_root()) g = v[g].parent; return g; }
+
+template<class T>
+inline void update_link(const std::vector<T>& v, int g, int r)
+{ while (g != r) { int p = v[g].parent; v[g].parent = r; g = p; } }
+
+template<class T>
+inline const T& root(const std::vector<T>& v, int g)
+{ int r = root_index(v, g); update_link(v, g, r); return v[r]; }
+
+template<class T>
+inline int cluster_id(const std::vector<T>& v, int g)
+{ return root(v, g).id; }
+
+template<class T>
+inline int unify(std::vector<T>& v, int g0, int g1)
+{
+  int r0 = root_index(v, g0);
+  int r1 = root_index(v, g1);
+  if (r0 != r1) {
+    if (v[r0].weight() < v[r1].weight()) std::swap(r0, r1);
+    v[r0].add_weight(v[r1]);
+    v[r1].parent = r0;
+  }
+  update_link(v, g0, r0);
+  update_link(v, g1, r0);
+  return r0; // return (new) root node
+}
+
+//
+// pointer based implementation
+//
 
 namespace detail {
 

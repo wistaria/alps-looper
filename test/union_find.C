@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2005 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -41,15 +41,15 @@ int index(const Itr0& itr, const Itr1& base) {
 
 int main()
 {
-  typedef std::vector<looper::union_find::node<> > vector_type;
-
   // random number generator
-  boost::variate_generator<boost::mt19937, boost::uniform_int<> >
-    rng(boost::mt19937(4357), boost::uniform_int<>(0, n - 1));
+  boost::mt19937 eng(29833u);
+  boost::variate_generator<boost::mt19937&, boost::uniform_int<> >
+    rng(eng, boost::uniform_int<>(0, n-1));
 
   std::cout << "[[union find test]]\n";
 
-  vector_type tree(n);
+  std::vector<looper::union_find::node_idx> nodes_idx(n);
+  std::vector<looper::union_find::node<> > nodes_ptr(n);
 
   std::cout << "\n[making tree]\n";
 
@@ -57,20 +57,39 @@ int main()
     int i0 = rng();
     int i1 = rng();
     std::cout << "connecting node " << i0 << " to node " << i1 << std::endl;
-    unify(tree[i0], tree[i1]);
+    looper::union_find::unify(nodes_idx, i0, i1);
+    looper::union_find::unify(nodes_ptr[i0], nodes_ptr[i1]);
   }
 
-  std::cout << "\n[results]\n";
+  std::cout << "\n[results (index based)]\n";
 
-  for (vector_type::iterator itr = tree.begin(); itr != tree.end(); ++itr) {
+  for (std::vector<looper::union_find::node_idx>::iterator
+	 itr = nodes_idx.begin(); itr != nodes_idx.end(); ++itr) {
+    int g = index(itr, nodes_idx.begin());
     if (itr->is_root()) {
-      std::cout << "node " << index(itr, tree.begin())
-                << " is root and tree size is "
+      std::cout << "node " << g
+		<< " is root and tree size is "
                 << itr->weight() << std::endl;
     } else {
-      std::cout << "node " << index(itr, tree.begin());
-      std::cout << "'s parent is " << index(itr->parent(), tree.begin());
-      std::cout << " and its root is " << index(itr->root(), tree.begin())
+      std::cout << "node " << g
+		<< "'s parent is " << itr->parent
+		<< " and its root is " << root_index(nodes_idx, g)
+                << std::endl;
+    }
+  }
+
+  std::cout << "\n[results (pointer based)]\n";
+
+  for (std::vector<looper::union_find::node<> >::iterator itr = nodes_ptr.begin();
+       itr != nodes_ptr.end(); ++itr) {
+    if (itr->is_root()) {
+      std::cout << "node " << index(itr, nodes_ptr.begin())
+                << " is root and nodes_ptr size is "
+                << itr->weight() << std::endl;
+    } else {
+      std::cout << "node " << index(itr, nodes_ptr.begin())
+		<< "'s parent is " << index(itr->parent(), nodes_ptr.begin())
+		<< " and its root is " << index(itr->root(), nodes_ptr.begin())
                 << std::endl;
     }
   }
