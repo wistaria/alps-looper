@@ -32,6 +32,7 @@
 #define LOOPER_UNION_FIND_H
 
 #include <boost/throw_exception.hpp>
+#include <algorithm> // for std::swap
 #include <stdexcept>
 #include <vector>
 
@@ -57,7 +58,7 @@ struct node_idx : public node_idx_base {
 };
 
 template<class T>
-int add_node(std::vector<T>& v)
+int add(std::vector<T>& v)
 {
   v.push_back(T());
   return v.size() - 1; // return index of new node
