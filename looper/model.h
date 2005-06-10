@@ -383,20 +383,30 @@ public:
                   const G& g,
                   bool inhomogeneous_sites,
                   bool inhomogeneous_bond,
-                  const alps::model_helper<I>& mh)
+                  const alps::HamiltonianDescriptor<I>& hd)
     : sites_(), bonds_()
-  { set_parameters(params, g, inhomogeneous_sites, inhomogeneous_bond, mh); }
+  { set_parameters(params, g, inhomogeneous_sites, inhomogeneous_bond, hd); }
   template<typename G, typename I>
   model_parameter(const alps::Parameters& params,
                   const G& g,
                   bool inhomogeneous_sites,
                   bool inhomogeneous_bond,
-                  const alps::model_helper<I>& mh,
+                  const alps::HamiltonianDescriptor<I>& hd,
                   bool is_signed)
     : sites_(), bonds_()
   {
     set_parameters(params, g, inhomogeneous_sites, inhomogeneous_bond,
-                   mh, is_signed);
+                   hd, is_signed);
+  }
+  template<typename G, typename I>
+  model_parameter(const alps::Parameters& params,
+                  const alps::graph_helper<G>& gh,
+		  const alps::model_helper<I>& mh)
+    : sites_(), bonds_()
+  {
+    set_parameters(params, gh.graph(), gh.inhomogeneous_sites(),
+		   gh.inhomogeneous_bonds(), mh.model(),
+		   alps::has_sign_problem(mh.model(), gh, params));
   }
 
   // set_parameters
@@ -414,10 +424,10 @@ public:
                       const G& g,
                       bool inhomogeneous_sites,
                       bool inhomogeneous_bond,
-                      const alps::model_helper<I>& mh)
+                      const alps::HamiltonianDescriptor<I>& hd)
   {
     set_parameters_impl(params, g, inhomogeneous_sites, inhomogeneous_bond,
-                        mh);
+                        hd);
     signed_ = check_sign(g);
     frustrated_ = check_classical_frustration(g);
   }
@@ -426,11 +436,11 @@ public:
                       const G& g,
                       bool inhomogeneous_sites,
                       bool inhomogeneous_bond,
-                      const alps::model_helper<I>& mh,
+                      const alps::HamiltonianDescriptor<I>& hd,
                       bool is_signed)
   {
     set_parameters_impl(params, g, inhomogeneous_sites, inhomogeneous_bond,
-                        mh);
+                        hd);
     signed_ = is_signed;
     frustrated_ = check_classical_frustration(g);
   }
@@ -447,6 +457,12 @@ public:
       (uniform_site() ? sites_[0] :
        sites_[boost::get(vertex_type_t(), g, v)]);
   }
+  site_parameter_type site() const
+  {
+    if (!uniform_site())
+      boost::throw_exception(std::runtime_error("nonuniform sites"));
+    return sites_[0];
+  }
 
   bool uniform_bond() const { return bonds_.size() == 1; }
   bool inhomogeneous_bond() const { return use_bond_index_; }
@@ -459,6 +475,12 @@ public:
       bonds_[boost::get(edge_index_t(), g, e)] :
       (uniform_bond() ? bonds_[0] :
        bonds_[boost::get(edge_type_t(), g, e)]);
+  }
+  bond_parameter_type bond() const
+  {
+    if (!uniform_bond())
+      boost::throw_exception(std::runtime_error("nonuniform bonds"));
+    return bonds_[0];
   }
 
   bool is_signed() const { return signed_; }
@@ -483,15 +505,15 @@ protected:
   template<typename G, typename I>
   void set_parameters_impl(alps::Parameters params, const G& g,
     bool inhomogeneous_sites, bool inhomogeneous_bond,
-    const alps::model_helper<I>& mh)
+    const alps::HamiltonianDescriptor<I>& hd)
   {
     using boost::get;
     
     typedef typename boost::graph_traits<G>::vertex_iterator vertex_iterator;
     typedef typename boost::graph_traits<G>::edge_iterator edge_iterator;
 
-    params.copy_undefined(mh.model().default_parameters());
-    alps::basis_states_descriptor<I> basis(mh.model().basis(), g);
+    params.copy_undefined(hd.default_parameters());
+    alps::basis_states_descriptor<I> basis(hd.basis(), g);
     alps::Disorder::seed(params.value_or_default("DISORDER_SEED",0));
 
     //
@@ -531,8 +553,8 @@ protected:
         unsigned int i = get(vertex_index_t(), g, *vi);
         unsigned int t = get(vertex_type_t(), g, *vi);
         sites_[i] = site_parameter_type(
-          alps::get_matrix(double(), mh.model().site_term(t),
-                           mh.model().basis().site_basis(t), p));
+          alps::get_matrix(double(), hd.site_term(t),
+                           hd.basis().site_basis(t), p));
       }
     } else {
       std::vector<bool> checked(sites_.size(), false);
@@ -541,8 +563,8 @@ protected:
         unsigned int t = get(vertex_type_t(), g, *vi);
         if (!checked[t]) {
           sites_[t] = site_parameter_type(
-            alps::get_matrix(double(), mh.model().site_term(t),
-                             mh.model().basis().site_basis(t), params));
+            alps::get_matrix(double(), hd.site_term(t),
+                             hd.basis().site_basis(t), params));
           checked[t] = true;
         }
       }
@@ -603,9 +625,9 @@ protected:
         unsigned int st0 = get(vertex_type_t(), g, boost::source(*ei, g));
         unsigned int st1 = get(vertex_type_t(), g, boost::target(*ei, g));
         bonds_[i] = bond_parameter_type(
-          alps::get_matrix(double(), mh.model().bond_term(t),
-                           mh.model().basis().site_basis(st0),
-                           mh.model().basis().site_basis(st1), p));
+          alps::get_matrix(double(), hd.bond_term(t),
+                           hd.basis().site_basis(st0),
+                           hd.basis().site_basis(st1), p));
       }
     } else {
       std::vector<bool> checked(bonds_.size(), false);
@@ -616,9 +638,9 @@ protected:
           unsigned int st0 = get(vertex_type_t(), g, boost::source(*ei, g));
           unsigned int st1 = get(vertex_type_t(), g, boost::target(*ei, g));
           bonds_[t] = bond_parameter_type(
-            alps::get_matrix(double(), mh.model().bond_term(t),
-                             mh.model().basis().site_basis(st0),
-                             mh.model().basis().site_basis(st1), params));
+            alps::get_matrix(double(), hd.bond_term(t),
+                             hd.basis().site_basis(st0),
+                             hd.basis().site_basis(st1), params));
           checked[t] = true;
         }
       }
