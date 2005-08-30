@@ -32,9 +32,10 @@
 #define LOOPER_DATE "2005/04/01"
 
 #include <looper/model.h>
-#include <looper/path_integral.h>
-#include <looper/sse.h>
-#include <looper/measurement.h>
+#include <looper/union_find.h>
+// #include <looper/path_integral.h>
+// #include <looper/sse.h>
+// #include <looper/measurement.h>
 #include <alps/copyright.h>
 #include <iostream>
 

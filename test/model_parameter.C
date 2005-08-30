@@ -25,9 +25,21 @@
 #include <looper/model.h>
 #include <iostream>
 
-template<typename G, typename SITE_P, typename BOND_P>
+std::ostream& operator<<(std::ostream& os, const looper::site_parameter& p)
+{
+  os << "C = " << p.c() << ", Hx = " << p.hx() << ", Hz = " << p.hz();
+  return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const looper::bond_parameter& p)
+{
+  os << "C = " << p.c() << ", Jxy = " << p.jxy() << ", Jz = " << p.jz();
+  return os;
+}
+
+template<typename G>
 void output(const alps::graph_helper<G>& gh,
-            const looper::model_parameter<SITE_P, BOND_P>& m)
+            const looper::model_parameter& m)
 {
   typedef G graph_type;
   typedef typename alps::graph_helper<G>::vertex_iterator vertex_iterator;
@@ -64,12 +76,12 @@ try {
   alps::model_helper<> mh(params);
 
   // construct from model library
-  looper::model_parameter<> m0(params, gh, mh);
+  looper::model_parameter m0(params, gh, mh);
   output(gh, m0);
 
   // construct from parameters
-  looper::model_parameter<> m1(gh.graph(), alps::half_integer<int>(1.5),
-                               -2, -1);
+  looper::model_parameter m1(gh.graph(), alps::half_integer<int>(1.5),
+			     -2, -1);
   output(gh, m1);
 
 #ifndef BOOST_NO_EXCEPTIONS

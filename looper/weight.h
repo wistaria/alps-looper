@@ -26,7 +26,7 @@
 #define LOOPER_WEIGHT_H
 
 #include <looper/random_choice.h>
-#include <looper/util.h>
+#include <alps/math.hpp>
 #include <algorithm> // for std::min std::max
 #include <cmath>     // for std::abs
 
@@ -98,11 +98,13 @@ public:
     density_(0), pa_para_(0), pa_anti_(0), pf_para_(0), pf_anti_(0),
     p_reflect_(0), offset_(0), sign_(1)
   {
+    using alps::is_nonzero;
+
     double Jxy = std::abs(p.jxy());
     double Jz = p.jz();
     double a = crop_01(force_scatter);
     double w12, w11, w13, w22, w23;
-    if (!is_zero(Jxy + std::abs(Jz))) {
+    if (is_nonzero(Jxy + std::abs(Jz))) {
       if (Jxy + Jz > 2 * a * Jxy) {
         // standard solutions
         w12 = std::min(-std::abs(Jz)/4., -Jxy/4);
@@ -158,6 +160,8 @@ private:
 template<typename P, typename W>
 P check(const W& w)
 {
+  using alps::is_equal;
+
   double rp = w.density() * w.p_accept_para();
   double w11 = rp * w.p_freeze_para();
   double w13 = rp - w11;
@@ -167,15 +171,15 @@ P check(const W& w)
   double w12 = -(w11+ w13 + w22 + w23) / 2;
 
   assert(w11 >= 0. && w13 >= 0. && w22 >= 0. && w23 >= 0.);
-  assert(equal(w23, w.p_reflect() * (w13 + w23)));
+  assert(is_equal(w23, w.p_reflect() * (w13 + w23)));
 
   double jxy = 2 * (w13 + w23) * w.sign();
   double jz = 4 * (w12 + w11 + w13);
 
   // for sse
-  assert(equal(w.offset() + w11 + w13, jz/4));
-  assert(equal(w.offset() + w22 + w23, -jz/4));
-  assert(equal(w.sign() * (w13 + w23), jxy/2));
+  assert(is_equal(w.offset() + w11 + w13, jz/4));
+  assert(is_equal(w.offset() + w22 + w23, -jz/4));
+  assert(is_equal(w.sign() * (w13 + w23), jxy/2));
 
   return P(0, jxy, jz);
 }

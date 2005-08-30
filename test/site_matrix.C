@@ -23,7 +23,23 @@
 *****************************************************************************/
 
 #include <looper/model.h>
+#include <looper/util.h>
 #include <iostream>
+#include <boost/numeric/ublas/io.hpp>
+
+std::ostream& operator<<(std::ostream& os, const looper::site_matrix& m)
+{
+  boost::numeric::ublas::matrix<double> mat;
+  looper::flatten_matrix(m.matrix(), mat);
+  os << mat;
+  return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const looper::site_parameter& p)
+{
+  os << "C = " << p.c() << ", Hx = " << p.hx() << ", Hz = " << p.hz();
+  return os;
+}
 
 int main()
 {
@@ -32,14 +48,14 @@ int main()
     std::cin >> s_in >> c >> hx >> hz;
     if (!std::cin) break;
 
-    looper::site_parameter_hxz s(s_in, c, hx, hz);
-    looper::site_matrix<> site(s);
+    looper::site_parameter s(s_in, c, hx, hz);
+    looper::site_matrix site(s);
 
     std::cout << "input parameters: S = " << s.s()
               << ", C = " << c << ", Hx = " << hx << ", Hz = " << hz
               << std::endl << site << std::endl;
 
-    looper::site_parameter_hxz p;
+    looper::site_parameter p;
     bool success = looper::fit2site(site.matrix(), p);
 
     assert(success);

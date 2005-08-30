@@ -23,7 +23,23 @@
 *****************************************************************************/
 
 #include <looper/model.h>
+#include <looper/util.h>
 #include <iostream>
+#include <boost/numeric/ublas/io.hpp>
+
+std::ostream& operator<<(std::ostream& os, const looper::bond_parameter& p)
+{
+  os << "C = " << p.c() << ", Jxy = " << p.jxy() << ", Jz = " << p.jz();
+  return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const looper::bond_matrix& m)
+{
+  boost::numeric::ublas::matrix<double> mat;
+  looper::flatten_matrix(m.matrix(), mat);
+  os << mat;
+  return os;
+}
 
 int main()
 {
@@ -34,17 +50,17 @@ int main()
 
     alps::half_integer<int> s0(s0_in);
     alps::half_integer<int> s1(s1_in);
-    looper::bond_matrix<> xxz(s0, s1, looper::bond_parameter_xxz(c, jxy, jz));
+    looper::bond_matrix xxz(s0, s1, looper::bond_parameter(c, jxy, jz));
 
     std::cout << "input parameters: S0 = " << s0 << ", S1 = " << s1
               << ", C = " << c << ", Jxy = " << jxy << ", Jz = " << jz
               << std::endl << xxz << std::endl;
 
-    looper::bond_parameter_xxz p;
+    looper::bond_parameter p;
     bool success = looper::fit2bond(xxz.matrix(), p);
 
     assert(success);
     std::cout << "fitting result: " << p << std::endl;
-    assert(p == looper::bond_parameter_xxz(c, jxy, jz));
+    assert(p == looper::bond_parameter(c, jxy, jz));
   }
 }

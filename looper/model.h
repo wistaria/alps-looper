@@ -27,12 +27,10 @@
 
 #include <looper/graph.h>
 #include <looper/lapack.h>
-#include <looper/operator.h>
-#include <looper/util.h>
 
+#include <alps/math.hpp>
 #include <boost/multi_array.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/io.hpp>
 
 namespace looper {
 
@@ -40,69 +38,56 @@ namespace looper {
 // forward declarations
 //
 
-// site_parameter
-class site_parameter_hxz; // most generic
-class site_parameter_noh; // default
-
-// bond_parameter
-class bond_parameter_xxz; // most generic & default
-
-template<typename T = double> class site_matrix; // support hxz
-template<typename T = double> class bond_matrix; // support xxz
-
-template<typename T> bool fit2site(const boost::multi_array<T, 2>& mat,
-  site_parameter_hxz& param, T tol = 1.e-10);
-// template<typename T> bool fit2site(const site_matrix<T>& mat,
-//   site_parameter_hxz& param, T tol = 1.e-10);
-template<typename T> bool fit2bond(const boost::multi_array<T, 4>& mat,
-  bond_parameter_xxz& param, T tol = 1.e-10);
-// template<typename T> bool fit2bond(const bond_matrix<T>& mat,
-//   bond_parameter_xxz& param, T tol = 1.e-10);
-
-template<typename SITE_P = site_parameter_noh,
-         typename BOND_P = bond_parameter_xxz>
+class site_parameter;
+class bond_parameter;
 class model_parameter;
+
+class site_matrix;
+class bond_matrix;
+
+bool fit2site(const boost::multi_array<double, 2>& mat,
+	      site_parameter& param, double tol = 1.e-10);
+bool fit2bond(const boost::multi_array<double, 4>& mat,
+	      bond_parameter& param, double tol = 1.e-10);
 
 
 //
 // parameters
 //
 
-class site_parameter_hxz
+class site_parameter
 {
 public:
   typedef alps::half_integer<int> spin_type;
 
-  BOOST_STATIC_CONSTANT(bool, has_hx = true);
-  BOOST_STATIC_CONSTANT(bool, has_hz = true);
-
-  site_parameter_hxz() : s_(0.5), c_(0), hx_(0), hz_(0) {}
-  site_parameter_hxz(double s) : s_(s), c_(0), hx_(0), hz_(0) {}
+  site_parameter() : s_(0.5), c_(0), hx_(0), hz_(0) {}
+  site_parameter(double s) : s_(s), c_(0), hx_(0), hz_(0) {}
   template<typename J>
-  site_parameter_hxz(const alps::half_integer<J>& s) :
+  site_parameter(const alps::half_integer<J>& s) :
     s_(s), c_(0), hx_(0), hz_(0) {}
-  site_parameter_hxz(double s, double c, double hx, double hz) :
+  site_parameter(double s, double c, double hx, double hz) :
     s_(s), c_(c), hx_(hx), hz_(hz) {}
   template<typename J>
-  site_parameter_hxz(const alps::half_integer<J>& s,
-                     double c, double hx, double hz) :
+  site_parameter(const alps::half_integer<J>& s,
+		 double c, double hx, double hz) :
     s_(s), c_(c), hx_(hx), hz_(hz) {}
-  site_parameter_hxz(const boost::multi_array<double, 2>& mat)
+  site_parameter(const boost::multi_array<double, 2>& mat)
   {
     bool success = fit2site(mat, *this);
     if (!success)
       boost::throw_exception(std::runtime_error(
-        "Error: fitting to site_parameter_hxz failed.  "
+        "Error: fitting to site_parameter failed.  "
         "This model is not supported by the current looper code."));
   }
 
-  bool operator==(const site_parameter_hxz& rhs) const
+  bool operator==(const site_parameter& rhs) const
   {
-    return (s() == rhs.s()) && equal(c(), rhs.c()) &&
-      equal(hx(), rhs.hx()) && equal(hz(), rhs.hz());
+    using alps::is_equal;
+    return (s() == rhs.s()) && is_equal(c(), rhs.c()) &&
+      is_equal(hx(), rhs.hx()) && is_equal(hz(), rhs.hz());
   }
 
-  bool operator!=(const site_parameter_hxz& rhs) const
+  bool operator!=(const site_parameter& rhs) const
   {
     return !operator==(rhs);
   }
@@ -125,70 +110,18 @@ private:
 };
 
 
-class site_parameter_noh
+class bond_parameter
 {
 public:
-  typedef alps::half_integer<int> spin_type;
-
-  BOOST_STATIC_CONSTANT(bool, has_hx = false);
-  BOOST_STATIC_CONSTANT(bool, has_hz = false);
-
-  site_parameter_noh() : s_(0.5), c_(0) {}
-  site_parameter_noh(double s) : s_(s), c_(0) {}
-  template<typename J>
-  site_parameter_noh(const alps::half_integer<J>& s) :
-    s_(s), c_(0) {}
-  site_parameter_noh(double s, double c) :
-    s_(s), c_(c) {}
-  template<typename J>
-  site_parameter_noh(const alps::half_integer<J>& s, double c) :
-    s_(s), c_(c) {}
-  site_parameter_noh(const boost::multi_array<double, 2>& mat)
-  {
-    site_parameter_hxz p;
-    bool success = fit2site(mat, p);
-    if (!(success && equal(p.hx(), 0.) && equal(p.hz(), 0.)))
-      boost::throw_exception(std::runtime_error(
-        "Error: fitting to site_parameter_noh failed.  "
-        "This model is not supported by the current looper code."));
-    s_ = p.s();
-    c_ = p.c();
-  }
-
-  bool operator==(const site_parameter_noh& rhs) const
-  {
-    return (s() == rhs.s()) && equal(c(), rhs.c());
-  }
-
-  bool operator!=(const site_parameter_noh& rhs) const
-  {
-    return !operator==(rhs);
-  }
-
-  const spin_type& s() const { return s_; }
-  spin_type& s() { return s_; }
-
-  double c() const { return c_; }
-  double& c() { return c_; }
-
-private:
-  spin_type s_;
-  double c_;
-};
-
-
-class bond_parameter_xxz
-{
-public:
-  bond_parameter_xxz() : c_(), jxy_(), jz_() {}
-  bond_parameter_xxz(double c, double jxy, double jz) 
+  bond_parameter() : c_(), jxy_(), jz_() {}
+  bond_parameter(double c, double jxy, double jz) 
     : c_(c), jxy_(jxy), jz_(jz) {}
-  bond_parameter_xxz(const boost::multi_array<double, 4>& mat)
+  bond_parameter(const boost::multi_array<double, 4>& mat)
   {
     bool success = fit2bond(mat, *this);
     if (!success)
       boost::throw_exception(std::runtime_error(
-        "Error: fitting to bond_parameter_xxz failed.  "
+        "Error: fitting to bond_parameter failed.  "
         "This model is not supported by the corrent looper code."));
   }
 
@@ -201,12 +134,13 @@ public:
   double jz() const { return jz_; }
   double& jz() { return jz_; }
 
-  bool operator==(const bond_parameter_xxz& rhs) const
+  bool operator==(const bond_parameter& rhs) const
   {
-    return equal(c(), rhs.c()) && equal(jxy(), rhs.jxy()) &&
-      equal(jz(), rhs.jz());
+    using alps::is_equal;
+    return is_equal(c(), rhs.c()) && is_equal(jxy(), rhs.jxy()) &&
+      is_equal(jz(), rhs.jz());
   }
-  bool operator!=(const bond_parameter_xxz& rhs) const
+  bool operator!=(const bond_parameter& rhs) const
   {
     return !operator==(rhs);
   }
@@ -222,21 +156,18 @@ private:
 // matrices
 //
 
-template<typename T>
 class site_matrix
 {
 public:
-  typedef boost::multi_array<T, 2>        matrix_type;
-  typedef T                               value_type;
-  typedef typename matrix_type::size_type size_type;
+  typedef boost::multi_array<double, 2>   matrix_type;
+  typedef matrix_type::size_type size_type;
 
   site_matrix() : mat_() {}
   site_matrix(const site_matrix& m) : mat_(m.mat_) {}
-  template<typename SITE_P>
-  site_matrix(const SITE_P& sp) : mat_()
+  site_matrix(const site_parameter& sp) : mat_()
   {
     using std::sqrt; using alps::to_double;
-    typedef typename SITE_P::spin_type spin_type;
+    typedef site_parameter::spin_type spin_type;
 
     spin_type s = sp.s();
 
@@ -245,7 +176,7 @@ public:
     mat_.resize(boost::extents[dim][dim]);
     for (int i = 0; i < dim; ++i)
       for (int j = 0; j < dim; ++j)
-        mat_[i][j] = value_type(0);
+        mat_[i][j] = 0;
 
     // diagonal elements: c - hz sz
     for (spin_type sz = -s; sz <= s; ++sz)
@@ -263,51 +194,45 @@ public:
         - 0.5 * sp.hx() * sqrt(to_double(s+sz) * to_double(s-sz+1));
   }
 
-  value_type& operator()(size_type i, size_type j) { return mat_[i][j]; }
-  const value_type& operator()(size_type i, size_type j) const
-  { return mat_[i][j]; }
+  double operator()(size_type i, size_type j) const { return mat_[i][j]; }
+  // double& operator()(size_type i, size_type j) { return mat_[i][j]; }
 
-  matrix_type& matrix() { return mat_; }
   const matrix_type& matrix() const { return mat_; }
+  // matrix_type& matrix() { return mat_; }
 
 private:
-  boost::multi_array<T, 2> mat_;
+  boost::multi_array<double, 2> mat_;
 };
 
 
-template<typename T>
 class bond_matrix
 {
 public:
-  typedef boost::multi_array<T, 4>        matrix_type;
-  typedef T                               value_type;
-  typedef typename matrix_type::size_type size_type;
+  typedef boost::multi_array<double, 4>   matrix_type;
+  typedef matrix_type::size_type size_type;
 
   bond_matrix() : mat_() {}
   bond_matrix(const bond_matrix& m) : mat_(m.mat_) {}
-  template<typename I, typename BOND_P>
+  template<typename I>
   bond_matrix(const alps::half_integer<I>& s0, const alps::half_integer<I>& s1,
-              const BOND_P& bp) : mat_()
+              const bond_parameter& bp) : mat_()
   { build(s0, s1, bp); }
-  template<typename SITE_P, typename BOND_P>
-  bond_matrix(const SITE_P& sp0, const SITE_P& sp1, const BOND_P& bp) :
-    mat_()
+  bond_matrix(const site_parameter& sp0, const site_parameter& sp1,
+	      const bond_parameter& bp) : mat_()
   { build(sp0.s(), sp1.s(), bp); }
 
-  value_type&
-  operator()(size_type i, size_type j, size_type k, size_type l)
+  double operator()(size_type i, size_type j, size_type k, size_type l) const
   { return mat_[i][j][k][l]; }
-  const value_type&
-  operator()(size_type i, size_type j, size_type k, size_type l) const
-  { return mat_[i][j][k][l]; }
+  // double& operator()(size_type i, size_type j, size_type k, size_type l)
+  // { return mat_[i][j][k][l]; }
 
-  matrix_type& matrix() { return mat_; }
   const matrix_type& matrix() const { return mat_; }
+  // matrix_type& matrix() { return mat_; }
 
 protected:
-  template<typename I, typename BOND_P>
+  template<typename I>
   void build(const alps::half_integer<I>& s0, const alps::half_integer<I>& s1,
-             const BOND_P& bp)
+             const bond_parameter& bp)
   {
     using std::sqrt; using alps::to_double;
     typedef typename alps::half_integer<I> spin_type;
@@ -320,7 +245,7 @@ protected:
       for (int i1 = 0; i1 < d1; ++i1)
         for (int j0 = 0; j0 < d0; ++j0)
           for (int j1 = 0; j1 < d1; ++j1)
-            mat_[i0][i1][j0][j1] = value_type(0);
+            mat_[i0][i1][j0][j1] = 0;
 
     // diagonal elements: c - jz sz0 sz1
     for (spin_type sz0 = -s0; sz0 <= s0; ++sz0) {
@@ -355,7 +280,7 @@ protected:
   }
 
 private:
-  boost::multi_array<T, 4> mat_;
+  boost::multi_array<double, 4> mat_;
 };
 
 
@@ -363,15 +288,12 @@ private:
 // models
 //
 
-template<typename SITE_P, typename BOND_P>
 class model_parameter
 {
 public:
-  typedef SITE_P site_parameter_type;
-  typedef BOND_P bond_parameter_type;
-  typedef std::vector<site_parameter_type> site_map_type;
-  typedef std::vector<bond_parameter_type> bond_map_type;
-  typedef typename site_parameter_type::spin_type spin_type;
+  typedef std::vector<site_parameter> site_map_type;
+  typedef std::vector<bond_parameter> bond_map_type;
+  typedef site_parameter::spin_type spin_type;
 
   template<typename G, typename I>
   model_parameter(const G& g, const alps::half_integer<I>& spin,
@@ -448,7 +370,7 @@ public:
   bool uniform_site() const { return sites_.size() == 1; }
   bool inhomogeneous_site() const { return use_site_index_; }
   template<class G>
-  site_parameter_type site(
+  site_parameter site(
     const typename boost::graph_traits<G>::vertex_descriptor& v,
     const G& g) const
   {
@@ -457,7 +379,7 @@ public:
       (uniform_site() ? sites_[0] :
        sites_[boost::get(vertex_type_t(), g, v)]);
   }
-  site_parameter_type site() const
+  site_parameter site() const
   {
     if (!uniform_site())
       boost::throw_exception(std::runtime_error("nonuniform sites"));
@@ -467,7 +389,7 @@ public:
   bool uniform_bond() const { return bonds_.size() == 1; }
   bool inhomogeneous_bond() const { return use_bond_index_; }
   template<class G>
-  bond_parameter_type bond(
+  bond_parameter bond(
     const typename alps::graph_traits<G>::edge_descriptor& e,
     const G& g) const
   {
@@ -476,7 +398,7 @@ public:
       (uniform_bond() ? bonds_[0] :
        bonds_[boost::get(edge_type_t(), g, e)]);
   }
-  bond_parameter_type bond() const
+  bond_parameter bond() const
   {
     if (!uniform_bond())
       boost::throw_exception(std::runtime_error("nonuniform bonds"));
@@ -499,7 +421,7 @@ protected:
     // set bond parameters
     use_bond_index_ = false;
     bonds_.resize(1);
-    bonds_[0] = bond_parameter_xxz(0., Jxy, Jz);
+    bonds_[0] = bond_parameter(0., Jxy, Jz);
   }
 
   template<typename G, typename I>
@@ -507,6 +429,7 @@ protected:
     bool inhomogeneous_sites, bool inhomogeneous_bond,
     const alps::HamiltonianDescriptor<I>& hd)
   {
+    using alps::is_negative;
     using boost::get;
     
     typedef typename boost::graph_traits<G>::vertex_iterator vertex_iterator;
@@ -552,7 +475,7 @@ protected:
         }
         unsigned int i = get(vertex_index_t(), g, *vi);
         unsigned int t = get(vertex_type_t(), g, *vi);
-        sites_[i] = site_parameter_type(
+        sites_[i] = site_parameter(
           alps::get_matrix(double(), hd.site_term(t),
                            hd.basis().site_basis(t), p));
       }
@@ -562,7 +485,7 @@ protected:
       for (boost::tie(vi, vi_end) = boost::vertices(g); vi != vi_end; ++vi) {
         unsigned int t = get(vertex_type_t(), g, *vi);
         if (!checked[t]) {
-          sites_[t] = site_parameter_type(
+          sites_[t] = site_parameter(
             alps::get_matrix(double(), hd.site_term(t),
                              hd.basis().site_basis(t), params));
           checked[t] = true;
@@ -624,7 +547,7 @@ protected:
         unsigned int t = get(edge_type_t(), g, *ei);
         unsigned int st0 = get(vertex_type_t(), g, boost::source(*ei, g));
         unsigned int st1 = get(vertex_type_t(), g, boost::target(*ei, g));
-        bonds_[i] = bond_parameter_type(
+        bonds_[i] = bond_parameter(
           alps::get_matrix(double(), hd.bond_term(t),
                            hd.basis().site_basis(st0),
                            hd.basis().site_basis(st1), p));
@@ -637,7 +560,7 @@ protected:
         if (!checked[t]) {
           unsigned int st0 = get(vertex_type_t(), g, boost::source(*ei, g));
           unsigned int st1 = get(vertex_type_t(), g, boost::target(*ei, g));
-          bonds_[t] = bond_parameter_type(
+          bonds_[t] = bond_parameter(
             alps::get_matrix(double(), hd.bond_term(t),
                              hd.basis().site_basis(st0),
                              hd.basis().site_basis(st1), params));
@@ -701,22 +624,19 @@ private:
 // functions for fitting
 //
 
-template<typename T>
-bool fit2site(const boost::multi_array<T, 2>& mat, site_parameter_hxz& param,
-              T tol)
+bool fit2site(const boost::multi_array<double, 2>& mat,
+	      site_parameter& param, double tol)
 {
   assert(mat.shape()[0] == mat.shape()[1]);
-
-  typedef T value_type;
 
   int dim = mat.shape()[0];
   int m = dim * dim;
   int n = 3;
   
   alps::half_integer<short> s((double)(dim-1)/2);
-  site_matrix<> mat_c(site_parameter_hxz(s, 1, 0, 0));
-  site_matrix<> mat_hx(site_parameter_hxz(s, 0, 1, 0));
-  site_matrix<> mat_hz(site_parameter_hxz(s, 0, 0, 1));
+  site_matrix mat_c(site_parameter(s, 1, 0, 0));
+  site_matrix mat_hx(site_parameter(s, 0, 1, 0));
+  site_matrix mat_hz(site_parameter(s, 0, 0, 1));
 
 //   alps::SiteBasisDescriptor<short> basis(spin_basis(s));
 //   boost::multi_array<value_type, 2> mat_c(
@@ -732,10 +652,10 @@ bool fit2site(const boost::multi_array<T, 2>& mat, site_parameter_hxz& param,
 //                      alps::SiteTermDescriptor("-Sz(i)", "i"),
 //                      basis, alps::Parameters()));
 
-  boost::numeric::ublas::matrix<value_type,
+  boost::numeric::ublas::matrix<double,
     boost::numeric::ublas::column_major> a(m, n);
-  boost::numeric::ublas::vector<value_type> b(m);
-  boost::numeric::ublas::vector<value_type> x(n);
+  boost::numeric::ublas::vector<double> b(m);
+  boost::numeric::ublas::vector<double> x(n);
   for (int i = 0; i < dim; ++i) {
     for (int j = 0; j < dim; ++j) {
       int k = dim * i + j;
@@ -748,34 +668,29 @@ bool fit2site(const boost::multi_array<T, 2>& mat, site_parameter_hxz& param,
   
   // call linear least sqaure problem solver
   bool success = (solve_llsp(a, b, x) < tol);
+  if (!success) return success;
 
-  value_type c = alps::expression::numeric_cast<value_type>(x(0));
-  if (std::abs(c) < tol) c = 0;
-  value_type hx = alps::expression::numeric_cast<value_type>(x(1));
-  if (std::abs(hx) < tol) hx = 0;
-  value_type hz = alps::expression::numeric_cast<value_type>(x(2));
-  if (std::abs(hz) < tol) hz = 0;
+//   double c = alps::expression::numeric_cast<double>x(0));
+//   if (std::abs(c) < tol) c = 0;
+//   double hx = alps::expression::numeric_cast<double>(x(1));
+//   if (std::abs(hx) < tol) hx = 0;
+//   double hz = alps::expression::numeric_cast<double>(x(2));
+//   if (std::abs(hz) < tol) hz = 0;
 
-  if (success) param = site_parameter_hxz(s, c, hx, hz);
+//   if (success) param = site_parameter(s, c, hx, hz);
 
-  return success;
+  for (int i = 0; i < n; ++i) if (std::abs(x(i)) < tol) x(i) = 0;
+  param = site_parameter(s, x(0), x(1), x(2));
+
+  return true;
 }
 
-// template<typename T>
-// bool fit2site(const site_matrix<T>& mat, site_parameter_hxz& param, T tol)
-// {
-//   return fit2site(mat.matrix(), param, tol);
-// }
 
-
-template<typename T>
-bool fit2bond(const boost::multi_array<T, 4>& mat, bond_parameter_xxz& param,
-              T tol)
+bool fit2bond(const boost::multi_array<double, 4>& mat,
+	      bond_parameter& param, double tol)
 {
   assert(mat.shape()[0] == mat.shape()[2]);
   assert(mat.shape()[1] == mat.shape()[3]);
-
-  typedef T value_type;
 
   int d0 = mat.shape()[0];
   int d1 = mat.shape()[1];
@@ -785,9 +700,9 @@ bool fit2bond(const boost::multi_array<T, 4>& mat, bond_parameter_xxz& param,
 
   alps::half_integer<short> s0((double)(d0-1)/2);
   alps::half_integer<short> s1((double)(d1-1)/2);
-  bond_matrix<> mat_c(s0, s1, bond_parameter_xxz(1, 0, 0));
-  bond_matrix<> mat_jxy(s0, s1, bond_parameter_xxz(0, 1, 0));
-  bond_matrix<> mat_jz(s0, s1, bond_parameter_xxz(0, 0, 1));
+  bond_matrix mat_c(s0, s1, bond_parameter(1, 0, 0));
+  bond_matrix mat_jxy(s0, s1, bond_parameter(0, 1, 0));
+  bond_matrix mat_jz(s0, s1, bond_parameter(0, 0, 1));
 
 //   alps::SiteBasisDescriptor<short> basis0(spin_basis((double)(d0 - 1)/2));
 //   alps::SiteBasisDescriptor<short> basis1(spin_basis((double)(d1 - 1)/2));
@@ -805,10 +720,10 @@ bool fit2bond(const boost::multi_array<T, 4>& mat, bond_parameter_xxz& param,
 //                      alps::BondTermDescriptor("-Sz(i)*Sz(j)"),
 //                      basis0, basis1));
 
-  boost::numeric::ublas::matrix<value_type,
+  boost::numeric::ublas::matrix<double,
     boost::numeric::ublas::column_major> a(m, n);
-  boost::numeric::ublas::vector<value_type> b(m);
-  boost::numeric::ublas::vector<value_type> x(n);
+  boost::numeric::ublas::vector<double> b(m);
+  boost::numeric::ublas::vector<double> x(n);
   for (int i0 = 0; i0 < d0; ++i0) {
     for (int i1 = 0; i1 < d1; ++i1) {
       for (int j0 = 0; j0 < d0; ++j0) {
@@ -825,68 +740,14 @@ bool fit2bond(const boost::multi_array<T, 4>& mat, bond_parameter_xxz& param,
 
   // call linear least squaure problem solver
   bool success = (solve_llsp(a, b, x) < tol);
+  if (!success) return success;
 
-  value_type c = alps::expression::numeric_cast<value_type>(x(0));
-  if (std::abs(c) < tol) c = 0;
-  value_type jxy = alps::expression::numeric_cast<value_type>(x(1));
-  if (std::abs(jxy) < tol) jxy = 0;
-  value_type jz = alps::expression::numeric_cast<value_type>(x(2));
-  if (std::abs(jz) < tol) jz = 0;
+  for (int i = 0; i < n; ++i) if (std::abs(x(i)) < tol) x(i) = 0;
+  param = bond_parameter(x(0), x(1), x(2));
 
-  if (success) param = bond_parameter_xxz(c, jxy, jz);
-
-  return success;
+  return true;
 }
-
-
-// template<typename T>
-// bool fit2bond(const bond_matrix<T>& mat, bond_parameter_xxz& param, T tol)
-// {
-//   return fit2bond(mat.matrix(), param, tol);
-// }
-
 
 } // end namespace looper
-
-
-#ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
-namespace looper {
-#endif
-
-template<typename T>
-std::ostream& operator<<(std::ostream& os, const looper::site_matrix<T>& m)
-{
-  boost::numeric::ublas::matrix<T> mat;
-  flatten_matrix(m.matrix(), mat);
-  os << mat;
-  return os;
-}
-
-template<typename T>
-std::ostream& operator<<(std::ostream& os, const looper::bond_matrix<T>& m)
-{
-  boost::numeric::ublas::matrix<T> mat;
-  flatten_matrix(m.matrix(), mat);
-  os << mat;
-  return os;
-}
-
-inline
-std::ostream& operator<<(std::ostream& os, const looper::site_parameter_hxz& p)
-{
-  os << "C = " << p.c() << ", Hx = " << p.hx() << ", Hz = " << p.hz();
-  return os;
-}
-
-inline
-std::ostream& operator<<(std::ostream& os, const looper::bond_parameter_xxz& p)
-{
-  os << "C = " << p.c() << ", Jxy = " << p.jxy() << ", Jz = " << p.jz();
-  return os;
-}
-
-#ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
-} // namespace looper
-#endif
 
 #endif // LOOPER_MODEL_H
