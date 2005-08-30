@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2005 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -85,7 +85,8 @@ int main(int argc, char ** argv)
 {
   std::cout << "Diagonalization of random real symmetric matrix\n";
   std::cerr << "[starting program: "
-            << boost::posix_time::microsec_clock::local_time() << "]\n";
+	    << to_simple_string(boost::posix_time::microsec_clock::local_time())
+	    << "]\n";
 
   Options opts(argc, argv);
   std::cout << "n: dimension of matrix : " << opts.n << std::endl;
@@ -109,7 +110,7 @@ int main(int argc, char ** argv)
 
   boost::posix_time::ptime t0 =
     boost::posix_time::microsec_clock::local_time();
-  std::cerr << "[starting diagonalization: " << t0 << "]\n";
+  std::cerr << "[starting diagonalization: " << to_simple_string(t0) << "]\n";
 
   std::cout << "diagonalization... " << std::flush;
   looper::diagonalize(mat, vec);
@@ -117,8 +118,8 @@ int main(int argc, char ** argv)
 
   boost::posix_time::ptime t1 =
     boost::posix_time::microsec_clock::local_time();
-  std::cerr << "[finished diagonalization: " << t1 << "]\n";
-  std::cerr << "[elapsed time: " << t1 - t0 << "]\n";
+  std::cerr << "[finished diagonalization: " << to_simple_string(t1) << "]\n";
+  std::cerr << "[elapsed time: " << to_simple_string(t1 - t0) << "]\n";
 
   std::cout << "selected eigenvalues:\n";
   bool print_last = false;

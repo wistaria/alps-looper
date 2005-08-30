@@ -93,7 +93,7 @@ struct amida_node_base
   amida_node_base* prev[2];
 
 private:
-  static const std::size_t _node_max = ~0; // = 111...111
+  static const std::size_t _node_max = ~0u; // = 111...111
 };
 
 

@@ -64,8 +64,7 @@ try {
   alps::model_helper<> mh(params);
 
   // construct from model library
-  looper::model_parameter<> m0(params, gh.graph(), gh.inhomogeneous_sites(),
-                               gh.inhomogeneous_bonds(), mh);
+  looper::model_parameter<> m0(params, gh, mh);
   output(gh, m0);
 
   // construct from parameters
