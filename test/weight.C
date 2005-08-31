@@ -27,21 +27,20 @@
 #include <alps/parameterlist.h>
 #include <iostream>
 
-template<typename W, typename BOND_P>
-void output(const alps::Parameters& param, const W& weight, const BOND_P&)
+template<typename W>
+void output(const alps::Parameters& param, const W& weight)
 {
-  using looper::equal;
-  typedef BOND_P bond_parameter_type;
+  using alps::is_equal;
 
-  assert(equal(weight.p_freeze_para(), weight.p_freeze(0,0)) &&
-         equal(weight.p_freeze_para(), weight.p_freeze(1,1)));
-  assert(equal(weight.p_freeze_anti(), weight.p_freeze(0,1)) &&
-         equal(weight.p_freeze_anti(), weight.p_freeze(1,0)));
-  assert(equal(weight.p_accept_para(), weight.p_accept(0,0)) &&
-         equal(weight.p_accept_para(), weight.p_accept(1,1)));
-  assert(equal(weight.p_accept_anti(), weight.p_accept(0,1)) &&
-         equal(weight.p_accept_anti(), weight.p_accept(1,0)));
-  assert(equal(std::abs(weight.sign()), 1.));
+  assert(is_equal(weight.p_freeze_para(), weight.p_freeze(0,0)) &&
+         is_equal(weight.p_freeze_para(), weight.p_freeze(1,1)));
+  assert(is_equal(weight.p_freeze_anti(), weight.p_freeze(0,1)) &&
+         is_equal(weight.p_freeze_anti(), weight.p_freeze(1,0)));
+  assert(is_equal(weight.p_accept_para(), weight.p_accept(0,0)) &&
+         is_equal(weight.p_accept_para(), weight.p_accept(1,1)));
+  assert(is_equal(weight.p_accept_anti(), weight.p_accept(0,1)) &&
+         is_equal(weight.p_accept_anti(), weight.p_accept(1,0)));
+  assert(is_equal(std::abs(weight.sign()), 1.));
 
   std::cout << "Jxy = " << param["Jxy"]
             << ", Jz = " << param["Jz"]
@@ -59,9 +58,10 @@ void output(const alps::Parameters& param, const W& weight, const BOND_P&)
   }
   std::cout << std::endl;
 
-  bond_parameter_type p = looper::weight::check<bond_parameter_type>(weight);
-  assert(looper::equal(static_cast<double>(param["Jxy"]), p.jxy()));
-  assert(looper::equal(static_cast<double>(param["Jz"]), p.jz()));
+  looper::bond_parameter p =
+    looper::weight::check<looper::bond_parameter>(weight);
+  assert(alps::is_equal(static_cast<double>(param["Jxy"]), p.jxy()));
+  assert(alps::is_equal(static_cast<double>(param["Jz"]), p.jz()));
 }
 
 int main()
@@ -70,20 +70,18 @@ int main()
 try {
 #endif
 
-  typedef looper::bond_parameter_xxz bond_parameter_type;
-
   alps::ParameterList params;
   std::cin >> params;
 
   for (alps::ParameterList::iterator p = params.begin();
        p != params.end(); ++p) {
-    bond_parameter_type bond(0, (*p)["Jxy"], (*p)["Jz"]);
+    looper::bond_parameter bond(0, (*p)["Jxy"], (*p)["Jz"]);
 
     std::cout << "standard: ";
-    output(*p, looper::weight::xxz(bond), bond_parameter_type());
+    output(*p, looper::weight::xxz(bond));
 
     std::cout << "ergodic: ";
-    output(*p, looper::weight::xxz(bond, 0.1), bond_parameter_type());
+    output(*p, looper::weight::xxz(bond, 0.1));
   }
 
 #ifndef BOOST_NO_EXCEPTIONS

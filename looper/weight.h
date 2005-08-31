@@ -26,6 +26,7 @@
 #define LOOPER_WEIGHT_H
 
 #include <looper/random_choice.h>
+#include <looper/util.h>
 #include <alps/math.hpp>
 #include <algorithm> // for std::min std::max
 #include <cmath>     // for std::abs

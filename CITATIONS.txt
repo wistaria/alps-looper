@@ -1,8 +1,12 @@
-Any publication for which any part of the ALPS/looper Library was used has to
-acknowledge the use of the ALPS libraries, and the papers listed below.
+Any publication for which one of the ALPS applications was used has to 
+acknowledge the use of the ALPS libraries, and the papers listed below. 
 
-  - reference the ALPS/looper web page
-      http://wistaria.comp-phys.org/alps-looper/
+Since some of the references are to preprints we would like to ask you 
+to check the ALPS web page http://alps.comp-phys.org/ for updates.
 
-  - and cite the publication:
-      S. Todo and K. Kato, Phys. Rev. Lett. 87 047203 (2001)
+- reference:
+    http://alps.comp-phys.org/ 
+    http://wistaria.comp-phys.org/alps-looper/
+- publications:
+    S. Todo and K. Kato, Phys. Rev. Lett. 87 047203 (2001).
+    F. Alet et al., J. Phys. Soc. Jpn. Suppl., Vol. 74, 30 (2005).
