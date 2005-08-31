@@ -39,10 +39,8 @@ void generate(RNG& uniform_01)
   std::generate(array.begin(), array.end(),
                 boost::variate_generator<rng_type&, boost::uniform_smallint<> >
                 (uniform_01, boost::uniform_smallint<>(0, 1)));
-  std::vector<int> result(20,0);
-  result[0] = 1; result[4] = 1; result[7] = 1; result[9] = 1;
-  result[10] = 1; result[11] = 1; result[13] = 1; result[14] = 1;
-  result[17] = 1; result[18] = 1;
+  int result[20] =
+    { 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 0 };
 
   for (unsigned int i = 0; i < array.size(); ++i) {
     if (array[i] != result[i]) {

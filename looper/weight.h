@@ -177,10 +177,9 @@ P check(const W& w)
   double jxy = 2 * (w13 + w23) * w.sign();
   double jz = 4 * (w12 + w11 + w13);
 
-  // for sse
-  assert(is_equal(w.offset() + w11 + w13, jz/4));
-  assert(is_equal(w.offset() + w22 + w23, -jz/4));
-  assert(is_equal(w.sign() * (w13 + w23), jxy/2));
+  assert(std::abs(w.offset() + w11 + w13 - jz/4) < 1.0e-10);
+  assert(std::abs(w.offset() + w22 + w23 - (-jz/4)) < 1.0e-10);
+  assert(std::abs(w.sign() * (w13 + w23) - jxy/2) < 1.0e-10);
 
   return P(0, jxy, jz);
 }

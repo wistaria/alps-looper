@@ -58,8 +58,8 @@ int main()
     looper::site_parameter p;
     bool success = looper::fit2site(site.matrix(), p);
 
-    assert(success);
-    assert(p == s);
+    if (!success) std::cerr << "Error: fitting failed\n";
+
     std::cout << "fitting result: " << p << std::endl;
   }
 }

@@ -1,45 +1,39 @@
-add edge: 11 -- 11
-add edge: 2 -- 3
-add edge: 8 -- 8
-add edge: 5 -- 2
-add edge: 9 -- 4
-add edge: 10 -- 0
-add edge: 0 -- 5
-add edge: 0 -- 1
-add edge: 2 -- 5
-add edge: 5 -- 3
-add edge: 11 -- 2
-add edge: 7 -- 1
-add edge: 3 -- 3
-add edge: 9 -- 5
-add edge: 7 -- 0
-add edge: 1 -- 2
-add edge: 3 -- 8
-add edge: 8 -- 2
+add edge: 9 -- 1
+add edge: 5 -- 11
+add edge: 7 -- 8
+add edge: 1 -- 0
+add edge: 7 -- 3
+add edge: 9 -- 3
+add edge: 0 -- 6
+add edge: 2 -- 2
 add edge: 6 -- 4
-tree edge (2 -- 3)
-tree edge (5 -- 2)
-tree edge (9 -- 4)
-tree edge (10 -- 0)
-tree edge (0 -- 5)
-tree edge (11 -- 2)
-tree edge (7 -- 1)
-tree edge (9 -- 5)
-tree edge (1 -- 2)
-tree edge (3 -- 8)
+add edge: 1 -- 11
+add edge: 6 -- 9
+add edge: 3 -- 2
+add edge: 6 -- 5
+add edge: 2 -- 0
+add edge: 10 -- 4
+tree edge (9 -- 1)
+tree edge (5 -- 11)
+tree edge (7 -- 8)
+tree edge (1 -- 0)
+tree edge (7 -- 3)
+tree edge (9 -- 3)
 tree edge (6 -- 4)
-vertices in postorder:  10 8 3 11 7 1 2 6 4 9 5 0
+tree edge (6 -- 9)
+tree edge (3 -- 2)
+tree edge (6 -- 5)
+tree edge (10 -- 4)
+vertices in postorder:  8 7 2 3 10 4 11 5 6 9 1 0
 finding all the bridges in a naive method (O(N^2)):
-  find a bridge (9 -- 4)
-  find a bridge (10 -- 0)
-  find a bridge (11 -- 2)
-  find a bridge (9 -- 5)
+  find a bridge (7 -- 8)
+  find a bridge (7 -- 3)
   find a bridge (6 -- 4)
-  found 5 bridge(s)
+  find a bridge (10 -- 4)
+  found 4 bridge(s)
 finding all the bridges by find_bridges() (O(N)):
-  find a bridge (2 -- 11)
-  find a bridge (4 -- 6)
-  find a bridge (9 -- 4)
-  find a bridge (5 -- 9)
-  find a bridge (0 -- 10)
-  found 5 bridge(s)
+  find a bridge (7 -- 8)
+  find a bridge (3 -- 7)
+  find a bridge (4 -- 10)
+  find a bridge (6 -- 4)
+  found 4 bridge(s)

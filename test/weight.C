@@ -32,15 +32,18 @@ void output(const alps::Parameters& param, const W& weight)
 {
   using alps::is_equal;
 
-  assert(is_equal(weight.p_freeze_para(), weight.p_freeze(0,0)) &&
-         is_equal(weight.p_freeze_para(), weight.p_freeze(1,1)));
-  assert(is_equal(weight.p_freeze_anti(), weight.p_freeze(0,1)) &&
-         is_equal(weight.p_freeze_anti(), weight.p_freeze(1,0)));
-  assert(is_equal(weight.p_accept_para(), weight.p_accept(0,0)) &&
-         is_equal(weight.p_accept_para(), weight.p_accept(1,1)));
-  assert(is_equal(weight.p_accept_anti(), weight.p_accept(0,1)) &&
-         is_equal(weight.p_accept_anti(), weight.p_accept(1,0)));
-  assert(is_equal(std::abs(weight.sign()), 1.));
+  if (!is_equal(weight.p_freeze_para(), weight.p_freeze(0,0)) ||
+      !is_equal(weight.p_freeze_para(), weight.p_freeze(1,1)) ||
+      !is_equal(weight.p_freeze_anti(), weight.p_freeze(0,1)) ||
+      !is_equal(weight.p_freeze_anti(), weight.p_freeze(1,0)) ||
+      !is_equal(weight.p_accept_para(), weight.p_accept(0,0)) ||
+      !is_equal(weight.p_accept_para(), weight.p_accept(1,1)) ||
+      !is_equal(weight.p_accept_anti(), weight.p_accept(0,1)) ||
+      !is_equal(weight.p_accept_anti(), weight.p_accept(1,0)) ||
+      !is_equal(std::abs(weight.sign()), 1.)) {
+    std::cerr << "Error\n";
+    exit(-1);
+  }
 
   std::cout << "Jxy = " << param["Jxy"]
             << ", Jz = " << param["Jz"]
@@ -60,8 +63,6 @@ void output(const alps::Parameters& param, const W& weight)
 
   looper::bond_parameter p =
     looper::weight::check<looper::bond_parameter>(weight);
-  assert(alps::is_equal(static_cast<double>(param["Jxy"]), p.jxy()));
-  assert(alps::is_equal(static_cast<double>(param["Jz"]), p.jz()));
 }
 
 int main()
