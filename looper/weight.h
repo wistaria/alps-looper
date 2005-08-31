@@ -37,9 +37,7 @@ namespace looper {
 // default graph weights for path-integral and SSE loop algorithms
 //
 
-namespace weight {
-
-class xxz {
+class bond_weight {
 
   // loop equations:
   //
@@ -91,11 +89,10 @@ class xxz {
   //             (1-a) |Jxy| / 2
 
 public:
-  xxz() :
+  bond_weight() :
     density_(0), pa_para_(0), pa_anti_(0), pf_para_(0), pf_anti_(0), 
     p_reflect_(0), offset_(0), sign_(1) {}
-  template<class P>
-  xxz(const P& p, double force_scatter = 0) :
+  bond_weight(const bond_parameter& p, double force_scatter = 0) :
     density_(0), pa_para_(0), pa_anti_(0), pf_para_(0), pf_anti_(0),
     p_reflect_(0), offset_(0), sign_(1)
   {
@@ -147,6 +144,32 @@ public:
   double offset() const { return offset_; }
   double sign() const { return sign_; }
 
+  template<typename W>
+  static bond_parameter check(const W& w)
+  {
+    using alps::is_equal;
+    
+    double rp = w.density() * w.p_accept_para();
+    double w11 = rp * w.p_freeze_para();
+    double w13 = rp - w11;
+    double ra = w.density() * w.p_accept_anti();
+    double w22 = ra * w.p_freeze_anti();
+    double w23 = ra - w22;
+    double w12 = -(w11+ w13 + w22 + w23) / 2;
+    
+    assert(w11 >= 0 && w13 >= 0 && w22 >= 0 && w23 >= 0);
+    assert(std::abs(w23 - w.p_reflect() * (w13 + w23)) < 1.0e-10);
+    
+    double jxy = 2 * (w13 + w23) * w.sign();
+    double jz = 4 * (w12 + w11 + w13);
+    
+    assert(std::abs(w.offset() + w11 + w13 - jz/4) < 1.0e-10);
+    assert(std::abs(w.offset() + w22 + w23 - (-jz/4)) < 1.0e-10);
+    assert(std::abs(w.sign() * (w13 + w23) - jxy/2) < 1.0e-10);
+    
+    return P(0, jxy, jz);
+  }
+
 private:
   double density_;
   double pa_para_;
@@ -157,34 +180,6 @@ private:
   double offset_;
   double sign_;
 };
-
-template<typename P, typename W>
-P check(const W& w)
-{
-  using alps::is_equal;
-
-  double rp = w.density() * w.p_accept_para();
-  double w11 = rp * w.p_freeze_para();
-  double w13 = rp - w11;
-  double ra = w.density() * w.p_accept_anti();
-  double w22 = ra * w.p_freeze_anti();
-  double w23 = ra - w22;
-  double w12 = -(w11+ w13 + w22 + w23) / 2;
-
-  assert(w11 >= 0. && w13 >= 0. && w22 >= 0. && w23 >= 0.);
-  assert(is_equal(w23, w.p_reflect() * (w13 + w23)));
-
-  double jxy = 2 * (w13 + w23) * w.sign();
-  double jz = 4 * (w12 + w11 + w13);
-
-  assert(std::abs(w.offset() + w11 + w13 - jz/4) < 1.0e-10);
-  assert(std::abs(w.offset() + w22 + w23 - (-jz/4)) < 1.0e-10);
-  assert(std::abs(w.sign() * (w13 + w23) - jxy/2) < 1.0e-10);
-
-  return P(0, jxy, jz);
-}
-
-} // end namespace weight
 
 
 template<class WEIGHT>

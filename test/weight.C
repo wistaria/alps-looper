@@ -62,7 +62,7 @@ void output(const alps::Parameters& param, const W& weight)
   std::cout << std::endl;
 
   looper::bond_parameter p =
-    looper::weight::check<looper::bond_parameter>(weight);
+    looper::bond_weight::check(weight);
 }
 
 int main()
@@ -79,10 +79,10 @@ try {
     looper::bond_parameter bond(0, (*p)["Jxy"], (*p)["Jz"]);
 
     std::cout << "standard: ";
-    output(*p, looper::weight::xxz(bond));
+    output(*p, looper::bond_weight(bond));
 
     std::cout << "ergodic: ";
-    output(*p, looper::weight::xxz(bond, 0.1));
+    output(*p, looper::bond_weight(bond, 0.1));
   }
 
 #ifndef BOOST_NO_EXCEPTIONS
