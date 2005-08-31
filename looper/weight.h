@@ -167,7 +167,7 @@ public:
     assert(std::abs(w.offset() + w22 + w23 - (-jz/4)) < 1.0e-10);
     assert(std::abs(w.sign() * (w13 + w23) - jxy/2) < 1.0e-10);
     
-    return P(0, jxy, jz);
+    return bond_parameter(0, jxy, jz);
   }
 
 private:
