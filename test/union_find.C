@@ -49,7 +49,7 @@ int main()
   std::cout << "[[union find test]]\n";
 
   std::vector<looper::union_find::node_idx> nodes_idx(n);
-  std::vector<looper::union_find::node<> > nodes_ptr(n);
+  // std::vector<looper::union_find::node<> > nodes_ptr(n);
 
   std::cout << "\n[making tree]\n";
 
@@ -58,7 +58,7 @@ int main()
     int i1 = rng();
     std::cout << "connecting node " << i0 << " to node " << i1 << std::endl;
     looper::union_find::unify(nodes_idx, i0, i1);
-    looper::union_find::unify(nodes_ptr[i0], nodes_ptr[i1]);
+    // looper::union_find::unify(nodes_ptr[i0], nodes_ptr[i1]);
   }
 
   std::cout << "\n[results (index based)]\n";
@@ -78,19 +78,19 @@ int main()
     }
   }
 
-  std::cout << "\n[results (pointer based)]\n";
+//   std::cout << "\n[results (pointer based)]\n";
 
-  for (std::vector<looper::union_find::node<> >::iterator itr = nodes_ptr.begin();
-       itr != nodes_ptr.end(); ++itr) {
-    if (itr->is_root()) {
-      std::cout << "node " << index(itr, nodes_ptr.begin())
-                << " is root and nodes_ptr size is "
-                << itr->weight() << std::endl;
-    } else {
-      std::cout << "node " << index(itr, nodes_ptr.begin())
-		<< "'s parent is " << index(itr->parent(), nodes_ptr.begin())
-		<< " and its root is " << index(itr->root(), nodes_ptr.begin())
-                << std::endl;
-    }
-  }
+//   for (std::vector<looper::union_find::node<> >::iterator itr = nodes_ptr.begin();
+//        itr != nodes_ptr.end(); ++itr) {
+//     if (itr->is_root()) {
+//       std::cout << "node " << index(itr, nodes_ptr.begin())
+//                 << " is root and nodes_ptr size is "
+//                 << itr->weight() << std::endl;
+//     } else {
+//       std::cout << "node " << index(itr, nodes_ptr.begin())
+// 		<< "'s parent is " << index(itr->parent(), nodes_ptr.begin())
+// 		<< " and its root is " << index(itr->root(), nodes_ptr.begin())
+//                 << std::endl;
+//     }
+//   }
 }
