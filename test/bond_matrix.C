@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2005 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -50,17 +50,17 @@ int main()
 
     alps::half_integer<int> s0(s0_in);
     alps::half_integer<int> s1(s1_in);
-    looper::bond_matrix xxz(s0, s1, looper::bond_parameter(c, jxy, jz));
+    looper::bond_parameter pi(c, jxy, jz);
+    looper::bond_matrix m(s0, s1, pi);
 
-    std::cout << "input parameters: S0 = " << s0 << ", S1 = " << s1
-              << ", C = " << c << ", Jxy = " << jxy << ", Jz = " << jz
-              << std::endl << xxz << std::endl;
+    std::cout << "input parameters: S0 = " << s0 << ", S1 = " << s1 << ", "
+              << pi << std::endl << m << std::endl;
 
-    looper::bond_parameter p;
-    bool success = looper::fit2bond(xxz.matrix(), p);
-    
+    looper::bond_parameter pr;
+    bool success = looper::fit2bond(m.matrix(), pr);
+
     if (!success) std::cerr << "Error: fitting failed\n";
 
-    std::cout << "fitting result: " << p << std::endl;
+    std::cout << "fitting result: " << pr << std::endl;
   }
 }

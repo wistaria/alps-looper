@@ -27,6 +27,7 @@
 
 #include <looper/graph.h>
 #include <looper/lapack.h>
+#include <looper/util.h>
 
 #include <alps/math.hpp>
 #include <boost/multi_array.hpp>
@@ -46,9 +47,9 @@ class site_matrix;
 class bond_matrix;
 
 bool fit2site(const boost::multi_array<double, 2>& mat,
-	      site_parameter& param, double tol = 1.e-10);
+              site_parameter& param, double tol = 1.e-10);
 bool fit2bond(const boost::multi_array<double, 4>& mat,
-	      bond_parameter& param, double tol = 1.e-10);
+              bond_parameter& param, double tol = 1.e-10);
 
 
 //
@@ -60,17 +61,13 @@ class site_parameter
 public:
   typedef alps::half_integer<int> spin_type;
 
-  site_parameter() : s_(0.5), c_(0), hx_(0), hz_(0) {}
-  site_parameter(double s) : s_(s), c_(0), hx_(0), hz_(0) {}
-  template<typename J>
-  site_parameter(const alps::half_integer<J>& s) :
-    s_(s), c_(0), hx_(0), hz_(0) {}
-  site_parameter(double s, double c, double hx, double hz) :
-    s_(s), c_(c), hx_(hx), hz_(hz) {}
+  site_parameter(double s = 0.5, double c = 0, double hx = 0, double hz = 0,
+                 double d = 0) :
+    s_(s), c_(c), hx_(hx), hz_(hz), d_(d) {}
   template<typename J>
   site_parameter(const alps::half_integer<J>& s,
-		 double c, double hx, double hz) :
-    s_(s), c_(c), hx_(hx), hz_(hz) {}
+                 double c = 0, double hx = 0, double hz = 0, double d = 0) :
+    s_(s), c_(c), hx_(hx), hz_(hz), d_(d) {}
   site_parameter(const boost::multi_array<double, 2>& mat)
   {
     bool success = fit2site(mat, *this);
@@ -84,7 +81,8 @@ public:
   {
     using alps::is_equal;
     return (s() == rhs.s()) && is_equal(c(), rhs.c()) &&
-      is_equal(hx(), rhs.hx()) && is_equal(hz(), rhs.hz());
+      is_equal(hx(), rhs.hx()) && is_equal(hz(), rhs.hz())
+      && is_equal(d(), rhs.d());
   }
 
   bool operator!=(const site_parameter& rhs) const
@@ -92,29 +90,36 @@ public:
     return !operator==(rhs);
   }
 
+  // size of spin
   const spin_type& s() const { return s_; }
   spin_type& s() { return s_; }
 
+  // constant energy offset: + c
   double c() const { return c_; }
   double& c() { return c_; }
 
+  // transverse field: - hx Sx
   double hx() const { return hx_; }
   double& hx() { return hx_; }
 
+  // longitudinal field: - hz Sz
   double hz() const { return hz_; }
   double& hz() { return hz_; }
 
+  // single-ion anisotropy: + d (Sz)^2
+  double d() const { return d_; }
+  double& d() { return d_; }
+
 private:
   spin_type s_;
-  double c_, hx_, hz_;
+  double c_, hx_, hz_, d_;
 };
 
 
 class bond_parameter
 {
 public:
-  bond_parameter() : c_(), jxy_(), jz_() {}
-  bond_parameter(double c, double jxy, double jz) 
+  bond_parameter(double c = 0, double jxy = 0, double jz = 0)
     : c_(c), jxy_(jxy), jz_(jz) {}
   bond_parameter(const boost::multi_array<double, 4>& mat)
   {
@@ -125,12 +130,15 @@ public:
         "This model is not supported by the corrent looper code."));
   }
 
+  // constant energy offset: + c
   double c() const { return c_; }
   double& c() { return c_; }
 
+  // off-diagonal interaction: jxy/2 * (s1+ s2- + s1- s2+)
   double jxy() const { return jxy_; }
   double& jxy() { return jxy_; }
 
+  // diagonal interaction: jz s1z s2z
   double jz() const { return jz_; }
   double& jz() { return jz_; }
 
@@ -178,19 +186,19 @@ public:
       for (int j = 0; j < dim; ++j)
         mat_[i][j] = 0;
 
-    // diagonal elements: c - hz sz
+    // diagonal elements: c - hz sz + d sz^2
     for (spin_type sz = -s; sz <= s; ++sz)
       mat_[sz.distance(-s)][sz.distance(-s)] =
-        sp.c() - sp.hz() * to_double(sz);
-    
+        sp.c() - sp.hz() * to_double(sz) +  sp.d() * sqr(to_double(sz));
+
     // off-diagonal elements: hx s+ / 2
     for (spin_type sz = -s; sz <= s-1; ++sz)
       mat_[sz.distance(-s)+1][sz.distance(-s)] =
         - 0.5 * sp.hx() * sqrt(to_double(s-sz) * to_double(s+sz+1));
-    
+
     // off-diagonal elements: hx s- / 2
     for (spin_type sz = -s+1; sz <= s; ++sz)
-      mat_[sz.distance(-s)-1][sz.distance(-s)] = 
+      mat_[sz.distance(-s)-1][sz.distance(-s)] =
         - 0.5 * sp.hx() * sqrt(to_double(s+sz) * to_double(s-sz+1));
   }
 
@@ -218,7 +226,7 @@ public:
               const bond_parameter& bp) : mat_()
   { build(s0, s1, bp); }
   bond_matrix(const site_parameter& sp0, const site_parameter& sp1,
-	      const bond_parameter& bp) : mat_()
+              const bond_parameter& bp) : mat_()
   { build(sp0.s(), sp1.s(), bp); }
 
   double operator()(size_type i, size_type j, size_type k, size_type l) const
@@ -323,18 +331,18 @@ public:
   template<typename G, typename I>
   model_parameter(const alps::Parameters& params,
                   const alps::graph_helper<G>& gh,
-		  const alps::model_helper<I>& mh)
+                  const alps::model_helper<I>& mh)
     : sites_(), bonds_()
   {
     set_parameters(params, gh.graph(), gh.inhomogeneous_sites(),
-		   gh.inhomogeneous_bonds(), mh.model(),
-		   alps::has_sign_problem(mh.model(), gh, params));
+                   gh.inhomogeneous_bonds(), mh.model(),
+                   alps::has_sign_problem(mh.model(), gh, params));
   }
 
   // set_parameters
 
   template<typename G, typename I>
-  void set_parameters(const G& g, const alps::half_integer<I>& spin, 
+  void set_parameters(const G& g, const alps::half_integer<I>& spin,
                       double Jxy, double Jz)
   {
     set_parameters_impl(g, spin, Jxy, Jz);
@@ -375,7 +383,7 @@ public:
     const G& g) const
   {
     return inhomogeneous_site() ?
-      sites_[boost::get(vertex_index_t(), g, v)] : 
+      sites_[boost::get(vertex_index_t(), g, v)] :
       (uniform_site() ? sites_[0] :
        sites_[boost::get(vertex_type_t(), g, v)]);
   }
@@ -431,7 +439,7 @@ protected:
   {
     using alps::is_negative;
     using boost::get;
-    
+
     typedef typename boost::graph_traits<G>::vertex_iterator vertex_iterator;
     typedef typename boost::graph_traits<G>::edge_iterator edge_iterator;
 
@@ -442,7 +450,7 @@ protected:
     //
     // site terms
     //
-    
+
     // check type range and resize 'sites_'
     use_site_index_ = false;
     if (inhomogeneous_sites) {
@@ -625,18 +633,19 @@ private:
 //
 
 bool fit2site(const boost::multi_array<double, 2>& mat,
-	      site_parameter& param, double tol)
+              site_parameter& param, double tol)
 {
   assert(mat.shape()[0] == mat.shape()[1]);
 
   int dim = mat.shape()[0];
   int m = dim * dim;
-  int n = 3;
-  
+  int n = (dim > 2 ? 4 : 3); // D-term is meaningful only for S > 1/2
+
   alps::half_integer<short> s((double)(dim-1)/2);
-  site_matrix mat_c(site_parameter(s, 1, 0, 0));
-  site_matrix mat_hx(site_parameter(s, 0, 1, 0));
-  site_matrix mat_hz(site_parameter(s, 0, 0, 1));
+  site_matrix mat_c(site_parameter(s, 1, 0, 0, 0));
+  site_matrix mat_hx(site_parameter(s, 0, 1, 0, 0));
+  site_matrix mat_hz(site_parameter(s, 0, 0, 1, 0));
+  site_matrix mat_d(site_parameter(s, 0, 0, 0, 1));
 
 //   alps::SiteBasisDescriptor<short> basis(spin_basis(s));
 //   boost::multi_array<value_type, 2> mat_c(
@@ -663,31 +672,23 @@ bool fit2site(const boost::multi_array<double, 2>& mat,
       a(k, 0) = mat_c(i,j);
       a(k, 1) = mat_hx(i,j);
       a(k, 2) = mat_hz(i,j);
+      if (n == 4) a(k, 3) = mat_d(i,j);
     }
   }
-  
+
   // call linear least sqaure problem solver
   bool success = (solve_llsp(a, b, x) < tol);
   if (!success) return success;
 
-//   double c = alps::expression::numeric_cast<double>x(0));
-//   if (std::abs(c) < tol) c = 0;
-//   double hx = alps::expression::numeric_cast<double>(x(1));
-//   if (std::abs(hx) < tol) hx = 0;
-//   double hz = alps::expression::numeric_cast<double>(x(2));
-//   if (std::abs(hz) < tol) hz = 0;
-
-//   if (success) param = site_parameter(s, c, hx, hz);
-
   for (int i = 0; i < n; ++i) if (std::abs(x(i)) < tol) x(i) = 0;
-  param = site_parameter(s, x(0), x(1), x(2));
+  param = site_parameter(s, x(0), x(1), x(2), (n == 4 ? x(3) : 0));
 
   return true;
 }
 
 
 bool fit2bond(const boost::multi_array<double, 4>& mat,
-	      bond_parameter& param, double tol)
+              bond_parameter& param, double tol)
 {
   assert(mat.shape()[0] == mat.shape()[2]);
   assert(mat.shape()[1] == mat.shape()[3]);

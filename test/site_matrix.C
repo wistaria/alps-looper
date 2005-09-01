@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2005 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -37,29 +37,29 @@ std::ostream& operator<<(std::ostream& os, const looper::site_matrix& m)
 
 std::ostream& operator<<(std::ostream& os, const looper::site_parameter& p)
 {
-  os << "C = " << p.c() << ", Hx = " << p.hx() << ", Hz = " << p.hz();
+  os << "S = " << p.s() << ", C = " << p.c() << ", Hx = " << p.hx()
+     << ", Hz = " << p.hz() << ", D = " << p.d();
   return os;
 }
 
 int main()
 {
   while (true) {
-    double s_in, c, hx, hz;
-    std::cin >> s_in >> c >> hx >> hz;
+    double s_in, c, hx, hz, d;
+    std::cin >> s_in >> c >> hx >> hz >> d;
     if (!std::cin) break;
 
-    looper::site_parameter s(s_in, c, hx, hz);
-    looper::site_matrix site(s);
+    looper::site_parameter pi(s_in, c, hx, hz, d);
+    looper::site_matrix m(pi);
 
-    std::cout << "input parameters: S = " << s.s()
-              << ", C = " << c << ", Hx = " << hx << ", Hz = " << hz
-              << std::endl << site << std::endl;
+    std::cout << "input parameters: "
+              << pi << std::endl << m << std::endl;
 
-    looper::site_parameter p;
-    bool success = looper::fit2site(site.matrix(), p);
+    looper::site_parameter pr;
+    bool success = looper::fit2site(m.matrix(), pr);
 
     if (!success) std::cerr << "Error: fitting failed\n";
 
-    std::cout << "fitting result: " << p << std::endl;
+    std::cout << "fitting result: " << pr << std::endl;
   }
 }

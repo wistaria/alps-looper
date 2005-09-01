@@ -90,7 +90,7 @@ class bond_weight {
 
 public:
   bond_weight() :
-    density_(0), pa_para_(0), pa_anti_(0), pf_para_(0), pf_anti_(0), 
+    density_(0), pa_para_(0), pa_anti_(0), pf_para_(0), pf_anti_(0),
     p_reflect_(0), offset_(0), sign_(1) {}
   bond_weight(const bond_parameter& p, double force_scatter = 0) :
     density_(0), pa_para_(0), pa_anti_(0), pf_para_(0), pf_anti_(0),
@@ -148,7 +148,7 @@ public:
   static bond_parameter check(const W& w)
   {
     using alps::is_equal;
-    
+
     double rp = w.density() * w.p_accept_para();
     double w11 = rp * w.p_freeze_para();
     double w13 = rp - w11;
@@ -156,17 +156,17 @@ public:
     double w22 = ra * w.p_freeze_anti();
     double w23 = ra - w22;
     double w12 = -(w11+ w13 + w22 + w23) / 2;
-    
+
     assert(w11 >= 0 && w13 >= 0 && w22 >= 0 && w23 >= 0);
     assert(std::abs(w23 - w.p_reflect() * (w13 + w23)) < 1.0e-10);
-    
+
     double jxy = 2 * (w13 + w23) * w.sign();
     double jz = 4 * (w12 + w11 + w13);
-    
+
     assert(std::abs(w.offset() + w11 + w13 - jz/4) < 1.0e-10);
     assert(std::abs(w.offset() + w22 + w23 - (-jz/4)) < 1.0e-10);
     assert(std::abs(w.sign() * (w13 + w23) - jxy/2) < 1.0e-10);
-    
+
     return bond_parameter(0, jxy, jz);
   }
 
@@ -177,6 +177,44 @@ private:
   double pf_para_;
   double pf_anti_;
   double p_reflect_;
+  double offset_;
+  double sign_;
+};
+
+
+class site_weight {
+
+  // loop equation (and its solution):
+  //
+  //   w1 = Hx/2
+  //
+  //   density = w1
+
+public:
+  site_weight() : density_(0), offset_(0), sign_(1) {}
+  site_weight(const site_parameter& p) : density_(0), offset_(0), sign_(1)
+  {
+    density_ = std::abs(p.hx()) / 2;
+    offset_ = density_;
+    sign_ = (p.hx() >= 0 ? 1 : -1);
+  }
+
+  double density() const { return density_; }
+  double weight() const { return density_; }
+  double offset() const { return offset_; }
+  double sign() const { return sign_; }
+
+  template<typename W>
+  static site_parameter check(const W& w)
+  {
+    double w1 = w.density();
+    double hx = 2 * w1 * w.sign();
+    assert(w1 >= 0);
+    return site_parameter(0, hx);
+  }
+
+private:
+  double density_;
   double offset_;
   double sign_;
 };

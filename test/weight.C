@@ -27,8 +27,16 @@
 #include <alps/parameterlist.h>
 #include <iostream>
 
-template<typename W>
-void output(const alps::Parameters& param, const W& weight)
+void output(const alps::Parameters& param, const looper::site_weight& weight)
+{
+  std::cout << "Hx = " << param["Hx"]
+            << " : r = " << weight.density()
+            << ", sign = " << weight.sign() << std::endl;
+  looper::site_parameter p =
+    looper::site_weight::check(weight);
+}
+
+void output(const alps::Parameters& param, const looper::bond_weight& weight)
 {
   using alps::is_equal;
 
@@ -76,12 +84,16 @@ try {
 
   for (alps::ParameterList::iterator p = params.begin();
        p != params.end(); ++p) {
+    looper::site_parameter site(0.5, 0, (*p)["Hx"]);
     looper::bond_parameter bond(0, (*p)["Jxy"], (*p)["Jz"]);
 
-    std::cout << "standard: ";
+    std::cout << "site weight (standard): ";
+    output(*p, looper::site_weight(site));
+
+    std::cout << "bond weight (standard): ";
     output(*p, looper::bond_weight(bond));
 
-    std::cout << "ergodic: ";
+    std::cout << "bond weight (ergodic): ";
     output(*p, looper::bond_weight(bond, 0.1));
   }
 
