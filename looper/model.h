@@ -749,6 +749,13 @@ bool fit2bond(const boost::multi_array<double, 4>& mat,
   return true;
 }
 
+
+//
+// function generate_virtual_model
+//
+
+template<typename RealGraph, typename RealModel, typename VirtualGraph, typename VirtualModel>
+void generate_virtual_model(const RealGraph& rg, const RealModel& 
 } // end namespace looper
 
 #endif // LOOPER_MODEL_H
