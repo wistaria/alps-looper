@@ -47,9 +47,9 @@ class site_matrix;
 class bond_matrix;
 
 bool fit2site(const boost::multi_array<double, 2>& mat,
-              site_parameter& param, double tol = 1.e-10);
+              site_parameter& param);
 bool fit2bond(const boost::multi_array<double, 4>& mat,
-              bond_parameter& param, double tol = 1.e-10);
+              bond_parameter& param);
 
 
 //
@@ -79,10 +79,9 @@ public:
 
   bool operator==(const site_parameter& rhs) const
   {
-    using alps::is_equal;
-    return (s() == rhs.s()) && is_equal(c(), rhs.c()) &&
-      is_equal(hx(), rhs.hx()) && is_equal(hz(), rhs.hz())
-      && is_equal(d(), rhs.d());
+    return (s() == rhs.s()) && alps::is_equal<1>(c(), rhs.c()) &&
+      alps::is_equal<1>(hx(), rhs.hx()) && alps::is_equal<1>(hz(), rhs.hz())
+      && alps::is_equal<1>(d(), rhs.d());
   }
 
   bool operator!=(const site_parameter& rhs) const
@@ -144,9 +143,9 @@ public:
 
   bool operator==(const bond_parameter& rhs) const
   {
-    using alps::is_equal;
-    return is_equal(c(), rhs.c()) && is_equal(jxy(), rhs.jxy()) &&
-      is_equal(jz(), rhs.jz());
+    return alps::is_equal<1>(c(), rhs.c()) &&
+      alps::is_equal<1>(jxy(), rhs.jxy()) &&
+      alps::is_equal<1>(jz(), rhs.jz());
   }
   bool operator!=(const bond_parameter& rhs) const
   {
@@ -174,7 +173,7 @@ public:
   site_matrix(const site_matrix& m) : mat_(m.mat_) {}
   site_matrix(const site_parameter& sp) : mat_()
   {
-    using std::sqrt; using alps::to_double;
+    using std::sqrt; // using alps::to_double;
     typedef site_parameter::spin_type spin_type;
 
     spin_type s = sp.s();
@@ -242,7 +241,7 @@ protected:
   void build(const alps::half_integer<I>& s0, const alps::half_integer<I>& s1,
              const bond_parameter& bp)
   {
-    using std::sqrt; using alps::to_double;
+    using std::sqrt; // using alps::to_double;
     typedef typename alps::half_integer<I> spin_type;
 
     // set matrix dimension
@@ -437,9 +436,6 @@ protected:
     bool inhomogeneous_sites, bool inhomogeneous_bond,
     const alps::HamiltonianDescriptor<I>& hd)
   {
-    using alps::is_negative;
-    using boost::get;
-
     typedef typename boost::graph_traits<G>::vertex_iterator vertex_iterator;
     typedef typename boost::graph_traits<G>::edge_iterator edge_iterator;
 
@@ -461,10 +457,10 @@ protected:
       alps::type_type type_max = 0;
       vertex_iterator vi, vi_end;
       for (boost::tie(vi, vi_end) = boost::vertices(g); vi != vi_end; ++vi) {
-        type_min = std::min(type_min, get(vertex_type_t(), g, *vi));
-        type_max = std::max(type_min, get(vertex_type_t(), g, *vi));
+        type_min = std::min(type_min, boost::get(vertex_type_t(), g, *vi));
+        type_max = std::max(type_min, boost::get(vertex_type_t(), g, *vi));
       }
-      if (is_negative(type_min) || type_max > boost::num_vertices(g)) {
+      if (alps::is_negative(type_min) || type_max > boost::num_vertices(g)) {
         use_site_index_ = true;
         sites_.resize(boost::num_vertices(g));
       } else {
@@ -481,8 +477,8 @@ protected:
           alps::throw_if_xyz_defined(params, g);
           p << alps::coordinate_as_parameter(g, *vi);
         }
-        unsigned int i = get(vertex_index_t(), g, *vi);
-        unsigned int t = get(vertex_type_t(), g, *vi);
+        unsigned int i = boost::get(vertex_index_t(), g, *vi);
+        unsigned int t = boost::get(vertex_type_t(), g, *vi);
         sites_[i] = site_parameter(
           alps::get_matrix(double(), hd.site_term(t),
                            hd.basis().site_basis(t), p));
@@ -491,7 +487,7 @@ protected:
       std::vector<bool> checked(sites_.size(), false);
       vertex_iterator vi, vi_end;
       for (boost::tie(vi, vi_end) = boost::vertices(g); vi != vi_end; ++vi) {
-        unsigned int t = get(vertex_type_t(), g, *vi);
+        unsigned int t = boost::get(vertex_type_t(), g, *vi);
         if (!checked[t]) {
           sites_[t] = site_parameter(
             alps::get_matrix(double(), hd.site_term(t),
@@ -517,23 +513,23 @@ protected:
         vtype;
       edge_iterator ei, ei_end;
       for (boost::tie(ei, ei_end) = boost::edges(g); ei != ei_end; ++ei) {
-        type_min = std::min(type_min, get(edge_type_t(), g, *ei));
-        type_max = std::max(type_max, get(edge_type_t(), g, *ei));
-        unsigned int t = get(edge_type_t(), g, *ei);
+        type_min = std::min(type_min, boost::get(edge_type_t(), g, *ei));
+        type_max = std::max(type_max, boost::get(edge_type_t(), g, *ei));
+        unsigned int t = boost::get(edge_type_t(), g, *ei);
         if (vtype.find(t) == vtype.end()) {
           vtype[t] = std::make_pair(
-              get(vertex_type_t(), g, boost::source(*ei, g)),
-              get(vertex_type_t(), g, boost::target(*ei, g)));
+              boost::get(vertex_type_t(), g, boost::source(*ei, g)),
+              boost::get(vertex_type_t(), g, boost::target(*ei, g)));
         } else {
           if (vtype[t] != std::make_pair(
-              get(vertex_type_t(), g, boost::source(*ei, g)),
-              get(vertex_type_t(), g, boost::target(*ei, g)))) {
+              boost::get(vertex_type_t(), g, boost::source(*ei, g)),
+              boost::get(vertex_type_t(), g, boost::target(*ei, g)))) {
             use_bond_index_ = true;
             break;
           }
         }
       }
-      if (use_bond_index_ || is_negative(type_min) ||
+      if (use_bond_index_ || alps::is_negative(type_min) ||
           type_max > boost::num_edges(g)) {
         use_bond_index_ = true;
         bonds_.resize(boost::num_edges(g));
@@ -551,10 +547,12 @@ protected:
           alps::throw_if_xyz_defined(params, g);
           p << alps::coordinate_as_parameter(g, *ei);
         }
-        unsigned int i = get(edge_index_t(), g, *ei);
-        unsigned int t = get(edge_type_t(), g, *ei);
-        unsigned int st0 = get(vertex_type_t(), g, boost::source(*ei, g));
-        unsigned int st1 = get(vertex_type_t(), g, boost::target(*ei, g));
+        unsigned int i = boost::get(edge_index_t(), g, *ei);
+        unsigned int t = boost::get(edge_type_t(), g, *ei);
+        unsigned int st0 =
+	  boost::get(vertex_type_t(), g, boost::source(*ei, g));
+        unsigned int st1 =
+	  boost::get(vertex_type_t(), g, boost::target(*ei, g));
         bonds_[i] = bond_parameter(
           alps::get_matrix(double(), hd.bond_term(t),
                            hd.basis().site_basis(st0),
@@ -564,10 +562,12 @@ protected:
       std::vector<bool> checked(bonds_.size(), false);
       edge_iterator ei, ei_end;
       for (boost::tie(ei, ei_end) = boost::edges(g); ei != ei_end; ++ei) {
-        unsigned int t = get(edge_type_t(), g, *ei);
+        unsigned int t = boost::get(edge_type_t(), g, *ei);
         if (!checked[t]) {
-          unsigned int st0 = get(vertex_type_t(), g, boost::source(*ei, g));
-          unsigned int st1 = get(vertex_type_t(), g, boost::target(*ei, g));
+          unsigned int st0 =
+	    boost::get(vertex_type_t(), g, boost::source(*ei, g));
+          unsigned int st1 =
+	    boost::get(vertex_type_t(), g, boost::target(*ei, g));
           bonds_[t] = bond_parameter(
             alps::get_matrix(double(), hd.bond_term(t),
                              hd.basis().site_basis(st0),
@@ -633,7 +633,7 @@ private:
 //
 
 bool fit2site(const boost::multi_array<double, 2>& mat,
-              site_parameter& param, double tol)
+              site_parameter& param)
 {
   assert(mat.shape()[0] == mat.shape()[1]);
 
@@ -677,10 +677,10 @@ bool fit2site(const boost::multi_array<double, 2>& mat,
   }
 
   // call linear least sqaure problem solver
-  bool success = (solve_llsp(a, b, x) < tol);
+  bool success = alps::is_zero<1>(solve_llsp(a, b, x));
   if (!success) return success;
 
-  for (int i = 0; i < n; ++i) if (std::abs(x(i)) < tol) x(i) = 0;
+  for (int i = 0; i < n; ++i) x(i) = alps::round<1>(x(i));
   param = site_parameter(s, x(0), x(1), x(2), (n == 4 ? x(3) : 0));
 
   return true;
@@ -688,7 +688,7 @@ bool fit2site(const boost::multi_array<double, 2>& mat,
 
 
 bool fit2bond(const boost::multi_array<double, 4>& mat,
-              bond_parameter& param, double tol)
+              bond_parameter& param)
 {
   assert(mat.shape()[0] == mat.shape()[2]);
   assert(mat.shape()[1] == mat.shape()[3]);
@@ -740,10 +740,10 @@ bool fit2bond(const boost::multi_array<double, 4>& mat,
   }
 
   // call linear least squaure problem solver
-  bool success = (solve_llsp(a, b, x) < tol);
+  bool success = alps::is_zero<1>(solve_llsp(a, b, x));
   if (!success) return success;
 
-  for (int i = 0; i < n; ++i) if (std::abs(x(i)) < tol) x(i) = 0;
+  for (int i = 0; i < n; ++i) x(i) = alps::round<1>(x(i));
   param = bond_parameter(x(0), x(1), x(2));
 
   return true;
@@ -754,8 +754,9 @@ bool fit2bond(const boost::multi_array<double, 4>& mat,
 // function generate_virtual_model
 //
 
-template<typename RealGraph, typename RealModel, typename VirtualGraph, typename VirtualModel>
-void generate_virtual_model(const RealGraph& rg, const RealModel& 
+// template<typename RealGraph, typename RealModel, typename VirtualGraph, typename VirtualModel>
+//void generate_virtual_model(const RealGraph& rg, const RealModel& 
+
 } // end namespace looper
 
 #endif // LOOPER_MODEL_H

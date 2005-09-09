@@ -36,7 +36,7 @@ int main() {
 try {
 #endif
 
-  typedef looper::parity_graph_type rgraph_type;
+  typedef looper::graph_type rgraph_type;
   typedef boost::graph_traits<rgraph_type>::vertex_iterator rvertex_iterator;
   typedef boost::graph_traits<rgraph_type>::edge_iterator redge_iterator;
 
@@ -49,7 +49,7 @@ try {
   looper::hypercubic_graph_generator<> gen(2, 2);
   looper::generate_graph(rg, gen);
   put(looper::vertex_type_t(), rg, *(vertices(rg).first), 1);
-  set_parity(rg);
+  set_parity(rg, looper::parity_t());
   std::cout << rg;
   rvertex_iterator rvi, rvi_end;
   for (boost::tie(rvi, rvi_end) = vertices(rg); rvi != rvi_end; ++rvi) {

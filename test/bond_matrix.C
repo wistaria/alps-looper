@@ -59,7 +59,7 @@ int main()
     looper::bond_parameter pr;
     bool success = looper::fit2bond(m.matrix(), pr);
 
-    if (!success) std::cerr << "Error: fitting failed\n";
+    if (!success || pi != pr) std::cerr << "Error: fitting failed\n";
 
     std::cout << "fitting result: " << pr << std::endl;
   }

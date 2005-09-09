@@ -58,7 +58,7 @@ int main()
     looper::site_parameter pr;
     bool success = looper::fit2site(m.matrix(), pr);
 
-    if (!success) std::cerr << "Error: fitting failed\n";
+    if (!success || pi != pr) std::cerr << "Error: fitting failed\n";
 
     std::cout << "fitting result: " << pr << std::endl;
   }
