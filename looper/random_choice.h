@@ -49,7 +49,7 @@ public:
 
   random_choice() : n_(0) {}
   template<class CONT>
-  explicit random_choice(const CONT& weights)
+  random_choice(const CONT& weights)
   {
 #ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
     BOOST_STATIC_ASSERT(std::numeric_limits<IntType>::is_integer);
@@ -197,6 +197,60 @@ private:
   std::vector<std::pair<RealType, result_type> > table_;
                   // first element:  cutoff value
                   // second element: alias
+};
+
+
+//
+// optimized version for N=2
+//
+
+template<class IntType = int, class RealType = double>
+class random_choice_2
+{
+public:
+  typedef RealType input_type;
+  typedef IntType result_type;
+
+#ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
+  BOOST_STATIC_ASSERT(std::numeric_limits<IntType>::is_integer);
+  BOOST_STATIC_ASSERT(!std::numeric_limits<RealType>::is_integer);
+#endif
+
+  random_choice_2() : prob_(0.5) {}
+  explicit random_choice_2(RealType w0, RealType w1) { init(w0, w1); }
+  template<class CONT>
+  random_choice_2(const CONT& weights)
+  {
+    if (weights.size() >= 2)
+      init(weights[0], weights[1]);
+    else
+      init(0, 0);
+  }
+  // compiler-generated copy ctor and assignment operator are fine
+
+  template<class Engine>
+  result_type operator()(Engine& eng) const
+  {
+    return (eng() < prob_) ? 0 : 1;
+  }
+
+protected:
+  void init(RealType w0, RealType w1)
+  {
+#ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
+    BOOST_STATIC_ASSERT(std::numeric_limits<IntType>::is_integer);
+    BOOST_STATIC_ASSERT(!std::numeric_limits<RealType>::is_integer);
+#endif
+    if (w0 < 0) w0 = 0;
+    if (w1 < 0) w1 = 0;
+    if (w0 + w1 > 0)
+      prob_ = w0 / (w0 + w1);
+    else
+      prob_ = 0.5;
+  }
+
+private:
+  RealType prob_; // probability of choosing 0
 };
 
 } // end namespace looper

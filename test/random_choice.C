@@ -77,6 +77,25 @@ try {
               << sigma << "    \t" << (diff / sigma) << std::endl;
   }
 
+  // random_choice_2
+  std::vector<double> weights2(2);
+  std::generate(weights2.begin(), weights2.end(), rng);
+  looper::random_choice_2<> rc2(weights2[0], weights2[1]);
+  tw = 0;
+  for (unsigned int i = 0; i < 2; ++i) tw += weights2[i];
+
+  std::vector<double> accum2(2, 0);
+  for (unsigned int t = 0; t < samples; ++t) ++accum2[rc2(rng)];
+
+  std::cout << "bin\tweight\t\tresult\t\tdiff\t\tsigma\t\tdiff/sigma\n";
+  for (unsigned int i = 0; i < 2; ++i) {
+    double diff = std::abs((weights2[i] / tw) - (accum2[i] / samples));
+    double sigma = std::sqrt(accum2[i]) / samples;
+    std::cout << i << "\t" << (weights2[i] / tw) << "    \t"
+              << (accum2[i] / samples) << "    \t" << diff << "    \t"
+              << sigma << "    \t" << (diff / sigma) << std::endl;
+  }
+
 #ifndef BOOST_NO_EXCEPTIONS
 }
 catch (const std::exception& excp) {

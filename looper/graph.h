@@ -52,7 +52,7 @@ typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS,
   // vertex property
   boost::property<vertex_type_t, alps::type_type,
   boost::property<coordinate_t, alps::coordinate_type,
-  boost::property<parity_t, double> > >,
+  boost::property<parity_t, int> > >,
   // edge property
   boost::property<edge_index_t, unsigned int,
   boost::property<edge_type_t, alps::type_type,
@@ -168,7 +168,7 @@ struct staggered
 {
   template<class T0, class T1, class T2, class T3, class T4, class T5,
            class T6>
-  static double
+  static int
   value(typename boost::graph_traits<
           boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
           vertex_descriptor vd,
@@ -590,7 +590,7 @@ virtual_edges(const virtual_graph<RG>& vg, const RG& rg,
 { return vg.virtual_edges(rg, re); }
 
 template<class RG>
-int
+double
 gauge(const virtual_graph<RG>& vg,
       const typename boost::graph_traits<virtual_graph<RG> >::
         vertex_descriptor& vd)
@@ -609,11 +609,27 @@ namespace alps {
 
 template<class Graph>
 struct parity_traits<looper::parity_t, Graph> {
-  typedef double value_type;
-  static const value_type white = 1;
-  static const value_type black = -1;
-  static const value_type undefined = 0;
+  typedef int value_type;
+  BOOST_STATIC_CONSTANT(value_type, white = 1);
+  BOOST_STATIC_CONSTANT(value_type, black = -1);
+  BOOST_STATIC_CONSTANT(value_type, undefined = 0);
 };
+
+#ifndef BOOST_NO_INCLASS_MEMBER_INITIALIZATION
+
+template<class Graph>
+const typename parity_traits<looper::parity_t, Graph>::value_type
+parity_traits<looper::parity_t, Graph>::white;
+
+template<class Graph>
+const typename parity_traits<looper::parity_t, Graph>::value_type
+parity_traits<looper::parity_t, Graph>::black;
+
+template<class Graph>
+const typename parity_traits<looper::parity_t, Graph>::value_type
+parity_traits<looper::parity_t, Graph>::undefined;
+
+#endif
 
 } // end namespace alps
 
