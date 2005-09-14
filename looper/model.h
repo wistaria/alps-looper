@@ -30,6 +30,8 @@
 #include <looper/util.h>
 
 #include <alps/math.hpp>
+#include <alps/model.h>
+#include <alps/scheduler/montecarlo.h>
 #include <boost/multi_array.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 
@@ -336,6 +338,15 @@ public:
     set_parameters(params, gh.graph(), gh.inhomogeneous_sites(),
                    gh.inhomogeneous_bonds(), mh.model(),
                    alps::has_sign_problem(mh.model(), gh, params));
+  }
+  template<typename G, typename I>
+  model_parameter(const alps::Parameters& params,
+                  const alps::scheduler::LatticeModelMCRun<G, I>& mcrun)
+    : sites_(), bonds_()
+  {
+    set_parameters(params, mcrun.graph(), mcrun.inhomogeneous_sites(),
+                   mcrun.inhomogeneous_bonds(), mcrun.model(),
+                   alps::has_sign_problem(mcrun.model(), mcrun, params));
   }
 
   // set_parameters
