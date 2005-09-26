@@ -83,9 +83,9 @@ class bond_weight {
   //      same as ii-2)
 
 public:
-  bond_weight() : weight_(0), offset_(0), sign_(1) 
+  bond_weight() : weight_(0), offset_(0), sign_(1)
   { v[1] = v[2] = v[3] = v[4] = 0; }
-  bond_weight(const bond_parameter& p, double force_scatter = 0) 
+  bond_weight(const bond_parameter& p, double force_scatter = 0)
   { init(p, force_scatter); }
 
   void init(const bond_parameter& p, double force_scatter = 0)
@@ -200,7 +200,7 @@ public:
   }
 
 private:
-  double density_;
+  double weight_;
   double sign_;
 };
 
