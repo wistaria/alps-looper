@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-#include <looper/graph.h>
+#include <looper/lattice.h>
 #include <alps/model.h>
 #include <iostream>
 
@@ -36,33 +36,30 @@ int main() {
 try {
 #endif
 
-  typedef looper::graph_type rgraph_type;
-  typedef boost::graph_traits<rgraph_type>::vertex_iterator rvertex_iterator;
-  typedef boost::graph_traits<rgraph_type>::edge_iterator redge_iterator;
-
-  typedef looper::virtual_graph<rgraph_type> vgraph_type;
-  typedef boost::graph_traits<vgraph_type>::vertex_iterator vvertex_iterator;
-  typedef boost::graph_traits<vgraph_type>::edge_iterator vedge_iterator;
+  typedef looper::graph_type graph_type;
+  typedef boost::graph_traits<graph_type>::vertex_iterator vertex_iterator;
+  typedef boost::graph_traits<graph_type>::edge_iterator edge_iterator;
 
   // real graph
-  rgraph_type rg;
+  graph_type rg;
   looper::hypercubic_graph_generator<> gen(2, 2);
   looper::generate_graph(rg, gen);
   put(looper::vertex_type_t(), rg, *(vertices(rg).first), 1);
   set_parity(rg, looper::parity_t());
   std::cout << rg;
-  rvertex_iterator rvi, rvi_end;
+  vertex_iterator rvi, rvi_end;
   for (boost::tie(rvi, rvi_end) = vertices(rg); rvi != rvi_end; ++rvi) {
-    std::cout << looper::gauge(rg, *rvi) << ' ';
+    std::cout << get(looper::parity_t(), rg, *rvi) << ' ';
   }
   std::cout << std::endl;
 
-  // virtual graph
-  vgraph_type vg;
+  // virtual lattice
   std::vector<alps::half_integer<int> > spins(2);
   spins[0] = 1; spins[1] = 3./2;
-  vg.initialize(rg, spins);
-  set_parity(vg);
+  graph_type vg;
+  looper::virtual_mapping<graph_type> vm;
+  looper::generate_virtual_lattice(rg, spins, vg, vm);
+  set_parity(vg, looper::parity_t());
 
   std::cout << "number of real vertices = "
             << num_vertices(rg) << std::endl;
@@ -74,12 +71,12 @@ try {
             << num_edges(vg) << std::endl;
 
   std::cout << vg;
-  vvertex_iterator vvi, vvi_end;
+  vertex_iterator vvi, vvi_end;
   for (boost::tie(vvi, vvi_end) = vertices(vg); vvi != vvi_end; ++vvi) {
-    std::cout << looper::gauge(vg, *vvi) << ' ';
+    std::cout << get(looper::parity_t(), vg, *vvi) << ' ';
   }
   std::cout << std::endl;
-  vg.print_mapping(std::cout, rg);
+  vm.output(std::cout, rg, vg);
 
 #ifndef BOOST_NO_EXCEPTIONS
 }

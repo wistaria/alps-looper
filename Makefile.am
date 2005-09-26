@@ -18,8 +18,8 @@ pkginclude_HEADERS = \
 	looper/exact_diag.h \
 	looper/fill_duration.h \
 	looper/find_bridges.h \
-	looper/graph.h \
 	looper/lapack.h \
+	looper/lattice.h \
 	looper/measurement.h \
 	looper/model.h \
 	looper/node.h \
@@ -36,7 +36,7 @@ pkginclude_HEADERS = \
 	looper/weight.h
 
 dist_noinst_SCRIPTS = config/run-test config/update_preamble
-dist_noinst_DATA = CITATIONS.txt LICENSE
+dist_noinst_DATA = CITATIONS.txt LICENSE.txt
 
 loop_SOURCES = loop.C loop_factory.C loop_factory.h loop_worker.h
 loop_evaluate_SOURCES = loop_evaluate.C loop_worker.h

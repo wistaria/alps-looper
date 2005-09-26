@@ -22,8 +22,8 @@
 *
 *****************************************************************************/
 
-#ifndef LOOPER_GRAPH_H_
-#define LOOPER_GRAPH_H_
+#ifndef LOOPER_LATTICE_H_
+#define LOOPER_LATTICE_H_
 
 #include <alps/lattice.h>
 #include <alps/model.h>
@@ -141,81 +141,81 @@ void generate_graph(G& g, const hypercubic_graph_generator<D, S, E>& desc)
 }
 
 
-template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
-inline int
-gauge(const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g,
-      typename boost::graph_traits<
-        boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
-          vertex_descriptor vd)
-{
-  return boost::get(parity_t(), g, vd);
-}
+// template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
+// inline int
+// gauge(const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g,
+//       typename boost::graph_traits<
+//         boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
+//           vertex_descriptor vd)
+// {
+//   return boost::get(parity_t(), g, vd);
+// }
 
-struct uniform
-{
-  template<class T0, class T1, class T2, class T3, class T4, class T5,
-           class T6>
-  static double
-  value(typename boost::graph_traits<
-          boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
-          vertex_descriptor,
-        const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>&) {
-    return 1.;
-  }
-};
+// struct uniform
+// {
+//   template<class T0, class T1, class T2, class T3, class T4, class T5,
+//            class T6>
+//   static double
+//   value(typename boost::graph_traits<
+//           boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
+//           vertex_descriptor,
+//         const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>&) {
+//     return 1.;
+//   }
+// };
 
-struct staggered
-{
-  template<class T0, class T1, class T2, class T3, class T4, class T5,
-           class T6>
-  static int
-  value(typename boost::graph_traits<
-          boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
-          vertex_descriptor vd,
-        const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g) {
-    return boost::get(parity_t(), g, vd);
-  }
-};
+// struct staggered
+// {
+//   template<class T0, class T1, class T2, class T3, class T4, class T5,
+//            class T6>
+//   static int
+//   value(typename boost::graph_traits<
+//           boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
+//           vertex_descriptor vd,
+//         const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g) {
+//     return boost::get(parity_t(), g, vd);
+//   }
+// };
 
-template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
-inline unsigned int
-vertex_index(typename boost::graph_traits<
-             boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
-             vertex_descriptor vd,
-           const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g)
-{
-  return boost::get(boost::vertex_index, g, vd);
-}
+// template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
+// inline unsigned int
+// vertex_index(typename boost::graph_traits<
+//              boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
+//              vertex_descriptor vd,
+//            const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g)
+// {
+//   return boost::get(boost::vertex_index, g, vd);
+// }
 
-template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
-inline unsigned int
-vertex_type(typename boost::graph_traits<
-            boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
-            vertex_descriptor vd,
-          const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g)
-{
-  return boost::get(alps::vertex_type_t(), g, vd);
-}
+// template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
+// inline unsigned int
+// vertex_type(typename boost::graph_traits<
+//             boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
+//             vertex_descriptor vd,
+//           const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g)
+// {
+//   return boost::get(alps::vertex_type_t(), g, vd);
+// }
 
-template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
-inline unsigned int
-edge_index(typename boost::graph_traits<
-             boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
-             edge_descriptor ed,
-           const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g)
-{
-  return boost::get(boost::edge_index, g, ed);
-}
+// template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
+// inline unsigned int
+// edge_index(typename boost::graph_traits<
+//              boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
+//              edge_descriptor ed,
+//            const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g)
+// {
+//   return boost::get(boost::edge_index, g, ed);
+// }
 
-template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
-inline unsigned int
-edge_type(typename boost::graph_traits<
-            boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
-            edge_descriptor ed,
-          const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g)
-{
-  return boost::get(alps::edge_type_t(), g, ed);
-}
+// template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
+// inline unsigned int
+// edge_type(typename boost::graph_traits<
+//             boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
+//             edge_descriptor ed,
+//           const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g)
+// {
+//   return boost::get(alps::edge_type_t(), g, ed);
+// }
 
 
 //
@@ -339,100 +339,83 @@ private:
 
 
 //
-// function generate_virtual_graph
+// function generate_virtual_lattice
 //
 
-template<class RealGraph, class M, class VirtualGraph>
-inline void generate_virtual_graph(const RealGraph& rg,
-                                   const M& model,
-                                   VirtualGraph& vg,
-                                   virtual_mapping<VirtualGraph>& vm)
+template<class G, class M>
+inline void generate_virtual_lattice(const G& rg, const M& model, G& vg,
+  virtual_mapping<G>& vm)
 {
-  typedef RealGraph    rgraph_type;
-  typedef VirtualGraph vgraph_type;
+  // using boost::get_property;
+  // using alps::copy_property;
+
+  typedef G graph_type;
+  typedef typename boost::graph_traits<G>::vertex_iterator vertex_iterator;
+  typedef typename boost::graph_traits<G>::vertex_descriptor vertex_descriptor;
+  typedef typename boost::graph_traits<G>::edge_iterator edge_iterator;
+  typedef typename boost::graph_traits<G>::edge_descriptor edge_descriptor;
 
   vg.clear();
   vm.clear();
 
   // setup graph properties
-  boost::get_property(vg, graph_name_t())
-    = "virtual graph of " + boost::get_property(rg, graph_name_t());
-  boost::get_property(vg, dimension_t())
-    = boost::get_property(rg, dimension_t());
+  get_property(vg, graph_name_t()) = "virtual graph of " +
+    get_property(rg, graph_name_t());
+  get_property(vg, dimension_t()) = get_property(rg, dimension_t());
 
   // setup vertices
-  {
-    typename boost::graph_traits<rgraph_type>::vertex_iterator rvi, rvi_end;
-    for (boost::tie(rvi, rvi_end) = boost::vertices(rg);
-         rvi != rvi_end; ++rvi) {
-      for (int i = 0; i < model.site(*rvi, rg).s().get_twice(); ++i) {
-        // add vertices to virtual graph
-        typename boost::graph_traits<vgraph_type>::vertex_descriptor
-          vvd = boost::add_vertex(vg);
-        
+  vertex_iterator rvi, rvi_end;
+  for (boost::tie(rvi, rvi_end) = vertices(rg); rvi != rvi_end; ++rvi) {
+    for (int i = 0; i < model.site(*rvi, rg).s().get_twice(); ++i) {
+      // add vertices to virtual graph
+      vertex_descriptor	vvd = add_vertex(vg);
+      
         // copy vertex properties
-        alps::copy_property(vertex_type_t(), rg, *rvi, vg, vvd);
-        alps::copy_property(coordinate_t(), rg, *rvi, vg, vvd);
-        alps::copy_property(parity_t(), rg, *rvi, vg, vvd);
-      }
-    }
-    // setup mapping
-    typename boost::graph_traits<vgraph_type>::vertex_iterator
-      vvi_first = boost::vertices(vg).first;
-    typename boost::graph_traits<vgraph_type>::vertex_iterator
-      vvi_last = vvi_first;
-    for (boost::tie(rvi, rvi_end) = boost::vertices(rg);
-         rvi != rvi_end; ++rvi) {
-      vvi_last += model.site(*rvi, rg).s().get_twice();
-      vm.add_vertex(rg, *rvi, vvi_first, vvi_last);
-      vvi_first = vvi_last;
+      copy_property(vertex_type_t(), rg, *rvi, vg, vvd);
+      copy_property(coordinate_t(), rg, *rvi, vg, vvd);
+      copy_property(parity_t(), rg, *rvi, vg, vvd);
     }
   }
 
+  // setup mapping
+  vertex_iterator vvi_first = vertices(vg).first;
+  vertex_iterator vvi_last = vvi_first;
+  for (boost::tie(rvi, rvi_end) = vertices(rg); rvi != rvi_end; ++rvi) {
+    vvi_last += model.site(*rvi, rg).s().get_twice();
+    vm.add_vertex(rg, *rvi, vvi_first, vvi_last);
+    vvi_first = vvi_last;
+  }
+
   // setup edges
-  {
-    typename boost::graph_traits<rgraph_type>::edge_iterator rei, rei_end;
-    for (boost::tie(rei, rei_end) = boost::edges(rg);
-         rei != rei_end; ++rei) {
-      typename boost::graph_traits<rgraph_type>::vertex_descriptor
-        rs = boost::source(*rei, rg);
-      typename boost::graph_traits<rgraph_type>::vertex_descriptor
-        rt = boost::target(*rei, rg);
-      typename boost::graph_traits<vgraph_type>::vertex_iterator
-        vvsi, vvsi_end;
-      for (boost::tie(vvsi, vvsi_end) = vm.virtual_vertices(rg, rs);
-           vvsi != vvsi_end; ++vvsi) {
-        typename boost::graph_traits<vgraph_type>::vertex_iterator
-          vvti, vvti_end;
-        for (boost::tie(vvti, vvti_end) = vm.virtual_vertices(rg, rt);
-             vvti != vvti_end; ++vvti) {
-          // add edges to virtual graph
-          typename boost::graph_traits<vgraph_type>::edge_descriptor ved =
-            boost::add_edge(*vvsi, *vvti, vg).first;
-          
-          // setup edge properties
-          boost::put(boost::edge_index, vg, ved, boost::num_edges(vg) - 1);
-          alps::copy_property(edge_type_t(), rg, *rei, vg, ved);
-          alps::copy_property(edge_vector_t(), rg, *rei, vg, ved);
-        }
+  edge_iterator rei, rei_end;
+  for (boost::tie(rei, rei_end) = edges(rg); rei != rei_end; ++rei) {
+    vertex_descriptor rs = source(*rei, rg);
+    vertex_descriptor rt = target(*rei, rg);
+    vertex_iterator vvsi, vvsi_end;
+    for (boost::tie(vvsi, vvsi_end) = vm.virtual_vertices(rg, rs);
+	 vvsi != vvsi_end; ++vvsi) {
+      vertex_iterator vvti, vvti_end;
+      for (boost::tie(vvti, vvti_end) = vm.virtual_vertices(rg, rt);
+	   vvti != vvti_end; ++vvti) {
+	// add edges to virtual graph
+	edge_descriptor ved = add_edge(*vvsi, *vvti, vg).first;
+
+	// setup edge properties
+	boost::put(edge_index_t(), vg, ved, num_edges(vg) - 1);
+	copy_property(edge_type_t(), rg, *rei, vg, ved);
+	copy_property(edge_vector_t(), rg, *rei, vg, ved);
       }
     }
-    // setup mapping
-    typename boost::graph_traits<vgraph_type>::edge_iterator
-      vei_first = boost::edges(vg).first;
-    typename boost::graph_traits<vgraph_type>::edge_iterator
-      vei_last = vei_first;
-    for (boost::tie(rei, rei_end) = boost::edges(rg);
-         rei != rei_end; ++rei) {
-      typename boost::graph_traits<vgraph_type>::vertex_descriptor
-        v0 = boost::source(*rei, rg);
-      typename boost::graph_traits<vgraph_type>::vertex_descriptor
-        v1 = boost::target(*rei, rg);
-      vei_last += model.site(v0, rg).s().get_twice() *
-        model.site(v1, rg).s().get_twice();
-      vm.add_edge(rg, *rei, vei_first, vei_last);
-      vei_first = vei_last;
-    }
+  }
+
+  // setup mapping
+  edge_iterator vei_first = edges(vg).first;
+  edge_iterator vei_last = vei_first;
+  for (boost::tie(rei, rei_end) = edges(rg); rei != rei_end; ++rei) {
+    vei_last += model.site(source(*rei, rg), rg).s().get_twice() *
+      model.site(target(*rei, rg), rg).s().get_twice();
+    vm.add_edge(rg, *rei, vei_first, vei_last);
+    vei_first = vei_last;
   }
 }
 
@@ -468,34 +451,32 @@ struct const_spin_wrapper
 
 }
 
-template<class RealGraph, class IntType, class VirtualGraph>
-inline void generate_virtual_graph(const RealGraph& rg,
-                                   const alps::half_integer<IntType>& s,
-                                   VirtualGraph& vg,
-                                   virtual_mapping<VirtualGraph>& vm)
+template<class G, class I>
+inline void generate_virtual_lattice(const G& rg,
+  const alps::half_integer<I>& s, G& vg, virtual_mapping<G>& vm)
 {
-  generate_virtual_graph(rg,
-    vg_detail::const_spin_wrapper<alps::half_integer<IntType> >(s),
+  generate_virtual_lattice(rg,
+    vg_detail::const_spin_wrapper<alps::half_integer<I> >(s),
     vg, vm);
 }
 
-template<class RealGraph, class IntType, class VirtualGraph>
-inline void generate_virtual_graph(const RealGraph& rg,
-  const std::vector<alps::half_integer<IntType> >& v,
-  VirtualGraph& vg, virtual_mapping<VirtualGraph>& vm)
+template<class G, class I>
+inline void generate_virtual_lattice(const G& rg,
+  const std::vector<alps::half_integer<I> >& v, G& vg,
+  virtual_mapping<G>& vm)
 {
-  generate_virtual_graph(rg,
-    vg_detail::vector_spin_wrapper<alps::half_integer<IntType> >(v),
+  generate_virtual_lattice(rg,
+    vg_detail::vector_spin_wrapper<alps::half_integer<I> >(v),
     vg, vm);
 }
 
 
 //
-// class template virtual_graph
+// class template virtual_lattice
 //
 
 template<class GRAPH>
-class virtual_graph : public GRAPH {
+class virtual_lattice : public GRAPH {
 public:
   typedef GRAPH                       graph_type;
   typedef virtual_mapping<graph_type> mapping_type;
@@ -513,14 +494,14 @@ public:
   typedef typename boost::graph_traits<graph_type>::edges_size_type
     edges_size_type;
 
-  virtual_graph() {}
+  virtual_lattice() {}
   template<class RG, class M>
-  virtual_graph(const RG& rg, const M& model) { initialize(rg, model); }
+  virtual_lattice(const RG& rg, const M& model) { initialize(rg, model); }
   template<class RG, class I>
-  virtual_graph(const RG& rg, const alps::half_integer<I>& s)
+  virtual_lattice(const RG& rg, const alps::half_integer<I>& s)
   { initialize(rg, s); }
   template<class RG, class I>
-  virtual_graph(const RG& rg, const std::vector<alps::half_integer<I> >& v)
+  virtual_lattice(const RG& rg, const std::vector<alps::half_integer<I> >& v)
   { initialize(rg, v); }
 
   template<class RG>
@@ -537,13 +518,13 @@ public:
   void clear() { graph_.clear(); mapping_.clear(); }
   template<class RG, class M>
   void initialize(const RG& rg, const M& model)
-  { generate_virtual_graph(rg, model, graph_, mapping_); }
+  { generate_virtual_lattice(rg, model, graph_, mapping_); }
   template<class RG, class I>
   void initialize(const RG& rg, const alps::half_integer<I>& s)
-  { generate_virtual_graph(rg, s, graph_, mapping_); }
+  { generate_virtual_lattice(rg, s, graph_, mapping_); }
   template<class RG, class I>
   void initialize(const RG& rg, const std::vector<alps::half_integer<I> >& v)
-  { generate_virtual_graph(rg, v, graph_, mapping_); }
+  { generate_virtual_lattice(rg, v, graph_, mapping_); }
 
   const graph_type& graph() const { return graph_; }
   const mapping_type& mapping() const { return mapping_; }
@@ -559,45 +540,45 @@ private:
 };
 
 template<class RG>
-std::pair<typename virtual_graph<RG>::vertex_iterator,
-          typename virtual_graph<RG>::vertex_iterator>
-vertices(const virtual_graph<RG>& vg) { return vertices(vg.graph()); }
+std::pair<typename virtual_lattice<RG>::vertex_iterator,
+          typename virtual_lattice<RG>::vertex_iterator>
+vertices(const virtual_lattice<RG>& vg) { return vertices(vg.graph()); }
 
 template<class RG>
-typename virtual_graph<RG>::vertices_size_type
-num_vertices(const virtual_graph<RG>& vg) { return num_vertices(vg.graph()); }
+typename virtual_lattice<RG>::vertices_size_type
+num_vertices(const virtual_lattice<RG>& vg) { return num_vertices(vg.graph()); }
 
 template<class RG>
-std::pair<typename virtual_graph<RG>::edge_iterator,
-          typename virtual_graph<RG>::edge_iterator>
-edges(const virtual_graph<RG>& vg) { return edges(vg.graph()); }
+std::pair<typename virtual_lattice<RG>::edge_iterator,
+          typename virtual_lattice<RG>::edge_iterator>
+edges(const virtual_lattice<RG>& vg) { return edges(vg.graph()); }
 
 template<class RG>
-typename virtual_graph<RG>::edges_size_type
-num_edges(const virtual_graph<RG>& vg) { return num_edges(vg.graph()); }
+typename virtual_lattice<RG>::edges_size_type
+num_edges(const virtual_lattice<RG>& vg) { return num_edges(vg.graph()); }
 
 template<class RG>
-std::pair<typename virtual_graph<RG>::vertex_iterator,
-          typename virtual_graph<RG>::vertex_iterator>
-virtual_vertices(const virtual_graph<RG>& vg, const RG& rg,
+std::pair<typename virtual_lattice<RG>::vertex_iterator,
+          typename virtual_lattice<RG>::vertex_iterator>
+virtual_vertices(const virtual_lattice<RG>& vg, const RG& rg,
   const typename boost::graph_traits<RG>::vertex_descriptor& rv)
 { return vg.virtual_vertices(rg, rv); }
 template<class RG>
-std::pair<typename virtual_graph<RG>::edge_iterator,
-          typename virtual_graph<RG>::edge_iterator>
-virtual_edges(const virtual_graph<RG>& vg, const RG& rg,
+std::pair<typename virtual_lattice<RG>::edge_iterator,
+          typename virtual_lattice<RG>::edge_iterator>
+virtual_edges(const virtual_lattice<RG>& vg, const RG& rg,
   const typename boost::graph_traits<RG>::edge_descriptor& re)
 { return vg.virtual_edges(rg, re); }
 
 template<class RG>
 double
-gauge(const virtual_graph<RG>& vg,
-      const typename boost::graph_traits<virtual_graph<RG> >::
+gauge(const virtual_lattice<RG>& vg,
+      const typename boost::graph_traits<virtual_lattice<RG> >::
         vertex_descriptor& vd)
 { return gauge(vg.graph(), vd); }
 
 template<class RG>
-std::ostream& operator<<(std::ostream& os, const virtual_graph<RG>& vg)
+std::ostream& operator<<(std::ostream& os, const virtual_lattice<RG>& vg)
 {
   os << vg.graph();
   return os;
@@ -633,4 +614,4 @@ parity_traits<looper::parity_t, Graph>::undefined;
 
 } // end namespace alps
 
-#endif // LOOPER_GRAPH_H
+#endif // LOOPER_LATTICE_H

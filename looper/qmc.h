@@ -25,7 +25,11 @@
 #ifndef LOOPER_QMC_H
 #define LOOPER_QMC_H
 
+#include <alps/scheduler/montecarlo.h>
+
 namespace looper {
+
+class VirtualLatticeModelMCRun : public alps::scheduler::LatticeModelMCRun {};
 
 template<class G, class MP>
 struct qmc_parameter_base

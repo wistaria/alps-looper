@@ -152,23 +152,51 @@ void flatten_matrix(const boost::multi_array<T, 4>& m_in,
 
 
 //
-// function crop_01
+// dip (divide_if_positive)
+//
+
+template<typename T>
+T dip(T x, T y, typename boost::enable_if<boost::is_arithmetic<T> >::type* = 0)
+{ return (y > T(0)) ? (x / y) : T(0); }
+
+template<typename T>
+T dip(const T& x, const T& y,
+  typename boost::disable_if<boost::is_arithmetic<T> >::type* = 0)
+{ return (y > T(0)) ? (x / y) : T(0); }
+
+
+//
+// function crop_01, crop_0
 //
 
 template<typename T>
 T crop_01(T x, typename boost::enable_if<boost::is_arithmetic<T> >::type* = 0)
 {
-  typedef T value_type;
   using std::min; using std::max;
-  return min(max(x, value_type(0)), value_type(1));
+  return min(max(x, T(0)), T(1));
 }
 
 template<typename T>
-T crop_01(const T& x, typename boost::disable_if<boost::is_arithmetic<T> >::type* = 0)
+T crop_01(const T& x,
+  typename boost::disable_if<boost::is_arithmetic<T> >::type* = 0)
 {
-  typedef T value_type;
   using std::min; using std::max;
-  return min(max(x, value_type(0)), value_type(1));
+  return min(max(x, T(0)), T(1));
+}
+
+template<typename T>
+T crop_0(T x, typename boost::enable_if<boost::is_arithmetic<T> >::type* = 0)
+{
+  using std::max;
+  return max(x, T(0));
+}
+
+template<typename T>
+T crop_0(const T& x,
+  typename boost::disable_if<boost::is_arithmetic<T> >::type* = 0)
+{
+  using std::max;
+  return max(x, T(0));
 }
 
 

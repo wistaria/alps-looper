@@ -25,8 +25,8 @@
 #ifndef LOOPER_MODEL_H
 #define LOOPER_MODEL_H
 
-#include <looper/graph.h>
 #include <looper/lapack.h>
+#include <looper/lattice.h>
 #include <looper/util.h>
 
 #include <alps/math.hpp>

@@ -41,106 +41,91 @@ class bond_weight {
 
   // loop equations:
   //
-  //   w12 + w11 + w13 = Jz/4
-  //   w12 + w22 + w23 = -Jz/4
-  //   w13 + w23 = |Jxy|/2
+  //   w0 + w1 + w2 = Jz/4
+  //   w0 + w3 + w4 = -Jz/4
+  //   w1 + w3 = |Jxy|/2
   //
-  //   density = max((w11 + w13), (w22 + w23))
-  //   Pa_para = (w11 + w13) / density
-  //   Pa_anti = (w22 + w23) / density
-  //   Pf_para = w11 / w13
-  //   Pf_anti = w22 / w23
-  //   Pr = w23 / (w13 + w 23)
+  //   density = max((w1 + w2), (w3 + w4))
+  //   Pa_para = (w1 + w2) / density
+  //   Pa_anti = (w3 + w4) / density
+  //   Pf_para = w2 / (w1 + w2)
+  //   Pf_anti = w4 / (w3 + w4)
+  //   Pr = w3 / (w1 + w3)
 
-  // standard solutions:
+  // standard solution:
   //
   // i) Jz >= |Jxy|  (ferro-Ising)
-  //      w12 = -Jz/4
-  //      w11 = (Jz - |Jxy|)/2
-  //      w13 = |Jxy|/2
-  //      w22 = w23 = 0
+  //      w1 = |Jxy|/2
+  //      w2 = (Jz - |Jxy|)/2
+  //      w3 = w4 = 0
   // ii) -|Jxy| <= Jz <= |Jxy|  (XY)
-  //      w12 = -|Jxy|/4
-  //      w11 = w22 = 0
-  //      w13 = (Jz + |Jxy|)/4
-  //      w23 = (-Jz + |Jxy|)/4
+  //      w1 = (Jz + |Jxy|)/4
+  //      w3 = (-Jz + |Jxy|)/4
+  //      w2 = w4 = 0
   // iii) Jz <= -|Jxy|  (antiferro-Ising)
-  //      w12 = Jz/4
-  //      w11 = w13 = 0
-  //      w22 = (-Jz - |Jxy|)/2
-  //      w23 = |Jxy|/2
+  //      w3 = |Jxy|/2
+  //      w4 = (-Jz - |Jxy|)/2
+  //      w1 = w2 = 0
 
   // "ergodic" solutions (with additional parameter a)
+  //
   // i) Jz >= |Jxy|  (ferro-Ising)
   //      same as the standard solution
   // ii) -|Jxy| <= Jz <= |Jxy|  (XY)
   //   ii-1) Jz + |Jxy| >= 2 a |Jxy|
   //      same as the standard solution
   //   ii-2) Jz + |Jxy| <= 2 a |Jxy|
-  //      w12 = (Jz - 2a |Jxy|)/4
-  //      w11 = 0
-  //      w22 = (-Jz + (2a-1) |Jxy|)/2
-  //      w13 = a |Jxy| / 2
-  //      w23 = (1-a) |Jxy| / 2
+  //      w1 = a |Jxy| / 2
+  //      w2 = 0
+  //      w3 = (1-a) |Jxy| / 2
+  //      w4 = (-Jz + (2a-1) |Jxy|)/2
   // iii) Jz <= -|Jxy|  (antiferro-Ising)
   //      same as ii-2)
 
-  //      w22 = (-Jz + a |Jxy|)/2
-  //             (1-a) |Jxy| / 2
-
 public:
-  bond_weight() :
-    density_(0), pa_para_(0), pa_anti_(0), pf_para_(0), pf_anti_(0),
-    p_reflect_(0), offset_(0), sign_(1) {}
-  bond_weight(const bond_parameter& p, double force_scatter = 0) :
-    density_(0), pa_para_(0), pa_anti_(0), pf_para_(0), pf_anti_(0),
-    p_reflect_(0), offset_(0), sign_(1)
-  {
-    using alps::is_nonzero;
+  bond_weight() : weight_(0), offset_(0), sign_(1) 
+  { v[1] = v[2] = v[3] = v[4] = 0; }
+  bond_weight(const bond_parameter& p, double force_scatter = 0) 
+  { init(p, force_scatter); }
 
+  void init(const bond_parameter& p, double force_scatter = 0)
+  {
     double Jxy = std::abs(p.jxy());
     double Jz = p.jz();
     double a = crop_01(force_scatter);
-    double w12, w11, w13, w22, w23;
-    if (is_nonzero(Jxy + std::abs(Jz))) {
+    if (alps::is_nonzero<1>(Jxy + std::abs(Jz))) {
       if (Jxy + Jz > 2 * a * Jxy) {
         // standard solutions
-        w12 = std::min(-std::abs(Jz)/4., -Jxy/4);
-        w11 = std::max((Jz - Jxy)/2, 0.);
-        w13 = std::max(std::min(Jxy/2, (Jz + Jxy)/4), 0.);
-        w22 = std::max(-(Jz + Jxy)/2, 0.);
-        w23 = std::max(std::min(Jxy/2, (-Jz + Jxy)/4), 0.);
+        v[1] = crop_0(std::min(Jxy/2, (Jz + Jxy)/4));
+        v[2] = crop_0((Jz - Jxy)/2);
+        v[3] = crop_0(std::min(Jxy/2, (-Jz + Jxy)/4));
+        v[4] = crop_0(-(Jz + Jxy)/2);
       } else {
         // "ergodic" solutions
-        w12 = (Jz - 2*a*Jxy)/4;
-        w11 = 0;
-        w13 = a*Jxy/2;
-        w22 = (-Jz + (2*a-1)*Jxy)/2;
-        w23 = (1-a)*Jxy/2;
+        v[1] = a*Jxy/2;
+        v[2] = 0;
+        v[3] = (1-a)*Jxy/2;
+        v[4] = (-Jz + (2*a-1)*Jxy)/2;
       }
-
-      density_ = std::max(w11+w13, w22+w23);
-      pa_para_ = (w11+w13)/density_;
-      pa_anti_ = (w22+w23)/density_;
-      pf_para_ = (w11+w13>0) ? w11/(w11+w13) : 0;
-      pf_anti_ = (w22+w23>0) ? w22/(w22+w23) : 0;
-      p_reflect_ = (w13+w23>0) ? w23/(w13+w23) : 0;
-      offset_ = Jz/4. - (w11+w13);
-      sign_ = (p.jxy() >= 0 ? 1 : -1);
+    } else {
+      v[1] = v[2] = v[3] = v[4] = 0;
     }
+    weight_ = std::max(v[1] + v[2], v[3] + v[4]);
+    offset_ = Jz/4 - (v[1] + v[2]);
+    sign_ = (p.jxy() >= 0 ? 1 : -1);
   }
 
-  double density() const { return density_; }
-  double weight() const { return density_; }
-  double p_accept_para() const { return pa_para_; }
-  double p_accept_anti() const { return pa_anti_; }
-  double p_accept(int r) const { return r ? pa_anti_ : pa_para_; }
+  double density() const { return weight_; }
+  double weight() const { return weight_; }
+  double p_accept_para() const { return dip(v[1]+v[2], weight_); }
+  double p_accept_anti() const { return dip(v[3]+v[4], weight_); }
+  double p_accept(int r) const { return r ? p_accept_anti() : p_accept_para(); }
   double p_accept(int c0, int c1) const { return p_accept(c0 ^ c1); }
-  double p_freeze_para() const { return pf_para_; }
-  double p_freeze_anti() const { return pf_anti_; }
-  double p_freeze(int r) const { return r ? pf_anti_ : pf_para_; }
+  double p_freeze_para() const { return dip(v[2], v[1]+v[2]); }
+  double p_freeze_anti() const { return dip(v[4], v[3]+v[4]); }
+  double p_freeze(int r) const { return r ? p_freeze_anti() : p_freeze_para(); }
   double p_freeze(int c0, int c1) const { return p_freeze(c0 ^ c1); }
-  double p_reflect() const { return p_reflect_; }
+  double p_reflect() const { return dip(v[3], v[1]+v[3]); }
   double offset() const { return offset_; }
   double sign() const { return sign_; }
 
@@ -158,50 +143,51 @@ public:
     double w12 = -(w11+ w13 + w22 + w23) / 2;
 
     assert(w11 >= 0 && w13 >= 0 && w22 >= 0 && w23 >= 0);
-    assert(std::abs(w23 - w.p_reflect() * (w13 + w23)) < 1.0e-10);
+    assert(alps::is_zero<1>(w23 - w.p_reflect() * (w13 + w23)));
 
     double jxy = 2 * (w13 + w23) * w.sign();
     double jz = 4 * (w12 + w11 + w13);
 
-    assert(std::abs(w.offset() + w11 + w13 - jz/4) < 1.0e-10);
-    assert(std::abs(w.offset() + w22 + w23 - (-jz/4)) < 1.0e-10);
-    assert(std::abs(w.sign() * (w13 + w23) - jxy/2) < 1.0e-10);
+    assert(alps::is_zero<1>(w.offset() + w11 + w13 - jz/4));
+    assert(alps::is_zero<1>(w.offset() + w22 + w23 - (-jz/4)));
+    assert(alps::is_zero<1>(w.sign() * (w13 + w23) - jxy/2));
 
     return bond_parameter(0, jxy, jz);
   }
 
 private:
-  double density_;
-  double pa_para_;
-  double pa_anti_;
-  double pf_para_;
-  double pf_anti_;
-  double p_reflect_;
+  double weight_;
   double offset_;
   double sign_;
+  double v[5]; // v[0] is not used
 };
 
 
 class site_weight {
 
-  // loop equation (and its solution):
+  // loop equation and its solution:
   //
   //   w1 = Hx/2
   //
   //   density = w1
 
 public:
-  site_weight() : density_(0), offset_(0), sign_(1) {}
-  site_weight(const site_parameter& p) : density_(0), offset_(0), sign_(1)
+  site_weight() : weight_(0), sign_(1) {}
+  site_weight(const site_parameter& p)
   {
-    density_ = std::abs(p.hx()) / 2;
-    offset_ = density_;
+    weight_ = std::abs(p.hx()) / 2;
     sign_ = (p.hx() >= 0 ? 1 : -1);
   }
 
-  double density() const { return density_; }
-  double weight() const { return density_; }
-  double offset() const { return offset_; }
+  void init(const site_parameter& p)
+  {
+    weight_ = std::abs(p.hx()) / 2;
+    sign_ = (p.hx() >= 0 ? 1 : -1);
+  }
+
+  double density() const { return weight_; }
+  double weight() const { return weight_; }
+  double offset() const { return weight_; }
   double sign() const { return sign_; }
 
   template<typename W>
@@ -215,7 +201,6 @@ public:
 
 private:
   double density_;
-  double offset_;
   double sign_;
 };
 
