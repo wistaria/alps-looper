@@ -30,6 +30,36 @@
 using namespace alps;
 #endif
 
+template<class I>
+struct vector_spin_wrapper
+{
+  typedef alps::half_integer<I> value_type;
+  struct spin_wrapper
+  {
+    spin_wrapper(const value_type& v) : val_(v) {}
+    const value_type& s() const { return val_; }
+    const value_type& val_;
+  };
+  vector_spin_wrapper(const std::vector<value_type>& v) : vec_(v) {}
+  template<class G>
+  spin_wrapper site(const typename boost::graph_traits<G>::vertex_descriptor& v,
+    const G& g) const
+  { return spin_wrapper(vec_[boost::get(looper::vertex_type_t(), g, v)]); }
+  const std::vector<value_type>& vec_;
+};
+
+struct unity_weight
+{
+  template<class G>
+  double operator()(typename boost::graph_traits<G>::vertex_descriptor,
+    const G&) const
+  { return 1; }
+  template<class G>
+  double operator()(typename boost::graph_traits<G>::edge_descriptor,
+    const G&) const
+  { return 1; }
+};
+
 int main() {
 
 #ifndef BOOST_NO_EXCEPTIONS
@@ -56,27 +86,31 @@ try {
   // virtual lattice
   std::vector<alps::half_integer<int> > spins(2);
   spins[0] = 1; spins[1] = 3./2;
-  graph_type vg;
-  looper::virtual_mapping<graph_type> vm;
-  looper::generate_virtual_lattice(rg, spins, vg, vm);
-  set_parity(vg, looper::parity_t());
+  // graph_type vg;
+  // looper::virtual_mapping<graph_type> vm;
+  // looper::generate_virtual_lattice(vg, vm, rg,
+  //   vector_spin_wrapper<int>(spins), unity_weight());
+  looper::virtual_lattice<graph_type> vl(rg, vector_spin_wrapper<int>(spins), unity_weight());
+  // set_parity(vg, looper::parity_t());
+  set_parity(vl, looper::parity_t());
 
   std::cout << "number of real vertices = "
             << num_vertices(rg) << std::endl;
   std::cout << "number of real edges = "
             << num_edges(rg) << std::endl;
   std::cout << "number of virtual vertices = "
-            << num_vertices(vg) << std::endl;
+            << num_vertices(vl) << std::endl;
   std::cout << "number of virtual edges = "
-            << num_edges(vg) << std::endl;
+            << num_edges(vl) << std::endl;
 
-  std::cout << vg;
+  std::cout << vl;
   vertex_iterator vvi, vvi_end;
-  for (boost::tie(vvi, vvi_end) = vertices(vg); vvi != vvi_end; ++vvi) {
-    std::cout << get(looper::parity_t(), vg, *vvi) << ' ';
+  for (boost::tie(vvi, vvi_end) = vertices(vl); vvi != vvi_end; ++vvi) {
+    // std::cout << get(looper::parity_t(), vl.graph(), *vvi) << ' ';
+    std::cout << gauge(vl, *vvi) << ' ';
   }
   std::cout << std::endl;
-  vm.output(std::cout, rg, vg);
+  vl.mapping().output(std::cout, rg, vl.graph());
 
 #ifndef BOOST_NO_EXCEPTIONS
 }
