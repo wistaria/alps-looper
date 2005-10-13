@@ -27,7 +27,7 @@
 
 #include <looper/amida.h>
 #include <looper/fill_duration.h>
-#include <looper/graph.h>
+#include <looper/lattice.h>
 #include <looper/node.h>
 #include <looper/permutation.h>
 #include <looper/qmc.h>

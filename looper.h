@@ -31,6 +31,7 @@
 /* Define the published date of ALPS/looper */
 #define LOOPER_DATE "2005/04/01"
 
+#include <looper/lattice.h>
 #include <looper/model.h>
 #include <looper/union_find.h>
 // #include <looper/path_integral.h>

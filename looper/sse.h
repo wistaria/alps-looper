@@ -25,7 +25,7 @@
 #ifndef LOOPER_SSE_H
 #define LOOPER_SSE_H
 
-#include <looper/graph.h>
+#include <looper/lattice.h>
 #include <looper/permutation.h>
 #include <looper/qmc.h>
 #include <looper/sign.h>

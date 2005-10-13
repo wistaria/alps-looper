@@ -150,21 +150,10 @@ private:
   bitset prop_;
 };
 
-struct loop_segment
-{
-  BOOST_STATIC_CONSTANT(int, undefined = -1);
-  loop_segment() : index(undefined) {}
-  int index;
-
-  // member functions required for unionfind node
-  void reset() { index = undefined; }
-  loop_segment& operator+=(const loop_segment&) { return *this; }
-};
-
 class qmc_node : public node_property
 {
 public:
-  typedef union_find::node<looper::loop_segment> segment_type;
+  typedef int segment_type;
 
   qmc_node() : node_property(), bond_(0), segment0_(), segment1_() {}
 
@@ -174,16 +163,12 @@ public:
   segment_type& loop_segment(int i) {
     return (i == 0 ? segment0_ : segment1_);
   }
-  const segment_type& loop_segment(int i) const {
+  segment_type loop_segment(int i) const {
     return (i == 0 ? segment0_ : segment1_);
   }
-  int& loop_index(int i) { return loop_segment(i).root()->index; }
-  int loop_index(int i) const { return loop_segment(i).root()->index; }
 
   void clear_graph() {
     node_property::clear_graph();
-    segment0_.reset();
-    segment1_.reset();
   }
 
   std::ostream& output(std::ostream& os) const {
