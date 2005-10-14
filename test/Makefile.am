@@ -21,7 +21,7 @@ check_PROGRAMS = \
 	site_matrix \
 	syev \
 	union_find \
-	virtual_graph \
+	virtual_lattice \
 	weight
 
 dist_noinst_DATA = \
@@ -46,7 +46,7 @@ dist_noinst_DATA = \
 	site_matrix.ip site_matrix.op \
 	syev.op \
 	union_find.op \
-	virtual_graph.op \
+	virtual_lattice.op \
 	weight.ip weight.op
 
 TESTS = $(check_PROGRAMS)
@@ -74,7 +74,7 @@ sign_SOURCES = sign.C
 site_matrix_SOURCES = site_matrix.C
 syev_SOURCES = syev.C
 union_find_SOURCES = union_find.C
-virtual_graph_SOURCES = virtual_graph.C
+virtual_lattice_SOURCES = virtual_lattice.C
 weight_SOURCES = weight.C
 
 test tests : $(check_PROGRAMS)

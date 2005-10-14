@@ -44,7 +44,7 @@ check_PROGRAMS = alternating_tensor$(EXEEXT) amida$(EXEEXT) \
 	parse_vector$(EXEEXT) permutation$(EXEEXT) postorder$(EXEEXT) \
 	random_choice$(EXEEXT) range$(EXEEXT) sign$(EXEEXT) \
 	site_matrix$(EXEEXT) syev$(EXEEXT) union_find$(EXEEXT) \
-	virtual_graph$(EXEEXT) weight$(EXEEXT)
+	virtual_lattice$(EXEEXT) weight$(EXEEXT)
 subdir = test
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/model_parameter.ip.in \
@@ -144,10 +144,10 @@ am_union_find_OBJECTS = union_find.$(OBJEXT)
 union_find_OBJECTS = $(am_union_find_OBJECTS)
 union_find_LDADD = $(LDADD)
 union_find_DEPENDENCIES =
-am_virtual_graph_OBJECTS = virtual_graph.$(OBJEXT)
-virtual_graph_OBJECTS = $(am_virtual_graph_OBJECTS)
-virtual_graph_LDADD = $(LDADD)
-virtual_graph_DEPENDENCIES =
+am_virtual_lattice_OBJECTS = virtual_lattice.$(OBJEXT)
+virtual_lattice_OBJECTS = $(am_virtual_lattice_OBJECTS)
+virtual_lattice_LDADD = $(LDADD)
+virtual_lattice_DEPENDENCIES =
 am_weight_OBJECTS = weight.$(OBJEXT)
 weight_OBJECTS = $(am_weight_OBJECTS)
 weight_LDADD = $(LDADD)
@@ -171,7 +171,7 @@ SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) \
 	$(parse_vector_SOURCES) $(permutation_SOURCES) \
 	$(postorder_SOURCES) $(random_choice_SOURCES) $(range_SOURCES) \
 	$(sign_SOURCES) $(site_matrix_SOURCES) $(syev_SOURCES) \
-	$(union_find_SOURCES) $(virtual_graph_SOURCES) \
+	$(union_find_SOURCES) $(virtual_lattice_SOURCES) \
 	$(weight_SOURCES)
 DIST_SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) \
 	$(bond_matrix_SOURCES) $(edge_type_SOURCES) \
@@ -182,7 +182,7 @@ DIST_SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) \
 	$(parse_vector_SOURCES) $(permutation_SOURCES) \
 	$(postorder_SOURCES) $(random_choice_SOURCES) $(range_SOURCES) \
 	$(sign_SOURCES) $(site_matrix_SOURCES) $(syev_SOURCES) \
-	$(union_find_SOURCES) $(virtual_graph_SOURCES) \
+	$(union_find_SOURCES) $(virtual_lattice_SOURCES) \
 	$(weight_SOURCES)
 DATA = $(dist_noinst_DATA)
 ETAGS = etags
@@ -321,7 +321,7 @@ dist_noinst_DATA = \
 	site_matrix.ip site_matrix.op \
 	syev.op \
 	union_find.op \
-	virtual_graph.op \
+	virtual_lattice.op \
 	weight.ip weight.op
 
 TESTS = $(check_PROGRAMS)
@@ -348,7 +348,7 @@ sign_SOURCES = sign.C
 site_matrix_SOURCES = site_matrix.C
 syev_SOURCES = syev.C
 union_find_SOURCES = union_find.C
-virtual_graph_SOURCES = virtual_graph.C
+virtual_lattice_SOURCES = virtual_lattice.C
 weight_SOURCES = weight.C
 all: all-am
 
@@ -460,9 +460,9 @@ syev$(EXEEXT): $(syev_OBJECTS) $(syev_DEPENDENCIES)
 union_find$(EXEEXT): $(union_find_OBJECTS) $(union_find_DEPENDENCIES) 
 	@rm -f union_find$(EXEEXT)
 	$(CXXLINK) $(union_find_LDFLAGS) $(union_find_OBJECTS) $(union_find_LDADD) $(LIBS)
-virtual_graph$(EXEEXT): $(virtual_graph_OBJECTS) $(virtual_graph_DEPENDENCIES) 
-	@rm -f virtual_graph$(EXEEXT)
-	$(CXXLINK) $(virtual_graph_LDFLAGS) $(virtual_graph_OBJECTS) $(virtual_graph_LDADD) $(LIBS)
+virtual_lattice$(EXEEXT): $(virtual_lattice_OBJECTS) $(virtual_lattice_DEPENDENCIES) 
+	@rm -f virtual_lattice$(EXEEXT)
+	$(CXXLINK) $(virtual_lattice_LDFLAGS) $(virtual_lattice_OBJECTS) $(virtual_lattice_LDADD) $(LIBS)
 weight$(EXEEXT): $(weight_OBJECTS) $(weight_DEPENDENCIES) 
 	@rm -f weight$(EXEEXT)
 	$(CXXLINK) $(weight_LDFLAGS) $(weight_OBJECTS) $(weight_LDADD) $(LIBS)
@@ -495,7 +495,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/site_matrix.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/syev.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/union_find.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/virtual_graph.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/virtual_lattice.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/weight.Po@am__quote@
 
 .C.o:

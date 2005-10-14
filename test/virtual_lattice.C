@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2005 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -48,16 +48,15 @@ struct vector_spin_wrapper
   const std::vector<value_type>& vec_;
 };
 
-struct unity_weight
+struct weight
 {
   template<class G>
-  double operator()(typename boost::graph_traits<G>::vertex_descriptor,
-    const G&) const
-  { return 1; }
-  template<class G>
   double operator()(typename boost::graph_traits<G>::edge_descriptor,
-    const G&) const
-  { return 1; }
+    const G&) const { return 1; }
+  template<class G>
+  double operator()(typename boost::graph_traits<G>::vertex_descriptor v,
+    const G& g) const
+  { return boost::get(boost::vertex_index, g, v) == 2 ? 0 : 1; }
 };
 
 int main() {
@@ -78,21 +77,15 @@ try {
   set_parity(rg, looper::parity_t());
   std::cout << rg;
   vertex_iterator rvi, rvi_end;
-  for (boost::tie(rvi, rvi_end) = vertices(rg); rvi != rvi_end; ++rvi) {
+  for (boost::tie(rvi, rvi_end) = vertices(rg); rvi != rvi_end; ++rvi)
     std::cout << get(looper::parity_t(), rg, *rvi) << ' ';
-  }
   std::cout << std::endl;
 
   // virtual lattice
   std::vector<alps::half_integer<int> > spins(2);
   spins[0] = 1; spins[1] = 3./2;
-  // graph_type vg;
-  // looper::virtual_mapping<graph_type> vm;
-  // looper::generate_virtual_lattice(vg, vm, rg,
-  //   vector_spin_wrapper<int>(spins), unity_weight());
-  looper::virtual_lattice<graph_type> vl(rg, vector_spin_wrapper<int>(spins), unity_weight());
-  // set_parity(vg, looper::parity_t());
-  set_parity(vl, looper::parity_t());
+  looper::virtual_lattice<graph_type> vl(rg, vector_spin_wrapper<int>(spins),
+                                         weight());
 
   std::cout << "number of real vertices = "
             << num_vertices(rg) << std::endl;
@@ -105,10 +98,8 @@ try {
 
   std::cout << vl;
   vertex_iterator vvi, vvi_end;
-  for (boost::tie(vvi, vvi_end) = vertices(vl); vvi != vvi_end; ++vvi) {
-    // std::cout << get(looper::parity_t(), vl.graph(), *vvi) << ' ';
+  for (boost::tie(vvi, vvi_end) = vertices(vl); vvi != vvi_end; ++vvi)
     std::cout << gauge(vl, *vvi) << ' ';
-  }
   std::cout << std::endl;
   vl.mapping().output(std::cout, rg, vl.graph());
 
