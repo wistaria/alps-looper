@@ -42,21 +42,21 @@ struct vector_spin_wrapper
   };
   vector_spin_wrapper(const std::vector<value_type>& v) : vec_(v) {}
   template<class G>
-  spin_wrapper site(const typename boost::graph_traits<G>::vertex_descriptor& v,
+  spin_wrapper site(const typename alps::graph_traits<G>::site_descriptor& v,
     const G& g) const
-  { return spin_wrapper(vec_[boost::get(looper::vertex_type_t(), g, v)]); }
+  { return spin_wrapper(vec_[boost::get(looper::site_type_t(), g, v)]); }
   const std::vector<value_type>& vec_;
 };
 
 struct weight
 {
   template<class G>
-  double operator()(typename boost::graph_traits<G>::edge_descriptor,
-    const G&) const { return 1; }
+  bool operator()(typename alps::graph_traits<G>::bond_descriptor,
+    const G&) const { return true; }
   template<class G>
-  double operator()(typename boost::graph_traits<G>::vertex_descriptor v,
+  bool operator()(typename alps::graph_traits<G>::site_descriptor v,
     const G& g) const
-  { return boost::get(boost::vertex_index, g, v) == 2 ? 0 : 1; }
+  { return boost::get(looper::site_index_t(), g, v) != 2; }
 };
 
 int main() {
@@ -66,18 +66,18 @@ try {
 #endif
 
   typedef looper::graph_type graph_type;
-  typedef boost::graph_traits<graph_type>::vertex_iterator vertex_iterator;
-  typedef boost::graph_traits<graph_type>::edge_iterator edge_iterator;
+  typedef alps::graph_traits<graph_type>::site_iterator site_iterator;
+  typedef alps::graph_traits<graph_type>::bond_iterator bond_iterator;
 
   // real graph
   graph_type rg;
   looper::hypercubic_graph_generator<> gen(2, 2);
   looper::generate_graph(rg, gen);
-  put(looper::vertex_type_t(), rg, *(vertices(rg).first), 1);
+  put(looper::site_type_t(), rg, *(sites(rg).first), 1);
   set_parity(rg, looper::parity_t());
   std::cout << rg;
-  vertex_iterator rvi, rvi_end;
-  for (boost::tie(rvi, rvi_end) = vertices(rg); rvi != rvi_end; ++rvi)
+  site_iterator rvi, rvi_end;
+  for (boost::tie(rvi, rvi_end) = sites(rg); rvi != rvi_end; ++rvi)
     std::cout << get(looper::parity_t(), rg, *rvi) << ' ';
   std::cout << std::endl;
 
@@ -87,18 +87,18 @@ try {
   looper::virtual_lattice<graph_type> vl(rg, vector_spin_wrapper<int>(spins),
                                          weight());
 
-  std::cout << "number of real vertices = "
-            << num_vertices(rg) << std::endl;
-  std::cout << "number of real edges = "
-            << num_edges(rg) << std::endl;
-  std::cout << "number of virtual vertices = "
-            << num_vertices(vl) << std::endl;
-  std::cout << "number of virtual edges = "
-            << num_edges(vl) << std::endl;
+  std::cout << "number of real sites = "
+            << num_sites(rg) << std::endl;
+  std::cout << "number of real bonds = "
+            << num_bonds(rg) << std::endl;
+  std::cout << "number of virtual sites = "
+            << num_sites(vl) << std::endl;
+  std::cout << "number of virtual bonds = "
+            << num_bonds(vl) << std::endl;
 
   std::cout << vl;
-  vertex_iterator vvi, vvi_end;
-  for (boost::tie(vvi, vvi_end) = vertices(vl); vvi != vvi_end; ++vvi)
+  site_iterator vvi, vvi_end;
+  for (boost::tie(vvi, vvi_end) = sites(vl); vvi != vvi_end; ++vvi)
     std::cout << gauge(vl, *vvi) << ' ';
   std::cout << std::endl;
   vl.mapping().output(std::cout, rg, vl.graph());

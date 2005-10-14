@@ -389,13 +389,13 @@ public:
   bool inhomogeneous_site() const { return use_site_index_; }
   template<class G>
   site_parameter site(
-    const typename boost::graph_traits<G>::vertex_descriptor& v,
+    const typename alps::graph_traits<G>::site_descriptor& v,
     const G& g) const
   {
     return inhomogeneous_site() ?
-      sites_[boost::get(vertex_index_t(), g, v)] :
+      sites_[boost::get(site_index_t(), g, v)] :
       (uniform_site() ? sites_[0] :
-       sites_[boost::get(vertex_type_t(), g, v)]);
+       sites_[boost::get(site_type_t(), g, v)]);
   }
   site_parameter site() const
   {
@@ -408,13 +408,13 @@ public:
   bool inhomogeneous_bond() const { return use_bond_index_; }
   template<class G>
   bond_parameter bond(
-    const typename alps::graph_traits<G>::edge_descriptor& e,
+    const typename alps::graph_traits<G>::bond_descriptor& e,
     const G& g) const
   {
     return inhomogeneous_bond() ?
-      bonds_[boost::get(edge_index_t(), g, e)] :
+      bonds_[boost::get(bond_index_t(), g, e)] :
       (uniform_bond() ? bonds_[0] :
-       bonds_[boost::get(edge_type_t(), g, e)]);
+       bonds_[boost::get(bond_type_t(), g, e)]);
   }
   bond_parameter bond() const
   {
@@ -447,8 +447,8 @@ protected:
     bool inhomogeneous_sites, bool inhomogeneous_bond,
     const alps::HamiltonianDescriptor<I>& hd)
   {
-    typedef typename boost::graph_traits<G>::vertex_iterator vertex_iterator;
-    typedef typename boost::graph_traits<G>::edge_iterator edge_iterator;
+    typedef typename alps::graph_traits<G>::site_iterator site_iterator;
+    typedef typename alps::graph_traits<G>::bond_iterator bond_iterator;
 
     params.copy_undefined(hd.default_parameters());
     alps::basis_states_descriptor<I> basis(hd.basis(), g);
@@ -462,18 +462,18 @@ protected:
     use_site_index_ = false;
     if (inhomogeneous_sites) {
       use_site_index_ = true;
-      sites_.resize(boost::num_vertices(g));
+      sites_.resize(num_sites(g));
     } else {
       alps::type_type type_min = 0;
       alps::type_type type_max = 0;
-      vertex_iterator vi, vi_end;
-      for (boost::tie(vi, vi_end) = boost::vertices(g); vi != vi_end; ++vi) {
-        type_min = std::min(type_min, boost::get(vertex_type_t(), g, *vi));
-        type_max = std::max(type_min, boost::get(vertex_type_t(), g, *vi));
+      site_iterator vi, vi_end;
+      for (boost::tie(vi, vi_end) = sites(g); vi != vi_end; ++vi) {
+        type_min = std::min(type_min, boost::get(site_type_t(), g, *vi));
+        type_max = std::max(type_min, boost::get(site_type_t(), g, *vi));
       }
-      if (alps::is_negative(type_min) || type_max > boost::num_vertices(g)) {
+      if (alps::is_negative(type_min) || type_max > num_sites(g)) {
         use_site_index_ = true;
-        sites_.resize(boost::num_vertices(g));
+        sites_.resize(num_sites(g));
       } else {
         sites_.resize(type_max+1);
       }
@@ -482,23 +482,23 @@ protected:
     // generate site matrices and set site parameters
     if (use_site_index_) {
       alps::Parameters p(params);
-      vertex_iterator vi, vi_end;
-      for (boost::tie(vi, vi_end) = boost::vertices(g); vi != vi_end; ++vi) {
+      site_iterator vi, vi_end;
+      for (boost::tie(vi, vi_end) = sites(g); vi != vi_end; ++vi) {
         if (inhomogeneous_sites) {
           alps::throw_if_xyz_defined(params, g);
           p << alps::coordinate_as_parameter(g, *vi);
         }
-        unsigned int i = boost::get(vertex_index_t(), g, *vi);
-        unsigned int t = boost::get(vertex_type_t(), g, *vi);
+        unsigned int i = boost::get(site_index_t(), g, *vi);
+        unsigned int t = boost::get(site_type_t(), g, *vi);
         sites_[i] = site_parameter(
           alps::get_matrix(double(), hd.site_term(t),
                            hd.basis().site_basis(t), p));
       }
     } else {
       std::vector<bool> checked(sites_.size(), false);
-      vertex_iterator vi, vi_end;
-      for (boost::tie(vi, vi_end) = boost::vertices(g); vi != vi_end; ++vi) {
-        unsigned int t = boost::get(vertex_type_t(), g, *vi);
+      site_iterator vi, vi_end;
+      for (boost::tie(vi, vi_end) = sites(g); vi != vi_end; ++vi) {
+        unsigned int t = boost::get(site_type_t(), g, *vi);
         if (!checked[t]) {
           sites_[t] = site_parameter(
             alps::get_matrix(double(), hd.site_term(t),
@@ -516,34 +516,34 @@ protected:
     use_bond_index_ = false;
     if (inhomogeneous_bond) {
       use_bond_index_ = true;
-      bonds_.resize(boost::num_edges(g));
+      bonds_.resize(num_bonds(g));
     } else {
       alps::type_type type_min = 0;
       alps::type_type type_max = 0;
       std::map<alps::type_type, std::pair<alps::type_type, alps::type_type> >
         vtype;
-      edge_iterator ei, ei_end;
-      for (boost::tie(ei, ei_end) = boost::edges(g); ei != ei_end; ++ei) {
-        type_min = std::min(type_min, boost::get(edge_type_t(), g, *ei));
-        type_max = std::max(type_max, boost::get(edge_type_t(), g, *ei));
-        unsigned int t = boost::get(edge_type_t(), g, *ei);
+      bond_iterator ei, ei_end;
+      for (boost::tie(ei, ei_end) = bonds(g); ei != ei_end; ++ei) {
+        type_min = std::min(type_min, boost::get(bond_type_t(), g, *ei));
+        type_max = std::max(type_max, boost::get(bond_type_t(), g, *ei));
+        unsigned int t = boost::get(bond_type_t(), g, *ei);
         if (vtype.find(t) == vtype.end()) {
           vtype[t] = std::make_pair(
-              boost::get(vertex_type_t(), g, boost::source(*ei, g)),
-              boost::get(vertex_type_t(), g, boost::target(*ei, g)));
+              boost::get(site_type_t(), g, boost::source(*ei, g)),
+              boost::get(site_type_t(), g, boost::target(*ei, g)));
         } else {
           if (vtype[t] != std::make_pair(
-              boost::get(vertex_type_t(), g, boost::source(*ei, g)),
-              boost::get(vertex_type_t(), g, boost::target(*ei, g)))) {
+              boost::get(site_type_t(), g, boost::source(*ei, g)),
+              boost::get(site_type_t(), g, boost::target(*ei, g)))) {
             use_bond_index_ = true;
             break;
           }
         }
       }
       if (use_bond_index_ || alps::is_negative(type_min) ||
-          type_max > boost::num_edges(g)) {
+          type_max > num_bonds(g)) {
         use_bond_index_ = true;
-        bonds_.resize(boost::num_edges(g));
+        bonds_.resize(num_bonds(g));
       } else {
         bonds_.resize(type_max+1);
       }
@@ -552,18 +552,18 @@ protected:
     // generate bond matrices and set bond parameters
     if (use_bond_index_) {
       alps::Parameters p(params);
-      edge_iterator ei, ei_end;
-      for (boost::tie(ei, ei_end) = boost::edges(g); ei != ei_end; ++ei) {
+      bond_iterator ei, ei_end;
+      for (boost::tie(ei, ei_end) = bonds(g); ei != ei_end; ++ei) {
         if (inhomogeneous_bond) {
           alps::throw_if_xyz_defined(params, g);
           p << alps::coordinate_as_parameter(g, *ei);
         }
-        unsigned int i = boost::get(edge_index_t(), g, *ei);
-        unsigned int t = boost::get(edge_type_t(), g, *ei);
+        unsigned int i = boost::get(bond_index_t(), g, *ei);
+        unsigned int t = boost::get(bond_type_t(), g, *ei);
         unsigned int st0 =
-	  boost::get(vertex_type_t(), g, boost::source(*ei, g));
+	  boost::get(site_type_t(), g, boost::source(*ei, g));
         unsigned int st1 =
-	  boost::get(vertex_type_t(), g, boost::target(*ei, g));
+	  boost::get(site_type_t(), g, boost::target(*ei, g));
         bonds_[i] = bond_parameter(
           alps::get_matrix(double(), hd.bond_term(t),
                            hd.basis().site_basis(st0),
@@ -571,14 +571,14 @@ protected:
       }
     } else {
       std::vector<bool> checked(bonds_.size(), false);
-      edge_iterator ei, ei_end;
-      for (boost::tie(ei, ei_end) = boost::edges(g); ei != ei_end; ++ei) {
-        unsigned int t = boost::get(edge_type_t(), g, *ei);
+      bond_iterator ei, ei_end;
+      for (boost::tie(ei, ei_end) = bonds(g); ei != ei_end; ++ei) {
+        unsigned int t = boost::get(bond_type_t(), g, *ei);
         if (!checked[t]) {
           unsigned int st0 =
-	    boost::get(vertex_type_t(), g, boost::source(*ei, g));
+	    boost::get(site_type_t(), g, boost::source(*ei, g));
           unsigned int st1 =
-	    boost::get(vertex_type_t(), g, boost::target(*ei, g));
+	    boost::get(site_type_t(), g, boost::target(*ei, g));
           bonds_[t] = bond_parameter(
             alps::get_matrix(double(), hd.bond_term(t),
                              hd.basis().site_basis(st0),
@@ -592,10 +592,10 @@ protected:
   template<typename G>
   bool check_sign(const G& g) const
   {
-    std::vector<double> w(boost::num_edges(g));
-    typename boost::graph_traits<G>::edge_iterator ei, ei_end;
-    for (boost::tie(ei, ei_end) = boost::edges(g); ei != ei_end; ++ei) {
-      unsigned int i = boost::get(edge_index_t(), g, *ei);
+    std::vector<double> w(num_bonds(g));
+    typename alps::graph_traits<G>::bond_iterator ei, ei_end;
+    for (boost::tie(ei, ei_end) = bonds(g); ei != ei_end; ++ei) {
+      unsigned int i = boost::get(bond_index_t(), g, *ei);
       if (bond(*ei, g).jxy() > 0.) {
         w[i] = 1.;
       } else if (bond(*ei, g).jxy() < 0.) {
@@ -606,16 +606,16 @@ protected:
     }
     return alps::is_frustrated(g,
              boost::make_iterator_property_map(w.begin(),
-               boost::get(edge_index_t(), g)));
+               boost::get(bond_index_t(), g)));
   }
 
   template<typename G>
   bool check_classical_frustration(const G& g) const
   {
-    std::vector<double> w(boost::num_edges(g));
-    typename boost::graph_traits<G>::edge_iterator ei, ei_end;
-    for (boost::tie(ei, ei_end) = boost::edges(g); ei != ei_end; ++ei) {
-      unsigned int i = boost::get(edge_index_t(), g, *ei);
+    std::vector<double> w(num_bonds(g));
+    typename alps::graph_traits<G>::bond_iterator ei, ei_end;
+    for (boost::tie(ei, ei_end) = bonds(g); ei != ei_end; ++ei) {
+      unsigned int i = boost::get(bond_index_t(), g, *ei);
       if (bond(*ei, g).jz() > 0.) {
         w[i] = 1.;
       } else if (bond(*ei, g).jz() < 0.) {
@@ -626,7 +626,7 @@ protected:
     }
     return alps::is_frustrated(g,
       boost::make_iterator_property_map(w.begin(),
-        boost::get(edge_index_t(), g)));
+        boost::get(bond_index_t(), g)));
   }
 
 private:

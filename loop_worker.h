@@ -33,28 +33,49 @@ public:
   typedef MCRUN                           super_type;
   typedef typename super_type::graph_type graph_type;
 
+  struct weight
+  {
+    template<class G>
+    bool operator()(typename boost::graph_traits<G>::edge_descriptor,
+		    const G&) const { return true; }
+    template<class G>
+    bool operator()(typename boost::graph_traits<G>::vertex_descriptor v,
+		      const G& g) const { return true; }
+  };
+
   qmc_worker_base(const alps::ProcessList& w, const alps::Parameters& p, int n)
     : super_type(w, p, n),
       mcs_therm_(static_cast<unsigned int>(p["THERMALIZATION"])),
       mcs_sweep_(p["SWEEPS"]),
       vlat_()
   {
-    using alps::RealObservable;
-    using alps::make_observable;
+    //
+    // setup model
+    //
 
-    // set virtual graph and weights
     looper::model_parameter mp(p, *this);
-
-    // warning
-    if (super_type::is_signed())
+    bool is_signed = mp.is_signed();
+    bool is_classically_frustrated = mp.is_classically_frustrated();
+    if (is_signed)
       std::cerr << "WARNING: model has negative signs\n";
-    if (super_type::is_classically_frustrated())
+    if (is_classically_frustrated)
       std::cerr << "WARNING: model is classically frustrated\n";
+
+    //
+    // setup virtual lattice
+    //
+
+    bool is_bipartite = alps::set_parity(super_type::graph());
+    vlat_.initialize(super_type::graph(), mp, weight());
 
     //
     // init measurements
     //
-    if (super_type::is_signed()) {
+
+    using alps::RealObservable;
+    using alps::make_observable;
+
+    if (is_signed) {
       super_type::measurements
 	<< RealObservable("Sign");
     }
@@ -62,41 +83,41 @@ public:
     // unimproved super_type::measurements
     super_type::measurements
       << make_observable(
-           RealObservable("Energy"), super_type::is_signed())
+           RealObservable("Energy"), is_signed)
       << make_observable(
-           RealObservable("Energy Density"), super_type::is_signed())
+           RealObservable("Energy Density"), is_signed)
       << make_observable(
-           RealObservable("Diagonal Energy Density"), super_type::is_signed())
+           RealObservable("Diagonal Energy Density"), is_signed)
       << make_observable(
-           RealObservable("Energy Density^2"), super_type::is_signed())
+           RealObservable("Energy Density^2"), is_signed)
       << make_observable(
-           RealObservable("beta * Energy / sqrt(N)"), super_type::is_signed())
+           RealObservable("beta * Energy / sqrt(N)"), is_signed)
       << make_observable(
-           RealObservable("beta * Energy^2"), super_type::is_signed())
+           RealObservable("beta * Energy^2"), is_signed)
       << make_observable(
-           RealObservable("Susceptibility"), super_type::is_signed());
-    if (super_type::is_bipartite())
+           RealObservable("Susceptibility"), is_signed);
+    if (is_bipartite)
       super_type::measurements
 	<< make_observable(
-             RealObservable("Staggered Susceptibility"), super_type::is_signed());
+             RealObservable("Staggered Susceptibility"), is_signed);
 
     // improved measurements
     super_type::measurements
       << make_observable(
-           RealObservable("Magnetization^2"), super_type::is_signed())
+           RealObservable("Magnetization^2"), is_signed)
       << make_observable(
            RealObservable("Diagonal Energy Density (improved)"),
-           super_type::is_signed());
-    if (super_type::is_bipartite())
+           is_signed);
+    if (is_bipartite)
       super_type::measurements
 	<< make_observable(
              RealObservable("Staggered Magnetization^2"),
-             super_type::is_signed());
-    if (!super_type::is_classically_frustrated()) {
+             is_signed);
+    if (!is_classically_frustrated) {
       super_type::measurements
 	<< RealObservable("Uniform Generalized Magnetization^2")
         << RealObservable("Uniform Generalized Susceptibility");
-      if (super_type::is_bipartite())
+      if (is_bipartite)
         super_type::measurements
 	  << RealObservable("Staggered Generalized Magnetization^2")
           << RealObservable("Staggered Generalized Susceptibility");
@@ -139,7 +160,7 @@ struct path_integral {};
 struct sse {};
 
 template<class QMC,
-  MCRUN = alps::scheduler::LatticeModelMCRun<looper::graph_type> >
+  class MCRUN = alps::scheduler::LatticeModelMCRun<looper::graph_type> >
 class qmc_worker;
 
 template<class MCRUN>
@@ -156,6 +177,21 @@ public:
   void load(alps::IDump& id) { super_type::load(id); }
 };
 
+template<class MCRUN>
+class qmc_worker<sse, MCRUN> : public qmc_worker_base<MCRUN>
+{
+public:
+  typedef qmc_worker_base<MCRUN> super_type;
+
+  qmc_worker(const alps::ProcessList& w, const alps::Parameters& p, int n)
+    : super_type(w, p, n)
+  {}
+
+  void save(alps::ODump& od) const { super_type::save(od); }
+  void load(alps::IDump& id) { super_type::load(id); }
+};
+
+
 template<class T>
 inline void accumulate(const alps::ObservableSet& m_in, T& m_out)
 {
@@ -170,50 +206,3 @@ inline void accumulate(const alps::ObservableSet& m_in, T& m_out)
 
 inline void accumulate(alps::scheduler::MCSimulation& sim)
 { accumulate(sim.get_measurements(), sim); }
-
-template<class QMC_WORKER>
-class worker : public alps::scheduler::LatticeModelMCRun<>
-{
-public:
-  typedef alps::scheduler::LatticeModelMCRun<>::graph_type graph_type;
-
-  worker(const alps::ProcessList& w, const alps::Parameters& p, int n) :
-    alps::scheduler::LatticeModelMCRun<>(w, p, n),
-    mdl_(p, this->graph(), this->inhomogeneous_sites(),
-         this->inhomogeneous_bonds(), *this, has_sign_problem()), mcs_(0),
-    therm_(static_cast<unsigned int>(p["THERMALIZATION"])),
-    total_(therm_ + static_cast<unsigned int>(p["SWEEPS"])),
-    strict_mcs_(p.defined("STRICT_MCS")),
-    qmc_worker_(this->graph(), mdl_, 1.0 / static_cast<double>(p["T"]),
-                p.value_or_default("FORCE_SCATTER", 0.0),
-                measurements)
-  { if (p.defined("FIXED_SEED")) random.seed(parms["FIXED_SEED"]); }
-  virtual ~worker() {}
-
-  virtual void dostep() {
-    if (!strict_mcs_ || mcs_ < total_)
-      qmc_worker_.step(random_01, measurements);
-    ++mcs_;
-  }
-  bool is_thermalized() const { return mcs_ >= therm_; }
-  virtual double work_done() const {
-    return is_thermalized() ?
-      double(mcs_ - therm_) / (total_ - therm_) : 0.0;
-  }
-
-  virtual void save(alps::ODump& od) const {
-    od << mcs_;
-    qmc_worker_.save(od);
-  }
-  virtual void load(alps::IDump& id) {
-    id >> mcs_;
-    qmc_worker_.load(id);
-    if (where.empty()) measurements.compact();
-  }
-
-private:
-  typename QMC_WORKER::model_type mdl_;
-  unsigned int mcs_, therm_, total_;
-  bool strict_mcs_;
-  QMC_WORKER qmc_worker_;
-};
