@@ -42,20 +42,20 @@ void output(const alps::graph_helper<G>& gh,
             const looper::model_parameter& m)
 {
   typedef G graph_type;
-  typedef typename alps::graph_helper<G>::vertex_iterator vertex_iterator;
-  typedef typename alps::graph_helper<G>::edge_iterator edge_iterator;
+  typedef typename alps::graph_helper<G>::site_iterator site_iterator;
+  typedef typename alps::graph_helper<G>::bond_iterator bond_iterator;
 
   // site parameters
-  vertex_iterator vi, vi_end;
+  site_iterator vi, vi_end;
   for (boost::tie(vi, vi_end) = gh.vertices(); vi != vi_end; ++vi) {
-    std::cout << "site " << *vi << ": type = " << gh.vertex_type(*vi)
+    std::cout << "site " << *vi << ": type = " << gh.site_type(*vi)
               << ", S = " << m.site(*vi, gh.graph()).s() << std::endl;
   }
 
   // bond parameters
-  edge_iterator ei, ei_end;
-  for (boost::tie(ei, ei_end) = gh.edges(); ei != ei_end; ++ei) {
-    std::cout << "bond " << *ei << ": type = " << gh.edge_type(*ei)
+  bond_iterator ei, ei_end;
+  for (boost::tie(ei, ei_end) = gh.bonds(); ei != ei_end; ++ei) {
+    std::cout << "bond " << *ei << ": type = " << gh.bond_type(*ei)
               << ", " << m.bond(*ei, gh.graph()) << std::endl;
   }
 }
@@ -81,7 +81,7 @@ try {
 
   // construct from parameters
   looper::model_parameter m1(gh.graph(), alps::half_integer<int>(1.5),
-			     -2, -1);
+                             -2, -1);
   output(gh, m1);
 
 #ifndef BOOST_NO_EXCEPTIONS

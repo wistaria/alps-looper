@@ -34,31 +34,39 @@
 
 namespace looper {
 
+using alps::vertex_index_t;
 using alps::site_index_t;
+using alps::vertex_type_t;
 using alps::site_type_t;
 using alps::coordinate_t;
 struct parity_t { typedef boost::vertex_property_tag kind; };
 
+using alps::edge_index_t;
 using alps::bond_index_t;
+using alps::edge_type_t;
 using alps::bond_type_t;
+using alps::edge_vector_t;
 using alps::bond_vector_t;
+using alps::edge_vector_relative_t;
 using alps::bond_vector_relative_t;
 using alps::boundary_crossing_t;
 
 using alps::graph_name_t;
 using alps::dimension_t;
 
+using alps::graph_traits;
+
 typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS,
   // vertex property
-  boost::property<site_type_t, alps::type_type,
+  boost::property<vertex_type_t, alps::type_type,
   boost::property<coordinate_t, alps::coordinate_type,
   boost::property<parity_t, int> > >,
   // edge property
-  boost::property<bond_index_t, unsigned int,
-  boost::property<bond_type_t, alps::type_type,
+  boost::property<edge_index_t, unsigned int,
+  boost::property<edge_type_t, alps::type_type,
   boost::property<boundary_crossing_t, alps::boundary_crossing,
-  boost::property<bond_vector_t, alps::coordinate_type,
-  boost::property<bond_vector_relative_t, alps::coordinate_type> > > > >,
+  boost::property<edge_vector_t, alps::coordinate_type,
+  boost::property<edge_vector_relative_t, alps::coordinate_type> > > > >,
   // graph property
   boost::property<dimension_t, std::size_t,
   boost::property<graph_name_t, std::string > >,
@@ -107,15 +115,15 @@ void generate_graph(G& g, const hypercubic_graph_generator<D, S, E>& desc)
     to[d] = 1; uc.add_edge(d, 1, so, 1, to); to[d] = 0;
   }
 
-  // bond_vectors
-  if (alps::has_property<bond_vector_t,unit_cell_type::graph_type>
-        ::bond_property) {
+  // edge_vectors
+  if (alps::has_property<edge_vector_t,unit_cell_type::graph_type>
+        ::edge_property) {
     std::vector<double> b(dim, 0.0);
     int d = 0;
-    alps::graph_traits<unit_cell_type::graph_type>::bond_iterator ei, ei_end;
-    for (boost::tie(ei, ei_end) = bonds(uc.graph());
+    graph_traits<unit_cell_type::graph_type>::edge_iterator ei, ei_end;
+    for (boost::tie(ei, ei_end) = edges(uc.graph());
          ei != ei_end; ++ei, ++d) {
-      b[d] = 1.; alps::get_or_default(bond_vector_t(),uc.graph(),
+      b[d] = 1.; alps::get_or_default(edge_vector_t(),uc.graph(),
                    alps::coordinate_type())[*ei] = b; b[d] = 0.;
     }
   }
@@ -144,9 +152,9 @@ void generate_graph(G& g, const hypercubic_graph_generator<D, S, E>& desc)
 template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
 inline int
 gauge(const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g,
-      typename alps::graph_traits<
+      typename graph_traits<
         boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
-          site_descriptor vd)
+          vertex_descriptor vd)
 {
   return boost::get(parity_t(), g, vd);
 }
@@ -156,9 +164,9 @@ gauge(const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g,
 //   template<class T0, class T1, class T2, class T3, class T4, class T5,
 //            class T6>
 //   static double
-//   value(typename alps::graph_traits<
+//   value(typename graph_traits<
 //           boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
-//           site_descriptor,
+//           vertex_descriptor,
 //         const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>&) {
 //     return 1.;
 //   }
@@ -169,9 +177,9 @@ gauge(const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g,
 //   template<class T0, class T1, class T2, class T3, class T4, class T5,
 //            class T6>
 //   static int
-//   value(typename alps::graph_traits<
+//   value(typename graph_traits<
 //           boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
-//           site_descriptor vd,
+//           vertex_descriptor vd,
 //         const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g) {
 //     return boost::get(parity_t(), g, vd);
 //   }
@@ -179,118 +187,118 @@ gauge(const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g,
 
 // template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
 // inline unsigned int
-// site_index(typename alps::graph_traits<
+// vertex_index(typename graph_traits<
 //              boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
-//              site_descriptor vd,
+//              vertex_descriptor vd,
 //            const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g)
 // {
-//   return boost::get(site_index_t(), g, vd);
+//   return boost::get(vertex_index_t(), g, vd);
 // }
 
 // template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
 // inline unsigned int
-// site_type(typename alps::graph_traits<
+// vertex_type(typename graph_traits<
 //             boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
-//             site_descriptor vd,
+//             vertex_descriptor vd,
 //           const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g)
 // {
-//   return boost::get(alps::site_type_t(), g, vd);
+//   return boost::get(alps::vertex_type_t(), g, vd);
 // }
 
 // template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
 // inline unsigned int
-// bond_index(typename alps::graph_traits<
+// edge_index(typename graph_traits<
 //              boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
-//              bond_descriptor ed,
+//              edge_descriptor ed,
 //            const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g)
 // {
-//   return boost::get(boost::bond_index, g, ed);
+//   return boost::get(boost::edge_index, g, ed);
 // }
 
 // template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
 // inline unsigned int
-// bond_type(typename alps::graph_traits<
+// edge_type(typename graph_traits<
 //             boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
-//             bond_descriptor ed,
+//             edge_descriptor ed,
 //           const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g)
 // {
-//   return boost::get(alps::bond_type_t(), g, ed);
+//   return boost::get(alps::edge_type_t(), g, ed);
 // }
 
 
 //
 // class template virtual_mapping
 //
-// for describing a mapping from a real site/bond to virtual ones
+// for describing a mapping from a real vertex/edge to virtual ones
 template<class G>
 class virtual_mapping
 {
 public:
   typedef G graph_type;
-  typedef typename alps::graph_traits<graph_type>::site_descriptor
-    site_descriptor;
-  typedef typename alps::graph_traits<graph_type>::bond_descriptor
-    bond_descriptor;
-  typedef typename alps::graph_traits<graph_type>::site_iterator
-    site_iterator;
-  typedef typename alps::graph_traits<graph_type>::bond_iterator
-    bond_iterator;
-  typedef std::pair<site_iterator, site_iterator>
-    site_range_type;
-  typedef std::pair<bond_iterator, bond_iterator>
-    bond_range_type;
+  typedef typename graph_traits<graph_type>::vertex_descriptor
+    vertex_descriptor;
+  typedef typename graph_traits<graph_type>::edge_descriptor
+    edge_descriptor;
+  typedef typename graph_traits<graph_type>::vertex_iterator
+    vertex_iterator;
+  typedef typename graph_traits<graph_type>::edge_iterator
+    edge_iterator;
+  typedef std::pair<vertex_iterator, vertex_iterator>
+    vertex_range_type;
+  typedef std::pair<edge_iterator, edge_iterator>
+    edge_range_type;
 
   virtual_mapping()
-    : site_map_(1, site_iterator()), bond_map_(1, bond_iterator()),
-      v2e_map_(1, bond_iterator())
+    : vertex_map_(1, vertex_iterator()), edge_map_(1, edge_iterator()),
+      v2e_map_(1, edge_iterator())
   {}
 
-  site_range_type
-  virtual_sites(const graph_type& rg, const site_descriptor& rv) const {
-    return std::make_pair(site_map_[boost::get(site_index_t(), rg, rv)],
-      site_map_[boost::get(site_index_t(), rg, rv) + 1]);
+  vertex_range_type
+  virtual_vertices(const graph_type& rg, const vertex_descriptor& rv) const {
+    return std::make_pair(vertex_map_[boost::get(vertex_index_t(), rg, rv)],
+      vertex_map_[boost::get(vertex_index_t(), rg, rv) + 1]);
   }
 
-  bond_range_type
-  virtual_bonds(const graph_type& rg, const bond_descriptor& re) const {
-    return std::make_pair(bond_map_[boost::get(bond_index_t(), rg, re)],
-      bond_map_[boost::get(bond_index_t(), rg, re) + 1]);
+  edge_range_type
+  virtual_edges(const graph_type& rg, const edge_descriptor& re) const {
+    return std::make_pair(edge_map_[boost::get(edge_index_t(), rg, re)],
+      edge_map_[boost::get(edge_index_t(), rg, re) + 1]);
   }
 
-  bond_range_type
-  virtual_bonds(const graph_type& rg, const site_descriptor& rv) const {
-    return std::make_pair(v2e_map_[boost::get(site_index_t(), rg, rv)],
-      v2e_map_[boost::get(site_index_t(), rg, rv) + 1]);
+  edge_range_type
+  virtual_edges(const graph_type& rg, const vertex_descriptor& rv) const {
+    return std::make_pair(v2e_map_[boost::get(vertex_index_t(), rg, rv)],
+      v2e_map_[boost::get(vertex_index_t(), rg, rv) + 1]);
   }
 
-  void add_sites(const graph_type& rg, const site_descriptor& rv,
-                    const site_iterator& first, const site_iterator& last)
+  void add_vertices(const graph_type& rg, const vertex_descriptor& rv,
+                    const vertex_iterator& first, const vertex_iterator& last)
   {
-    assert(boost::get(site_index_t(), rg, rv) == site_map_.size() - 1);
-    if (site_map_.size() == 1) {
-      site_map_.back() = first;
+    assert(boost::get(vertex_index_t(), rg, rv) == vertex_map_.size() - 1);
+    if (vertex_map_.size() == 1) {
+      vertex_map_.back() = first;
     } else {
-      assert(first == site_map_.back());
+      assert(first == vertex_map_.back());
     }
-    site_map_.push_back(last);
+    vertex_map_.push_back(last);
   }
 
-  void add_bonds(const graph_type& rg, const bond_descriptor& re,
-                 const bond_iterator& first, const bond_iterator& last)
+  void add_edges(const graph_type& rg, const edge_descriptor& re,
+                 const edge_iterator& first, const edge_iterator& last)
   {
-    assert(boost::get(bond_index_t(), rg, re) == bond_map_.size() - 1);
-    if (bond_map_.size() == 1) {
-      bond_map_.back() = first;
+    assert(boost::get(edge_index_t(), rg, re) == edge_map_.size() - 1);
+    if (edge_map_.size() == 1) {
+      edge_map_.back() = first;
     } else {
-      assert(first == bond_map_.back());
+      assert(first == edge_map_.back());
     }
-    bond_map_.push_back(last);
+    edge_map_.push_back(last);
   }
 
-  void add_v2bonds(const graph_type& rg, const site_descriptor& rv,
-                   const bond_iterator& first, const bond_iterator& last)
+  void add_v2edges(const graph_type& rg, const vertex_descriptor& rv,
+                   const edge_iterator& first, const edge_iterator& last)
   {
-    assert(boost::get(site_index_t(), rg, rv) == v2e_map_.size() - 1);
+    assert(boost::get(vertex_index_t(), rg, rv) == v2e_map_.size() - 1);
     if (v2e_map_.size() == 1) {
       v2e_map_.back() = first;
     } else {
@@ -301,20 +309,20 @@ public:
 
   void clear()
   {
-    site_map_.clear();
-    site_map_.push_back(site_iterator());
-    bond_map_.clear();
-    bond_map_.push_back(bond_iterator());
+    vertex_map_.clear();
+    vertex_map_.push_back(vertex_iterator());
+    edge_map_.clear();
+    edge_map_.push_back(edge_iterator());
     v2e_map_.clear();
-    v2e_map_.push_back(bond_iterator());
+    v2e_map_.push_back(edge_iterator());
     v2e_offset_ = 0;
   }
 
-  void set_v2bond_type_offset(int t) { v2e_offset_ = t; }
-  int v2bond_type_offset() const { return v2e_offset_; }
+  void set_v2edge_type_offset(int t) { v2e_offset_ = t; }
+  int v2edge_type_offset() const { return v2e_offset_; }
 
   bool operator==(const virtual_mapping& rhs) const
-  { return site_map_ == rhs.site_map_ && bond_map_ == rhs.bond_map_ &&
+  { return vertex_map_ == rhs.vertex_map_ && edge_map_ == rhs.edge_map_ &&
       v2e_map_ == rhs.v2e_map_; }
   bool operator!=(const virtual_mapping& rhs) { return !(*this == rhs); }
 
@@ -322,61 +330,61 @@ public:
               const graph_type& vg) const
   {
     os << "[[vitual_mapping]]\n";
-    os << "  number of site groups = " << num_sites(rg) << '\n';
-    os << "  site mapping:\n";
-    site_iterator vi, vi_end;
-    for (boost::tie(vi, vi_end) = sites(rg); vi != vi_end; ++vi) {
-      os << "    " << boost::get(site_index_t(), rg, *vi) << " -> ";
-      site_range_type vr = virtual_sites(rg, *vi);
+    os << "  number of vertex groups = " << num_vertices(rg) << '\n';
+    os << "  vertex mapping:\n";
+    vertex_iterator vi, vi_end;
+    for (boost::tie(vi, vi_end) = vertices(rg); vi != vi_end; ++vi) {
+      os << "    " << boost::get(vertex_index_t(), rg, *vi) << " -> ";
+      vertex_range_type vr = virtual_vertices(rg, *vi);
       if (vr.first == vr.second) {
         os << "null\n";
       } else if (vr.first == boost::prior(vr.second)) {
-        os << boost::get(site_index_t(), vg, *vr.first) << '\n';
+        os << boost::get(vertex_index_t(), vg, *vr.first) << '\n';
       } else {
         os << '['
-           << boost::get(site_index_t(), vg, *vr.first) << ','
-           << boost::get(site_index_t(), vg, *boost::prior(vr.second))
+           << boost::get(vertex_index_t(), vg, *vr.first) << ','
+           << boost::get(vertex_index_t(), vg, *boost::prior(vr.second))
            << "]\n";
       }
     }
-    os << "  number of bond groups = " << num_bonds(rg) << '\n';
-    os << "  bond mapping:\n";
-    bond_iterator ei, ei_end;
-    for (boost::tie(ei, ei_end) = alps::bonds(rg); ei != ei_end; ++ei) {
-      os << "    " << boost::get(bond_index_t(), rg, *ei) << " -> ";
-      bond_range_type er = virtual_bonds(rg, *ei);
+    os << "  number of edge groups = " << num_edges(rg) << '\n';
+    os << "  edge mapping:\n";
+    edge_iterator ei, ei_end;
+    for (boost::tie(ei, ei_end) = edges(rg); ei != ei_end; ++ei) {
+      os << "    " << boost::get(edge_index_t(), rg, *ei) << " -> ";
+      edge_range_type er = virtual_edges(rg, *ei);
       if (er.first == er.second) {
         os << "null\n";
       } else if (er.first == boost::prior(er.second)) {
-        os << boost::get(bond_index_t(), vg, *er.first) << '\n';
+        os << boost::get(edge_index_t(), vg, *er.first) << '\n';
       } else {
         os << '['
-           << boost::get(bond_index_t(), vg, *er.first) << ','
-           << boost::get(bond_index_t(), vg, *boost::prior(er.second))
+           << boost::get(edge_index_t(), vg, *er.first) << ','
+           << boost::get(edge_index_t(), vg, *boost::prior(er.second))
            << "]\n";
       }
     }
-    os << "  site2bond mapping:\n";
-    for (boost::tie(vi, vi_end) = sites(rg); vi != vi_end; ++vi) {
-      os << "    " << boost::get(site_index_t(), rg, *vi) << " -> ";
-      bond_range_type er = virtual_bonds(rg, *vi);
+    os << "  vertex2edge mapping:\n";
+    for (boost::tie(vi, vi_end) = vertices(rg); vi != vi_end; ++vi) {
+      os << "    " << boost::get(vertex_index_t(), rg, *vi) << " -> ";
+      edge_range_type er = virtual_edges(rg, *vi);
       if (er.first == er.second) {
         os << "null\n";
       } else if (er.first == boost::prior(er.second)) {
-        os << boost::get(bond_index_t(), vg, *er.first) << '\n';
+        os << boost::get(edge_index_t(), vg, *er.first) << '\n';
       } else {
         os << '['
-           << boost::get(bond_index_t(), vg, *er.first) << ','
-           << boost::get(bond_index_t(), vg, *boost::prior(er.second))
+           << boost::get(edge_index_t(), vg, *er.first) << ','
+           << boost::get(edge_index_t(), vg, *boost::prior(er.second))
            << "]\n";
       }
     }
   }
 
 private:
-  std::vector<site_iterator> site_map_;
-  std::vector<bond_iterator> bond_map_;
-  std::vector<bond_iterator> v2e_map_;
+  std::vector<vertex_iterator> vertex_map_;
+  std::vector<edge_iterator> edge_map_;
+  std::vector<edge_iterator> v2e_map_;
   int v2e_offset_;
 };
 
@@ -389,14 +397,11 @@ template<class G, class M, class W>
 inline void generate_virtual_lattice(G& vg, virtual_mapping<G>& vm,
   const G& rg, const M& model, const W& weight)
 {
-  // using boost::get_property;
-  // using alps::copy_property;
-
   typedef G graph_type;
-  typedef typename alps::graph_traits<G>::site_iterator site_iterator;
-  typedef typename alps::graph_traits<G>::site_descriptor site_descriptor;
-  typedef typename alps::graph_traits<G>::bond_iterator bond_iterator;
-  typedef typename alps::graph_traits<G>::bond_descriptor bond_descriptor;
+  typedef typename graph_traits<G>::vertex_iterator   vertex_iterator;
+  typedef typename graph_traits<G>::vertex_descriptor vertex_descriptor;
+  typedef typename graph_traits<G>::edge_iterator     edge_iterator;
+  typedef typename graph_traits<G>::edge_descriptor   edge_descriptor;
 
   vg.clear();
   vm.clear();
@@ -406,98 +411,98 @@ inline void generate_virtual_lattice(G& vg, virtual_mapping<G>& vm,
     get_property(rg, graph_name_t());
   get_property(vg, dimension_t()) = get_property(rg, dimension_t());
 
-  // setup v2bond_type_offset
-  site_iterator rvi, rvi_end;
+  // setup v2edge_type_offset
+  vertex_iterator rvi, rvi_end;
   int tmin = 0;
-  for (boost::tie(rvi, rvi_end) = sites(rg); rvi != rvi_end; ++rvi)
-    tmin = std::min(tmin, int(boost::get(site_type_t(), rg, *rvi)));
-  bond_iterator rei, rei_end;
+  for (boost::tie(rvi, rvi_end) = vertices(rg); rvi != rvi_end; ++rvi)
+    tmin = std::min(tmin, int(boost::get(vertex_type_t(), rg, *rvi)));
+  edge_iterator rei, rei_end;
   int tmax = 0;
-  for (boost::tie(rei, rei_end) = bonds(rg); rei != rei_end; ++rei)
-    tmax = std::max(tmax, int(boost::get(bond_type_t(), rg, *rei)));
-  vm.set_v2bond_type_offset(tmax-tmin+1);
+  for (boost::tie(rei, rei_end) = edges(rg); rei != rei_end; ++rei)
+    tmax = std::max(tmax, int(boost::get(edge_type_t(), rg, *rei)));
+  vm.set_v2edge_type_offset(tmax-tmin+1);
 
-  // add sites to virtual graph
-  for (boost::tie(rvi, rvi_end) = sites(rg); rvi != rvi_end; ++rvi) {
+  // add vertices to virtual graph
+  for (boost::tie(rvi, rvi_end) = vertices(rg); rvi != rvi_end; ++rvi) {
     for (int i = 0; i < model.site(*rvi, rg).s().get_twice(); ++i) {
-      site_descriptor vvd = add_vertex(vg);
-      copy_property(site_type_t(), rg, *rvi, vg, vvd);
+      vertex_descriptor vvd = add_vertex(vg);
+      copy_property(vertex_type_t(), rg, *rvi, vg, vvd);
       copy_property(coordinate_t(), rg, *rvi, vg, vvd);
       copy_property(parity_t(), rg, *rvi, vg, vvd);
     }
   }
 
-  // setup site mapping
-  site_iterator vvi_first = sites(vg).first;
-  site_iterator vvi_last = vvi_first;
-  for (boost::tie(rvi, rvi_end) = sites(rg); rvi != rvi_end; ++rvi) {
+  // setup vertex mapping
+  vertex_iterator vvi_first = vertices(vg).first;
+  vertex_iterator vvi_last = vvi_first;
+  for (boost::tie(rvi, rvi_end) = vertices(rg); rvi != rvi_end; ++rvi) {
     vvi_last += model.site(*rvi, rg).s().get_twice();
-    vm.add_sites(rg, *rvi, vvi_first, vvi_last);
+    vm.add_vertices(rg, *rvi, vvi_first, vvi_last);
     vvi_first = vvi_last;
   }
 
-  // add bonds to virtual graph
-  for (boost::tie(rei, rei_end) = bonds(rg); rei != rei_end; ++rei) {
+  // add edges to virtual graph
+  for (boost::tie(rei, rei_end) = edges(rg); rei != rei_end; ++rei) {
     if (weight(*rei, rg)) {
-      site_descriptor rs = source(*rei, rg);
-      site_descriptor rt = target(*rei, rg);
-      site_iterator vvsi, vvsi_end;
-      for (boost::tie(vvsi, vvsi_end) = vm.virtual_sites(rg, rs);
+      vertex_descriptor rs = source(*rei, rg);
+      vertex_descriptor rt = target(*rei, rg);
+      vertex_iterator vvsi, vvsi_end;
+      for (boost::tie(vvsi, vvsi_end) = vm.virtual_vertices(rg, rs);
            vvsi != vvsi_end; ++vvsi) {
-        site_iterator vvti, vvti_end;
-        for (boost::tie(vvti, vvti_end) = vm.virtual_sites(rg, rt);
+        vertex_iterator vvti, vvti_end;
+        for (boost::tie(vvti, vvti_end) = vm.virtual_vertices(rg, rt);
              vvti != vvti_end; ++vvti) {
-          bond_descriptor ved = add_edge(*vvsi, *vvti, vg).first;
-          boost::put(bond_index_t(), vg, ved, num_bonds(vg) - 1);
-          copy_property(bond_type_t(), rg, *rei, vg, ved);
+          edge_descriptor ved = add_edge(*vvsi, *vvti, vg).first;
+          boost::put(edge_index_t(), vg, ved, num_edges(vg) - 1);
+          copy_property(edge_type_t(), rg, *rei, vg, ved);
           copy_property(boundary_crossing_t(), rg, *rei, vg, ved);
-          copy_property(bond_vector_t(), rg, *rei, vg, ved);
-          copy_property(bond_vector_relative_t(), rg, *rei, vg, ved);
+          copy_property(edge_vector_t(), rg, *rei, vg, ved);
+          copy_property(edge_vector_relative_t(), rg, *rei, vg, ved);
         }
       }
     }
   }
 
-  // add `in-real-site' bonds to virtual graph
+  // add `in-real-vertex' edges to virtual graph
   int dim = alps::get_or_default(dimension_t(), rg, int(0));
   alps::coordinate_type vec(dim, 0);
-  for (boost::tie(rvi, rvi_end) = sites(rg); rvi != rvi_end; ++rvi) {
+  for (boost::tie(rvi, rvi_end) = vertices(rg); rvi != rvi_end; ++rvi) {
     if (weight(*rvi, rg)) {
-      int t = vm.v2bond_type_offset() + boost::get(site_type_t(), rg, *rvi);
-      site_iterator vvsi, vvsi_end;
-      for (boost::tie(vvsi, vvsi_end) = vm.virtual_sites(rg, *rvi);
+      int t = vm.v2edge_type_offset() + boost::get(vertex_type_t(), rg, *rvi);
+      vertex_iterator vvsi, vvsi_end;
+      for (boost::tie(vvsi, vvsi_end) = vm.virtual_vertices(rg, *rvi);
            vvsi != vvsi_end; ++vvsi) {
-        for (site_iterator vvti = boost::next(vvsi); vvti != vvsi_end;
+        for (vertex_iterator vvti = boost::next(vvsi); vvti != vvsi_end;
              ++vvti) {
-          bond_descriptor ved = add_edge(*vvsi, *vvti, vg).first;
-          boost::put(bond_index_t(), vg, ved, num_bonds(vg) - 1);
-          boost::put(bond_type_t(), vg, ved, t);
+          edge_descriptor ved = add_edge(*vvsi, *vvti, vg).first;
+          boost::put(edge_index_t(), vg, ved, num_edges(vg) - 1);
+          boost::put(edge_type_t(), vg, ved, t);
           boost::put(boundary_crossing_t(), vg, ved, alps::boundary_crossing());
-          boost::put(bond_vector_t(), vg, ved, vec);
-          boost::put(bond_vector_relative_t(), vg, ved, vec);
+          boost::put(edge_vector_t(), vg, ved, vec);
+          boost::put(edge_vector_relative_t(), vg, ved, vec);
         }
       }
     }
   }
 
-  // setup bond and v2bond mapping
-  bond_iterator vei_first = bonds(vg).first;
-  bond_iterator vei_last = vei_first;
-  for (boost::tie(rei, rei_end) = bonds(rg); rei != rei_end; ++rei) {
+  // setup edge and v2edge mapping
+  edge_iterator vei_first = edges(vg).first;
+  edge_iterator vei_last = vei_first;
+  for (boost::tie(rei, rei_end) = edges(rg); rei != rei_end; ++rei) {
     if (weight(*rei, rg)) {
       vei_last += model.site(source(*rei, rg), rg).s().get_twice() *
         model.site(target(*rei, rg), rg).s().get_twice();
     }
-    vm.add_bonds(rg, *rei, vei_first, vei_last);
+    vm.add_edges(rg, *rei, vei_first, vei_last);
     vei_first = vei_last;
   }
 
-  for (boost::tie(rvi, rvi_end) = sites(rg); rvi != rvi_end; ++rvi) {
+  for (boost::tie(rvi, rvi_end) = vertices(rg); rvi != rvi_end; ++rvi) {
     if (weight(*rvi, rg)) {
       vei_last += model.site(*rvi, rg).s().get_twice() *
         (model.site(*rvi, rg).s().get_twice() - 1) / 2;
     }
-    vm.add_v2bonds(rg, *rvi, vei_first, vei_last);
+    vm.add_v2edges(rg, *rvi, vei_first, vei_last);
     vei_first = vei_last;
   }
 }
@@ -513,39 +518,34 @@ public:
   typedef GRAPH                       graph_type;
   typedef virtual_mapping<graph_type> mapping_type;
 
-  typedef typename boost::graph_traits<graph_type>::vertex_descriptor
+  typedef typename graph_traits<graph_type>::vertex_descriptor
     vertex_descriptor;
-  typedef typename boost::graph_traits<graph_type>::edge_descriptor
+  typedef typename graph_traits<graph_type>::edge_descriptor
     edge_descriptor;
-  typedef typename boost::graph_traits<graph_type>::adjacency_iterator
+  typedef typename graph_traits<graph_type>::adjacency_iterator
      adjacency_iterator;
-  typedef typename boost::graph_traits<graph_type>::out_edge_iterator
+  typedef typename graph_traits<graph_type>::out_edge_iterator
      out_edge_iterator;
-  typedef typename boost::graph_traits<graph_type>::in_edge_iterator
+  typedef typename graph_traits<graph_type>::in_edge_iterator
      in_edge_iterator;
-  typedef typename boost::graph_traits<graph_type>::vertex_iterator
+  typedef typename graph_traits<graph_type>::vertex_iterator
     vertex_iterator;
-  typedef typename boost::graph_traits<graph_type>::edge_iterator
+  typedef typename graph_traits<graph_type>::edge_iterator
     edge_iterator;
 
-  typedef typename boost::graph_traits<graph_type>::directed_category
+  typedef typename graph_traits<graph_type>::directed_category
     directed_category;
-  typedef typename boost::graph_traits<graph_type>::edge_parallel_category
+  typedef typename graph_traits<graph_type>::edge_parallel_category
     edge_parallel_category;
-  typedef typename boost::graph_traits<graph_type>::traversal_category
+  typedef typename graph_traits<graph_type>::traversal_category
     traversal_category;
 
-  typedef typename boost::graph_traits<graph_type>::vertices_size_type
+  typedef typename graph_traits<graph_type>::vertices_size_type
     vertices_size_type;
-  typedef typename boost::graph_traits<graph_type>::edges_size_type
+  typedef typename graph_traits<graph_type>::edges_size_type
     edges_size_type;
-  typedef typename boost::graph_traits<graph_type>::degree_size_type
+  typedef typename graph_traits<graph_type>::degree_size_type
     degree_size_type;
-
-  typedef vertex_descriptor site_descriptor;
-  typedef edge_descriptor   bond_descriptor;
-  typedef vertex_iterator   site_iterator;
-  typedef edge_iterator     bond_iterator;
 
   virtual_lattice() {}
   template<class RG, class M, class W>
@@ -553,22 +553,25 @@ public:
   { initialize(rg, model, weight); }
 
   template<class RG>
-  std::pair<site_iterator, site_iterator>
-  virtual_sites(const RG& rg,
-    const typename alps::graph_traits<RG>::site_descriptor& rv) const
-  { return mapping_.virtual_sites(rg, rv); }
+  std::pair<vertex_iterator, vertex_iterator>
+  virtual_vertices(const RG& rg,
+    const typename graph_traits<RG>::vertex_descriptor& rv) const
+  { return mapping_.virtual_vertices(rg, rv); }
+
   template<class RG>
-  std::pair<bond_iterator, bond_iterator>
-  virtual_bonds(const RG& rg,
-    const typename alps::graph_traits<RG>::bond_descriptor& re) const
-  { return mapping_.virtual_bonds(rg, re); }
+  std::pair<edge_iterator, edge_iterator>
+  virtual_edges(const RG& rg,
+    const typename graph_traits<RG>::edge_descriptor& re) const
+  { return mapping_.virtual_edges(rg, re); }
 
   void clear() { graph_.clear(); mapping_.clear(); }
+
   template<class RG, class M, class W>
   void initialize(const RG& rg, const M& model, const W& weight)
   { generate_virtual_lattice(graph_, mapping_, rg, model, weight); }
 
   const graph_type& graph() const { return graph_; }
+
   const mapping_type& mapping() const { return mapping_; }
 
   template<class RG>
@@ -581,61 +584,89 @@ private:
   mapping_type mapping_;
 };
 
-}
-
-namespace boost {
-
-template<class RG>
-std::pair<typename looper::virtual_lattice<RG>::vertex_iterator,
-          typename looper::virtual_lattice<RG>::vertex_iterator>
-vertices(const looper::virtual_lattice<RG>& vl)
+template<class G>
+std::pair<typename graph_traits<looper::virtual_lattice<G> >::vertex_iterator,
+          typename graph_traits<looper::virtual_lattice<G> >::vertex_iterator>
+vertices(const looper::virtual_lattice<G>& vl)
 { return vertices(vl.graph()); }
 
-template<class RG>
-typename looper::virtual_lattice<RG>::vertices_size_type
-num_vertices(const looper::virtual_lattice<RG>& vl)
+template<class G>
+std::pair<typename graph_traits<looper::virtual_lattice<G> >::site_iterator,
+          typename graph_traits<looper::virtual_lattice<G> >::site_iterator>
+sites(const looper::virtual_lattice<G>& vl)
+{ return sites(vl.graph()); }
+
+template<class G>
+typename graph_traits<looper::virtual_lattice<G> >::vertices_size_type
+num_vertices(const looper::virtual_lattice<G>& vl)
 { return num_vertices(vl.graph()); }
 
-template<class RG>
-std::pair<typename looper::virtual_lattice<RG>::edge_iterator,
-          typename looper::virtual_lattice<RG>::edge_iterator>
-edges(const looper::virtual_lattice<RG>& vl)
+template<class G>
+typename graph_traits<looper::virtual_lattice<G> >::sites_size_type
+num_sites(const looper::virtual_lattice<G>& vl)
+{ return num_sites(vl.graph()); }
+
+template<class G>
+std::pair<typename graph_traits<looper::virtual_lattice<G> >::edge_iterator,
+          typename graph_traits<looper::virtual_lattice<G> >::edge_iterator>
+edges(const looper::virtual_lattice<G>& vl)
 { return edges(vl.graph()); }
 
-template<class RG>
-typename looper::virtual_lattice<RG>::edges_size_type
-num_edges(const looper::virtual_lattice<RG>& vl)
+template<class G>
+std::pair<typename graph_traits<looper::virtual_lattice<G> >::bond_iterator,
+          typename graph_traits<looper::virtual_lattice<G> >::bond_iterator>
+bonds(const looper::virtual_lattice<G>& vl)
+{ return bonds(vl.graph()); }
+
+template<class G>
+typename graph_traits<looper::virtual_lattice<G> >::edges_size_type
+num_edges(const looper::virtual_lattice<G>& vl)
 { return num_edges(vl.graph()); }
 
-} // end namespace boost
+template<class G>
+typename graph_traits<looper::virtual_lattice<G> >::bonds_size_type
+num_bonds(const looper::virtual_lattice<G>& vl)
+{ return num_edges(vl.graph()); }
 
-namespace looper {
+template<class G>
+std::pair<typename graph_traits<looper::virtual_lattice<G> >::vertex_iterator,
+          typename graph_traits<looper::virtual_lattice<G> >::vertex_iterator>
+virtual_vertices(const virtual_lattice<G>& vl, const G& rg,
+  const typename graph_traits<G>::vertex_descriptor& rv)
+{ return vl.virtual_vertices(rg, rv); }
 
-template<class RG>
-std::pair<typename virtual_lattice<RG>::site_iterator,
-          typename virtual_lattice<RG>::site_iterator>
-virtual_sites(const virtual_lattice<RG>& vl, const RG& rg,
-  const typename alps::graph_traits<RG>::site_descriptor& rv)
-{ return vl.virtual_sites(rg, rv); }
+template<class G>
+std::pair<typename graph_traits<looper::virtual_lattice<G> >::site_iterator,
+          typename graph_traits<looper::virtual_lattice<G> >::site_iterator>
+virtual_sites(const virtual_lattice<G>& vl, const G& rg,
+  const typename graph_traits<G>::site_descriptor& rv)
+{ return vl.virtual_vertices(rg, rv); }
 
-template<class RG>
-std::pair<typename virtual_lattice<RG>::bond_iterator,
-          typename virtual_lattice<RG>::bond_iterator>
-virtual_bonds(const virtual_lattice<RG>& vl, const RG& rg,
-  const typename alps::graph_traits<RG>::bond_descriptor& re)
-{ return vl.virtual_bonds(rg, re); }
+template<class G>
+std::pair<typename graph_traits<looper::virtual_lattice<G> >::edge_iterator,
+          typename graph_traits<looper::virtual_lattice<G> >::edge_iterator>
+virtual_edges(const virtual_lattice<G>& vl, const G& rg,
+  const typename graph_traits<G>::edge_descriptor& re)
+{ return vl.virtual_edges(rg, re); }
 
-template<class RG>
-void set_parity(virtual_lattice<RG>& vl)
+template<class G>
+std::pair<typename graph_traits<looper::virtual_lattice<G> >::bond_iterator,
+          typename graph_traits<looper::virtual_lattice<G> >::bond_iterator>
+virtual_bonds(const virtual_lattice<G>& vl, const G& rg,
+  const typename graph_traits<G>::bond_descriptor& re)
+{ return vl.virtual_edges(rg, re); }
+
+template<class G>
+void set_parity(virtual_lattice<G>& vl)
 { alps::set_parity(vl.graph()); }
 
-template<class RG>
-int gauge(const virtual_lattice<RG>& vl,
-  const typename virtual_lattice<RG>::site_descriptor& vd)
+template<class G>
+int gauge(const virtual_lattice<G>& vl,
+  const typename virtual_lattice<G>::vertex_descriptor& vd)
 { return gauge(vl.graph(), vd); }
 
-template<class RG>
-std::ostream& operator<<(std::ostream& os, const virtual_lattice<RG>& vl)
+template<class G>
+std::ostream& operator<<(std::ostream& os, const virtual_lattice<G>& vl)
 {
   os << vl.graph();
   return os;

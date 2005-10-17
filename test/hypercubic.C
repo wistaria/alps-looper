@@ -31,7 +31,7 @@ using namespace alps;
 
 int main() {
   typedef looper::graph_type graph_type;
-  typedef graph_type::vertex_iterator vertex_iterator;
+  typedef looper::graph_traits<graph_type>::site_iterator site_iterator;
 
   std::vector<int> ext;
   int dim;
