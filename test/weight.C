@@ -25,32 +25,33 @@
 #include <looper/model.h>
 #include <looper/weight.h>
 #include <alps/parameterlist.h>
+#include <boost/random.hpp>
 #include <iostream>
 
 void output(const looper::site_parameter& p, const looper::site_weight& w)
 {
   std::cout << "C = " << p.c()
-	    << "Hx = " << p.hx()
-	    << "Hz = " << p.hz()
-	    << ": v[1] = " << w.v(1)
-	    << ", v[2] = " << w.v(2)
-	    << ", v[3] = " << w.v(3)
-	    << ", offset = " << w.offset()
-            << ", sign = " << weight.sign() << std::endl;
+            << ", Hx = " << p.hx()
+            << ", Hz = " << p.hz()
+            << " : v[1] = " << w.v(1)
+            << ", v[2] = " << w.v(2)
+            << ", v[3] = " << w.v(3)
+            << ", offset = " << w.offset()
+            << ", sign = " << w.sign() << std::endl;
   looper::site_weight::check(p, w);
 }
 
 void output(const looper::bond_parameter& p, const looper::bond_weight& w)
 {
   std::cout << "C = " << p.c()
-	    << ", Jxy = " << p.jxy()
+            << ", Jxy = " << p.jxy()
             << ", Jz = " << p.jz()
-	    << ": v[1] = " << w.v(1)
-	    << ", v[2] = " << w.v(2)
-	    << ", v[3] = " << w.v(3)
-	    << ", v[4] = " << w.v(4)
-	    << ", offset = " << w.offset()
-	    << ", sign = " << w.sign() << std::endl;
+            << " : v[1] = " << w.v(1)
+            << ", v[2] = " << w.v(2)
+            << ", v[3] = " << w.v(3)
+            << ", v[4] = " << w.v(4)
+            << ", offset = " << w.offset()
+            << ", sign = " << w.sign() << std::endl;
   looper::bond_weight::check(p, w);
 }
 
@@ -60,13 +61,40 @@ int main()
 try {
 #endif
 
+  std::cout << "[standard input]\n";
+
   alps::ParameterList params;
   std::cin >> params;
 
   for (alps::ParameterList::iterator p = params.begin();
        p != params.end(); ++p) {
-    looper::site_parameter site(0.5, (*p)["Hz"], (*p)["Hx"]);
-    looper::bond_parameter bond((*p)["C"], (*p)["Jxy"], (*p)["Jz"]);
+    looper::site_parameter site(0.5, 0,
+                                p->value_or_default("Hx",0),
+                                p->value_or_default("Hz",0));
+    looper::bond_parameter bond(p->value_or_default("C",0),
+                                p->value_or_default("Jxy",0),
+                                p->value_or_default("Jz",0));
+
+    std::cout << "site weight (standard): ";
+    output(site, looper::site_weight(site));
+
+    std::cout << "bond weight (standard): ";
+    output(bond, looper::bond_weight(bond));
+
+    std::cout << "bond weight (ergodic): ";
+    output(bond, looper::bond_weight(bond, 0.1));
+  }
+
+  std::cout << "[random check]\n";
+
+  // random number generator
+  boost::mt19937 eng(29833u);
+  boost::variate_generator<boost::mt19937&, boost::uniform_real<> >
+    rng(eng, boost::uniform_real<>(-1, 1));
+
+  for (int i = 0; i < 10; ++i) {
+    looper::site_parameter site(0.5, rng(), rng(), rng());
+    looper::bond_parameter bond(rng(), rng(), rng());
 
     std::cout << "site weight (standard): ";
     output(site, looper::site_weight(site));
