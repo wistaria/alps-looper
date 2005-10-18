@@ -27,50 +27,31 @@
 #include <alps/parameterlist.h>
 #include <iostream>
 
-void output(const alps::Parameters& param, const looper::site_weight& weight)
+void output(const looper::site_parameter& p, const looper::site_weight& w)
 {
-  std::cout << "Hx = " << param["Hx"]
-            << " : r = " << weight.density()
+  std::cout << "C = " << p.c()
+	    << "Hx = " << p.hx()
+	    << "Hz = " << p.hz()
+	    << ": v[1] = " << w.v(1)
+	    << ", v[2] = " << w.v(2)
+	    << ", v[3] = " << w.v(3)
+	    << ", offset = " << w.offset()
             << ", sign = " << weight.sign() << std::endl;
-  looper::site_parameter p =
-    looper::site_weight::check(weight);
+  looper::site_weight::check(p, w);
 }
 
-void output(const alps::Parameters& param, const looper::bond_weight& weight)
+void output(const looper::bond_parameter& p, const looper::bond_weight& w)
 {
-  using alps::is_equal;
-
-  if (!is_equal(weight.p_freeze_para(), weight.p_freeze(0,0)) ||
-      !is_equal(weight.p_freeze_para(), weight.p_freeze(1,1)) ||
-      !is_equal(weight.p_freeze_anti(), weight.p_freeze(0,1)) ||
-      !is_equal(weight.p_freeze_anti(), weight.p_freeze(1,0)) ||
-      !is_equal(weight.p_accept_para(), weight.p_accept(0,0)) ||
-      !is_equal(weight.p_accept_para(), weight.p_accept(1,1)) ||
-      !is_equal(weight.p_accept_anti(), weight.p_accept(0,1)) ||
-      !is_equal(weight.p_accept_anti(), weight.p_accept(1,0)) ||
-      !is_equal(std::abs(weight.sign()), 1.)) {
-    std::cerr << "Error\n";
-    exit(-1);
-  }
-
-  std::cout << "Jxy = " << param["Jxy"]
-            << ", Jz = " << param["Jz"]
-            << " : r = " << weight.density();
-  if (weight.density() > 0) {
-    std::cout << ", parallel: accept = " << weight.p_accept_para();
-    if (weight.p_accept_para() > 0)
-      std::cout << ", freeze = " << weight.p_freeze_para();
-    std::cout << ", antiparallel: accept = "
-              << weight.p_accept_anti();
-    if (weight.p_accept_anti() > 0)
-      std::cout << ", freeze = " << weight.p_freeze_anti();
-    std::cout << ", P_r = " << weight.p_reflect()
-              << ", sign = " << weight.sign();
-  }
-  std::cout << std::endl;
-
-  looper::bond_parameter p =
-    looper::bond_weight::check(weight);
+  std::cout << "C = " << p.c()
+	    << ", Jxy = " << p.jxy()
+            << ", Jz = " << p.jz()
+	    << ": v[1] = " << w.v(1)
+	    << ", v[2] = " << w.v(2)
+	    << ", v[3] = " << w.v(3)
+	    << ", v[4] = " << w.v(4)
+	    << ", offset = " << w.offset()
+	    << ", sign = " << w.sign() << std::endl;
+  looper::bond_weight::check(p, w);
 }
 
 int main()
@@ -84,17 +65,17 @@ try {
 
   for (alps::ParameterList::iterator p = params.begin();
        p != params.end(); ++p) {
-    looper::site_parameter site(0.5, 0, (*p)["Hx"]);
-    looper::bond_parameter bond(0, (*p)["Jxy"], (*p)["Jz"]);
+    looper::site_parameter site(0.5, (*p)["Hz"], (*p)["Hx"]);
+    looper::bond_parameter bond((*p)["C"], (*p)["Jxy"], (*p)["Jz"]);
 
     std::cout << "site weight (standard): ";
-    output(*p, looper::site_weight(site));
+    output(site, looper::site_weight(site));
 
     std::cout << "bond weight (standard): ";
-    output(*p, looper::bond_weight(bond));
+    output(bond, looper::bond_weight(bond));
 
     std::cout << "bond weight (ergodic): ";
-    output(*p, looper::bond_weight(bond, 0.1));
+    output(bond, looper::bond_weight(bond, 0.1));
   }
 
 #ifndef BOOST_NO_EXCEPTIONS
