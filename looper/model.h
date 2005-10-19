@@ -192,12 +192,12 @@ public:
       mat_[sz.distance(-s)][sz.distance(-s)] =
         sp.c() - sp.hz() * to_double(sz) +  sp.d() * sqr(to_double(sz));
 
-    // off-diagonal elements: hx s+ / 2
+    // off-diagonal elements: - hx s+ / 2
     for (spin_type sz = -s; sz <= s-1; ++sz)
       mat_[sz.distance(-s)+1][sz.distance(-s)] =
         - 0.5 * sp.hx() * sqrt(to_double(s-sz) * to_double(s+sz+1));
 
-    // off-diagonal elements: hx s- / 2
+    // off-diagonal elements: - hx s- / 2
     for (spin_type sz = -s+1; sz <= s; ++sz)
       mat_[sz.distance(-s)-1][sz.distance(-s)] =
         - 0.5 * sp.hx() * sqrt(to_double(s+sz) * to_double(s-sz+1));
@@ -256,32 +256,32 @@ protected:
           for (int j1 = 0; j1 < d1; ++j1)
             mat_[i0][i1][j0][j1] = 0;
 
-    // diagonal elements: c - jz sz0 sz1
+    // diagonal elements: c + jz sz0 sz1
     for (spin_type sz0 = -s0; sz0 <= s0; ++sz0) {
       for (spin_type sz1 = -s1; sz1 <= s1; ++sz1) {
         mat_[sz0.distance(-s0)][sz1.distance(-s1)]
           [sz0.distance(-s0)][sz1.distance(-s1)] =
-          bp.c() - bp.jz() * to_double(sz0) * to_double(sz1);
+          bp.c() + bp.jz() * to_double(sz0) * to_double(sz1);
       }
     }
 
-    // off-diagonal elements: - jxy s0+ s1- / 2
+    // off-diagonal elements: jxy s0+ s1- / 2
     for (spin_type sz0 = -s0; sz0 <= s0-1; ++sz0) {
       for (spin_type sz1 = -s1+1; sz1 <= s1; ++sz1) {
         mat_[sz0.distance(-s0)+1][sz1.distance(-s1)-1]
           [sz0.distance(-s0)][sz1.distance(-s1)] =
-          - 0.5 * bp.jxy() *
+          0.5 * bp.jxy() *
           sqrt(to_double(s0-sz0) * to_double(s0+sz0+1)) *
           sqrt(to_double(s1+sz1) * to_double(s1-sz1+1));
       }
     }
 
-    // off-diagonal elements: - jxy s0- s1+ / 2
+    // off-diagonal elements: jxy s0- s1+ / 2
     for (spin_type sz0 = -s0+1; sz0 <= s0; ++sz0) {
       for (spin_type sz1 = -s1; sz1 <= s1-1; ++sz1) {
         mat_[sz0.distance(-s0)-1][sz1.distance(-s1)+1]
           [sz0.distance(-s0)][sz1.distance(-s1)] =
-          - 0.5 * bp.jxy() *
+          0.5 * bp.jxy() *
           sqrt(to_double(s0+sz0) * to_double(s0-sz0+1)) *
           sqrt(to_double(s1-sz1) * to_double(s1+sz1+1));
       }
@@ -561,9 +561,9 @@ protected:
         unsigned int i = boost::get(bond_index_t(), g, *ei);
         unsigned int t = boost::get(bond_type_t(), g, *ei);
         unsigned int st0 =
-	  boost::get(site_type_t(), g, boost::source(*ei, g));
+          boost::get(site_type_t(), g, boost::source(*ei, g));
         unsigned int st1 =
-	  boost::get(site_type_t(), g, boost::target(*ei, g));
+          boost::get(site_type_t(), g, boost::target(*ei, g));
         bonds_[i] = bond_parameter(
           alps::get_matrix(double(), hd.bond_term(t),
                            hd.basis().site_basis(st0),
@@ -576,9 +576,9 @@ protected:
         unsigned int t = boost::get(bond_type_t(), g, *ei);
         if (!checked[t]) {
           unsigned int st0 =
-	    boost::get(site_type_t(), g, boost::source(*ei, g));
+            boost::get(site_type_t(), g, boost::source(*ei, g));
           unsigned int st1 =
-	    boost::get(site_type_t(), g, boost::target(*ei, g));
+            boost::get(site_type_t(), g, boost::target(*ei, g));
           bonds_[t] = bond_parameter(
             alps::get_matrix(double(), hd.bond_term(t),
                              hd.basis().site_basis(st0),
@@ -766,7 +766,7 @@ bool fit2bond(const boost::multi_array<double, 4>& mat,
 //
 
 // template<typename RealGraph, typename RealModel, typename VirtualGraph, typename VirtualModel>
-//void generate_virtual_model(const RealGraph& rg, const RealModel& 
+//void generate_virtual_model(const RealGraph& rg, const RealModel&
 
 } // end namespace looper
 

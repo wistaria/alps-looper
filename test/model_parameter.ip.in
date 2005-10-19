@@ -4,5 +4,5 @@ MODEL_LIBRARY = "@libdir@/xml/models.xml"
 MODEL   = "spin"
 L       = 8
 h       = 0
-J       = -2
+J       = 2
 Jz      = - 0.3 * J
