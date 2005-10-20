@@ -90,11 +90,19 @@ try {
   // random number generator
   boost::mt19937 eng(29833u);
   boost::variate_generator<boost::mt19937&, boost::uniform_real<> >
-    rng(eng, boost::uniform_real<>(-1, 1));
+    rng(eng, boost::uniform_real<>(-1,1));
 
   for (int i = 0; i < 10; ++i) {
-    looper::site_parameter site(0.5, rng(), rng(), rng());
-    looper::bond_parameter bond(rng(), rng(), rng());
+    // NOTE: gnu4 does not compile correctly the following code
+    // looper::site_parameter site(0.5, rng(), rng(), rng());
+    double sc = rng();
+    double hx = rng();
+    double hz = rng();
+    looper::site_parameter site(0.5, sc, hx, hz);
+    double bc = rng();
+    double jxy = rng();
+    double jz = rng();
+    looper::bond_parameter bond(bc, jxy, jz);
 
     std::cout << "site weight (standard): ";
     output(site, looper::site_weight(site));
