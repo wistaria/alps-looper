@@ -27,13 +27,13 @@
 
 std::ostream& operator<<(std::ostream& os, const looper::site_parameter& p)
 {
-  os << "C = " << p.c() << ", Hx = " << p.hx() << ", Hz = " << p.hz();
+  os << "C = " << p.c << ", Hx = " << p.hx << ", Hz = " << p.hz;
   return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const looper::bond_parameter& p)
 {
-  os << "C = " << p.c() << ", Jxy = " << p.jxy() << ", Jz = " << p.jz();
+  os << "C = " << p.c << ", Jxy = " << p.jxy << ", Jz = " << p.jz;
   return os;
 }
 
@@ -47,14 +47,14 @@ void output(const alps::graph_helper<G>& gh,
 
   // site parameters
   site_iterator vi, vi_end;
-  for (boost::tie(vi, vi_end) = gh.vertices(); vi != vi_end; ++vi) {
+  for (boost::tie(vi, vi_end) = sites(gh.graph()); vi != vi_end; ++vi) {
     std::cout << "site " << *vi << ": type = " << gh.site_type(*vi)
-              << ", S = " << m.site(*vi, gh.graph()).s() << std::endl;
+              << ", S = " << m.site(*vi, gh.graph()).s << std::endl;
   }
 
   // bond parameters
   bond_iterator ei, ei_end;
-  for (boost::tie(ei, ei_end) = gh.bonds(); ei != ei_end; ++ei) {
+  for (boost::tie(ei, ei_end) = bonds(gh.graph()); ei != ei_end; ++ei) {
     std::cout << "bond " << *ei << ": type = " << gh.bond_type(*ei)
               << ", " << m.bond(*ei, gh.graph()) << std::endl;
   }

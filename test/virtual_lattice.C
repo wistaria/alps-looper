@@ -36,9 +36,8 @@ struct vector_spin_wrapper
   typedef alps::half_integer<I> value_type;
   struct spin_wrapper
   {
-    spin_wrapper(const value_type& v) : val_(v) {}
-    const value_type& s() const { return val_; }
-    const value_type& val_;
+    spin_wrapper(const value_type& v) : s(v) {}
+    const value_type& s;
   };
   vector_spin_wrapper(const std::vector<value_type>& v) : vec_(v) {}
   template<class G>
@@ -51,12 +50,12 @@ struct vector_spin_wrapper
 struct weight
 {
   template<class G>
-  bool operator()(typename alps::graph_traits<G>::bond_descriptor,
-    const G&) const { return true; }
-  template<class G>
   bool operator()(typename alps::graph_traits<G>::site_descriptor v,
     const G& g) const
   { return boost::get(looper::site_index_t(), g, v) != 2; }
+  template<class G>
+  bool operator()(typename alps::graph_traits<G>::bond_descriptor,
+    const G&) const { return true; }
 };
 
 int main() {

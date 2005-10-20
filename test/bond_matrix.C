@@ -29,7 +29,7 @@
 
 std::ostream& operator<<(std::ostream& os, const looper::bond_parameter& p)
 {
-  os << "C = " << p.c() << ", Jxy = " << p.jxy() << ", Jz = " << p.jz();
+  os << "C = " << p.c << ", Jxy = " << p.jxy << ", Jz = " << p.jz;
   return os;
 }
 
@@ -52,14 +52,11 @@ int main()
     alps::half_integer<int> s1(s1_in);
     looper::bond_parameter pi(c, jxy, jz);
     looper::bond_matrix m(s0, s1, pi);
-
     std::cout << "input parameters: S0 = " << s0 << ", S1 = " << s1 << ", "
               << pi << std::endl << m << std::endl;
 
-    looper::bond_parameter pr;
-    bool success = looper::fit2bond(m.matrix(), pr);
-
-    if (!success || pi != pr) std::cerr << "Error: fitting failed\n";
+    looper::bond_parameter pr(m.matrix());
+    if (pi != pr) std::cerr << "Error: fitting failed\n";
 
     std::cout << "fitting result: " << pr << std::endl;
   }

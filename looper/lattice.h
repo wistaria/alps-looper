@@ -390,125 +390,6 @@ private:
 
 
 //
-// function generate_virtual_lattice
-//
-
-template<class G, class M, class W>
-inline void generate_virtual_lattice(G& vg, virtual_mapping<G>& vm,
-  const G& rg, const M& model, const W& weight)
-{
-  typedef G graph_type;
-  typedef typename graph_traits<G>::vertex_iterator   vertex_iterator;
-  typedef typename graph_traits<G>::vertex_descriptor vertex_descriptor;
-  typedef typename graph_traits<G>::edge_iterator     edge_iterator;
-  typedef typename graph_traits<G>::edge_descriptor   edge_descriptor;
-
-  vg.clear();
-  vm.clear();
-
-  // setup graph properties
-  get_property(vg, graph_name_t()) = "virtual graph of " +
-    get_property(rg, graph_name_t());
-  get_property(vg, dimension_t()) = get_property(rg, dimension_t());
-
-  // setup v2edge_type_offset
-  vertex_iterator rvi, rvi_end;
-  int tmin = 0;
-  for (boost::tie(rvi, rvi_end) = vertices(rg); rvi != rvi_end; ++rvi)
-    tmin = std::min(tmin, int(boost::get(vertex_type_t(), rg, *rvi)));
-  edge_iterator rei, rei_end;
-  int tmax = 0;
-  for (boost::tie(rei, rei_end) = edges(rg); rei != rei_end; ++rei)
-    tmax = std::max(tmax, int(boost::get(edge_type_t(), rg, *rei)));
-  vm.set_v2edge_type_offset(tmax-tmin+1);
-
-  // add vertices to virtual graph
-  for (boost::tie(rvi, rvi_end) = vertices(rg); rvi != rvi_end; ++rvi) {
-    for (int i = 0; i < model.site(*rvi, rg).s().get_twice(); ++i) {
-      vertex_descriptor vvd = add_vertex(vg);
-      copy_property(vertex_type_t(), rg, *rvi, vg, vvd);
-      copy_property(coordinate_t(), rg, *rvi, vg, vvd);
-      copy_property(parity_t(), rg, *rvi, vg, vvd);
-    }
-  }
-
-  // setup vertex mapping
-  vertex_iterator vvi_first = vertices(vg).first;
-  vertex_iterator vvi_last = vvi_first;
-  for (boost::tie(rvi, rvi_end) = vertices(rg); rvi != rvi_end; ++rvi) {
-    vvi_last += model.site(*rvi, rg).s().get_twice();
-    vm.add_vertices(rg, *rvi, vvi_first, vvi_last);
-    vvi_first = vvi_last;
-  }
-
-  // add edges to virtual graph
-  for (boost::tie(rei, rei_end) = edges(rg); rei != rei_end; ++rei) {
-    if (weight(*rei, rg)) {
-      vertex_descriptor rs = source(*rei, rg);
-      vertex_descriptor rt = target(*rei, rg);
-      vertex_iterator vvsi, vvsi_end;
-      for (boost::tie(vvsi, vvsi_end) = vm.virtual_vertices(rg, rs);
-           vvsi != vvsi_end; ++vvsi) {
-        vertex_iterator vvti, vvti_end;
-        for (boost::tie(vvti, vvti_end) = vm.virtual_vertices(rg, rt);
-             vvti != vvti_end; ++vvti) {
-          edge_descriptor ved = add_edge(*vvsi, *vvti, vg).first;
-          boost::put(edge_index_t(), vg, ved, num_edges(vg) - 1);
-          copy_property(edge_type_t(), rg, *rei, vg, ved);
-          copy_property(boundary_crossing_t(), rg, *rei, vg, ved);
-          copy_property(edge_vector_t(), rg, *rei, vg, ved);
-          copy_property(edge_vector_relative_t(), rg, *rei, vg, ved);
-        }
-      }
-    }
-  }
-
-  // add `in-real-vertex' edges to virtual graph
-  int dim = alps::get_or_default(dimension_t(), rg, int(0));
-  alps::coordinate_type vec(dim, 0);
-  for (boost::tie(rvi, rvi_end) = vertices(rg); rvi != rvi_end; ++rvi) {
-    if (weight(*rvi, rg)) {
-      int t = vm.v2edge_type_offset() + boost::get(vertex_type_t(), rg, *rvi);
-      vertex_iterator vvsi, vvsi_end;
-      for (boost::tie(vvsi, vvsi_end) = vm.virtual_vertices(rg, *rvi);
-           vvsi != vvsi_end; ++vvsi) {
-        for (vertex_iterator vvti = boost::next(vvsi); vvti != vvsi_end;
-             ++vvti) {
-          edge_descriptor ved = add_edge(*vvsi, *vvti, vg).first;
-          boost::put(edge_index_t(), vg, ved, num_edges(vg) - 1);
-          boost::put(edge_type_t(), vg, ved, t);
-          boost::put(boundary_crossing_t(), vg, ved, alps::boundary_crossing());
-          boost::put(edge_vector_t(), vg, ved, vec);
-          boost::put(edge_vector_relative_t(), vg, ved, vec);
-        }
-      }
-    }
-  }
-
-  // setup edge and v2edge mapping
-  edge_iterator vei_first = edges(vg).first;
-  edge_iterator vei_last = vei_first;
-  for (boost::tie(rei, rei_end) = edges(rg); rei != rei_end; ++rei) {
-    if (weight(*rei, rg)) {
-      vei_last += model.site(source(*rei, rg), rg).s().get_twice() *
-        model.site(target(*rei, rg), rg).s().get_twice();
-    }
-    vm.add_edges(rg, *rei, vei_first, vei_last);
-    vei_first = vei_last;
-  }
-
-  for (boost::tie(rvi, rvi_end) = vertices(rg); rvi != rvi_end; ++rvi) {
-    if (weight(*rvi, rg)) {
-      vei_last += model.site(*rvi, rg).s().get_twice() *
-        (model.site(*rvi, rg).s().get_twice() - 1) / 2;
-    }
-    vm.add_v2edges(rg, *rvi, vei_first, vei_last);
-    vei_first = vei_last;
-  }
-}
-
-
-//
 // class template virtual_lattice
 //
 
@@ -548,34 +429,27 @@ public:
     degree_size_type;
 
   virtual_lattice() {}
-  template<class RG, class M, class W>
-  virtual_lattice(const RG& rg, const M& model, const W& weight)
-  { initialize(rg, model, weight); }
+  template<class M, class W>
+  virtual_lattice(const graph_type& rg, const M& model, const W& weight)
+  { generate(rg, model, weight); }
 
-  template<class RG>
   std::pair<vertex_iterator, vertex_iterator>
-  virtual_vertices(const RG& rg,
-    const typename graph_traits<RG>::vertex_descriptor& rv) const
+  virtual_vertices(const graph_type& rg, vertex_descriptor& rv) const
   { return mapping_.virtual_vertices(rg, rv); }
 
-  template<class RG>
   std::pair<edge_iterator, edge_iterator>
-  virtual_edges(const RG& rg,
-    const typename graph_traits<RG>::edge_descriptor& re) const
+  virtual_edges(const graph_type& rg, edge_descriptor& re) const
   { return mapping_.virtual_edges(rg, re); }
 
   void clear() { graph_.clear(); mapping_.clear(); }
 
-  template<class RG, class M, class W>
-  void initialize(const RG& rg, const M& model, const W& weight)
-  { generate_virtual_lattice(graph_, mapping_, rg, model, weight); }
+  template<class M, class W>
+  void generate(const graph_type& rg, const M& model, const W& weight);
 
   const graph_type& graph() const { return graph_; }
-
   const mapping_type& mapping() const { return mapping_; }
 
-  template<class RG>
-  void print_mapping(std::ostream& os, const RG& rg) const {
+  void print_mapping(std::ostream& os, const graph_type& rg) const {
     mapping_.output(os, rg, graph_);
   }
 
@@ -701,5 +575,123 @@ parity_traits<looper::parity_t, Graph>::undefined;
 #endif
 
 } // end namespace alps
+
+namespace looper {
+
+//
+// Implementations
+//
+
+template<class G>
+template<class M, class W>
+inline void virtual_lattice<G>::generate(const G& rg, const M& model,
+  const W& weight)
+{
+  graph_.clear();
+  mapping_.clear();
+
+  // setup graph properties
+  get_property(graph_, graph_name_t()) = "virtual graph of " +
+    get_property(rg, graph_name_t());
+  get_property(graph_, dimension_t()) = get_property(rg, dimension_t());
+
+  // setup v2edge_type_offset
+  vertex_iterator rvi, rvi_end;
+  int tmin = 0;
+  for (boost::tie(rvi, rvi_end) = vertices(rg); rvi != rvi_end; ++rvi)
+    tmin = std::min(tmin, int(boost::get(vertex_type_t(), rg, *rvi)));
+  edge_iterator rei, rei_end;
+  int tmax = 0;
+  for (boost::tie(rei, rei_end) = edges(rg); rei != rei_end; ++rei)
+    tmax = std::max(tmax, int(boost::get(edge_type_t(), rg, *rei)));
+  mapping_.set_v2edge_type_offset(tmax-tmin+1);
+
+  // add vertices to virtual graph
+  for (boost::tie(rvi, rvi_end) = vertices(rg); rvi != rvi_end; ++rvi) {
+    for (int i = 0; i < model.site(*rvi, rg).s.get_twice(); ++i) {
+      vertex_descriptor vvd = add_vertex(graph_);
+      copy_property(vertex_type_t(), rg, *rvi, graph_, vvd);
+      copy_property(coordinate_t(), rg, *rvi, graph_, vvd);
+      copy_property(parity_t(), rg, *rvi, graph_, vvd);
+    }
+  }
+
+  // setup vertex mapping
+  vertex_iterator vvi_first = vertices(graph_).first;
+  vertex_iterator vvi_last = vvi_first;
+  for (boost::tie(rvi, rvi_end) = vertices(rg); rvi != rvi_end; ++rvi) {
+    vvi_last += model.site(*rvi, rg).s.get_twice();
+    mapping_.add_vertices(rg, *rvi, vvi_first, vvi_last);
+    vvi_first = vvi_last;
+  }
+
+  // add edges to virtual graph
+  for (boost::tie(rei, rei_end) = edges(rg); rei != rei_end; ++rei) {
+    if (weight(*rei, rg)) {
+      vertex_descriptor rs = source(*rei, rg);
+      vertex_descriptor rt = target(*rei, rg);
+      vertex_iterator vvsi, vvsi_end;
+      for (boost::tie(vvsi, vvsi_end) = mapping_.virtual_vertices(rg, rs);
+           vvsi != vvsi_end; ++vvsi) {
+        vertex_iterator vvti, vvti_end;
+        for (boost::tie(vvti, vvti_end) = mapping_.virtual_vertices(rg, rt);
+             vvti != vvti_end; ++vvti) {
+          edge_descriptor ved = add_edge(*vvsi, *vvti, graph_).first;
+          boost::put(edge_index_t(), graph_, ved, num_edges(graph_) - 1);
+          copy_property(edge_type_t(), rg, *rei, graph_, ved);
+          copy_property(boundary_crossing_t(), rg, *rei, graph_, ved);
+          copy_property(edge_vector_t(), rg, *rei, graph_, ved);
+          copy_property(edge_vector_relative_t(), rg, *rei, graph_, ved);
+        }
+      }
+    }
+  }
+
+  // add `in-real-vertex' edges to virtual graph
+  int dim = alps::get_or_default(dimension_t(), rg, int(0));
+  alps::coordinate_type vec(dim, 0);
+  for (boost::tie(rvi, rvi_end) = vertices(rg); rvi != rvi_end; ++rvi) {
+    if (weight(*rvi, rg)) {
+      int t = mapping_.v2edge_type_offset() +
+        boost::get(vertex_type_t(), rg, *rvi);
+      vertex_iterator vvsi, vvsi_end;
+      for (boost::tie(vvsi, vvsi_end) = mapping_.virtual_vertices(rg, *rvi);
+           vvsi != vvsi_end; ++vvsi) {
+        for (vertex_iterator vvti = boost::next(vvsi); vvti != vvsi_end;
+             ++vvti) {
+          edge_descriptor ved = add_edge(*vvsi, *vvti, graph_).first;
+          boost::put(edge_index_t(), graph_, ved, num_edges(graph_) - 1);
+          boost::put(edge_type_t(), graph_, ved, t);
+          boost::put(boundary_crossing_t(), graph_, ved,
+                     alps::boundary_crossing());
+          boost::put(edge_vector_t(), graph_, ved, vec);
+          boost::put(edge_vector_relative_t(), graph_, ved, vec);
+        }
+      }
+    }
+  }
+
+  // setup edge and v2edge mapping
+  edge_iterator vei_first = edges(graph_).first;
+  edge_iterator vei_last = vei_first;
+  for (boost::tie(rei, rei_end) = edges(rg); rei != rei_end; ++rei) {
+    if (weight(*rei, rg)) {
+      vei_last += model.site(source(*rei, rg), rg).s.get_twice() *
+        model.site(target(*rei, rg), rg).s.get_twice();
+    }
+    mapping_.add_edges(rg, *rei, vei_first, vei_last);
+    vei_first = vei_last;
+  }
+
+  for (boost::tie(rvi, rvi_end) = vertices(rg); rvi != rvi_end; ++rvi) {
+    if (weight(*rvi, rg))
+      vei_last += model.site(*rvi, rg).s.get_twice() *
+        (model.site(*rvi, rg).s.get_twice() - 1) / 2;
+    mapping_.add_v2edges(rg, *rvi, vei_first, vei_last);
+    vei_first = vei_last;
+  }
+}
+
+} // end namespace looper
 
 #endif // LOOPER_LATTICE_H

@@ -23,7 +23,6 @@
 *****************************************************************************/
 
 #include "loop_factory.h"
-#include "loop_worker.h"
 
 alps::scheduler::MCSimulation* factory::make_task(const alps::ProcessList& w,
   const boost::filesystem::path& fn) const
@@ -38,6 +37,12 @@ alps::scheduler::MCSimulation* factory::make_task(const alps::ProcessList& w,
 }
 
 alps::scheduler::MCRun* factory::make_worker(const alps::ProcessList& w,
+  const alps::Parameters& p, int n) const
+{
+  return make_qmc_worker(w, p, n);
+}
+
+qmc_worker_base<>* factory::make_qmc_worker(const alps::ProcessList& w,
   const alps::Parameters& p, int n) const
 {
   if (!p.defined("REPRESENTATION") ||

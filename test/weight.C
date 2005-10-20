@@ -30,29 +30,29 @@
 
 void output(const looper::site_parameter& p, const looper::site_weight& w)
 {
-  std::cout << "C = " << p.c()
-            << ", Hx = " << p.hx()
-            << ", Hz = " << p.hz()
-            << " : v[1] = " << w.v(1)
-            << ", v[2] = " << w.v(2)
-            << ", v[3] = " << w.v(3)
-            << ", offset = " << w.offset()
-            << ", sign = " << w.sign() << std::endl;
-  looper::site_weight::check(p, w);
+  std::cout << "C = " << p.c
+            << ", Hx = " << p.hx
+            << ", Hz = " << p.hz
+            << " : v[1] = " << w.v[1]
+            << ", v[2] = " << w.v[2]
+            << ", v[3] = " << w.v[3]
+            << ", offset = " << w.offset
+            << ", sign = " << w.sign << std::endl;
+  w.check(p);
 }
 
 void output(const looper::bond_parameter& p, const looper::bond_weight& w)
 {
-  std::cout << "C = " << p.c()
-            << ", Jxy = " << p.jxy()
-            << ", Jz = " << p.jz()
-            << " : v[1] = " << w.v(1)
-            << ", v[2] = " << w.v(2)
-            << ", v[3] = " << w.v(3)
-            << ", v[4] = " << w.v(4)
-            << ", offset = " << w.offset()
-            << ", sign = " << w.sign() << std::endl;
-  looper::bond_weight::check(p, w);
+  std::cout << "C = " << p.c
+            << ", Jxy = " << p.jxy
+            << ", Jz = " << p.jz
+            << " : v[1] = " << w.v[1]
+            << ", v[2] = " << w.v[2]
+            << ", v[3] = " << w.v[3]
+            << ", v[4] = " << w.v[4]
+            << ", offset = " << w.offset
+            << ", sign = " << w.sign << std::endl;
+  w.check(p);
 }
 
 int main()

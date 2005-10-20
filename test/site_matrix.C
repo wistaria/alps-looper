@@ -37,8 +37,8 @@ std::ostream& operator<<(std::ostream& os, const looper::site_matrix& m)
 
 std::ostream& operator<<(std::ostream& os, const looper::site_parameter& p)
 {
-  os << "S = " << p.s() << ", C = " << p.c() << ", Hx = " << p.hx()
-     << ", Hz = " << p.hz() << ", D = " << p.d();
+  os << "S = " << p.s << ", C = " << p.c << ", Hx = " << p.hx
+     << ", Hz = " << p.hz << ", D = " << p.d;
   return os;
 }
 
@@ -51,14 +51,11 @@ int main()
 
     looper::site_parameter pi(s_in, c, hx, hz, d);
     looper::site_matrix m(pi);
-
     std::cout << "input parameters: "
               << pi << std::endl << m << std::endl;
 
-    looper::site_parameter pr;
-    bool success = looper::fit2site(m.matrix(), pr);
-
-    if (!success || pi != pr) std::cerr << "Error: fitting failed\n";
+    looper::site_parameter pr(m.matrix());
+    if (pi != pr) std::cerr << "Error: fitting failed\n";
 
     std::cout << "fitting result: " << pr << std::endl;
   }

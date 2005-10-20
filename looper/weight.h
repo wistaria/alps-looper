@@ -37,7 +37,11 @@ namespace looper {
 // default graph weights for path-integral and SSE loop algorithms
 //
 
-class bond_weight {
+struct bond_weight {
+
+  double sign;
+  double offset;
+  double v[5]; // v[0] is not used
 
   // loop equations:
   //
@@ -75,73 +79,59 @@ class bond_weight {
   // iii) Jz >= |Jxy|  (antiferro-Ising)
   //      same as ii-2)
 
-public:
-  bond_weight() : sign_(1), offset_(0) { v_[1] = v_[2] = v_[3] = v_[4] = 0; }
+  bond_weight() : sign(1), offset(0) { v[1] = v[2] = v[3] = v[4] = 0; }
   bond_weight(const bond_parameter& p, double force_scatter = 0)
+  { init(p, force_scatter); }
+  bond_weight(const site_parameter& p, double force_scatter = 0)
   { init(p, force_scatter); }
 
   void init(const bond_parameter& p, double force_scatter = 0)
   {
-    sign_ = (p.jxy() <= 0 ? 1 : -1);
-    double c = p.c();
-    double jxy = std::abs(p.jxy());
-    double jz = p.jz();
+    sign = (p.jxy <= 0 ? 1 : -1);
+    double c = p.c;
+    double jxy = std::abs(p.jxy);
+    double jz = p.jz;
     double a = crop_01(force_scatter);
     if (alps::is_nonzero<1>(jxy + std::abs(jz))) {
       if (jxy - jz > 2 * a * jxy) {
         // standard solutions
-        v_[1] = crop_0(std::min(jxy/2, (jxy - jz)/4));
-        v_[2] = crop_0(-(jxy + jz)/2);
-        v_[3] = crop_0(std::min(jxy/2, (jxy + jz)/4));
-        v_[4] = crop_0(-(jxy - jz)/2);
+        v[1] = crop_0(std::min(jxy/2, (jxy - jz)/4));
+        v[2] = crop_0(-(jxy + jz)/2);
+        v[3] = crop_0(std::min(jxy/2, (jxy + jz)/4));
+        v[4] = crop_0(-(jxy - jz)/2);
       } else {
         // "ergodic" solutions
-        v_[1] = a*jxy/2;
-        v_[2] = 0;
-        v_[3] = (1-a)*jxy/2;
-        v_[4] = -((1-2*a)*jxy-jz)/2;
+        v[1] = a*jxy/2;
+        v[2] = 0;
+        v[3] = (1-a)*jxy/2;
+        v[4] = -((1-2*a)*jxy-jz)/2;
       }
     } else {
-      v_[1] = v_[2] = v_[3] = v_[4] = 0;
+      v[1] = v[2] = v[3] = v[4] = 0;
     }
-    offset_ = c + (v_[1] + v_[2] + v_[3] + v_[4])/2;
+    offset = c + (v[1] + v[2] + v[3] + v[4])/2;
+  }
+  void init(const site_parameter& p, double force_scatter = 0)
+  {
+    bond_parameter bp(0, 0, p.d);
+    init(bp, force_scatter);
   }
 
   bool has_weight() const
   {
-    return alps::is_nonzero<1>(v_[1] + v_[2] + v_[3] + v_[4]) &&
-      (v_[1] + v_[2] + v_[3] + v_[4]) > 0;
-  }
-  double sign() const { return sign_; }
-  double offset() const { return offset_; }
-  double v(int g) const { return v_[g]; }
-
-  static bond_parameter check(const bond_parameter& p, const bond_weight& w)
-  {
-    if (!alps::is_equal<1>(-w.offset()+w.v(1)+w.v(2), -p.c()-p.jz()/4) ||
-        !alps::is_equal<1>(-w.offset()+w.v(3)+w.v(4), -p.c()+p.jz()/4) ||
-        !alps::is_equal<1>(w.v(1)+w.v(3), -w.sign()*p.jxy()/2))
-      boost::throw_exception(std::logic_error("bond_parameter::check() 1"));
-    double c = w.offset() - (w.v(1) + w.v(2) + w.v(3) + w.v(4))/2;
-    double jxy = -2 * (w.v(1) + w.v(3)) * w.sign();
-    double jz = -2 * (w.v(1) + w.v(2) - w.v(3) - w.v(4));
-    if (!alps::is_equal<1>(p.c(), c) || !alps::is_equal<1>(p.jxy(), jxy) ||
-        !alps::is_equal<1>(p.jz(), jz)) {
-      std::cerr << p.c() << ' ' << p.jxy() << ' ' << p.jz() << std::endl;
-      std::cerr << c << ' ' << jxy << ' ' << jz << std::endl;
-      boost::throw_exception(std::logic_error("bond_parameter::check() 2"));
-    }
-    return bond_parameter(c, jxy, jz);
+    return alps::is_nonzero<1>(v[1] + v[2] + v[3] + v[4]) &&
+      (v[1] + v[2] + v[3] + v[4]) > 0;
   }
 
-private:
-  double sign_;
-  double offset_;
-  double v_[5]; // v_[0] is not used
+  void check(const bond_parameter& p) const;
 };
 
 
-class site_weight {
+struct site_weight {
+
+  double sign;
+  double offset;
+  double v[4]; // v[0] is not used
 
   // loop equations:
   //
@@ -160,51 +150,64 @@ class site_weight {
   //      v2 = 0
   //      v3 = -Hz/2
 
-public:
-  site_weight() : sign_(1), offset_(0) { v_[1] = v_[2] = v_[3] = 0; }
+  site_weight() : sign(1), offset(0) { v[1] = v[2] = v[3] = 0; }
   site_weight(const site_parameter& p) { init(p); }
 
   void init(const site_parameter& p)
   {
-    sign_ = (p.hx() >= 0 ? 1 : -1);
-    v_[1] = std::abs(p.hx()) / 2;
-    v_[2] = crop_0( p.hz());
-    v_[3] = crop_0(-p.hz());
-    offset_ = p.c() + v_[1] + (v_[2] + v_[3])/2;
+    sign = (p.hx >= 0 ? 1 : -1);
+    v[1] = std::abs(p.hx) / 2;
+    v[2] = crop_0( p.hz);
+    v[3] = crop_0(-p.hz);
+    offset = p.c + v[1] + (v[2] + v[3])/2;
   }
 
   bool has_weight() const
   {
-    return alps::is_nonzero<1>(v_[1] + v_[2] + v_[3]) &&
-      (v_[1] + v_[2] + v_[3]) > 0;
-  }
-  double sign() const { return sign_; }
-  double offset() const { return offset_; }
-  double v(int g) const { return v_[g]; }
-
-  static site_parameter check(const site_parameter& p, const site_weight& w)
-  {
-    if (!alps::is_equal<1>(-w.offset()+w.v(1)+w.v(2), -p.c()+p.hz()/2) ||
-        !alps::is_equal<1>(-w.offset()+w.v(1)+w.v(3), -p.c()-p.hz()/2) ||
-        !alps::is_equal<1>(w.v(1), w.sign()*p.hx()/2))
-      boost::throw_exception(std::logic_error("site_parameter::check() 1"));
-    double c = w.offset() - (w.v(1) + (w.v(2) + w.v(3))/2);
-    double hx = 2 * w.v(1) * w.sign();
-    double hz = w.v(2) - w.v(3);
-    if (!alps::is_equal<1>(p.c(), c) || !alps::is_equal<1>(p.hx(), hx) ||
-        !alps::is_equal<1>(p.hz(), hz)) {
-      std::cerr << p.c() << ' ' << p.hx() << ' ' << p.hz() << std::endl;
-      std::cerr << c << ' ' << hx << ' ' << hz << std::endl;
-      boost::throw_exception(std::logic_error("site_parameter::check() 2"));
-    }
-    return site_parameter(0.5, c, hx, hz, 0);
+    return alps::is_nonzero<1>(v[1] + v[2] + v[3]) &&
+      (v[1] + v[2] + v[3]) > 0;
   }
 
-private:
-  double sign_;
-  double offset_;
-  double v_[4]; // v_[0] is not used
+  void check(const site_parameter& p) const;
 };
+
+
+//
+// Implementations
+//
+
+inline void bond_weight::check(const bond_parameter& p) const
+{
+  if (!alps::is_equal<1>(-offset+v[1]+v[2], -p.c-p.jz/4) ||
+      !alps::is_equal<1>(-offset+v[3]+v[4], -p.c+p.jz/4) ||
+      !alps::is_equal<1>(v[1]+v[3], -sign*p.jxy/2))
+    boost::throw_exception(std::logic_error("bond_parameter::check 1"));
+  bond_parameter pp(offset - (v[1] + v[2] + v[3] + v[4])/2,
+                    -2 * (v[1] + v[3]) * sign,
+                    -2 * (v[1] + v[2] - v[3] - v[4]));
+  if (pp != p) {
+    std::cerr << p.c << ' ' << p.jxy << ' ' << p.jz << std::endl;
+    std::cerr << pp.c << ' ' << pp.jxy << ' ' << pp.jz << std::endl;
+    boost::throw_exception(std::logic_error("bond_parameter::check 2"));
+  }
+}
+
+inline void site_weight::check(const site_parameter& p) const
+{
+  if (!alps::is_equal<1>(-offset+v[1]+v[2], -p.c+p.hz/2) ||
+      !alps::is_equal<1>(-offset+v[1]+v[3], -p.c-p.hz/2) ||
+      !alps::is_equal<1>(v[1], sign*p.hx/2))
+    boost::throw_exception(std::logic_error("site_parameter::check 1"));
+  site_parameter pp(p.s,
+                    offset - (v[1] + (v[2] + v[3])/2),
+                    2 * v[1] * sign,
+                    v[2] - v[3]);
+  if (pp != p) {
+    std::cerr << p.c << ' ' << p.hx << ' ' << p.hz << std::endl;
+    std::cerr << pp.c << ' ' << pp.hx << ' ' << pp.hz << std::endl;
+    boost::throw_exception(std::logic_error("site_parameter::check 2"));
+  }
+}
 
 } // namespace looper
 

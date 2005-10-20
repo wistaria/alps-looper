@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-#include <alps/scheduler.h>
+#include <loop_worker.h>
 
 class factory : public alps::scheduler::Factory
 {
@@ -31,6 +31,8 @@ class factory : public alps::scheduler::Factory
   alps::scheduler::MCSimulation* make_task(const alps::ProcessList& w,
     const boost::filesystem::path& fn, const alps::Parameters&) const;
   alps::scheduler::MCRun* make_worker(const alps::ProcessList& w,
+    const alps::Parameters& p, int n) const;
+  qmc_worker_base<>* make_qmc_worker(const alps::ProcessList& w,
     const alps::Parameters& p, int n) const;
   void print_copyright(std::ostream& os) const;
 };

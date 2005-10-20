@@ -22,6 +22,9 @@
 *
 *****************************************************************************/
 
+#ifndef LOOP_WORKER_H
+#define LOOP_WORKER_H
+
 #include <alps/alea.h>
 #include <alps/scheduler.h>
 #include <looper.h>
@@ -39,21 +42,20 @@ public:
 
   struct weight_wrapper
   {
-    weight_wrapper(const std::vector<site_weight>& sw,
-		   const std::vector<bond_weight>& bw)
+    weight_wrapper(const std::vector<looper::site_weight>& sw,
+                   const std::vector<looper::bond_weight>& bw)
       : sw_(sw), bw_(bw) {}
     template<class G>
-    bool operator()(typename boost::graph_traits<G>::site_descriptor sd,
-		    const G& g) const
+    bool operator()(typename alps::graph_traits<G>::site_descriptor sd,
+                    const G& g) const
     { return sw_[boost::get(looper::site_index_t(), g, sd)].has_weight(); }
     template<class G>
     bool operator()(typename alps::graph_traits<G>::bond_descriptor bd,
-		    const G&) const { return false; }
+                    const G& g) const
     { return bw_[boost::get(looper::bond_index_t(), g, bd)].has_weight(); }
-  const std::vector<site_weight>& sw_;
-  const std::vector<bond_weight>& bw_;
-};
-
+    const std::vector<looper::site_weight>& sw_;
+    const std::vector<looper::bond_weight>& bw_;
+  };
 
 
   qmc_worker_base(const alps::ProcessList& w, const alps::Parameters& p, int n)
@@ -77,27 +79,30 @@ public:
     //
     // setup weight
     //
-    double force_scatter = p.value_or_default("FORCE_SCATTER", 0.);
+
     std::vector<looper::site_weight> site_weights;
     std::vector<looper::bond_weight> s2b_weights;
-    site_iterator si, si_end;
-    for (boost::tie(si, si_end) = alps::sites(rlattice()); si != si_end; ++si) {
-      site_weights.push_back(looper::site_weight(mp.site(*si, rlattice())));
-      s2b_weights.push_back(looper::bond_weight(
-						looper::bond_parameter(0, mp.site(*si, rlattice())));
-    }
     std::vector<looper::bond_weight> bond_weights;
-    bond_iterator bi, bi_end;
-    for (boost::tie(bi, bi_end) = alps::bonds(rlattice()); bi != bi_end; ++bi)
-      bond_weights.push_back(looper::bond_weight(mp.bond(*bi, rlattice()),
-						 force_scatter));
-			     
+    {
+      double fs = p.value_or_default("FORCE_SCATTER", 0.);
+      site_iterator si, si_end;
+      for (boost::tie(si, si_end) = alps::sites(rlat());
+           si != si_end; ++si) {
+        site_weights.push_back(looper::site_weight(mp.site(*si, rlat())));
+        s2b_weights.push_back(looper::bond_weight(mp.site(*si, rlat()), fs));
+      }
+      bond_iterator bi, bi_end;
+      for (boost::tie(bi, bi_end) = alps::bonds(rlat());
+           bi != bi_end; ++bi)
+        bond_weights.push_back(looper::bond_weight(mp.bond(*bi, rlat()), fs));
+    }
+
     //
     // setup virtual lattice
     //
 
     bool is_bipartite = alps::set_parity(super_type::graph());
-    vlat_.initialize(rlattice(), mp, weight());
+    vlat_.generate(rlat(), mp, weight_wrapper(site_weights, s2b_weights));
 
     //
     // init measurements
@@ -108,7 +113,7 @@ public:
 
     if (is_signed) {
       super_type::measurements
-	<< RealObservable("Sign");
+        << RealObservable("Sign");
     }
 
     // unimproved super_type::measurements
@@ -129,7 +134,7 @@ public:
            RealObservable("Susceptibility"), is_signed);
     if (is_bipartite)
       super_type::measurements
-	<< make_observable(
+        << make_observable(
              RealObservable("Staggered Susceptibility"), is_signed);
 
     // improved measurements
@@ -141,16 +146,16 @@ public:
            is_signed);
     if (is_bipartite)
       super_type::measurements
-	<< make_observable(
+        << make_observable(
              RealObservable("Staggered Magnetization^2"),
              is_signed);
     if (!is_classically_frustrated) {
       super_type::measurements
-	<< RealObservable("Uniform Generalized Magnetization^2")
+        << RealObservable("Uniform Generalized Magnetization^2")
         << RealObservable("Uniform Generalized Susceptibility");
       if (is_bipartite)
         super_type::measurements
-	  << RealObservable("Staggered Generalized Magnetization^2")
+          << RealObservable("Staggered Generalized Magnetization^2")
           << RealObservable("Staggered Generalized Susceptibility");
     }
 
@@ -165,6 +170,7 @@ public:
   {
     return is_thermalized() ? (double(mcs_) / mcs_sweep_.min()) : 0.;
   }
+  unsigned int mcs() const { return mcs_; }
 
   void save(alps::ODump& od) const {
     od << mcs_;
@@ -176,8 +182,8 @@ public:
     if (super_type::where.empty()) super_type::measurements.compact();
   }
 
-  const graph_type& rlattice() const { return super_type::graph(); }
-  const looper::virtual_lattice<graph_type>& vlattice() const { return vlat_; }
+  const graph_type& rlat() const { return super_type::graph(); }
+  const graph_type& vlat() const { return vlat_; }
 
 private:
   unsigned int mcs_therm_;
@@ -238,3 +244,5 @@ inline void accumulate(const alps::ObservableSet& m_in, T& m_out)
 
 inline void accumulate(alps::scheduler::MCSimulation& sim)
 { accumulate(sim.get_measurements(), sim); }
+
+#endif // LOOP_WORKER_H
