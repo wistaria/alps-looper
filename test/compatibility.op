@@ -1,0 +1,24 @@
+[bond graph]
+Delta(g=1, c0=+, c1=+) = 1
+Delta(g=1, c0=+, c1=-) = 0
+Delta(g=1, c0=-, c1=+) = 0
+Delta(g=1, c0=-, c1=-) = 1
+Delta(g=2, c0=+, c1=+) = 1
+Delta(g=2, c0=+, c1=-) = 0
+Delta(g=2, c0=-, c1=+) = 0
+Delta(g=2, c0=-, c1=-) = 1
+Delta(g=3, c0=+, c1=+) = 0
+Delta(g=3, c0=+, c1=-) = 1
+Delta(g=3, c0=-, c1=+) = 1
+Delta(g=3, c0=-, c1=-) = 0
+Delta(g=4, c0=+, c1=+) = 0
+Delta(g=4, c0=+, c1=-) = 1
+Delta(g=4, c0=-, c1=+) = 1
+Delta(g=4, c0=-, c1=-) = 0
+[site graph]
+Delta(g=1, c=+) = 1
+Delta(g=1, c=-) = 1
+Delta(g=2, c=+) = 1
+Delta(g=2, c=-) = 0
+Delta(g=3, c=+) = 0
+Delta(g=3, c=-) = 1

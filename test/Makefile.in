@@ -37,14 +37,15 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 check_PROGRAMS = alternating_tensor$(EXEEXT) amida$(EXEEXT) \
-	bond_matrix$(EXEEXT) edge_type$(EXEEXT) fill_duration$(EXEEXT) \
-	filtered_graph$(EXEEXT) find_bridges$(EXEEXT) \
-	generate_01$(EXEEXT) gesvd$(EXEEXT) hypercubic$(EXEEXT) \
-	index_helper$(EXEEXT) llsp$(EXEEXT) model_parameter$(EXEEXT) \
-	parse_vector$(EXEEXT) permutation$(EXEEXT) postorder$(EXEEXT) \
-	random_choice$(EXEEXT) range$(EXEEXT) sign$(EXEEXT) \
-	site_matrix$(EXEEXT) syev$(EXEEXT) union_find$(EXEEXT) \
-	virtual_lattice$(EXEEXT) weight$(EXEEXT)
+	bond_matrix$(EXEEXT) compatibility$(EXEEXT) edge_type$(EXEEXT) \
+	fill_duration$(EXEEXT) filtered_graph$(EXEEXT) \
+	find_bridges$(EXEEXT) generate_01$(EXEEXT) gesvd$(EXEEXT) \
+	hypercubic$(EXEEXT) index_helper$(EXEEXT) llsp$(EXEEXT) \
+	model_parameter$(EXEEXT) parse_vector$(EXEEXT) \
+	permutation$(EXEEXT) postorder$(EXEEXT) random_choice$(EXEEXT) \
+	range$(EXEEXT) sign$(EXEEXT) site_matrix$(EXEEXT) \
+	syev$(EXEEXT) union_find$(EXEEXT) virtual_lattice$(EXEEXT) \
+	weight$(EXEEXT)
 subdir = test
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/model_parameter.ip.in \
@@ -68,6 +69,10 @@ am_bond_matrix_OBJECTS = bond_matrix.$(OBJEXT)
 bond_matrix_OBJECTS = $(am_bond_matrix_OBJECTS)
 bond_matrix_LDADD = $(LDADD)
 bond_matrix_DEPENDENCIES =
+am_compatibility_OBJECTS = compatibility.$(OBJEXT)
+compatibility_OBJECTS = $(am_compatibility_OBJECTS)
+compatibility_LDADD = $(LDADD)
+compatibility_DEPENDENCIES =
 am_edge_type_OBJECTS = edge_type.$(OBJEXT)
 edge_type_OBJECTS = $(am_edge_type_OBJECTS)
 edge_type_LDADD = $(LDADD)
@@ -163,27 +168,27 @@ CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --tag=CXX --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) \
-	$(bond_matrix_SOURCES) $(edge_type_SOURCES) \
-	$(fill_duration_SOURCES) $(filtered_graph_SOURCES) \
-	$(find_bridges_SOURCES) $(generate_01_SOURCES) \
-	$(gesvd_SOURCES) $(hypercubic_SOURCES) $(index_helper_SOURCES) \
-	$(llsp_SOURCES) $(model_parameter_SOURCES) \
-	$(parse_vector_SOURCES) $(permutation_SOURCES) \
-	$(postorder_SOURCES) $(random_choice_SOURCES) $(range_SOURCES) \
-	$(sign_SOURCES) $(site_matrix_SOURCES) $(syev_SOURCES) \
-	$(union_find_SOURCES) $(virtual_lattice_SOURCES) \
-	$(weight_SOURCES)
+	$(bond_matrix_SOURCES) $(compatibility_SOURCES) \
+	$(edge_type_SOURCES) $(fill_duration_SOURCES) \
+	$(filtered_graph_SOURCES) $(find_bridges_SOURCES) \
+	$(generate_01_SOURCES) $(gesvd_SOURCES) $(hypercubic_SOURCES) \
+	$(index_helper_SOURCES) $(llsp_SOURCES) \
+	$(model_parameter_SOURCES) $(parse_vector_SOURCES) \
+	$(permutation_SOURCES) $(postorder_SOURCES) \
+	$(random_choice_SOURCES) $(range_SOURCES) $(sign_SOURCES) \
+	$(site_matrix_SOURCES) $(syev_SOURCES) $(union_find_SOURCES) \
+	$(virtual_lattice_SOURCES) $(weight_SOURCES)
 DIST_SOURCES = $(alternating_tensor_SOURCES) $(amida_SOURCES) \
-	$(bond_matrix_SOURCES) $(edge_type_SOURCES) \
-	$(fill_duration_SOURCES) $(filtered_graph_SOURCES) \
-	$(find_bridges_SOURCES) $(generate_01_SOURCES) \
-	$(gesvd_SOURCES) $(hypercubic_SOURCES) $(index_helper_SOURCES) \
-	$(llsp_SOURCES) $(model_parameter_SOURCES) \
-	$(parse_vector_SOURCES) $(permutation_SOURCES) \
-	$(postorder_SOURCES) $(random_choice_SOURCES) $(range_SOURCES) \
-	$(sign_SOURCES) $(site_matrix_SOURCES) $(syev_SOURCES) \
-	$(union_find_SOURCES) $(virtual_lattice_SOURCES) \
-	$(weight_SOURCES)
+	$(bond_matrix_SOURCES) $(compatibility_SOURCES) \
+	$(edge_type_SOURCES) $(fill_duration_SOURCES) \
+	$(filtered_graph_SOURCES) $(find_bridges_SOURCES) \
+	$(generate_01_SOURCES) $(gesvd_SOURCES) $(hypercubic_SOURCES) \
+	$(index_helper_SOURCES) $(llsp_SOURCES) \
+	$(model_parameter_SOURCES) $(parse_vector_SOURCES) \
+	$(permutation_SOURCES) $(postorder_SOURCES) \
+	$(random_choice_SOURCES) $(range_SOURCES) $(sign_SOURCES) \
+	$(site_matrix_SOURCES) $(syev_SOURCES) $(union_find_SOURCES) \
+	$(virtual_lattice_SOURCES) $(weight_SOURCES)
 DATA = $(dist_noinst_DATA)
 ETAGS = etags
 CTAGS = ctags
@@ -303,6 +308,7 @@ dist_noinst_DATA = \
 	alternating_tensor.op \
 	amida.op \
 	bond_matrix.ip bond_matrix.op \
+	compatibility.op \
 	edge_type.ip edge_type.op \
 	fill_duration.ip fill_duration.op \
 	filtered_graph.ip filtered_graph.op \
@@ -329,6 +335,7 @@ TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
 alternating_tensor_SOURCES = alternating_tensor.C
 amida_SOURCES = amida.C
 bond_matrix_SOURCES = bond_matrix.C
+compatibility_SOURCES = compatibility.C
 edge_type_SOURCES = edge_type.C
 fill_duration_SOURCES = fill_duration.C
 filtered_graph_SOURCES = filtered_graph.C
@@ -403,6 +410,9 @@ amida$(EXEEXT): $(amida_OBJECTS) $(amida_DEPENDENCIES)
 bond_matrix$(EXEEXT): $(bond_matrix_OBJECTS) $(bond_matrix_DEPENDENCIES) 
 	@rm -f bond_matrix$(EXEEXT)
 	$(CXXLINK) $(bond_matrix_LDFLAGS) $(bond_matrix_OBJECTS) $(bond_matrix_LDADD) $(LIBS)
+compatibility$(EXEEXT): $(compatibility_OBJECTS) $(compatibility_DEPENDENCIES) 
+	@rm -f compatibility$(EXEEXT)
+	$(CXXLINK) $(compatibility_LDFLAGS) $(compatibility_OBJECTS) $(compatibility_LDADD) $(LIBS)
 edge_type$(EXEEXT): $(edge_type_OBJECTS) $(edge_type_DEPENDENCIES) 
 	@rm -f edge_type$(EXEEXT)
 	$(CXXLINK) $(edge_type_LDFLAGS) $(edge_type_OBJECTS) $(edge_type_LDADD) $(LIBS)
@@ -476,6 +486,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/alternating_tensor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/amida.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bond_matrix.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/compatibility.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/edge_type.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fill_duration.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/filtered_graph.Po@am__quote@

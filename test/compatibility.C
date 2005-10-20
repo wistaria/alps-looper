@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2005 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -22,45 +22,44 @@
 *
 *****************************************************************************/
 
-#ifndef LOOPER_H
-#define LOOPER_H
-
-/* Define the version of ALPS/looper */
-#define LOOPER_VERSION "3.1.3b"
-
-/* Define the published date of ALPS/looper */
-#define LOOPER_DATE "2005/04/01"
-
-#include <looper/lattice.h>
-#include <looper/model.h>
-#include <looper/union_find.h>
-#include <looper/weight.h>
-// #include <looper/path_integral.h>
-// #include <looper/sse.h>
-// #include <looper/measurement.h>
-#include <alps/copyright.h>
+#include <looper/node.h>
 #include <iostream>
 
-namespace looper {
+int main() {
 
-inline
-std::ostream& print_copyright(std::ostream& os = std::cout)
-{
-  os << "ALPS/looper version " LOOPER_VERSION " (" LOOPER_DATE ")\n"
-     << "  multi-cluster quantum Monte Carlo algorithms for spin systems\n"
-     << "  available from http://wistaria.comp-phys.org/alps-looper/\n"
-     << "  copyright (c) 1997-2005 by Synge Todo <wistaria@comp-phys.org>\n"
-     << "\n";
-  return os;
+#ifndef BOOST_NO_EXCEPTIONS
+try {
+#endif
+
+  std::cout << "[bond graph]\n";
+  for (int g = 1; g < 5; ++g)
+    for (int c0 = 0; c0 < 2; ++c0)
+      for (int c1 = 0; c1 < 2; ++c1)
+	std::cout << "Delta(g=" << g
+		  << ", c0=" << (c0 == 0 ? '+' : '-')
+		  << ", c1=" << (c1 == 0 ? '+' : '-')
+		  << ") = "
+		  << (looper::is_compatible(looper::bond_graph(0, g), c0, c1) ?
+		      1 : 0)
+		  << std::endl;
+
+  std::cout << "[site graph]\n";
+  for (int g = 1; g < 4; ++g)
+    for (int c = 0; c < 2; ++c)
+      std::cout << "Delta(g=" << g
+		<< ", c=" << (c == 0 ? '+' : '-')
+		<< ") = "
+		<< (looper::is_compatible(looper::site_graph(0, g), c) ? 1 : 0)
+		<< std::endl;
+
+#ifndef BOOST_NO_EXCEPTIONS
 }
+catch (const std::exception& excp) {
+  std::cerr << excp.what() << std::endl;
+  std::exit(-1); }
+catch (...) {
+  std::cerr << "Unknown exception occurred!" << std::endl;
+  std::exit(-1); }
+#endif
 
-inline
-std::ostream& print_license(std::ostream& os = std::cout)
-{
-  os << "Please look at the file LICENSE for the license conditions.\n";
-  return os;
 }
-
-} // end namespace looper
-
-#endif // ! LOOPER_H

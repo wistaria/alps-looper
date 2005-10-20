@@ -32,16 +32,29 @@ class qmc_worker_base : public MCRUN
 public:
   typedef MCRUN                           super_type;
   typedef typename super_type::graph_type graph_type;
+  typedef typename looper::graph_traits<graph_type>::site_iterator
+    site_iterator;
+  typedef typename looper::graph_traits<graph_type>::bond_iterator
+    bond_iterator;
 
-  struct weight
+  struct weight_wrapper
   {
+    weight_wrapper(const std::vector<site_weight>& sw,
+		   const std::vector<bond_weight>& bw)
+      : sw_(sw), bw_(bw) {}
     template<class G>
-    bool operator()(typename boost::graph_traits<G>::edge_descriptor,
-		    const G&) const { return true; }
+    bool operator()(typename boost::graph_traits<G>::site_descriptor sd,
+		    const G& g) const
+    { return sw_[boost::get(looper::site_index_t(), g, sd)].has_weight(); }
     template<class G>
-    bool operator()(typename boost::graph_traits<G>::vertex_descriptor v,
-		      const G& g) const { return true; }
-  };
+    bool operator()(typename alps::graph_traits<G>::bond_descriptor bd,
+		    const G&) const { return false; }
+    { return bw_[boost::get(looper::bond_index_t(), g, bd)].has_weight(); }
+  const std::vector<site_weight>& sw_;
+  const std::vector<bond_weight>& bw_;
+};
+
+
 
   qmc_worker_base(const alps::ProcessList& w, const alps::Parameters& p, int n)
     : super_type(w, p, n),
@@ -62,11 +75,29 @@ public:
       std::cerr << "WARNING: model is classically frustrated\n";
 
     //
+    // setup weight
+    //
+    double force_scatter = p.value_or_default("FORCE_SCATTER", 0.);
+    std::vector<looper::site_weight> site_weights;
+    std::vector<looper::bond_weight> s2b_weights;
+    site_iterator si, si_end;
+    for (boost::tie(si, si_end) = alps::sites(rlattice()); si != si_end; ++si) {
+      site_weights.push_back(looper::site_weight(mp.site(*si, rlattice())));
+      s2b_weights.push_back(looper::bond_weight(
+						looper::bond_parameter(0, mp.site(*si, rlattice())));
+    }
+    std::vector<looper::bond_weight> bond_weights;
+    bond_iterator bi, bi_end;
+    for (boost::tie(bi, bi_end) = alps::bonds(rlattice()); bi != bi_end; ++bi)
+      bond_weights.push_back(looper::bond_weight(mp.bond(*bi, rlattice()),
+						 force_scatter));
+			     
+    //
     // setup virtual lattice
     //
 
     bool is_bipartite = alps::set_parity(super_type::graph());
-    vlat_.initialize(super_type::graph(), mp, weight());
+    vlat_.initialize(rlattice(), mp, weight());
 
     //
     // init measurements
@@ -145,6 +176,7 @@ public:
     if (super_type::where.empty()) super_type::measurements.compact();
   }
 
+  const graph_type& rlattice() const { return super_type::graph(); }
   const looper::virtual_lattice<graph_type>& vlattice() const { return vlat_; }
 
 private:
