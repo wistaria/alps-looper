@@ -26,6 +26,7 @@
 
 class factory : public alps::scheduler::Factory
 {
+public:
   alps::scheduler::MCSimulation* make_task(const alps::ProcessList& w,
     const boost::filesystem::path& fn) const;
   alps::scheduler::MCSimulation* make_task(const alps::ProcessList& w,

@@ -4,7 +4,7 @@ REMOVE_FOR_RELEASE =
 
 distdir = alps-looper-$(VERSION)
 
-noinst_PROGRAMS = loop loop_evaluate loop_cmd
+noinst_PROGRAMS = loop loop_evaluate loop_nosched
 if HAVE_MPI
 noinst_PROGRAMS += loop_mpi
 endif
@@ -40,7 +40,8 @@ dist_noinst_DATA = CITATIONS.txt LICENSE.txt
 
 loop_SOURCES = loop.C loop_factory.C loop_factory.h loop_worker.h
 loop_evaluate_SOURCES = loop_evaluate.C loop_worker.h
-loop_cmd_SOURCES = loop_cmd.C loop_worker.h
+loop_nosched_SOURCES = loop.C loop_factory.C loop_factory.h loop_worker.h
+loop_nosched_CPPFLAGS = -DWITHOUT_SCHEDULER
 
 loop_mpi_SOURCES = loop.C loop_factory.C loop_factory.h loop_worker.h
 loop_mpi_CPPFLAGS = @CPPFLAGS_MPI@

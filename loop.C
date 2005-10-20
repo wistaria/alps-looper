@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2005 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -79,7 +79,7 @@ int main(int argc, char** argv)
   std::cout << "[input parameters]\n" << params;
 
   qmc_worker_base<>* sim =
-    factory().make_worker(alps::ProcessList(1), params, 0);
+    factory().make_qmc_worker(alps::ProcessList(1), params, 0);
   boost::timer tm;
 
   bool thermalized = false;
@@ -93,9 +93,9 @@ int main(int argc, char** argv)
 
   double t = tm.elapsed();
   std::cerr << "[speed]\nelapsed time = " << t << " sec ("
-            << (sim.mcs()) / t << " MCS/sec)\n";
+            << (sim->mcs()) / t << " MCS/sec)\n";
 
-  std::cout << "[results]\n" << sim.get_measurements();
+  std::cout << "[results]\n" << sim->get_measurements();
 
 #ifndef BOOST_NO_EXCEPTIONS
   }

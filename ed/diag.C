@@ -296,7 +296,7 @@ try {
       for (boost::tie(vi, vi_end) = boost::vertices(lattice.graph());
            vi != vi_end; ++vi) {
         if (boost::get(alps::parity_t(), lattice.graph(), *vi) ==
-            alps::parity::white) {
+            alps::parity_traits<alps::parity_t, graph_type>::white) {
           looper::add_to_diagonal_matrix(staggered_sz,
             alps::SiteTermDescriptor("Sz(i)", "i"),
             basis_set, *vi, lattice.graph(), params);

@@ -163,7 +163,7 @@ public:
 
   virtual ~qmc_worker_base() {}
 
-  void dostep() { ++mcs_; }
+  virtual void dostep() { ++mcs_; }
 
   bool is_thermalized() const { return mcs_ >= mcs_therm_; }
   double work_done() const
@@ -172,7 +172,7 @@ public:
   }
   unsigned int mcs() const { return mcs_; }
 
-  void save(alps::ODump& od) const {
+  virtual void save(alps::ODump& od) const {
     od << mcs_;
     super_type::save(od);
   }
