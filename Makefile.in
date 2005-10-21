@@ -918,7 +918,6 @@ uninstall-info: uninstall-info-recursive
 .PHONY : test tests
 test tests :
 	$(MAKE) -C test $@
-	$(MAKE) -C simple $@
 
 .PHONY : update-preamble
 update-preamble:
