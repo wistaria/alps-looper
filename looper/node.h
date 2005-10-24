@@ -44,12 +44,12 @@ public:
   bool is_bond() const { return loc_ & 1; }
   bool is_site() const { return !is_bond(); }
   unsigned int type() const { return type_; }
-    
+
 private:
   unsigned int loc_;
   unsigned int type_;
 };
-  
+
 inline local_graph bond_graph(unsigned int loc, unsigned int type)
 {
 #ifndef NDEBUG
@@ -57,7 +57,7 @@ inline local_graph bond_graph(unsigned int loc, unsigned int type)
 #endif
   return local_graph(true, loc, type);
 }
-  
+
 inline local_graph site_graph(unsigned int loc, unsigned int type)
 {
 #ifndef NDEBUG
@@ -67,6 +67,7 @@ inline local_graph site_graph(unsigned int loc, unsigned int type)
 }
 
 // bond graph
+inline
 bool is_compatible(const local_graph& g, unsigned int c0, unsigned int c1)
 {
 #ifndef NDEBUG
@@ -76,6 +77,7 @@ bool is_compatible(const local_graph& g, unsigned int c0, unsigned int c1)
 }
 
 // site graph
+inline
 bool is_compatible(const local_graph& g, unsigned int c)
 {
 #ifndef NDEBUG

@@ -47,17 +47,6 @@ struct vector_spin_wrapper
   const std::vector<value_type>& vec_;
 };
 
-struct weight
-{
-  template<class G>
-  bool operator()(typename alps::graph_traits<G>::site_descriptor v,
-    const G& g) const
-  { return boost::get(looper::site_index_t(), g, v) != 2; }
-  template<class G>
-  bool operator()(typename alps::graph_traits<G>::bond_descriptor,
-    const G&) const { return true; }
-};
-
 int main() {
 
 #ifndef BOOST_NO_EXCEPTIONS
@@ -83,8 +72,7 @@ try {
   // virtual lattice
   std::vector<alps::half_integer<int> > spins(2);
   spins[0] = 1; spins[1] = 3./2;
-  looper::virtual_lattice<graph_type> vl(rg, vector_spin_wrapper<int>(spins),
-                                         weight());
+  looper::virtual_lattice<graph_type> vl(rg, vector_spin_wrapper<int>(spins));
 
   std::cout << "number of real sites = "
             << num_sites(rg) << std::endl;
@@ -94,9 +82,24 @@ try {
             << num_sites(vl) << std::endl;
   std::cout << "number of virtual bonds = "
             << num_bonds(vl) << std::endl;
-
   std::cout << vl;
   site_iterator vvi, vvi_end;
+  for (boost::tie(vvi, vvi_end) = sites(vl); vvi != vvi_end; ++vvi)
+    std::cout << gauge(vl, *vvi) << ' ';
+  std::cout << std::endl;
+  vl.mapping().output(std::cout, rg, vl.graph());
+
+  vl.generate(rg, vector_spin_wrapper<int>(spins), true);
+
+  std::cout << "number of real sites = "
+            << num_sites(rg) << std::endl;
+  std::cout << "number of real bonds = "
+            << num_bonds(rg) << std::endl;
+  std::cout << "number of virtual sites = "
+            << num_sites(vl) << std::endl;
+  std::cout << "number of virtual bonds = "
+            << num_bonds(vl) << std::endl;
+  std::cout << vl;
   for (boost::tie(vvi, vvi_end) = sites(vl); vvi != vvi_end; ++vvi)
     std::cout << gauge(vl, *vvi) << ' ';
   std::cout << std::endl;

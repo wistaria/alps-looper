@@ -33,6 +33,7 @@
 
 #include <looper/lattice.h>
 #include <looper/model.h>
+#include <looper/node.h>
 #include <looper/union_find.h>
 #include <looper/weight.h>
 // #include <looper/path_integral.h>

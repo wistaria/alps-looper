@@ -40,29 +40,11 @@ public:
   typedef typename looper::graph_traits<graph_type>::bond_iterator
     bond_iterator;
 
-  struct weight_wrapper
-  {
-    weight_wrapper(const std::vector<looper::site_weight>& sw,
-                   const std::vector<looper::bond_weight>& bw)
-      : sw_(sw), bw_(bw) {}
-    template<class G>
-    bool operator()(typename alps::graph_traits<G>::site_descriptor sd,
-                    const G& g) const
-    { return sw_[boost::get(looper::site_index_t(), g, sd)].has_weight(); }
-    template<class G>
-    bool operator()(typename alps::graph_traits<G>::bond_descriptor bd,
-                    const G& g) const
-    { return bw_[boost::get(looper::bond_index_t(), g, bd)].has_weight(); }
-    const std::vector<looper::site_weight>& sw_;
-    const std::vector<looper::bond_weight>& bw_;
-  };
-
-
   qmc_worker_base(const alps::ProcessList& w, const alps::Parameters& p, int n)
     : super_type(w, p, n),
       mcs_therm_(static_cast<unsigned int>(p["THERMALIZATION"])),
       mcs_sweep_(p["SWEEPS"]),
-      vlat_()
+      vlat_(), gtab_()
   {
     //
     // setup model
@@ -77,32 +59,68 @@ public:
       std::cerr << "WARNING: model is classically frustrated\n";
 
     //
-    // setup weight
-    //
-
-    std::vector<looper::site_weight> site_weights;
-    std::vector<looper::bond_weight> s2b_weights;
-    std::vector<looper::bond_weight> bond_weights;
-    {
-      double fs = p.value_or_default("FORCE_SCATTER", 0.);
-      site_iterator si, si_end;
-      for (boost::tie(si, si_end) = alps::sites(rlat());
-           si != si_end; ++si) {
-        site_weights.push_back(looper::site_weight(mp.site(*si, rlat())));
-        s2b_weights.push_back(looper::bond_weight(mp.site(*si, rlat()), fs));
-      }
-      bond_iterator bi, bi_end;
-      for (boost::tie(bi, bi_end) = alps::bonds(rlat());
-           bi != bi_end; ++bi)
-        bond_weights.push_back(looper::bond_weight(mp.bond(*bi, rlat()), fs));
-    }
-
-    //
     // setup virtual lattice
     //
 
     bool is_bipartite = alps::set_parity(super_type::graph());
-    vlat_.generate(rlat(), mp, weight_wrapper(site_weights, s2b_weights));
+    vlat_.generate(rlat(), mp, mp.has_d_term());
+
+    //
+    // setup graph table
+    //
+
+    gtab_.clear();
+    std::vector<double> weight;
+    double rho = 0;
+    site_iterator si, si_end;
+    for (boost::tie(si, si_end) = alps::sites(rlat()); si != si_end; ++si) {
+      looper::site_weight sw(mp.site(*si, rlat()));
+      site_iterator vsi, vsi_end;
+      for (boost::tie(vsi, vsi_end) = virtual_sites(vlat(), rlat(), *si);
+           vsi != vsi_end; ++vsi) {
+        for (int g = 1; g <= 3; ++g) {
+          if (alps::is_nonzero<1>(sw.v[g])) {
+            gtab_.push_back(looper::site_graph(boost::get(
+              looper::site_index_t(), vlat().graph(), *vsi), g));
+            weight.push_back(sw.v[g]);
+            rho += sw.v[g];
+          }
+        }
+      }
+    }
+    bond_iterator bi, bi_end;
+    for (boost::tie(bi, bi_end) = alps::bonds(rlat()); bi != bi_end; ++bi) {
+      looper::bond_weight bw(mp.bond(*bi, rlat()));
+      bond_iterator vbi, vbi_end;
+      for (boost::tie(vbi, vbi_end) = virtual_bonds(vlat(), rlat(), *bi);
+           vbi != vbi_end; ++vbi) {
+        for (int g = 1; g <= 4; ++g) {
+          if (alps::is_nonzero<1>(bw.v[g])) {
+            gtab_.push_back(looper::bond_graph(boost::get(
+              looper::bond_index_t(), vlat().graph(), *vbi), g));
+            weight.push_back(bw.v[g]);
+            rho += bw.v[g];
+          }
+        }
+      }
+    }
+    if (mp.has_d_term()) {
+      for (boost::tie(si, si_end) = alps::sites(rlat()); si != si_end; ++si) {
+        looper::bond_weight bw(mp.site(*si, rlat()));
+        bond_iterator vbi, vbi_end;
+        for (boost::tie(vbi, vbi_end) = virtual_bonds(vlat(), rlat(), *si);
+             vbi != vbi_end; ++vbi) {
+          for (int g = 1; g <= 4; ++g) {
+            if (alps::is_nonzero<1>(bw.v[g])) {
+              gtab_.push_back(looper::bond_graph(boost::get(
+                looper::bond_index_t(), vlat().graph(), *vbi), g));
+              weight.push_back(bw.v[g]);
+              rho += bw.v[g];
+            }
+          }
+        }
+      }
+    }
 
     //
     // init measurements
@@ -183,12 +201,13 @@ public:
   }
 
   const graph_type& rlat() const { return super_type::graph(); }
-  const graph_type& vlat() const { return vlat_; }
+  const looper::virtual_lattice<graph_type>& vlat() const { return vlat_; }
 
 private:
   unsigned int mcs_therm_;
   looper::integer_range<unsigned int> mcs_sweep_;
   looper::virtual_lattice<graph_type> vlat_;
+  std::vector<looper::local_graph> gtab_;
 
   // to be dumped/restored
   unsigned int mcs_;
