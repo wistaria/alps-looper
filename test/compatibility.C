@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-#include <looper/node.h>
+#include <looper/type.h>
 #include <iostream>
 
 int main() {

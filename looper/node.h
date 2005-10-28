@@ -35,57 +35,6 @@
 
 namespace looper {
 
-class local_graph {
-public:
-  local_graph(bool is_bond, unsigned int loc, unsigned int type)
-    : loc_(is_bond ? 2*loc+1 : 2*loc), type_(type) {}
-
-  unsigned int location() const { return loc_ >> 1; }
-  bool is_bond() const { return loc_ & 1; }
-  bool is_site() const { return !is_bond(); }
-  unsigned int type() const { return type_; }
-
-private:
-  unsigned int loc_;
-  unsigned int type_;
-};
-
-inline local_graph bond_graph(unsigned int loc, unsigned int type)
-{
-#ifndef NDEBUG
-  assert(type >= 1 && type <= 4);
-#endif
-  return local_graph(true, loc, type);
-}
-
-inline local_graph site_graph(unsigned int loc, unsigned int type)
-{
-#ifndef NDEBUG
-  assert(type >= 1 && type <= 3);
-#endif
-  return local_graph(false, loc, type);
-}
-
-// bond graph
-inline
-bool is_compatible(const local_graph& g, unsigned int c0, unsigned int c1)
-{
-#ifndef NDEBUG
-  assert(g.is_bond());
-#endif
-  return !(((g.type()-1) >> 1) ^ (c0 ^ c1));
-}
-
-// site graph
-inline
-bool is_compatible(const local_graph& g, unsigned int c)
-{
-#ifndef NDEBUG
-  assert(g.is_site());
-#endif
-  return (g.type() == 1) || ((3-g.type()) ^ c);
-}
-
 namespace detail {
 
 struct bits

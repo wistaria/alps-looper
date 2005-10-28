@@ -44,7 +44,9 @@ public:
     : super_type(w, p, n),
       mcs_therm_(static_cast<unsigned int>(p["THERMALIZATION"])),
       mcs_sweep_(p["SWEEPS"]),
-      vlat_(), gtab_()
+      vlat_(), gtab_(),
+      r_graph(*super_type::engine_ptr, looper::random_choice<>()),
+      mcs_(0)
   {
     //
     // setup model
@@ -77,50 +79,44 @@ public:
       looper::site_weight sw(mp.site(*si, rlat()));
       site_iterator vsi, vsi_end;
       for (boost::tie(vsi, vsi_end) = virtual_sites(vlat(), rlat(), *si);
-           vsi != vsi_end; ++vsi) {
-        for (int g = 1; g <= 3; ++g) {
+           vsi != vsi_end; ++vsi)
+        for (int g = 1; g <= 3; ++g)
           if (alps::is_nonzero<1>(sw.v[g])) {
             gtab_.push_back(looper::site_graph(boost::get(
               looper::site_index_t(), vlat().graph(), *vsi), g));
             weight.push_back(sw.v[g]);
             rho += sw.v[g];
           }
-        }
-      }
     }
     bond_iterator bi, bi_end;
     for (boost::tie(bi, bi_end) = alps::bonds(rlat()); bi != bi_end; ++bi) {
       looper::bond_weight bw(mp.bond(*bi, rlat()));
       bond_iterator vbi, vbi_end;
       for (boost::tie(vbi, vbi_end) = virtual_bonds(vlat(), rlat(), *bi);
-           vbi != vbi_end; ++vbi) {
-        for (int g = 1; g <= 4; ++g) {
+           vbi != vbi_end; ++vbi)
+        for (int g = 1; g <= 4; ++g)
           if (alps::is_nonzero<1>(bw.v[g])) {
             gtab_.push_back(looper::bond_graph(boost::get(
               looper::bond_index_t(), vlat().graph(), *vbi), g));
             weight.push_back(bw.v[g]);
             rho += bw.v[g];
           }
-        }
-      }
     }
-    if (mp.has_d_term()) {
+    if (mp.has_d_term())
       for (boost::tie(si, si_end) = alps::sites(rlat()); si != si_end; ++si) {
         looper::bond_weight bw(mp.site(*si, rlat()));
         bond_iterator vbi, vbi_end;
         for (boost::tie(vbi, vbi_end) = virtual_bonds(vlat(), rlat(), *si);
-             vbi != vbi_end; ++vbi) {
-          for (int g = 1; g <= 4; ++g) {
+             vbi != vbi_end; ++vbi)
+          for (int g = 1; g <= 4; ++g)
             if (alps::is_nonzero<1>(bw.v[g])) {
               gtab_.push_back(looper::bond_graph(boost::get(
                 looper::bond_index_t(), vlat().graph(), *vbi), g));
               weight.push_back(bw.v[g]);
               rho += bw.v[g];
             }
-          }
-        }
       }
-    }
+    r_graph.distribution().init(weight);
 
     //
     // init measurements
@@ -191,12 +187,12 @@ public:
   unsigned int mcs() const { return mcs_; }
 
   virtual void save(alps::ODump& od) const {
-    od << mcs_;
     super_type::save(od);
+    od << mcs_;
   }
   virtual void load(alps::IDump& id) {
-    id >> mcs_;
     super_type::load(id);
+    id >> mcs_;
     if (super_type::where.empty()) super_type::measurements.compact();
   }
 
@@ -208,6 +204,8 @@ private:
   looper::integer_range<unsigned int> mcs_sweep_;
   looper::virtual_lattice<graph_type> vlat_;
   std::vector<looper::local_graph> gtab_;
+  boost::variate_generator<alps::buffered_rng_base&, looper::random_choice<> >
+    r_graph;
 
   // to be dumped/restored
   unsigned int mcs_;
@@ -221,17 +219,48 @@ template<class QMC,
 class qmc_worker;
 
 template<class MCRUN>
-class qmc_worker<path_integral, MCRUN> : public qmc_worker_base<MCRUN>
+class qmc_worker<looper::path_integral, MCRUN> : public qmc_worker_base<MCRUN>
 {
 public:
+  typedef looper::path_integral qmc_type;
   typedef qmc_worker_base<MCRUN> super_type;
+  typedef looper::local_operator<qmc_type> 
+  
+  class local_operator : public looper::local_operator_base
+  {
+  public:
+    typedef looper::local_operator_base super_type;
+    local_operator(bool is_bond, looper::operator_type type, unsigned int loc,
+		   double time)
+      : super_type(is_bond, type, loc), time_(time) {}
+    double time() const { return time_; }
+    void save(alps::ODump& dp) const { super_type::save(dp); dp << time_; }
+    void load(alps::IDump& dp) { super_type::load(dp); dp >> time_; }
+  private:
+    double time_;
+  };
+  alps::ODump& operator<<(alps::ODump& dp, const local_operator& op)
+  { op.save(dp); return dp; }
+  alps::IDump& operator>>(alps::IDump& dp, local_operator& op)
+  { op.load(dp); return dp; }
 
   qmc_worker(const alps::ProcessList& w, const alps::Parameters& p, int n)
     : super_type(w, p, n)
   {}
 
-  void save(alps::ODump& od) const { super_type::save(od); }
-  void load(alps::IDump& id) { super_type::load(id); }
+  void save(alps::ODump& od) const {
+    super_type::save(od);
+    od << operators << spins;
+  }
+  void load(alps::IDump& id) {
+    super_type::load(id);
+    id >> operators >> spins;
+  }
+
+private:
+  std::vector<local_operator> operators;
+  std::vector<int> spins;
+  std::vector<local_operator> operators_prev; // no checkpointing
 };
 
 template<class MCRUN>
