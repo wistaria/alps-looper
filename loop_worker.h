@@ -211,9 +211,6 @@ private:
   unsigned int mcs_;
 };
 
-struct path_integral {};
-struct sse {};
-
 template<class QMC,
   class MCRUN = alps::scheduler::LatticeModelMCRun<looper::graph_type> >
 class qmc_worker;
@@ -224,25 +221,7 @@ class qmc_worker<looper::path_integral, MCRUN> : public qmc_worker_base<MCRUN>
 public:
   typedef looper::path_integral qmc_type;
   typedef qmc_worker_base<MCRUN> super_type;
-  typedef looper::local_operator<qmc_type> 
-  
-  class local_operator : public looper::local_operator_base
-  {
-  public:
-    typedef looper::local_operator_base super_type;
-    local_operator(bool is_bond, looper::operator_type type, unsigned int loc,
-		   double time)
-      : super_type(is_bond, type, loc), time_(time) {}
-    double time() const { return time_; }
-    void save(alps::ODump& dp) const { super_type::save(dp); dp << time_; }
-    void load(alps::IDump& dp) { super_type::load(dp); dp >> time_; }
-  private:
-    double time_;
-  };
-  alps::ODump& operator<<(alps::ODump& dp, const local_operator& op)
-  { op.save(dp); return dp; }
-  alps::IDump& operator>>(alps::IDump& dp, local_operator& op)
-  { op.load(dp); return dp; }
+  typedef looper::local_operator<qmc_type>  local_operator;
 
   qmc_worker(const alps::ProcessList& w, const alps::Parameters& p, int n)
     : super_type(w, p, n)
@@ -264,10 +243,12 @@ private:
 };
 
 template<class MCRUN>
-class qmc_worker<sse, MCRUN> : public qmc_worker_base<MCRUN>
+class qmc_worker<looper::sse, MCRUN> : public qmc_worker_base<MCRUN>
 {
 public:
+  typedef looper::sse qmc_type;
   typedef qmc_worker_base<MCRUN> super_type;
+  typedef looper::local_operator<qmc_type>  local_operator;
 
   qmc_worker(const alps::ProcessList& w, const alps::Parameters& p, int n)
     : super_type(w, p, n)

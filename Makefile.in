@@ -271,6 +271,7 @@ pkginclude_HEADERS = \
 	looper/random_choice.h \
 	looper/sign.h \
 	looper/sse.h \
+	looper/type.h \
 	looper/union_find.h \
 	looper/util.h \
 	looper/vector_helper.h \

@@ -47,9 +47,9 @@ qmc_worker_base<>* factory::make_qmc_worker(const alps::ProcessList& w,
 {
   if (!p.defined("REPRESENTATION") ||
       p["REPRESENTATION"] == "path integral") {
-    return new qmc_worker<path_integral>(w, p, n);
+    return new qmc_worker<looper::path_integral>(w, p, n);
   } else if (p["REPRESENTATION"] == "SSE") {
-    return new qmc_worker<sse>(w, p, n);
+    return new qmc_worker<looper::sse>(w, p, n);
   } else {
     boost::throw_exception(std::invalid_argument("unknwon representation"));
   }

@@ -36,45 +36,51 @@ namespace looper {
 struct path_integral {};
 struct sse {};
 
-enum operator_type { diagonal    = 0 /* 00 */, 
-                     offdiagonal = 1 /* 01 */,
-                     identity    = 2 /* 10 */};
+struct local_operator_type
+{
+  BOOST_STATIC_CONSTANT(unsigned int, diagonal    = 0 /* 00 */);
+  BOOST_STATIC_CONSTANT(unsigned int, offdiagonal = 1 /* 00 */);
+  BOOST_STATIC_CONSTANT(unsigned int, identity    = 2 /* 10 */);
+};
 
-template<class QMC> operator_graph_base;
+template<class QMC>
+class local_operator;
 
 template<>
-class operator_graph_base<sse> {
+class local_operator<sse> {
 public:
-  operator_graph_base(operator_type type, unsigned int loc, bool is_bond)
+  local_operator() {}
+  local_operator(unsigned int type, unsigned int loc, bool is_bond)
     : type_(type), loc_(loc << 1 + is_bond) {}
 
   void flip() { type_ ^= 1; }
-  operator_type type() const { return type_; }
+  unsigned int type() const { return type_; }
   unsigned int location() const { return loc_ >> 1; }
   bool is_bond() const { return loc_ & 1; }
   bool is_site() const { return !is_bond(); }
 
   unsigned int loop_0() const { return loop0_; }
   unsigned int loop_1() const { return loop1_; }
-  unsigned int set_loop_0(unsigned int loop) const { return loop0_ = loop; }
-  unsigned int set_loop_1(unsigned int loop) const { return loop1_ = loop; }
+  unsigned int set_loop_0(unsigned int loop) { return loop0_ = loop; }
+  unsigned int set_loop_1(unsigned int loop) { return loop1_ = loop; }
 
   void save(alps::ODump& od) const { od << type_ << loc_; }
   void load(alps::IDump& id) { id >> type_ >> loc_; }
 
 private:
-  operator_type type_;
+  unsigned int type_;
   unsigned int loc_;
   unsigned int loop0_, loop1_;
 };
 
 template<>
-class operator_graph_base<path_integral> : public operator_graph_base<sse>
+class local_operator<path_integral> : public local_operator<sse>
 {
 public:
-  typedef operator_graph_base<sse> super_type;
-  operator_graph(unsigned int type, unsigned int loc, bool is_bond,
-		 double time)
+  typedef local_operator<sse> super_type;
+  local_operator() : super_type() {}
+  local_operator(unsigned int type, unsigned int loc, bool is_bond,
+                 double time)
     : super_type(type, loc, is_bond), time_(time) {}
   double time() const { return time_; }
   void save(alps::ODump& dp) const { super_type::save(dp); dp << time_; }
@@ -88,63 +94,92 @@ private:
 // graph
 //
 
-template<class QMC> 
-class local_graph : public operator_graph_base<QMC>
-{
-public:
-  typedef operator_graph_base<QMC> super_type;
-  local_graph(unsigned_int type, unsigned int loc, bool is_bond)
-    : super_type(type, loc, is_bond) {}
-  
-  static local_graph bond_graph(unsigned int type, unsigned int loc)
+struct local_graph_type {
+  BOOST_STATIC_CONSTANT(unsigned int, bond_g1 = 0);
+  BOOST_STATIC_CONSTANT(unsigned int, bond_g2 = 1);
+  BOOST_STATIC_CONSTANT(unsigned int, bond_g3 = 2);
+  BOOST_STATIC_CONSTANT(unsigned int, bond_g4 = 3);
+  BOOST_STATIC_CONSTANT(unsigned int, site_g1 = 4);
+  BOOST_STATIC_CONSTANT(unsigned int, site_g2 = 5);
+  BOOST_STATIC_CONSTANT(unsigned int, site_g3 = 6);
+
+  static unsigned int bond_graph(unsigned int g) { return g-1; }
+  static unsigned int site_graph(unsigned int g) { return g+3; }
+
+  static bool is_bond(unsigned int g) { return !is_site(g); }
+  static bool is_site(unsigned int g) { return g & 4; }
+  static bool is_compatible(unsigned int g, unsigned int c0, unsigned int c1)
   {
 #ifndef NDEBUG
-    assert(type >= 1 && type <= 4);
+    assert(is_bond(g));
 #endif
-    return local_graph(type, loc, true);
+    return !((g >> 1) ^ (c0 ^ c1));
   }
-  static local_graph site_graph(unsigned int type, unsigned int loc)
+  static bool is_compatible(unsigned int g, unsigned int c)
   {
 #ifndef NDEBUG
-  assert(type >= 1 && type <= 3);
+    assert(is_site(g));
 #endif
-  return local_graph(type, loc, false);
+    return ((g == site_g1) || ((g & 1) ^ c));
   }
 };
 
+class local_graph
+{
+public:
+  local_graph(unsigned int type, unsigned int loc)
+    : type_(type), loc_(loc) {}
+  unsigned int type() const { return type_; }
+  unsigned int location() const { return loc_; }
+  bool is_bond() const { return local_graph_type::is_bond(type_); }
+  bool is_site() const { return local_graph_type::is_site(type_); }
+private:
+  unsigned int type_, loc_;
+};
 
-// bond graph
+inline
+unsigned int bond_graph(unsigned int g)
+{ return local_graph_type::bond_graph(g); }
+
+inline
+local_graph bond_graph(unsigned int g, unsigned int loc)
+{ return local_graph(bond_graph(g), loc); }
+
+inline
+unsigned int site_graph(unsigned int g)
+{ return local_graph_type::site_graph(g); }
+
+inline
+local_graph site_graph(unsigned int g, unsigned int loc)
+{ return local_graph(site_graph(g), loc); }
+
+inline
+bool is_bond(unsigned int g) { return local_graph_type::is_bond(g); }
+
+inline
+bool is_bond(const local_graph& g) { return g.is_bond(); }
+
+inline
+bool is_site(unsigned int g) { return local_graph_type::is_site(g); }
+
+inline
+bool is_site(const local_graph& g) { return g.is_site(); }
+
+inline
+bool is_compatible(unsigned int g, unsigned int c0, unsigned int c1)
+{ return local_graph_type::is_compatible(g, c0, c1); }
+
 inline
 bool is_compatible(const local_graph& g, unsigned int c0, unsigned int c1)
-{
-#ifndef NDEBUG
-  assert(g.is_bond());
-#endif
-  return !(((g.type()-1) >> 1) ^ (c0 ^ c1));
-}
+{ return local_graph_type::is_compatible(g.type(), c0, c1); }
 
-// site graph
 inline
 bool is_compatible(const local_graph& g, unsigned int c)
-{
-#ifndef NDEBUG
-  assert(g.is_site());
-#endif
-  return (g.type() == 1) || ((3-g.type()) ^ c);
-}
+{ return local_graph_type::is_compatible(g.type(), c); }
 
-//
-// operator
-//
-
-inline local_operator<sse> identity_operator()
-{ return local_operator<sse>(true, identity, 0); }
-
-inline local_operator<sse> site_diagonal_operator(unsigned int loc)
-{ return local_operator<sse>(false, diagonal, loc); }
-
-inline local_operator<sse> bond_diagonal_operator(unsigned int loc)
-{ return local_operator<sse>(true, diagonal, loc); }
+inline
+bool is_compatible(unsigned int g, unsigned int c)
+{ return local_graph_type::is_compatible(g, c); }
 
 } // end namespace looper
 
