@@ -26,6 +26,7 @@
 #define LOOPER_TYPE_H
 
 #include <alps/osiris.h>
+#include <looper/union_find.h>
 
 namespace looper {
 
@@ -180,6 +181,29 @@ bool is_compatible(const local_graph& g, unsigned int c)
 inline
 bool is_compatible(unsigned int g, unsigned int c)
 { return local_graph_type::is_compatible(g, c); }
+
+//
+// cluster fragment
+//
+
+typedef looper::union_find::node_idx clsuter_fragment;
+
+//
+// cluster_info
+//
+
+template<class QMC> struct cluster_info;
+
+template<>
+struct cluster_info<path_integral> {
+  cluster_info(bool t = false)
+    : to_flip(t), mag0(0), size(0), mag(0), length(0) {}
+  bool to_flip;
+  int mag0;
+  int size;
+  double mag;
+  double length;
+};
 
 } // end namespace looper
 
