@@ -32,24 +32,25 @@ try {
 #endif
 
   std::cout << "[bond graph]\n";
-  for (int g = 1; g <= 4; ++g)
-    for (int c0 = 0; c0 < 2; ++c0)
-      for (int c1 = 0; c1 < 2; ++c1)
+  for (int g = 0; g <= 3; ++g)
+    for (int c0 = 0; c0 <= 1; ++c0)
+      for (int c1 = 0; c1 <= 1; ++c1)
         std::cout << "Delta(g=" << g
                   << ", c0=" << (c0 == 0 ? '+' : '-')
                   << ", c1=" << (c1 == 0 ? '+' : '-')
                   << ") = "
-                  << (looper::is_compatible(looper::bond_graph(g), c0, c1) ?
+                  << (looper::bond_graph_type::is_compatible(g, c0, c1) ?
                       1 : 0)
                   << std::endl;
 
   std::cout << "[site graph]\n";
-  for (int g = 1; g <= 3; ++g)
-    for (int c = 0; c < 2; ++c)
+  for (int g = 0; g <= 2; ++g)
+    for (int c = 0; c <= 1; ++c)
       std::cout << "Delta(g=" << g
                 << ", c=" << (c == 0 ? '+' : '-')
                 << ") = "
-                << (looper::is_compatible(looper::site_graph(g), c) ? 1 : 0)
+                << (looper::site_graph_type::is_compatible(g, c) ?
+                    1 : 0)
                 << std::endl;
 
 #ifndef BOOST_NO_EXCEPTIONS

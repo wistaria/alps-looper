@@ -241,7 +241,7 @@ public:
   model_parameter(const G& g, const alps::half_integer<I>& spin,
                   double Jxy, double Jz)
     : sites_(), bonds_(), use_site_index_(true), use_bond_index_(true),
-      has_d_(false), signed_(false), frustrated_(false)
+      has_hz_(false), has_d_(false), signed_(false), frustrated_(false)
   { set_parameters(g, spin, Jxy, Jz); }
   template<typename G, typename I>
   model_parameter(const alps::Parameters& params,
@@ -250,7 +250,7 @@ public:
                   bool inhomogeneous_bond,
                   const alps::HamiltonianDescriptor<I>& hd)
     : sites_(), bonds_(), use_site_index_(true), use_bond_index_(true),
-      has_d_(false), signed_(false), frustrated_(false)
+      has_hz_(false), has_d_(false), signed_(false), frustrated_(false)
   { set_parameters(params, g, inhomogeneous_sites, inhomogeneous_bond, hd); }
   template<typename G, typename I>
   model_parameter(const alps::Parameters& params,
@@ -260,7 +260,7 @@ public:
                   const alps::HamiltonianDescriptor<I>& hd,
                   bool is_signed)
     : sites_(), bonds_(), use_site_index_(true), use_bond_index_(true),
-      has_d_(false), signed_(false), frustrated_(false)
+      has_hz_(false), has_d_(false), signed_(false), frustrated_(false)
   {
     set_parameters(params, g, inhomogeneous_sites, inhomogeneous_bond,
                    hd, is_signed);
@@ -270,7 +270,7 @@ public:
                   const alps::graph_helper<G>& gh,
                   const alps::model_helper<I>& mh)
     : sites_(), bonds_(), use_site_index_(true), use_bond_index_(true),
-      has_d_(false), signed_(false), frustrated_(false)
+      has_hz_(false), has_d_(false), signed_(false), frustrated_(false)
   {
     set_parameters(params, gh.graph(), gh.inhomogeneous_sites(),
                    gh.inhomogeneous_bonds(), mh.model(),
@@ -280,7 +280,7 @@ public:
   model_parameter(const alps::Parameters& params,
                   const alps::scheduler::LatticeModelMCRun<G, I>& mcrun)
     : sites_(), bonds_(), use_site_index_(true), use_bond_index_(true),
-      has_d_(false), signed_(false), frustrated_(false)
+      has_hz_(false), has_d_(false), signed_(false), frustrated_(false)
   {
     set_parameters(params, mcrun.graph(), mcrun.inhomogeneous_sites(),
                    mcrun.inhomogeneous_bonds(), mcrun.model(),
@@ -363,6 +363,7 @@ public:
 
   bool is_signed() const { return signed_; }
   bool is_classically_frustrated() const { return frustrated_; }
+  bool has_longitudinal_field() const { return has_hz_; }
   bool has_d_term() const { return has_d_; }
 
 protected:
@@ -386,6 +387,7 @@ private:
   bond_map_type bonds_;
   bool use_site_index_;
   bool use_bond_index_;
+  bool has_hz_;
   bool has_d_;
   bool signed_;
   bool frustrated_;
@@ -522,6 +524,7 @@ void model_parameter::set_parameters_impl(const G& /* g */,
   bonds_.resize(1);
   bonds_[0] = bond_parameter(0., Jxy, Jz);
 
+  has_hz_ = false;
   has_d_ = false;
 }
 
@@ -573,6 +576,7 @@ void model_parameter::set_parameters_impl(alps::Parameters params, const G& g,
       unsigned int t = boost::get(site_type_t(), g, *vi);
       sites_[i] = site_parameter(alps::get_matrix(double(), hd.site_term(t),
         hd.basis().site_basis(t), p));
+      if (alps::is_nonzero<1>(sites_[i].hz)) has_hz_ = true;
       if (alps::is_nonzero<1>(sites_[i].d)) has_d_ = true;
     }
   } else {
@@ -583,6 +587,7 @@ void model_parameter::set_parameters_impl(alps::Parameters params, const G& g,
       if (!checked[t]) {
         sites_[t] = site_parameter(alps::get_matrix(double(), hd.site_term(t),
           hd.basis().site_basis(t), params));
+        if (alps::is_nonzero<1>(sites_[t].hz)) has_hz_ = true;
         if (alps::is_nonzero<1>(sites_[t].d)) has_d_ = true;
         checked[t] = true;
       }

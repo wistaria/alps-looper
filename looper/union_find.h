@@ -52,7 +52,7 @@ struct node_idx_base {
 
 struct node_idx : public node_idx_base {
   node_idx() : node_idx_base(), id() {}
-  unsigned int id;
+  int id;
 };
 
 template<class T>

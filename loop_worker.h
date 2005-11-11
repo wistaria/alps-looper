@@ -29,66 +29,6 @@
 #include <alps/scheduler.h>
 #include <looper.h>
 
-template<class GRAPH>
-double initialize(looper::random_choice<>& dist,
-		  std::vector<looper::local_graph>& gtab,
-		  const GRAPH& rlat,
-		  const looper::virtual_lattice<GRAPH>& vlat,
-		  const looper::model_parameter& mp)
-{
-  typedef typename alps::graph_traits<GRAPH>::site_iterator site_iterator;
-  typedef typename alps::graph_traits<GRAPH>::bond_iterator bond_iterator;
-
-  gtab.clear();
-  std::vector<double> weight;
-  double rho = 0;
-  site_iterator si, si_end;
-  for (boost::tie(si, si_end) = alps::sites(rlat); si != si_end; ++si) {
-    looper::site_weight sw(mp.site(*si, rlat));
-    site_iterator vsi, vsi_end;
-    for (boost::tie(vsi, vsi_end) = virtual_sites(vlat, rlat, *si);
-	 vsi != vsi_end; ++vsi)
-      for (int g = 1; g <= 3; ++g)
-	if (alps::is_nonzero<1>(sw.v[g])) {
-	  gtab.push_back(looper::site_graph(boost::get(
-            looper::site_index_t(), vlat.graph(), *vsi), g));
-	  weight.push_back(sw.v[g]);
-	  rho += sw.v[g];
-	}
-  }
-  bond_iterator bi, bi_end;
-  for (boost::tie(bi, bi_end) = alps::bonds(rlat); bi != bi_end; ++bi) {
-    looper::bond_weight bw(mp.bond(*bi, rlat));
-    bond_iterator vbi, vbi_end;
-    for (boost::tie(vbi, vbi_end) = virtual_bonds(vlat, rlat, *bi);
-	 vbi != vbi_end; ++vbi)
-      for (int g = 1; g <= 4; ++g)
-	if (alps::is_nonzero<1>(bw.v[g])) {
-	  gtab.push_back(looper::bond_graph(boost::get(
-            looper::bond_index_t(), vlat.graph(), *vbi), g));
-	  weight.push_back(bw.v[g]);
-	  rho += bw.v[g];
-	}
-  }
-  if (mp.has_d_term())
-    for (boost::tie(si, si_end) = alps::sites(rlat); si != si_end; ++si) {
-      looper::bond_weight bw(mp.site(*si, rlat));
-      bond_iterator vbi, vbi_end;
-      for (boost::tie(vbi, vbi_end) = virtual_bonds(vlat, rlat, *si);
-	   vbi != vbi_end; ++vbi)
-	for (int g = 1; g <= 4; ++g)
-	  if (alps::is_nonzero<1>(bw.v[g])) {
-	    gtab.push_back(looper::bond_graph(boost::get(
-              looper::bond_index_t(), vlat.graph(), *vbi), g));
-	    weight.push_back(bw.v[g]);
-	    rho += bw.v[g];
-	  }
-    }
-  dist.init(weight);
-
-  return rho;
-}
-
 template<class MCRUN = alps::scheduler::LatticeModelMCRun<looper::graph_type> >
 class qmc_worker_base : public MCRUN
 {
@@ -103,9 +43,10 @@ public:
   qmc_worker_base(const alps::ProcessList& w, const alps::Parameters& p, int n)
     : super_type(w, p, n),
       mcs_therm_(static_cast<unsigned int>(p["THERMALIZATION"])),
-      mcs_sweep_(p["SWEEPS"]),
-      vlat_(), rho_(), gtab_(), 
-      r_graph(*super_type::engine_ptr, looper::random_choice<>()),
+      mcs_sweep_(p["SWEEPS"]), has_hz_(false),
+      vlat_(), gtab_(), otab_(),
+      r_graph_(*super_type::engine_ptr, looper::random_choice<>()),
+      r_time_(*super_type::engine_ptr, boost::exponential_distribution<>()),
       mcs_(0)
   {
     //
@@ -113,6 +54,7 @@ public:
     //
 
     looper::model_parameter mp(p, *this);
+    has_hz_ = mp.has_longitudinal_field();
     bool is_signed = mp.is_signed();
     bool is_classically_frustrated = mp.is_classically_frustrated();
     if (is_signed)
@@ -126,14 +68,13 @@ public:
 
     bool is_bipartite = alps::set_parity(super_type::graph());
     vlat_.generate(rlat(), mp, mp.has_d_term());
-    nvsites_ = alps::num_sites(vlat_);
-    nvbonds_ = alps::num_bonds(vlat_);
 
     //
-    // setup graph table
+    // setup graph table and random number generators
     //
 
-    rho_ = initialize(r_graph.distribution() , gtab_, rlat(), vlat(), mp);
+    double rho = initialize(mp);
+    r_time_.distribution() = boost::exponential_distribution<>(rho);
 
     //
     // init measurements
@@ -195,21 +136,27 @@ public:
   virtual ~qmc_worker_base() {}
 
   virtual void dostep() { ++mcs_; }
-
   bool is_thermalized() const { return mcs_ >= mcs_therm_; }
   double work_done() const
-  {
-    return is_thermalized() ? (double(mcs_) / mcs_sweep_.min()) : 0.;
-  }
+  { return is_thermalized() ? (double(mcs_) / mcs_sweep_.min()) : 0.; }
   unsigned int mcs() const { return mcs_; }
+
+  bool has_longitudinal_field() const { return has_hz_; }
 
   const graph_type& rlat() const { return super_type::graph(); }
   const looper::virtual_lattice<graph_type>& vlat() const { return vlat_; }
-  unsigned int nvsites() const { return nvsites_; }
-  unsigned int nvbonds() const { return nvbonds_; }
+  unsigned int vsource(unsigned int b) const
+  { return boost::source(*(looper::bonds(vlat_).first + b), vlat_.graph()); }
+  unsigned int vtarget(unsigned int b) const
+  { return boost::target(*(looper::bonds(vlat_).first + b), vlat_.graph()); }
 
-  double rho() const { return rho_; }
-  const std::vector<looper::local_graph>& graph_table() const { return gtab_; }
+  double advance() const { return r_time_(); }
+  const looper::local_graph& choose_graph() const { return gtab_[r_graph_()]; }
+  looper::local_graph choose_graph(const looper::location& loc) const
+  {
+    int g = (is_site(loc) || random() < otab_[pos(loc)]) ? 0 : 2;
+    return looper::local_graph(g, loc);
+  }
 
   virtual void save(alps::ODump& od) const {
     super_type::save(od);
@@ -221,18 +168,92 @@ public:
     if (super_type::where.empty()) super_type::measurements.compact();
   }
 
+protected:
+  double initialize(const looper::model_parameter& mp)
+  {
+    gtab_.clear();
+    otab_.clear();
+    std::vector<double> weight;
+    double rho = 0;
+    site_iterator si, si_end;
+    for (boost::tie(si, si_end) = alps::sites(rlat()); si != si_end; ++si) {
+      looper::site_weight sw(mp.site(*si, rlat()));
+      site_iterator vsi, vsi_end;
+      for (boost::tie(vsi, vsi_end) = virtual_sites(vlat_, rlat(), *si);
+           vsi != vsi_end; ++vsi)
+        for (int g = 0; g <= 2; ++g)
+          if (alps::is_nonzero<1>(sw.v[g])) {
+            gtab_.push_back(looper::site_graph(g, boost::get(
+              looper::site_index_t(), vlat_.graph(), *vsi)));
+            weight.push_back(sw.v[g]);
+            rho += sw.v[g];
+          }
+    }
+    bond_iterator bi, bi_end;
+    for (boost::tie(bi, bi_end) = alps::bonds(rlat()); bi != bi_end; ++bi) {
+      looper::bond_weight bw(mp.bond(*bi, rlat()));
+      bond_iterator vbi, vbi_end;
+      for (boost::tie(vbi, vbi_end) = virtual_bonds(vlat_, rlat(), *bi);
+           vbi != vbi_end; ++vbi) {
+        for (int g = 0; g <= 3; ++g)
+          if (alps::is_nonzero<1>(bw.v[g])) {
+            gtab_.push_back(looper::bond_graph(g, boost::get(
+              looper::bond_index_t(), vlat_.graph(), *vbi)));
+            weight.push_back(bw.v[g]);
+            rho += bw.v[g];
+          }
+        if (alps::is_nonzero<1>(bw.v[0] + bw.v[2]))
+          otab_.push_back(bw.v[0] / (bw.v[0] + bw.v[2]));
+        else
+          otab_.push_back(1);
+      }
+    }
+    if (mp.has_d_term())
+      for (boost::tie(si, si_end) = alps::sites(rlat()); si != si_end; ++si) {
+        looper::bond_weight bw(mp.site(*si, rlat()));
+        bond_iterator vbi, vbi_end;
+        for (boost::tie(vbi, vbi_end) = virtual_bonds(vlat_, rlat(), *si);
+             vbi != vbi_end; ++vbi)
+          for (int g = 0; g <= 3; ++g)
+            if (alps::is_nonzero<1>(bw.v[g])) {
+              gtab_.push_back(looper::bond_graph(g, boost::get(
+                looper::bond_index_t(), vlat_.graph(), *vbi)));
+              weight.push_back(bw.v[g]);
+              rho += bw.v[g];
+            }
+      }
+    r_graph_.distribution().init(weight);
+    return rho;
+  }
+
 private:
   unsigned int mcs_therm_;
   looper::integer_range<unsigned int> mcs_sweep_;
+  bool has_hz_;
   looper::virtual_lattice<graph_type> vlat_;
-  unsigned int nvsites_, nvbonds_;
-  double rho_;
-  std::vector<looper::local_graph> gtab_;
-  boost::variate_generator<alps::buffered_rng_base&, looper::random_choice<> >
-    r_graph;
+  std::vector<looper::local_graph> gtab_; // graph probability for diagonal conf
+  std::vector<double> otab_; // graph probability for offdiagonal conf
+  mutable boost::variate_generator<alps::buffered_rng_base&,
+                                   looper::random_choice<> > r_graph_;
+  mutable boost::variate_generator<alps::buffered_rng_base&,
+                                   boost::exponential_distribution<> > r_time_;
 
   // to be dumped/restored
   unsigned int mcs_;
+};
+
+template<class QMC> struct cluster_info;
+
+template<>
+struct cluster_info<looper::path_integral>
+{
+  cluster_info(bool t = false)
+    : to_flip(t), mag0(0), size(0), mag(0), length(0) {}
+  bool to_flip;
+  int mag0;
+  int size;
+  double mag;
+  double length;
 };
 
 template<class QMC,
@@ -246,87 +267,115 @@ public:
   typedef looper::path_integral qmc_type;
   typedef qmc_worker_base<MCRUN> super_type;
   typedef looper::local_operator<qmc_type>  local_operator;
-  typedef looper::cluster_fragment cluster_fragment;
-  typedef looper::cluster_info<qmc_type> qmc_type;
+  typedef looper::union_find::node_idx cluster_fragment;
+  typedef cluster_info<qmc_type> cluster_info;
+  typedef typename super_type::site_iterator site_iterator;
 
   qmc_worker(const alps::ProcessList& w, const alps::Parameters& p, int n)
     : super_type(w, p, n),
-      operators(0), spins(nvsites, 0 /* all up */), operators_prev(),
-      fragments(), current(nvsites), clusters(),
-      r_time(*engine_ptr, boost::exponential_distribution<>(rho()))
+      spins(looper::num_sites(super_type::vlat()), 0 /* all up */),
+      operators(0), beta(1.0 / static_cast<double>(p["T"])),
+      spins_curr(looper::num_sites(super_type::vlat())), operators_prev(),
+      fragments(), current(looper::num_sites(super_type::vlat())), clusters()
   {}
 
   void dostep()
   {
     super_type::dostep();
 
+    const int ns = looper::num_sites(super_type::vlat());
+
     //
     // diagonal update and cluster construction
     //
 
+    std::copy(spins.begin(), spins.end(), spins_curr.begin());
+
     // initialize cluster information (setup cluster fragments)
-    fragments.resize(0); fragments.resize(nvsites);
-    for (int s = 0; s < nvsites; ++s) current[s] = s;
-    
+    fragments.resize(0); fragments.resize(ns);
+    for (int s = 0; s < ns; ++s) current[s] = s;
+    int ghost = super_type::has_longitudinal_field() ? add(fragments) : 0;
+
     // initialize operator information
     std::swap(operators, operators_prev); operators.resize(0);
 
-    double t = r_time();
+    double t = super_type::advance();
 
     for (std::vector<local_operator>::iterator opi = operators_prev.begin();
          t < beta || opi != operators_prev.end();) {
 
-      // diagonal update
-      if (opi == operators_prev.end() || t < opi->time) {
-        // insert diagonal operator
-	local_graph g = graph_table(r_graph());
-	if (is_bond(g) && is_compatible(g, 
-					t += r_time();
+      // diagonal update & labeling
+      if (opi == operators_prev.end() || t < opi->time()) {
+        // insert diagonal operator and graph if compatible
+        looper::local_graph g = super_type::choose_graph();
+        if ((is_bond(g) &&
+             is_compatible(g, spins_curr[super_type::vsource(pos(g))],
+                           spins_curr[super_type::vtarget(pos(g))])) ||
+            (is_site(g) && is_compatible(g, spins_curr[pos(g)]))) {
+          operators.push_back(local_operator(g, t));
+          t += super_type::advance();
         } else {
-          // insert diagonal bond operator if spins are anti-parallel
-          unsigned int b = r_bond();
-          if (spins[super_type::source(super_type::bond(b))] !=
-              spins[super_type::target(super_type::bond(b))]) {
-            operators.push_back(local_operator_t(bond_diagonal, b, t));
-            t += r_time();
-          } else {
-            t += r_time();
-            continue;
-          }
+          t += super_type::advance();
+          continue;
         }
       } else {
         if (opi->is_diagonal()) {
-          // remove diagonal operators with probability one (= nothing to do)
+          // remove diagonal operator with probability one (= nothing to do)
           ++opi;
           continue;
         } else {
+          // assign graph to offdiagonal operator
+          opi->assign_graph(super_type::choose_graph(opi->loc()));
           operators.push_back(*opi);
           ++opi;
         }
       }
 
       // building up clusters
-      std::vector<local_operator_t>::reverse_iterator oi = operators.rbegin();
-      if (oi->is_site()) {
-        unsigned int s = oi->location;
-        oi->lower_loop = current[s];
-        oi->upper_loop = current[s] = add(fragments);
-        if (oi->is_offdiagonal()) spins[s] ^= 1;
-      } else {
-        unsigned int b = oi->location;
-        unsigned int s0 = super_type::source(super_type::bond(b));
-        unsigned int s1 = super_type::target(super_type::bond(b));
-        oi->lower_loop = unify(fragments, current[s0], current[s1]);
-        oi->upper_loop = current[s0] = current[s1] = add(fragments);
+      std::copy(spins.begin(), spins.end(), spins_curr.begin());
+      std::vector<local_operator>::reverse_iterator oi = operators.rbegin();
+      if (oi->is_bond()) {
+        unsigned int b = oi->pos();
+        unsigned int s0 = super_type::vsource(b);
+        unsigned int s1 = super_type::vtarget(b);
+        boost::tie(current[s0], current[s1], oi->loop0, oi->loop1) =
+          reconnect(fragments, oi->graph(), current[s0], current[s1]);
         if (oi->is_offdiagonal()) {
-          spins[s0] ^= 1;
-          spins[s1] ^= 1;
+          spins_curr[s0] ^= 1;
+          spins_curr[s1] ^= 1;
         }
+      } else {
+        unsigned int s = oi->pos();
+        boost::tie(current[s], oi->loop0, oi->loop1) =
+          reconnect(fragments, oi->graph(), current[s]);
+        if (oi->is_locked()) unify(fragments, ghost, current[s]);
+        if (oi->is_offdiagonal()) spins_curr[s] ^= 1;
       }
     }
 
-    // connect bottom and top cluster fragments
-    for (int s = 0; s < nsites; ++s) unify(fragments, s, current[s]);
+    // connect bottom and top cluster fragments after random permutation
+    {
+      std::vector<int> r, c0, c1;
+      site_iterator rsi, rsi_end;
+      for (boost::tie(rsi, rsi_end) = alps::sites(super_type::rlat());
+           rsi != rsi_end; ++rsi) {
+        site_iterator vsi, vsi_end;
+        boost::tie(vsi, vsi_end) =
+          virtual_sites(super_type::vlat(), super_type::rlat(), *rsi);
+        int offset = *vsi;
+        int s2 = *vsi_end - *vsi;
+        r.resize(s2); c0.resize(s2); c1.resize(s2);
+        for (int i = 0; i < s2; ++i) {
+          r[i] = i;
+          c0[i] = spins[offset+i];
+          c1[i] = spins_curr[offset+i];
+        }
+        looper::restricted_random_shuffle(r.begin(), r.end(), c0.begin(),
+          c0.end(), c1.begin(), c1.end(), *super_type::engine_ptr);
+        for (int i = 0; i < s2; ++i)
+          unify(fragments, offset+i, current[offset+r[i]]);
+      }
+    }
 
     //
     // cluster flip
@@ -334,49 +383,60 @@ public:
 
     // assign cluster id & determine if clusters are to be flipped
     clusters.resize(0);
-    for (std::vector<fragment_t>::iterator ci = fragments.begin();
+    for (std::vector<cluster_fragment>::iterator ci = fragments.begin();
          ci != fragments.end(); ++ci)
       if (ci->is_root()) {
         ci->id = clusters.size();
-        clusters.push_back(cluster_t(r_bit()));
+        clusters.push_back(cluster_info(random() < 0.5));
       }
+    if (super_type::has_longitudinal_field())
+      clusters[cluster_id(fragments, ghost)].to_flip = false;
 
-    // 'flip' operators & do improved measurements
-    for (std::vector<local_operator_t>::iterator oi = operators.begin();
-         oi != operators.end(); ++oi) {
-      int id_l = root(fragments, oi->lower_loop).id;
-      int id_u = root(fragments, oi->upper_loop).id;
-      if (oi->is_site()) {
-        unsigned int s = oi->location;
-        clusters[id_l].mag += (1 - 2 * spins[s]) * oi->time;
-        clusters[id_l].length += oi->time;
-        if (oi->is_offdiagonal()) spins[s] ^= 1;
-        clusters[id_u].mag -= (1 - 2 * spins[s]) * oi->time;
-        clusters[id_u].length -= oi->time;
-      } else {
-        unsigned int b = oi->location;
-        unsigned int s0 = super_type::source(super_type::bond(b));
-        unsigned int s1 = super_type::target(super_type::bond(b));
-        // clusters[id_l].mag += 0 * oi->time;
-        clusters[id_l].length += 2 * oi->time;
-        if (oi->is_offdiagonal()) {
-          spins[s0] ^= 1;
-          spins[s1] ^= 1;
+    // flip operators and spins & do improved measurements
+    if (!super_type::has_longitudinal_field()) {
+      std::copy(spins.begin(), spins.end(), spins_curr.begin());
+      for (std::vector<local_operator>::iterator oi = operators.begin();
+           oi != operators.end(); ++oi) {
+        int id_l = root(fragments, oi->loop0).id;
+        int id_u = root(fragments, oi->loop1).id;
+        if (oi->is_site()) {
+          unsigned int s = oi->pos();
+          clusters[id_l].mag += (1 - 2 * spins[s]) * oi->time();
+          clusters[id_l].length += oi->time();
+          if (oi->is_offdiagonal()) spins[s] ^= 1;
+          clusters[id_u].mag -= (1 - 2 * spins[s]) * oi->time();
+          clusters[id_u].length -= oi->time();
+        } else {
+          unsigned int b = oi->pos();
+          unsigned int s0 = super_type::vsource(b);
+          unsigned int s1 = super_type::vtarget(b);
+          // clusters[id_l].mag += 0 * oi->time;
+          clusters[id_l].length += 2 * oi->time();
+          if (oi->is_offdiagonal()) {
+            spins[s0] ^= 1;
+            spins[s1] ^= 1;
+          }
+          // clusters[id_u].mag -= 0 * oi->time;
+          clusters[id_u].length -= 2 * oi->time();
         }
-        // clusters[id_u].mag -= 0 * oi->time;
-        clusters[id_u].length -= 2 * oi->time;
+        if (clusters[id_l].to_flip ^ clusters[id_u].to_flip) oi->flip();
       }
-      if (clusters[id_l].to_flip ^ clusters[id_u].to_flip) oi->flip();
-    }
-
-    // flip spins & do improved measurements
-    for (unsigned int s = 0; s < nsites; ++s) {
-      int id = root(fragments, s).id;
-      clusters[id].mag0 += (1 - 2 * spins[s]);
-      clusters[id].size += 1;
-      clusters[id].mag += (1 - 2 * spins[s]) * beta;
-      clusters[id].length += beta;
-      if (clusters[id].to_flip) spins[s] ^= 1;
+      for (unsigned int s = 0; s < ns; ++s) {
+        int id = cluster_id(fragments, s);
+        clusters[id].mag0 += (1 - 2 * spins[s]);
+        clusters[id].size += 1;
+        clusters[id].mag += (1 - 2 * spins[s]) * beta;
+        clusters[id].length += beta;
+        if (clusters[id].to_flip) spins[s] ^= 1;
+      }
+    } else {
+      for (std::vector<local_operator>::iterator oi = operators.begin();
+           oi != operators.end(); ++oi)
+        if (clusters[cluster_id(fragments, oi->loop0)].to_flip ^
+            clusters[cluster_id(fragments, oi->loop1)].to_flip)
+          oi->flip();
+      for (unsigned int s = 0; s < ns; ++s)
+        if (clusters[cluster_id(fragments, s)].to_flip) spins[s] ^= 1;
     }
 
     //
@@ -389,50 +449,47 @@ public:
       double s2 = 0;
       double m2 = 0;
       double l2 = 0;
-      for (std::vector<cluster_t>::const_iterator
-             pi = clusters.begin(); pi != clusters.end(); ++pi) {
-        z2 += sqr(pi->mag0);
-        s2 += sqr(pi->size);
-        m2 += sqr(pi->mag);
-        l2 += sqr(pi->length);
+      std::vector<cluster_info>::iterator x;
+      for (std::vector<cluster_info>::iterator pi = clusters.begin();
+           pi != clusters.end(); ++pi) {
+        z2 += looper::sqr(pi->mag0);
+        s2 += looper::sqr(pi->size);
+        m2 += looper::sqr(pi->mag);
+        l2 += looper::sqr(pi->length);
       }
 
-      measurements["Energy"]
-        << (- 0.25 * model_parameter.bond().jz() * nbonds
-            + 0.5  * model_parameter.site().hx() * nsites
-            - (double)operators.size() / beta) / nsites;
-      measurements["Uniform Magnetization^2"] << 0.25 * z2 / nsites;
-      measurements["Staggered Magnetization^2"] << 0.25 * s2 / nsites;
-      measurements["Uniform Susceptibility"] << 0.25 * m2 / (beta * nsites);
-      measurements["Staggered Susceptibility"] << 0.25 * l2 / (beta * nsites);
+      int n = alps::num_sites(super_type::rlat());
+      super_type::measurements["Energy"]
+        << - (double)operators.size() / beta / n;
+      super_type::measurements["Uniform Magnetization^2"] << z2 / (4 * n);
+      super_type::measurements["Staggered Magnetization^2"] << s2 / (4 * n);
+      super_type::measurements["Uniform Susceptibility"] << m2 / (4 * beta * n);
+      super_type::measurements["Staggered Susceptibility"]
+        << l2 / (4 * beta * n);
     }
 
   }
 
-    
-  }
-    
   void save(alps::ODump& od) const {
     super_type::save(od);
-    od << operators << spins;
+    // od << operators << spins;
   }
   void load(alps::IDump& id) {
     super_type::load(id);
-    id >> operators >> spins;
+    // id >> operators >> spins;
   }
 
 private:
-  std::vector<local_operator> operators;
   std::vector<int> spins;
+  std::vector<local_operator> operators;
 
-  std::vector<local_operator> operators_prev; // no checkpointing
-  std::vector<cluster_fragment> fragments; // no checkpointing
-  std::vector<unsigned int> current; // no checkpointing
-  std::vector<cluster_info<qmc_type> > clusters; // no checkpointing
-
-  // RNGs
-  boost::variate_generator<alps::buffered_rng_base&,
-                           boost::exponential_distribution<> > r_time;
+  // no checkpointing
+  double beta;
+  std::vector<int> spins_curr;
+  std::vector<local_operator> operators_prev;
+  std::vector<cluster_fragment> fragments;
+  std::vector<unsigned int> current;
+  std::vector<cluster_info> clusters;
 };
 
 template<class MCRUN>
@@ -441,7 +498,7 @@ class qmc_worker<looper::sse, MCRUN> : public qmc_worker_base<MCRUN>
 public:
   typedef looper::sse qmc_type;
   typedef qmc_worker_base<MCRUN> super_type;
-  typedef looper::local_operator<qmc_type>  local_operator;
+  typedef looper::local_operator<qmc_type> local_operator;
 
   qmc_worker(const alps::ProcessList& w, const alps::Parameters& p, int n)
     : super_type(w, p, n)
