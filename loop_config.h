@@ -22,41 +22,14 @@
 *
 *****************************************************************************/
 
-#include "loop_factory.h"
-#include "loop_worker_pi.h"
-#include "loop_worker_sse.h"
+#ifndef LOOP_CONFIG_H
+#define LOOP_CONFIG_H
 
-alps::scheduler::MCSimulation* factory::make_task(const alps::ProcessList& w,
-  const boost::filesystem::path& fn) const
+#include <looper.h>
+
+struct loop_config
 {
-  return new alps::scheduler::MCSimulation(w, fn);
-}
+  typedef looper::graph_type graph_type;
+};
 
-alps::scheduler::MCSimulation* factory::make_task(const alps::ProcessList& w,
-  const boost::filesystem::path& fn, const alps::Parameters&) const
-{
-  return new alps::scheduler::MCSimulation(w, fn);
-}
-
-alps::scheduler::MCRun* factory::make_worker(const alps::ProcessList& w,
-  const alps::Parameters& p, int n) const
-{
-  return make_qmc_worker(w, p, n);
-}
-
-qmc_worker_base* factory::make_qmc_worker(const alps::ProcessList& w,
-  const alps::Parameters& p, int n) const
-{
-  if (!p.defined("REPRESENTATION") ||
-      p["REPRESENTATION"] == "path integral") {
-    return new qmc_worker_pi(w, p, n);
-  } else if (p["REPRESENTATION"] == "SSE") {
-    return new qmc_worker_sse(w, p, n);
-  } else {
-    boost::throw_exception(std::invalid_argument("unknwon representation"));
-  }
-  return 0;
-}
-
-void factory::print_copyright(std::ostream& os) const
-{ looper::print_copyright(os); }
+#endif // !LOOP_CONFIG_H

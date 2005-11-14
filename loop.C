@@ -78,7 +78,7 @@ int main(int argc, char** argv)
 
   std::cout << "[input parameters]\n" << params;
 
-  qmc_worker_base<>* sim =
+  qmc_worker_base* sim =
     factory().make_qmc_worker(alps::ProcessList(1), params, 0);
   boost::timer tm;
 

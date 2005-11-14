@@ -227,7 +227,7 @@ class local_operator;
 template<>
 class local_operator<sse> {
 public:
-  local_operator() {}
+  local_operator() : type_(local_operator_type::identity), loc_() {}
   local_operator(int type, const location& loc) : type_(type), loc_(loc) {}
   local_operator(const local_graph& g)
     : type_(local_operator_type::diagonal & (g.type() << 2)), loc_(g.loc()) {}
@@ -239,12 +239,6 @@ public:
   { return type() == local_operator_type::offdiagonal; }
   bool is_identity() const { return type() == local_operator_type::identity; }
 
-  local_operator& operator=(const local_graph& g)
-  {
-    type_ = local_operator_type::diagonal & (g.type() << 2);
-    loc_ = g.loc();
-    return *this;
-  }
   local_graph graph() const { return local_graph(graph_type(), loc_); }
   void assign_graph(const local_graph g) { type_ = type() & (g.type() << 2); }
   void clear_graph() { type_ &= 3; }

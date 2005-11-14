@@ -416,26 +416,20 @@ private:
 };
 
 template<class G>
-std::pair<typename graph_traits<looper::virtual_lattice<G> >::vertex_iterator,
-          typename graph_traits<looper::virtual_lattice<G> >::vertex_iterator>
-vertices(const looper::virtual_lattice<G>& vl)
-{ return vertices(vl.graph()); }
-
-template<class G>
-std::pair<typename graph_traits<looper::virtual_lattice<G> >::site_iterator,
-          typename graph_traits<looper::virtual_lattice<G> >::site_iterator>
-sites(const looper::virtual_lattice<G>& vl)
-{ return sites(vl.graph()); }
-
-template<class G>
 typename graph_traits<looper::virtual_lattice<G> >::vertices_size_type
 num_vertices(const looper::virtual_lattice<G>& vl)
 { return num_vertices(vl.graph()); }
 
 template<class G>
-typename graph_traits<looper::virtual_lattice<G> >::sites_size_type
-num_sites(const looper::virtual_lattice<G>& vl)
-{ return num_sites(vl.graph()); }
+typename graph_traits<looper::virtual_lattice<G> >::edges_size_type
+num_edges(const looper::virtual_lattice<G>& vl)
+{ return num_edges(vl.graph()); }
+
+template<class G>
+std::pair<typename graph_traits<looper::virtual_lattice<G> >::vertex_iterator,
+          typename graph_traits<looper::virtual_lattice<G> >::vertex_iterator>
+vertices(const looper::virtual_lattice<G>& vl)
+{ return vertices(vl.graph()); }
 
 template<class G>
 std::pair<typename graph_traits<looper::virtual_lattice<G> >::edge_iterator,
@@ -444,33 +438,10 @@ edges(const looper::virtual_lattice<G>& vl)
 { return edges(vl.graph()); }
 
 template<class G>
-std::pair<typename graph_traits<looper::virtual_lattice<G> >::bond_iterator,
-          typename graph_traits<looper::virtual_lattice<G> >::bond_iterator>
-bonds(const looper::virtual_lattice<G>& vl)
-{ return bonds(vl.graph()); }
-
-template<class G>
-typename graph_traits<looper::virtual_lattice<G> >::edges_size_type
-num_edges(const looper::virtual_lattice<G>& vl)
-{ return num_edges(vl.graph()); }
-
-template<class G>
-typename graph_traits<looper::virtual_lattice<G> >::bonds_size_type
-num_bonds(const looper::virtual_lattice<G>& vl)
-{ return num_edges(vl.graph()); }
-
-template<class G>
 std::pair<typename graph_traits<looper::virtual_lattice<G> >::vertex_iterator,
           typename graph_traits<looper::virtual_lattice<G> >::vertex_iterator>
 virtual_vertices(const virtual_lattice<G>& vl, const G& rg,
   const typename graph_traits<G>::vertex_descriptor& rv)
-{ return vl.virtual_vertices(rg, rv); }
-
-template<class G>
-std::pair<typename graph_traits<looper::virtual_lattice<G> >::site_iterator,
-          typename graph_traits<looper::virtual_lattice<G> >::site_iterator>
-virtual_sites(const virtual_lattice<G>& vl, const G& rg,
-  const typename graph_traits<G>::site_descriptor& rv)
 { return vl.virtual_vertices(rg, rv); }
 
 template<class G>
@@ -481,18 +452,48 @@ virtual_edges(const virtual_lattice<G>& vl, const G& rg,
 { return vl.virtual_edges(rg, re); }
 
 template<class G>
-std::pair<typename graph_traits<looper::virtual_lattice<G> >::bond_iterator,
-          typename graph_traits<looper::virtual_lattice<G> >::bond_iterator>
-virtual_bonds(const virtual_lattice<G>& vl, const G& rg,
-  const typename graph_traits<G>::bond_descriptor& re)
-{ return vl.virtual_edges(rg, re); }
-
-template<class G>
 std::pair<typename graph_traits<looper::virtual_lattice<G> >::edge_iterator,
           typename graph_traits<looper::virtual_lattice<G> >::edge_iterator>
 virtual_edges(const virtual_lattice<G>& vl, const G& rg,
   const typename graph_traits<G>::vertex_descriptor& rv)
 { return vl.virtual_edges(rg, rv); }
+
+
+template<class G>
+typename graph_traits<looper::virtual_lattice<G> >::sites_size_type
+num_sites(const looper::virtual_lattice<G>& vl)
+{ return num_sites(vl.graph()); }
+
+template<class G>
+std::pair<typename graph_traits<looper::virtual_lattice<G> >::site_iterator,
+          typename graph_traits<looper::virtual_lattice<G> >::site_iterator>
+sites(const looper::virtual_lattice<G>& vl)
+{ return sites(vl.graph()); }
+
+template<class G>
+std::pair<typename graph_traits<looper::virtual_lattice<G> >::bond_iterator,
+          typename graph_traits<looper::virtual_lattice<G> >::bond_iterator>
+bonds(const looper::virtual_lattice<G>& vl)
+{ return bonds(vl.graph()); }
+
+template<class G>
+typename graph_traits<looper::virtual_lattice<G> >::bonds_size_type
+num_bonds(const looper::virtual_lattice<G>& vl)
+{ return num_edges(vl.graph()); }
+
+template<class G>
+std::pair<typename graph_traits<looper::virtual_lattice<G> >::site_iterator,
+          typename graph_traits<looper::virtual_lattice<G> >::site_iterator>
+virtual_sites(const virtual_lattice<G>& vl, const G& rg,
+  const typename graph_traits<G>::site_descriptor& rv)
+{ return vl.virtual_vertices(rg, rv); }
+
+template<class G>
+std::pair<typename graph_traits<looper::virtual_lattice<G> >::bond_iterator,
+          typename graph_traits<looper::virtual_lattice<G> >::bond_iterator>
+virtual_bonds(const virtual_lattice<G>& vl, const G& rg,
+  const typename graph_traits<G>::bond_descriptor& re)
+{ return vl.virtual_edges(rg, re); }
 
 template<class G>
 std::pair<typename graph_traits<looper::virtual_lattice<G> >::bond_iterator,
