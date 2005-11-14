@@ -27,8 +27,7 @@
 qmc_worker_pi::qmc_worker_pi(const alps::ProcessList& w,
 			     const alps::Parameters& p, int n)
   : super_type(w, p, n),
-    nrs(alps::detail::num_sites_wrap(rlat())),
-    nvs(alps::detail::num_sites_wrap(vlat())), 
+    nrs(num_sites(rlat())), nvs(num_sites(vlat())), 
     beta(1.0 / static_cast<double>(p["T"])),
     spins(nvs, 0 /* all up */), operators(0), 
     spins_curr(nvs), operators_prev(), fragments(), current(nvs), clusters()
@@ -105,8 +104,7 @@ void qmc_worker_pi::dostep()
   // connect bottom and top cluster fragments after random permutation
   std::vector<int> r, c0, c1;
   super_type::site_iterator rsi, rsi_end;
-  for (boost::tie(rsi, rsi_end) = alps::detail::sites_wrap(rlat());
-       rsi != rsi_end; ++rsi) {
+  for (boost::tie(rsi, rsi_end) = sites(rlat()); rsi != rsi_end; ++rsi) {
     super_type::site_iterator vsi, vsi_end;
     boost::tie(vsi, vsi_end) = virtual_sites(vlat(), rlat(), *rsi);
     int offset = *vsi;

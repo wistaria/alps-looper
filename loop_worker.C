@@ -136,8 +136,7 @@ double qmc_worker_base::initialize(const looper::model_parameter& mp)
   std::vector<double> weight;
   double rho = 0;
   site_iterator si, si_end;
-  for (boost::tie(si, si_end) = alps::detail::sites_wrap(rlat());
-       si != si_end; ++si) {
+  for (boost::tie(si, si_end) = sites(rlat()); si != si_end; ++si) {
     looper::site_weight sw(mp.site(*si, rlat()));
     site_iterator vsi, vsi_end;
     for (boost::tie(vsi, vsi_end) = virtual_sites(vlat_, rlat(), *si);
@@ -151,8 +150,7 @@ double qmc_worker_base::initialize(const looper::model_parameter& mp)
         }
   }
   bond_iterator bi, bi_end;
-  for (boost::tie(bi, bi_end) = alps::detail::bonds_wrap(rlat());
-       bi != bi_end; ++bi) {
+  for (boost::tie(bi, bi_end) = bonds(rlat()); bi != bi_end; ++bi) {
     looper::bond_weight bw(mp.bond(*bi, rlat()));
     bond_iterator vbi, vbi_end;
     for (boost::tie(vbi, vbi_end) = virtual_bonds(vlat_, rlat(), *bi);
@@ -171,8 +169,7 @@ double qmc_worker_base::initialize(const looper::model_parameter& mp)
     }
   }
   if (mp.has_d_term())
-    for (boost::tie(si, si_end) = alps::detail::sites_wrap(rlat());
-	 si != si_end; ++si) {
+    for (boost::tie(si, si_end) = sites(rlat()); si != si_end; ++si) {
       looper::bond_weight bw(mp.site(*si, rlat()));
       bond_iterator vbi, vbi_end;
       for (boost::tie(vbi, vbi_end) = virtual_bonds(vlat_, rlat(), *si);
