@@ -47,14 +47,14 @@ void output(const alps::graph_helper<G>& gh,
 
   // site parameters
   site_iterator vi, vi_end;
-  for (boost::tie(vi, vi_end) = sites(gh.graph()); vi != vi_end; ++vi) {
+  for (boost::tie(vi, vi_end) = gh.sites(); vi != vi_end; ++vi) {
     std::cout << "site " << *vi << ": type = " << gh.site_type(*vi)
               << ", S = " << m.site(*vi, gh.graph()).s << std::endl;
   }
 
   // bond parameters
   bond_iterator ei, ei_end;
-  for (boost::tie(ei, ei_end) = bonds(gh.graph()); ei != ei_end; ++ei) {
+  for (boost::tie(ei, ei_end) = gh.bonds(); ei != ei_end; ++ei) {
     std::cout << "bond " << *ei << ": type = " << gh.bond_type(*ei)
               << ", " << m.bond(*ei, gh.graph()) << std::endl;
   }

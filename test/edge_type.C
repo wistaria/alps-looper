@@ -50,44 +50,43 @@ int main(int , char**)
   do {
     int a = rng();
     int b = rng();
-    boost::graph_traits<Graph>::edge_descriptor
-      e = boost::add_edge(a,b,g).first;
-    boost::put(boost::edge_index, g, e, boost::num_edges(g)-1);
+    boost::graph_traits<Graph>::edge_descriptor e = add_edge(a,b,g).first;
+    put(boost::edge_index, g, e, num_edges(g)-1);
     std::cout << "add edge: " << a << " -- " << b << std::endl;
-  } while (boost::connected_components(g, &component[0]) > 1);
+  } while (connected_components(g, &component[0]) > 1);
 
   typedef boost::default_color_type color_type;
   typedef boost::color_traits<color_type> color;
   std::vector<boost::default_color_type> vcolor_map(nv);
-  std::vector<boost::default_color_type> ecolor_map(boost::num_edges(g));
-  std::vector<boost::default_color_type> etype_map(boost::num_edges(g));
+  std::vector<boost::default_color_type> ecolor_map(num_edges(g));
+  std::vector<boost::default_color_type> etype_map(num_edges(g));
 
-  boost::undirected_dfs(
+  undirected_dfs(
     g,
     boost::make_dfs_visitor(
       std::make_pair(
         looper::stamp_edge(
           boost::make_iterator_property_map(
             etype_map.begin(),
-            boost::get(boost::edge_index, g)),
+            get(boost::edge_index, g)),
           color::white(),
           boost::on_tree_edge()),
         looper::stamp_edge(
           boost::make_iterator_property_map(
             etype_map.begin(),
-            boost::get(boost::edge_index, g)),
+            get(boost::edge_index, g)),
           color::black(),
           boost::on_back_edge()))),
     boost::make_iterator_property_map(vcolor_map.begin(),
-      boost::get(boost::vertex_index, g)),
+      get(boost::vertex_index, g)),
     boost::make_iterator_property_map(ecolor_map.begin(),
-      boost::get(boost::edge_index, g)));
+      get(boost::edge_index, g)));
 
   boost::graph_traits<Graph>::edge_iterator ei, ei_end;
-  for (boost::tie(ei, ei_end) = boost::edges(g); ei != ei_end; ++ei) {
-    int i = boost::get(boost::edge_index, g, *ei);
-    std::cout << "edge " << i << " (" << boost::source(*ei,g) << " -- "
-               << boost::target(*ei,g) << ") is "
+  for (boost::tie(ei, ei_end) = edges(g); ei != ei_end; ++ei) {
+    int i = get(boost::edge_index, g, *ei);
+    std::cout << "edge " << i << " (" << source(*ei,g) << " -- "
+               << target(*ei,g) << ") is "
                << (etype_map[i] == color::white() ? "tree" : "back")
                << " edge\n";
   }

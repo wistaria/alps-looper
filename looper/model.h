@@ -331,9 +331,9 @@ public:
     const G& g) const
   {
     return inhomogeneous_site() ?
-      sites_[boost::get(site_index_t(), g, v)] :
+      sites_[get(site_index_t(), g, v)] :
       (uniform_site() ? sites_[0] :
-       sites_[boost::get(site_type_t(), g, v)]);
+       sites_[get(site_type_t(), g, v)]);
   }
   const site_parameter& site() const
   {
@@ -350,9 +350,9 @@ public:
     const G& g) const
   {
     return inhomogeneous_bond() ?
-      bonds_[boost::get(bond_index_t(), g, e)] :
+      bonds_[get(bond_index_t(), g, e)] :
       (uniform_bond() ? bonds_[0] :
-       bonds_[boost::get(bond_type_t(), g, e)]);
+       bonds_[get(bond_type_t(), g, e)]);
   }
   const bond_parameter& bond() const
   {
@@ -552,8 +552,8 @@ void model_parameter::set_parameters_impl(alps::Parameters params, const G& g,
     alps::type_type type_max = 0;
     site_iterator vi, vi_end;
     for (boost::tie(vi, vi_end) = sites(g); vi != vi_end; ++vi) {
-      type_min = std::min(type_min, boost::get(site_type_t(), g, *vi));
-      type_max = std::max(type_min, boost::get(site_type_t(), g, *vi));
+      type_min = std::min(type_min, get(site_type_t(), g, *vi));
+      type_max = std::max(type_min, get(site_type_t(), g, *vi));
     }
     if (alps::is_negative(type_min) || type_max > num_sites(g)) {
       use_site_index_ = true;
@@ -572,9 +572,9 @@ void model_parameter::set_parameters_impl(alps::Parameters params, const G& g,
         alps::throw_if_xyz_defined(params, g);
         p << alps::coordinate_as_parameter(g, *vi);
       }
-      unsigned int i = boost::get(site_index_t(), g, *vi);
-      unsigned int t = boost::get(site_type_t(), g, *vi);
-      sites_[i] = site_parameter(alps::get_matrix(double(), hd.site_term(t),
+      unsigned int i = get(site_index_t(), g, *vi);
+      unsigned int t = get(site_type_t(), g, *vi);
+      sites_[i] = site_parameter(get_matrix(double(), hd.site_term(t),
         hd.basis().site_basis(t), p));
       if (alps::is_nonzero<1>(sites_[i].hz)) has_hz_ = true;
       if (alps::is_nonzero<1>(sites_[i].d)) has_d_ = true;
@@ -583,9 +583,9 @@ void model_parameter::set_parameters_impl(alps::Parameters params, const G& g,
     std::vector<bool> checked(sites_.size(), false);
     site_iterator vi, vi_end;
     for (boost::tie(vi, vi_end) = sites(g); vi != vi_end; ++vi) {
-      unsigned int t = boost::get(site_type_t(), g, *vi);
+      unsigned int t = get(site_type_t(), g, *vi);
       if (!checked[t]) {
-        sites_[t] = site_parameter(alps::get_matrix(double(), hd.site_term(t),
+        sites_[t] = site_parameter(get_matrix(double(), hd.site_term(t),
           hd.basis().site_basis(t), params));
         if (alps::is_nonzero<1>(sites_[t].hz)) has_hz_ = true;
         if (alps::is_nonzero<1>(sites_[t].d)) has_d_ = true;
@@ -608,17 +608,17 @@ void model_parameter::set_parameters_impl(alps::Parameters params, const G& g,
       vtype;
     bond_iterator ei, ei_end;
     for (boost::tie(ei, ei_end) = bonds(g); ei != ei_end; ++ei) {
-      type_min = std::min(type_min, boost::get(bond_type_t(), g, *ei));
-      type_max = std::max(type_max, boost::get(bond_type_t(), g, *ei));
-      unsigned int t = boost::get(bond_type_t(), g, *ei);
+      type_min = std::min(type_min, get(bond_type_t(), g, *ei));
+      type_max = std::max(type_max, get(bond_type_t(), g, *ei));
+      unsigned int t = get(bond_type_t(), g, *ei);
       if (vtype.find(t) == vtype.end()) {
         vtype[t] = std::make_pair(
-          boost::get(site_type_t(), g, boost::source(*ei, g)),
-          boost::get(site_type_t(), g, boost::target(*ei, g)));
+          get(site_type_t(), g, source(*ei, g)),
+          get(site_type_t(), g, target(*ei, g)));
       } else {
         if (vtype[t] != std::make_pair(
-          boost::get(site_type_t(), g, boost::source(*ei, g)),
-          boost::get(site_type_t(), g, boost::target(*ei, g)))) {
+          get(site_type_t(), g, source(*ei, g)),
+          get(site_type_t(), g, target(*ei, g)))) {
           use_bond_index_ = true;
           break;
         }
@@ -642,13 +642,11 @@ void model_parameter::set_parameters_impl(alps::Parameters params, const G& g,
         alps::throw_if_xyz_defined(params, g);
         p << alps::coordinate_as_parameter(g, *ei);
       }
-      unsigned int i = boost::get(bond_index_t(), g, *ei);
-      unsigned int t = boost::get(bond_type_t(), g, *ei);
-      unsigned int st0 =
-        boost::get(site_type_t(), g, boost::source(*ei, g));
-      unsigned int st1 =
-        boost::get(site_type_t(), g, boost::target(*ei, g));
-      bonds_[i] = bond_parameter(alps::get_matrix(double(), hd.bond_term(t),
+      unsigned int i = get(bond_index_t(), g, *ei);
+      unsigned int t = get(bond_type_t(), g, *ei);
+      unsigned int st0 = get(site_type_t(), g, source(*ei, g));
+      unsigned int st1 = get(site_type_t(), g, target(*ei, g));
+      bonds_[i] = bond_parameter(get_matrix(double(), hd.bond_term(t),
         hd.basis().site_basis(st0),
         hd.basis().site_basis(st1), p));
     }
@@ -656,13 +654,11 @@ void model_parameter::set_parameters_impl(alps::Parameters params, const G& g,
     std::vector<bool> checked(bonds_.size(), false);
     bond_iterator ei, ei_end;
     for (boost::tie(ei, ei_end) = bonds(g); ei != ei_end; ++ei) {
-      unsigned int t = boost::get(bond_type_t(), g, *ei);
+      unsigned int t = get(bond_type_t(), g, *ei);
       if (!checked[t]) {
-        unsigned int st0 =
-          boost::get(site_type_t(), g, boost::source(*ei, g));
-        unsigned int st1 =
-          boost::get(site_type_t(), g, boost::target(*ei, g));
-        bonds_[t] = bond_parameter(alps::get_matrix(double(), hd.bond_term(t),
+        unsigned int st0 = get(site_type_t(), g, source(*ei, g));
+        unsigned int st1 = get(site_type_t(), g, target(*ei, g));
+        bonds_[t] = bond_parameter(get_matrix(double(), hd.bond_term(t),
           hd.basis().site_basis(st0),
           hd.basis().site_basis(st1), params));
         checked[t] = true;
@@ -677,7 +673,7 @@ bool model_parameter::check_sign(const G& g) const
   std::vector<double> w(num_bonds(g));
   typename alps::graph_traits<G>::bond_iterator ei, ei_end;
   for (boost::tie(ei, ei_end) = bonds(g); ei != ei_end; ++ei) {
-    unsigned int i = boost::get(bond_index_t(), g, *ei);
+    unsigned int i = get(bond_index_t(), g, *ei);
     if (alps::is_zero<1>(bond(*ei, g).jxy)) {
       w[i] = 0;
     } else if (bond(*ei, g).jxy > 0) {
@@ -687,7 +683,7 @@ bool model_parameter::check_sign(const G& g) const
     }
   }
   return alps::is_frustrated(g, boost::make_iterator_property_map(w.begin(),
-    boost::get(bond_index_t(), g)));
+    get(bond_index_t(), g)));
 }
 
 template<typename G>
@@ -696,7 +692,7 @@ bool model_parameter::check_classical_frustration(const G& g) const
   std::vector<double> w(num_bonds(g));
   typename alps::graph_traits<G>::bond_iterator ei, ei_end;
   for (boost::tie(ei, ei_end) = bonds(g); ei != ei_end; ++ei) {
-    unsigned int i = boost::get(bond_index_t(), g, *ei);
+    unsigned int i = get(bond_index_t(), g, *ei);
     if (alps::is_zero<1>(bond(*ei, g).jz)) {
       w[i] = 0;
     } else if (bond(*ei, g).jz > 0) {
@@ -707,7 +703,7 @@ bool model_parameter::check_classical_frustration(const G& g) const
   }
   bool frustrated =
     alps::is_frustrated(g, boost::make_iterator_property_map(w.begin(),
-      boost::get(bond_index_t(), g)));
+      get(bond_index_t(), g)));
 
   if (has_d_ && !frustrated) {
     typename alps::graph_traits<G>::site_iterator vi, vi_end;

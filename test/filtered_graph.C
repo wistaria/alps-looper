@@ -47,16 +47,16 @@ struct my_visitor : public boost::dfs_visitor<> {
     std::cout << "finish_vertex: " << v << std::endl;
   }
   void examine_edge(Edge e, const Graph& g) {
-    std::cout << "examine_edge: " << boost::source(e, g) << " -- "
-              << boost::target(e, g) << std::endl;
+    std::cout << "examine_edge: " << source(e, g) << " -- "
+              << target(e, g) << std::endl;
   }
   void back_edge(Edge e, const Graph& g) {
-    std::cout << "back_edge: " << boost::source(e, g) << " -- "
-              << boost::target(e, g) << std::endl;
+    std::cout << "back_edge: " << source(e, g) << " -- "
+              << target(e, g) << std::endl;
   }
   void tree_edge(Edge e, const Graph& g) {
-    std::cout << "tree_edge: " << boost::source(e, g) << " -- "
-              << boost::target(e, g) << std::endl;
+    std::cout << "tree_edge: " << source(e, g) << " -- "
+              << target(e, g) << std::endl;
   }
 };
 
@@ -78,42 +78,42 @@ int main(int , char**)
 
   int a0 = 0;
   int b0 = 1;
-  Edge e = boost::add_edge(a0,b0,g).first;
-  boost::put(boost::edge_index, g, e, boost::num_edges(g)-1);
+  Edge e = add_edge(a0,b0,g).first;
+  put(boost::edge_index, g, e, num_edges(g)-1);
   std::cout << "add edge: " << a0 << " -- " << b0 << std::endl;
   std::vector<int> component(nv);
   do {
     int a = rng();
     int b = rng();
     if ((a != a0 || b != b0) && (a != b0 || b != a0)) {
-      Edge e = boost::add_edge(a,b,g).first;
-      boost::put(boost::edge_index, g, e, boost::num_edges(g)-1);
+      Edge e = add_edge(a,b,g).first;
+      put(boost::edge_index, g, e, num_edges(g)-1);
       std::cout << "add edge: " << a << " -- " << b << std::endl;
     }
-  } while (boost::connected_components(g, &component[0]) > 1);
+  } while (connected_components(g, &component[0]) > 1);
 
-  std::vector<boost::default_color_type> vcolor_map(boost::num_vertices(g));
-  std::vector<boost::default_color_type> ecolor_map(boost::num_edges(g));
+  std::vector<boost::default_color_type> vcolor_map(num_vertices(g));
+  std::vector<boost::default_color_type> ecolor_map(num_edges(g));
 
   std::cout << "DFS on original graph\n";
-  boost::undirected_dfs(
+  undirected_dfs(
     g,
     my_visitor<Graph>(),
     boost::make_iterator_property_map(vcolor_map.begin(),
-      boost::get(boost::vertex_index, g)),
+      get(boost::vertex_index, g)),
     boost::make_iterator_property_map(ecolor_map.begin(),
-      boost::get(boost::edge_index, g)));
+      get(boost::edge_index, g)));
 
   std::cout << "DFS on filtered graph (edge 0 -- 1 is removed)\n";
-  boost::undirected_dfs(
-    looper::mask_edge(g, *boost::edges(g).first),
+  undirected_dfs(
+    looper::mask_edge(g, *edges(g).first),
     my_visitor<boost::filtered_graph<Graph, looper::edge_mask<Graph> > >(),
     boost::make_iterator_property_map(vcolor_map.begin(),
-      boost::get(boost::vertex_index,
-        looper::mask_edge(g, *boost::edges(g).first))),
+      get(boost::vertex_index,
+        looper::mask_edge(g, *edges(g).first))),
     boost::make_iterator_property_map(ecolor_map.begin(),
-      boost::get(boost::edge_index,
-        looper::mask_edge(g, *boost::edges(g).first))));
+      get(boost::edge_index,
+        looper::mask_edge(g, *edges(g).first))));
 
   return 0;
 }

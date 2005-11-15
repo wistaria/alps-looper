@@ -103,9 +103,9 @@ void qmc_worker_pi::dostep()
 
   // connect bottom and top cluster fragments after random permutation
   std::vector<int> r, c0, c1;
-  super_type::site_iterator rsi, rsi_end;
+  site_iterator rsi, rsi_end;
   for (boost::tie(rsi, rsi_end) = sites(rlat()); rsi != rsi_end; ++rsi) {
-    super_type::site_iterator vsi, vsi_end;
+    site_iterator vsi, vsi_end;
     boost::tie(vsi, vsi_end) = virtual_sites(vlat(), rlat(), *rsi);
     int offset = *vsi;
     int s2 = *vsi_end - *vsi;

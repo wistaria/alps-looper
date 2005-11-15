@@ -51,10 +51,8 @@ public:
 
   const graph_type& rlat() const { return super_type::graph(); }
   const looper::virtual_lattice<graph_type>& vlat() const { return vlat_; }
-  unsigned int vsource(unsigned int b) const
-  { return boost::source(*(looper::bonds(vlat_).first + b), vlat_.graph()); }
-  unsigned int vtarget(unsigned int b) const
-  { return boost::target(*(looper::bonds(vlat_).first + b), vlat_.graph()); }
+  unsigned int vsource(unsigned int b) const { return source(bond(b, vlat_)); }
+  unsigned int vtarget(unsigned int b) const { return target(bond(b, vlat_)); }
 
   double advance() const { return r_time_(); }
   const looper::local_graph& choose_graph() const { return gtab_[r_graph_()]; }

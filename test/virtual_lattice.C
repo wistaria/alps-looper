@@ -43,7 +43,7 @@ struct vector_spin_wrapper
   template<class G>
   spin_wrapper site(const typename alps::graph_traits<G>::site_descriptor& v,
     const G& g) const
-  { return spin_wrapper(vec_[boost::get(looper::site_type_t(), g, v)]); }
+  { return spin_wrapper(vec_[get(looper::site_type_t(), g, v)]); }
   const std::vector<value_type>& vec_;
 };
 
