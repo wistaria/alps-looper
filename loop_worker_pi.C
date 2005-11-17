@@ -25,12 +25,12 @@
 #include "loop_worker_pi.h"
 
 qmc_worker_pi::qmc_worker_pi(const alps::ProcessList& w,
-			     const alps::Parameters& p, int n)
+                             const alps::Parameters& p, int n)
   : super_type(w, p, n),
-    nrs(num_sites(rlat())), nvs(num_sites(vlat())), 
+    nrs(num_sites(rlat())), nvs(num_sites(vlat())),
     beta(1.0 / static_cast<double>(p["T"])),
-    spins(nvs, 0 /* all up */), operators(0), 
-    spins_curr(nvs), operators_prev(), fragments(), current(nvs), clusters()
+    spins(nvs, 0 /* all up */), operators(0),
+    spins_c(nvs), operators_p(), fragments(), current(nvs), clusters()
 {}
 
 void qmc_worker_pi::dostep()
@@ -42,8 +42,8 @@ void qmc_worker_pi::dostep()
   //
 
   // initialize spin & operator information
-  std::copy(spins.begin(), spins.end(), spins_curr.begin());
-  std::swap(operators, operators_prev); operators.resize(0);
+  std::copy(spins.begin(), spins.end(), spins_c.begin());
+  std::swap(operators, operators_p); operators.resize(0);
 
   // initialize cluster information (setup cluster fragments)
   fragments.resize(0); fragments.resize(nvs);
@@ -51,17 +51,16 @@ void qmc_worker_pi::dostep()
   int ghost = has_longitudinal_field() ? add(fragments) : 0;
 
   double t = advance();
-  for (std::vector<local_operator>::iterator opi = operators_prev.begin();
-       t < beta || opi != operators_prev.end();) {
+  for (std::vector<local_operator>::iterator opi = operators_p.begin();
+       t < beta || opi != operators_p.end();) {
 
     // diagonal update & labeling
-    if (opi == operators_prev.end() || t < opi->time()) {
+    if (opi == operators_p.end() || t < opi->time()) {
       // insert diagonal operator and graph if compatible
-      looper::local_graph g = choose_graph();
-      if ((is_bond(g) &&
-           is_compatible(g, spins_curr[vsource(pos(g))],
-                         spins_curr[vtarget(pos(g))])) ||
-          (is_site(g) && is_compatible(g, spins_curr[pos(g)]))) {
+      local_graph g = choose_graph();
+      if ((is_bond(g) && is_compatible(g, spins_c[vsource(pos(g))],
+                                       spins_c[vtarget(pos(g))])) ||
+          (is_site(g) && is_compatible(g, spins_c[pos(g)]))) {
         operators.push_back(local_operator(g, t));
         t += advance();
       } else {
@@ -83,21 +82,20 @@ void qmc_worker_pi::dostep()
 
     std::vector<local_operator>::reverse_iterator oi = operators.rbegin();
     if (oi->is_bond()) {
-      int b = oi->pos();
-      int s0 = vsource(b);
-      int s1 = vtarget(b);
+      int s0 = vsource(oi->pos());
+      int s1 = vtarget(oi->pos());
       boost::tie(current[s0], current[s1], oi->loop0, oi->loop1) =
         reconnect(fragments, oi->graph(), current[s0], current[s1]);
       if (oi->is_offdiagonal()) {
-        spins_curr[s0] ^= 1;
-        spins_curr[s1] ^= 1;
+        spins_c[s0] ^= 1;
+        spins_c[s1] ^= 1;
       }
     } else {
       int s = oi->pos();
       boost::tie(current[s], oi->loop0, oi->loop1) =
         reconnect(fragments, oi->graph(), current[s]);
       if (oi->is_locked()) unify(fragments, ghost, current[s]);
-      if (oi->is_offdiagonal()) spins_curr[s] ^= 1;
+      if (oi->is_offdiagonal()) spins_c[s] ^= 1;
     }
   }
 
@@ -113,11 +111,11 @@ void qmc_worker_pi::dostep()
     for (int i = 0; i < s2; ++i) {
       r[i] = i;
       c0[i] = spins[offset+i];
-      c1[i] = spins_curr[offset+i];
+      c1[i] = spins_c[offset+i];
     }
     looper::restricted_random_shuffle(r.begin(), r.end(), c0.begin(),
-				      c0.end(), c1.begin(), c1.end(),
-				      *engine_ptr);
+                                      c0.end(), c1.begin(), c1.end(),
+                                      *engine_ptr);
     for (int i = 0; i < s2; ++i)
       unify(fragments, offset+i, current[offset+r[i]]);
   }
@@ -139,7 +137,7 @@ void qmc_worker_pi::dostep()
 
   // flip operators and spins & do improved measurements
   if (!has_longitudinal_field()) {
-    std::copy(spins.begin(), spins.end(), spins_curr.begin());
+    std::copy(spins.begin(), spins.end(), spins_c.begin());
     for (std::vector<local_operator>::iterator oi = operators.begin();
          oi != operators.end(); ++oi) {
       int id_l = root(fragments, oi->loop0).id;

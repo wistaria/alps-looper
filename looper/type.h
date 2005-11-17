@@ -139,6 +139,11 @@ public:
   bool is_site() const { return loc_.is_site(); }
   bool is_bond() const { return loc_.is_bond(); }
 
+  static local_graph site_graph(int g, int i)
+  { return local_graph(g, site_location(i)); }
+  static local_graph bond_graph(int g, int i)
+  { return local_graph(g, bond_location(i)); }
+
   template<class T>
   boost::tuple<int /* curr */, int /* loop0 */, int /* loop1 */>
   reconnect(std::vector<T>& fragments, int curr) const
@@ -328,4 +333,4 @@ alps::IDump& operator>>(alps::IDump& dump, looper::local_operator<QMC>& op)
 } // end namespace looper
 #endif
 
-#endif // LOOPER_NODE_H
+#endif // LOOPER_TYPE_H

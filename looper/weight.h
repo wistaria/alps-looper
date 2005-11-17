@@ -173,6 +173,97 @@ struct bond_weight {
   void check(const bond_parameter& p) const;
 };
 
+class weight_table
+{
+public:
+  template<class RL, class VL>
+  weight_table(const model_parameter& mp, const RL& rl, const VL& vl)
+  { init(mp, rl, vl); }
+
+  template<class RL, class VL>
+  void init(const model_parameter& mp, const RL& rl, const VL& vl)
+  {
+    weight_ = 0;
+    site_weights_.clear();
+    bond_weights_.clear();
+    typename graph_traits<RL>::site_iterator rsi, rsi_end;
+    for (boost::tie(rsi, rsi_end) = sites(rl); rsi != rsi_end; ++rsi) {
+      site_weight sw(mp.site(*rsi, rl));
+      typename graph_traits<VL>::site_iterator vsi, vsi_end;
+      for (boost::tie(vsi, vsi_end) = virtual_sites(vl, rl, *rsi);
+           vsi != vsi_end; ++vsi) {
+        site_weights_.push_back(
+          std::make_pair(get(site_index_t(), vl.graph(), *vsi), sw));
+        weight_ += sw.weight();
+      }
+    }
+    typename graph_traits<RL>::bond_iterator rbi, rbi_end;
+    for (boost::tie(rbi, rbi_end) = bonds(rl); rbi != rbi_end; ++rbi) {
+      bond_weight bw(mp.bond(*rbi, rl));
+      typename graph_traits<VL>::bond_iterator vbi, vbi_end;
+      for (boost::tie(vbi, vbi_end) = virtual_bonds(vl, rl, *rbi);
+           vbi != vbi_end; ++vbi) {
+        bond_weights_.push_back(
+          std::make_pair(get(bond_index_t(), vl.graph(), *vbi), bw));
+        weight_ += bw.weight();
+      }
+    }
+    if (mp.has_d_term()) {
+      for (boost::tie(rsi, rsi_end) = sites(rl); rsi != rsi_end; ++rsi) {
+        bond_weight bw(mp.site(*rsi, rl));
+        typename graph_traits<VL>::bond_iterator vbi, vbi_end;
+        for (boost::tie(vbi, vbi_end) = virtual_bonds(vl, rl, *rsi);
+             vbi != vbi_end; ++vbi) {
+          bond_weights_.push_back(
+             std::make_pair(get(bond_index_t(), vl.graph(), *vbi), bw));
+          weight_ += bw.weight();
+        }
+      }
+    }
+  }
+
+  double weight() const { return weight_; }
+  double rho() const { return weight(); }
+
+  template<class LOCAL_GRAPH, class RND_CHOICE>
+  void setup_graph_chooser(std::vector<LOCAL_GRAPH>& diagonal_graphs,
+                           RND_CHOICE& rng,
+                           std::vector<double>& offdiagonal_weights) const
+  {
+    diagonal_graphs.clear();
+    offdiagonal_weights.clear();
+    std::vector<double> w;
+    for (std::vector<std::pair<int, site_weight> >::const_iterator
+           itr = site_weights_.begin(); itr != site_weights_.end(); ++itr) {
+      site_weight sw = itr->second;
+      for (int g = 0; g <= 2; ++g) {
+        if (alps::is_nonzero<1>(sw.v[g])) {
+          diagonal_graphs.push_back(LOCAL_GRAPH::site_graph(g, itr->first));
+          w.push_back(sw.v[g]);
+        }
+      }
+    }
+    for (std::vector<std::pair<int, bond_weight> >::const_iterator
+           itr = bond_weights_.begin(); itr != bond_weights_.end(); ++itr) {
+      bond_weight bw = itr->second;
+      for (int g = 0; g <= 3; ++g) {
+        if (alps::is_nonzero<1>(bw.v[g])) {
+          diagonal_graphs.push_back(LOCAL_GRAPH::bond_graph(g, itr->first));
+          w.push_back(bw.v[g]);
+        }
+      }
+      offdiagonal_weights.push_back(alps::is_nonzero<1>(bw.v[0] + bw.v[2]) ?
+                                   bw.v[0] / (bw.v[0] + bw.v[2]) : 1);
+    }
+    rng.distribution().init(w);
+  }
+
+private:
+  double weight_;
+  std::vector<std::pair<int, site_weight> > site_weights_;
+  std::vector<std::pair<int, bond_weight> > bond_weights_;
+};
+
 //
 // Implementations
 //

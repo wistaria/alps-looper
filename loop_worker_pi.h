@@ -69,8 +69,8 @@ private:
   std::vector<local_operator> operators;
 
   // working area
-  std::vector<int> spins_curr;
-  std::vector<local_operator> operators_prev;
+  std::vector<int> spins_c;
+  std::vector<local_operator> operators_p;
   std::vector<cluster_fragment> fragments;
   std::vector<int> current;
   std::vector<cluster_info> clusters;

@@ -25,9 +25,9 @@
 #include "loop_worker_sse.h"
 
 qmc_worker_sse::qmc_worker_sse(const alps::ProcessList& w,
-			       const alps::Parameters& p, int n)
+                               const alps::Parameters& p, int n)
   : super_type(w, p, n),
-    nrs(num_sites(rlat())), nvs(num_sites(vlat())), 
+    nrs(num_sites(rlat())), nvs(num_sites(vlat())),
     beta(1.0 / static_cast<double>(p["T"])),
     spins(nvs, 0 /* all up */), operators(0), nop(0),
     spins_curr(nvs), fragments(), current(nvs), clusters()
@@ -47,7 +47,7 @@ void qmc_worker_sse::dostep()
     std::vector<local_operator> operators_new;
     std::vector<local_operator>::iterator itr_new = operators_new.begin();
     for (std::vector<local_operator>::iterator itr = operators.begin();
-	 itr!= operators.end(); ++itr) {
+         itr!= operators.end(); ++itr) {
       operators_new.push_back(*itr);
       operators_new.push_back(local_operator());
     }
@@ -68,30 +68,30 @@ void qmc_worker_sse::dostep()
 
   for (std::vector<local_operator>::iterator oi = operators.begin();
        oi != operators.end(); ++oi) {
-    
+
     // diagonal update & labeling
     if (oi->is_identity()) {
       // insert diagonal operator and graph if compatible
-      looper::local_graph g = choose_graph();
+      local_graph g = choose_graph();
 #warning "to be checked"
       if (((operators.size() - nop) * random() < beta / 2) &&
-	  ((is_bond(g) &&
-	    is_compatible(g, spins_curr[vsource(pos(g))],
-			  spins_curr[vtarget(pos(g))])) ||
-	   (is_site(g) && is_compatible(g, spins_curr[pos(g)])))) {
-	*oi = g;
-	++nop;
+          ((is_bond(g) &&
+            is_compatible(g, spins_curr[vsource(pos(g))],
+                          spins_curr[vtarget(pos(g))])) ||
+           (is_site(g) && is_compatible(g, spins_curr[pos(g)])))) {
+        *oi = g;
+        ++nop;
       } else
-	continue;
+        continue;
     } else if (oi->is_diagonal()) {
       // remove diagonal operator with a certain probability
 #warning "to be checked"
       if (beta / 2 * random() < operators.size() - nop + 1) {
-	*oi = local_operator();
-	--nop;
-	continue;
+        *oi = local_operator();
+        --nop;
+        continue;
       } else {
-	// assign graph to diagonal operator
+        // assign graph to diagonal operator
       }
     } else {
       // assign graph to offdiagonal operator
@@ -131,8 +131,8 @@ void qmc_worker_sse::dostep()
       c1[i] = spins_curr[offset+i];
     }
     looper::restricted_random_shuffle(r.begin(), r.end(), c0.begin(),
-				      c0.end(), c1.begin(), c1.end(),
-				      *engine_ptr);
+                                      c0.end(), c1.begin(), c1.end(),
+                                      *engine_ptr);
     for (int i = 0; i < s2; ++i)
       unify(fragments, offset+i, current[offset+r[i]]);
   }

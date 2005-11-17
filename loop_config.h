@@ -29,7 +29,11 @@
 
 struct loop_config
 {
+  // lattice structure
   typedef looper::graph_type graph_type;
+
+  // model, weights, and local_graphs
+  typedef looper::local_graph local_graph;
 };
 
 #endif // !LOOP_CONFIG_H

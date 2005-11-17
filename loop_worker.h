@@ -33,10 +33,13 @@ class qmc_worker_base
   : public alps::scheduler::LatticeModelMCRun<loop_config::graph_type>
 {
 public:
-  typedef loop_config::graph_type                         graph_type;
-  typedef alps::scheduler::LatticeModelMCRun<graph_type>  super_type;
-  typedef looper::graph_traits<graph_type>::site_iterator site_iterator;
-  typedef looper::graph_traits<graph_type>::bond_iterator bond_iterator;
+  typedef loop_config::graph_type  graph_type;
+  typedef loop_config::local_graph local_graph;
+
+  typedef looper::virtual_lattice<graph_type>            virtual_lattice;
+  typedef alps::scheduler::LatticeModelMCRun<graph_type> super_type;
+  typedef alps::graph_traits<graph_type>::site_iterator  site_iterator;
+  typedef alps::graph_traits<graph_type>::bond_iterator  bond_iterator;
 
   qmc_worker_base(const alps::ProcessList& w, const alps::Parameters& p, int n);
   virtual ~qmc_worker_base() {}
@@ -50,31 +53,31 @@ public:
   bool has_longitudinal_field() const { return has_hz_; }
 
   const graph_type& rlat() const { return super_type::graph(); }
-  const looper::virtual_lattice<graph_type>& vlat() const { return vlat_; }
+  const virtual_lattice& vlat() const { return vlat_; }
   unsigned int vsource(unsigned int b) const { return source(bond(b, vlat_)); }
   unsigned int vtarget(unsigned int b) const { return target(bond(b, vlat_)); }
 
   double advance() const { return r_time_(); }
-  const looper::local_graph& choose_graph() const { return gtab_[r_graph_()]; }
-  looper::local_graph choose_graph(const looper::location& loc) const
+  const local_graph& choose_graph() const
+  { return diag_graphs_[r_graph_()]; }
+  local_graph choose_graph(const looper::location& loc) const
   {
-    int g = (is_site(loc) || random() < otab_[pos(loc)]) ? 0 : 2;
-    return looper::local_graph(g, loc);
+    int g = (is_site(loc) || random() < offdiag_weights_[pos(loc)]) ? 0 : 2;
+    return local_graph(g, loc);
   }
 
   virtual void save(alps::ODump& od) const;
   virtual void load(alps::IDump& id);
 
-protected:
-  double initialize(const looper::model_parameter& mp);
-
 private:
   unsigned int mcs_therm_;
   looper::integer_range<unsigned int> mcs_sweep_;
   bool has_hz_;
-  looper::virtual_lattice<graph_type> vlat_;
-  std::vector<looper::local_graph> gtab_; // graph probability for diagonal conf
-  std::vector<double> otab_; // graph probability for offdiagonal conf
+  virtual_lattice vlat_;
+  std::vector<local_graph> diag_graphs_;
+    // graph table for diagonal configuration
+  std::vector<double> offdiag_weights_;
+    // graph probability for offdiagonal configration
   mutable boost::variate_generator<alps::buffered_rng_base&,
                                    looper::random_choice<> > r_graph_;
   mutable boost::variate_generator<alps::buffered_rng_base&,
