@@ -35,7 +35,7 @@ qmc_worker_pi::qmc_worker_pi(const alps::ProcessList& w,
 
 void qmc_worker_pi::dostep()
 {
-  dostep();
+  super_type::dostep();
 
   //
   // diagonal update and cluster construction

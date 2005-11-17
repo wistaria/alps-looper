@@ -35,8 +35,6 @@ qmc_worker_sse::qmc_worker_sse(const alps::ProcessList& w,
 
 void qmc_worker_sse::dostep()
 {
-  typedef super_type::site_iterator site_iterator;
-
   super_type::dostep();
 
   //

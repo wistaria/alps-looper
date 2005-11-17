@@ -24,16 +24,59 @@
 
 #include "loop_worker.h"
 
+std::ostream& operator<<(std::ostream& os, const looper::site_parameter& p)
+{
+  os << "C = " << p.c << ", Hx = " << p.hx << ", Hz = " << p.hz;
+  return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const looper::bond_parameter& p)
+{
+  os << "C = " << p.c << ", Jxy = " << p.jxy << ", Jz = " << p.jz;
+  return os;
+}
+
+template<typename G>
+void output(const alps::graph_helper<G>& gh,
+            const looper::model_parameter& m)
+{
+  typedef G graph_type;
+  typedef typename alps::graph_helper<G>::site_iterator site_iterator;
+  typedef typename alps::graph_helper<G>::bond_iterator bond_iterator;
+
+  // site parameters
+  site_iterator vi, vi_end;
+  for (boost::tie(vi, vi_end) = gh.sites(); vi != vi_end; ++vi) {
+    std::cout << "site " << *vi << ": type = " << gh.site_type(*vi)
+              << ", S = " << m.site(*vi, gh.graph()).s << std::endl;
+  }
+
+  // bond parameters
+  bond_iterator ei, ei_end;
+  for (boost::tie(ei, ei_end) = gh.bonds(); ei != ei_end; ++ei) {
+    std::cout << "bond " << *ei << ": type = " << gh.bond_type(*ei)
+              << ", " << m.bond(*ei, gh.graph()) << std::endl;
+  }
+}
+
 qmc_worker_base::qmc_worker_base(const alps::ProcessList& w,
                                  const alps::Parameters& p, int n)
   : super_type(w, p, n),
-    mcs_therm_(static_cast<unsigned int>(p["THERMALIZATION"])),
-    mcs_sweep_(p["SWEEPS"]), has_hz_(false),
+    mcs_sweep_(p["SWEEPS"]),
+    mcs_therm_(p.value_or_default("THERMALIZATION", mcs_sweep_.min() >> 3)),
+    has_hz_(false),
     vlat_(), diag_graphs_(), offdiag_weights_(),
     r_graph_(*engine_ptr, looper::random_choice<>()),
     r_time_(*engine_ptr, boost::exponential_distribution<>()),
     mcs_(0)
 {
+  //
+  // check parameters
+  //
+
+  if (mcs_sweep_.min() < mcs_therm_)
+    boost::throw_exception(std::invalid_argument("too small SWEEPS"));
+
   //
   // setup model
   //
@@ -58,6 +101,7 @@ qmc_worker_base::qmc_worker_base(const alps::ProcessList& w,
   // setup graph table and random number generators
   //
 
+  output(*this, mp);
   looper::weight_table wt(mp, rlat(), vlat());
   wt.setup_graph_chooser(diag_graphs_, r_graph_, offdiag_weights_);
   r_time_.distribution() = boost::exponential_distribution<>(wt.rho());

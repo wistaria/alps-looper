@@ -166,39 +166,26 @@ T dip(const T& x, const T& y,
 
 
 //
-// function crop_01, crop_0
+// function crop_0, crop_01
 //
 
 template<typename T>
-T crop_01(T x, typename boost::enable_if<boost::is_arithmetic<T> >::type* = 0)
-{
-  using std::min; using std::max;
-  return min(max(x, T(0)), T(1));
-}
-
-template<typename T>
-T crop_01(const T& x,
-  typename boost::disable_if<boost::is_arithmetic<T> >::type* = 0)
-{
-  using std::min; using std::max;
-  return min(max(x, T(0)), T(1));
-}
-
-template<typename T>
 T crop_0(T x, typename boost::enable_if<boost::is_arithmetic<T> >::type* = 0)
-{
-  using std::max;
-  return max(x, T(0));
-}
+{ return (x > T(0)) ? x : T(0); }
 
 template<typename T>
 T crop_0(const T& x,
   typename boost::disable_if<boost::is_arithmetic<T> >::type* = 0)
-{
-  using std::max;
-  return max(x, T(0));
-}
+{ return (x > T(0)) ? x : T(0); }
 
+template<typename T>
+T crop_01(T x, typename boost::enable_if<boost::is_arithmetic<T> >::type* = 0)
+{ return (x < T(1)) ? crop_0(x) : T(1); }
+
+template<typename T>
+T crop_01(const T& x,
+  typename boost::disable_if<boost::is_arithmetic<T> >::type* = 0)
+{ return (x < T(1)) ? crop_0(x) : T(1); }
 
 //
 // class tempalte integer_range

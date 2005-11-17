@@ -74,7 +74,7 @@ struct site_weight {
 
   double weight() const { return v[0] + v[1] + v[2]; }
   bool has_weight() const
-  { return alps::is_nonzero<1>(weight()) && weight() > 0; }
+  { return alps::is_positive<1>(weight()); }
 
   void check(const site_parameter& p) const;
 };
@@ -83,7 +83,7 @@ struct bond_weight {
 
   double sign;
   double offset;
-  double v[0];
+  double v[4];
 
   // correspondence with notation in textbook
   //        textbook
@@ -145,7 +145,7 @@ struct bond_weight {
       if (jxy - jz > 2 * a * jxy) {
         // standard solutions
         v[0] = crop_0(std::min(jxy/2, (jxy + jz)/4));
-        v[1] = crop_0(-(jxy - jz)/2);
+        v[1] = crop_0(-(jxy - jz)/2.0);
         v[2] = crop_0(std::min(jxy/2, (jxy - jz)/4));
         v[3] = crop_0(-(jxy + jz)/2);
       } else {
@@ -168,7 +168,7 @@ struct bond_weight {
 
   double weight() const { return v[0] + v[1] + v[2] + v[3]; }
   bool has_weight() const
-  { return alps::is_nonzero<1>(weight()) && weight() > 0; }
+  { return alps::is_positive<1>(weight()); }
 
   void check(const bond_parameter& p) const;
 };
@@ -200,6 +200,7 @@ public:
     typename graph_traits<RL>::bond_iterator rbi, rbi_end;
     for (boost::tie(rbi, rbi_end) = bonds(rl); rbi != rbi_end; ++rbi) {
       bond_weight bw(mp.bond(*rbi, rl));
+      std::cout << mp.bond(*rbi, rl).jz << std::endl;
       typename graph_traits<VL>::bond_iterator vbi, vbi_end;
       for (boost::tie(vbi, vbi_end) = virtual_bonds(vl, rl, *rbi);
            vbi != vbi_end; ++vbi) {

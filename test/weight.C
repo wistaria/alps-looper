@@ -66,7 +66,7 @@ try {
   alps::ParameterList params;
   std::cin >> params;
 
-  for (alps::ParameterList::iterator p = params.begin();
+  for (alps::ParameterList::const_iterator p = params.begin();
        p != params.end(); ++p) {
     looper::site_parameter site(0.5, 0,
                                 p->value_or_default("Hx",0),

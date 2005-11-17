@@ -11,6 +11,7 @@ endif
 if HAVE_PVM
 noinst_PROGRAMS += loop_pvm
 endif
+check_PROGRAMS = loop_nosched
 
 include_HEADERS = looper.h
 pkginclude_HEADERS = \
@@ -38,7 +39,10 @@ dist_noinst_HEADERS = \
 	looper/vector_helper.h
 
 dist_noinst_SCRIPTS = config/run-test config/update_preamble
-dist_noinst_DATA = CITATIONS.txt LICENSE.txt
+dist_noinst_DATA = CITATIONS.txt LICENSE.txt loop_nosched.ip loop_nosched.op
+
+TESTS = $(check_PROGRAMS)
+TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
 
 SRC = loop.C loop_config.h loop_factory.C loop_factory.h \
 	loop_worker.C loop_worker.h \
@@ -61,8 +65,7 @@ loop_pvm_LDFLAGS = @LDFLAGS_PVM@
 loop_pvm_LDADD = @LIBS_PVM@
 
 .PHONY : test tests
-test tests :
-	$(MAKE) -C test $@
+test tests : check
 
 .PHONY : update-preamble
 update-preamble:

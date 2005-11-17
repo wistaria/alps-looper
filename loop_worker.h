@@ -70,8 +70,8 @@ public:
   virtual void load(alps::IDump& id);
 
 private:
-  unsigned int mcs_therm_;
   looper::integer_range<unsigned int> mcs_sweep_;
+  unsigned int mcs_therm_;
   bool has_hz_;
   virtual_lattice vlat_;
   std::vector<local_graph> diag_graphs_;
