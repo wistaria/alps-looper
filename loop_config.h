@@ -33,7 +33,7 @@ struct loop_config
   typedef looper::graph_type graph_type;
 
   // model, weights, and local_graphs
-  typedef looper::local_graph local_graph;
+  typedef looper::local_graph<looper::location> local_graph;
 };
 
 #endif // !LOOP_CONFIG_H

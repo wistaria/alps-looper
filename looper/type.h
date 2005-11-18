@@ -47,22 +47,51 @@ struct sse {};
 class location
 {
 public:
-  location(int pos = 0, bool is_site = true) : loc_(pos << 1 + is_site) {}
+  location(int pos = 0, bool is_bond = true)
+    : loc_(pos << 1 | (is_bond ? 1 : 0)) {}
   int pos() const { return loc_ >> 1; }
-  bool is_site() const { return loc_ && 1; }
-  bool is_bond() const { return !is_site(); }
+  bool is_bond() const { return loc_ & 1; }
+  bool is_site() const { return !is_bond(); }
+  void save(alps::ODump& dump) const { dump << loc_; }
+  void load(alps::IDump& dump) { dump >> loc_; }
+  static location bond_location(int pos) { return location(pos, true); }
+  static location site_location(int pos) { return location(pos, false); }
+private:
+  int loc_;
+};
+
+inline int pos(const location& loc) { return loc.pos(); }
+inline bool is_bond(const location& loc) { return loc.is_bond(); }
+inline bool is_site(const location& loc) { return loc.is_site(); }
+
+// optimized version for models with bond terms only
+
+class location_bond
+{
+public:
+  location_bond(int pos = 0, bool is_bond = true) : loc_(pos)
+  {
+    if (!is_bond)
+      boost::throw_exception(std::invalid_argument("location_bond"));
+  }
+  int pos() const { return loc_; }
+  static bool is_bond() { return true; }
+  static bool is_site() { return false; }
+  static location_bond bond_location(int pos) { return location_bond(pos); }
+  static location_bond site_location(int)
+  {
+    boost::throw_exception(std::logic_error("location_bond"));
+    return location_bond();
+  }
   void save(alps::ODump& dump) const { dump << loc_; }
   void load(alps::IDump& dump) { dump >> loc_; }
 private:
   int loc_;
 };
 
-inline int pos(const location& loc) { return loc.pos(); }
-inline bool is_site(const location& loc) { return loc.is_site(); }
-inline bool is_bond(const location& loc) { return loc.is_bond(); }
-
-inline location site_location(int pos) { return location(pos, false); }
-inline location bond_location(int pos) { return location(pos, true); }
+inline int pos(const location_bond& loc) { return loc.pos(); }
+inline bool is_bond(const location_bond&) { return true; }
+inline bool is_site(const location_bond&) { return false; }
 
 } // end namespace looper
 
@@ -76,6 +105,13 @@ inline alps::ODump& operator<<(alps::ODump& dump, const looper::location& loc)
 inline alps::IDump& operator>>(alps::IDump& dump, looper::location& loc)
 { loc.load(dump); return dump; }
 
+inline alps::ODump& operator<<(alps::ODump& dump,
+                               const looper::location_bond& loc)
+{ loc.save(dump); return dump; }
+
+inline alps::IDump& operator>>(alps::IDump& dump, looper::location_bond& loc)
+{ loc.load(dump); return dump; }
+
 #ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
 } // end namespace looper
 #endif
@@ -86,27 +122,30 @@ namespace looper {
 // graph
 //
 
-struct site_graph_type {
-  /* g = 0 (g1 in textbook)
-         1
-         2 */
-  static bool is_compatible(int g, int c) { return 2 - (c + g); }
-  static bool is_locked(int g) { return g /* g != 0 */; }
-};
-
 struct bond_graph_type {
-  /* g = 0 (g3 in textbook)
-         1 (g4)
-         2 (g1)
-         3 (g2) */
+  // g = 0 (g3 in textbook)
+  //     1 (g4)
+  //     2 (g1)
+  //     3 (g2)
   static bool is_compatible(int g, int c0, int c1)
   { return (g >> 1) ^ (c0 ^ c1); }
 };
 
+struct site_graph_type {
+  // g = 0 (g1 in textbook)
+  //     1 (for up spin locked with ghost spin)
+  //     2 (for down spin locked with ghost spin)
+  static bool is_compatible(int g, int c) { return 2 - (c + g); }
+  static bool is_locked(int g) { return g /* g != 0 */; }
+};
+
+template<class LOC>
 class local_graph
 {
 public:
-  local_graph(int type, const location& loc) : type_(type), loc_(loc) {}
+  typedef LOC location_t;
+
+  local_graph(int type, const location_t& loc) : type_(type), loc_(loc) {}
 
   int type() const { return type_; }
   bool is_compatible(int c) const
@@ -134,15 +173,15 @@ public:
     return site_graph_type::is_locked(type_);
   }
 
-  const location& loc() const { return loc_; }
+  const location_t& loc() const { return loc_; }
   int pos() const { return loc_.pos(); }
-  bool is_site() const { return loc_.is_site(); }
   bool is_bond() const { return loc_.is_bond(); }
+  bool is_site() const { return loc_.is_site(); }
 
-  static local_graph site_graph(int g, int i)
-  { return local_graph(g, site_location(i)); }
-  static local_graph bond_graph(int g, int i)
-  { return local_graph(g, bond_location(i)); }
+  static local_graph bond_graph(int type, int pos)
+  { return local_graph(type, location_t::bond_location(pos)); }
+  static local_graph site_graph(int type, int pos)
+  { return local_graph(type, location_t::site_location(pos)); }
 
   template<class T>
   boost::tuple<int /* curr */, int /* loop0 */, int /* loop1 */>
@@ -150,7 +189,7 @@ public:
   {
 #ifndef NDEBUG
     if (!is_site())
-      boost::throw_exception(std::logic_error("is_compatible"));
+      boost::throw_exception(std::logic_error("reconnect"));
 #endif
     int loop0, loop1;
     if (type_ == 0) {
@@ -168,8 +207,8 @@ public:
   reconnect(std::vector<T>& fragments, int curr0, int curr1) const
   {
 #ifndef NDEBUG
-    if (!is_site())
-      boost::throw_exception(std::logic_error("is_compatible"));
+    if (!is_bond())
+      boost::throw_exception(std::logic_error("reconnect"));
 #endif
     int loop0, loop1;
     if (type_ == 0) {
@@ -187,32 +226,135 @@ public:
 
 private:
   int type_;
-  location loc_;
+  location_t loc_;
 };
 
-inline int type(const local_graph& g) { return g.type(); }
-inline bool is_compatible(const local_graph& g, int c0, int c1)
-{ return g.is_compatible(c0, c1); }
-inline bool is_compatible(const local_graph& g, int c)
+template<class LOC>
+inline int type(const local_graph<LOC>& g) { return g.type(); }
+template<class LOC>
+inline bool is_compatible(const local_graph<LOC>& g, int c)
 { return g.is_compatible(c); }
+template<class LOC>
+inline bool is_compatible(const local_graph<LOC>& g, int c0, int c1)
+{ return g.is_compatible(c0, c1); }
 
-inline int pos(const local_graph& g) { return g.pos(); }
-inline bool is_site(const local_graph& g) { return g.is_site(); }
-inline bool is_bond(const local_graph& g) { return g.is_bond(); }
+template<class LOC>
+inline int pos(const local_graph<LOC>& g) { return g.pos(); }
+template<class LOC>
+inline bool is_site(const local_graph<LOC>& g) { return g.is_site(); }
+template<class LOC>
+inline bool is_bond(const local_graph<LOC>& g) { return g.is_bond(); }
 
-inline local_graph site_graph(int g, int i)
-{ return local_graph(g, site_location(i)); }
-inline local_graph bond_graph(int g, int i)
-{ return local_graph(g, bond_location(i)); }
-
-template<class T>
+template<class T, class LOC>
 boost::tuple<int /* curr */, int /* loop0 */, int /* loop1 */>
-reconnect(std::vector<T>& fragments, const local_graph& g, int curr)
+reconnect(std::vector<T>& fragments, const local_graph<LOC>& g, int curr)
 { return g.reconnect(fragments, curr); }
 
-template<class T>
+template<class T, class LOC>
 boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
-reconnect(std::vector<T>& fragments, const local_graph& g, int curr0, int curr1)
+reconnect(std::vector<T>& fragments, const local_graph<LOC>& g,
+          int curr0, int curr1)
+{ return g.reconnect(fragments, curr0, curr1); }
+
+// optimized version for antiferromagnetic Heisenberg interaction
+
+template<class LOC>
+class local_graph_haf
+{
+public:
+  typedef LOC location_t;
+
+  local_graph_haf(int type, const location_t& loc) : loc_(loc)
+  {
+#ifndef NDEBUG
+    if (type != 0)
+      boost::throw_exception(std::invalid_argument("local_graph_haf"));
+#endif
+  }
+
+  static int type() { return 0; }
+  bool is_compatible(int c) const
+  {
+#ifndef NDEBUG
+    boost::throw_exception(std::logic_error("local_graph_haf::is_compatible"));
+#endif
+    return false;
+  }
+  bool is_compatible(int c0, int c1) const { return c0 ^ c1; }
+  bool is_locked() const
+  {
+#ifndef NDEBUG
+    boost::throw_exception(std::logic_error("local_graph_haf::is_locked"));
+#endif
+    return false;
+  }
+
+  const location_t& loc() const { return loc_; }
+  int pos() const { return loc_.pos(); }
+  static bool is_bond() { return true; }
+  static bool is_site() { return false; }
+
+  static local_graph_haf bond_graph(int type, int pos)
+  {
+#ifndef NDEBUG
+    if (type != 0)
+      boost::throw_exception(std::invalid_argument("local_graph_haf::bond_graph"));
+#endif
+    return local_graph_haf(0, location_t::bond_location(pos));
+  }
+  static local_graph_haf site_graph(int g, int i)
+  {
+    boost::throw_exception(std::logic_error("local_graph_haf::site_graph"));
+    return local_graph_haf();
+  }
+
+  template<class T>
+  boost::tuple<int /* curr */, int /* loop0 */, int /* loop1 */>
+  reconnect(std::vector<T>& fragments, int curr) const
+  {
+    boost::throw_exception(std::logic_error("local_graph_haf::reconnect"));
+    return boost::make_tuple(0, 0, 0);
+  }
+
+  template<class T>
+  boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */,
+               int /* loop1 */>
+  reconnect(std::vector<T>& fragments, int curr0, int curr1) const
+  {
+    curr0 = unify(fragments, curr0, curr1);
+    curr1 = add(fragments);
+    return boost::make_tuple(curr1, curr1, curr0, curr1);
+  }
+
+private:
+  location_t loc_;
+};
+
+template<class LOC>
+inline int type(const local_graph_haf<LOC>& g) { return g.type(); }
+template<class LOC>
+inline bool is_compatible(const local_graph_haf<LOC>& g, int c)
+{ return g.is_compatible(c); }
+template<class LOC>
+inline bool is_compatible(const local_graph_haf<LOC>& g, int c0, int c1)
+{ return g.is_compatible(c0, c1); }
+
+template<class LOC>
+inline int pos(const local_graph_haf<LOC>& g) { return g.pos(); }
+template<class LOC>
+inline bool is_site(const local_graph_haf<LOC>& g) { return g.is_site(); }
+template<class LOC>
+inline bool is_bond(const local_graph_haf<LOC>& g) { return g.is_bond(); }
+
+template<class T, class LOC>
+boost::tuple<int /* curr */, int /* loop0 */, int /* loop1 */>
+reconnect(std::vector<T>& fragments, const local_graph_haf<LOC>& g, int curr)
+{ return g.reconnect(fragments, curr); }
+
+template<class T, class LOC>
+boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
+reconnect(std::vector<T>& fragments, const local_graph_haf<LOC>& g,
+          int curr0, int curr1)
 { return g.reconnect(fragments, curr0, curr1); }
 
 //
@@ -226,15 +368,19 @@ struct local_operator_type
   BOOST_STATIC_CONSTANT(int, identity    = 2 /* 10 */);
 };
 
-template<class QMC>
+template<class QMC, class LOC_G>
 class local_operator;
 
-template<>
-class local_operator<sse> {
+template<class LOC_G>
+class local_operator<sse, LOC_G>
+{
 public:
+  typedef LOC_G                              local_graph_t;
+  typedef typename local_graph_t::location_t location_t;
+
   local_operator() : type_(local_operator_type::identity), loc_() {}
-  local_operator(int type, const location& loc) : type_(type), loc_(loc) {}
-  local_operator(const local_graph& g)
+  local_operator(int type, const location_t& loc) : type_(type), loc_(loc) {}
+  local_operator(const local_graph_t& g)
     : type_(local_operator_type::diagonal & (g.type() << 2)), loc_(g.loc()) {}
 
   void flip() { type_ ^= 1; }
@@ -244,8 +390,8 @@ public:
   { return type() == local_operator_type::offdiagonal; }
   bool is_identity() const { return type() == local_operator_type::identity; }
 
-  local_graph graph() const { return local_graph(graph_type(), loc_); }
-  void assign_graph(const local_graph g) { type_ = type() & (g.type() << 2); }
+  local_graph_t graph() const { return local_graph_t(graph_type(), loc_); }
+  void assign_graph(const local_graph_t g) { type_ = type() & (g.type() << 2); }
   void clear_graph() { type_ &= 3; }
   int graph_type() const { return type_ >> 2; }
   bool is_locked() const
@@ -257,7 +403,7 @@ public:
     return site_graph_type::is_locked(graph_type());
   }
 
-  const location& loc() const { return loc_; }
+  const location_t& loc() const { return loc_; }
   int pos() const { return loc_.pos(); }
   bool is_site() const { return loc_.is_site(); }
   bool is_bond() const { return loc_.is_bond(); }
@@ -267,23 +413,26 @@ public:
 
 private:
   int type_;
-  location loc_;
+  location_t loc_;
 
 public:
   int loop0, loop1; // no checkpoint
 };
 
-template<>
-class local_operator<path_integral> : public local_operator<sse>
+template<class LOC_G>
+class local_operator<path_integral, LOC_G> : public local_operator<sse, LOC_G>
 {
 public:
-  typedef local_operator<sse> super_type;
+  typedef local_operator<sse, LOC_G>         super_type;
+  typedef typename super_type::local_graph_t local_graph_t;
+  typedef typename super_type::location_t    location_t;
+
   local_operator() : super_type(), time_() {}
-  local_operator(int type, const location& loc); // not defined
-  local_operator(int type, const location& loc, double time)
+  local_operator(int type, const location_t& loc); // not defined
+  local_operator(int type, const location_t& loc, double time)
     : super_type(type, loc), time_(time) {}
-  local_operator(const local_graph& g); // not defined
-  local_operator(const local_graph& g, double time)
+  local_operator(const local_graph_t& g); // not defined
+  local_operator(const local_graph_t& g, double time)
     : super_type(g), time_(time) {}
 
   bool is_identity() const; // not defined
@@ -297,22 +446,24 @@ private:
   double time_;
 };
 
-template<class QMC>
-int type(const local_operator<QMC>& op) { return op.type(); }
-template<class QMC>
-bool is_diagonal(const local_operator<QMC>& op) { return op.is_diagonal(); }
-template<class QMC>
-bool is_offdiagonal(const local_operator<QMC>& op)
+template<class QMC, class LOC_G>
+int type(const local_operator<QMC, LOC_G>& op) { return op.type(); }
+template<class QMC, class LOC_G>
+bool is_diagonal(const local_operator<QMC, LOC_G>& op)
+{ return op.is_diagonal(); }
+template<class QMC, class LOC_G>
+bool is_offdiagonal(const local_operator<QMC, LOC_G>& op)
 { return op.is_offdiagonal(); }
-inline
-bool is_identity(const local_operator<sse>& op) { return op.is_identity(); }
+template<class LOC_G>
+bool is_identity(const local_operator<sse, LOC_G>& op)
+{ return op.is_identity(); }
 
-template<class QMC>
-int pos(const local_operator<QMC>& op) { return op.pos(); }
-template<class QMC>
-bool is_site(const local_operator<QMC>& op) { return op.is_site(); }
-template<class QMC>
-bool is_bond(const local_operator<QMC>& op) { return op.is_bond(); }
+template<class QMC, class LOC_G>
+int pos(const local_operator<QMC, LOC_G>& op) { return op.pos(); }
+template<class QMC, class LOC_G>
+bool is_site(const local_operator<QMC, LOC_G>& op) { return op.is_site(); }
+template<class QMC, class LOC_G>
+bool is_bond(const local_operator<QMC, LOC_G>& op) { return op.is_bond(); }
 
 } // end namespace looper
 
@@ -320,13 +471,14 @@ bool is_bond(const local_operator<QMC>& op) { return op.is_bond(); }
 namespace looper {
 #endif
 
-template<class QMC>
+template<class QMC, class LOC_G>
 alps::ODump& operator<<(alps::ODump& dump,
-                        const looper::local_operator<QMC>& op)
+                        const looper::local_operator<QMC, LOC_G>& op)
 { op.save(dump); return dump; }
 
-template<class QMC>
-alps::IDump& operator>>(alps::IDump& dump, looper::local_operator<QMC>& op)
+template<class QMC, class LOC_G>
+alps::IDump& operator>>(alps::IDump& dump,
+                        looper::local_operator<QMC, LOC_G>& op)
 { op.load(dump); return dump; }
 
 #ifndef BOOST_NO_OPERATORS_IN_NAMESPACE

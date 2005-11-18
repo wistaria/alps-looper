@@ -41,11 +41,11 @@ struct cluster_info_sse
 class qmc_worker_sse : public qmc_worker_base
 {
 public:
-  typedef looper::sse                      qmc_type;
-  typedef qmc_worker_base                  super_type;
-  typedef looper::local_operator<qmc_type> local_operator;
-  typedef looper::union_find::node_idx     cluster_fragment;
-  typedef cluster_info_sse                 cluster_info;
+  typedef looper::sse                                   qmc_type;
+  typedef qmc_worker_base                               super_type;
+  typedef looper::local_operator<qmc_type, local_graph> local_operator;
+  typedef looper::union_find::node_idx                  cluster_fragment;
+  typedef cluster_info_sse                              cluster_info;
 
   qmc_worker_sse(const alps::ProcessList& w, const alps::Parameters& p, int n);
 
