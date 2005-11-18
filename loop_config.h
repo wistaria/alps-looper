@@ -32,8 +32,8 @@ struct loop_config
   // lattice structure
   typedef looper::graph_type graph_type;
 
-  // model, weights, and local_graphs
+  // model, weights, and local_graph
   typedef looper::local_graph<looper::location> local_graph;
 };
 
-#endif // !LOOP_CONFIG_H
+#endif // ! LOOP_CONFIG_H
