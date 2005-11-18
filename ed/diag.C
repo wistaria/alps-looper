@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2003-2004 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 2003-2005 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -179,7 +179,7 @@ try {
 
     typedef alps::graph_helper<>::graph_type graph_type;
     alps::graph_helper<> lattice(params);
-    int num_vertices = boost::num_vertices(lattice.graph());
+    int nsite = num_sites(lattice.graph());
     bool is_bipartite = alps::set_parity(lattice.graph());
 
     //
@@ -205,24 +205,20 @@ try {
 
     matrix_type hamiltonian(dim, dim);
     hamiltonian.clear();
-    alps::graph_traits<graph_type>::vertex_iterator vi, vi_end;
-    for (boost::tie(vi, vi_end) = boost::vertices(lattice.graph());
-         vi != vi_end; ++vi)
-      looper::add_to_matrix(hamiltonian,
-        model.model().site_term(boost::get(alps::vertex_type_t(),
-                                           lattice.graph(), *vi)),
-        basis_set, *vi, lattice.graph(), params);
-    alps::graph_traits<graph_type>::edge_iterator ei, ei_end;
-    for (boost::tie(ei, ei_end) = boost::edges(lattice.graph());
-         ei != ei_end; ++ei)
-      looper::add_to_matrix(hamiltonian,
-        model.model().bond_term(boost::get(alps::edge_type_t(),
-                                           lattice.graph(), *ei)),
-        basis_set,
-        boost::source(*ei, lattice.graph()),
-        boost::target(*ei, lattice.graph()),
-        lattice.graph(), params);
-
+    alps::graph_traits<graph_type>::site_iterator vi, vi_end;
+    for (boost::tie(vi, vi_end) = sites(lattice.graph());
+         vi != vi_end; ++vi) {
+      looper::add_to_matrix(hamiltonian, model.model(), model.basis(),
+                            basis_set, *vi, lattice.graph(), params);
+    }
+    alps::graph_traits<graph_type>::bond_iterator ei, ei_end;
+    for (boost::tie(ei, ei_end) = bonds(lattice.graph()); ei != ei_end; ++ei) {
+      looper::add_to_matrix(hamiltonian, model.model(), model.basis(),
+                            basis_set, *ei,
+                            source(*ei, lattice.graph()),
+                            target(*ei, lattice.graph()),
+                            lattice.graph(), params);
+    }
     diagonal_matrix_type diagonal_energy(dim);
     for (int i = 0; i < dim; ++i) diagonal_energy(i) = hamiltonian(i,i);
 
@@ -250,16 +246,16 @@ try {
 
     double ene, ene2;
     boost::tie(ene, ene2) = static_average2(beta, gs_ene, evals);
-    ene = ene / part / num_vertices;
-    ene2 = ene2 / part / sqr(num_vertices);
+    ene = ene / part / nsite;
+    ene2 = ene2 / part / sqr(nsite);
     double ez = static_average(beta, gs_ene, evals, hamiltonian,
                                diagonal_energy);
-    ez = ez / part / num_vertices;
-    double c = sqr(beta) * num_vertices * (ene2 - sqr(ene));
+    ez = ez / part / nsite;
+    double c = sqr(beta) * nsite * (ene2 - sqr(ene));
 
     std::cout << "ground state energy          = " << gs_ene << std::endl
               << "ground state energy per site = "
-              << gs_ene/num_vertices << std::endl
+              << gs_ene/nsite << std::endl
               << "energy per site              = " << ene << std::endl
               << "diagonal energy per site     = " << ez << std::endl
               << "specific heat                = " << c << std::endl;
@@ -270,7 +266,7 @@ try {
 
     diagonal_matrix_type uniform_sz(dim);
     uniform_sz.clear();
-    for (boost::tie(vi, vi_end) = boost::vertices(lattice.graph());
+    for (boost::tie(vi, vi_end) = sites(lattice.graph());
          vi != vi_end; ++vi) {
       looper::add_to_diagonal_matrix(uniform_sz,
         alps::SiteTermDescriptor("Sz(i)", "i"),
@@ -283,9 +279,9 @@ try {
     if (std::abs(umag) < 1.0e-12) umag = 0.;
     double usus = dynamic_average2(beta, gs_ene, evals, hamiltonian,
                                    uniform_sz);
-    umag = umag / part / num_vertices;
-    umag2 = umag2 / part / num_vertices;
-    usus = usus / part / num_vertices;
+    umag = umag / part / nsite;
+    umag2 = umag2 / part / nsite;
+    usus = usus / part / nsite;
     std::cout << "uniform magnetization        = " << umag << std::endl
               << "uniform magnetization^2      = " << umag2 << std::endl
               << "uniform susceptibility       = " << usus << std::endl;
@@ -293,9 +289,9 @@ try {
     if (is_bipartite) {
       diagonal_matrix_type staggered_sz(dim);
       staggered_sz.clear();
-      for (boost::tie(vi, vi_end) = boost::vertices(lattice.graph());
+      for (boost::tie(vi, vi_end) = sites(lattice.graph());
            vi != vi_end; ++vi) {
-        if (boost::get(alps::parity_t(), lattice.graph(), *vi) ==
+        if (get(alps::parity_t(), lattice.graph(), *vi) ==
             alps::parity_traits<alps::parity_t, graph_type>::white) {
           looper::add_to_diagonal_matrix(staggered_sz,
             alps::SiteTermDescriptor("Sz(i)", "i"),
@@ -311,10 +307,11 @@ try {
       boost::tie(smag, smag2) =
         static_average2(beta, gs_ene, evals, hamiltonian, staggered_sz);
       if (std::abs(smag) < 1.0e-12) smag = 0.;
-      double ssus = dynamic_average2(beta, gs_ene, evals, hamiltonian, staggered_sz);
-      smag = smag / part / num_vertices;
-      smag2 = smag2 / part / num_vertices;
-      ssus = ssus / part / num_vertices;
+      double ssus =
+        dynamic_average2(beta, gs_ene, evals, hamiltonian, staggered_sz);
+      smag = smag / part / nsite;
+      smag2 = smag2 / part / nsite;
+      ssus = ssus / part / nsite;
       std::cout << "staggered magnetization      = " << smag << std::endl
                 << "staggered magnetization^2    = " << smag2 << std::endl
                 << "staggered susceptibility     = " << ssus << std::endl;
