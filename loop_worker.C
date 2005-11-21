@@ -29,8 +29,9 @@ qmc_worker_base::qmc_worker_base(const alps::ProcessList& w,
   : super_type(w, p, n),
     mcs_sweep_(p["SWEEPS"]),
     mcs_therm_(p.value_or_default("THERMALIZATION", mcs_sweep_.min() >> 3)),
-    vlat_(), 
-    has_hz_(false), energy_offset_(0),
+    is_signed_(false), is_classically_frustrated_(false), has_hz_(false),
+    energy_offset_(0), sse_energy_offset_(0),
+    vlat_(), is_bipartite_(),
     diag_graphs_(), offdiag_weights_(),
     r_graph_(*engine_ptr, looper::random_choice<>()),
     r_time_(*engine_ptr, boost::exponential_distribution<>()),
@@ -48,12 +49,12 @@ qmc_worker_base::qmc_worker_base(const alps::ProcessList& w,
   //
 
   looper::model_parameter mp(p, *this);
+  is_signed_ = mp.is_signed();
+  is_classically_frustrated_ = mp.is_classically_frustrated();
   has_hz_ = mp.has_longitudinal_field();
-  bool is_signed = mp.is_signed();
-  bool is_classically_frustrated = mp.is_classically_frustrated();
-  if (is_signed)
+  if (is_signed())
     std::cerr << "WARNING: model has negative signs\n";
-  if (is_classically_frustrated)
+  if (is_classically_frustrated())
     std::cerr << "WARNING: model is classically frustrated\n";
 
   energy_offset_ = 0;
@@ -72,7 +73,7 @@ qmc_worker_base::qmc_worker_base(const alps::ProcessList& w,
   // setup virtual lattice
   //
 
-  bool is_bipartite = alps::set_parity(graph());
+  is_bipartite_ = alps::set_parity(graph());
   vlat_.generate(rlat(), mp, mp.has_d_term());
 
   //
@@ -90,48 +91,48 @@ qmc_worker_base::qmc_worker_base(const alps::ProcessList& w,
   using alps::RealObservable;
   using alps::make_observable;
 
-  if (is_signed) {
+  if (is_signed()) {
     measurements << RealObservable("Sign");
   }
 
   measurements
     << make_observable(
-         RealObservable("Energy"), is_signed)
+         RealObservable("Energy"), is_signed())
     << make_observable(
-         RealObservable("Energy Density"), is_signed)
+         RealObservable("Energy Density"), is_signed())
     << make_observable(
-         RealObservable("Diagonal Energy Density"), is_signed)
+         RealObservable("Diagonal Energy Density"), is_signed())
     << make_observable(
-         RealObservable("Energy Density^2"), is_signed)
+         RealObservable("Energy Density^2"), is_signed())
     << make_observable(
-         RealObservable("beta * Energy / sqrt(N)"), is_signed)
+         RealObservable("beta * Energy / sqrt(N)"), is_signed())
     << make_observable(
-         RealObservable("beta * Energy^2"), is_signed);
+         RealObservable("beta * Energy^2"), is_signed());
 
   measurements
     << make_observable(
-         RealObservable("Magnetization"), is_signed)
+         RealObservable("Magnetization"), is_signed())
     << make_observable(
-         RealObservable("Magnetization^2"), is_signed)
+         RealObservable("Magnetization^2"), is_signed())
     << make_observable(
-         RealObservable("Susceptibility"), is_signed);
+         RealObservable("Susceptibility"), is_signed());
 
-  if (is_bipartite) {
+  if (is_bipartite()) {
     measurements
       << make_observable(
-           RealObservable("Staggered Magnetization"), is_signed)
+           RealObservable("Staggered Magnetization"), is_signed())
       << make_observable(
-           RealObservable("Staggered Magnetization^2"), is_signed)
+           RealObservable("Staggered Magnetization^2"), is_signed())
       << make_observable(
-           RealObservable("Staggered Susceptibility"), is_signed);
+           RealObservable("Staggered Susceptibility"), is_signed());
   }
 
-  if (!is_classically_frustrated) {
+  if (!is_classically_frustrated()) {
     measurements
       << RealObservable("Generalized Magnetization^2")
       << RealObservable("Generalized Susceptibility");
   }
-  if (!is_classically_frustrated && is_bipartite) {
+  if (!is_classically_frustrated() && is_bipartite()) {
     measurements
       << RealObservable("Staggered Generalized Magnetization^2")
       << RealObservable("Staggered Generalized Susceptibility");

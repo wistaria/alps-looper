@@ -23,6 +23,7 @@
 *****************************************************************************/
 
 #include "loop_worker_sse.h"
+#include <alps/fixed_capacity_vector.h>
 
 qmc_worker_sse::qmc_worker_sse(const alps::ProcessList& w,
                                const alps::Parameters& p, int n)
@@ -30,7 +31,7 @@ qmc_worker_sse::qmc_worker_sse(const alps::ProcessList& w,
     nrs(num_sites(rlat())), nvs(num_sites(vlat())),
     beta(1.0 / static_cast<double>(p["T"])),
     spins(nvs, 0 /* all up */), operators(0), nop(0),
-    spins_curr(nvs), fragments(), current(nvs), clusters()
+    spins_c(nvs), fragments(), current(nvs), clusters()
 {}
 
 void qmc_worker_sse::dostep()
@@ -57,7 +58,7 @@ void qmc_worker_sse::dostep()
   //
 
   // initialize spin & operator information
-  std::copy(spins.begin(), spins.end(), spins_curr.begin());
+  std::copy(spins.begin(), spins.end(), spins_c.begin());
 
   // initialize cluster information (setup cluster fragments)
   fragments.resize(0); fragments.resize(nvs);
@@ -74,9 +75,9 @@ void qmc_worker_sse::dostep()
 #warning "to be checked"
       if (((operators.size() - nop) * random() < beta / 2) &&
           ((is_bond(g) &&
-            is_compatible(g, spins_curr[vsource(pos(g))],
-                          spins_curr[vtarget(pos(g))])) ||
-           (is_site(g) && is_compatible(g, spins_curr[pos(g)])))) {
+            is_compatible(g, spins_c[vsource(pos(g))],
+                          spins_c[vtarget(pos(g))])) ||
+           (is_site(g) && is_compatible(g, spins_c[pos(g)])))) {
         *oi = g;
         ++nop;
       } else
@@ -102,37 +103,38 @@ void qmc_worker_sse::dostep()
       boost::tie(current[s0], current[s1], oi->loop0, oi->loop1) =
         reconnect(fragments, oi->graph(), current[s0], current[s1]);
       if (oi->is_offdiagonal()) {
-        spins_curr[s0] ^= 1;
-        spins_curr[s1] ^= 1;
+        spins_c[s0] ^= 1;
+        spins_c[s1] ^= 1;
       }
     } else {
       int s = oi->pos();
       boost::tie(current[s], oi->loop0, oi->loop1) =
         reconnect(fragments, oi->graph(), current[s]);
       if (oi->is_locked()) unify(fragments, ghost, current[s]);
-      if (oi->is_offdiagonal()) spins_curr[s] ^= 1;
+      if (oi->is_offdiagonal()) spins_c[s] ^= 1;
     }
   }
 
   // connect bottom and top cluster fragments after random permutation
-  std::vector<int> r, c0, c1;
-  site_iterator rsi, rsi_end;
-  for (boost::tie(rsi, rsi_end) = sites(rlat()); rsi != rsi_end; ++rsi) {
-    site_iterator vsi, vsi_end;
-    boost::tie(vsi, vsi_end) = virtual_sites(vlat(), rlat(), *rsi);
-    int offset = *vsi;
-    int s2 = *vsi_end - *vsi;
-    r.resize(s2); c0.resize(s2); c1.resize(s2);
-    for (int i = 0; i < s2; ++i) {
-      r[i] = i;
-      c0[i] = spins[offset+i];
-      c1[i] = spins_curr[offset+i];
+  {
+    alps::fixed_capacity_vector<int, 20> r;
+    site_iterator rsi, rsi_end;
+    for (boost::tie(rsi, rsi_end) = sites(rlat()); rsi != rsi_end; ++rsi) {
+      site_iterator vsi, vsi_end;
+      boost::tie(vsi, vsi_end) = virtual_sites(vlat(), rlat(), *rsi);
+      int offset = *vsi;
+      int s2 = *vsi_end - *vsi;
+      if (s2 == 1) {
+        unify(fragments, offset, current[offset]);
+      } else if (s2 > 1) {
+        r.resize(s2);
+        for (int i = 0; i < s2; ++i) r[i] = i;
+        looper::restricted_random_shuffle(r.begin(), r.end(),
+          spins.begin() + offset, spins_c.begin() + offset, random);
+        for (int i = 0; i < s2; ++i)
+          unify(fragments, offset+i, current[offset+r[i]]);
+      }
     }
-    looper::restricted_random_shuffle(r.begin(), r.end(), c0.begin(),
-                                      c0.end(), c1.begin(), c1.end(),
-                                      *engine_ptr);
-    for (int i = 0; i < s2; ++i)
-      unify(fragments, offset+i, current[offset+r[i]]);
   }
 
   //

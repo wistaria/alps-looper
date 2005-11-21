@@ -55,6 +55,14 @@ public:
   unsigned int vsource(unsigned int b) const { return source(bond(b, vlat_)); }
   unsigned int vtarget(unsigned int b) const { return target(bond(b, vlat_)); }
 
+  double energy_offset() const { return energy_offset_; }
+  double sse_energy_offset() const { return sse_energy_offset_; }
+  bool is_signed() const { return is_signed_; }
+  bool is_classically_frustrated() const { return is_classically_frustrated_; }
+  bool has_longitudinal_field() const { return has_hz_; }
+
+  bool is_bipartite() const { return is_bipartite_; }
+
   double advance() const { return r_time_(); }
   const local_graph& choose_graph() const
   { return diag_graphs_[r_graph_()]; }
@@ -64,9 +72,6 @@ public:
     return local_graph(g, loc);
   }
 
-  double energy_offset() const { return energy_offset_; }
-  bool has_longitudinal_field() const { return has_hz_; }
-
   virtual void save(alps::ODump& od) const;
   virtual void load(alps::IDump& id);
 
@@ -74,10 +79,12 @@ private:
   looper::integer_range<unsigned int> mcs_sweep_;
   unsigned int mcs_therm_;
 
-  virtual_lattice vlat_;
-
-  bool has_hz_;
+  bool is_signed_, is_classically_frustrated_, has_hz_;
   double energy_offset_;
+  double sse_energy_offset_;
+
+  virtual_lattice vlat_;
+  bool is_bipartite_;
 
   std::vector<local_graph> diag_graphs_;
     // graph table for diagonal configuration

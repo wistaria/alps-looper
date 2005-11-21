@@ -23,6 +23,7 @@
 *****************************************************************************/
 
 #include "loop_worker_pi.h"
+#include <alps/fixed_capacity_vector.h>
 
 qmc_worker_pi::qmc_worker_pi(const alps::ProcessList& w,
                              const alps::Parameters& p, int n)
@@ -100,24 +101,25 @@ void qmc_worker_pi::dostep()
   }
 
   // connect bottom and top cluster fragments after random permutation
-  std::vector<int> r, c0, c1;
-  site_iterator rsi, rsi_end;
-  for (boost::tie(rsi, rsi_end) = sites(rlat()); rsi != rsi_end; ++rsi) {
-    site_iterator vsi, vsi_end;
-    boost::tie(vsi, vsi_end) = virtual_sites(vlat(), rlat(), *rsi);
-    int offset = *vsi;
-    int s2 = *vsi_end - *vsi;
-    r.resize(s2); c0.resize(s2); c1.resize(s2);
-    for (int i = 0; i < s2; ++i) {
-      r[i] = i;
-      c0[i] = spins[offset+i];
-      c1[i] = spins_c[offset+i];
+  {
+    alps::fixed_capacity_vector<int, 20> r;
+    site_iterator rsi, rsi_end;
+    for (boost::tie(rsi, rsi_end) = sites(rlat()); rsi != rsi_end; ++rsi) {
+      site_iterator vsi, vsi_end;
+      boost::tie(vsi, vsi_end) = virtual_sites(vlat(), rlat(), *rsi);
+      int offset = *vsi;
+      int s2 = *vsi_end - *vsi;
+      if (s2 == 1) {
+        unify(fragments, offset, current[offset]);
+      } else if (s2 > 1) {
+        r.resize(s2);
+        for (int i = 0; i < s2; ++i) r[i] = i;
+        looper::restricted_random_shuffle(r.begin(), r.end(),
+          spins.begin() + offset, spins_c.begin() + offset, random);
+        for (int i = 0; i < s2; ++i)
+          unify(fragments, offset+i, current[offset+r[i]]);
+      }
     }
-    looper::restricted_random_shuffle(r.begin(), r.end(), c0.begin(),
-                                      c0.end(), c1.begin(), c1.end(),
-                                      *engine_ptr);
-    for (int i = 0; i < s2; ++i)
-      unify(fragments, offset+i, current[offset+r[i]]);
   }
 
   //
@@ -205,9 +207,11 @@ void qmc_worker_pi::dostep()
     measurements["Energy Density"] <<
       (energy_offset() - (double)operators.size() / beta) / nrs;
     measurements["Magnetization^2"] << z2 / (4 * nrs);
-    measurements["Staggered Magnetization^2"] << s2 / (4 * nrs);
     measurements["Susceptibility"] << m2 / (4 * beta * nrs);
-    measurements["Staggered Susceptibility"]
-      << l2 / (4 * beta * nrs);
+    if (is_bipartite()) {
+      measurements["Staggered Magnetization^2"] << s2 / (4 * nrs);
+      measurements["Staggered Susceptibility"]
+        << l2 / (4 * beta * nrs);
+    }
   }
 }

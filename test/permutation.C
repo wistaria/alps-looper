@@ -23,9 +23,8 @@
 *****************************************************************************/
 
 #include <looper/permutation.h>
-#include <cmath>
 #include <boost/random.hpp>
-#include <algorithm> // for std::random_shuffle
+#include <cmath>
 #include <cstdlib>
 #include <iostream>
 #include <vector>
@@ -37,16 +36,13 @@ const boost::uint32_t seed = 23094;
 
 int main() {
   typedef boost::mt19937 rng_type;
-  typedef boost::uniform_01<rng_type> uniform_01;
-  typedef boost::uniform_smallint<> uniform_smallint;
-  typedef boost::random_number_generator<rng_type> shuffle_rng;
-
   typedef std::vector<unsigned int> vector_type;
 
   rng_type rng(seed);
+  boost::variate_generator<rng_type&, boost::uniform_real<> >
+    random(rng, boost::uniform_real<>(0, 1));
 
   std::cout << "[[random permutaion test 1]]\n";
-  // shuffle_rng sr(rng);
 
   std::cout << "generating " << trial1 << " random permutations of "
        << n << " integers [0..." << n - 1 << "]\n";
@@ -54,7 +50,7 @@ int main() {
   for (unsigned int i = 0; i < trial1; ++i) {
     vector_type result(n);
     for (unsigned int j = 0; j < n; ++j) result[j] = j;
-    looper::random_shuffle(result.begin(), result.end(), rng);
+    looper::random_shuffle(result.begin(), result.end(), random);
     for (unsigned int j = 0; j < n; ++j) {
       std::cout << result[j] << '\t';
     }
@@ -68,10 +64,10 @@ int main() {
   for (unsigned int t = 0; t < trial2; t++) {
     vector_type config0(n);
     for (unsigned int i = 0; i < n; i++) {
-      config0[i] = uniform_smallint(0, 1)(rng);
+      config0[i] = boost::uniform_smallint<>(0, 1)(rng);
     }
     vector_type config1(config0);
-    looper::random_shuffle(config1.begin(), config1.end(), rng);
+    looper::random_shuffle(config1.begin(), config1.end(), random);
 
     std::cout << "conf0";
     for (unsigned int i = 0; i < n; i++) std::cout << '\t' << config0[i];
@@ -86,9 +82,8 @@ int main() {
 
     // generate restricted permutation
     looper::restricted_random_shuffle(result.begin(), result.end(),
-                                      config0.begin(), config0.end(),
-                                      config1.begin(), config1.end(),
-                                      rng);
+                                      config0.begin(), config1.begin(),
+                                      random);
 
     std::cout << "perm";
     for (unsigned int i = 0; i < n; i++) std::cout << '\t' << result[i];

@@ -37,11 +37,11 @@ void random_shuffle(RandomAccessIter first, RandomAccessIter last,
                     RandomNumberGenerator& rng)
 {
   using std::iter_swap;
-  boost::variate_generator<RandomNumberGenerator&,
-    boost::uniform_real<> > random(rng, boost::uniform_real<>(0, 1));
+//   boost::variate_generator<RandomNumberGenerator&,
+//     boost::uniform_real<> > random(rng, boost::uniform_real<>(0, 1));
   for (typename std::iterator_traits<RandomAccessIter>::difference_type
-	 n = last - first; n > 1; ++first, --n)
-    iter_swap(first, first + (int)(n * random()));
+         n = last - first; n > 1; ++first, --n)
+    iter_swap(first, first + (int)(n * rng()));
 }
 
 
@@ -56,8 +56,9 @@ void random_shuffle(RandomAccessIter first, RandomAccessIter last,
 template<class RandomAccessIterator0, class RandomAccessIterator1>
 void guided_sort_binary(RandomAccessIterator0 first_perm,
                         RandomAccessIterator0 last_perm,
-                        RandomAccessIterator1 first_guide,
-                        RandomAccessIterator1 last_guide) {
+                        RandomAccessIterator1 first_guide)
+{
+  RandomAccessIterator1 last_guide = first_guide + (last_perm - first_perm);
   if (first_perm == last_perm) return;
   --last_perm;
   --last_guide;
@@ -93,25 +94,23 @@ template<class RandomAccessIter0, class RandomAccessIter1,
 void restricted_random_shuffle(RandomAccessIter0 perm_first,
                                RandomAccessIter0 perm_last,
                                RandomAccessIter1 guide0_first,
-                               RandomAccessIter1 guide0_last,
                                RandomAccessIter1 guide1_first,
-                               RandomAccessIter1 guide1_last,
                                RandomNumberGenerator& rng)
 {
-  typedef typename std::iterator_traits<RandomAccessIter1>::difference_type
+  typedef typename std::iterator_traits<RandomAccessIter0>::difference_type
     diff_type;
+  diff_type n = perm_last - perm_first;
 
   // sort in two sectors (0 and 1) according to values in guide1
-  guided_sort_binary(perm_first, perm_last, guide1_first, guide1_last);
-  diff_type c = std::count(guide1_first, guide1_last, 0);
+  guided_sort_binary(perm_first, perm_last, guide1_first);
+  diff_type c = std::count(guide1_first, guide1_first + n, 0);
 
   // shuffle in each sector
   looper::random_shuffle(perm_first, perm_first + c, rng);
   looper::random_shuffle(perm_first + c, perm_last, rng);
 
   // reorder permutation according to values in guide0
-  looper::guided_sort_binary(perm_first, perm_last,
-                             guide0_first, guide0_last);
+  looper::guided_sort_binary(perm_first, perm_last, guide0_first);
 }
 
 } // end namespace looper

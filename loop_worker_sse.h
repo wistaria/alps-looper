@@ -70,7 +70,7 @@ private:
   int nop; // number of non-identity operators
 
   // working area
-  std::vector<int> spins_curr;
+  std::vector<int> spins_c;
   std::vector<cluster_fragment> fragments;
   std::vector<int> current;
   std::vector<cluster_info> clusters;
