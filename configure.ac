@@ -118,7 +118,7 @@ dnl
 dnl generate files
 dnl
 
-AC_CONFIG_HEADERS(config/config.h)
+AC_CONFIG_HEADERS(loop_config.h)
 AC_CONFIG_FILES(Makefile doc/Makefile test/Makefile ed/Makefile check/Makefile)
 AC_CONFIG_FILES(test/model_parameter.ip test/sign.ip ed/diag.ip)
 AC_CONFIG_FILES(check/chain-p check/chain-e check/chain.gp check/triangle-p check/triangle-e check/triangle.gp)

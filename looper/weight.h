@@ -200,7 +200,6 @@ public:
     typename graph_traits<RL>::bond_iterator rbi, rbi_end;
     for (boost::tie(rbi, rbi_end) = bonds(rl); rbi != rbi_end; ++rbi) {
       bond_weight bw(mp.bond(*rbi, rl));
-      std::cout << mp.bond(*rbi, rl).jz << std::endl;
       typename graph_traits<VL>::bond_iterator vbi, vbi_end;
       for (boost::tie(vbi, vbi_end) = virtual_bonds(vl, rl, *rbi);
            vbi != vbi_end; ++vbi) {

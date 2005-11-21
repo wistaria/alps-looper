@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2005 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -25,28 +25,23 @@
 #ifndef LOOPER_PERMUTATION_H
 #define LOOPER_PERMUTATION_H
 
-#include <iostream>
-#include <boost/random/uniform_int.hpp>
+#include <algorithm>
+#include <boost/random/uniform_real.hpp>
 #include <boost/random/variate_generator.hpp>
-#include <algorithm> // for std::iter_swap, std::random_shuffle
 #include <iterator>
 
 namespace looper {
 
-template<class RandomAccessIter,
-         class RandomNumberGenerator>
-void random_shuffle(RandomAccessIter first,
-                    RandomAccessIter last,
+template<class RandomAccessIter, class RandomNumberGenerator>
+void random_shuffle(RandomAccessIter first, RandomAccessIter last,
                     RandomNumberGenerator& rng)
 {
-  typedef typename std::iterator_traits<RandomAccessIter>::difference_type
-    diff_type;
-
-  for (diff_type i = 1; i < last - first; ++i) {
-    std::iter_swap(first + i,
-      first + boost::variate_generator<RandomNumberGenerator&,
-        boost::uniform_int<> >(rng, boost::uniform_int<>(0, i))());
-  }
+  using std::iter_swap;
+  boost::variate_generator<RandomNumberGenerator&,
+    boost::uniform_real<> > random(rng, boost::uniform_real<>(0, 1));
+  for (typename std::iterator_traits<RandomAccessIter>::difference_type
+	 n = last - first; n > 1; ++first, --n)
+    iter_swap(first, first + (int)(n * random()));
 }
 
 
@@ -91,8 +86,7 @@ void guided_sort_binary(RandomAccessIterator0 first_perm,
 //
 // This function generates a permutaion, which satisfies the
 // conservation law.  This is used for generating a boundary graph for
-// S >= 1 cases.  The model for RandomNumberGenerator is the same as
-// for std::random_shuffle
+// S >= 1 cases.
 
 template<class RandomAccessIter0, class RandomAccessIter1,
          class RandomNumberGenerator>

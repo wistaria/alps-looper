@@ -11,32 +11,20 @@ endif
 if HAVE_PVM
 noinst_PROGRAMS += loop_pvm
 endif
-check_PROGRAMS = loop_nosched
+check_PROGRAMS = # loop_nosched
 
 include_HEADERS = looper.h
 pkginclude_HEADERS = \
+	looper/find_bridges.h \
 	looper/lapack.h \
 	looper/lattice.h \
 	looper/model.h \
-	looper/node.h \
 	looper/permutation.h \
 	looper/random_choice.h \
 	looper/type.h \
 	looper/union_find.h \
 	looper/util.h \
 	looper/weight.h
-dist_noinst_HEADERS = \
-	looper/amida.h \
-	looper/exact_diag.h \
-	looper/fill_duration.h \
-	looper/find_bridges.h \
-	looper/measurement.h \
-	looper/operator.h \
-	looper/path_integral.h \
-	looper/qmc.h \
-	looper/sign.h \
-	looper/sse.h \
-	looper/vector_helper.h
 
 dist_noinst_SCRIPTS = config/run-test config/update_preamble
 dist_noinst_DATA = CITATIONS.txt LICENSE.txt loop_nosched.ip loop_nosched.op

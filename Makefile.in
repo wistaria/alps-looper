@@ -43,11 +43,11 @@ noinst_PROGRAMS = loop$(EXEEXT) loop_evaluate$(EXEEXT) \
 	loop_nosched$(EXEEXT) $(am__EXEEXT_1) $(am__EXEEXT_2)
 @HAVE_MPI_TRUE@am__append_1 = loop_mpi
 @HAVE_PVM_TRUE@am__append_2 = loop_pvm
-check_PROGRAMS = loop_nosched$(EXEEXT)
+check_PROGRAMS =
 DIST_COMMON = README $(am__configure_deps) $(dist_noinst_DATA) \
-	$(dist_noinst_HEADERS) $(dist_noinst_SCRIPTS) \
-	$(include_HEADERS) $(pkginclude_HEADERS) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(top_srcdir)/config/config.h.in \
+	$(dist_noinst_SCRIPTS) $(include_HEADERS) \
+	$(pkginclude_HEADERS) $(srcdir)/Makefile.am \
+	$(srcdir)/Makefile.in $(srcdir)/loop_config.h.in \
 	$(top_srcdir)/configure ChangeLog config/config.guess \
 	config/config.sub config/depcomp config/install-sh \
 	config/ltmain.sh config/missing
@@ -59,7 +59,7 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno configure.status.lineno
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = $(top_builddir)/config/config.h
+CONFIG_HEADER = loop_config.h
 CONFIG_CLEAN_FILES =
 @HAVE_MPI_TRUE@am__EXEEXT_1 = loop_mpi$(EXEEXT)
 @HAVE_PVM_TRUE@am__EXEEXT_2 = loop_pvm$(EXEEXT)
@@ -140,8 +140,7 @@ am__installdirs = "$(DESTDIR)$(includedir)" \
 	"$(DESTDIR)$(pkgincludedir)"
 includeHEADERS_INSTALL = $(INSTALL_HEADER)
 pkgincludeHEADERS_INSTALL = $(INSTALL_HEADER)
-HEADERS = $(dist_noinst_HEADERS) $(include_HEADERS) \
-	$(pkginclude_HEADERS)
+HEADERS = $(include_HEADERS) $(pkginclude_HEADERS)
 ETAGS = etags
 CTAGS = ctags
 DIST_SUBDIRS = $(SUBDIRS)
@@ -271,29 +270,16 @@ REMOVE_FOR_RELEASE =
 distdir = alps-looper-$(VERSION)
 include_HEADERS = looper.h
 pkginclude_HEADERS = \
+	looper/find_bridges.h \
 	looper/lapack.h \
 	looper/lattice.h \
 	looper/model.h \
-	looper/node.h \
 	looper/permutation.h \
 	looper/random_choice.h \
 	looper/type.h \
 	looper/union_find.h \
 	looper/util.h \
 	looper/weight.h
-
-dist_noinst_HEADERS = \
-	looper/amida.h \
-	looper/exact_diag.h \
-	looper/fill_duration.h \
-	looper/find_bridges.h \
-	looper/measurement.h \
-	looper/operator.h \
-	looper/path_integral.h \
-	looper/qmc.h \
-	looper/sign.h \
-	looper/sse.h \
-	looper/vector_helper.h
 
 dist_noinst_SCRIPTS = config/run-test config/update_preamble
 dist_noinst_DATA = CITATIONS.txt LICENSE.txt loop_nosched.ip loop_nosched.op
@@ -316,7 +302,8 @@ loop_pvm_SOURCES = $(SRC)
 loop_pvm_CPPFLAGS = @CPPFLAGS_PVM@
 loop_pvm_LDFLAGS = @LDFLAGS_PVM@
 loop_pvm_LDADD = @LIBS_PVM@
-all: all-recursive
+all: loop_config.h
+	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
 .SUFFIXES:
 .SUFFIXES: .C .lo .o .obj
@@ -354,22 +341,22 @@ $(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	cd $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 
-config/config.h: config/stamp-h1
+loop_config.h: stamp-h1
 	@if test ! -f $@; then \
-	  rm -f config/stamp-h1; \
-	  $(MAKE) config/stamp-h1; \
+	  rm -f stamp-h1; \
+	  $(MAKE) stamp-h1; \
 	else :; fi
 
-config/stamp-h1: $(top_srcdir)/config/config.h.in $(top_builddir)/config.status
-	@rm -f config/stamp-h1
-	cd $(top_builddir) && $(SHELL) ./config.status config/config.h
-$(top_srcdir)/config/config.h.in: @MAINTAINER_MODE_TRUE@ $(am__configure_deps) 
+stamp-h1: $(srcdir)/loop_config.h.in $(top_builddir)/config.status
+	@rm -f stamp-h1
+	cd $(top_builddir) && $(SHELL) ./config.status loop_config.h
+$(srcdir)/loop_config.h.in: @MAINTAINER_MODE_TRUE@ $(am__configure_deps) 
 	cd $(top_srcdir) && $(AUTOHEADER)
-	rm -f config/stamp-h1
+	rm -f stamp-h1
 	touch $@
 
 distclean-hdr:
-	-rm -f config/config.h config/stamp-h1
+	-rm -f loop_config.h stamp-h1
 
 clean-checkPROGRAMS:
 	@list='$(check_PROGRAMS)'; for p in $$list; do \
@@ -784,7 +771,7 @@ ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	mkid -fID $$unique
 tags: TAGS
 
-TAGS: tags-recursive $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
+TAGS: tags-recursive $(HEADERS) $(SOURCES) loop_config.h.in $(TAGS_DEPENDENCIES) \
 		$(TAGS_FILES) $(LISP)
 	tags=; \
 	here=`pwd`; \
@@ -801,7 +788,7 @@ TAGS: tags-recursive $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
 	      tags="$$tags $$include_option=$$here/$$subdir/TAGS"; \
 	  fi; \
 	done; \
-	list='$(SOURCES) $(HEADERS)  $(LISP) $(TAGS_FILES)'; \
+	list='$(SOURCES) $(HEADERS) loop_config.h.in $(LISP) $(TAGS_FILES)'; \
 	unique=`for i in $$list; do \
 	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
 	  done | \
@@ -813,11 +800,11 @@ TAGS: tags-recursive $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
 	    $$tags $$unique; \
 	fi
 ctags: CTAGS
-CTAGS: ctags-recursive $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
+CTAGS: ctags-recursive $(HEADERS) $(SOURCES) loop_config.h.in $(TAGS_DEPENDENCIES) \
 		$(TAGS_FILES) $(LISP)
 	tags=; \
 	here=`pwd`; \
-	list='$(SOURCES) $(HEADERS)  $(LISP) $(TAGS_FILES)'; \
+	list='$(SOURCES) $(HEADERS) loop_config.h.in $(LISP) $(TAGS_FILES)'; \
 	unique=`for i in $$list; do \
 	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
 	  done | \
@@ -1054,7 +1041,8 @@ check-am: all-am
 	$(MAKE) $(AM_MAKEFLAGS) $(check_PROGRAMS)
 	$(MAKE) $(AM_MAKEFLAGS) check-TESTS
 check: check-recursive
-all-am: Makefile $(PROGRAMS) $(SCRIPTS) $(DATA) $(HEADERS)
+all-am: Makefile $(PROGRAMS) $(SCRIPTS) $(DATA) $(HEADERS) \
+		loop_config.h
 installdirs: installdirs-recursive
 installdirs-am:
 	for dir in "$(DESTDIR)$(includedir)" "$(DESTDIR)$(pkgincludedir)"; do \

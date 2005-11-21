@@ -50,8 +50,6 @@ public:
   { return is_thermalized() ? (double(mcs_) / mcs_sweep_.min()) : 0.; }
   unsigned int mcs() const { return mcs_; }
 
-  bool has_longitudinal_field() const { return has_hz_; }
-
   const graph_type& rlat() const { return super_type::graph(); }
   const virtual_lattice& vlat() const { return vlat_; }
   unsigned int vsource(unsigned int b) const { return source(bond(b, vlat_)); }
@@ -66,18 +64,26 @@ public:
     return local_graph(g, loc);
   }
 
+  double energy_offset() const { return energy_offset_; }
+  bool has_longitudinal_field() const { return has_hz_; }
+
   virtual void save(alps::ODump& od) const;
   virtual void load(alps::IDump& id);
 
 private:
   looper::integer_range<unsigned int> mcs_sweep_;
   unsigned int mcs_therm_;
-  bool has_hz_;
+
   virtual_lattice vlat_;
+
+  bool has_hz_;
+  double energy_offset_;
+
   std::vector<local_graph> diag_graphs_;
     // graph table for diagonal configuration
   std::vector<double> offdiag_weights_;
     // graph probability for offdiagonal configration
+
   mutable boost::variate_generator<alps::buffered_rng_base&,
                                    looper::random_choice<> > r_graph_;
   mutable boost::variate_generator<alps::buffered_rng_base&,

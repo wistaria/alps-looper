@@ -201,11 +201,12 @@ void qmc_worker_pi::dostep()
       l2 += looper::sqr(pi->length);
     }
 
-    measurements["Energy"]
-      << - (double)operators.size() / beta / nrs;
-    measurements["Uniform Magnetization^2"] << z2 / (4 * nrs);
+    measurements["Energy"] << energy_offset() - (double)operators.size() / beta;
+    measurements["Energy Density"] <<
+      (energy_offset() - (double)operators.size() / beta) / nrs;
+    measurements["Magnetization^2"] << z2 / (4 * nrs);
     measurements["Staggered Magnetization^2"] << s2 / (4 * nrs);
-    measurements["Uniform Susceptibility"] << m2 / (4 * beta * nrs);
+    measurements["Susceptibility"] << m2 / (4 * beta * nrs);
     measurements["Staggered Susceptibility"]
       << l2 / (4 * beta * nrs);
   }

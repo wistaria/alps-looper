@@ -24,48 +24,14 @@
 
 #include "loop_worker.h"
 
-std::ostream& operator<<(std::ostream& os, const looper::site_parameter& p)
-{
-  os << "C = " << p.c << ", Hx = " << p.hx << ", Hz = " << p.hz;
-  return os;
-}
-
-std::ostream& operator<<(std::ostream& os, const looper::bond_parameter& p)
-{
-  os << "C = " << p.c << ", Jxy = " << p.jxy << ", Jz = " << p.jz;
-  return os;
-}
-
-template<typename G>
-void output(const alps::graph_helper<G>& gh,
-            const looper::model_parameter& m)
-{
-  typedef G graph_type;
-  typedef typename alps::graph_helper<G>::site_iterator site_iterator;
-  typedef typename alps::graph_helper<G>::bond_iterator bond_iterator;
-
-  // site parameters
-  site_iterator vi, vi_end;
-  for (boost::tie(vi, vi_end) = gh.sites(); vi != vi_end; ++vi) {
-    std::cout << "site " << *vi << ": type = " << gh.site_type(*vi)
-              << ", S = " << m.site(*vi, gh.graph()).s << std::endl;
-  }
-
-  // bond parameters
-  bond_iterator ei, ei_end;
-  for (boost::tie(ei, ei_end) = gh.bonds(); ei != ei_end; ++ei) {
-    std::cout << "bond " << *ei << ": type = " << gh.bond_type(*ei)
-              << ", " << m.bond(*ei, gh.graph()) << std::endl;
-  }
-}
-
 qmc_worker_base::qmc_worker_base(const alps::ProcessList& w,
                                  const alps::Parameters& p, int n)
   : super_type(w, p, n),
     mcs_sweep_(p["SWEEPS"]),
     mcs_therm_(p.value_or_default("THERMALIZATION", mcs_sweep_.min() >> 3)),
-    has_hz_(false),
-    vlat_(), diag_graphs_(), offdiag_weights_(),
+    vlat_(), 
+    has_hz_(false), energy_offset_(0),
+    diag_graphs_(), offdiag_weights_(),
     r_graph_(*engine_ptr, looper::random_choice<>()),
     r_time_(*engine_ptr, boost::exponential_distribution<>()),
     mcs_(0)
@@ -90,6 +56,18 @@ qmc_worker_base::qmc_worker_base(const alps::ProcessList& w,
   if (is_classically_frustrated)
     std::cerr << "WARNING: model is classically frustrated\n";
 
+  energy_offset_ = 0;
+  {
+    alps::graph_traits<graph_type>::site_iterator si, si_end;
+    for (boost::tie(si, si_end) = sites(rlat()); si != si_end; ++si)
+      energy_offset_ += mp.site(*si, rlat()).c;
+  }
+  {
+    alps::graph_traits<graph_type>::bond_iterator bi, bi_end;
+    for (boost::tie(bi, bi_end) = bonds(rlat()); bi != bi_end; ++bi)
+      energy_offset_ += mp.bond(*bi, rlat()).c;
+  }
+
   //
   // setup virtual lattice
   //
@@ -101,7 +79,6 @@ qmc_worker_base::qmc_worker_base(const alps::ProcessList& w,
   // setup graph table and random number generators
   //
 
-  output(*this, mp);
   looper::weight_table wt(mp, rlat(), vlat());
   wt.setup_graph_chooser(diag_graphs_, r_graph_, offdiag_weights_);
   r_time_.distribution() = boost::exponential_distribution<>(wt.rho());
@@ -117,7 +94,6 @@ qmc_worker_base::qmc_worker_base(const alps::ProcessList& w,
     measurements << RealObservable("Sign");
   }
 
-  // unimproved super_type::measurements
   measurements
     << make_observable(
          RealObservable("Energy"), is_signed)
@@ -130,36 +106,36 @@ qmc_worker_base::qmc_worker_base(const alps::ProcessList& w,
     << make_observable(
          RealObservable("beta * Energy / sqrt(N)"), is_signed)
     << make_observable(
-         RealObservable("beta * Energy^2"), is_signed)
-    << make_observable(
-         RealObservable("Susceptibility"), is_signed);
-  if (is_bipartite)
-    measurements
-      << make_observable(
-           RealObservable("Staggered Susceptibility"), is_signed);
+         RealObservable("beta * Energy^2"), is_signed);
 
-  // improved measurements
   measurements
+    << make_observable(
+         RealObservable("Magnetization"), is_signed)
     << make_observable(
          RealObservable("Magnetization^2"), is_signed)
     << make_observable(
-         RealObservable("Diagonal Energy Density (improved)"),
-         is_signed);
-  if (is_bipartite)
+         RealObservable("Susceptibility"), is_signed);
+
+  if (is_bipartite) {
     measurements
       << make_observable(
-           RealObservable("Staggered Magnetization^2"),
-           is_signed);
-  if (!is_classically_frustrated) {
-    measurements
-      << RealObservable("Uniform Generalized Magnetization^2")
-      << RealObservable("Uniform Generalized Susceptibility");
-    if (is_bipartite)
-      measurements
-        << RealObservable("Staggered Generalized Magnetization^2")
-        << RealObservable("Staggered Generalized Susceptibility");
+           RealObservable("Staggered Magnetization"), is_signed)
+      << make_observable(
+           RealObservable("Staggered Magnetization^2"), is_signed)
+      << make_observable(
+           RealObservable("Staggered Susceptibility"), is_signed);
   }
 
+  if (!is_classically_frustrated) {
+    measurements
+      << RealObservable("Generalized Magnetization^2")
+      << RealObservable("Generalized Susceptibility");
+  }
+  if (!is_classically_frustrated && is_bipartite) {
+    measurements
+      << RealObservable("Staggered Generalized Magnetization^2")
+      << RealObservable("Staggered Generalized Susceptibility");
+  }
 }
 
 void qmc_worker_base::save(alps::ODump& od) const {

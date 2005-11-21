@@ -23,7 +23,6 @@
 *****************************************************************************/
 
 #include <looper/lapack.h>
-#include <looper/operator.h>
 #include <looper/util.h>
 
 #include <alps/parameterlist.h>
@@ -33,6 +32,114 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/io.hpp>
+
+template<class MATRIX, class I, class GRAPH>
+void add_to_matrix(
+  MATRIX& matrix,
+  const alps::HamiltonianDescriptor<I>& hd,
+  const alps::BasisDescriptor<I>& basis,
+  const alps::basis_states<I>& basis_set,
+  const typename alps::graph_traits<GRAPH>::vertex_descriptor vd,
+  const GRAPH& graph,
+  const alps::Parameters& params /* = alps::Parameters() */)
+{
+  typedef typename MATRIX::value_type value_type;
+  typedef alps::basis_states<I> basis_set_type;
+
+  int t = get(alps::site_type_t(), graph, vd);
+  int s = get(alps::site_index_t(), graph, vd);
+  int dim = basis_set.size();
+  int ds = basis_set.basis().get_site_basis(s).num_states();
+
+  boost::multi_array<value_type, 2>
+    site_matrix(get_matrix(value_type(), hd.site_term(t), basis.site_basis(t),
+                           params));
+
+  for (int i = 0; i < dim; ++i) {
+    int is = basis_set[i][s];
+    for (int js = 0; js < ds; ++js) {
+      typename basis_set_type::value_type target(basis_set[i]);
+      target[s] = js;
+      int j = basis_set.index(target);
+      if (j < dim) matrix(i,j) += site_matrix[is][js];
+    }
+  }
+}
+
+template<class MATRIX, class I, class GRAPH>
+void add_to_matrix(
+  MATRIX& matrix,
+  const alps::HamiltonianDescriptor<I>& hd,
+  const alps::BasisDescriptor<I>& basis,
+  const alps::basis_states<I>& basis_set,
+  const typename alps::graph_traits<GRAPH>::bond_descriptor ed,
+  const typename alps::graph_traits<GRAPH>::site_descriptor vd0,
+  const typename alps::graph_traits<GRAPH>::site_descriptor vd1,
+  const GRAPH& graph,
+  const alps::Parameters& params /* = alps::Parameters() */)
+{
+  typedef typename MATRIX::value_type value_type;
+  typedef alps::basis_states<I> basis_set_type;
+
+  int t = get(alps::bond_type_t(), graph, ed);
+  int st0 = get(alps::site_type_t(), graph, vd0);
+  int st1 = get(alps::site_type_t(), graph, vd1);
+  int s0 = get(alps::site_index_t(), graph, vd0);
+  int s1 = get(alps::site_index_t(), graph, vd1);
+  int dim = basis_set.size();
+  int ds0 = basis_set.basis().get_site_basis(s0).num_states();
+  int ds1 = basis_set.basis().get_site_basis(s1).num_states();
+
+  boost::multi_array<value_type, 4>
+    bond_matrix(alps::get_matrix(
+      value_type(), hd.bond_term(t),
+      basis.site_basis(st0), basis.site_basis(st1),
+      params));
+
+  for (int i = 0; i < dim; ++i) {
+    int is0 = basis_set[i][s0];
+    int is1 = basis_set[i][s1];
+    for (int js0 = 0; js0 < ds0; ++js0) {
+      for (int js1 = 0; js1 < ds1; ++js1) {
+        typename basis_set_type::value_type target(basis_set[i]);
+        target[s0] = js0;
+        target[s1] = js1;
+        int j = basis_set.index(target);
+        if (j < dim) matrix(i,j) += bond_matrix[is0][is1][js0][js1];
+      }
+    }
+  }
+}
+
+template<class VECTOR, class I, class GRAPH>
+void add_to_diagonal_matrix(
+  VECTOR& vector,
+  const alps::SiteTermDescriptor& term,
+  const alps::BasisDescriptor<I>& basis,
+  const alps::basis_states<I>& basis_set,
+  const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd,
+  const GRAPH& graph,
+  const alps::Parameters& params /* = alps::Parameters() */)
+{
+  typedef typename VECTOR::value_type value_type;
+
+  int t = get(alps::site_type_t(), graph, vd);
+  int s = get(alps::site_index_t(), graph, vd);
+  int dim = basis_set.size();
+  int ds = basis_set.basis().get_site_basis(s).num_states();
+
+  boost::multi_array<value_type, 2>
+    site_matrix(get_matrix(value_type(), term, basis.site_basis(t), params));
+  for (int is = 0; is < ds; ++is)
+    for (int js = 0; js < ds; ++js)
+      if ((is != js) && alps::is_nonzero<1>(site_matrix[is][js]))
+        boost::throw_exception(std::logic_error("non-diagonal site term"));
+
+  for (int i = 0; i < dim; ++i) {
+    int is = basis_set[i][s];
+    vector(i) += site_matrix[is][is];
+  }
+}
 
 template<class VEC>
 std::pair<double, double> static_average2(double beta, double offset,
@@ -195,7 +302,7 @@ try {
 
     alps::basis_states<short>
       basis_set(alps::basis_states_descriptor<short>(model.basis(),
-                                                   lattice.graph()));
+                                                     lattice.graph()));
     int dim = basis_set.size();
     std::cout << "dimension of matrix = " << dim << std::endl;
 
@@ -208,16 +315,14 @@ try {
     alps::graph_traits<graph_type>::site_iterator vi, vi_end;
     for (boost::tie(vi, vi_end) = sites(lattice.graph());
          vi != vi_end; ++vi) {
-      looper::add_to_matrix(hamiltonian, model.model(), model.basis(),
-                            basis_set, *vi, lattice.graph(), params);
+      add_to_matrix(hamiltonian, model.model(), model.basis(),
+                    basis_set, *vi, lattice.graph(), params);
     }
     alps::graph_traits<graph_type>::bond_iterator ei, ei_end;
     for (boost::tie(ei, ei_end) = bonds(lattice.graph()); ei != ei_end; ++ei) {
-      looper::add_to_matrix(hamiltonian, model.model(), model.basis(),
-                            basis_set, *ei,
-                            source(*ei, lattice.graph()),
-                            target(*ei, lattice.graph()),
-                            lattice.graph(), params);
+      add_to_matrix(hamiltonian, model.model(), model.basis(),
+                    basis_set, *ei, source(*ei, lattice.graph()),
+                    target(*ei, lattice.graph()), lattice.graph(), params);
     }
     diagonal_matrix_type diagonal_energy(dim);
     for (int i = 0; i < dim; ++i) diagonal_energy(i) = hamiltonian(i,i);
@@ -268,9 +373,9 @@ try {
     uniform_sz.clear();
     for (boost::tie(vi, vi_end) = sites(lattice.graph());
          vi != vi_end; ++vi) {
-      looper::add_to_diagonal_matrix(uniform_sz,
-        alps::SiteTermDescriptor("Sz(i)", "i"),
-        basis_set, *vi, lattice.graph(), params);
+      add_to_diagonal_matrix(uniform_sz, alps::SiteTermDescriptor("Sz(i)", "i"),
+                             model.basis(), basis_set, *vi, lattice.graph(),
+                             params);
     }
 
     double umag, umag2;
@@ -293,12 +398,12 @@ try {
            vi != vi_end; ++vi) {
         if (get(alps::parity_t(), lattice.graph(), *vi) ==
             alps::parity_traits<alps::parity_t, graph_type>::white) {
-          looper::add_to_diagonal_matrix(staggered_sz,
-            alps::SiteTermDescriptor("Sz(i)", "i"),
+          add_to_diagonal_matrix(staggered_sz,
+            alps::SiteTermDescriptor("Sz(i)", "i"), model.basis(),
             basis_set, *vi, lattice.graph(), params);
         } else {
-          looper::add_to_diagonal_matrix(staggered_sz,
-            alps::SiteTermDescriptor("-Sz(i)", "i"),
+          add_to_diagonal_matrix(staggered_sz,
+            alps::SiteTermDescriptor("-Sz(i)", "i"), model.basis(),
             basis_set, *vi, lattice.graph(), params);
         }
       }

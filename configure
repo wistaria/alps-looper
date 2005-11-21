@@ -1971,8 +1971,8 @@ fi
 
 
 
-{ echo "$as_me:$LINENO: starting configuration for ALPS/looper version 3.2.0b (2005/11/11)" >&5
-echo "$as_me: starting configuration for ALPS/looper version 3.2.0b (2005/11/11)" >&6;}
+{ echo "$as_me:$LINENO: starting configuration for ALPS/looper version 3.2.0b (2005/11/18)" >&5
+echo "$as_me: starting configuration for ALPS/looper version 3.2.0b (2005/11/18)" >&6;}
 
 
 
@@ -19739,7 +19739,7 @@ LIBS_PVM="$ac_cv_alps_libs_pvm"
 
 
 
-          ac_config_headers="$ac_config_headers config/config.h"
+          ac_config_headers="$ac_config_headers loop_config.h"
 
                                                   ac_config_files="$ac_config_files Makefile doc/Makefile test/Makefile ed/Makefile check/Makefile"
 
@@ -20286,7 +20286,7 @@ do
   "check/triangle-e" ) CONFIG_FILES="$CONFIG_FILES check/triangle-e" ;;
   "check/triangle.gp" ) CONFIG_FILES="$CONFIG_FILES check/triangle.gp" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
-  "config/config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS config/config.h" ;;
+  "loop_config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS loop_config.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
    { (exit 1); exit 1; }; };;
