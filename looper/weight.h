@@ -25,8 +25,8 @@
 #ifndef LOOPER_WEIGHT_H
 #define LOOPER_WEIGHT_H
 
-#include <looper/random_choice.h>
-#include <looper/util.h>
+#include "util.h"
+
 #include <alps/math.hpp>
 #include <algorithm> // for std::min std::max
 #include <cmath>     // for std::abs
@@ -176,6 +176,11 @@ struct bond_weight {
 class weight_table
 {
 public:
+  typedef std::vector<std::pair<int, site_weight> >::const_iterator
+    site_iterator;
+  typedef std::vector<std::pair<int, bond_weight> >::const_iterator
+    bond_iterator;
+
   template<class RL, class VL>
   weight_table(const model_parameter& mp, const RL& rl, const VL& vl)
   { init(mp, rl, vl); }
@@ -222,41 +227,46 @@ public:
     }
   }
 
+  site_iterator site_begin() const { return site_weights_.begin(); }
+  site_iterator site_end() const { return site_weights_.end(); }
+  bond_iterator bond_begin() const { return bond_weights_.begin(); }
+  bond_iterator bond_end() const { return bond_weights_.end(); }
+
   double weight() const { return weight_; }
   double rho() const { return weight(); }
 
-  template<class LOCAL_GRAPH, class RND_CHOICE>
-  void setup_graph_chooser(std::vector<LOCAL_GRAPH>& diagonal_graphs,
-                           RND_CHOICE& rng,
-                           std::vector<double>& offdiagonal_weights) const
-  {
-    diagonal_graphs.clear();
-    offdiagonal_weights.clear();
-    std::vector<double> w;
-    for (std::vector<std::pair<int, site_weight> >::const_iterator
-           itr = site_weights_.begin(); itr != site_weights_.end(); ++itr) {
-      site_weight sw = itr->second;
-      for (int g = 0; g <= 2; ++g) {
-        if (alps::is_nonzero<1>(sw.v[g])) {
-          diagonal_graphs.push_back(LOCAL_GRAPH::site_graph(g, itr->first));
-          w.push_back(sw.v[g]);
-        }
-      }
-    }
-    for (std::vector<std::pair<int, bond_weight> >::const_iterator
-           itr = bond_weights_.begin(); itr != bond_weights_.end(); ++itr) {
-      bond_weight bw = itr->second;
-      for (int g = 0; g <= 3; ++g) {
-        if (alps::is_nonzero<1>(bw.v[g])) {
-          diagonal_graphs.push_back(LOCAL_GRAPH::bond_graph(g, itr->first));
-          w.push_back(bw.v[g]);
-        }
-      }
-      offdiagonal_weights.push_back(alps::is_nonzero<1>(bw.v[0] + bw.v[2]) ?
-                                   bw.v[0] / (bw.v[0] + bw.v[2]) : 1);
-    }
-    rng.distribution().init(w);
-  }
+//   template<class LOCAL_GRAPH, class RND_CHOICE>
+//   void setup_graph_chooser(std::vector<LOCAL_GRAPH>& diagonal_graphs,
+//                            RND_CHOICE& rng,
+//                            std::vector<double>& offdiagonal_weights) const
+//   {
+//     diagonal_graphs.clear();
+//     offdiagonal_weights.clear();
+//     std::vector<double> w;
+//     for (std::vector<std::pair<int, site_weight> >::const_iterator
+//            itr = site_weights_.begin(); itr != site_weights_.end(); ++itr) {
+//       site_weight sw = itr->second;
+//       for (int g = 0; g <= 2; ++g) {
+//         if (alps::is_nonzero<1>(sw.v[g])) {
+//           diagonal_graphs.push_back(LOCAL_GRAPH::site_graph(g, itr->first));
+//           w.push_back(sw.v[g]);
+//         }
+//       }
+//     }
+//     for (std::vector<std::pair<int, bond_weight> >::const_iterator
+//            itr = bond_weights_.begin(); itr != bond_weights_.end(); ++itr) {
+//       bond_weight bw = itr->second;
+//       for (int g = 0; g <= 3; ++g) {
+//         if (alps::is_nonzero<1>(bw.v[g])) {
+//           diagonal_graphs.push_back(LOCAL_GRAPH::bond_graph(g, itr->first));
+//           w.push_back(bw.v[g]);
+//         }
+//       }
+//       offdiagonal_weights.push_back(alps::is_nonzero<1>(bw.v[0] + bw.v[2]) ?
+//                                    bw.v[0] / (bw.v[0] + bw.v[2]) : 1);
+//     }
+//     rng.distribution().init(w);
+//   }
 
 private:
   double weight_;

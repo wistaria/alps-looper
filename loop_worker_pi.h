@@ -43,6 +43,8 @@ class qmc_worker_pi : public qmc_worker_base
 public:
   typedef looper::path_integral                         qmc_type;
   typedef qmc_worker_base                               super_type;
+  typedef loop_config::graph_type                       graph_type;
+  typedef loop_config::local_graph                      local_graph;
   typedef looper::local_operator<qmc_type, local_graph> local_operator;
   typedef looper::union_find::node_idx                  cluster_fragment;
   typedef cluster_info_pi                               cluster_info;
@@ -51,19 +53,24 @@ public:
 
   void dostep();
 
-  void save(alps::ODump& dump) const {
-    super_type::save(dump);
-    dump << spins << operators;
+  void save(alps::ODump& dp) const {
+    super_type::save(dp);
+    dp << spins << operators;
   }
-  void load(alps::IDump& dump) {
-    super_type::load(dump);
-    dump >> spins >> operators;
+  void load(alps::IDump& dp) {
+    super_type::load(dp);
+    dp >> spins >> operators;
   }
 
 private:
-  int nrs; // number of real sites
-  int nvs; // number of virtual sites
   double beta;
+  double energy_offset;
+  bool is_signed, is_classically_frustrated, has_hz;
+
+  looper::virtual_lattice<graph_type> vlat;
+  bool is_bipartite;
+
+  looper::graph_chooser<local_graph, super_type::engine_type> chooser;
 
   std::vector<int> spins;
   std::vector<local_operator> operators;

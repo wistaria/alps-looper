@@ -519,6 +519,22 @@ virtual_bonds(const virtual_lattice<G>& vl, const G& rg,
 { return vl.virtual_edges(rg, rv); }
 
 template<class G>
+typename graph_traits<looper::virtual_lattice<G> >::site_descriptor
+vsource(
+  typename alps::graph_traits<looper::virtual_lattice<G> >::
+    bonds_size_type i,
+  const looper::virtual_lattice<G>& vl)
+{ return source(bond(i, vl.graph()), vl.graph()); }
+
+template<class G>
+typename graph_traits<looper::virtual_lattice<G> >::site_descriptor
+vtarget(
+  typename alps::graph_traits<looper::virtual_lattice<G> >::
+    bonds_size_type i,
+  const looper::virtual_lattice<G>& vl)
+{ return target(bond(i, vl.graph()), vl.graph()); }
+
+template<class G>
 int gauge(const virtual_lattice<G>& vl,
   const typename virtual_lattice<G>::vertex_descriptor& vd)
 { return gauge(vl.graph(), vd); }

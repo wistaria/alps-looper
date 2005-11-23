@@ -33,15 +33,19 @@ class qmc_worker_base
   : public alps::scheduler::LatticeModelMCRun<loop_config::graph_type>
 {
 public:
-  typedef loop_config::graph_type  graph_type;
-  typedef loop_config::local_graph local_graph;
+  typedef alps::scheduler::LatticeModelMCRun<loop_config::graph_type>
+    super_type;
 
-  typedef looper::virtual_lattice<graph_type>            virtual_lattice;
-  typedef alps::scheduler::LatticeModelMCRun<graph_type> super_type;
-  typedef alps::graph_traits<graph_type>::site_iterator  site_iterator;
-  typedef alps::graph_traits<graph_type>::bond_iterator  bond_iterator;
-
-  qmc_worker_base(const alps::ProcessList& w, const alps::Parameters& p, int n);
+  qmc_worker_base(const alps::ProcessList& w, const alps::Parameters& p, int n)
+    : super_type(w, p, n),
+      mcs_sweep_(p["SWEEPS"]),
+      mcs_therm_(p.value_or_default("THERMALIZATION", mcs_sweep_.min() >> 3)),
+      mcs_(0)
+  {
+    if (mcs_sweep_.min() < mcs_therm_)
+      boost::throw_exception(std::invalid_argument(
+        "qmc_worker_base::qmc_worker_base() too small SWEEPS"));
+  }
   virtual ~qmc_worker_base() {}
 
   virtual void dostep() { ++mcs_; }
@@ -50,54 +54,25 @@ public:
   { return is_thermalized() ? (double(mcs_) / mcs_sweep_.min()) : 0.; }
   unsigned int mcs() const { return mcs_; }
 
-  const graph_type& rlat() const { return super_type::graph(); }
-  const virtual_lattice& vlat() const { return vlat_; }
-  unsigned int vsource(unsigned int b) const { return source(bond(b, vlat_)); }
-  unsigned int vtarget(unsigned int b) const { return target(bond(b, vlat_)); }
+  const loop_config::graph_type& real_graph() const { return this->graph(); }
+  loop_config::graph_type& real_graph() { return this->graph(); }
 
-  double energy_offset() const { return energy_offset_; }
-  double sse_energy_offset() const { return sse_energy_offset_; }
-  bool is_signed() const { return is_signed_; }
-  bool is_classically_frustrated() const { return is_classically_frustrated_; }
-  bool has_longitudinal_field() const { return has_hz_; }
-
-  bool is_bipartite() const { return is_bipartite_; }
-
-  double advance() const { return r_time_(); }
-  const local_graph& choose_graph() const
-  { return diag_graphs_[r_graph_()]; }
-  local_graph choose_graph(const looper::location& loc) const
+  virtual void save(alps::ODump& dp) const
   {
-    int g = (is_site(loc) || random() < offdiag_weights_[pos(loc)]) ? 0 : 2;
-    return local_graph(g, loc);
+    super_type::save(dp);
+    dp << mcs_;
   }
-
-  virtual void save(alps::ODump& od) const;
-  virtual void load(alps::IDump& id);
+  virtual void load(alps::IDump& dp)
+  {
+    super_type::load(dp);
+    dp >> mcs_;
+    if (where.empty()) measurements.compact();
+  }
 
 private:
   looper::integer_range<unsigned int> mcs_sweep_;
   unsigned int mcs_therm_;
-
-  bool is_signed_, is_classically_frustrated_, has_hz_;
-  double energy_offset_;
-  double sse_energy_offset_;
-
-  virtual_lattice vlat_;
-  bool is_bipartite_;
-
-  std::vector<local_graph> diag_graphs_;
-    // graph table for diagonal configuration
-  std::vector<double> offdiag_weights_;
-    // graph probability for offdiagonal configration
-
-  mutable boost::variate_generator<alps::buffered_rng_base&,
-                                   looper::random_choice<> > r_graph_;
-  mutable boost::variate_generator<alps::buffered_rng_base&,
-                                   boost::exponential_distribution<> > r_time_;
-
-  // to be dumped/restored
-  unsigned int mcs_;
+  unsigned int mcs_; // to be dumped/restored
 };
 
 template<class QMC> class qmc_worker;
