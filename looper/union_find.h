@@ -35,24 +35,15 @@
 #include <vector>
 
 namespace looper {
-
 namespace union_find {
 
-//
-// index based implementation
-//
-
-struct node_idx_base {
-  node_idx_base() : parent(-1) {}
+struct node {
+  node() : parent(-1), id() {}
   bool is_root() const { return parent < 0; }
   int weight() const { return -parent; }
-  int add_weight(const node_idx_base& f) const { return parent += f.parent; }
+  int add_weight(const node& f) const { return parent += f.parent; }
   mutable int parent;  // negative for root fragment
-};
-
-struct node_idx : public node_idx_base {
-  node_idx() : node_idx_base(), id() {}
-  int id;
+  unsigned int id;
 };
 
 template<class T>
@@ -81,10 +72,11 @@ inline int cluster_id(const std::vector<T>& v, int g)
 template<class T>
 inline int unify(std::vector<T>& v, int g0, int g1)
 {
+  using std::swap;
   int r0 = root_index(v, g0);
   int r1 = root_index(v, g1);
   if (r0 != r1) {
-    if (v[r0].weight() < v[r1].weight()) std::swap(r0, r1);
+    if (v[r0].weight() < v[r1].weight()) swap(r0, r1);
     v[r0].add_weight(v[r1]);
     v[r1].parent = r0;
   }
@@ -94,7 +86,6 @@ inline int unify(std::vector<T>& v, int g0, int g1)
 }
 
 } // end namespace union_find
-
 } // end namespace looper
 
 #endif
