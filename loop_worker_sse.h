@@ -46,7 +46,7 @@ public:
   typedef loop_config::graph_type                       graph_type;
   typedef loop_config::local_graph                      local_graph;
   typedef looper::local_operator<qmc_type, local_graph> local_operator;
-  typedef looper::union_find::node_idx                  cluster_fragment;
+  typedef looper::union_find::node                      cluster_fragment;
   typedef cluster_info_sse                              cluster_info;
 
   qmc_worker_sse(const alps::ProcessList& w, const alps::Parameters& p, int n);

@@ -47,7 +47,7 @@ int main()
 
   std::cout << "[[union find test]]\n";
 
-  std::vector<looper::union_find::node_idx> nodes_idx(n);
+  std::vector<looper::union_find::node> nodes(n);
 
   std::cout << "\n[making tree]\n";
 
@@ -55,22 +55,22 @@ int main()
     int i0 = rng();
     int i1 = rng();
     std::cout << "connecting node " << i0 << " to node " << i1 << std::endl;
-    looper::union_find::unify(nodes_idx, i0, i1);
+    looper::union_find::unify(nodes, i0, i1);
   }
 
   std::cout << "\n[results (index based)]\n";
 
-  for (std::vector<looper::union_find::node_idx>::iterator
-	 itr = nodes_idx.begin(); itr != nodes_idx.end(); ++itr) {
-    int g = index(itr, nodes_idx.begin());
+  for (std::vector<looper::union_find::node>::iterator
+         itr = nodes.begin(); itr != nodes.end(); ++itr) {
+    int g = index(itr, nodes.begin());
     if (itr->is_root()) {
       std::cout << "node " << g
-		<< " is root and tree size is "
+                << " is root and tree size is "
                 << itr->weight() << std::endl;
     } else {
       std::cout << "node " << g
-		<< "'s parent is " << itr->parent
-		<< " and its root is " << root_index(nodes_idx, g)
+                << "'s parent is " << itr->parent
+                << " and its root is " << root_index(nodes, g)
                 << std::endl;
     }
   }

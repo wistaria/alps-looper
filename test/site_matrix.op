@@ -4,9 +4,6 @@ fitting result: S = 1/2, C = 0.5, Hx = 0, Hz = 0, D = 0
 input parameters: S = 1/2, C = 0, Hx = 0.1, Hz = 0, D = 0
 [2,2]((0,-0.05),(-0.05,0))
 fitting result: S = 1/2, C = 0, Hx = 0.1, Hz = 0, D = 0
-input parameters: S = 1/2, C = 0, Hx = 0.1, Hz = 0, D = 0.5
-[2,2]((0.125,-0.05),(-0.05,0.125))
-fitting result: S = 1/2, C = 0.125, Hx = 0.1, Hz = 0, D = 0
 input parameters: S = 1/2, C = 0, Hx = 0, Hz = 0.3, D = 0
 [2,2]((0.15,-0),(-0,-0.15))
 fitting result: S = 1/2, C = 0, Hx = 0, Hz = 0.3, D = 0
