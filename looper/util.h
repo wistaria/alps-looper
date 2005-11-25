@@ -25,17 +25,14 @@
 #ifndef LOOPER_UTIL_H
 #define LOOPER_UTIL_H
 
-#include <boost/call_traits.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/multi_array.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/spirit/core.hpp>
 #include <boost/throw_exception.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/type_traits/is_arithmetic.hpp>
-#include <boost/type_traits/is_float.hpp>
-#include <boost/type_traits/is_integral.hpp>
 #include <boost/utility/enable_if.hpp>
-#include <complex>
 #include <limits>
 #include <stdexcept>
 
@@ -248,5 +245,19 @@ std::ostream& operator<<(std::ostream& os, const integer_range<T>& ir)
 #ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
 } // end namespace looper
 #endif
+
+namespace looper {
+
+inline unsigned int generate_seed(int seed = -1)
+{
+  if (seed <= 0) {
+    seed = boost::posix_time::microsec_clock::local_time().time_of_day().
+      total_microseconds() << 24;
+    seed &= ((1<<30)|((1<<30)-1));
+  }
+  return seed;
+}
+
+} // end namespace looper
 
 #endif // LOOPER_UTIL_H
