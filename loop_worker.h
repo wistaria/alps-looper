@@ -49,9 +49,13 @@ public:
   virtual ~qmc_worker_base() {}
 
   virtual void dostep() { ++mcs_; }
+  bool can_work() const { return mcs_ < mcs_therm_ + mcs_sweep_.max(); }
   bool is_thermalized() const { return mcs_ >= mcs_therm_; }
   double work_done() const
-  { return is_thermalized() ? (double(mcs_) / mcs_sweep_.min()) : 0.; }
+  {
+    return is_thermalized() ?
+      (double(mcs_ - mcs_therm_) / mcs_sweep_.min()) : 0.;
+  }
   unsigned int mcs() const { return mcs_; }
 
   const loop_config::graph_type& real_graph() const { return this->graph(); }

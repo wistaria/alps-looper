@@ -137,6 +137,7 @@ qmc_worker_sse::qmc_worker_sse(const alps::ProcessList& w,
 
 void qmc_worker_sse::dostep()
 {
+//   if (!can_work()) return;
 //   super_type::dostep();
 
 //   //

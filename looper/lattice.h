@@ -39,7 +39,7 @@ using alps::site_index_t;
 using alps::vertex_type_t;
 using alps::site_type_t;
 using alps::coordinate_t;
-struct parity_t { typedef boost::vertex_property_tag kind; };
+using alps::parity_t;
 
 using alps::edge_index_t;
 using alps::bond_index_t;
@@ -522,9 +522,25 @@ template<class G>
 typename graph_traits<looper::virtual_lattice<G> >::site_descriptor
 vsource(
   typename alps::graph_traits<looper::virtual_lattice<G> >::
+    bond_descriptor b,
+  const looper::virtual_lattice<G>& vl)
+{ return source(b, vl.graph()); }
+
+template<class G>
+typename graph_traits<looper::virtual_lattice<G> >::site_descriptor
+vsource(
+  typename alps::graph_traits<looper::virtual_lattice<G> >::
     bonds_size_type i,
   const looper::virtual_lattice<G>& vl)
 { return source(bond(i, vl.graph()), vl.graph()); }
+
+template<class G>
+typename graph_traits<looper::virtual_lattice<G> >::site_descriptor
+vtarget(
+  typename alps::graph_traits<looper::virtual_lattice<G> >::
+    bond_descriptor b,
+  const looper::virtual_lattice<G>& vl)
+{ return target(b, vl.graph()); }
 
 template<class G>
 typename graph_traits<looper::virtual_lattice<G> >::site_descriptor
@@ -548,33 +564,33 @@ std::ostream& operator<<(std::ostream& os, const virtual_lattice<G>& vl)
 
 } // end namespace looper
 
-namespace alps {
+// namespace alps {
 
-template<class Graph>
-struct parity_traits<looper::parity_t, Graph> {
-  typedef int value_type;
-  BOOST_STATIC_CONSTANT(value_type, white = 1);
-  BOOST_STATIC_CONSTANT(value_type, black = -1);
-  BOOST_STATIC_CONSTANT(value_type, undefined = 0);
-};
+// template<class Graph>
+// struct parity_traits<looper::parity_t, Graph> {
+//   typedef int value_type;
+//   BOOST_STATIC_CONSTANT(value_type, white = 1);
+//   BOOST_STATIC_CONSTANT(value_type, black = -1);
+//   BOOST_STATIC_CONSTANT(value_type, undefined = 0);
+// };
 
-#ifndef BOOST_NO_INCLASS_MEMBER_INITIALIZATION
+// #ifndef BOOST_NO_INCLASS_MEMBER_INITIALIZATION
 
-template<class Graph>
-const typename parity_traits<looper::parity_t, Graph>::value_type
-parity_traits<looper::parity_t, Graph>::white;
+// template<class Graph>
+// const typename parity_traits<looper::parity_t, Graph>::value_type
+// parity_traits<looper::parity_t, Graph>::white;
 
-template<class Graph>
-const typename parity_traits<looper::parity_t, Graph>::value_type
-parity_traits<looper::parity_t, Graph>::black;
+// template<class Graph>
+// const typename parity_traits<looper::parity_t, Graph>::value_type
+// parity_traits<looper::parity_t, Graph>::black;
 
-template<class Graph>
-const typename parity_traits<looper::parity_t, Graph>::value_type
-parity_traits<looper::parity_t, Graph>::undefined;
+// template<class Graph>
+// const typename parity_traits<looper::parity_t, Graph>::value_type
+// parity_traits<looper::parity_t, Graph>::undefined;
 
-#endif
+// #endif
 
-} // end namespace alps
+// } // end namespace alps
 
 namespace looper {
 

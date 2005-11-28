@@ -33,6 +33,7 @@ struct loop_config
   typedef looper::graph_type graph_type;
 
   // model, weights, and local_graph
+  BOOST_STATIC_CONSTANT(int, max_2s = 8);
   typedef looper::local_graph<looper::location> local_graph;
 };
 

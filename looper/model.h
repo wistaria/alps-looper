@@ -237,6 +237,9 @@ public:
   typedef std::vector<bond_parameter> bond_map_type;
   typedef site_parameter::spin_type spin_type;
 
+  model_parameter()
+    : sites_(), bonds_(), use_site_index_(true), use_bond_index_(true),
+      has_hz_(false), has_d_(false), signed_(false), frustrated_(false) {}
   template<typename G, typename I>
   model_parameter(const G& g, const alps::half_integer<I>& spin,
                   double Jxy, double Jz)
@@ -281,11 +284,7 @@ public:
                   const alps::scheduler::LatticeModelMCRun<G, I>& mcrun)
     : sites_(), bonds_(), use_site_index_(true), use_bond_index_(true),
       has_hz_(false), has_d_(false), signed_(false), frustrated_(false)
-  {
-    set_parameters(params, mcrun.graph(), mcrun.inhomogeneous_sites(),
-                   mcrun.inhomogeneous_bonds(), mcrun.model(),
-                   alps::has_sign_problem(mcrun.model(), mcrun, params));
-  }
+  { set_parameters(params, mcrun); }
 
   // set_parameters
 
@@ -322,6 +321,15 @@ public:
     signed_ = is_signed;
     frustrated_ = check_classical_frustration(g);
   }
+  template<typename G, typename I>
+  void set_parameters(const alps::Parameters& params,
+                      const alps::scheduler::LatticeModelMCRun<G, I>& mcrun)
+  {
+    set_parameters(params, mcrun.graph(), mcrun.inhomogeneous_sites(),
+                   mcrun.inhomogeneous_bonds(), mcrun.model(),
+                   alps::has_sign_problem(mcrun.model(), mcrun, params));
+  }
+
 
   bool uniform_site() const { return sites_.size() == 1; }
   bool inhomogeneous_site() const { return use_site_index_; }

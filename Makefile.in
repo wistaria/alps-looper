@@ -43,7 +43,7 @@ noinst_PROGRAMS = loop$(EXEEXT) loop_evaluate$(EXEEXT) \
 	loop_nosched$(EXEEXT) $(am__EXEEXT_1) $(am__EXEEXT_2)
 @HAVE_MPI_TRUE@am__append_1 = loop_mpi
 @HAVE_PVM_TRUE@am__append_2 = loop_pvm
-check_PROGRAMS =
+check_PROGRAMS = loop_nosched$(EXEEXT)
 DIST_COMMON = README $(am__configure_deps) $(dist_noinst_DATA) \
 	$(dist_noinst_SCRIPTS) $(include_HEADERS) \
 	$(pkginclude_HEADERS) $(srcdir)/Makefile.am \
@@ -268,9 +268,12 @@ distdir = alps-looper-$(VERSION)
 include_HEADERS = looper.h
 pkginclude_HEADERS = \
 	looper/find_bridges.h \
+	looper/graph.h \
 	looper/lapack.h \
 	looper/lattice.h \
+	looper/location.h \
 	looper/model.h \
+	looper/operator.h \
 	looper/permutation.h \
 	looper/random_choice.h \
 	looper/type.h \

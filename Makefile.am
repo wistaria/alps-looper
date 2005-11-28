@@ -11,7 +11,7 @@ endif
 if HAVE_PVM
 noinst_PROGRAMS += loop_pvm
 endif
-check_PROGRAMS = # loop_nosched
+check_PROGRAMS = loop_nosched
 
 include_HEADERS = looper.h
 pkginclude_HEADERS = \

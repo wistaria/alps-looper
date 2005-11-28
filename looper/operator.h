@@ -62,7 +62,8 @@ public:
   bool is_identity() const { return type() == local_operator_type::identity; }
 
   local_graph_t graph() const { return local_graph_t(graph_type(), loc_); }
-  void assign_graph(const local_graph_t g) { type_ = type() & (g.type() << 2); }
+  void assign_graph(const local_graph_t g)
+  { type_ = type() | (g.type() << 2); }
   void clear_graph() { type_ &= 3; }
   int graph_type() const { return type_ >> 2; }
   bool is_locked() const

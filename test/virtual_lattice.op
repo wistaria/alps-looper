@@ -8,7 +8,7 @@
   <EDGE source="2" target="4" id="3" type="1" vector="0 1"/>
   <EDGE source="3" target="4" id="4" type="0" vector="1 0"/>
 </GRAPH>
--1 1 1 -1 
+1 0 0 1 
 number of real sites = 4
 number of real bonds = 4
 number of virtual sites = 9
@@ -44,7 +44,7 @@ number of virtual bonds = 20
   <EDGE source="7" target="8" id="19" type="0" vector="1 0"/>
   <EDGE source="7" target="9" id="20" type="0" vector="1 0"/>
 </GRAPH>
--1 -1 -1 1 1 1 1 -1 -1 
+1 1 1 0 0 0 0 1 1 
 [[vitual_mapping]]
   number of vertex groups = 4
   vertex mapping:
@@ -104,7 +104,7 @@ number of virtual bonds = 26
   <EDGE source="6" target="7" id="25" type="2" vector="0 0"/>
   <EDGE source="8" target="9" id="26" type="2" vector="0 0"/>
 </GRAPH>
--1 -1 -1 1 1 1 1 -1 -1 
+1 1 1 0 0 0 0 1 1 
 [[vitual_mapping]]
   number of vertex groups = 4
   vertex mapping:
