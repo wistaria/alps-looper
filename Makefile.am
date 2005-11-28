@@ -16,9 +16,12 @@ check_PROGRAMS = # loop_nosched
 include_HEADERS = looper.h
 pkginclude_HEADERS = \
 	looper/find_bridges.h \
+	looper/graph.h \
 	looper/lapack.h \
 	looper/lattice.h \
+	looper/location.h \
 	looper/model.h \
+	looper/operator.h \
 	looper/permutation.h \
 	looper/random_choice.h \
 	looper/type.h \

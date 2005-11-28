@@ -159,10 +159,12 @@ void qmc_worker_pi::dostep()
     // diagonal update & labeling
     if (opi == operators_p.end() || t < opi->time()) {
       // insert diagonal operator and graph if compatible
-      local_graph g = chooser.diagonal();
-      if ((is_bond(g) && is_compatible(g, spins_c[vsource(pos(g), vlat)],
+      // local_graph g = chooser.diagonal();
+      local_graph g = local_graph(0, looper::location::bond_location(nvs * random()));
+      /* if ((is_bond(g) && is_compatible(g, spins_c[vsource(pos(g), vlat)],
                                        spins_c[vtarget(pos(g), vlat)])) ||
-          (is_site(g) && is_compatible(g, spins_c[pos(g)]))) {
+                                       (is_site(g) && is_compatible(g, spins_c[pos(g)]))) { */
+      if (spins_c[vsource(pos(g), vlat)] != spins_c[vtarget(pos(g), vlat)]) {
         operators.push_back(local_operator(g, t));
         t += chooser.advance();
       } else {
@@ -183,46 +185,49 @@ void qmc_worker_pi::dostep()
     }
 
     std::vector<local_operator>::reverse_iterator oi = operators.rbegin();
-    if (oi->is_bond()) {
+    // if (oi->is_bond()) {
       int s0 = vsource(oi->pos(), vlat);
       int s1 = vtarget(oi->pos(), vlat);
-      boost::tie(current[s0], current[s1], oi->loop0, oi->loop1) =
-        reconnect(fragments, oi->graph(), current[s0], current[s1]);
+      // boost::tie(current[s0], current[s1], oi->loop0, oi->loop1) =
+      //   reconnect(fragments, oi->graph(), current[s0], current[s1]);
+      oi->loop0 = unify(fragments, current[s0], current[s1]);
+      oi->loop1 = current[s0] = current[s1] = add(fragments);
       if (oi->is_offdiagonal()) {
         spins_c[s0] ^= 1;
         spins_c[s1] ^= 1;
       }
-    } else {
-      int s = oi->pos();
-      boost::tie(current[s], oi->loop0, oi->loop1) =
-        reconnect(fragments, oi->graph(), current[s]);
-      if (oi->is_locked()) unify(fragments, ghost, current[s]);
-      if (oi->is_offdiagonal()) spins_c[s] ^= 1;
-    }
+      // } else {
+      //   int s = oi->pos();
+      // boost::tie(current[s], oi->loop0, oi->loop1) =
+      //  reconnect(fragments, oi->graph(), current[s]);
+      //if (oi->is_locked()) unify(fragments, ghost, current[s]);
+      //if (oi->is_offdiagonal()) spins_c[s] ^= 1;
+      // }
   }
 
   // connect bottom and top cluster fragments after random permutation
-  {
-    alps::fixed_capacity_vector<int, 20> r;
-    site_iterator rsi, rsi_end;
-    for (boost::tie(rsi, rsi_end) = sites(real_graph());
-         rsi != rsi_end; ++rsi) {
-      site_iterator vsi, vsi_end;
-      boost::tie(vsi, vsi_end) = virtual_sites(vlat, real_graph(), *rsi);
-      int offset = *vsi;
-      int s2 = *vsi_end - *vsi;
-      if (s2 == 1) {
-        unify(fragments, offset, current[offset]);
-      } else if (s2 > 1) {
-        r.resize(s2);
-        for (int i = 0; i < s2; ++i) r[i] = i;
-        looper::restricted_random_shuffle(r.begin(), r.end(),
-          spins.begin() + offset, spins_c.begin() + offset, random);
-        for (int i = 0; i < s2; ++i)
-          unify(fragments, offset+i, current[offset+r[i]]);
-      }
-    }
-  }
+//   {
+//     alps::fixed_capacity_vector<int, 20> r;
+//     site_iterator rsi, rsi_end;
+//     for (boost::tie(rsi, rsi_end) = sites(real_graph());
+//          rsi != rsi_end; ++rsi) {
+//       site_iterator vsi, vsi_end;
+//       boost::tie(vsi, vsi_end) = virtual_sites(vlat, real_graph(), *rsi);
+//       int offset = *vsi;
+//       int s2 = *vsi_end - *vsi;
+//       if (s2 == 1) {
+//         unify(fragments, offset, current[offset]);
+//       } else if (s2 > 1) {
+//         r.resize(s2);
+//         for (int i = 0; i < s2; ++i) r[i] = i;
+//         looper::restricted_random_shuffle(r.begin(), r.end(),
+//           spins.begin() + offset, spins_c.begin() + offset, random);
+//         for (int i = 0; i < s2; ++i)
+//           unify(fragments, offset+i, current[offset+r[i]]);
+//       }
+//     }
+//   }
+  for (int s = 0; s < nvs; ++s) unify(fragments, s, current[s]);
 
   //
   // cluster flip

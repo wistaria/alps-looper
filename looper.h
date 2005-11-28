@@ -31,12 +31,12 @@
 /* Define the published date of ALPS/looper */
 #define LOOPER_DATE "2005/11/18"
 
-#include <looper/find_bridges.h>
-#include <looper/lapack.h>
+#include <looper/graph.h>
 #include <looper/lattice.h>
+#include <looper/location.h>
 #include <looper/model.h>
+#include <looper/operator.h>
 #include <looper/permutation.h>
-#include <looper/random_choice.h>
 #include <looper/type.h>
 #include <looper/union_find.h>
 #include <looper/util.h>

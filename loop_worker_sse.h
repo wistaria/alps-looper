@@ -54,33 +54,33 @@ public:
   void dostep();
 
   void save(alps::ODump& dp) const {
-    super_type::save(dp);
-    dp << spins << operators << nop;
+    // super_type::save(dp);
+    // dp << spins << operators << nop;
   }
   void load(alps::IDump& dp) {
-    super_type::load(dp);
-    dp >> spins >> operators >> nop;
+    // super_type::load(dp);
+    // dp >> spins >> operators >> nop;
   }
 
 private:
-  double beta;
-  double energy_offset;
-  bool is_signed, is_classically_frustrated, has_hz;
+//   double beta;
+//   double energy_offset;
+//   bool is_signed, is_classically_frustrated, has_hz;
 
-  looper::virtual_lattice<graph_type> vlat;
-  bool is_bipartite;
+//   looper::virtual_lattice<graph_type> vlat;
+//   bool is_bipartite;
 
-  looper::graph_chooser<local_graph, super_type::engine_type> chooser;
+//   looper::graph_chooser<local_graph, super_type::engine_type> chooser;
 
-  std::vector<int> spins;
-  std::vector<local_operator> operators;
-  int nop; // number of non-identity operators
+//   std::vector<int> spins;
+//   std::vector<local_operator> operators;
+//   int nop; // number of non-identity operators
 
-  // working area
-  std::vector<int> spins_c;
-  std::vector<cluster_fragment> fragments;
-  std::vector<int> current;
-  std::vector<cluster_info> clusters;
+//   // working area
+//   std::vector<int> spins_c;
+//   std::vector<cluster_fragment> fragments;
+//   std::vector<int> current;
+//   std::vector<cluster_info> clusters;
 };
 
 #endif // LOOP_WORKER_SSE_H

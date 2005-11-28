@@ -2,5 +2,5 @@ SEED = 23125
 LATTICE = "chain lattice"
 MODEL = "spin"
 L = 8
-SWEEPS=65536
+SWEEPS=1024
 T = 0.2
