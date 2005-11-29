@@ -27,53 +27,17 @@
 
 qmc_worker_pi::qmc_worker_pi(const alps::ProcessList& w,
                              const alps::Parameters& p, int n)
-  : super_type(w, p, n), chooser(*engine_ptr)
+  : super_type(w, p, n),
+    beta(1.0 / static_cast<double>(p["T"]))
 {
-  beta = 1.0 / static_cast<double>(p["T"]);
   if (beta < 0)
     boost::throw_exception(std::invalid_argument("negative beta"));
-
-  //
-  // setup model
-  //
-
-  mp.set_parameters(p, *this);
-  if (mp.is_signed())
-    std::cerr << "WARNING: model has negative signs\n";
-  if (mp.is_classically_frustrated())
-    std::cerr << "WARNING: model is classically frustrated\n";
-
-  energy_offset = 0;
-  {
-    site_iterator si, si_end;
-    for (boost::tie(si, si_end) = sites(real_graph()); si != si_end; ++si)
-      energy_offset += mp.site(*si, real_graph()).c;
-    bond_iterator bi, bi_end;
-    for (boost::tie(bi, bi_end) = bonds(real_graph()); bi != bi_end; ++bi)
-      energy_offset += mp.bond(*bi, real_graph()).c;
-    if (mp.has_d_term())
-      for (boost::tie(si, si_end) = sites(real_graph()); si != si_end; ++si)
-        energy_offset += 0.5 * mp.site(*si, real_graph()).s.get_twice();
-  }
-
-  //
-  // setup virtual lattice
-  //
-
-  is_bipartite = alps::set_parity(real_graph());
-  vlat.generate(real_graph(), mp, mp.has_d_term());
-
-  //
-  // setup graph chooser
-  //
-
-  chooser.init(looper::weight_table(mp, real_graph(), vlat));
 
   //
   // initialize configuration
   //
 
-  int nvs = num_sites(vlat);
+  int nvs = num_sites(vgraph());
   spins.resize(nvs); std::fill(spins.begin(), spins.end(), 0 /* all up */);
   operators.resize(0);
   spins_c.resize(nvs);
@@ -112,7 +76,7 @@ qmc_worker_pi::qmc_worker_pi(const alps::ProcessList& w,
     << make_observable(
          RealObservable("Susceptibility"), mp.is_signed());
 
-  if (is_bipartite) {
+  if (is_bipartite()) {
     measurements
       << make_observable(
            RealObservable("Staggered Magnetization"), mp.is_signed())
@@ -126,7 +90,7 @@ qmc_worker_pi::qmc_worker_pi(const alps::ProcessList& w,
     measurements
       << RealObservable("Generalized Magnetization^2")
       << RealObservable("Generalized Susceptibility");
-    if (is_bipartite) {
+    if (is_bipartite()) {
       measurements
         << RealObservable("Staggered Generalized Magnetization^2")
         << RealObservable("Staggered Generalized Susceptibility");
@@ -148,7 +112,7 @@ void qmc_worker_pi::dostep()
   std::swap(operators, operators_p); operators.resize(0);
 
   // initialize cluster information (setup cluster fragments)
-  int nvs = num_sites(vlat);
+  int nvs = num_sites(vgraph());
   fragments.resize(0); fragments.resize(nvs);
   for (int s = 0; s < nvs; ++s) current[s] = s;
   int ghost = mp.has_longitudinal_field() ? add(fragments) : 0;
@@ -161,8 +125,8 @@ void qmc_worker_pi::dostep()
     if (opi == operators_p.end() || t < opi->time()) {
       // insert diagonal operator and graph if compatible
       local_graph g = chooser.diagonal();
-      if ((is_bond(g) && is_compatible(g, spins_c[vsource(pos(g), vlat)],
-                                       spins_c[vtarget(pos(g), vlat)])) ||
+      if ((is_bond(g) && is_compatible(g, spins_c[vsource(pos(g), vlattice())],
+                                       spins_c[vtarget(pos(g), vlattice())])) ||
           (is_site(g) && is_compatible(g, spins_c[pos(g)]))) {
         operators.push_back(local_operator(g, t));
         t += chooser.advance();
@@ -185,8 +149,8 @@ void qmc_worker_pi::dostep()
 
     std::vector<local_operator>::reverse_iterator oi = operators.rbegin();
     if (oi->is_bond()) {
-      int s0 = vsource(oi->pos(), vlat);
-      int s1 = vtarget(oi->pos(), vlat);
+      int s0 = vsource(oi->pos(), vlattice());
+      int s1 = vtarget(oi->pos(), vlattice());
       boost::tie(current[s0], current[s1], oi->loop0, oi->loop1) =
         reconnect(fragments, oi->graph(), current[s0], current[s1]);
       if (oi->is_offdiagonal()) {
@@ -206,10 +170,10 @@ void qmc_worker_pi::dostep()
   {
     alps::fixed_capacity_vector<int, loop_config::max_2s> r;
     site_iterator rsi, rsi_end;
-    for (boost::tie(rsi, rsi_end) = sites(real_graph());
+    for (boost::tie(rsi, rsi_end) = sites(rgraph());
          rsi != rsi_end; ++rsi) {
       site_iterator vsi, vsi_end;
-      boost::tie(vsi, vsi_end) = virtual_sites(vlat, real_graph(), *rsi);
+      boost::tie(vsi, vsi_end) = virtual_sites(vlattice(), rgraph(), *rsi);
       int offset = *vsi;
       int s2 = *vsi_end - *vsi;
       if (s2 == 1) {
@@ -248,8 +212,8 @@ void qmc_worker_pi::dostep()
       int id_l = root(fragments, oi->loop0).id;
       int id_u = root(fragments, oi->loop1).id;
       if (oi->is_bond()) {
-        int s0 = vsource(oi->pos(), vlat);
-        int s1 = vtarget(oi->pos(), vlat);
+        int s0 = vsource(oi->pos(), vlattice());
+        int s1 = vtarget(oi->pos(), vlattice());
         // clusters[id_l].mag += 0 * oi->time;
         clusters[id_l].length += 2 * oi->time();
         if (oi->is_offdiagonal()) {
@@ -289,33 +253,33 @@ void qmc_worker_pi::dostep()
   // measurements
   //
 
-  int nrs = num_sites(real_graph());
+  int nrs = num_sites(rgraph());
 
   // energy
   double energy = energy_offset;
   {
     bond_iterator rbi, rbi_end;
-    for (boost::tie(rbi, rbi_end) = bonds(real_graph());
+    for (boost::tie(rbi, rbi_end) = bonds(rgraph());
          rbi != rbi_end; ++rbi) {
-      double jz = mp.bond(*rbi, real_graph()).jz;
+      double jz = mp.bond(*rbi, rgraph()).jz;
       bond_iterator vbi, vbi_end;
-      for (boost::tie(vbi, vbi_end) = virtual_bonds(vlat, real_graph(), *rbi);
+      for (boost::tie(vbi, vbi_end) = virtual_bonds(vlattice(), rgraph(), *rbi);
            vbi != vbi_end; ++vbi) {
-        if (spins_c[vsource(*vbi, vlat)] == spins_c[vtarget(*vbi, vlat)])
+        if (spins_c[vsource(*vbi, vlattice())] == spins_c[vtarget(*vbi, vlattice())])
           energy += 0.25 * jz;
         else
           energy -= 0.25 * jz;
       }
       if (mp.has_d_term()) {
         site_iterator rsi, rsi_end;
-        for (boost::tie(rsi, rsi_end) = sites(real_graph());
+        for (boost::tie(rsi, rsi_end) = sites(rgraph());
              rsi != rsi_end; ++rsi) {
-          double d = mp.site(*rsi, real_graph()).d;
+          double d = mp.site(*rsi, rgraph()).d;
           bond_iterator vbi, vbi_end;
           for (boost::tie(vbi, vbi_end) =
-                 virtual_bonds(vlat, real_graph(), *rsi);
+                 virtual_bonds(vlattice(), rgraph(), *rsi);
                vbi != vbi_end; ++vbi) {
-            if (spins_c[vsource(*vbi, vlat)] == spins_c[vtarget(*vbi, vlat)])
+            if (spins_c[vsource(*vbi, vlattice())] == spins_c[vtarget(*vbi, vlattice())])
               energy += 0.5 * d;
             else
               energy -= 0.5 * d;
@@ -348,7 +312,7 @@ void qmc_worker_pi::dostep()
 
     measurements["Magnetization^2"] << z2 / (4 * nrs);
     measurements["Susceptibility"] << m2 / (4 * beta * nrs);
-    if (is_bipartite) {
+    if (is_bipartite()) {
       measurements["Staggered Magnetization^2"] << s2 / (4 * nrs);
       measurements["Staggered Susceptibility"]
         << l2 / (4 * beta * nrs);

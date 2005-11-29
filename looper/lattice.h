@@ -380,8 +380,8 @@ public:
   virtual_lattice() {}
   template<class M>
   virtual_lattice(const graph_type& rg, const M& model,
-                  bool have_d_term = false)
-  { generate(rg, model, have_d_term); }
+                  bool has_d_term = false)
+  { generate(rg, model, has_d_term); }
 
   // real vertex -> virtual vertex
   std::pair<vertex_iterator, vertex_iterator>
@@ -401,7 +401,7 @@ public:
   void clear() { graph_.clear(); mapping_.clear(); }
 
   template<class M>
-  void generate(const graph_type& rg, const M& model, bool have_d_term = false);
+  void generate(const graph_type& rg, const M& model, bool has_d_term = false);
 
   const graph_type& graph() const { return graph_; }
   const mapping_type& mapping() const { return mapping_; }
@@ -561,6 +561,33 @@ std::ostream& operator<<(std::ostream& os, const virtual_lattice<G>& vl)
   os << vl.graph();
   return os;
 }
+
+//
+// virtual_lattice_adaptor
+//
+
+template<class G>
+class virtual_lattice_adaptor {
+public:
+  typedef G graph_type;
+  typedef virtual_lattice<graph_type> virtual_lattice_type;
+
+  virtual_lattice_adaptor(graph_type& rg) : rgraph_(rg) {}
+  template<class MP>
+  virtual_lattice_adaptor(graph_type& rg, const MP& mp)
+    : rgraph_(rg), vlat_(rg, mp, mp.has_d_term()) {}
+
+  template<class MP>
+  void init(const MP& mp) { vlat_.generate(rgraph_, mp, mp.has_d_term()); }
+
+  const graph_type& rgraph() const { return rgraph_; }
+  const graph_type& vgraph() const { return vlat_.graph(); }
+  const virtual_lattice_type& vlattice() const { return vlat_; }
+
+private:
+  graph_type& rgraph_;
+  virtual_lattice_type vlat_;
+};
 
 } // end namespace looper
 

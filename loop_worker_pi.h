@@ -38,40 +38,6 @@ struct cluster_info_pi
   double length;
 };
 
-enum operator_type { bond_diagonal = 0, bond_offdiagonal = 1 };
-
-struct local_operator_t {
-  local_operator_t() {}
-  local_operator_t(operator_type tp, int loc, double t)
-    : type(tp), location(loc), loop0(), loop1(), time_(t) {}
-  void flip() { type = operator_type(type ^ 1); }
-  bool is_diagonal() const { return !is_offdiagonal(); }
-  bool is_offdiagonal() const { return type & 1; }
-  unsigned int pos() const { return location; }
-  double time() const { return time_; }
-  operator_type type;
-  unsigned int location;
-  unsigned int loop0, loop1;
-  double time_;
-  bool is_bond() const { return true; }
-  bool is_locked() const { return true; }
-};
-
-inline alps::ODump& operator<<(alps::ODump& od, const local_operator_t& op)
-{
-  int t = op.type;
-  od << t << op.location << op.time_;
-  return od;
-}
-
-inline alps::IDump& operator>>(alps::IDump& id, local_operator_t& op)
-{
-  int t;
-  id >> t >> op.location >> op.time_;
-  op.type = operator_type(t);
-  return id;
-}
-
 class qmc_worker_pi : public qmc_worker_base
 {
 public:
@@ -80,7 +46,6 @@ public:
   typedef loop_config::graph_type                       graph_type;
   typedef loop_config::local_graph                      local_graph;
   typedef looper::local_operator<qmc_type, local_graph> local_operator;
-  // typedef local_operator_t local_operator;
   typedef looper::union_find::node                      cluster_fragment;
   typedef cluster_info_pi                               cluster_info;
 
@@ -99,13 +64,6 @@ public:
 
 private:
   double beta;
-  looper::model_parameter mp;
-  double energy_offset;
-
-  looper::virtual_lattice<graph_type> vlat;
-  bool is_bipartite;
-
-  looper::graph_chooser<local_graph, super_type::engine_type> chooser;
 
   std::vector<int> spins;
   std::vector<local_operator> operators;

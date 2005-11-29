@@ -30,23 +30,18 @@
 #include <alps/scheduler.h>
 
 class qmc_worker_base
-  : public alps::scheduler::LatticeModelMCRun<loop_config::graph_type>
+  : public alps::scheduler::LatticeModelMCRun<loop_config::graph_type>,
+    public looper::virtual_lattice_adaptor<loop_config::graph_type>
 {
 public:
   typedef alps::scheduler::LatticeModelMCRun<loop_config::graph_type>
-    super_type;
+    lattice_model_mcrun;
+  typedef looper::virtual_lattice_adaptor<loop_config::graph_type>
+    virtual_lattice_adaptor;
+  typedef loop_config::local_graph local_graph;
 
-  qmc_worker_base(const alps::ProcessList& w, const alps::Parameters& p, int n)
-    : super_type(w, p, n),
-      mcs_sweep_(p["SWEEPS"]),
-      mcs_therm_(p.value_or_default("THERMALIZATION", mcs_sweep_.min() >> 3)),
-      mcs_(0)
-  {
-    if (mcs_sweep_.min() < mcs_therm_)
-      boost::throw_exception(std::invalid_argument(
-        "qmc_worker_base::qmc_worker_base() too small SWEEPS"));
-  }
-  virtual ~qmc_worker_base() {}
+  qmc_worker_base(const alps::ProcessList& w, const alps::Parameters& p, int n);
+  virtual ~qmc_worker_base();
 
   virtual void dostep() { ++mcs_; }
   bool can_work() const { return mcs_ < mcs_therm_ + mcs_sweep_.max(); }
@@ -58,25 +53,18 @@ public:
   }
   unsigned int mcs() const { return mcs_; }
 
-  const loop_config::graph_type& real_graph() const { return this->graph(); }
-  loop_config::graph_type& real_graph() { return this->graph(); }
-
-  virtual void save(alps::ODump& dp) const
-  {
-    super_type::save(dp);
-    dp << mcs_;
-  }
-  virtual void load(alps::IDump& dp)
-  {
-    super_type::load(dp);
-    dp >> mcs_;
-    if (where.empty()) measurements.compact();
-  }
+  virtual void save(alps::ODump& dp) const;
+  virtual void load(alps::IDump& dp);
 
 private:
   looper::integer_range<unsigned int> mcs_sweep_;
   unsigned int mcs_therm_;
   unsigned int mcs_; // to be dumped/restored
+
+protected:
+  looper::model_parameter mp;
+  double energy_offset;
+  looper::graph_chooser<local_graph, lattice_model_mcrun::engine_type> chooser;
 };
 
 template<class QMC> class qmc_worker;
