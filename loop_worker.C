@@ -26,18 +26,17 @@
 
 qmc_worker_base::qmc_worker_base(const alps::ProcessList& w,
                                  const alps::Parameters& p, int n)
-  : lattice_model_mcrun(w, p, n),
-    virtual_lattice_adaptor(lattice_model_mcrun::graph()),
+  : super_type(w, p, n),
     mcs_sweep_(p["SWEEPS"]),
     mcs_therm_(p.value_or_default("THERMALIZATION", mcs_sweep_.min() >> 3)),
     mcs_(0),
-    mp(p, *this), chooser(*engine_ptr)
+    mp(p, *this), vlat_(graph(), mp, mp.has_d_term()),
+    chooser(*engine_ptr, looper::weight_table(mp, graph(), vlat_))
 {
   if (mcs_sweep_.min() < mcs_therm_)
     boost::throw_exception(std::invalid_argument(
       "qmc_worker_base::qmc_worker_base() too small SWEEPS"));
 
-  mp.set_parameters(p, *this);
   if (mp.is_signed())
     std::cerr << "WARNING: model has negative signs\n";
   if (mp.is_classically_frustrated())
@@ -53,23 +52,19 @@ qmc_worker_base::qmc_worker_base(const alps::ProcessList& w,
   if (mp.has_d_term())
     for (boost::tie(si, si_end) = sites(rgraph()); si != si_end; ++si)
       energy_offset += 0.5 * mp.site(*si, rgraph()).s.get_twice();
-
-  virtual_lattice_adaptor::init(mp);
-
-  chooser.init(looper::weight_table(mp, rgraph(), vlattice()));
 }
 
 qmc_worker_base::~qmc_worker_base() {}
 
 void qmc_worker_base::save(alps::ODump& dp) const
 {
-  lattice_model_mcrun::save(dp);
+  super_type::save(dp);
   dp << mcs_;
 }
 
 void qmc_worker_base::load(alps::IDump& dp)
 {
-  lattice_model_mcrun::load(dp);
+  super_type::load(dp);
   dp >> mcs_;
   if (where.empty()) measurements.compact();
 }

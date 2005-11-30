@@ -30,11 +30,11 @@
 struct loop_config
 {
   // lattice structure
-  typedef looper::graph_type graph_type;
+  typedef looper::graph_type lattice_graph_t;
 
   // model, weights, and local_graph
   BOOST_STATIC_CONSTANT(int, max_2s = 8);
-  typedef looper::local_graph<looper::location> local_graph;
+  typedef looper::local_graph<looper::location> loop_graph_t;
 };
 
 #endif // ! LOOP_CONFIG_H

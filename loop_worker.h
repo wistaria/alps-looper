@@ -30,15 +30,17 @@
 #include <alps/scheduler.h>
 
 class qmc_worker_base
-  : public alps::scheduler::LatticeModelMCRun<loop_config::graph_type>,
-    public looper::virtual_lattice_adaptor<loop_config::graph_type>
+  : public alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
 {
 public:
-  typedef alps::scheduler::LatticeModelMCRun<loop_config::graph_type>
-    lattice_model_mcrun;
-  typedef looper::virtual_lattice_adaptor<loop_config::graph_type>
-    virtual_lattice_adaptor;
-  typedef loop_config::local_graph local_graph;
+  typedef alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
+    super_type;
+  typedef loop_config::lattice_graph_t             lattice_graph_t;
+  typedef loop_config::loop_graph_t            loop_graph_t;
+  typedef loop_graph_t::location_t             location_t;
+  typedef looper::virtual_lattice<lattice_graph_t> virtual_lattice;
+  typedef looper::graph_chooser<loop_graph_t, super_type::engine_type>
+    graph_chooser;
 
   qmc_worker_base(const alps::ProcessList& w, const alps::Parameters& p, int n);
   virtual ~qmc_worker_base();
@@ -53,6 +55,15 @@ public:
   }
   unsigned int mcs() const { return mcs_; }
 
+  const lattice_graph_t& rgraph() const { return super_type::graph(); }
+  const lattice_graph_t& vgraph() const { return vlat_.graph(); }
+  const virtual_lattice& vlattice() const { return vlat_; }
+
+  loop_graph_t choose_diagonal() const { return chooser.diagonal(); }
+  loop_graph_t choose_offdiagonal(const location_t& loc) const
+  { return chooser.offdiagonal(loc); }
+  double advance() const { return chooser.advance(); }
+
   virtual void save(alps::ODump& dp) const;
   virtual void load(alps::IDump& dp);
 
@@ -64,7 +75,12 @@ private:
 protected:
   looper::model_parameter mp;
   double energy_offset;
-  looper::graph_chooser<local_graph, lattice_model_mcrun::engine_type> chooser;
+
+private:
+  virtual_lattice vlat_;
+
+protected:
+  graph_chooser chooser;
 };
 
 template<class QMC> class qmc_worker;

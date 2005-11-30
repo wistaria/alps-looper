@@ -27,58 +27,22 @@
 
 qmc_worker_sse::qmc_worker_sse(const alps::ProcessList& w,
                                const alps::Parameters& p, int n)
-  : super_type(w, p, n) /* , chooser(*engine_ptr) */
+  : super_type(w, p, n),
+    beta(1.0 / static_cast<double>(p["T"]))
 {
-//   beta = 1.0 / static_cast<double>(p["T"]);
-//   if (beta < 0)
-//     boost::throw_exception(std::invalid_argument("negative beta"));
+  if (beta < 0)
+    boost::throw_exception(std::invalid_argument("negative beta"));
 
-//   //
-//   // setup model
-//   //
+  //
+  // initialize configuration
+  //
 
-//   looper::model_parameter mp(p, *this);
-//   is_signed = mp.is_signed();
-//   is_classically_frustrated = mp.is_classically_frustrated();
-//   has_hz = mp.has_longitudinal_field();
-//   if (is_signed)
-//     std::cerr << "WARNING: model has negative signs\n";
-//   if (is_classically_frustrated)
-//     std::cerr << "WARNING: model is classically frustrated\n";
-
-//   energy_offset = 0;
-//   {
-//     alps::graph_traits<graph_type>::site_iterator si, si_end;
-//     for (boost::tie(si, si_end) = sites(real_graph()); si != si_end; ++si)
-//       energy_offset += mp.site(*si, real_graph()).c;
-//     alps::graph_traits<graph_type>::bond_iterator bi, bi_end;
-//     for (boost::tie(bi, bi_end) = bonds(real_graph()); bi != bi_end; ++bi)
-//       energy_offset += mp.bond(*bi, real_graph()).c;
-//   }
-
-//   //
-//   // setup virtual lattice
-//   //
-
-//   is_bipartite = alps::set_parity(real_graph());
-//   vlat.generate(real_graph(), mp, mp.has_d_term());
-
-//   //
-//   // setup graph chooser
-//   //
-
-//   chooser.init(looper::weight_table(mp, real_graph(), vlat));
-
-//   //
-//   // initialize configuration
-//   //
-
-//   int nvs = num_sites(vlat);
-//   spins.resize(nvs); std::fill(spins.begin(), spins.end(), 0 /* all up */);
-//   operators.resize(0);
-//   nop = 0;
-//   spins_c.resize(nvs);
-//   current.resize(nvs);
+  int nvs = num_sites(vgraph());
+  spins.resize(nvs); std::fill(spins.begin(), spins.end(), 0 /* all up */);
+  operators.resize(0);
+  nop = 0;
+  spins_c.resize(nvs);
+  current.resize(nvs);
 
 //   //
 //   // init measurements
@@ -255,4 +219,16 @@ void qmc_worker_sse::dostep()
 //   if (has_hz)
 //     clusters[cluster_id(fragments, ghost)].to_flip = false;
 
+}
+
+void qmc_worker_sse::save(alps::ODump& dp) const
+{
+  super_type::save(dp);
+  dp << spins << operators << nop;
+}
+
+void qmc_worker_sse::load(alps::IDump& dp)
+{
+  super_type::load(dp);
+  dp >> spins >> operators >> nop;
 }

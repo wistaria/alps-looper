@@ -41,39 +41,35 @@ struct cluster_info_pi
 class qmc_worker_pi : public qmc_worker_base
 {
 public:
-  typedef looper::path_integral                         qmc_type;
-  typedef qmc_worker_base                               super_type;
-  typedef loop_config::graph_type                       graph_type;
-  typedef loop_config::local_graph                      local_graph;
-  typedef looper::local_operator<qmc_type, local_graph> local_operator;
-  typedef looper::union_find::node                      cluster_fragment;
-  typedef cluster_info_pi                               cluster_info;
+  typedef looper::path_integral                          qmc_type;
+  typedef qmc_worker_base                                super_type;
+  typedef super_type::lattice_graph_t                    lattice_graph_t;
+  typedef super_type::loop_graph_t                       loop_graph_t;
+
+  typedef looper::local_operator<qmc_type, loop_graph_t> local_operator_t;
+  typedef std::vector<local_operator_t>                  operator_string_t;
+  typedef operator_string_t::iterator                    operator_iterator;
+
+  typedef looper::union_find::node                       cluster_fragment_t;
+  typedef cluster_info_pi                                cluster_info_t;
 
   qmc_worker_pi(const alps::ProcessList& w, const alps::Parameters& p, int n);
-
   void dostep();
-
-  void save(alps::ODump& dp) const {
-    super_type::save(dp);
-    dp << spins << operators;
-  }
-  void load(alps::IDump& dp) {
-    super_type::load(dp);
-    dp >> spins >> operators;
-  }
+  void save(alps::ODump& dp) const;
+  void load(alps::IDump& dp);
 
 private:
   double beta;
 
   std::vector<int> spins;
-  std::vector<local_operator> operators;
+  std::vector<local_operator_t> operators;
 
   // working area
   std::vector<int> spins_c;
-  std::vector<local_operator> operators_p;
-  std::vector<cluster_fragment> fragments;
+  std::vector<local_operator_t> operators_p;
+  std::vector<cluster_fragment_t> fragments;
   std::vector<int> current;
-  std::vector<cluster_info> clusters;
+  std::vector<cluster_info_t> clusters;
 };
 
 #endif // LOOP_WORKER_PI_H

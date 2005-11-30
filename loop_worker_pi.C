@@ -118,17 +118,17 @@ void qmc_worker_pi::dostep()
   int ghost = mp.has_longitudinal_field() ? add(fragments) : 0;
 
   double t = chooser.advance();
-  for (std::vector<local_operator>::iterator opi = operators_p.begin();
+  for (operator_iterator opi = operators_p.begin();
        t < beta || opi != operators_p.end();) {
 
     // diagonal update & labeling
     if (opi == operators_p.end() || t < opi->time()) {
       // insert diagonal operator and graph if compatible
-      local_graph g = chooser.diagonal();
+      loop_graph_t g = chooser.diagonal();
       if ((is_bond(g) && is_compatible(g, spins_c[vsource(pos(g), vlattice())],
                                        spins_c[vtarget(pos(g), vlattice())])) ||
           (is_site(g) && is_compatible(g, spins_c[pos(g)]))) {
-        operators.push_back(local_operator(g, t));
+        operators.push_back(local_operator_t(g, t));
         t += chooser.advance();
       } else {
         t += chooser.advance();
@@ -147,7 +147,7 @@ void qmc_worker_pi::dostep()
       }
     }
 
-    std::vector<local_operator>::reverse_iterator oi = operators.rbegin();
+    operator_iterator oi = operators.end() - 1;
     if (oi->is_bond()) {
       int s0 = vsource(oi->pos(), vlattice());
       int s1 = vtarget(oi->pos(), vlattice());
@@ -195,11 +195,11 @@ void qmc_worker_pi::dostep()
 
   // assign cluster id & determine if clusters are to be flipped
   clusters.resize(0);
-  for (std::vector<cluster_fragment>::iterator ci = fragments.begin();
+  for (std::vector<cluster_fragment_t>::iterator ci = fragments.begin();
        ci != fragments.end(); ++ci)
     if (ci->is_root()) {
       ci->id = clusters.size();
-      clusters.push_back(cluster_info(random() < 0.5));
+      clusters.push_back(cluster_info_t(random() < 0.5));
     }
   if (mp.has_longitudinal_field())
     clusters[cluster_id(fragments, ghost)].to_flip = false;
@@ -207,8 +207,8 @@ void qmc_worker_pi::dostep()
   // flip operators and spins & do improved measurements
   if (!mp.has_longitudinal_field()) {
     std::copy(spins.begin(), spins.end(), spins_c.begin());
-    for (std::vector<local_operator>::iterator oi = operators.begin();
-         oi != operators.end(); ++oi) {
+    for (operator_iterator oi = operators.begin(); oi != operators.end();
+         ++oi) {
       int id_l = root(fragments, oi->loop0).id;
       int id_u = root(fragments, oi->loop1).id;
       if (oi->is_bond()) {
@@ -241,8 +241,7 @@ void qmc_worker_pi::dostep()
       if (clusters[id].to_flip) spins[s] ^= 1;
     }
   } else {
-    for (std::vector<local_operator>::iterator oi = operators.begin();
-         oi != operators.end(); ++oi)
+    for (operator_iterator oi = operators.begin(); oi != operators.end(); ++oi)
       if (clusters[cluster_id(fragments, oi->loop0)].to_flip ^
           clusters[cluster_id(fragments, oi->loop1)].to_flip) oi->flip();
     for (int s = 0; s < nvs; ++s)
@@ -288,8 +287,8 @@ void qmc_worker_pi::dostep()
       }
     }
     int nop = 0;
-    for (std::vector<local_operator>::iterator oi = operators.begin();
-         oi != operators.end(); ++oi) if (oi->is_offdiagonal()) ++nop;
+    for (operator_iterator oi = operators.begin(); oi != operators.end(); ++oi)
+      if (oi->is_offdiagonal()) ++nop;
     energy -= (double)nop / beta;
   }
   measurements["Energy"] << energy;
@@ -301,8 +300,7 @@ void qmc_worker_pi::dostep()
     double s2 = 0;
     double m2 = 0;
     double l2 = 0;
-    std::vector<cluster_info>::iterator x;
-    for (std::vector<cluster_info>::iterator pi = clusters.begin();
+    for (std::vector<cluster_info_t>::iterator pi = clusters.begin();
          pi != clusters.end(); ++pi) {
       z2 += looper::sqr(pi->mag0);
       s2 += looper::sqr(pi->size);
@@ -318,4 +316,16 @@ void qmc_worker_pi::dostep()
         << l2 / (4 * beta * nrs);
     }
   }
+}
+
+void qmc_worker_pi::save(alps::ODump& dp) const
+{
+  super_type::save(dp);
+  dp << spins << operators;
+}
+
+void qmc_worker_pi::load(alps::IDump& dp)
+{
+  super_type::load(dp);
+  dp >> spins >> operators;
 }
