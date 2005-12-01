@@ -50,43 +50,43 @@ qmc_worker_pi::qmc_worker_pi(const alps::ProcessList& w,
   using alps::RealObservable;
   using alps::make_observable;
 
-  if (mp.is_signed()) {
+  if (is_signed()) {
     measurements << RealObservable("Sign");
   }
 
   measurements
     << make_observable(
-         RealObservable("Energy"), mp.is_signed())
+         RealObservable("Energy"), is_signed())
     << make_observable(
-         RealObservable("Energy Density"), mp.is_signed())
+         RealObservable("Energy Density"), is_signed())
     << make_observable(
-         RealObservable("Diagonal Energy Density"), mp.is_signed())
+         RealObservable("Diagonal Energy Density"), is_signed())
     << make_observable(
-         RealObservable("Energy Density^2"), mp.is_signed())
+         RealObservable("Energy Density^2"), is_signed())
     << make_observable(
-         RealObservable("beta * Energy / sqrt(N)"), mp.is_signed())
+         RealObservable("beta * Energy / sqrt(N)"), is_signed())
     << make_observable(
-         RealObservable("beta * Energy^2"), mp.is_signed());
+         RealObservable("beta * Energy^2"), is_signed());
 
   measurements
     << make_observable(
-         RealObservable("Magnetization"), mp.is_signed())
+         RealObservable("Magnetization"), is_signed())
     << make_observable(
-         RealObservable("Magnetization^2"), mp.is_signed())
+         RealObservable("Magnetization^2"), is_signed())
     << make_observable(
-         RealObservable("Susceptibility"), mp.is_signed());
+         RealObservable("Susceptibility"), is_signed());
 
   if (is_bipartite()) {
     measurements
       << make_observable(
-           RealObservable("Staggered Magnetization"), mp.is_signed())
+           RealObservable("Staggered Magnetization"), is_signed())
       << make_observable(
-           RealObservable("Staggered Magnetization^2"), mp.is_signed())
+           RealObservable("Staggered Magnetization^2"), is_signed())
       << make_observable(
-           RealObservable("Staggered Susceptibility"), mp.is_signed());
+           RealObservable("Staggered Susceptibility"), is_signed());
   }
 
-  if (!mp.is_classically_frustrated()) {
+  if (!is_classically_frustrated()) {
     measurements
       << RealObservable("Generalized Magnetization^2")
       << RealObservable("Generalized Susceptibility");
@@ -115,23 +115,25 @@ void qmc_worker_pi::dostep()
   int nvs = num_sites(vgraph());
   fragments.resize(0); fragments.resize(nvs);
   for (int s = 0; s < nvs; ++s) current[s] = s;
-  int ghost = mp.has_longitudinal_field() ? add(fragments) : 0;
+  int ghost = has_longitudinal_field() ? add(fragments) : 0;
 
-  double t = chooser.advance();
+  double t = advance();
   for (operator_iterator opi = operators_p.begin();
        t < beta || opi != operators_p.end();) {
 
     // diagonal update & labeling
     if (opi == operators_p.end() || t < opi->time()) {
       // insert diagonal operator and graph if compatible
-      loop_graph_t g = chooser.diagonal();
-      if ((is_bond(g) && is_compatible(g, spins_c[vsource(pos(g), vlattice())],
-                                       spins_c[vtarget(pos(g), vlattice())])) ||
-          (is_site(g) && is_compatible(g, spins_c[pos(g)]))) {
+      loop_graph_t g = choose_diagonal();
+      if (
+          ((is_bond(g) &&
+            is_compatible(g, spins_c[vsource(pos(g), vlattice())],
+                          spins_c[vtarget(pos(g), vlattice())])) ||
+          (is_site(g) && is_compatible(g, spins_c[pos(g)])))) {
         operators.push_back(local_operator_t(g, t));
-        t += chooser.advance();
+        t += advance();
       } else {
-        t += chooser.advance();
+        t += advance();
         continue;
       }
     } else {
@@ -141,7 +143,7 @@ void qmc_worker_pi::dostep()
         continue;
       } else {
         // assign graph to offdiagonal operator
-        opi->assign_graph(chooser.offdiagonal(opi->loc()));
+        opi->assign_graph(choose_offdiagonal(opi->loc()));
         operators.push_back(*opi);
         ++opi;
       }
@@ -201,11 +203,11 @@ void qmc_worker_pi::dostep()
       ci->id = clusters.size();
       clusters.push_back(cluster_info_t(random() < 0.5));
     }
-  if (mp.has_longitudinal_field())
+  if (has_longitudinal_field())
     clusters[cluster_id(fragments, ghost)].to_flip = false;
 
   // flip operators and spins & do improved measurements
-  if (!mp.has_longitudinal_field()) {
+  if (!has_longitudinal_field()) {
     std::copy(spins.begin(), spins.end(), spins_c.begin());
     for (operator_iterator oi = operators.begin(); oi != operators.end();
          ++oi) {
@@ -255,30 +257,33 @@ void qmc_worker_pi::dostep()
   int nrs = num_sites(rgraph());
 
   // energy
-  double energy = energy_offset;
+  double energy = energy_offset();
   {
     bond_iterator rbi, rbi_end;
     for (boost::tie(rbi, rbi_end) = bonds(rgraph());
          rbi != rbi_end; ++rbi) {
-      double jz = mp.bond(*rbi, rgraph()).jz;
+      double jz = rbond_parameter(*rbi).jz;
       bond_iterator vbi, vbi_end;
-      for (boost::tie(vbi, vbi_end) = virtual_bonds(vlattice(), rgraph(), *rbi);
+      for (boost::tie(vbi, vbi_end) =
+             virtual_bonds(vlattice(), rgraph(), *rbi);
            vbi != vbi_end; ++vbi) {
-        if (spins_c[vsource(*vbi, vlattice())] == spins_c[vtarget(*vbi, vlattice())])
+        if (spins_c[vsource(*vbi, vlattice())] ==
+            spins_c[vtarget(*vbi, vlattice())])
           energy += 0.25 * jz;
         else
           energy -= 0.25 * jz;
       }
-      if (mp.has_d_term()) {
+      if (has_d_term()) {
         site_iterator rsi, rsi_end;
         for (boost::tie(rsi, rsi_end) = sites(rgraph());
              rsi != rsi_end; ++rsi) {
-          double d = mp.site(*rsi, rgraph()).d;
+          double d = rsite_parameter(*rsi).d;
           bond_iterator vbi, vbi_end;
           for (boost::tie(vbi, vbi_end) =
                  virtual_bonds(vlattice(), rgraph(), *rsi);
                vbi != vbi_end; ++vbi) {
-            if (spins_c[vsource(*vbi, vlattice())] == spins_c[vtarget(*vbi, vlattice())])
+            if (spins_c[vsource(*vbi, vlattice())] ==
+                spins_c[vtarget(*vbi, vlattice())])
               energy += 0.5 * d;
             else
               energy -= 0.5 * d;

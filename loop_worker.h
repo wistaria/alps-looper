@@ -59,10 +59,23 @@ public:
   const lattice_graph_t& vgraph() const { return vlat_.graph(); }
   const virtual_lattice& vlattice() const { return vlat_; }
 
-  loop_graph_t choose_diagonal() const { return chooser.diagonal(); }
+  double energy_offset() const { return energy_offset_; }
+  bool is_signed() const { return mp_.is_signed(); }
+  bool is_classically_frustrated() const
+  { return mp_.is_classically_frustrated(); }
+  bool has_longitudinal_field() const { return mp_.has_longitudinal_field(); }
+  bool has_d_term() const { return mp_.has_d_term(); }
+  const looper::bond_parameter&
+  rbond_parameter(const bond_descriptor& bd) const
+  { return mp_.bond(bd, rgraph()); }
+  const looper::site_parameter&
+  rsite_parameter(const site_descriptor& sd) const
+  { return mp_.site(sd, rgraph()); }
+
+  loop_graph_t choose_diagonal() const { return chooser_.diagonal(); }
   loop_graph_t choose_offdiagonal(const location_t& loc) const
-  { return chooser.offdiagonal(loc); }
-  double advance() const { return chooser.advance(); }
+  { return chooser_.offdiagonal(loc); }
+  double advance() const { return chooser_.advance(); }
 
   virtual void save(alps::ODump& dp) const;
   virtual void load(alps::IDump& dp);
@@ -72,15 +85,10 @@ private:
   unsigned int mcs_therm_;
   unsigned int mcs_; // to be dumped/restored
 
-protected:
-  looper::model_parameter mp;
-  double energy_offset;
-
-private:
+  looper::model_parameter mp_;
+  double energy_offset_;
   virtual_lattice vlat_;
-
-protected:
-  graph_chooser chooser;
+  graph_chooser chooser_;
 };
 
 template<class QMC> class qmc_worker;

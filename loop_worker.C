@@ -30,28 +30,28 @@ qmc_worker_base::qmc_worker_base(const alps::ProcessList& w,
     mcs_sweep_(p["SWEEPS"]),
     mcs_therm_(p.value_or_default("THERMALIZATION", mcs_sweep_.min() >> 3)),
     mcs_(0),
-    mp(p, *this), vlat_(graph(), mp, mp.has_d_term()),
-    chooser(*engine_ptr, looper::weight_table(mp, graph(), vlat_))
+    mp_(p, *this), vlat_(graph(), mp_, mp_.has_d_term()),
+    chooser_(*engine_ptr, looper::weight_table(mp_, graph(), vlat_))
 {
   if (mcs_sweep_.min() < mcs_therm_)
     boost::throw_exception(std::invalid_argument(
       "qmc_worker_base::qmc_worker_base() too small SWEEPS"));
 
-  if (mp.is_signed())
+  if (mp_.is_signed())
     std::cerr << "WARNING: model has negative signs\n";
-  if (mp.is_classically_frustrated())
+  if (mp_.is_classically_frustrated())
     std::cerr << "WARNING: model is classically frustrated\n";
 
-  energy_offset = 0;
+  energy_offset_ = 0;
   site_iterator si, si_end;
   for (boost::tie(si, si_end) = sites(rgraph()); si != si_end; ++si)
-    energy_offset += mp.site(*si, rgraph()).c;
+    energy_offset_ += mp_.site(*si, rgraph()).c;
   bond_iterator bi, bi_end;
   for (boost::tie(bi, bi_end) = bonds(rgraph()); bi != bi_end; ++bi)
-    energy_offset += mp.bond(*bi, rgraph()).c;
-  if (mp.has_d_term())
+    energy_offset_ += mp_.bond(*bi, rgraph()).c;
+  if (mp_.has_d_term())
     for (boost::tie(si, si_end) = sites(rgraph()); si != si_end; ++si)
-      energy_offset += 0.5 * mp.site(*si, rgraph()).s.get_twice();
+      energy_offset_ += 0.5 * mp_.site(*si, rgraph()).s.get_twice();
 }
 
 qmc_worker_base::~qmc_worker_base() {}

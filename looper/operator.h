@@ -35,7 +35,7 @@ namespace looper {
 struct local_operator_type
 {
   BOOST_STATIC_CONSTANT(int, diagonal    = 0 /* 00 */);
-  BOOST_STATIC_CONSTANT(int, offdiagonal = 1 /* 00 */);
+  BOOST_STATIC_CONSTANT(int, offdiagonal = 1 /* 01 */);
   BOOST_STATIC_CONSTANT(int, identity    = 2 /* 10 */);
 };
 
@@ -63,7 +63,15 @@ public:
 
   local_graph_t graph() const { return local_graph_t(graph_type(), loc_); }
   void assign_graph(const local_graph_t g)
-  { type_ = type() | (g.type() << 2); }
+  {
+#ifndef NDEBUG
+    if (!is_identity() && (loc_ != g.log()))
+      boost::throw_exception(std::logic_error("assign_graph"));
+#endif
+    // if type==identity then type will be set to diagonal, otherwize unchanged
+    type_ = (type_ & 1) | (g.type() << 2);
+    loc_ = g.loc();
+  }
   void clear_graph() { type_ &= 3; }
   int graph_type() const { return type_ >> 2; }
   bool is_locked() const
@@ -108,7 +116,6 @@ public:
     : super_type(g), time_(time) {}
 
   bool is_identity() const; // not defined
-
   double time() const { return time_; }
 
   void save(alps::ODump& dump) const { super_type::save(dump); dump << time_; }
