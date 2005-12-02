@@ -51,33 +51,33 @@ site weight (standard): C = 0, Hx = 0, Hz = 0 : v[0] = 0, v[1] = 0, v[2] = 0, of
 bond weight (standard): C = 0, Jxy = 0, Jz = 0 : v[0] = 0, v[1] = 0, v[2] = 0, v[3] = 0, offset = 0, sign = 1
 bond weight (ergodic): C = 0, Jxy = 0, Jz = 0 : v[0] = 0, v[1] = 0, v[2] = 0, v[3] = 0, offset = 0, sign = 1
 [random check]
-site weight (standard): C = 0.261689, Hx = 0.663775, Hz = 0.573396 : v[0] = 0.331887, v[1] = 0.573396, v[2] = 0, offset = 0.880275, sign = 1
-bond weight (standard): C = 0.356089, Jxy = 0.0307319, Jz = -0.980262 : v[0] = 0, v[1] = 0, v[2] = 0.0153659, v[3] = 0.474765, offset = 0.601154, sign = -1
-bond weight (ergodic): C = 0.356089, Jxy = 0.0307319, Jz = -0.980262 : v[0] = 0, v[1] = 0, v[2] = 0.0153659, v[3] = 0.474765, offset = 0.601154, sign = -1
-site weight (standard): C = -0.967455, Hx = -0.358193, Hz = -0.831502 : v[0] = 0.179096, v[1] = 0, v[2] = 0.831502, offset = -0.372608, sign = -1
-bond weight (standard): C = -0.17798, Jxy = -0.854877, Jz = 0.249823 : v[0] = 0.276175, v[1] = 0, v[2] = 0.151264, v[3] = 0, offset = 0.0357395, sign = 1
-bond weight (ergodic): C = -0.17798, Jxy = -0.854877, Jz = 0.249823 : v[0] = 0.276175, v[1] = 0, v[2] = 0.151264, v[3] = 0, offset = 0.0357395, sign = 1
-site weight (standard): C = -0.418719, Hx = 0.483216, Hz = 0.718424 : v[0] = 0.241608, v[1] = 0.718424, v[2] = 0, offset = 0.182101, sign = 1
-bond weight (standard): C = -0.305671, Jxy = -0.225155, Jz = 0.415156 : v[0] = 0.112577, v[1] = 0.0950004, v[2] = 0, v[3] = 0, offset = -0.201882, sign = 1
-bond weight (ergodic): C = -0.305671, Jxy = -0.225155, Jz = 0.415156 : v[0] = 0.10132, v[1] = 0.117516, v[2] = 0.0112577, v[3] = 0, offset = -0.190624, sign = 1
-site weight (standard): C = 0.380478, Hx = -0.205203, Hz = -0.389004 : v[0] = 0.102601, v[1] = 0, v[2] = 0.389004, offset = 0.677581, sign = -1
-bond weight (standard): C = -0.428263, Jxy = -0.940503, Jz = -0.0346113 : v[0] = 0.226473, v[1] = 0, v[2] = 0.243779, v[3] = 0, offset = -0.193138, sign = 1
-bond weight (ergodic): C = -0.428263, Jxy = -0.940503, Jz = -0.0346113 : v[0] = 0.226473, v[1] = 0, v[2] = 0.243779, v[3] = 0, offset = -0.193138, sign = 1
-site weight (standard): C = 0.0971912, Hx = -0.94706, Hz = -0.187572 : v[0] = 0.47353, v[1] = 0, v[2] = 0.187572, offset = 0.664507, sign = -1
-bond weight (standard): C = 0.90732, Jxy = 0.841213, Jz = -0.482986 : v[0] = 0.0895566, v[1] = 0, v[2] = 0.33105, v[3] = 0, offset = 1.11762, sign = -1
-bond weight (ergodic): C = 0.90732, Jxy = 0.841213, Jz = -0.482986 : v[0] = 0.0895566, v[1] = 0, v[2] = 0.33105, v[3] = 0, offset = 1.11762, sign = -1
-site weight (standard): C = 0.347229, Hx = -0.618847, Hz = 0.411701 : v[0] = 0.309423, v[1] = 0.411701, v[2] = 0, offset = 0.862503, sign = -1
-bond weight (standard): C = -0.108259, Jxy = 0.585998, Jz = -0.544592 : v[0] = 0.0103517, v[1] = 0, v[2] = 0.282648, v[3] = 0, offset = 0.038241, sign = -1
-bond weight (ergodic): C = -0.108259, Jxy = 0.585998, Jz = -0.544592 : v[0] = 0.0103517, v[1] = 0, v[2] = 0.282648, v[3] = 0, offset = 0.038241, sign = -1
-site weight (standard): C = -0.233069, Hx = 0.338046, Hz = -0.533571 : v[0] = 0.169023, v[1] = 0, v[2] = 0.533571, offset = 0.20274, sign = 1
-bond weight (standard): C = -0.377168, Jxy = 0.245985, Jz = -0.776276 : v[0] = 0, v[1] = 0, v[2] = 0.122993, v[3] = 0.265145, offset = -0.183099, sign = -1
-bond weight (ergodic): C = -0.377168, Jxy = 0.245985, Jz = -0.776276 : v[0] = 0, v[1] = 0, v[2] = 0.122993, v[3] = 0.265145, offset = -0.183099, sign = -1
-site weight (standard): C = 0.0169531, Hx = -0.360774, Hz = -0.746769 : v[0] = 0.180387, v[1] = 0, v[2] = 0.746769, offset = 0.570725, sign = -1
-bond weight (standard): C = 0.603067, Jxy = -0.162981, Jz = -0.0361075 : v[0] = 0.0317183, v[1] = 0, v[2] = 0.0497721, v[3] = 0, offset = 0.643812, sign = 1
-bond weight (ergodic): C = 0.603067, Jxy = -0.162981, Jz = -0.0361075 : v[0] = 0.0317183, v[1] = 0, v[2] = 0.0497721, v[3] = 0, offset = 0.643812, sign = 1
-site weight (standard): C = 0.569065, Hx = 0.543465, Hz = -0.434995 : v[0] = 0.271732, v[1] = 0, v[2] = 0.434995, offset = 1.05829, sign = 1
-bond weight (standard): C = 0.828294, Jxy = 0.397863, Jz = -0.497179 : v[0] = 0, v[1] = 0, v[2] = 0.198932, v[3] = 0.0496578, offset = 0.952589, sign = -1
-bond weight (ergodic): C = 0.828294, Jxy = 0.397863, Jz = -0.497179 : v[0] = 0, v[1] = 0, v[2] = 0.198932, v[3] = 0.0496578, offset = 0.952589, sign = -1
-site weight (standard): C = 0.411407, Hx = -0.0840064, Hz = -0.743268 : v[0] = 0.0420032, v[1] = 0, v[2] = 0.743268, offset = 0.825044, sign = -1
-bond weight (standard): C = -0.685915, Jxy = -0.98619, Jz = -0.187061 : v[0] = 0.199782, v[1] = 0, v[2] = 0.293313, v[3] = 0, offset = -0.439368, sign = 1
-bond weight (ergodic): C = -0.685915, Jxy = -0.98619, Jz = -0.187061 : v[0] = 0.199782, v[1] = 0, v[2] = 0.293313, v[3] = 0, offset = -0.439368, sign = 1
+site weight (standard): C = 0.261689, Hx = 0.663775, Hz = 0.573396 : v[0] = 0.331887, v[1] = 0.573396, v[2] = 0, offset = 0.618585, sign = 1
+bond weight (standard): C = 0.356089, Jxy = 0.0307319, Jz = -0.980262 : v[0] = 0, v[1] = 0, v[2] = 0.0153659, v[3] = 0.474765, offset = 0.245065, sign = -1
+bond weight (ergodic): C = 0.356089, Jxy = 0.0307319, Jz = -0.980262 : v[0] = 0, v[1] = 0, v[2] = 0.0153659, v[3] = 0.474765, offset = 0.245065, sign = -1
+site weight (standard): C = -0.967455, Hx = -0.358193, Hz = -0.831502 : v[0] = 0.179096, v[1] = 0, v[2] = 0.831502, offset = 0.594847, sign = -1
+bond weight (standard): C = -0.17798, Jxy = -0.854877, Jz = 0.249823 : v[0] = 0.276175, v[1] = 0, v[2] = 0.151264, v[3] = 0, offset = 0.213719, sign = 1
+bond weight (ergodic): C = -0.17798, Jxy = -0.854877, Jz = 0.249823 : v[0] = 0.276175, v[1] = 0, v[2] = 0.151264, v[3] = 0, offset = 0.213719, sign = 1
+site weight (standard): C = -0.418719, Hx = 0.483216, Hz = 0.718424 : v[0] = 0.241608, v[1] = 0.718424, v[2] = 0, offset = 0.60082, sign = 1
+bond weight (standard): C = -0.305671, Jxy = -0.225155, Jz = 0.415156 : v[0] = 0.112577, v[1] = 0.0950004, v[2] = 0, v[3] = 0, offset = 0.103789, sign = 1
+bond weight (ergodic): C = -0.305671, Jxy = -0.225155, Jz = 0.415156 : v[0] = 0.10132, v[1] = 0.117516, v[2] = 0.0112577, v[3] = 0, offset = 0.115047, sign = 1
+site weight (standard): C = 0.380478, Hx = -0.205203, Hz = -0.389004 : v[0] = 0.102601, v[1] = 0, v[2] = 0.389004, offset = 0.297103, sign = -1
+bond weight (standard): C = -0.428263, Jxy = -0.940503, Jz = -0.0346113 : v[0] = 0.226473, v[1] = 0, v[2] = 0.243779, v[3] = 0, offset = 0.235126, sign = 1
+bond weight (ergodic): C = -0.428263, Jxy = -0.940503, Jz = -0.0346113 : v[0] = 0.226473, v[1] = 0, v[2] = 0.243779, v[3] = 0, offset = 0.235126, sign = 1
+site weight (standard): C = 0.0971912, Hx = -0.94706, Hz = -0.187572 : v[0] = 0.47353, v[1] = 0, v[2] = 0.187572, offset = 0.567316, sign = -1
+bond weight (standard): C = 0.90732, Jxy = 0.841213, Jz = -0.482986 : v[0] = 0.0895566, v[1] = 0, v[2] = 0.33105, v[3] = 0, offset = 0.210303, sign = -1
+bond weight (ergodic): C = 0.90732, Jxy = 0.841213, Jz = -0.482986 : v[0] = 0.0895566, v[1] = 0, v[2] = 0.33105, v[3] = 0, offset = 0.210303, sign = -1
+site weight (standard): C = 0.347229, Hx = -0.618847, Hz = 0.411701 : v[0] = 0.309423, v[1] = 0.411701, v[2] = 0, offset = 0.515274, sign = -1
+bond weight (standard): C = -0.108259, Jxy = 0.585998, Jz = -0.544592 : v[0] = 0.0103517, v[1] = 0, v[2] = 0.282648, v[3] = 0, offset = 0.1465, sign = -1
+bond weight (ergodic): C = -0.108259, Jxy = 0.585998, Jz = -0.544592 : v[0] = 0.0103517, v[1] = 0, v[2] = 0.282648, v[3] = 0, offset = 0.1465, sign = -1
+site weight (standard): C = -0.233069, Hx = 0.338046, Hz = -0.533571 : v[0] = 0.169023, v[1] = 0, v[2] = 0.533571, offset = 0.435809, sign = 1
+bond weight (standard): C = -0.377168, Jxy = 0.245985, Jz = -0.776276 : v[0] = 0, v[1] = 0, v[2] = 0.122993, v[3] = 0.265145, offset = 0.194069, sign = -1
+bond weight (ergodic): C = -0.377168, Jxy = 0.245985, Jz = -0.776276 : v[0] = 0, v[1] = 0, v[2] = 0.122993, v[3] = 0.265145, offset = 0.194069, sign = -1
+site weight (standard): C = 0.0169531, Hx = -0.360774, Hz = -0.746769 : v[0] = 0.180387, v[1] = 0, v[2] = 0.746769, offset = 0.553771, sign = -1
+bond weight (standard): C = 0.603067, Jxy = -0.162981, Jz = -0.0361075 : v[0] = 0.0317183, v[1] = 0, v[2] = 0.0497721, v[3] = 0, offset = 0.0407452, sign = 1
+bond weight (ergodic): C = 0.603067, Jxy = -0.162981, Jz = -0.0361075 : v[0] = 0.0317183, v[1] = 0, v[2] = 0.0497721, v[3] = 0, offset = 0.0407452, sign = 1
+site weight (standard): C = 0.569065, Hx = 0.543465, Hz = -0.434995 : v[0] = 0.271732, v[1] = 0, v[2] = 0.434995, offset = 0.48923, sign = 1
+bond weight (standard): C = 0.828294, Jxy = 0.397863, Jz = -0.497179 : v[0] = 0, v[1] = 0, v[2] = 0.198932, v[3] = 0.0496578, offset = 0.124295, sign = -1
+bond weight (ergodic): C = 0.828294, Jxy = 0.397863, Jz = -0.497179 : v[0] = 0, v[1] = 0, v[2] = 0.198932, v[3] = 0.0496578, offset = 0.124295, sign = -1
+site weight (standard): C = 0.411407, Hx = -0.0840064, Hz = -0.743268 : v[0] = 0.0420032, v[1] = 0, v[2] = 0.743268, offset = 0.413637, sign = -1
+bond weight (standard): C = -0.685915, Jxy = -0.98619, Jz = -0.187061 : v[0] = 0.199782, v[1] = 0, v[2] = 0.293313, v[3] = 0, offset = 0.246548, sign = 1
+bond weight (ergodic): C = -0.685915, Jxy = -0.98619, Jz = -0.187061 : v[0] = 0.199782, v[1] = 0, v[2] = 0.293313, v[3] = 0, offset = 0.246548, sign = 1

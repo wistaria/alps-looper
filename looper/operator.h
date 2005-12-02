@@ -65,7 +65,7 @@ public:
   void assign_graph(const local_graph_t g)
   {
 #ifndef NDEBUG
-    if (!is_identity() && (loc_ != g.log()))
+    if (!is_identity() && (loc_ != g.loc()))
       boost::throw_exception(std::logic_error("assign_graph"));
 #endif
     // if type==identity then type will be set to diagonal, otherwize unchanged

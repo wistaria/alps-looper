@@ -26,6 +26,8 @@
 #define LOOP_WORKER_SSE_H
 
 #include "loop_worker.h"
+#include <looper/operator.h>
+#include <looper/type.h>
 
 struct cluster_info_sse
 {

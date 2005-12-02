@@ -39,6 +39,8 @@ public:
   int pos() const { return loc_ >> 1; }
   bool is_bond() const { return loc_ & 1; }
   bool is_site() const { return !is_bond(); }
+  bool operator==(const location& rhs) const { return loc_ == rhs.loc_; }
+  bool operator!=(const location& rhs) const { return !operator==(rhs); }
   void save(alps::ODump& dump) const { dump << loc_; }
   void load(alps::IDump& dump) { dump >> loc_; }
   static location bond_location(int pos) { return location(pos, true); }
@@ -64,6 +66,8 @@ public:
   int pos() const { return loc_; }
   static bool is_bond() { return true; }
   static bool is_site() { return false; }
+  bool operator==(const location_bond& rhs) const { return loc_ == rhs.loc_; }
+  bool operator!=(const location_bond& rhs) const { return !operator==(rhs); }
   static location_bond bond_location(int pos) { return location_bond(pos); }
   static location_bond site_location(int)
   {

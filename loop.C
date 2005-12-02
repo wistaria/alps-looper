@@ -91,9 +91,8 @@ int main(int argc, char** argv)
         thermalized = true;
       }
     }
-    /* accumulate(sim->get_measurements(),
+    accumulate(sim->get_measurements(),
                const_cast<alps::ObservableSet&>(sim->get_measurements()));
-    */
     double t = tm.elapsed();
     std::cerr << "[speed]\nelapsed time = " << t << " sec ("
               << (sim->mcs()) / t << " MCS/sec)\n";

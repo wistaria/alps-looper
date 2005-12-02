@@ -27,6 +27,10 @@
 
 #include <looper.h>
 
+#include <looper/lattice.h>
+#include <looper/location.h>
+#include <looper/graph.h>
+
 struct loop_config
 {
   // lattice structure

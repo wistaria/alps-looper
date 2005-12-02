@@ -26,6 +26,7 @@
 #define LOOP_WORKER_H
 
 #include "loop_config.h"
+#include <looper/model.h>
 #include <alps/alea.h>
 #include <alps/scheduler.h>
 

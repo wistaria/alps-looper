@@ -23,6 +23,7 @@
 *****************************************************************************/
 
 #include "loop_worker_sse.h"
+#include <looper/permutation.h>
 #include <alps/fixed_capacity_vector.h>
 
 qmc_worker_sse::qmc_worker_sse(const alps::ProcessList& w,

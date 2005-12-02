@@ -23,6 +23,7 @@
 *****************************************************************************/
 
 #include "loop_worker_pi.h"
+#include <looper/permutation.h>
 #include <alps/fixed_capacity_vector.h>
 
 qmc_worker_pi::qmc_worker_pi(const alps::ProcessList& w,
@@ -57,8 +58,6 @@ qmc_worker_pi::qmc_worker_pi(const alps::ProcessList& w,
          RealObservable("Energy"), is_signed())
     << make_observable(
          RealObservable("Energy Density"), is_signed())
-    << make_observable(
-         RealObservable("Diagonal Energy Density"), is_signed())
     << make_observable(
          RealObservable("Energy Density^2"), is_signed())
     << make_observable(
@@ -217,55 +216,14 @@ void qmc_worker_pi::dostep()
   int nrs = num_sites(rgraph());
 
   // energy
-  {
-    double ez = energy_offset();
-    bond_iterator rbi, rbi_end;
-    for (boost::tie(rbi, rbi_end) = bonds(rgraph()); rbi != rbi_end; ++rbi) {
-      double jz = rbond_parameter(*rbi).jz;
-      bond_iterator vbi, vbi_end;
-      for (boost::tie(vbi, vbi_end) =
-             virtual_bonds(vlattice(), rgraph(), *rbi);
-           vbi != vbi_end; ++vbi) {
-        if (spins_c[vsource(*vbi, vlattice())] ==
-            spins_c[vtarget(*vbi, vlattice())])
-          ez += 0.25 * jz;
-        else
-          ez -= 0.25 * jz;
-      }
-      if (has_d_term()) {
-        site_iterator rsi, rsi_end;
-        for (boost::tie(rsi, rsi_end) = sites(rgraph());
-             rsi != rsi_end; ++rsi) {
-          double d = rsite_parameter(*rsi).d;
-          bond_iterator vbi, vbi_end;
-          for (boost::tie(vbi, vbi_end) =
-                 virtual_bonds(vlattice(), rgraph(), *rsi);
-               vbi != vbi_end; ++vbi) {
-            if (spins_c[vsource(*vbi, vlattice())] ==
-                spins_c[vtarget(*vbi, vlattice())])
-              ez += 0.5 * d;
-            else
-              ez -= 0.5 * d;
-          }
-        }
-      }
-    }
-    int nop = 0;
-    for (operator_iterator oi = operators.begin(); oi != operators.end(); ++oi)
-      if (oi->is_offdiagonal()) ++nop;
-    double exy = - nop / beta;
-    double e2 = - nop / looper::sqr(beta);
-    measurements["Energy"] << ez + exy;
-    measurements["Energy Density"] << (ez + exy) / nrs;
-    /* not correct
-    measurements["Energy Density^2"] <<
-      looper::sqr((ez + exy) / nrs) + e2 / nrs;
-    measurements["Diagonal Energy Density"] << ez / nrs;
-    measurements["beta * Energy / sqrt(N)"] <<
-      beta * (ez + exy) / std::sqrt((double)nrs);
-    measurements["beta * Energy^2"] << beta * (looper::sqr(ez + exy) + e2);
-    */
-  }
+  int nop = operators.size();
+  double ene = energy_offset() - nop / beta;
+  measurements["Energy"] << ene;
+  measurements["Energy Density"] << ene / nrs;
+  measurements["Energy Density^2"] << ene * ene / nrs;
+  measurements["beta * Energy / sqrt(N)"] <<
+    beta * ene / std::sqrt((double)nrs);
+  measurements["beta * Energy^2"] << beta * ene * ene - nop;
 
   // magnetization && susceptibility
   if (is_bipartite()) {

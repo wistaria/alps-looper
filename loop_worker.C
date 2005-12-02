@@ -23,6 +23,7 @@
 *****************************************************************************/
 
 #include "loop_worker.h"
+#include <looper/weight.h>
 
 qmc_worker_base::qmc_worker_base(const alps::ProcessList& w,
                                  const alps::Parameters& p, int n)
@@ -31,7 +32,7 @@ qmc_worker_base::qmc_worker_base(const alps::ProcessList& w,
     mcs_therm_(p.value_or_default("THERMALIZATION", mcs_sweep_.min() >> 3)),
     mcs_(0),
     mp_(p, *this), vlat_(graph(), mp_, mp_.has_d_term()),
-    chooser_(*engine_ptr, looper::weight_table(mp_, graph(), vlat_))
+    chooser_(*engine_ptr)
 {
   if (mcs_sweep_.min() < mcs_therm_)
     boost::throw_exception(std::invalid_argument(
@@ -43,26 +44,27 @@ qmc_worker_base::qmc_worker_base(const alps::ProcessList& w,
     std::cerr << "WARNING: model is classically frustrated\n";
 
   energy_offset_ = 0;
-  site_iterator si, si_end;
-  for (boost::tie(si, si_end) = sites(rgraph()); si != si_end; ++si)
-    energy_offset_ += mp_.site(*si, rgraph()).c;
-  bond_iterator bi, bi_end;
-  for (boost::tie(bi, bi_end) = bonds(rgraph()); bi != bi_end; ++bi)
-    energy_offset_ += mp_.bond(*bi, rgraph()).c;
+
+  // energy offset in Hamiltonian
+  for (site_iterator si = sites(rgraph()).first; si != sites(rgraph()).second;
+       ++si) energy_offset_ += mp_.site(*si, rgraph()).c;
+  for (bond_iterator bi = bonds(rgraph()).first; bi != bonds(rgraph()).second;
+       ++bi) energy_offset_ += mp_.bond(*bi, rgraph()).c;
   if (mp_.has_d_term())
-    for (boost::tie(si, si_end) = sites(rgraph()); si != si_end; ++si)
-      energy_offset_ += 0.5 * mp_.site(*si, rgraph()).s.get_twice();
+    for (site_iterator si = sites(rgraph()).first; si != sites(rgraph()).second;
+         ++si) energy_offset_ += 0.5 * mp_.site(*si, rgraph()).s.get_twice();
 
-  for (boost::tie(bi, bi_end) = bonds(rgraph()); bi != bi_end; ++bi)
-    std::cout << mp_.bond(*bi, rgraph()).jxy << mp_.bond(*bi, rgraph()).jz;
+  double fs = p.value_or_default("FORCE_SCATTER",
+                                 mp_.is_classically_frustrated() ? 0.1 : 0);
+  looper::weight_table wt(mp_, graph(), vlat_, fs);
 
-  looper::weight_table wt(mp_, graph(), vlat_);
-  for (looper::weight_table::bond_iterator itr = wt.bond_begin();
-       itr != wt.bond_end(); ++itr) {
-    std::cout << itr->first << ' ' << itr->second.v[0] << ' ' << itr->second.v[1] << ' ' << itr->second.v[2] << ' ' << itr->second.v[3] << std::endl;
-  }
+  // energy offset in weight equation
+  for (looper::weight_table::site_iterator si = wt.site_begin();
+       si != wt.site_end(); ++si) energy_offset_ += si->second.offset;
+  for (looper::weight_table::bond_iterator bi = wt.bond_begin();
+       bi != wt.bond_end(); ++bi) energy_offset_ += bi->second.offset;
 
-  std::cout << vlat_.graph();
+  chooser_.init(wt);
 }
 
 qmc_worker_base::~qmc_worker_base() {}

@@ -45,9 +45,9 @@ struct site_weight {
 
   // loop equations:
   //
-  //   - offset + v0 + v1 = - C + Hz/2
-  //   - offset + v0 + g2 = - C - Hz/2
-  //              v0      =       |Hx|/2
+  //   - offset + v0 + v1 = + Hz/2
+  //   - offset + v0 + g2 = - Hz/2
+  //              v0      =   |Hx|/2
 
   // standard solution:
   //
@@ -61,15 +61,16 @@ struct site_weight {
   //      v2 = -Hz/2
 
   site_weight() : sign(1), offset(0) { v[0] = v[1] = v[2] = 0; }
-  site_weight(const site_parameter& p) { init(p); }
+  site_weight(const site_parameter& p, double /* force_scatter */ = 0)
+  { init(p); }
 
-  void init(const site_parameter& p)
+  void init(const site_parameter& p, double /* force_scatter */ = 0)
   {
     sign = (p.hx >= 0 ? 1 : -1);
     v[0] = std::abs(p.hx) / 2;
     v[1] = crop_0( p.hz);
     v[2] = crop_0(-p.hz);
-    offset = p.c + v[0] + (v[1] + v[2])/2;
+    offset = v[0] + (v[1] + v[2])/2;
   }
 
   double weight() const { return v[0] + v[1] + v[2]; }
@@ -94,9 +95,9 @@ struct bond_weight {
 
   // loop equations:
   //
-  //   - offset + v2 + v3 = - C - Jz/4
-  //   - offset + v0 + v1 = - C + Jz/4
-  //              v0 + v2 =       |Jxy|/2
+  //   - offset + v2 + v3 = - Jz/4
+  //   - offset + v0 + v1 = + Jz/4
+  //              v0 + v2 =   |Jxy|/2
 
   // standard solution:
   //
@@ -137,7 +138,6 @@ struct bond_weight {
   void init(const bond_parameter& p, double force_scatter = 0)
   {
     sign = (p.jxy <= 0 ? 1 : -1);
-    double c = p.c;
     double jxy = std::abs(p.jxy);
     double jz = p.jz;
     double a = crop_01(force_scatter);
@@ -158,7 +158,7 @@ struct bond_weight {
     } else {
       v[0] = v[1] = v[2] = v[3] = 0;
     }
-    offset = c + weight()/2;
+    offset = weight()/2;
   }
   void init(const site_parameter& p, double force_scatter = 0)
   {
@@ -182,18 +182,20 @@ public:
     bond_iterator;
 
   template<class RL, class VL>
-  weight_table(const model_parameter& mp, const RL& rl, const VL& vl)
-  { init(mp, rl, vl); }
+  weight_table(const model_parameter& mp, const RL& rl, const VL& vl,
+               double force_scatter = 0)
+  { init(mp, rl, vl, force_scatter); }
 
   template<class RL, class VL>
-  void init(const model_parameter& mp, const RL& rl, const VL& vl)
+  void init(const model_parameter& mp, const RL& rl, const VL& vl,
+            double force_scatter = 0)
   {
     weight_ = 0;
     site_weights_.clear();
     bond_weights_.clear();
     typename graph_traits<RL>::site_iterator rsi, rsi_end;
     for (boost::tie(rsi, rsi_end) = sites(rl); rsi != rsi_end; ++rsi) {
-      site_weight sw(mp.site(*rsi, rl));
+      site_weight sw(mp.site(*rsi, rl), force_scatter);
       typename graph_traits<VL>::site_iterator vsi, vsi_end;
       for (boost::tie(vsi, vsi_end) = virtual_sites(vl, rl, *rsi);
            vsi != vsi_end; ++vsi) {
@@ -204,7 +206,7 @@ public:
     }
     typename graph_traits<RL>::bond_iterator rbi, rbi_end;
     for (boost::tie(rbi, rbi_end) = bonds(rl); rbi != rbi_end; ++rbi) {
-      bond_weight bw(mp.bond(*rbi, rl));
+      bond_weight bw(mp.bond(*rbi, rl), force_scatter);
       typename graph_traits<VL>::bond_iterator vbi, vbi_end;
       for (boost::tie(vbi, vbi_end) = virtual_bonds(vl, rl, *rbi);
            vbi != vbi_end; ++vbi) {
@@ -215,7 +217,7 @@ public:
     }
     if (mp.has_d_term()) {
       for (boost::tie(rsi, rsi_end) = sites(rl); rsi != rsi_end; ++rsi) {
-        bond_weight bw(mp.site(*rsi, rl));
+        bond_weight bw(mp.site(*rsi, rl), force_scatter);
         typename graph_traits<VL>::bond_iterator vbi, vbi_end;
         for (boost::tie(vbi, vbi_end) = virtual_bonds(vl, rl, *rsi);
              vbi != vbi_end; ++vbi) {
@@ -235,39 +237,6 @@ public:
   double weight() const { return weight_; }
   double rho() const { return weight(); }
 
-//   template<class LOCAL_GRAPH, class RND_CHOICE>
-//   void setup_graph_chooser(std::vector<LOCAL_GRAPH>& diagonal_graphs,
-//                            RND_CHOICE& rng,
-//                            std::vector<double>& offdiagonal_weights) const
-//   {
-//     diagonal_graphs.clear();
-//     offdiagonal_weights.clear();
-//     std::vector<double> w;
-//     for (std::vector<std::pair<int, site_weight> >::const_iterator
-//            itr = site_weights_.begin(); itr != site_weights_.end(); ++itr) {
-//       site_weight sw = itr->second;
-//       for (int g = 0; g <= 2; ++g) {
-//         if (alps::is_nonzero<1>(sw.v[g])) {
-//           diagonal_graphs.push_back(LOCAL_GRAPH::site_graph(g, itr->first));
-//           w.push_back(sw.v[g]);
-//         }
-//       }
-//     }
-//     for (std::vector<std::pair<int, bond_weight> >::const_iterator
-//            itr = bond_weights_.begin(); itr != bond_weights_.end(); ++itr) {
-//       bond_weight bw = itr->second;
-//       for (int g = 0; g <= 3; ++g) {
-//         if (alps::is_nonzero<1>(bw.v[g])) {
-//           diagonal_graphs.push_back(LOCAL_GRAPH::bond_graph(g, itr->first));
-//           w.push_back(bw.v[g]);
-//         }
-//       }
-//       offdiagonal_weights.push_back(alps::is_nonzero<1>(bw.v[0] + bw.v[2]) ?
-//                                    bw.v[0] / (bw.v[0] + bw.v[2]) : 1);
-//     }
-//     rng.distribution().init(w);
-//   }
-
 private:
   double weight_;
   std::vector<std::pair<int, site_weight> > site_weights_;
@@ -280,12 +249,12 @@ private:
 
 inline void site_weight::check(const site_parameter& p) const
 {
-  if (!alps::is_equal<1>(-offset+v[0]+v[1], -p.c+p.hz/2) ||
-      !alps::is_equal<1>(-offset+v[0]+v[2], -p.c-p.hz/2) ||
+  if (!alps::is_equal<1>(-offset+v[0]+v[1],  p.hz/2) ||
+      !alps::is_equal<1>(-offset+v[0]+v[2], -p.hz/2) ||
       !alps::is_equal<1>(v[0], sign*p.hx/2))
     boost::throw_exception(std::logic_error("site_parameter::check 1"));
   site_parameter pp(p.s,
-                    offset - (v[0] + (v[1] + v[2])/2),
+                    p.c,
                     2 * v[0] * sign,
                     v[1] - v[2]);
   if (pp != p) {
@@ -297,13 +266,13 @@ inline void site_weight::check(const site_parameter& p) const
 
 inline void bond_weight::check(const bond_parameter& p) const
 {
-  if (!alps::is_equal<1>(-offset+v[0]+v[1], -p.c+p.jz/4) ||
-      !alps::is_equal<1>(-offset+v[2]+v[3], -p.c-p.jz/4) ||
+  if (!alps::is_equal<1>(-offset+v[0]+v[1],  p.jz/4) ||
+      !alps::is_equal<1>(-offset+v[2]+v[3], -p.jz/4) ||
       !alps::is_equal<1>(v[0]+v[2], -sign*p.jxy/2))
     boost::throw_exception(std::logic_error("bond_parameter::check 1"));
-  bond_parameter pp(offset - weight()/2,
+  bond_parameter pp(p.c,
                     -2 * (v[0] + v[2]) * sign,
-                    2 * (v[0] + v[1] - v[2] - v[3]));
+                     2 * (v[0] + v[1] - v[2] - v[3]));
   if (pp != p) {
     std::cerr << p.c << ' ' << p.jxy << ' ' << p.jz << std::endl;
     std::cerr << pp.c << ' ' << pp.jxy << ' ' << pp.jz << std::endl;

@@ -53,7 +53,7 @@ inline void diagonalize(
   using namespace boost::numeric;
 
   BOOST_STATIC_ASSERT((boost::is_same<typename R::orientation_category,
-    ublas::column_major_tag>::value)); 
+    ublas::column_major_tag>::value));
 
   const char jobz = (need_eigenvectors ? 'V' : 'N');
   const char uplo = 'L';
@@ -72,7 +72,7 @@ inline void diagonalize(
   using namespace boost::numeric;
 
   BOOST_STATIC_ASSERT((boost::is_same<typename R::orientation_category,
-    ublas::column_major_tag>::value)); 
+    ublas::column_major_tag>::value));
 
   const char jobz = (need_eigenvectors ? 'V' : 'N');
   const char uplo = 'L';
@@ -101,7 +101,7 @@ inline double solve_llsp(
 #endif
 
   BOOST_STATIC_ASSERT((boost::is_same<typename R::orientation_category,
-    ublas::column_major_tag>::value)); 
+    ublas::column_major_tag>::value));
 
   typedef T value_type;
   typedef ublas::matrix<value_type, R, A> matrix_type;

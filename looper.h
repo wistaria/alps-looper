@@ -31,17 +31,6 @@
 /* Define the published date of ALPS/looper */
 #define LOOPER_DATE "2005/11/18"
 
-#include <looper/graph.h>
-#include <looper/lattice.h>
-#include <looper/location.h>
-#include <looper/model.h>
-#include <looper/operator.h>
-#include <looper/permutation.h>
-#include <looper/type.h>
-#include <looper/union_find.h>
-#include <looper/util.h>
-#include <looper/weight.h>
-
 #include <alps/copyright.h>
 #include <iostream>
 
@@ -67,4 +56,4 @@ std::ostream& print_license(std::ostream& os = std::cout)
 
 } // end namespace looper
 
-#endif // ! LOOPER_H
+#endif // LOOPER_H
