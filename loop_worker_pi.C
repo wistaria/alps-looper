@@ -50,9 +50,7 @@ qmc_worker_pi::qmc_worker_pi(const alps::ProcessList& w,
   using alps::RealObservable;
   using alps::make_observable;
 
-  if (is_signed()) {
-    measurements << RealObservable("Sign");
-  }
+  if (is_signed()) measurements << RealObservable("Sign");
 
   measurements
     << make_observable(
@@ -172,8 +170,7 @@ void qmc_worker_pi::dostep()
   {
     alps::fixed_capacity_vector<int, loop_config::max_2s> r;
     site_iterator rsi, rsi_end;
-    for (boost::tie(rsi, rsi_end) = sites(rgraph());
-         rsi != rsi_end; ++rsi) {
+    for (boost::tie(rsi, rsi_end) = sites(rgraph()); rsi != rsi_end; ++rsi) {
       site_iterator vsi, vsi_end;
       boost::tie(vsi, vsi_end) = virtual_sites(vlattice(), rgraph(), *rsi);
       int offset = *vsi;
@@ -206,49 +203,12 @@ void qmc_worker_pi::dostep()
   if (has_longitudinal_field())
     clusters[cluster_id(fragments, ghost)].to_flip = false;
 
-  // flip operators and spins & do improved measurements
-  if (!has_longitudinal_field()) {
-    std::copy(spins.begin(), spins.end(), spins_c.begin());
-    for (operator_iterator oi = operators.begin(); oi != operators.end();
-         ++oi) {
-      int id_l = root(fragments, oi->loop0).id;
-      int id_u = root(fragments, oi->loop1).id;
-      if (oi->is_bond()) {
-        int s0 = vsource(oi->pos(), vlattice());
-        int s1 = vtarget(oi->pos(), vlattice());
-        // clusters[id_l].mag += 0 * oi->time;
-        clusters[id_l].length += 2 * oi->time();
-        if (oi->is_offdiagonal()) {
-          spins[s0] ^= 1;
-          spins[s1] ^= 1;
-        }
-        // clusters[id_u].mag -= 0 * oi->time;
-        clusters[id_u].length -= 2 * oi->time();
-      } else {
-        int s = oi->pos();
-        clusters[id_l].mag += (1 - 2 * spins[s]) * oi->time();
-        clusters[id_l].length += oi->time();
-        if (oi->is_offdiagonal()) spins[s] ^= 1;
-        clusters[id_u].mag -= (1 - 2 * spins[s]) * oi->time();
-        clusters[id_u].length -= oi->time();
-      }
-      if (clusters[id_l].to_flip ^ clusters[id_u].to_flip) oi->flip();
-    }
-    for (int s = 0; s < nvs; ++s) {
-      int id = cluster_id(fragments, s);
-      clusters[id].mag0 += (1 - 2 * spins[s]);
-      clusters[id].size += 1;
-      clusters[id].mag += (1 - 2 * spins[s]) * beta;
-      clusters[id].length += beta;
-      if (clusters[id].to_flip) spins[s] ^= 1;
-    }
-  } else {
-    for (operator_iterator oi = operators.begin(); oi != operators.end(); ++oi)
-      if (clusters[cluster_id(fragments, oi->loop0)].to_flip ^
-          clusters[cluster_id(fragments, oi->loop1)].to_flip) oi->flip();
-    for (int s = 0; s < nvs; ++s)
-      if (clusters[cluster_id(fragments, s)].to_flip) spins[s] ^= 1;
-  }
+  // flip operators
+  for (operator_iterator oi = operators.begin(); oi != operators.end(); ++oi)
+    if (clusters[cluster_id(fragments, oi->loop0)].to_flip ^
+        clusters[cluster_id(fragments, oi->loop1)].to_flip) oi->flip();
+  for (int s = 0; s < nvs; ++s)
+    if (clusters[cluster_id(fragments, s)].to_flip) spins[s] ^= 1;
 
   //
   // measurements
@@ -257,11 +217,10 @@ void qmc_worker_pi::dostep()
   int nrs = num_sites(rgraph());
 
   // energy
-  double energy = energy_offset();
   {
+    double ez = energy_offset();
     bond_iterator rbi, rbi_end;
-    for (boost::tie(rbi, rbi_end) = bonds(rgraph());
-         rbi != rbi_end; ++rbi) {
+    for (boost::tie(rbi, rbi_end) = bonds(rgraph()); rbi != rbi_end; ++rbi) {
       double jz = rbond_parameter(*rbi).jz;
       bond_iterator vbi, vbi_end;
       for (boost::tie(vbi, vbi_end) =
@@ -269,9 +228,9 @@ void qmc_worker_pi::dostep()
            vbi != vbi_end; ++vbi) {
         if (spins_c[vsource(*vbi, vlattice())] ==
             spins_c[vtarget(*vbi, vlattice())])
-          energy += 0.25 * jz;
+          ez += 0.25 * jz;
         else
-          energy -= 0.25 * jz;
+          ez -= 0.25 * jz;
       }
       if (has_d_term()) {
         site_iterator rsi, rsi_end;
@@ -284,9 +243,9 @@ void qmc_worker_pi::dostep()
                vbi != vbi_end; ++vbi) {
             if (spins_c[vsource(*vbi, vlattice())] ==
                 spins_c[vtarget(*vbi, vlattice())])
-              energy += 0.5 * d;
+              ez += 0.5 * d;
             else
-              energy -= 0.5 * d;
+              ez -= 0.5 * d;
           }
         }
       }
@@ -294,32 +253,94 @@ void qmc_worker_pi::dostep()
     int nop = 0;
     for (operator_iterator oi = operators.begin(); oi != operators.end(); ++oi)
       if (oi->is_offdiagonal()) ++nop;
-    energy -= (double)nop / beta;
+    double exy = - nop / beta;
+    double e2 = - nop / looper::sqr(beta);
+    measurements["Energy"] << ez + exy;
+    measurements["Energy Density"] << (ez + exy) / nrs;
+    /* not correct
+    measurements["Energy Density^2"] <<
+      looper::sqr((ez + exy) / nrs) + e2 / nrs;
+    measurements["Diagonal Energy Density"] << ez / nrs;
+    measurements["beta * Energy / sqrt(N)"] <<
+      beta * (ez + exy) / std::sqrt((double)nrs);
+    measurements["beta * Energy^2"] << beta * (looper::sqr(ez + exy) + e2);
+    */
   }
-  measurements["Energy"] << energy;
-  measurements["Energy Density"] << energy / nrs;
 
-  {
-    // accumurate loop length and magnetization
-    double z2 = 0;
-    double s2 = 0;
-    double m2 = 0;
-    double l2 = 0;
-    for (std::vector<cluster_info_t>::iterator pi = clusters.begin();
-         pi != clusters.end(); ++pi) {
-      z2 += looper::sqr(pi->mag0);
-      s2 += looper::sqr(pi->size);
-      m2 += looper::sqr(pi->mag);
-      l2 += looper::sqr(pi->length);
+  // magnetization && susceptibility
+  if (is_bipartite()) {
+    int nm = 0;
+    int ns = 0;
+    site_iterator si, si_end;
+    for (boost::tie(si, si_end) = sites(vgraph()); si != si_end; ++si) {
+      nm += (1 - 2 * spins[*si]);
+      ns += looper::gauge(vgraph(), *si) * (1 - 2 * spins[*si]);
     }
+    double umag = nm / 2.0;
+    double smag = ns / 2.0;
+    measurements["Magnetization"] << umag / nrs;
+    measurements["Magnetization^2"] << umag * umag / nrs;
+    measurements["Staggered Magnetization"] << smag / nrs;
+    measurements["Staggered Magnetization^2"] << smag * smag / nrs;
 
-    measurements["Magnetization^2"] << z2 / (4 * nrs);
-    measurements["Susceptibility"] << m2 / (4 * beta * nrs);
-    if (is_bipartite()) {
-      measurements["Staggered Magnetization^2"] << s2 / (4 * nrs);
-      measurements["Staggered Susceptibility"]
-        << l2 / (4 * beta * nrs);
+    double umag_a = 0; /* 0 * umag; */
+    double smag_a = 0; /* 0 * smag; */
+    std::copy(spins.begin(), spins.end(), spins_c.begin());
+    for (operator_iterator oi = operators.begin(); oi != operators.end(); ++oi)
+      if (oi->is_offdiagonal()) {
+         umag_a += oi->time() * umag;
+         smag_a += oi->time() * smag;
+         if (oi->is_site()) {
+           unsigned int s = oi->pos();
+           spins_c[s] ^= 1;
+           umag += (1 - 2 * spins_c[s]);
+          smag += looper::gauge(vgraph(), s) * (1 - 2 * spins_c[s]);
+         } else {
+           unsigned int s0 = vsource(oi->pos(), vlattice());
+           unsigned int s1 = vtarget(oi->pos(), vlattice());
+          spins_c[s0] ^= 1;
+          spins_c[s1] ^= 1;
+           umag += 1 - 2 * spins_c[s0] + 1 - 2 * spins_c[s1];
+          smag += looper::gauge(vgraph(), s0) * (1 - 2 * spins_c[s0])
+            + looper::gauge(vgraph(), s1) * (1 - 2 * spins_c[s1]);
+         }
+         umag_a -= oi->time() * umag;
+         smag_a -= oi->time() * smag;
+      }
+    umag_a += beta * umag;
+    smag_a += beta * smag;
+    measurements["Susceptibility"] << umag_a * umag_a / (beta * nrs);
+    measurements["Staggered Susceptibility"] << smag_a * smag_a / (beta * nrs);
+  } else {
+    int nm = 0;
+    site_iterator si, si_end;
+    for (boost::tie(si, si_end) = sites(vgraph()); si != si_end; ++si) {
+      nm += (1 - 2 * spins[*si]);
     }
+    double umag = nm / 2.0;
+    measurements["Magnetization"] << umag / nrs;
+    measurements["Magnetization^2"] << umag * umag / nrs;
+
+    double umag_a = 0 * umag;
+    std::copy(spins.begin(), spins.end(), spins_c.begin());
+    for (operator_iterator oi = operators.begin(); oi != operators.end(); ++oi)
+      if (oi->is_offdiagonal()) {
+        umag_a += oi->time() * umag;
+        if (oi->is_site()) {
+          unsigned int s = oi->pos();
+          spins_c[s] ^= 1;
+          umag += (1 - 2 * spins_c[s]);
+        } else {
+          unsigned int s0 = vsource(oi->pos(), vlattice());
+          unsigned int s1 = vtarget(oi->pos(), vlattice());
+          spins_c[s0] ^= 1;
+          spins_c[s1] ^= 1;
+          umag += 1 - 2 * spins_c[s0] + 1 - 2 * spins_c[s1];
+        }
+        umag_a -= oi->time() * umag;
+      }
+    umag_a += beta * umag;
+    measurements["Susceptibility"] << umag_a * umag_a / (beta * nrs);
   }
 }
 

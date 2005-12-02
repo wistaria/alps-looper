@@ -148,82 +148,13 @@ void generate_graph(G& g, const hypercubic_graph_generator<D, S, E>& desc)
                  bc.begin(), bc.end()));
 }
 
-
 template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
 inline int
 gauge(const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g,
       typename graph_traits<
         boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
           vertex_descriptor vd)
-{
-  return get(parity_t(), g, vd);
-}
-
-// struct uniform
-// {
-//   template<class T0, class T1, class T2, class T3, class T4, class T5,
-//            class T6>
-//   static double
-//   value(typename graph_traits<
-//           boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
-//           vertex_descriptor,
-//         const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>&) {
-//     return 1.;
-//   }
-// };
-
-// struct staggered
-// {
-//   template<class T0, class T1, class T2, class T3, class T4, class T5,
-//            class T6>
-//   static int
-//   value(typename graph_traits<
-//           boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
-//           vertex_descriptor vd,
-//         const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g) {
-//     return get(parity_t(), g, vd);
-//   }
-// };
-
-// template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
-// inline unsigned int
-// vertex_index(typename graph_traits<
-//              boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
-//              vertex_descriptor vd,
-//            const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g)
-// {
-//   return get(vertex_index_t(), g, vd);
-// }
-
-// template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
-// inline unsigned int
-// vertex_type(typename graph_traits<
-//             boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
-//             vertex_descriptor vd,
-//           const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g)
-// {
-//   return get(alps::vertex_type_t(), g, vd);
-// }
-
-// template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
-// inline unsigned int
-// edge_index(typename graph_traits<
-//              boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
-//              edge_descriptor ed,
-//            const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g)
-// {
-//   return get(boost::edge_index, g, ed);
-// }
-
-// template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
-// inline unsigned int
-// edge_type(typename graph_traits<
-//             boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
-//             edge_descriptor ed,
-//           const boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6>& g)
-// {
-//   return get(alps::edge_type_t(), g, ed);
-// }
+{ return 2 * get(parity_t(), g, vd) - 1; }
 
 
 //

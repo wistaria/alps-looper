@@ -52,6 +52,17 @@ qmc_worker_base::qmc_worker_base(const alps::ProcessList& w,
   if (mp_.has_d_term())
     for (boost::tie(si, si_end) = sites(rgraph()); si != si_end; ++si)
       energy_offset_ += 0.5 * mp_.site(*si, rgraph()).s.get_twice();
+
+  for (boost::tie(bi, bi_end) = bonds(rgraph()); bi != bi_end; ++bi)
+    std::cout << mp_.bond(*bi, rgraph()).jxy << mp_.bond(*bi, rgraph()).jz;
+
+  looper::weight_table wt(mp_, graph(), vlat_);
+  for (looper::weight_table::bond_iterator itr = wt.bond_begin();
+       itr != wt.bond_end(); ++itr) {
+    std::cout << itr->first << ' ' << itr->second.v[0] << ' ' << itr->second.v[1] << ' ' << itr->second.v[2] << ' ' << itr->second.v[3] << std::endl;
+  }
+
+  std::cout << vlat_.graph();
 }
 
 qmc_worker_base::~qmc_worker_base() {}

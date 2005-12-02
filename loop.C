@@ -34,7 +34,9 @@ int main(int argc, char** argv)
 #ifndef BOOST_NO_EXCEPTIONS
   try {
 #endif
+
     return alps::scheduler::start(argc, argv, factory());
+
 #ifndef BOOST_NO_EXCEPTIONS
   }
   catch (std::exception& exc) {
@@ -51,7 +53,6 @@ int main(int argc, char** argv)
 
 #else
 
-#include <sstream>
 #include <boost/timer.hpp>
 
 int main(int argc, char** argv)
@@ -60,15 +61,15 @@ int main(int argc, char** argv)
   try {
 #endif
 
-  alps::Parameters params;
+  alps::ParameterList parameterlist;
   switch (argc) {
   case 1:
-    std::cin >> params;
+    std::cin >> parameterlist;
     break;
   case 2:
     {
       boost::filesystem::ifstream is(argv[1]);
-      is >> params;
+      is >> parameterlist;
       break;
     }
   default:
@@ -76,26 +77,29 @@ int main(int argc, char** argv)
       "Usage: " + std::string(argv[0]) + " [paramfile]"));
   }
 
-  std::cout << "[input parameters]\n" << params;
-
-  qmc_worker_base* sim =
-    factory().make_qmc_worker(alps::ProcessList(1), params, 0);
-  boost::timer tm;
-
-  bool thermalized = false;
-  while (sim->work_done() < 1.0) {
-    sim->dostep();
-    if (!thermalized && sim->is_thermalized()) {
-      const_cast<alps::ObservableSet&>(sim->get_measurements()).reset(true);
-      thermalized = true;
+  for (alps::ParameterList::const_iterator p = parameterlist.begin();
+       p != parameterlist.end(); ++p) {
+    boost::timer tm;
+    std::cout << "[input parameters]\n" << *p;
+    qmc_worker_base* sim =
+      factory().make_qmc_worker(alps::ProcessList(1), *p, 0);
+    bool thermalized = false;
+    while (sim->work_done() < 1.0) {
+      sim->dostep();
+      if (!thermalized && sim->is_thermalized()) {
+        const_cast<alps::ObservableSet&>(sim->get_measurements()).reset(true);
+        thermalized = true;
+      }
     }
+    /* accumulate(sim->get_measurements(),
+               const_cast<alps::ObservableSet&>(sim->get_measurements()));
+    */
+    double t = tm.elapsed();
+    std::cerr << "[speed]\nelapsed time = " << t << " sec ("
+              << (sim->mcs()) / t << " MCS/sec)\n";
+    std::cout << "[results]\n" << sim->get_measurements();
+    delete sim;
   }
-
-  double t = tm.elapsed();
-  std::cerr << "[speed]\nelapsed time = " << t << " sec ("
-            << (sim->mcs()) / t << " MCS/sec)\n";
-
-  std::cout << "[results]\n" << sim->get_measurements();
 
 #ifndef BOOST_NO_EXCEPTIONS
   }

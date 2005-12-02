@@ -299,7 +299,6 @@ public:
       r_time_(eng, boost::exponential_distribution<>())
   { init(wt); }
 
-
   template<class WEIGHT_TABLE>
   void init(const WEIGHT_TABLE& wt)
   {

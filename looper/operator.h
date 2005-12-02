@@ -52,7 +52,7 @@ public:
   local_operator() : type_(local_operator_type::identity), loc_() {}
   local_operator(int type, const location_t& loc) : type_(type), loc_(loc) {}
   local_operator(const local_graph_t& g)
-    : type_(local_operator_type::diagonal & (g.type() << 2)), loc_(g.loc()) {}
+    : type_(local_operator_type::diagonal | (g.type() << 2)), loc_(g.loc()) {}
 
   void flip() { type_ ^= 1; }
   int type() const { return type_ & 3; }
@@ -72,7 +72,7 @@ public:
     type_ = (type_ & 1) | (g.type() << 2);
     loc_ = g.loc();
   }
-  void clear_graph() { type_ &= 3; }
+  // void clear_graph() { type_ &= 3; }
   int graph_type() const { return type_ >> 2; }
   bool is_locked() const
   {
