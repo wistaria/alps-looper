@@ -59,8 +59,6 @@ qmc_worker_pi::qmc_worker_pi(const alps::ProcessList& w,
     << make_observable(
          RealObservable("Energy Density"), is_signed())
     << make_observable(
-         RealObservable("Energy Density^2"), is_signed())
-    << make_observable(
          RealObservable("beta * Energy / sqrt(N)"), is_signed())
     << make_observable(
          RealObservable("beta * Energy^2"), is_signed());
@@ -213,17 +211,18 @@ void qmc_worker_pi::dostep()
   // measurements
   //
 
-  int nrs = num_sites(rgraph());
+  using std::sqrt;
+  using looper::sqr;
+  double nrsi = 1.0 / (double)num_sites(rgraph());
 
   // energy
   int nop = operators.size();
   double ene = energy_offset() - nop / beta;
   measurements["Energy"] << ene;
-  measurements["Energy Density"] << ene / nrs;
-  measurements["Energy Density^2"] << ene * ene / nrs;
-  measurements["beta * Energy / sqrt(N)"] <<
-    beta * ene / std::sqrt((double)nrs);
-  measurements["beta * Energy^2"] << beta * ene * ene - nop;
+  measurements["Energy Density"] << nrsi * ene;
+  measurements["beta * Energy / sqrt(N)"] << sqrt(nrsi) * beta * ene;
+  measurements["beta * Energy^2"] <<
+    nrsi * sqr(beta) * (sqr(ene) - nop / sqr(beta));
 
   // magnetization && susceptibility
   if (is_bipartite()) {
@@ -236,10 +235,10 @@ void qmc_worker_pi::dostep()
     }
     double umag = nm / 2.0;
     double smag = ns / 2.0;
-    measurements["Magnetization"] << umag / nrs;
-    measurements["Magnetization^2"] << umag * umag / nrs;
-    measurements["Staggered Magnetization"] << smag / nrs;
-    measurements["Staggered Magnetization^2"] << smag * smag / nrs;
+    measurements["Magnetization"] << nrsi * umag;
+    measurements["Magnetization^2"] << nrsi * umag * umag;
+    measurements["Staggered Magnetization"] << nrsi * smag;
+    measurements["Staggered Magnetization^2"] << nrsi * smag * smag;
 
     double umag_a = 0; /* 0 * umag; */
     double smag_a = 0; /* 0 * smag; */
@@ -267,8 +266,8 @@ void qmc_worker_pi::dostep()
       }
     umag_a += beta * umag;
     smag_a += beta * smag;
-    measurements["Susceptibility"] << umag_a * umag_a / (beta * nrs);
-    measurements["Staggered Susceptibility"] << smag_a * smag_a / (beta * nrs);
+    measurements["Susceptibility"] << nrsi * umag_a * umag_a / beta;
+    measurements["Staggered Susceptibility"] << nrsi * smag_a * smag_a / beta;
   } else {
     int nm = 0;
     site_iterator si, si_end;
@@ -276,8 +275,8 @@ void qmc_worker_pi::dostep()
       nm += (1 - 2 * spins[*si]);
     }
     double umag = nm / 2.0;
-    measurements["Magnetization"] << umag / nrs;
-    measurements["Magnetization^2"] << umag * umag / nrs;
+    measurements["Magnetization"] << nrsi * umag;
+    measurements["Magnetization^2"] << nrsi * umag * umag;
 
     double umag_a = 0 * umag;
     std::copy(spins.begin(), spins.end(), spins_c.begin());
@@ -298,7 +297,7 @@ void qmc_worker_pi::dostep()
         umag_a -= oi->time() * umag;
       }
     umag_a += beta * umag;
-    measurements["Susceptibility"] << umag_a * umag_a / (beta * nrs);
+    measurements["Susceptibility"] << nrsi * umag_a * umag_a / beta;
   }
 }
 

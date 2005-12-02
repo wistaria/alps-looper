@@ -22,17 +22,38 @@
 *
 *****************************************************************************/
 
-#include "looper/find_bridges.h"
-#include "looper/graph.h"
-#include "looper/lapack.h"
-#include "looper/lattice.h"
-#include "looper/location.h"
-#include "looper/model.h"
-#include "looper/operator.h"
-#include "looper/permutation.h"
-#include "looper/random_choice.h"
-#include "looper/type.h"
-#include "looper/union_find.h"
-#include "looper/util.h"
-#include "looper/version.h"
-#include "looper/weight.h"
+#ifndef LOOPER_VERSION_H
+#define LOOPER_VERSION_H
+
+/* Define the version of ALPS/looper */
+#define LOOPER_VERSION "3.2.0b"
+
+/* Define the published date of ALPS/looper */
+#define LOOPER_DATE "2005/11/18"
+
+#include <alps/copyright.h>
+#include <iostream>
+
+namespace looper {
+
+inline
+std::ostream& print_copyright(std::ostream& os = std::cout)
+{
+  os << "ALPS/looper version " LOOPER_VERSION " (" LOOPER_DATE ")\n"
+     << "  multi-cluster quantum Monte Carlo algorithms for spin systems\n"
+     << "  available from http://wistaria.comp-phys.org/alps-looper/\n"
+     << "  copyright (c) 1997-2005 by Synge Todo <wistaria@comp-phys.org>\n"
+     << "\n";
+  return os;
+}
+
+inline
+std::ostream& print_license(std::ostream& os = std::cout)
+{
+  os << "Please look at the file LICENSE for the license conditions.\n";
+  return os;
+}
+
+} // end namespace looper
+
+#endif // LOOPER_VERSION_H

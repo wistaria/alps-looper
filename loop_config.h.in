@@ -25,8 +25,6 @@
 #ifndef LOOP_CONFIG_H
 #define LOOP_CONFIG_H
 
-#include <looper.h>
-
 #include <looper/lattice.h>
 #include <looper/location.h>
 #include <looper/graph.h>

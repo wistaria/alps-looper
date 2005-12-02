@@ -65,10 +65,10 @@ private:
 
   std::vector<int> spins;
   std::vector<local_operator_t> operators;
-  int nop; // number of non-identity operators
 
   // working area
   std::vector<int> spins_c;
+  std::vector<local_operator_t> operators_p;
   std::vector<cluster_fragment_t> fragments;
   std::vector<int> current;
   std::vector<cluster_info_t> clusters;

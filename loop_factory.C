@@ -25,6 +25,7 @@
 #include "loop_factory.h"
 #include "loop_worker_pi.h"
 #include "loop_worker_sse.h"
+#include <looper/version.h>
 
 alps::scheduler::MCSimulation* factory::make_task(const alps::ProcessList& w,
   const boost::filesystem::path& fn) const

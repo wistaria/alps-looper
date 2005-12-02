@@ -27,6 +27,7 @@ pkginclude_HEADERS = \
 	looper/type.h \
 	looper/union_find.h \
 	looper/util.h \
+	looper/version.h \
 	looper/weight.h
 
 dist_noinst_SCRIPTS = config/run-test config/update_preamble
