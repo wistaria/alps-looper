@@ -293,34 +293,36 @@ public:
       r_graph_(eng, random_choice<>()),
       r_time_(eng, boost::exponential_distribution<>()) {}
   template<class WEIGHT_TABLE>
-  graph_chooser(engine_t& eng, const WEIGHT_TABLE& wt)
+  graph_chooser(engine_t& eng, const WEIGHT_TABLE& wt, bool is_path_integral)
     : r_uniform_(eng, boost::uniform_real<>(0, 1)),
       r_graph_(eng, random_choice<>()),
       r_time_(eng, boost::exponential_distribution<>())
-  { init(wt); }
+  { init(wt, is_path_integral); }
 
   template<class WEIGHT_TABLE>
-  void init(const WEIGHT_TABLE& wt)
+  void init(const WEIGHT_TABLE& wt, bool is_path_integral)
   {
-    diag_.resize(0);
+    graph_.resize(0);
     offdiag_.resize(0);
     std::vector<double> w;
     double r = 0;
-    for (typename WEIGHT_TABLE::site_iterator itr = wt.site_begin();
-         itr != wt.site_end(); ++itr) {
+    for (typename WEIGHT_TABLE::site_weight_iterator
+           itr = wt.site_weights().first;
+         itr != wt.site_weights().second; ++itr) {
       for (int g = 0; g <= 2; ++g) {
         if (alps::is_nonzero<1>(itr->second.v[g])) {
-          diag_.push_back(local_graph_t::site_graph(g, itr->first));
+          graph_.push_back(local_graph_t::site_graph(g, itr->first));
           w.push_back(itr->second.v[g]);
           r += itr->second.v[g];
         }
       }
     }
-    for (typename WEIGHT_TABLE::bond_iterator itr = wt.bond_begin();
-         itr != wt.bond_end(); ++itr) {
+    for (typename WEIGHT_TABLE::bond_weight_iterator
+           itr = wt.bond_weights().first;
+         itr != wt.bond_weights().second; ++itr) {
       for (int g = 0; g <= 3; ++g) {
         if (alps::is_nonzero<1>(itr->second.v[g])) {
-          diag_.push_back(local_graph_t::bond_graph(g, itr->first));
+          graph_.push_back(local_graph_t::bond_graph(g, itr->first));
           w.push_back(itr->second.v[g]);
           r += itr->second.v[g];
         }
@@ -333,7 +335,18 @@ public:
     r_time_.distribution() = boost::exponential_distribution<>(r);
   }
 
-  local_graph_t diagonal() const { return diag_[r_graph_()]; }
+  const local_graph_t& graph() const { return graph_[r_graph_()]; }
+  local_graph_t diagonal(const location_t& loc, int c0, int c1) const
+  {
+    int c = c0 ^ c1;
+    int g;
+    if (is_site(loc)) {
+      g = 0;
+    } else {
+      g = ((r_uniform_() < diag_[(pos(loc) << 1) | c]) ? 2 : 3) ^ (c << 1);
+    }
+    return local_graph_t(g, loc);
+  }
   local_graph_t offdiagonal(const location_t& loc) const
   {
     int g = (is_site(loc) || r_uniform_() < offdiag_[pos(loc)]) ? 0 : 2;
@@ -348,7 +361,8 @@ private:
     random_choice<> > r_graph_;
   mutable boost::variate_generator<engine_t&,
     boost::exponential_distribution<> > r_time_;
-  std::vector<local_graph_t> diag_;
+  std::vector<local_graph_t> graph_;
+  std::vector<double> diag_;
   std::vector<double> offdiag_;
 };
 
@@ -361,7 +375,8 @@ public:
   typedef ENGINE                                 engine_t;
 
   template<class WEIGHT_TABLE>
-  graph_chooser(engine_t& eng, const WEIGHT_TABLE& wt)
+  graph_chooser(engine_t& eng, const WEIGHT_TABLE& wt,
+                bool is_path_integral = true)
     : r_graph_(eng, random_choice<>()),
       r_time_(eng, boost::exponential_distribution<>())
   { init(wt); }
@@ -384,7 +399,9 @@ public:
     r_time_.distribution() = boost::exponential_distribution<>(r);
   }
 
-  local_graph_t diagonal() const { return diag_[r_graph_()]; }
+  const local_graph_t& graph() const { return diag_[r_graph_()]; }
+  static local_graph_t diagonal(const location_t& loc, int, int)
+  { return local_graph_t(0, loc); }
   static local_graph_t offdiagonal(const location_t& loc)
   { return local_graph_t(0, loc); }
   double advance() const { return r_time_(); }

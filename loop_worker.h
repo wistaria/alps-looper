@@ -43,7 +43,8 @@ public:
   typedef looper::graph_chooser<loop_graph_t, super_type::engine_type>
     graph_chooser;
 
-  qmc_worker_base(const alps::ProcessList& w, const alps::Parameters& p, int n);
+  qmc_worker_base(const alps::ProcessList& w, const alps::Parameters& p,
+                  int n, bool is_path_integral = true);
   virtual ~qmc_worker_base();
 
   virtual void dostep() { ++mcs_; }
@@ -55,6 +56,8 @@ public:
       (double(mcs_ - mcs_therm_) / mcs_sweep_.min()) : 0.;
   }
   unsigned int mcs() const { return mcs_; }
+
+  double beta() const { return beta_; }
 
   const lattice_graph_t& rgraph() const { return super_type::graph(); }
   const lattice_graph_t& vgraph() const { return vlat_.graph(); }
@@ -73,10 +76,15 @@ public:
   rsite_parameter(const site_descriptor& sd) const
   { return mp_.site(sd, rgraph()); }
 
-  loop_graph_t choose_diagonal() const { return chooser_.diagonal(); }
+  loop_graph_t choose_graph() const { return chooser_.graph(); }
+  loop_graph_t choose_diagonal(const location_t& loc, int c0, int c1) const
+  { return chooser_.diagonal(loc, c0, c1); }
   loop_graph_t choose_offdiagonal(const location_t& loc) const
   { return chooser_.offdiagonal(loc); }
   double advance() const { return chooser_.advance(); }
+
+  void accumulate();
+  void accumulate(const alps::ObservableSet& m_in, alps::ObservableSet& m_out);
 
   virtual void save(alps::ODump& dp) const;
   virtual void load(alps::IDump& dp);
@@ -86,6 +94,8 @@ private:
   unsigned int mcs_therm_;
   unsigned int mcs_; // to be dumped/restored
 
+  double beta_;
+
   looper::model_parameter mp_;
   double energy_offset_;
   virtual_lattice vlat_;
@@ -93,20 +103,5 @@ private:
 };
 
 template<class QMC> class qmc_worker;
-
-template<class T>
-inline void accumulate(const alps::ObservableSet& m_in, T& m_out)
-{
-  if (m_in.has("beta * Energy / sqrt(N)") && m_in.has("beta * Energy^2")) {
-    alps::RealObsevaluator obse_e = m_in["beta * Energy / sqrt(N)"];
-    alps::RealObsevaluator obse_e2 = m_in["beta * Energy^2"];
-    alps::RealObsevaluator eval("Specific Heat");
-    eval = (obse_e2 - obse_e * obse_e);
-    m_out << eval;
-  }
-}
-
-inline void accumulate(alps::scheduler::MCSimulation& sim)
-{ accumulate(sim.get_measurements(), sim); }
 
 #endif // LOOP_WORKER_H

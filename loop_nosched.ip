@@ -15,8 +15,3 @@ local_S = 1
 LATTICE = "site"
 Gamma = 1
 }
-{
-LATTICE = "site"
-local_S = 1
-D = 1
-}

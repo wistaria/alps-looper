@@ -177,9 +177,9 @@ class weight_table
 {
 public:
   typedef std::vector<std::pair<int, site_weight> >::const_iterator
-    site_iterator;
+    site_weight_iterator;
   typedef std::vector<std::pair<int, bond_weight> >::const_iterator
-    bond_iterator;
+    bond_weight_iterator;
 
   template<class RL, class VL>
   weight_table(const model_parameter& mp, const RL& rl, const VL& vl,
@@ -227,18 +227,30 @@ public:
         }
       }
     }
+
+    energy_offset_ = 0;
+    for (site_weight_iterator itr = site_weights_.begin();
+         itr != site_weights_.end(); ++itr)
+      energy_offset_ += itr->second.offset;
+    for (bond_weight_iterator itr = bond_weights_.begin();
+         itr != bond_weights_.end(); ++itr)
+      energy_offset_ += itr->second.offset;
   }
 
-  site_iterator site_begin() const { return site_weights_.begin(); }
-  site_iterator site_end() const { return site_weights_.end(); }
-  bond_iterator bond_begin() const { return bond_weights_.begin(); }
-  bond_iterator bond_end() const { return bond_weights_.end(); }
+  std::pair<site_weight_iterator, site_weight_iterator>
+  site_weights() const
+  { return std::make_pair(site_weights_.begin(), site_weights_.end()); }
+  std::pair<bond_weight_iterator, bond_weight_iterator>
+  bond_weights() const
+  { return std::make_pair(bond_weights_.begin(), bond_weights_.end()); }
 
   double weight() const { return weight_; }
   double rho() const { return weight(); }
+  double energy_offset() const { return energy_offset_; }
 
 private:
   double weight_;
+  double energy_offset_;
   std::vector<std::pair<int, site_weight> > site_weights_;
   std::vector<std::pair<int, bond_weight> > bond_weights_;
 };

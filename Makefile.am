@@ -42,7 +42,7 @@ SRC = loop.C loop_config.h loop_factory.C loop_factory.h \
 	loop_worker_sse.h loop_worker_sse.C
 
 loop_SOURCES = $(SRC)
-loop_evaluate_SOURCES = loop_evaluate.C
+loop_evaluate_SOURCES = loop_evaluate.C loop_worker.C
 loop_nosched_SOURCES = $(SRC)
 loop_nosched_CPPFLAGS = -DWITHOUT_SCHEDULER
 

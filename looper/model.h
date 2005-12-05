@@ -237,33 +237,20 @@ public:
   typedef std::vector<bond_parameter> bond_map_type;
   typedef site_parameter::spin_type spin_type;
 
-  model_parameter()
-    : sites_(), bonds_(), use_site_index_(true), use_bond_index_(true),
-      has_hz_(false), has_d_(false), signed_(false), frustrated_(false) {}
+  model_parameter() {}
   template<typename G, typename I>
   model_parameter(const G& g, const alps::half_integer<I>& spin,
-                  double Jxy, double Jz)
-    : sites_(), bonds_(), use_site_index_(true), use_bond_index_(true),
-      has_hz_(false), has_d_(false), signed_(false), frustrated_(false)
-  { set_parameters(g, spin, Jxy, Jz); }
+                  double Jxy, double Jz) { set_parameters(g, spin, Jxy, Jz); }
   template<typename G, typename I>
-  model_parameter(const alps::Parameters& params,
-                  const G& g,
-                  bool inhomogeneous_sites,
-                  bool inhomogeneous_bond,
+  model_parameter(const alps::Parameters& params, const G& g,
+                  bool inhomogeneous_sites, bool inhomogeneous_bond,
                   const alps::HamiltonianDescriptor<I>& hd)
-    : sites_(), bonds_(), use_site_index_(true), use_bond_index_(true),
-      has_hz_(false), has_d_(false), signed_(false), frustrated_(false)
   { set_parameters(params, g, inhomogeneous_sites, inhomogeneous_bond, hd); }
   template<typename G, typename I>
-  model_parameter(const alps::Parameters& params,
-                  const G& g,
-                  bool inhomogeneous_sites,
-                  bool inhomogeneous_bond,
+  model_parameter(const alps::Parameters& params, const G& g,
+                  bool inhomogeneous_sites, bool inhomogeneous_bond,
                   const alps::HamiltonianDescriptor<I>& hd,
                   bool is_signed)
-    : sites_(), bonds_(), use_site_index_(true), use_bond_index_(true),
-      has_hz_(false), has_d_(false), signed_(false), frustrated_(false)
   {
     set_parameters(params, g, inhomogeneous_sites, inhomogeneous_bond,
                    hd, is_signed);
@@ -272,8 +259,6 @@ public:
   model_parameter(const alps::Parameters& params,
                   const alps::graph_helper<G>& gh,
                   const alps::model_helper<I>& mh)
-    : sites_(), bonds_(), use_site_index_(true), use_bond_index_(true),
-      has_hz_(false), has_d_(false), signed_(false), frustrated_(false)
   {
     set_parameters(params, gh.graph(), gh.inhomogeneous_sites(),
                    gh.inhomogeneous_bonds(), mh.model(),
@@ -282,8 +267,6 @@ public:
   template<typename G, typename I>
   model_parameter(const alps::Parameters& params,
                   const alps::scheduler::LatticeModelMCRun<G, I>& mcrun)
-    : sites_(), bonds_(), use_site_index_(true), use_bond_index_(true),
-      has_hz_(false), has_d_(false), signed_(false), frustrated_(false)
   { set_parameters(params, mcrun); }
 
   // set_parameters
@@ -373,6 +356,7 @@ public:
   bool is_classically_frustrated() const { return frustrated_; }
   bool has_longitudinal_field() const { return has_hz_; }
   bool has_d_term() const { return has_d_; }
+  double energy_offset() const { return energy_offset_; }
 
 protected:
   template<typename G, typename I>
@@ -399,6 +383,7 @@ private:
   bool has_d_;
   bool signed_;
   bool frustrated_;
+  double energy_offset_;
 };
 
 
@@ -673,6 +658,15 @@ void model_parameter::set_parameters_impl(alps::Parameters params, const G& g,
       }
     }
   }
+
+  energy_offset_ = 0;
+  for (site_iterator si = sites(g).first; si != sites(g).second; ++si)
+    energy_offset_ += site(*si, g).c;
+  for (bond_iterator bi = bonds(g).first; bi != bonds(g).second; ++bi)
+    energy_offset_ += bond(*bi, g).c;
+  if (has_d_term())
+    for (site_iterator si = sites(g).first; si != sites(g).second; ++si)
+      energy_offset_ += 0.5 * site(*si, g).s.get_twice();
 }
 
 template<typename G>
@@ -712,7 +706,6 @@ bool model_parameter::check_classical_frustration(const G& g) const
   bool frustrated =
     alps::is_frustrated(g, boost::make_iterator_property_map(w.begin(),
       get(bond_index_t(), g)));
-
   if (has_d_ && !frustrated) {
     typename alps::graph_traits<G>::site_iterator vi, vi_end;
     for (boost::tie(vi, vi_end) = sites(g); vi != vi_end; ++vi) {
@@ -722,7 +715,6 @@ bool model_parameter::check_classical_frustration(const G& g) const
       }
     }
   }
-
   return frustrated;
 }
 

@@ -28,12 +28,8 @@
 
 qmc_worker_sse::qmc_worker_sse(const alps::ProcessList& w,
                                const alps::Parameters& p, int n)
-  : super_type(w, p, n),
-    beta(1.0 / static_cast<double>(p["T"]))
+  : super_type(w, p, n, false)
 {
-  if (beta < 0)
-    boost::throw_exception(std::invalid_argument("negative beta"));
-
   //
   // initialize configuration
   //
@@ -59,9 +55,7 @@ qmc_worker_sse::qmc_worker_sse(const alps::ProcessList& w,
     << make_observable(
          RealObservable("Energy Density"), is_signed())
     << make_observable(
-         RealObservable("beta * Energy / sqrt(N)"), is_signed())
-    << make_observable(
-         RealObservable("beta * Energy^2"), is_signed());
+         RealObservable("Energy^2"), is_signed());
 
   measurements
     << make_observable(

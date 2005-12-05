@@ -61,8 +61,6 @@ public:
   void load(alps::IDump& dp);
 
 private:
-  double beta;
-
   std::vector<int> spins;
   std::vector<local_operator_t> operators;
 

@@ -28,12 +28,8 @@
 
 qmc_worker_pi::qmc_worker_pi(const alps::ProcessList& w,
                              const alps::Parameters& p, int n)
-  : super_type(w, p, n),
-    beta(1.0 / static_cast<double>(p["T"]))
+  : super_type(w, p, n, true)
 {
-  if (beta < 0)
-    boost::throw_exception(std::invalid_argument("negative beta"));
-
   //
   // initialize configuration
   //
@@ -59,9 +55,7 @@ qmc_worker_pi::qmc_worker_pi(const alps::ProcessList& w,
     << make_observable(
          RealObservable("Energy Density"), is_signed())
     << make_observable(
-         RealObservable("beta * Energy / sqrt(N)"), is_signed())
-    << make_observable(
-         RealObservable("beta * Energy^2"), is_signed());
+         RealObservable("Energy^2"), is_signed());
 
   measurements
     << make_observable(
@@ -114,12 +108,12 @@ void qmc_worker_pi::dostep()
 
   double t = advance();
   for (operator_iterator opi = operators_p.begin();
-       t < beta || opi != operators_p.end();) {
+       t < beta() || opi != operators_p.end();) {
 
     // diagonal update & labeling
     if (opi == operators_p.end() || t < opi->time()) {
       // insert diagonal operator and graph if compatible
-      loop_graph_t g = choose_diagonal();
+      loop_graph_t g = choose_graph();
       if (
           ((is_bond(g) &&
             is_compatible(g, spins_c[vsource(pos(g), vlattice())],
@@ -217,12 +211,13 @@ void qmc_worker_pi::dostep()
 
   // energy
   int nop = operators.size();
-  double ene = energy_offset() - nop / beta;
+  double ene = energy_offset() - nop / beta();
   measurements["Energy"] << ene;
   measurements["Energy Density"] << nrsi * ene;
-  measurements["beta * Energy / sqrt(N)"] << sqrt(nrsi) * beta * ene;
-  measurements["beta * Energy^2"] <<
-    nrsi * sqr(beta) * (sqr(ene) - nop / sqr(beta));
+  measurements["Energy^2"] << sqr(ene) - nop / sqr(beta());
+  // measurements["beta * Energy / sqrt(N)"] << sqrt(nrsi) * beta * ene;
+  // measurements["beta * Energy^2"] <<
+  //   nrsi * sqr(beta) * (sqr(ene) - nop / sqr(beta));
 
   // magnetization && susceptibility
   if (is_bipartite()) {
@@ -264,10 +259,12 @@ void qmc_worker_pi::dostep()
          umag_a -= oi->time() * umag;
          smag_a -= oi->time() * smag;
       }
-    umag_a += beta * umag;
-    smag_a += beta * smag;
-    measurements["Susceptibility"] << nrsi * umag_a * umag_a / beta;
-    measurements["Staggered Susceptibility"] << nrsi * smag_a * smag_a / beta;
+    umag_a += beta() * umag;
+    smag_a += beta() * smag;
+    measurements["Susceptibility"]
+      << nrsi * umag_a * umag_a / beta();
+    measurements["Staggered Susceptibility"]
+      << nrsi * smag_a * smag_a / beta();
   } else {
     int nm = 0;
     site_iterator si, si_end;
@@ -296,8 +293,8 @@ void qmc_worker_pi::dostep()
         }
         umag_a -= oi->time() * umag;
       }
-    umag_a += beta * umag;
-    measurements["Susceptibility"] << nrsi * umag_a * umag_a / beta;
+    umag_a += beta() * umag;
+    measurements["Susceptibility"] << nrsi * umag_a * umag_a / beta();
   }
 }
 
