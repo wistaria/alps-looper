@@ -43,7 +43,7 @@ struct bond_graph_type {
   //     2 (g1)
   //     3 (g2)
   static bool is_compatible(int g, int c0, int c1)
-  { return (g >> 1) ^ (c0 ^ c1); }
+  { return (g >> 1) ^ c0 ^ c1; }
 };
 
 struct site_graph_type {
@@ -303,9 +303,10 @@ public:
   void init(const WEIGHT_TABLE& wt, bool is_path_integral)
   {
     graph_.resize(0);
+    diag_.resize(0);
     offdiag_.resize(0);
     std::vector<double> w;
-    double r = 0;
+    weight_ = 0;
     for (typename WEIGHT_TABLE::site_weight_iterator
            itr = wt.site_weights().first;
          itr != wt.site_weights().second; ++itr) {
@@ -313,7 +314,7 @@ public:
         if (alps::is_nonzero<1>(itr->second.v[g])) {
           graph_.push_back(local_graph_t::site_graph(g, itr->first));
           w.push_back(itr->second.v[g]);
-          r += itr->second.v[g];
+          weight_ += itr->second.v[g];
         }
       }
     }
@@ -324,21 +325,34 @@ public:
         if (alps::is_nonzero<1>(itr->second.v[g])) {
           graph_.push_back(local_graph_t::bond_graph(g, itr->first));
           w.push_back(itr->second.v[g]);
-          r += itr->second.v[g];
+          weight_ += itr->second.v[g];
         }
       }
       offdiag_.push_back(
         alps::is_nonzero<1>(itr->second.v[0] + itr->second.v[2]) ?
         itr->second.v[0] / (itr->second.v[0] + itr->second.v[2]) : 1);
     }
+    if (!is_path_integral) {
+      for (typename WEIGHT_TABLE::bond_weight_iterator
+             itr = wt.bond_weights().first;
+           itr != wt.bond_weights().second; ++itr) {
+        offdiag_.push_back(
+          alps::is_nonzero<1>(itr->second.v[0] + itr->second.v[1]) ?
+            itr->second.v[0] / (itr->second.v[0] + itr->second.v[1]) : 1);
+        offdiag_.push_back(
+          alps::is_nonzero<1>(itr->second.v[2] + itr->second.v[3]) ?
+            itr->second.v[2] / (itr->second.v[2] + itr->second.v[3]) : 1);
+      }
+    }
     r_graph_.distribution().init(w);
-    r_time_.distribution() = boost::exponential_distribution<>(r);
+    if (is_path_integral)
+      r_time_.distribution() = boost::exponential_distribution<>(weight_);
   }
 
   const local_graph_t& graph() const { return graph_[r_graph_()]; }
   local_graph_t diagonal(const location_t& loc, int c0, int c1) const
   {
-    int c = c0 ^ c1;
+    int c = 1 ^ c0 ^ c1; // 0 for antiparallel, 1 for parallel
     int g;
     if (is_site(loc)) {
       g = 0;
@@ -353,6 +367,7 @@ public:
     return local_graph_t(g, loc);
   }
   double advance() const { return r_time_(); }
+  double weight() const { return weight_; }
 
 private:
   mutable boost::variate_generator<engine_t&,
@@ -361,6 +376,7 @@ private:
     random_choice<> > r_graph_;
   mutable boost::variate_generator<engine_t&,
     boost::exponential_distribution<> > r_time_;
+  double weight_;
   std::vector<local_graph_t> graph_;
   std::vector<double> diag_;
   std::vector<double> offdiag_;

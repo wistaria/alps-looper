@@ -82,6 +82,7 @@ public:
   loop_graph_t choose_offdiagonal(const location_t& loc) const
   { return chooser_.offdiagonal(loc); }
   double advance() const { return chooser_.advance(); }
+  double total_graph_weight() const { return chooser_.weight(); }
 
   void accumulate();
   void accumulate(const alps::ObservableSet& m_in, alps::ObservableSet& m_out);

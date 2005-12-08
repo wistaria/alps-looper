@@ -114,8 +114,7 @@ void qmc_worker_pi::dostep()
     if (opi == operators_p.end() || t < opi->time()) {
       // insert diagonal operator and graph if compatible
       loop_graph_t g = choose_graph();
-      if (
-          ((is_bond(g) &&
+      if (((is_bond(g) &&
             is_compatible(g, spins_c[vsource(pos(g), vlattice())],
                           spins_c[vtarget(pos(g), vlattice())])) ||
           (is_site(g) && is_compatible(g, spins_c[pos(g)])))) {
@@ -215,9 +214,6 @@ void qmc_worker_pi::dostep()
   measurements["Energy"] << ene;
   measurements["Energy Density"] << nrsi * ene;
   measurements["Energy^2"] << sqr(ene) - nop / sqr(beta());
-  // measurements["beta * Energy / sqrt(N)"] << sqrt(nrsi) * beta * ene;
-  // measurements["beta * Energy^2"] <<
-  //   nrsi * sqr(beta) * (sqr(ene) - nop / sqr(beta));
 
   // magnetization && susceptibility
   if (is_bipartite()) {
