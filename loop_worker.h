@@ -77,6 +77,8 @@ public:
   { return mp_.site(sd, rgraph()); }
 
   loop_graph_t choose_graph() const { return chooser_.graph(); }
+  loop_graph_t choose_diagonal(const location_t& loc, int c) const
+  { return chooser_.diagonal(loc, c); }
   loop_graph_t choose_diagonal(const location_t& loc, int c0, int c1) const
   { return chooser_.diagonal(loc, c0, c1); }
   loop_graph_t choose_offdiagonal(const location_t& loc) const

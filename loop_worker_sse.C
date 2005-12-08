@@ -97,6 +97,7 @@ void qmc_worker_sse::dostep()
   //
 
   // initialize spin & operator information
+  int nop = operators.size();
   std::copy(spins.begin(), spins.end(), spins_c.begin());
   std::swap(operators, operators_p); operators.resize(0);
 
@@ -119,23 +120,30 @@ void qmc_worker_sse::dostep()
             is_compatible(g, spins_c[vsource(pos(g), vlattice())],
                           spins_c[vtarget(pos(g), vlattice())])) ||
            (is_site(g) && is_compatible(g, spins_c[pos(g)]))) &&
-          (operators.size() + 1) * random() < bw) {
+          (nop + 1) * random() < bw) {
         operators.push_back(local_operator_t(g));
+        ++nop;
       } else {
         try_gap = false;
         continue;
       }
     } else {
       if (opi->is_diagonal()) {
-        if (bw * random() < operators.size()) {
+        if (bw * random() < nop) {
           // remove diagonal operator with a certain probability
+          --nop;
           ++opi;
           continue;
         } else {
           // assign graph to diagonal operator
-          opi->assign_graph(choose_diagonal(opi->loc(),
-            spins_c[vsource(opi->pos(), vlattice())],
-            spins_c[vtarget(opi->pos(), vlattice())]));
+          if (opi->is_site()) {
+            opi->assign_graph(choose_diagonal(opi->loc(),
+              spins_c[opi->pos()]));
+          } else {
+            opi->assign_graph(choose_diagonal(opi->loc(),
+              spins_c[vsource(opi->pos(), vlattice())],
+              spins_c[vtarget(opi->pos(), vlattice())]));
+          }
         }
       } else {
         // assign graph to offdiagonal operator
@@ -218,7 +226,6 @@ void qmc_worker_sse::dostep()
   double nrsi = 1.0 / (double)num_sites(rgraph());
 
   // energy
-  int nop = operators.size();
   double ene = energy_offset() - nop / beta();
   measurements["Energy"] << ene;
   measurements["Energy Density"] << nrsi * ene;
@@ -253,25 +260,30 @@ void qmc_worker_sse::dostep()
            unsigned int s = oi->pos();
            spins_c[s] ^= 1;
            umag += (1 - 2 * spins_c[s]);
-          smag += looper::gauge(vgraph(), s) * (1 - 2 * spins_c[s]);
+           smag += looper::gauge(vgraph(), s) * (1 - 2 * spins_c[s]);
          } else {
            unsigned int s0 = vsource(oi->pos(), vlattice());
            unsigned int s1 = vtarget(oi->pos(), vlattice());
-          spins_c[s0] ^= 1;
-          spins_c[s1] ^= 1;
+           spins_c[s0] ^= 1;
+           spins_c[s1] ^= 1;
            umag += 1 - 2 * spins_c[s0] + 1 - 2 * spins_c[s1];
-          smag += looper::gauge(vgraph(), s0) * (1 - 2 * spins_c[s0])
-            + looper::gauge(vgraph(), s1) * (1 - 2 * spins_c[s1]);
+           smag += looper::gauge(vgraph(), s0) * (1 - 2 * spins_c[s0])
+             + looper::gauge(vgraph(), s1) * (1 - 2 * spins_c[s1]);
          }
          umag_a -= p * umag;
          smag_a -= p * smag;
       }
-    umag_a += operators.size() * umag;
-    smag_a += operators.size() * smag;
-    measurements["Susceptibility"]
-      << nrsi * umag_a * umag_a / beta();
-    measurements["Staggered Susceptibility"]
-      << nrsi * smag_a * smag_a / beta();
+    umag_a += nop * umag;
+    smag_a += nop * smag;
+    if (nop > 0) {
+      measurements["Susceptibility"]
+        << nrsi * beta() * (umag_a * umag_a / nop + umag * umag) / (nop + 1);
+      measurements["Staggered Susceptibility"]
+        << nrsi * beta() * (smag_a * smag_a / nop + smag * smag) / (nop + 1);
+    } else {
+      measurements["Susceptibility"] << nrsi * beta() * umag * umag;
+      measurements["Staggered Susceptibility"] << nrsi * beta() * smag * smag;
+    }
   } else {
     int nm = 0;
     site_iterator si, si_end;
@@ -302,8 +314,13 @@ void qmc_worker_sse::dostep()
         }
         umag_a -= p * umag;
       }
-    umag_a += operators.size() * umag;
-    measurements["Susceptibility"] << nrsi * umag_a * umag_a / beta();
+    umag_a += nop * umag;
+    if (nop > 0) {
+      measurements["Susceptibility"]
+        << nrsi * beta() * (umag_a * umag_a / nop + umag * umag) / (nop + 1);
+    } else {
+      measurements["Susceptibility"] << nrsi * beta() * umag * umag;
+    }
   }
 }
 

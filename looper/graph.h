@@ -336,10 +336,10 @@ public:
       for (typename WEIGHT_TABLE::bond_weight_iterator
              itr = wt.bond_weights().first;
            itr != wt.bond_weights().second; ++itr) {
-        offdiag_.push_back(
+        diag_.push_back(
           alps::is_nonzero<1>(itr->second.v[0] + itr->second.v[1]) ?
             itr->second.v[0] / (itr->second.v[0] + itr->second.v[1]) : 1);
-        offdiag_.push_back(
+        diag_.push_back(
           alps::is_nonzero<1>(itr->second.v[2] + itr->second.v[3]) ?
             itr->second.v[2] / (itr->second.v[2] + itr->second.v[3]) : 1);
       }
@@ -350,15 +350,12 @@ public:
   }
 
   const local_graph_t& graph() const { return graph_[r_graph_()]; }
+  local_graph_t diagonal(const location_t& loc, int /* c */) const
+  { return local_graph_t(0, loc); }
   local_graph_t diagonal(const location_t& loc, int c0, int c1) const
   {
     int c = 1 ^ c0 ^ c1; // 0 for antiparallel, 1 for parallel
-    int g;
-    if (is_site(loc)) {
-      g = 0;
-    } else {
-      g = ((r_uniform_() < diag_[(pos(loc) << 1) | c]) ? 2 : 3) ^ (c << 1);
-    }
+    int g = ((r_uniform_() < diag_[(pos(loc) << 1) | c]) ? 2 : 3) ^ (c << 1);
     return local_graph_t(g, loc);
   }
   local_graph_t offdiagonal(const location_t& loc) const
