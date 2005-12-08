@@ -25,6 +25,7 @@
 #include "loop_worker_pi.h"
 #include <looper/permutation.h>
 #include <alps/fixed_capacity_vector.h>
+#include <boost/mpl/bool.hpp>
 
 qmc_worker_pi::qmc_worker_pi(const alps::ProcessList& w,
                              const alps::Parameters& p, int n)
@@ -92,6 +93,28 @@ void qmc_worker_pi::dostep()
   if (!can_work()) return;
   super_type::dostep();
 
+  namespace mpl = boost::mpl;
+  bool free_flip = !has_longitudinal_field();
+  if (is_bipartite()) {
+    typedef mpl::true_ is_bipartite_t;
+    if (free_flip) {
+      dostep_impl<is_bipartite_t, mpl::true_>();
+    } else {
+      dostep_impl<is_bipartite_t, mpl::false_>();
+    }
+  } else {
+    typedef mpl::false_ is_bipartite_t;
+    if (free_flip) {
+      dostep_impl<is_bipartite_t, mpl::true_>();
+    } else {
+      dostep_impl<is_bipartite_t, mpl::false_>();
+    }
+  }
+}
+
+template<class IS_BIPARTITE, class FREE_FLIP>
+void qmc_worker_pi::dostep_impl()
+{
   //
   // diagonal update and cluster construction
   //
@@ -104,7 +127,6 @@ void qmc_worker_pi::dostep()
   int nvs = num_sites(vgraph());
   fragments.resize(0); fragments.resize(nvs);
   for (int s = 0; s < nvs; ++s) current[s] = s;
-  int ghost = has_longitudinal_field() ? add(fragments) : 0;
 
   double t = advance();
   for (operator_iterator opi = operators_p.begin();
@@ -151,7 +173,6 @@ void qmc_worker_pi::dostep()
       int s = oi->pos();
       boost::tie(current[s], oi->loop0, oi->loop1) =
         reconnect(fragments, oi->graph(), current[s]);
-      if (oi->is_locked()) unify(fragments, ghost, current[s]);
       if (oi->is_offdiagonal()) spins_c[s] ^= 1;
     }
   }
@@ -190,8 +211,6 @@ void qmc_worker_pi::dostep()
       ci->id = clusters.size();
       clusters.push_back(cluster_info_t(random() < 0.5));
     }
-  if (has_longitudinal_field())
-    clusters[cluster_id(fragments, ghost)].to_flip = false;
 
   // flip operators
   for (operator_iterator oi = operators.begin(); oi != operators.end(); ++oi)
@@ -216,81 +235,54 @@ void qmc_worker_pi::dostep()
   measurements["Energy^2"] << sqr(ene) - nop / sqr(beta());
 
   // magnetization && susceptibility
-  if (is_bipartite()) {
-    int nm = 0;
-    int ns = 0;
-    site_iterator si, si_end;
-    for (boost::tie(si, si_end) = sites(vgraph()); si != si_end; ++si) {
-      nm += (1 - 2 * spins[*si]);
+  int nm = 0;
+  int ns = 0;
+  site_iterator si, si_end;
+  for (boost::tie(si, si_end) = sites(vgraph()); si != si_end; ++si) {
+    nm += (1 - 2 * spins[*si]);
+    if (IS_BIPARTITE::value)
       ns += looper::gauge(vgraph(), *si) * (1 - 2 * spins[*si]);
-    }
-    double umag = nm / 2.0;
-    double smag = ns / 2.0;
-    measurements["Magnetization"] << nrsi * umag;
-    measurements["Magnetization^2"] << nrsi * umag * umag;
+  }
+  double umag = nm / 2.0;
+  double smag = ns / 2.0;
+  measurements["Magnetization"] << nrsi * umag;
+  measurements["Magnetization^2"] << nrsi * umag * umag;
+  if (IS_BIPARTITE::value) {
     measurements["Staggered Magnetization"] << nrsi * smag;
     measurements["Staggered Magnetization^2"] << nrsi * smag * smag;
+  }
 
-    double umag_a = 0; /* 0 * umag; */
-    double smag_a = 0; /* 0 * smag; */
-    std::copy(spins.begin(), spins.end(), spins_c.begin());
-    for (operator_iterator oi = operators.begin(); oi != operators.end(); ++oi)
-      if (oi->is_offdiagonal()) {
-         umag_a += oi->time() * umag;
-         smag_a += oi->time() * smag;
-         if (oi->is_site()) {
-           unsigned int s = oi->pos();
-           spins_c[s] ^= 1;
-           umag += (1 - 2 * spins_c[s]);
+  double umag_a = 0; /* 0 * umag; */
+  double smag_a = 0; /* 0 * smag; */
+  std::copy(spins.begin(), spins.end(), spins_c.begin());
+  for (operator_iterator oi = operators.begin(); oi != operators.end(); ++oi)
+    if (oi->is_offdiagonal()) {
+      umag_a += oi->time() * umag;
+      if (IS_BIPARTITE::value) smag_a += oi->time() * smag;
+      if (oi->is_site()) {
+        unsigned int s = oi->pos();
+        spins_c[s] ^= 1;
+        umag += (1 - 2 * spins_c[s]);
+        if (IS_BIPARTITE::value)
           smag += looper::gauge(vgraph(), s) * (1 - 2 * spins_c[s]);
-         } else {
-           unsigned int s0 = vsource(oi->pos(), vlattice());
-           unsigned int s1 = vtarget(oi->pos(), vlattice());
-          spins_c[s0] ^= 1;
-          spins_c[s1] ^= 1;
-           umag += 1 - 2 * spins_c[s0] + 1 - 2 * spins_c[s1];
+      } else {
+        unsigned int s0 = vsource(oi->pos(), vlattice());
+        unsigned int s1 = vtarget(oi->pos(), vlattice());
+        spins_c[s0] ^= 1;
+        spins_c[s1] ^= 1;
+        umag += 1 - 2 * spins_c[s0] + 1 - 2 * spins_c[s1];
+        if (IS_BIPARTITE::value)
           smag += looper::gauge(vgraph(), s0) * (1 - 2 * spins_c[s0])
             + looper::gauge(vgraph(), s1) * (1 - 2 * spins_c[s1]);
-         }
-         umag_a -= oi->time() * umag;
-         smag_a -= oi->time() * smag;
       }
-    umag_a += beta() * umag;
-    smag_a += beta() * smag;
-    measurements["Susceptibility"]
-      << nrsi * umag_a * umag_a / beta();
-    measurements["Staggered Susceptibility"]
-      << nrsi * smag_a * smag_a / beta();
-  } else {
-    int nm = 0;
-    site_iterator si, si_end;
-    for (boost::tie(si, si_end) = sites(vgraph()); si != si_end; ++si) {
-      nm += (1 - 2 * spins[*si]);
+      umag_a -= oi->time() * umag;
+      if (IS_BIPARTITE::value) smag_a -= oi->time() * smag;
     }
-    double umag = nm / 2.0;
-    measurements["Magnetization"] << nrsi * umag;
-    measurements["Magnetization^2"] << nrsi * umag * umag;
-
-    double umag_a = 0 * umag;
-    std::copy(spins.begin(), spins.end(), spins_c.begin());
-    for (operator_iterator oi = operators.begin(); oi != operators.end(); ++oi)
-      if (oi->is_offdiagonal()) {
-        umag_a += oi->time() * umag;
-        if (oi->is_site()) {
-          unsigned int s = oi->pos();
-          spins_c[s] ^= 1;
-          umag += (1 - 2 * spins_c[s]);
-        } else {
-          unsigned int s0 = vsource(oi->pos(), vlattice());
-          unsigned int s1 = vtarget(oi->pos(), vlattice());
-          spins_c[s0] ^= 1;
-          spins_c[s1] ^= 1;
-          umag += 1 - 2 * spins_c[s0] + 1 - 2 * spins_c[s1];
-        }
-        umag_a -= oi->time() * umag;
-      }
-    umag_a += beta() * umag;
-    measurements["Susceptibility"] << nrsi * umag_a * umag_a / beta();
+  umag_a += beta() * umag;
+  measurements["Susceptibility"] << nrsi * umag_a * umag_a / beta();
+  if (IS_BIPARTITE::value) {
+    smag_a += beta() * smag;
+    measurements["Staggered Susceptibility"] << nrsi * smag_a * smag_a / beta();
   }
 }
 

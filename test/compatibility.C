@@ -46,7 +46,7 @@ try {
                   << std::endl;
   }
   std::cout << "[site graph (general location + general graph)]\n";
-  for (int g = 0; g <= 2; ++g) {
+  for (int g = 0; g <= 0; ++g) {
     looper::local_graph<looper::location> lg =
       looper::local_graph<looper::location>::site_graph(g, 0);
     for (int c = 0; c <= 1; ++c)

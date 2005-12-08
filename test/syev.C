@@ -85,8 +85,8 @@ int main(int argc, char ** argv)
 {
   std::cout << "Diagonalization of random real symmetric matrix\n";
   std::cerr << "[starting program: "
-	    << to_simple_string(boost::posix_time::microsec_clock::local_time())
-	    << "]\n";
+            << to_simple_string(boost::posix_time::microsec_clock::local_time())
+            << "]\n";
 
   Options opts(argc, argv);
   std::cout << "n: dimension of matrix : " << opts.n << std::endl;

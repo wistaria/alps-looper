@@ -41,26 +41,19 @@ struct site_weight {
 
   double sign;
   double offset;
-  double v[3];
+  double v[1];
 
   // loop equations:
   //
-  //   - offset + v0 + v1 = + Hz/2
-  //   - offset + v0 + g2 = - Hz/2
-  //              v0      =   |Hx|/2
+  //   - offset + v0 = 0
+  //   - offset + v0 = 0
+  //              v0 = |Hx|/2
 
   // standard solution:
   //
-  // i) Hz >= 0
-  //      v0 = |Hx|/2
-  //      v1 = Hz/2
-  //      v2 = 0
-  // ii) Hz < 0
-  //      v0 = |Hx|/2
-  //      v1 = 0
-  //      v2 = -Hz/2
+  //   v0 = |Hx|/2
 
-  site_weight() : sign(1), offset(0) { v[0] = v[1] = v[2] = 0; }
+  site_weight() : sign(1), offset(0) { v[0] = 0; }
   site_weight(const site_parameter& p, double /* force_scatter */ = 0)
   { init(p); }
 
@@ -68,14 +61,11 @@ struct site_weight {
   {
     sign = (p.hx >= 0 ? 1 : -1);
     v[0] = std::abs(p.hx) / 2;
-    v[1] = crop_0( p.hz);
-    v[2] = crop_0(-p.hz);
-    offset = v[0] + (v[1] + v[2])/2;
+    offset = v[0];
   }
 
-  double weight() const { return v[0] + v[1] + v[2]; }
-  bool has_weight() const
-  { return alps::is_positive<1>(weight()); }
+  double weight() const { return v[0]; }
+  bool has_weight() const { return alps::is_positive<1>(weight()); }
 
   void check(const site_parameter& p) const;
 };
@@ -261,16 +251,15 @@ private:
 
 inline void site_weight::check(const site_parameter& p) const
 {
-  if (!alps::is_equal<1>(-offset+v[0]+v[1],  p.hz/2) ||
-      !alps::is_equal<1>(-offset+v[0]+v[2], -p.hz/2) ||
+  if (!alps::is_zero<1>(-offset+v[0]) ||
+      !alps::is_zero<1>(-offset+v[0]) ||
       !alps::is_equal<1>(v[0], sign*p.hx/2))
     boost::throw_exception(std::logic_error("site_parameter::check 1"));
   site_parameter pp(p.s,
                     p.c,
-                    2 * v[0] * sign,
-                    v[1] - v[2]);
+                    2 * v[0] * sign);
   if (pp != p) {
-    std::cerr << p.c << ' ' << p.hx << ' ' << p.hz << std::endl;
+    std::cerr << p.c << ' ' << p.hx << ' ' << pp.hz << std::endl;
     std::cerr << pp.c << ' ' << pp.hx << ' ' << pp.hz << std::endl;
     boost::throw_exception(std::logic_error("site_parameter::check 2"));
   }

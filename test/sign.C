@@ -49,11 +49,11 @@ try {
         if (p->key() != "LATTICE_LIBRARY")
           std::cout << p->key() << " = " << p->value() << std::endl;
       }
-      
+
       alps::graph_helper<> gh(*itr);
       looper::model_parameter model(gh.graph(), alps::half_integer<int>(0.5),
                                     -1.0, (double)j);
-      
+
       std::cout << "model has "
                 << (model.is_signed() ? "" : "no ")
                 << "sign problem.\n";

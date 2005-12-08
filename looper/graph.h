@@ -48,10 +48,7 @@ struct bond_graph_type {
 
 struct site_graph_type {
   // g = 0 (g1 in textbook)
-  //     1 (for up spin locked with ghost spin)
-  //     2 (for down spin locked with ghost spin)
-  static bool is_compatible(int g, int c) { return 2 - (c + g); }
-  static bool is_locked(int g) { return g /* g != 0 */; }
+  static bool is_compatible(int /* g */, int /* c */) { return true; }
 };
 
 template<class LOC>
@@ -79,14 +76,6 @@ public:
       boost::throw_exception(std::logic_error("is_compatible"));
 #endif
     return bond_graph_type::is_compatible(type_, c0, c1);
-  }
-  bool is_locked() const
-  {
-#ifndef NDEBUG
-    if (!is_site())
-      boost::throw_exception(std::logic_error("is_locked"));
-#endif
-    return site_graph_type::is_locked(type_);
   }
 
   const location_t& loc() const { return loc_; }
@@ -198,13 +187,6 @@ public:
     return false;
   }
   bool is_compatible(int c0, int c1) const { return c0 ^ c1; }
-  bool is_locked() const
-  {
-#ifndef NDEBUG
-    boost::throw_exception(std::logic_error("local_graph_haf::is_locked"));
-#endif
-    return false;
-  }
 
   const location_t& loc() const { return loc_; }
   int pos() const { return loc_.pos(); }
@@ -310,7 +292,7 @@ public:
     for (typename WEIGHT_TABLE::site_weight_iterator
            itr = wt.site_weights().first;
          itr != wt.site_weights().second; ++itr) {
-      for (int g = 0; g <= 2; ++g) {
+      for (int g = 0; g <= 0; ++g) {
         if (alps::is_nonzero<1>(itr->second.v[g])) {
           graph_.push_back(local_graph_t::site_graph(g, itr->first));
           w.push_back(itr->second.v[g]);
@@ -413,6 +395,8 @@ public:
   }
 
   const local_graph_t& graph() const { return diag_[r_graph_()]; }
+  static local_graph_t diagonal(const location_t& loc, int)
+  { return local_graph_t(0, loc); }
   static local_graph_t diagonal(const location_t& loc, int, int)
   { return local_graph_t(0, loc); }
   static local_graph_t offdiagonal(const location_t& loc)

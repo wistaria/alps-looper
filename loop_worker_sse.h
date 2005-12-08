@@ -60,6 +60,10 @@ public:
   void save(alps::ODump& dp) const;
   void load(alps::IDump& dp);
 
+protected:
+  template<class IS_BIPARTITE, class FREE_FLIP>
+  void dostep_impl();
+
 private:
   std::vector<int> spins;
   std::vector<local_operator_t> operators;

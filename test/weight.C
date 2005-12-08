@@ -32,10 +32,7 @@ void output(const looper::site_parameter& p, const looper::site_weight& w)
 {
   std::cout << "C = " << p.c
             << ", Hx = " << p.hx
-            << ", Hz = " << p.hz
             << " : v[0] = " << w.v[0]
-            << ", v[1] = " << w.v[1]
-            << ", v[2] = " << w.v[2]
             << ", offset = " << w.offset
             << ", sign = " << w.sign << std::endl;
   w.check(p);
@@ -69,8 +66,7 @@ try {
   for (alps::ParameterList::const_iterator p = params.begin();
        p != params.end(); ++p) {
     looper::site_parameter site(0.5, 0,
-                                p->value_or_default("Hx",0),
-                                p->value_or_default("Hz",0));
+                                p->value_or_default("Hx",0), 0);
     looper::bond_parameter bond(p->value_or_default("C",0),
                                 p->value_or_default("Jxy",0),
                                 p->value_or_default("Jz",0));
@@ -97,8 +93,7 @@ try {
     // looper::site_parameter site(0.5, rng(), rng(), rng());
     double sc = rng();
     double hx = rng();
-    double hz = rng();
-    looper::site_parameter site(0.5, sc, hx, hz);
+    looper::site_parameter site(0.5, sc, hx, 0);
     double bc = rng();
     double jxy = rng();
     double jz = rng();

@@ -74,14 +74,6 @@ public:
   }
   // void clear_graph() { type_ &= 3; }
   int graph_type() const { return type_ >> 2; }
-  bool is_locked() const
-  {
-#ifndef NDEBUG
-    if (!is_site())
-      boost::throw_exception(std::logic_error("is_locked"));
-#endif
-    return site_graph_type::is_locked(graph_type());
-  }
 
   const location_t& loc() const { return loc_; }
   int pos() const { return loc_.pos(); }
