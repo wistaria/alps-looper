@@ -58,7 +58,7 @@ try {
                 << (model.is_signed() ? "" : "no ")
                 << "sign problem.\n";
       std::cout << "model is "
-                << (model.is_classically_frustrated() ? "" : "not ")
+                << (model.is_frustrated() ? "" : "not ")
                 << "classically frustrated.\n";
     }
   }

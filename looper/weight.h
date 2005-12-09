@@ -39,7 +39,7 @@ namespace looper {
 
 struct site_weight {
 
-  double sign;
+  int sign;
   double offset;
   double v[1];
 
@@ -72,7 +72,7 @@ struct site_weight {
 
 struct bond_weight {
 
-  double sign;
+  int sign;
   double offset;
   double v[4];
 
@@ -253,7 +253,7 @@ inline void site_weight::check(const site_parameter& p) const
 {
   if (!alps::is_zero<1>(-offset+v[0]) ||
       !alps::is_zero<1>(-offset+v[0]) ||
-      !alps::is_equal<1>(v[0], sign*p.hx/2))
+      !alps::is_equal<1>(v[0], sign * p.hx/2))
     boost::throw_exception(std::logic_error("site_parameter::check 1"));
   site_parameter pp(p.s,
                     p.c,
@@ -269,7 +269,7 @@ inline void bond_weight::check(const bond_parameter& p) const
 {
   if (!alps::is_equal<1>(-offset+v[0]+v[1],  p.jz/4) ||
       !alps::is_equal<1>(-offset+v[2]+v[3], -p.jz/4) ||
-      !alps::is_equal<1>(v[0]+v[2], -sign*p.jxy/2))
+      !alps::is_equal<1>(v[0]+v[2], -sign * p.jxy/2))
     boost::throw_exception(std::logic_error("bond_parameter::check 1"));
   bond_parameter pp(p.c,
                     -2 * (v[0] + v[2]) * sign,

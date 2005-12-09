@@ -277,7 +277,7 @@ public:
   {
     set_parameters_impl(g, spin, Jxy, Jz);
     signed_ = check_sign(g);
-    frustrated_ = check_classical_frustration(g);
+    frustrated_ = check_frustration(g);
   }
   template<typename G, typename I>
   void set_parameters(const alps::Parameters& params,
@@ -289,7 +289,7 @@ public:
     set_parameters_impl(params, g, inhomogeneous_sites, inhomogeneous_bond,
                         hd);
     signed_ = check_sign(g);
-    frustrated_ = check_classical_frustration(g);
+    frustrated_ = check_frustration(g);
   }
   template<typename G, typename I>
   void set_parameters(const alps::Parameters& params,
@@ -302,7 +302,7 @@ public:
     set_parameters_impl(params, g, inhomogeneous_sites, inhomogeneous_bond,
                         hd);
     signed_ = is_signed;
-    frustrated_ = check_classical_frustration(g);
+    frustrated_ = check_frustration(g);
   }
   template<typename G, typename I>
   void set_parameters(const alps::Parameters& params,
@@ -353,8 +353,8 @@ public:
   }
 
   bool is_signed() const { return signed_; }
-  bool is_classically_frustrated() const { return frustrated_; }
-  bool has_longitudinal_field() const { return has_hz_; }
+  bool is_frustrated() const { return frustrated_; }
+  bool has_field() const { return has_hz_; }
   bool has_d_term() const { return has_d_; }
   double energy_offset() const { return energy_offset_; }
 
@@ -372,7 +372,7 @@ protected:
   bool check_sign(const G& g) const;
 
   template<typename G>
-  bool check_classical_frustration(const G& g) const;
+  bool check_frustration(const G& g) const;
 
 private:
   site_map_type sites_;
@@ -689,7 +689,7 @@ bool model_parameter::check_sign(const G& g) const
 }
 
 template<typename G>
-bool model_parameter::check_classical_frustration(const G& g) const
+bool model_parameter::check_frustration(const G& g) const
 {
   std::vector<double> w(num_bonds(g));
   typename alps::graph_traits<G>::bond_iterator ei, ei_end;
@@ -709,7 +709,8 @@ bool model_parameter::check_classical_frustration(const G& g) const
   if (has_d_ && !frustrated) {
     typename alps::graph_traits<G>::site_iterator vi, vi_end;
     for (boost::tie(vi, vi_end) = sites(g); vi != vi_end; ++vi) {
-      if (alps::is_nonzero<1>(site(*vi, g).d) && site(*vi, g).d > 0) {
+      if (site(*vi, g).s.get_twice() > 1 &&
+          alps::is_positive<1>(site(*vi, g).d)) {
         frustrated = true;
         break;
       }

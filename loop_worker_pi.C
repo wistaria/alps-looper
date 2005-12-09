@@ -76,7 +76,7 @@ qmc_worker_pi::qmc_worker_pi(const alps::ProcessList& w,
            RealObservable("Staggered Susceptibility"), is_signed());
   }
 
-  if (!is_classically_frustrated()) {
+  if (!is_frustrated()) {
     measurements
       << RealObservable("Generalized Magnetization^2")
       << RealObservable("Generalized Susceptibility");
@@ -94,7 +94,7 @@ void qmc_worker_pi::dostep()
   super_type::dostep();
 
   namespace mpl = boost::mpl;
-  bool free_flip = !has_longitudinal_field();
+  bool free_flip = !has_field();
   if (is_bipartite()) {
     typedef mpl::true_ is_bipartite_t;
     if (free_flip) {
@@ -134,7 +134,6 @@ void qmc_worker_pi::dostep_impl()
 
     // diagonal update & labeling
     if (opi == operators_p.end() || t < opi->time()) {
-      // insert diagonal operator and graph if compatible
       loop_graph_t g = choose_graph();
       if (((is_bond(g) &&
             is_compatible(g, spins_c[vsource(pos(g), vlattice())],
@@ -148,11 +147,9 @@ void qmc_worker_pi::dostep_impl()
       }
     } else {
       if (opi->is_diagonal()) {
-        // remove diagonal operator with probability one (= nothing to do)
         ++opi;
         continue;
       } else {
-        // assign graph to offdiagonal operator
         opi->assign_graph(choose_offdiagonal(opi->loc()));
         operators.push_back(*opi);
         ++opi;
@@ -178,24 +175,22 @@ void qmc_worker_pi::dostep_impl()
   }
 
   // connect bottom and top cluster fragments after random permutation
-  {
-    alps::fixed_capacity_vector<int, loop_config::max_2s> r;
-    site_iterator rsi, rsi_end;
-    for (boost::tie(rsi, rsi_end) = sites(rgraph()); rsi != rsi_end; ++rsi) {
-      site_iterator vsi, vsi_end;
-      boost::tie(vsi, vsi_end) = virtual_sites(vlattice(), rgraph(), *rsi);
-      int offset = *vsi;
-      int s2 = *vsi_end - *vsi;
-      if (s2 == 1) {
-        unify(fragments, offset, current[offset]);
-      } else if (s2 > 1) {
-        r.resize(s2);
-        for (int i = 0; i < s2; ++i) r[i] = i;
-        looper::restricted_random_shuffle(r.begin(), r.end(),
-          spins.begin() + offset, spins_c.begin() + offset, random);
-        for (int i = 0; i < s2; ++i)
-          unify(fragments, offset+i, current[offset+r[i]]);
-      }
+  alps::fixed_capacity_vector<int, loop_config::max_2s> r;
+  site_iterator rsi, rsi_end;
+  for (boost::tie(rsi, rsi_end) = sites(rgraph()); rsi != rsi_end; ++rsi) {
+    site_iterator vsi, vsi_end;
+    boost::tie(vsi, vsi_end) = virtual_sites(vlattice(), rgraph(), *rsi);
+    int offset = *vsi;
+    int s2 = *vsi_end - *vsi;
+    if (s2 == 1) {
+      unify(fragments, offset, current[offset]);
+    } else if (s2 > 1) {
+      r.resize(s2);
+      for (int i = 0; i < s2; ++i) r[i] = i;
+      looper::restricted_random_shuffle(r.begin(), r.end(),
+        spins.begin() + offset, spins_c.begin() + offset, random);
+      for (int i = 0; i < s2; ++i)
+        unify(fragments, offset+i, current[offset+r[i]]);
     }
   }
 
@@ -225,13 +220,13 @@ void qmc_worker_pi::dostep_impl()
 
   using std::sqrt;
   using looper::sqr;
-  double nrsi = 1.0 / (double)num_sites(rgraph());
+  int nrs = num_sites(rgraph());
 
   // energy
   int nop = operators.size();
   double ene = energy_offset() - nop / beta();
   measurements["Energy"] << ene;
-  measurements["Energy Density"] << nrsi * ene;
+  measurements["Energy Density"] << ene / nrs;
   measurements["Energy^2"] << sqr(ene) - nop / sqr(beta());
 
   // magnetization && susceptibility
@@ -245,11 +240,11 @@ void qmc_worker_pi::dostep_impl()
   }
   double umag = nm / 2.0;
   double smag = ns / 2.0;
-  measurements["Magnetization"] << nrsi * umag;
-  measurements["Magnetization^2"] << nrsi * umag * umag;
+  measurements["Magnetization"] << umag / nrs;
+  measurements["Magnetization^2"] << sqr(umag) / nrs;
   if (IS_BIPARTITE::value) {
-    measurements["Staggered Magnetization"] << nrsi * smag;
-    measurements["Staggered Magnetization^2"] << nrsi * smag * smag;
+    measurements["Staggered Magnetization"] << smag / nrs;
+    measurements["Staggered Magnetization^2"] << sqr(smag) / nrs;
   }
 
   double umag_a = 0; /* 0 * umag; */
@@ -279,10 +274,10 @@ void qmc_worker_pi::dostep_impl()
       if (IS_BIPARTITE::value) smag_a -= oi->time() * smag;
     }
   umag_a += beta() * umag;
-  measurements["Susceptibility"] << nrsi * umag_a * umag_a / beta();
+  measurements["Susceptibility"] << sqr(umag_a) / beta() / nrs;
   if (IS_BIPARTITE::value) {
     smag_a += beta() * smag;
-    measurements["Staggered Susceptibility"] << nrsi * smag_a * smag_a / beta();
+    measurements["Staggered Susceptibility"] << sqr(smag_a) / beta() / nrs;
   }
 }
 

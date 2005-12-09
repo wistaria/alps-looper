@@ -37,8 +37,8 @@ public:
   typedef alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
     super_type;
   typedef loop_config::lattice_graph_t             lattice_graph_t;
-  typedef loop_config::loop_graph_t            loop_graph_t;
-  typedef loop_graph_t::location_t             location_t;
+  typedef loop_config::loop_graph_t                loop_graph_t;
+  typedef loop_graph_t::location_t                 location_t;
   typedef looper::virtual_lattice<lattice_graph_t> virtual_lattice;
   typedef looper::graph_chooser<loop_graph_t, super_type::engine_type>
     graph_chooser;
@@ -57,24 +57,18 @@ public:
   }
   unsigned int mcs() const { return mcs_; }
 
-  double beta() const { return beta_; }
-
   const lattice_graph_t& rgraph() const { return super_type::graph(); }
   const lattice_graph_t& vgraph() const { return vlat_.graph(); }
   const virtual_lattice& vlattice() const { return vlat_; }
 
+  double beta() const { return beta_; }
   double energy_offset() const { return energy_offset_; }
-  bool is_signed() const { return mp_.is_signed(); }
-  bool is_classically_frustrated() const
-  { return mp_.is_classically_frustrated(); }
-  bool has_longitudinal_field() const { return mp_.has_longitudinal_field(); }
-  bool has_d_term() const { return mp_.has_d_term(); }
-  const looper::bond_parameter&
-  rbond_parameter(const bond_descriptor& bd) const
-  { return mp_.bond(bd, rgraph()); }
-  const looper::site_parameter&
-  rsite_parameter(const site_descriptor& sd) const
-  { return mp_.site(sd, rgraph()); }
+
+  bool is_frustrated() const { return is_frustrated_; }
+  bool is_signed() const { return is_signed_; }
+  int sign(site_descriptor s) const { return sign_[s]; }
+  bool has_field() const { return has_field_; }
+  double field(site_descriptor s) const { return field_[s]; }
 
   loop_graph_t choose_graph() const { return chooser_.graph(); }
   loop_graph_t choose_diagonal(const location_t& loc, int c) const
@@ -97,11 +91,17 @@ private:
   unsigned int mcs_therm_;
   unsigned int mcs_; // to be dumped/restored
 
-  double beta_;
-
-  looper::model_parameter mp_;
-  double energy_offset_;
   virtual_lattice vlat_;
+
+  double beta_;
+  double energy_offset_;
+
+  bool is_frustrated_;
+  bool is_signed_;
+  std::vector<int> sign_;
+  bool has_field_;
+  std::vector<double> field_;
+
   graph_chooser chooser_;
 };
 

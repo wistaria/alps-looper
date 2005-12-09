@@ -62,21 +62,9 @@ public:
 
   int type() const { return type_; }
   bool is_compatible(int c) const
-  {
-#ifndef NDEBUG
-    if (!is_site())
-      boost::throw_exception(std::logic_error("is_compatible"));
-#endif
-    return site_graph_type::is_compatible(type_, c);
-  }
+  { assert(is_site()); return site_graph_type::is_compatible(type_, c); }
   bool is_compatible(int c0, int c1) const
-  {
-#ifndef NDEBUG
-    if (!is_bond())
-      boost::throw_exception(std::logic_error("is_compatible"));
-#endif
-    return bond_graph_type::is_compatible(type_, c0, c1);
-  }
+  { assert(is_bond()); return bond_graph_type::is_compatible(type_, c0, c1); }
 
   const location_t& loc() const { return loc_; }
   int pos() const { return loc_.pos(); }
@@ -92,18 +80,9 @@ public:
   boost::tuple<int /* curr */, int /* loop0 */, int /* loop1 */>
   reconnect(std::vector<T>& fragments, int curr) const
   {
-#ifndef NDEBUG
-    if (!is_site())
-      boost::throw_exception(std::logic_error("reconnect"));
-#endif
-    int loop0, loop1;
-    if (type_ == 0) {
-      loop0 = curr;
-      loop1 = curr = add(fragments);
-    } else {
-      loop0 = loop1 = curr;
-    }
-    return boost::make_tuple(curr, loop0, loop1);
+    assert(is_site());
+    int loop0 = add(fragments);
+    return boost::make_tuple(loop0, loop0, curr);
   }
 
   template<class T>
@@ -111,10 +90,7 @@ public:
                int /* loop1 */>
   reconnect(std::vector<T>& fragments, int curr0, int curr1) const
   {
-#ifndef NDEBUG
-    if (!is_bond())
-      boost::throw_exception(std::logic_error("reconnect"));
-#endif
+    assert(is_bond());
     int loop0, loop1;
     if (type_ == 0) {
       loop0 = unify(fragments, curr0, curr1);
@@ -171,19 +147,12 @@ public:
 
   local_graph_haf() {}
   local_graph_haf(int type, const location_t& loc) : loc_(loc)
-  {
-#ifndef NDEBUG
-    if (type != 0)
-      boost::throw_exception(std::invalid_argument("local_graph_haf"));
-#endif
-  }
+  { assert(type == 0); }
 
   static int type() { return 0; }
   bool is_compatible(int c) const
   {
-#ifndef NDEBUG
     boost::throw_exception(std::logic_error("local_graph_haf::is_compatible"));
-#endif
     return false;
   }
   bool is_compatible(int c0, int c1) const { return c0 ^ c1; }
@@ -195,13 +164,10 @@ public:
 
   static local_graph_haf bond_graph(int type, int pos)
   {
-#ifndef NDEBUG
-    if (type != 0)
-      boost::throw_exception(std::invalid_argument("local_graph_haf::bond_graph"));
-#endif
+    assert(type == 0);
     return local_graph_haf(0, location_t::bond_location(pos));
   }
-  static local_graph_haf site_graph(int g, int i)
+  static local_graph_haf site_graph(int type, int pos)
   {
     boost::throw_exception(std::logic_error("local_graph_haf::site_graph"));
     return local_graph_haf();
@@ -209,7 +175,7 @@ public:
 
   template<class T>
   boost::tuple<int /* curr */, int /* loop0 */, int /* loop1 */>
-  reconnect(std::vector<T>& fragments, int curr) const
+  reconnect(std::vector<T>& /* fragments */, int /* curr */) const
   {
     boost::throw_exception(std::logic_error("local_graph_haf::reconnect"));
     return boost::make_tuple(0, 0, 0);

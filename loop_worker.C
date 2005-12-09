@@ -33,7 +33,6 @@ qmc_worker_base::qmc_worker_base(const alps::ProcessList& w,
     mcs_therm_(p.value_or_default("THERMALIZATION", mcs_sweep_.min() >> 3)),
     mcs_(0),
     beta_(1.0 / static_cast<double>(p["T"])),
-    mp_(p, *this), vlat_(graph(), mp_, mp_.has_d_term()),
     chooser_(*engine_ptr)
 {
   if (w != alps::ProcessList()) {
@@ -45,19 +44,43 @@ qmc_worker_base::qmc_worker_base(const alps::ProcessList& w,
       boost::throw_exception(std::invalid_argument(
         "qmc_worker_base::qmc_worker_base() negative beta"));
 
-    if (mp_.is_signed())
+    looper::model_parameter mp(p, *this);
+    if (mp.is_signed())
       std::cerr << "WARNING: model has negative signs\n";
-    if (mp_.is_classically_frustrated())
+
+    vlat_.generate(graph(), mp, mp.has_d_term());
+
+    if (mp.is_frustrated())
       std::cerr << "WARNING: model is classically frustrated\n";
+    is_frustrated_ = mp.is_frustrated();
+    double fs = p.value_or_default("FORCE_SCATTER", is_frustrated() ? 0.1 : 0);
 
-    energy_offset_ = mp_.energy_offset();
+    looper::weight_table wt(mp, rgraph(), vlattice(), fs);
 
-    double fs = p.value_or_default("FORCE_SCATTER",
-                                   mp_.is_classically_frustrated() ? 0.1 : 0);
-    looper::weight_table wt(mp_, graph(), vlat_, fs);
-    energy_offset_ += wt.energy_offset();
-
+    energy_offset_ = mp.energy_offset() + wt.energy_offset();
     chooser_.init(wt, is_path_integral);
+
+    is_signed_ = mp.is_signed();
+    if (mp.is_signed()) {
+      sign_.resize(0);
+      looper::weight_table::bond_weight_iterator itr, itr_end;
+      for (boost::tie(itr, itr_end) = wt.bond_weights(); itr != itr_end;
+           ++itr)
+        sign_.push_back(itr->second.sign);
+    }
+
+    has_field_ = mp.has_field();
+    if (has_field()) {
+      field_.resize(0);
+      site_iterator rsi, rsi_end;
+      for (boost::tie(rsi, rsi_end) = sites(rgraph()); rsi != rsi_end; ++rsi) {
+        site_iterator vsi, vsi_end;
+        for (boost::tie(vsi, vsi_end) =
+               virtual_sites(vlattice(), rgraph(), *rsi);
+             vsi != vsi_end; ++vsi)
+          field_.push_back(mp.site(*rsi, rgraph()).hz);
+      }
+    }
   }
 }
 
@@ -68,11 +91,12 @@ void qmc_worker_base::accumulate() { accumulate(measurements, measurements); }
 void qmc_worker_base::accumulate(const alps::ObservableSet& m_in,
                                  alps::ObservableSet& m_out)
 {
+  using looper::sqr;
   if (m_in.has("Energy") && m_in.has("Energy^2")) {
     alps::RealObsevaluator obse_e = m_in["Energy"];
     alps::RealObsevaluator obse_e2 = m_in["Energy^2"];
     alps::RealObsevaluator eval("Specific Heat");
-    eval = beta() * beta() * (obse_e2 - obse_e * obse_e) / num_sites(rgraph());
+    eval = sqr(beta()) * (obse_e2 - sqr(obse_e)) / num_sites(rgraph());
     m_out << eval;
   }
 }

@@ -62,12 +62,9 @@ public:
   bool is_identity() const { return type() == local_operator_type::identity; }
 
   local_graph_t graph() const { return local_graph_t(graph_type(), loc_); }
-  void assign_graph(const local_graph_t g)
+  void assign_graph(const local_graph_t& g)
   {
-#ifndef NDEBUG
-    if (!is_identity() && (loc_ != g.loc()))
-      boost::throw_exception(std::logic_error("assign_graph"));
-#endif
+    assert(is_identity() || loc_ == g.loc());
     // if type==identity then type will be set to diagonal, otherwize unchanged
     type_ = (type_ & 1) | (g.type() << 2);
     loc_ = g.loc();
