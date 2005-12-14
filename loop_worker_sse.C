@@ -250,14 +250,14 @@ void qmc_worker_sse::dostep_impl()
   site_iterator si, si_end;
   for (boost::tie(si, si_end) = sites(vgraph()); si != si_end; ++si) {
     nm += (1 - 2 * spins[*si]);
-    if (IS_BIPARTITE::value)
+    if (IS_BIPARTITE())
       ns += looper::gauge(vgraph(), *si) * (1 - 2 * spins[*si]);
   }
   double umag = nm / 2.0;
   double smag = ns / 2.0;
   measurements["Magnetization"] << umag / nrs;
   measurements["Magnetization^2"] << sqr(umag) / nrs;
-  if (IS_BIPARTITE::value) {
+  if (IS_BIPARTITE()) {
     measurements["Staggered Magnetization"] << smag / nrs;
     measurements["Staggered Magnetization^2"] << sqr(smag) / nrs;
   }
@@ -270,12 +270,12 @@ void qmc_worker_sse::dostep_impl()
        ++oi, ++p)
     if (oi->is_offdiagonal()) {
       umag_a += p * umag;
-      if (IS_BIPARTITE::value) smag_a += p * smag;
+      if (IS_BIPARTITE()) smag_a += p * smag;
       if (oi->is_site()) {
         unsigned int s = oi->pos();
         spins_c[s] ^= 1;
         umag += (1 - 2 * spins_c[s]);
-        if (IS_BIPARTITE::value)
+        if (IS_BIPARTITE())
           smag += looper::gauge(vgraph(), s) * (1 - 2 * spins_c[s]);
       } else {
         unsigned int s0 = vsource(oi->pos(), vlattice());
@@ -283,17 +283,17 @@ void qmc_worker_sse::dostep_impl()
         spins_c[s0] ^= 1;
         spins_c[s1] ^= 1;
         umag += 1 - 2 * spins_c[s0] + 1 - 2 * spins_c[s1];
-        if (IS_BIPARTITE::value)
+        if (IS_BIPARTITE())
           smag += looper::gauge(vgraph(), s0) * (1 - 2 * spins_c[s0])
             + looper::gauge(vgraph(), s1) * (1 - 2 * spins_c[s1]);
       }
       umag_a -= p * umag;
-      if (IS_BIPARTITE::value) smag_a -= p * smag;
+      if (IS_BIPARTITE()) smag_a -= p * smag;
     }
   umag_a += nop * umag;
   measurements["Susceptibility"]
     << beta() * ((nop ? sqr(umag_a) / nop : 0) + sqr(umag)) / (nop + 1) / nrs;
-  if (IS_BIPARTITE::value) {
+  if (IS_BIPARTITE()) {
     smag_a += nop * smag;
     measurements["Staggered Susceptibility"]
       << beta() * ((nop ? sqr(smag_a) / nop : 0)+ sqr(smag)) / (nop + 1) / nrs;

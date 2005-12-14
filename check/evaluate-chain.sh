@@ -26,7 +26,6 @@ do
     echo
 
     $BINDIR/archivecat $xmls \
-      | sed 's/Diagonal Energy Density (improved)/ed/g' \
       | sed 's/Energy Density/ene/g' \
       | sed 's/Specific Heat/sh/g' \
       | sed 's/Staggered Magnetization\^2/smag/g' \
@@ -41,7 +40,7 @@ do
     file="$p-$t.dat"
     rm -f $file
 
-    for m in ene ed sh zmag zsus smag ssus; do
+    for m in ene sh zmag zsus smag ssus; do
     echo "measurement = $m"
 
       cat <<EOF > plot.xml

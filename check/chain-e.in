@@ -1,6 +1,4 @@
-LATTICE_LIBRARY = "@libdir@/xml/lattices.xml"
 LATTICE = "chain lattice"
-MODEL_LIBRARY = "@libdir@/xml/models.xml"
 MODEL = "spin"
 SWEEPS = 65536
 THERMALIZATION = 1024
