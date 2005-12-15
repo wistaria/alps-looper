@@ -1,6 +1,3 @@
-LATTICE_LIBRARY = "@libdir@/xml/lattices.xml"
-MODEL_LIBRARY = "@libdir@/xml/models.xml"
-
 {
 LATTICE = "dimer"
 MODEL   = "spin"

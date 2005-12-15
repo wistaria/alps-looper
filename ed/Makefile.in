@@ -39,14 +39,14 @@ host_triplet = @host@
 check_PROGRAMS = diag$(EXEEXT)
 subdir = ed
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(srcdir)/diag.ip.in
+	$(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/loop_config.h
-CONFIG_CLEAN_FILES = diag.ip
+CONFIG_CLEAN_FILES =
 am_diag_OBJECTS = diag.$(OBJEXT)
 diag_OBJECTS = $(am_diag_OBJECTS)
 diag_LDADD = $(LDADD)
@@ -182,7 +182,7 @@ TESTS = $(check_PROGRAMS)
 TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
 diag_SOURCES = diag.C
 dist_noinst_SCRIPT = extract.sh run-diag.sh
-dist_noinst_DATA = diag.op heisenberg.dat heisenberg.ip ising-x.ip ising-z.ip ising.dat xy-x.ip xy-z.ip xy.dat
+dist_noinst_DATA = diag.ip diag.op heisenberg.dat heisenberg.ip ising-x.ip ising-z.ip ising.dat xy-x.ip xy-z.ip xy.dat
 all: all-am
 
 .SUFFIXES:
@@ -216,8 +216,6 @@ $(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
-diag.ip: $(top_builddir)/config.status $(srcdir)/diag.ip.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 clean-checkPROGRAMS:
 	@list='$(check_PROGRAMS)'; for p in $$list; do \

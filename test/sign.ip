@@ -1,4 +1,3 @@
-LATTICE_LIBRARY = "@libdir@/xml/lattices.xml"
 { LATTICE = "chain lattice"; L=4; }
 { LATTICE = "chain lattice"; L=3; }
 { LATTICE = "square lattice 3x3"; }

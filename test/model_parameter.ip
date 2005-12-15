@@ -1,6 +1,4 @@
-LATTICE_LIBRARY = "@libdir@/xml/lattices.xml"
 LATTICE = "chain lattice"
-MODEL_LIBRARY = "@libdir@/xml/models.xml"
 MODEL   = "spin"
 L       = 8
 h       = 0

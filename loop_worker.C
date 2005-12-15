@@ -29,16 +29,16 @@ qmc_worker_base::qmc_worker_base(const alps::ProcessList& w,
                                  const alps::Parameters& p, int n,
                                  bool is_path_integral)
   : super_type(w, p, n),
-    mcs_sweep_(p["SWEEPS"]),
+    mcs_sweep_(p.value_or_default("SWEEPS", "[65536:]")),
     mcs_therm_(p.value_or_default("THERMALIZATION", mcs_sweep_.min() >> 3)),
     mcs_(0),
     beta_(1.0 / static_cast<double>(p["T"])),
     chooser_(*engine_ptr)
 {
   if (w != alps::ProcessList()) {
-    if (mcs_sweep_.min() < mcs_therm_)
+    if (mcs_sweep_.min() < 1 || mcs_sweep_.min() > mcs_sweep_.max())
       boost::throw_exception(std::invalid_argument(
-        "qmc_worker_base::qmc_worker_base() too small SWEEPS"));
+        "qmc_worker_base::qmc_worker_base() inconsistent MC steps"));
 
     if (beta_ < 0)
       boost::throw_exception(std::invalid_argument(
@@ -47,6 +47,7 @@ qmc_worker_base::qmc_worker_base(const alps::ProcessList& w,
     looper::model_parameter mp(p, *this);
     if (mp.is_signed())
       std::cerr << "WARNING: model has negative signs\n";
+    energy_offset_ = mp.energy_offset();
 
     vlat_.generate(graph(), mp, mp.has_d_term());
 
@@ -56,8 +57,7 @@ qmc_worker_base::qmc_worker_base(const alps::ProcessList& w,
     double fs = p.value_or_default("FORCE_SCATTER", is_frustrated() ? 0.1 : 0);
 
     looper::weight_table wt(mp, rgraph(), vlattice(), fs);
-
-    energy_offset_ = mp.energy_offset() + wt.energy_offset();
+    energy_offset_ += wt.energy_offset();
     chooser_.init(wt, is_path_integral);
 
     is_signed_ = mp.is_signed();

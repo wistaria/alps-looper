@@ -666,7 +666,7 @@ void model_parameter::set_parameters_impl(alps::Parameters params, const G& g,
     energy_offset_ += bond(*bi, g).c;
   if (has_d_term())
     for (site_iterator si = sites(g).first; si != sites(g).second; ++si)
-      energy_offset_ += 0.5 * site(*si, g).s.get_twice();
+      energy_offset_ += 0.5 * site(*si, g).s.get_twice() * site(*si, g).d;
 }
 
 template<typename G>

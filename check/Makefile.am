@@ -5,19 +5,19 @@ run-chain: run-chain-p run-chain-e run-chain-g
 
 run-chain-p:
 	if test ! -f chain-p.out.xml; then \
-	  $(DESTDIR)$(bindir)/parameter2xml chain-p; \
+	  $(DESTDIR)$(bindir)/parameter2xml $(srcdir)/chain-p chain-p; \
 	  cp -f chain-p.in.xml chain-p.out.xml; \
 	fi
-	../loop --Tmin 2 chain-p.out.xml
+	../loop --Tmin 1 chain-p.out.xml
 run-chain-e:
 	if test ! -f chain-e.out.xml; then \
-	  $(DESTDIR)$(bindir)/parameter2xml chain-e; \
+	  $(DESTDIR)$(bindir)/parameter2xml $(srcdir)/chain-e chain-e; \
 	  cp -f chain-e.in.xml chain-e.out.xml; \
 	fi
-	../loop --Tmin 2 chain-e.out.xml
+	../loop --Tmin 1 chain-e.out.xml
 run-chain-g:
 	if test ! -f chain-g.out; then \
-	  ../ed/diag < chain-p > chain-g.out; \
+	  ../ed/diag < $(srcdir)/chain-p > chain-g.out; \
 	fi
 
 run-triangle: run-triangle-p run-triangle-e run-triangle-g
@@ -25,19 +25,19 @@ run-triangle: run-triangle-p run-triangle-e run-triangle-g
 
 run-triangle-p:
 	if test ! -f triangle-p.out.xml; then \
-	  $(DESTDIR)$(bindir)/parameter2xml triangle-p; \
+	  $(DESTDIR)$(bindir)/parameter2xml $(srcdir)/triangle-p triangle-p; \
 	  cp -f triangle-p.in.xml triangle-p.out.xml; \
 	fi
-	../loop --Tmin 2 triangle-p.out.xml
+	../loop --Tmin 1 triangle-p.out.xml
 run-triangle-e:
 	if test ! -f triangle-e.out.xml; then \
-	  $(DESTDIR)$(bindir)/parameter2xml triangle-e; \
+	  $(DESTDIR)$(bindir)/parameter2xml $(srcdir)/triangle-e triangle-e; \
 	  cp -f triangle-e.in.xml triangle-e.out.xml; \
 	fi
-	../loop --Tmin 2 triangle-e.out.xml
+	../loop --Tmin 1 triangle-e.out.xml
 run-triangle-g:
 	if test ! -f triangle-g.out; then \
-	  ../ed/diag < triangle-p > triangle-g.out; \
+	  ../ed/diag < $(srcdir)/triangle-p > triangle-g.out; \
 	fi
 
 clean-local :

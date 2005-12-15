@@ -32,7 +32,7 @@ dist_noinst_DATA = \
 	gesvd.ip gesvd.op \
 	hypercubic.ip hypercubic.op \
 	llsp.ip llsp.op \
-	model_parameter.op \
+	model_parameter.ip model_parameter.op \
 	parse_vector.ip parse_vector.op \
 	permutation.op \
 	postorder.ip postorder.op \

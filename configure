@@ -19743,9 +19743,7 @@ LIBS_PVM="$ac_cv_alps_libs_pvm"
 
                                                   ac_config_files="$ac_config_files Makefile doc/Makefile test/Makefile ed/Makefile check/Makefile"
 
-                              ac_config_files="$ac_config_files test/model_parameter.ip test/sign.ip ed/diag.ip"
-
-                                                            ac_config_files="$ac_config_files check/chain-p check/chain-e check/chain.gp check/triangle-p check/triangle-e check/triangle.gp"
+                    ac_config_files="$ac_config_files check/chain.gp check/triangle.gp"
 
 
 
@@ -20276,14 +20274,7 @@ do
   "test/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
   "ed/Makefile" ) CONFIG_FILES="$CONFIG_FILES ed/Makefile" ;;
   "check/Makefile" ) CONFIG_FILES="$CONFIG_FILES check/Makefile" ;;
-  "test/model_parameter.ip" ) CONFIG_FILES="$CONFIG_FILES test/model_parameter.ip" ;;
-  "test/sign.ip" ) CONFIG_FILES="$CONFIG_FILES test/sign.ip" ;;
-  "ed/diag.ip" ) CONFIG_FILES="$CONFIG_FILES ed/diag.ip" ;;
-  "check/chain-p" ) CONFIG_FILES="$CONFIG_FILES check/chain-p" ;;
-  "check/chain-e" ) CONFIG_FILES="$CONFIG_FILES check/chain-e" ;;
   "check/chain.gp" ) CONFIG_FILES="$CONFIG_FILES check/chain.gp" ;;
-  "check/triangle-p" ) CONFIG_FILES="$CONFIG_FILES check/triangle-p" ;;
-  "check/triangle-e" ) CONFIG_FILES="$CONFIG_FILES check/triangle-e" ;;
   "check/triangle.gp" ) CONFIG_FILES="$CONFIG_FILES check/triangle.gp" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
   "loop_config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS loop_config.h" ;;

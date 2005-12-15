@@ -37,17 +37,14 @@ build_triplet = @build@
 host_triplet = @host@
 subdir = check
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(srcdir)/chain-e.in $(srcdir)/chain-p.in \
-	$(srcdir)/chain.gp.in $(srcdir)/triangle-e.in \
-	$(srcdir)/triangle-p.in $(srcdir)/triangle.gp.in
+	$(srcdir)/chain.gp.in $(srcdir)/triangle.gp.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/loop_config.h
-CONFIG_CLEAN_FILES = chain-p chain-e chain.gp triangle-p triangle-e \
-	triangle.gp
+CONFIG_CLEAN_FILES = chain.gp triangle.gp
 SOURCES =
 DIST_SOURCES =
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -194,15 +191,7 @@ $(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
-chain-p: $(top_builddir)/config.status $(srcdir)/chain-p.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-chain-e: $(top_builddir)/config.status $(srcdir)/chain-e.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 chain.gp: $(top_builddir)/config.status $(srcdir)/chain.gp.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-triangle-p: $(top_builddir)/config.status $(srcdir)/triangle-p.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-triangle-e: $(top_builddir)/config.status $(srcdir)/triangle-e.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 triangle.gp: $(top_builddir)/config.status $(srcdir)/triangle.gp.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
@@ -341,19 +330,19 @@ run-chain: run-chain-p run-chain-e run-chain-g
 
 run-chain-p:
 	if test ! -f chain-p.out.xml; then \
-	  $(DESTDIR)$(bindir)/parameter2xml chain-p; \
+	  $(DESTDIR)$(bindir)/parameter2xml $(srcdir)/chain-p chain-p; \
 	  cp -f chain-p.in.xml chain-p.out.xml; \
 	fi
-	../loop --Tmin 2 chain-p.out.xml
+	../loop --Tmin 1 chain-p.out.xml
 run-chain-e:
 	if test ! -f chain-e.out.xml; then \
-	  $(DESTDIR)$(bindir)/parameter2xml chain-e; \
+	  $(DESTDIR)$(bindir)/parameter2xml $(srcdir)/chain-e chain-e; \
 	  cp -f chain-e.in.xml chain-e.out.xml; \
 	fi
-	../loop --Tmin 2 chain-e.out.xml
+	../loop --Tmin 1 chain-e.out.xml
 run-chain-g:
 	if test ! -f chain-g.out; then \
-	  ../ed/diag < chain-p > chain-g.out; \
+	  ../ed/diag < $(srcdir)/chain-p > chain-g.out; \
 	fi
 
 run-triangle: run-triangle-p run-triangle-e run-triangle-g
@@ -361,19 +350,19 @@ run-triangle: run-triangle-p run-triangle-e run-triangle-g
 
 run-triangle-p:
 	if test ! -f triangle-p.out.xml; then \
-	  $(DESTDIR)$(bindir)/parameter2xml triangle-p; \
+	  $(DESTDIR)$(bindir)/parameter2xml $(srcdir)/triangle-p triangle-p; \
 	  cp -f triangle-p.in.xml triangle-p.out.xml; \
 	fi
-	../loop --Tmin 2 triangle-p.out.xml
+	../loop --Tmin 1 triangle-p.out.xml
 run-triangle-e:
 	if test ! -f triangle-e.out.xml; then \
-	  $(DESTDIR)$(bindir)/parameter2xml triangle-e; \
+	  $(DESTDIR)$(bindir)/parameter2xml $(srcdir)/triangle-e triangle-e; \
 	  cp -f triangle-e.in.xml triangle-e.out.xml; \
 	fi
-	../loop --Tmin 2 triangle-e.out.xml
+	../loop --Tmin 1 triangle-e.out.xml
 run-triangle-g:
 	if test ! -f triangle-g.out; then \
-	  ../ed/diag < triangle-p > triangle-g.out; \
+	  ../ed/diag < $(srcdir)/triangle-p > triangle-g.out; \
 	fi
 
 clean-local :

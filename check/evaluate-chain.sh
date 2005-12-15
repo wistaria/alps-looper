@@ -79,7 +79,7 @@ do_eval_g()
   for p in $parameters; do
   if test -f "$p.out"; then
   for t in $tests; do
-    awk '$1=="TEST" {test=$3} $1=="T" {temp=$3} $1=="energy" {ene=$5} $1=="diagonal" && $2=="energy" {ed=$6} $1=="specific" {sh=$4} $1=="uniform" && $2=="magnetization^2" {umag=$4} $1=="uniform" && $2=="susceptibility" {usus=$4} $1=="staggered" && $2=="magnetization^2" {smag=$4} $1=="staggered" && $2=="susceptibility" && test==t {print temp,ene,ed,sh,umag,usus,smag,$4}' t=$t $p.out > $p-$t.dat
+    awk '$1=="TEST" {test=$3} $1=="T" {temp=$3} $1=="energy" {ene=$5} $1=="specific" {sh=$4} $1=="uniform" && $2=="magnetization^2" {umag=$4} $1=="uniform" && $2=="susceptibility" {usus=$4} $1=="staggered" && $2=="magnetization^2" {smag=$4} $1=="staggered" && $2=="susceptibility" && test==t {print temp,ene,sh,umag,usus,smag,$4}' t=$t $p.out > $p-$t.dat
   done
   fi
   done

@@ -54,6 +54,7 @@ int main(int argc, char** argv)
 #else
 
 #include <boost/timer.hpp>
+#include <time.h>
 
 int main(int argc, char** argv)
 {
@@ -77,9 +78,10 @@ int main(int argc, char** argv)
       "Usage: " + std::string(argv[0]) + " [paramfile]"));
   }
 
-  for (alps::ParameterList::const_iterator p = parameterlist.begin();
+  for (alps::ParameterList::iterator p = parameterlist.begin();
        p != parameterlist.end(); ++p) {
     boost::timer tm;
+    if (!p->defined("SEED")) (*p)["SEED"] = static_cast<unsigned int>(time(0));
     std::cout << "[input parameters]\n" << *p;
     qmc_worker_base* sim =
       factory().make_qmc_worker(alps::ProcessList(1), *p, 0);
@@ -92,8 +94,6 @@ int main(int argc, char** argv)
       }
     }
     sim->accumulate();
-    // accumulate(sim->get_measurements(),
-    //            const_cast<alps::ObservableSet&>(sim->get_measurements()));
     double t = tm.elapsed();
     std::cerr << "[speed]\nelapsed time = " << t << " sec ("
               << (sim->mcs()) / t << " MCS/sec)\n";

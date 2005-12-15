@@ -56,7 +56,7 @@ public:
   typedef cluster_info_pi                                cluster_info_t;
 
   qmc_worker_pi(const alps::ProcessList& w, const alps::Parameters& p, int n);
-  void dostep();
+  virtual void dostep();
   void save(alps::ODump& dp) const;
   void load(alps::IDump& dp);
 

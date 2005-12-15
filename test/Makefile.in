@@ -47,15 +47,14 @@ check_PROGRAMS = alternating_tensor$(EXEEXT) bond_matrix$(EXEEXT) \
 	weight$(EXEEXT)
 subdir = test
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(srcdir)/model_parameter.ip.in \
-	$(srcdir)/sign.ip.in
+	$(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/loop_config.h
-CONFIG_CLEAN_FILES = model_parameter.ip sign.ip
+CONFIG_CLEAN_FILES =
 am_alternating_tensor_OBJECTS = alternating_tensor.$(OBJEXT)
 alternating_tensor_OBJECTS = $(am_alternating_tensor_OBJECTS)
 alternating_tensor_LDADD = $(LDADD)
@@ -299,7 +298,7 @@ dist_noinst_DATA = \
 	gesvd.ip gesvd.op \
 	hypercubic.ip hypercubic.op \
 	llsp.ip llsp.op \
-	model_parameter.op \
+	model_parameter.ip model_parameter.op \
 	parse_vector.ip parse_vector.op \
 	permutation.op \
 	postorder.ip postorder.op \
@@ -369,10 +368,6 @@ $(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
-model_parameter.ip: $(top_builddir)/config.status $(srcdir)/model_parameter.ip.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-sign.ip: $(top_builddir)/config.status $(srcdir)/sign.ip.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 clean-checkPROGRAMS:
 	@list='$(check_PROGRAMS)'; for p in $$list; do \

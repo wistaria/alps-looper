@@ -6,7 +6,7 @@ TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
 diag_SOURCES = diag.C
 
 dist_noinst_SCRIPT = extract.sh run-diag.sh
-dist_noinst_DATA = diag.op heisenberg.dat heisenberg.ip ising-x.ip ising-z.ip ising.dat xy-x.ip xy-z.ip xy.dat
+dist_noinst_DATA = diag.ip diag.op heisenberg.dat heisenberg.ip ising-x.ip ising-z.ip ising.dat xy-x.ip xy-z.ip xy.dat
 
 clean: clean-am clean-extra
 clean-extra:
