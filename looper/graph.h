@@ -303,7 +303,7 @@ public:
   local_graph_t diagonal(const location_t& loc, int c0, int c1) const
   {
     int c = 1 ^ c0 ^ c1; // 0 for antiparallel, 1 for parallel
-    int g = ((r_uniform_() < diag_[(pos(loc) << 1) | c]) ? 2 : 3) ^ (c << 1);
+    int g = ((r_uniform_() < diag_[(pos(loc) << 1) | c]) ? 0 : 1) ^ (c << 1);
     return local_graph_t(g, loc);
   }
   local_graph_t offdiagonal(const location_t& loc) const
