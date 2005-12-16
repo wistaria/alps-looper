@@ -41,33 +41,41 @@ struct node {
   node() : parent(-1), id() {}
   bool is_root() const { return parent < 0; }
   int weight() const { return -parent; }
-  int add_weight(const node& f) const { return parent += f.parent; }
-  mutable int parent;  // negative for root fragment
+  int add_weight(node const& n) { return parent += n.parent; }
+  int parent;  // negative for root fragment
   unsigned int id;
 };
 
 template<class T>
-int add(std::vector<T>& v)
+inline int add(std::vector<T>& v)
 {
   v.push_back(T());
   return v.size() - 1; // return index of new node
 }
 
 template<class T>
-inline int root_index(const std::vector<T>& v, int g)
+inline int root_index(std::vector<T> const& v, int g)
 { while (!v[g].is_root()) g = v[g].parent; return g; }
 
 template<class T>
-inline void update_link(const std::vector<T>& v, int g, int r)
-{ while (g != r) { int p = v[g].parent; v[g].parent = r; g = p; } }
+inline T const& root(std::vector<T> const& v, int g)
+{ return v[root_index(v, g)]; }
 
 template<class T>
-inline const T& root(const std::vector<T>& v, int g)
-{ int r = root_index(v, g); update_link(v, g, r); return v[r]; }
+inline T const& root(std::vector<T> const& v, T const& n)
+{ return n.is_root() ? n : root(v, n.parent); }
 
 template<class T>
-inline int cluster_id(const std::vector<T>& v, int g)
+inline int cluster_id(std::vector<T> const& v, int g)
 { return root(v, g).id; }
+
+template<class T>
+inline int cluster_id(std::vector<T> const& v, T const& n)
+{ return root(v, n).id; }
+
+template<class T>
+inline void update_link(std::vector<T>& v, int g, int r)
+{ while (g != r) { int p = v[g].parent; v[g].parent = r; g = p; } }
 
 template<class T>
 inline int unify(std::vector<T>& v, int g0, int g1)
