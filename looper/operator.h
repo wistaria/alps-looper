@@ -61,6 +61,7 @@ public:
   { return type() == local_operator_type::offdiagonal; }
   bool is_identity() const { return type() == local_operator_type::identity; }
 
+  void clear_graph() { type_ &= 3; }
   local_graph_t graph() const { return local_graph_t(graph_type(), loc_); }
   void assign_graph(const local_graph_t& g)
   {
@@ -69,8 +70,21 @@ public:
     type_ = (type_ & 1) | (g.type() << 2);
     loc_ = g.loc();
   }
-  // void clear_graph() { type_ &= 3; }
   int graph_type() const { return type_ >> 2; }
+  int loop_0() const { return loop0; }
+  int loop_1() const { return loop1; }
+  int loop_l() const
+  { return local_graph_t::loop_l(graph_type(), loop0, loop1); }
+  int loop_u() const
+  { return local_graph_t::loop_u(graph_type(), loop0, loop1); }
+  int loop_l0() const
+  { return local_graph_t::loop_l0(graph_type(), loop0, loop1); }
+  int loop_l1() const
+  { return local_graph_t::loop_l1(graph_type(), loop0, loop1); }
+  int loop_u0() const
+  { return local_graph_t::loop_u0(graph_type(), loop0, loop1); }
+  int loop_u1() const
+  { return local_graph_t::loop_u1(graph_type(), loop0, loop1); }
 
   const location_t& loc() const { return loc_; }
   int pos() const { return loc_.pos(); }

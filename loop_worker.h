@@ -43,7 +43,7 @@ public:
   typedef looper::graph_chooser<loop_graph_t, super_type::engine_type>
     graph_chooser;
 
-  qmc_worker_base(const alps::ProcessList& w, const alps::Parameters& p,
+  qmc_worker_base(alps::ProcessList const& w, alps::Parameters const& p,
                   int n, bool is_path_integral = true);
   virtual ~qmc_worker_base();
 
@@ -58,31 +58,37 @@ public:
   }
   unsigned int mcs() const { return mcs_; }
 
-  const lattice_graph_t& rgraph() const { return super_type::graph(); }
-  const lattice_graph_t& vgraph() const { return vlat_.graph(); }
-  const virtual_lattice& vlattice() const { return vlat_; }
+  lattice_graph_t const& rgraph() const { return super_type::graph(); }
+  lattice_graph_t const& vgraph() const { return vlat_.graph(); }
+  virtual_lattice const& vlattice() const { return vlat_; }
 
   double beta() const { return beta_; }
   double energy_offset() const { return energy_offset_; }
 
   bool is_frustrated() const { return is_frustrated_; }
+
   bool is_signed() const { return is_signed_; }
-  int sign(site_descriptor s) const { return sign_[s]; }
-  bool has_field() const { return has_field_; }
-  double field(site_descriptor s) const { return field_[s]; }
+  int sign(boost::call_traits<site_descriptor>::param_type s) const
+  { return sign_[s]; }
+
+  bool has_field() const { return field_.size(); }
+  double field(boost::call_traits<site_descriptor>::param_type s) const
+  { return field_[s]; }
+
+  bool use_improved_estimator() const { return use_improved_estimator_; }
 
   loop_graph_t choose_graph() const { return chooser_.graph(); }
-  loop_graph_t choose_diagonal(const location_t& loc, int c) const
+  loop_graph_t choose_diagonal(location_t const& loc, int c) const
   { return chooser_.diagonal(loc, c); }
-  loop_graph_t choose_diagonal(const location_t& loc, int c0, int c1) const
+  loop_graph_t choose_diagonal(location_t const& loc, int c0, int c1) const
   { return chooser_.diagonal(loc, c0, c1); }
-  loop_graph_t choose_offdiagonal(const location_t& loc) const
+  loop_graph_t choose_offdiagonal(location_t const& loc) const
   { return chooser_.offdiagonal(loc); }
   double advance() const { return chooser_.advance(); }
   double total_graph_weight() const { return chooser_.weight(); }
 
   void accumulate();
-  void accumulate(const alps::ObservableSet& m_in, alps::ObservableSet& m_out);
+  void accumulate(alps::ObservableSet const& m_in, alps::ObservableSet& m_out);
 
   virtual void save(alps::ODump& dp) const;
   virtual void load(alps::IDump& dp);
@@ -100,7 +106,7 @@ private:
   bool is_frustrated_;
   bool is_signed_;
   std::vector<int> sign_;
-  bool has_field_;
+  bool use_improved_estimator_;
   std::vector<double> field_;
 
   graph_chooser chooser_;

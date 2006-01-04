@@ -27,8 +27,8 @@
 #include <alps/fixed_capacity_vector.h>
 #include <boost/mpl/bool.hpp>
 
-qmc_worker_pi::qmc_worker_pi(const alps::ProcessList& w,
-                             const alps::Parameters& p, int n)
+qmc_worker_pi::qmc_worker_pi(alps::ProcessList const& w,
+                             alps::Parameters const& p, int n)
   : super_type(w, p, n, true)
 {
   //
@@ -62,6 +62,8 @@ qmc_worker_pi::qmc_worker_pi(const alps::ProcessList& w,
     << make_observable(
          RealObservable("Magnetization"), is_signed())
     << make_observable(
+         RealObservable("Magnetization Density"), is_signed())
+    << make_observable(
          RealObservable("Magnetization^2"), is_signed())
     << make_observable(
          RealObservable("Susceptibility"), is_signed());
@@ -71,12 +73,14 @@ qmc_worker_pi::qmc_worker_pi(const alps::ProcessList& w,
       << make_observable(
            RealObservable("Staggered Magnetization"), is_signed())
       << make_observable(
+           RealObservable("Staggered Magnetization Density"), is_signed())
+      << make_observable(
            RealObservable("Staggered Magnetization^2"), is_signed())
       << make_observable(
            RealObservable("Staggered Susceptibility"), is_signed());
   }
 
-  if (!is_frustrated()) {
+  if (use_improved_estimator()) {
     measurements
       << RealObservable("Generalized Magnetization^2")
       << RealObservable("Generalized Susceptibility");
@@ -94,27 +98,23 @@ void qmc_worker_pi::dostep()
   super_type::dostep();
 
   namespace mpl = boost::mpl;
-  bool free_flip = !has_field();
-  if (is_bipartite()) {
-    typedef mpl::true_ is_bipartite_t;
-    if (free_flip) {
-      dostep_impl<is_bipartite_t, mpl::true_>();
-    } else {
-      dostep_impl<is_bipartite_t, mpl::false_>();
-    }
-  } else {
-    typedef mpl::false_ is_bipartite_t;
-    if (free_flip) {
-      dostep_impl<is_bipartite_t, mpl::true_>();
-    } else {
-      dostep_impl<is_bipartite_t, mpl::false_>();
-    }
-  }
+  dostep_impl<mpl::true_,  mpl::true_,  mpl::true_ >();
+  dostep_impl<mpl::true_,  mpl::true_,  mpl::false_>();
+  dostep_impl<mpl::true_,  mpl::false_, mpl::true_ >();
+  dostep_impl<mpl::true_,  mpl::false_, mpl::false_>();
+  dostep_impl<mpl::false_, mpl::true_,  mpl::true_ >();
+  dostep_impl<mpl::false_, mpl::true_,  mpl::false_>();
+  dostep_impl<mpl::false_, mpl::false_, mpl::true_ >();
+  dostep_impl<mpl::false_, mpl::false_, mpl::false_>();
 }
 
-template<class IS_BIPARTITE, class FREE_FLIP>
+template<typename BIPARTITE, typename FIELD, typename IMPROVE>
 void qmc_worker_pi::dostep_impl()
 {
+  if (!(is_bipartite() == BIPARTITE() &&
+        has_field() == FIELD() &&
+        use_improved_estimator() == IMPROVE())) return;
+
   //
   // diagonal update and cluster construction
   //
@@ -198,21 +198,86 @@ void qmc_worker_pi::dostep_impl()
   // cluster flip
   //
 
-  // assign cluster id & determine if clusters are to be flipped
-  clusters.resize(0);
-  for (std::vector<cluster_fragment_t>::iterator ci = fragments.begin();
-       ci != fragments.end(); ++ci)
-    if (ci->is_root()) {
-      ci->id = clusters.size();
-      clusters.push_back(cluster_info_t(random() < 0.5));
+  // assign cluster id
+  int nc = 0;
+  for (std::vector<cluster_fragment_t>::iterator fi = fragments.begin();
+       fi != fragments.end(); ++fi) if (fi->is_root()) fi->id = nc++;
+  for (std::vector<cluster_fragment_t>::iterator fi = fragments.begin();
+       fi != fragments.end(); ++fi) fi->id = cluster_id(fragments, *fi);
+  clusters.resize(0); clusters.resize(nc);
+
+  if (IMPROVE()) measures.resize(0); measures.resize(nc);
+  for (std::vector<local_operator_t>::iterator oi = operators.begin();
+       oi != operators.end(); ++oi) {
+    double t = oi->time();
+    if (oi->is_offdiagonal()) {
+      if (oi->is_bond()) {
+        int s0 = vsource(oi->pos(), vlattice());
+        int s1 = vtarget(oi->pos(), vlattice());
+        if (IMPROVE()) {
+          measures[fragments[oi->loop_l0()].id].
+            term(BIPARTITE(), vgraph(), s0, t, 0.5-spins_c[s0]);
+          measures[fragments[oi->loop_l1()].id].
+            term(BIPARTITE(), vgraph(), s1, t, 0.5-spins_c[s1]);
+        }
+        if (FIELD()) {
+          clusters[fragments[oi->loop_l0()].id].weight
+            += t * (0.5-spins_c[s0]) * field(s0);
+          clusters[fragments[oi->loop_l1()].id].weight
+            += t * (0.5-spins_c[s1]) * field(s1);
+        }
+        spins_c[s0] ^= 1;
+        spins_c[s1] ^= 1;
+        if (IMPROVE()) {
+          measures[fragments[oi->loop_u0()].id].
+            start(BIPARTITE(), vgraph(), s0, t, 0.5-spins_c[s0]);
+          measures[fragments[oi->loop_u1()].id].
+            start(BIPARTITE(), vgraph(), s1, t, 0.5-spins_c[s1]);
+        }
+        if (FIELD()) {
+          clusters[fragments[oi->loop_u0()].id].weight
+            -= t * (0.5-spins_c[s0]) * field(s0);
+          clusters[fragments[oi->loop_u1()].id].weight
+            -= t * (0.5-spins_c[s1]) * field(s1);
+        }
+      } else {
+        int s = oi->pos();
+        if (IMPROVE())
+          measures[fragments[oi->loop_l()].id].
+            term(BIPARTITE(), vgraph(), s, t, 0.5-spins_c[s]);
+        if (FIELD())
+          clusters[fragments[oi->loop_l()].id].weight
+            += t * (0.5-spins_c[s]) * field(s);
+        spins_c[s] ^= 1;
+        if (IMPROVE())
+          measures[fragments[oi->loop_u()].id].
+            start(BIPARTITE(), vgraph(), s, t, 0.5-spins_c[s]);
+        if (FIELD())
+          clusters[fragments[oi->loop_u()].id].weight
+            -= t * (0.5-spins_c[s]) * field(s);
+      }
+    }
+  }
+  if (IMPROVE())
+    for (unsigned int s = 0; s < nvs; ++s) {
+      int loop = fragments[s].id;
+      measures[loop].at_zero(BIPARTITE(), vgraph(), s, 0.5-spins[s]);
+      measures[loop].start(BIPARTITE(), vgraph(), s, 0, 0.5-spins[s]);
+      measures[loop].term(BIPARTITE(), vgraph(), s, beta(), 0.5-spins_c[s]);
     }
 
-  // flip operators
+  // determine whether clusters are flipped or not
+  for (std::vector<cluster_info_t>::iterator ci = clusters.begin();
+       ci != clusters.end(); ++ci)
+    ci->to_flip = (random() <
+      (FIELD() ? 0.5 : 0.5 * (std::tanh(0.5 * beta() * ci->weight) + 1)));
+
+  // flip operators & spins
   for (operator_iterator oi = operators.begin(); oi != operators.end(); ++oi)
-    if (clusters[cluster_id(fragments, oi->loop0)].to_flip ^
-        clusters[cluster_id(fragments, oi->loop1)].to_flip) oi->flip();
+    if (clusters[fragments[oi->loop_0()].id].to_flip ^
+        clusters[fragments[oi->loop_1()].id].to_flip) oi->flip();
   for (int s = 0; s < nvs; ++s)
-    if (clusters[cluster_id(fragments, s)].to_flip) spins[s] ^= 1;
+    if (clusters[fragments[s].id].to_flip) spins[s] ^= 1;
 
   //
   // measurements
@@ -230,54 +295,60 @@ void qmc_worker_pi::dostep_impl()
   measurements["Energy^2"] << sqr(ene) - nop / sqr(beta());
 
   // magnetization && susceptibility
-  int nm = 0;
-  int ns = 0;
-  site_iterator si, si_end;
-  for (boost::tie(si, si_end) = sites(vgraph()); si != si_end; ++si) {
-    nm += (1 - 2 * spins[*si]);
-    if (IS_BIPARTITE())
-      ns += looper::gauge(vgraph(), *si) * (1 - 2 * spins[*si]);
-  }
-  double umag = nm / 2.0;
-  double smag = ns / 2.0;
-  measurements["Magnetization"] << umag / nrs;
-  measurements["Magnetization^2"] << sqr(umag) / nrs;
-  if (IS_BIPARTITE()) {
-    measurements["Staggered Magnetization"] << smag / nrs;
-    measurements["Staggered Magnetization^2"] << sqr(smag) / nrs;
-  }
-
-  double umag_a = 0; /* 0 * umag; */
-  double smag_a = 0; /* 0 * smag; */
-  std::copy(spins.begin(), spins.end(), spins_c.begin());
-  for (operator_iterator oi = operators.begin(); oi != operators.end(); ++oi)
-    if (oi->is_offdiagonal()) {
-      umag_a += oi->time() * umag;
-      if (IS_BIPARTITE()) smag_a += oi->time() * smag;
-      if (oi->is_site()) {
-        unsigned int s = oi->pos();
-        spins_c[s] ^= 1;
-        umag += (1 - 2 * spins_c[s]);
-        if (IS_BIPARTITE())
-          smag += looper::gauge(vgraph(), s) * (1 - 2 * spins_c[s]);
-      } else {
-        unsigned int s0 = vsource(oi->pos(), vlattice());
-        unsigned int s1 = vtarget(oi->pos(), vlattice());
-        spins_c[s0] ^= 1;
-        spins_c[s1] ^= 1;
-        umag += 1 - 2 * spins_c[s0] + 1 - 2 * spins_c[s1];
-        if (IS_BIPARTITE())
-          smag += looper::gauge(vgraph(), s0) * (1 - 2 * spins_c[s0])
-            + looper::gauge(vgraph(), s1) * (1 - 2 * spins_c[s1]);
-      }
-      umag_a -= oi->time() * umag;
-      if (IS_BIPARTITE()) smag_a -= oi->time() * smag;
+  if (IMPROVE()) {
+    cluster_accumulator_t accum =
+      std::accumulate(measures.begin(), measures.end(),
+                      cluster_accumulator_t());
+    accum.commit(measurements, BIPARTITE(), nrs);
+  } else {
+    double umag = 0;
+    double smag = 0;
+    site_iterator si, si_end;
+    for (boost::tie(si, si_end) = sites(vgraph()); si != si_end; ++si) {
+      umag += 0.5-spins[*si];
+    if (BIPARTITE())
+      smag += (0.5-spins[*si]) * looper::gauge(vgraph(), *si);
     }
-  umag_a += beta() * umag;
-  measurements["Susceptibility"] << sqr(umag_a) / beta() / nrs;
-  if (IS_BIPARTITE()) {
-    smag_a += beta() * smag;
-    measurements["Staggered Susceptibility"] << sqr(smag_a) / beta() / nrs;
+    measurements["Magnetization"] << umag;
+    measurements["Magnetization Density"] << umag / nrs;
+    measurements["Magnetization^2"] << sqr(umag);
+    if (BIPARTITE()) {
+      measurements["Staggered Magnetization"] << smag;
+      measurements["Staggered Magnetization Density"] << smag / nrs;
+      measurements["Staggered Magnetization^2"] << sqr(smag);
+    }
+    double umag_a = 0; /* 0 * umag; */
+    double smag_a = 0; /* 0 * smag; */
+    std::copy(spins.begin(), spins.end(), spins_c.begin());
+    for (operator_iterator oi = operators.begin(); oi != operators.end(); ++oi)
+      if (oi->is_offdiagonal()) {
+        umag_a += t * umag;
+        if (BIPARTITE()) smag_a += t * smag;
+        if (oi->is_site()) {
+          unsigned int s = oi->pos();
+          spins_c[s] ^= 1;
+          umag += 1-2*spins_c[s];
+          if (BIPARTITE())
+            smag += (0.5-spins_c[s]) * looper::gauge(vgraph(), s);
+        } else {
+          unsigned int s0 = vsource(oi->pos(), vlattice());
+          unsigned int s1 = vtarget(oi->pos(), vlattice());
+          spins_c[s0] ^= 1;
+          spins_c[s1] ^= 1;
+          umag += 1-2*spins_c[s0] + 1-2*spins_c[s1];
+          if (BIPARTITE())
+            smag += (1-2*spins_c[s0]) * looper::gauge(vgraph(), s0)
+              + (1-2*spins_c[s1]) * looper::gauge(vgraph(), s1);
+        }
+        umag_a -= t * umag;
+        if (BIPARTITE()) smag_a -= t * smag;
+      }
+    umag_a += beta() * umag;
+    measurements["Susceptibility"] << sqr(umag_a) / beta() / nrs;
+    if (BIPARTITE()) {
+      smag_a += beta() * smag;
+      measurements["Staggered Susceptibility"] << sqr(smag_a) / beta() / nrs;
+    }
   }
 }
 

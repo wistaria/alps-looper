@@ -105,6 +105,13 @@ public:
     return boost::make_tuple(curr0, curr1, loop0, loop1);
   }
 
+  static int loop_l(int /* t */, int loop0, int /* loop1 */) { return loop0; }
+  static int loop_u(int /* t */, int /* loop0 */, int loop1) { return loop1; }
+  static int loop_l0(int /* t */, int loop0, int /* loop1 */) { return loop0; }
+  static int loop_l1(int t, int loop0, int loop1) { return t ? loop1 : loop0; }
+  static int loop_u0(int /* t */, int /* loop0 */, int loop1) { return loop1; }
+  static int loop_u1(int t, int loop0, int loop1) { return t ? loop0 : loop1; }
+
 private:
   int type_;
   location_t loc_;
@@ -190,6 +197,21 @@ public:
     curr1 = add(fragments);
     return boost::make_tuple(curr1, curr1, curr0, curr1);
   }
+
+  static int loop_l(int, int, int)
+  {
+    boost::throw_exception(std::logic_error("local_graph_haf::loop_u0"));
+    return 0;
+  }
+  static int loop_u(int, int, int)
+  {
+    boost::throw_exception(std::logic_error("local_graph_haf::loop_u1"));
+    return 0;
+  }
+  static int loop_l0(int, int loop0, int /* loop1 */) { return loop0; }
+  static int loop_l1(int, int loop0, int /* loop1 */) { return loop0; }
+  static int loop_u0(int, int /* loop0 */, int loop1) { return loop1; }
+  static int loop_u1(int, int /* loop0 */, int loop1) { return loop1; }
 
 private:
   location_t loc_;

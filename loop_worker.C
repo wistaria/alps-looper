@@ -25,8 +25,8 @@
 #include "loop_worker.h"
 #include <looper/weight.h>
 
-qmc_worker_base::qmc_worker_base(const alps::ProcessList& w,
-                                 const alps::Parameters& p, int n,
+qmc_worker_base::qmc_worker_base(alps::ProcessList const& w,
+                                 alps::Parameters const& p, int n,
                                  bool is_path_integral)
   : super_type(w, p, n),
     mcs_sweep_(p.value_or_default("SWEEPS", "[65536:]")),
@@ -69,8 +69,7 @@ qmc_worker_base::qmc_worker_base(const alps::ProcessList& w,
         sign_.push_back(itr->second.sign);
     }
 
-    has_field_ = mp.has_field();
-    if (has_field()) {
+    if (mp.has_field()) {
       field_.resize(0);
       site_iterator rsi, rsi_end;
       for (boost::tie(rsi, rsi_end) = sites(rgraph()); rsi != rsi_end; ++rsi) {
@@ -81,6 +80,9 @@ qmc_worker_base::qmc_worker_base(const alps::ProcessList& w,
           field_.push_back(mp.site(*rsi, rgraph()).hz);
       }
     }
+
+    use_improved_estimator_ =
+      !(mp.has_field() || p.defined("DISABLE_IMPROVED_ESTIMATOR"));
   }
 }
 
@@ -88,7 +90,7 @@ qmc_worker_base::~qmc_worker_base() {}
 
 void qmc_worker_base::accumulate() { accumulate(measurements, measurements); }
 
-void qmc_worker_base::accumulate(const alps::ObservableSet& m_in,
+void qmc_worker_base::accumulate(alps::ObservableSet const& m_in,
                                  alps::ObservableSet& m_out)
 {
   using looper::sqr;

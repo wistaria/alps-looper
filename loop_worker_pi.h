@@ -26,19 +26,9 @@
 #define LOOP_WORKER_PI_H
 
 #include "loop_worker.h"
+#include <looper/cluster.h>
 #include <looper/operator.h>
 #include <looper/type.h>
-
-struct cluster_info_pi
-{
-  cluster_info_pi(bool t = false)
-    : to_flip(t), mag0(0), size(0), mag(0), length(0) {}
-  bool to_flip;
-  int mag0;
-  int size;
-  double mag;
-  double length;
-};
 
 class qmc_worker_pi : public qmc_worker_base
 {
@@ -53,15 +43,17 @@ public:
   typedef operator_string_t::iterator                    operator_iterator;
 
   typedef looper::union_find::node                       cluster_fragment_t;
-  typedef cluster_info_pi                                cluster_info_t;
+  typedef looper::cluster_info                           cluster_info_t;
+  typedef looper::cluster_measure                        cluster_measure_t;
+  typedef looper::cluster_accumulator                    cluster_accumulator_t;
 
-  qmc_worker_pi(const alps::ProcessList& w, const alps::Parameters& p, int n);
+  qmc_worker_pi(alps::ProcessList const& w, alps::Parameters const& p, int n);
   virtual void dostep();
   void save(alps::ODump& dp) const;
   void load(alps::IDump& dp);
 
 protected:
-  template<class IS_BIPARTITE, class FREE_FLIP>
+  template<typename BIPARTITE, typename FIELD, typename IMPROVE>
   void dostep_impl();
 
 private:
@@ -74,6 +66,7 @@ private:
   std::vector<cluster_fragment_t> fragments;
   std::vector<int> current;
   std::vector<cluster_info_t> clusters;
+  std::vector<cluster_measure_t> measures;
 };
 
 #endif // LOOP_WORKER_PI_H
