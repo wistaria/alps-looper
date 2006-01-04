@@ -40,9 +40,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 noinst_PROGRAMS = loop$(EXEEXT) loop_evaluate$(EXEEXT) \
-	loop_nosched$(EXEEXT) $(am__EXEEXT_1) $(am__EXEEXT_2)
+	loop_nosched$(EXEEXT) $(am__EXEEXT_1)
 @HAVE_MPI_TRUE@am__append_1 = loop_mpi
-@HAVE_PVM_TRUE@am__append_2 = loop_pvm
 check_PROGRAMS = loop_nosched$(EXEEXT)
 DIST_COMMON = README $(am__configure_deps) $(dist_noinst_DATA) \
 	$(dist_noinst_SCRIPTS) $(include_HEADERS) \
@@ -62,7 +61,6 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = loop_config.h
 CONFIG_CLEAN_FILES =
 @HAVE_MPI_TRUE@am__EXEEXT_1 = loop_mpi$(EXEEXT)
-@HAVE_PVM_TRUE@am__EXEEXT_2 = loop_pvm$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 am__objects_1 = loop.$(OBJEXT) loop_factory.$(OBJEXT) \
 	loop_worker.$(OBJEXT) loop_worker_pi.$(OBJEXT) \
@@ -92,13 +90,6 @@ am_loop_nosched_OBJECTS = $(am__objects_3)
 loop_nosched_OBJECTS = $(am_loop_nosched_OBJECTS)
 loop_nosched_LDADD = $(LDADD)
 loop_nosched_DEPENDENCIES =
-am__objects_4 = loop_pvm-loop.$(OBJEXT) \
-	loop_pvm-loop_factory.$(OBJEXT) loop_pvm-loop_worker.$(OBJEXT) \
-	loop_pvm-loop_worker_pi.$(OBJEXT) \
-	loop_pvm-loop_worker_sse.$(OBJEXT)
-am_loop_pvm_OBJECTS = $(am__objects_4)
-loop_pvm_OBJECTS = $(am_loop_pvm_OBJECTS)
-loop_pvm_DEPENDENCIES =
 SCRIPTS = $(dist_noinst_SCRIPTS)
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
@@ -119,10 +110,9 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 SOURCES = $(loop_SOURCES) $(loop_evaluate_SOURCES) $(loop_mpi_SOURCES) \
-	$(loop_nosched_SOURCES) $(loop_pvm_SOURCES)
+	$(loop_nosched_SOURCES)
 DIST_SOURCES = $(loop_SOURCES) $(loop_evaluate_SOURCES) \
-	$(loop_mpi_SOURCES) $(loop_nosched_SOURCES) \
-	$(loop_pvm_SOURCES)
+	$(loop_mpi_SOURCES) $(loop_nosched_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-exec-recursive install-info-recursive \
@@ -169,7 +159,6 @@ CFLAGS = @CFLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CPPFLAGS_MPI = @CPPFLAGS_MPI@
-CPPFLAGS_PVM = @CPPFLAGS_PVM@
 CXX = @CXX@
 CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
@@ -188,8 +177,6 @@ F77 = @F77@
 FFLAGS = @FFLAGS@
 HAVE_MPI_FALSE = @HAVE_MPI_FALSE@
 HAVE_MPI_TRUE = @HAVE_MPI_TRUE@
-HAVE_PVM_FALSE = @HAVE_PVM_FALSE@
-HAVE_PVM_TRUE = @HAVE_PVM_TRUE@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
@@ -197,11 +184,9 @@ INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LDADD = @LDADD@
 LDFLAGS = @LDFLAGS@
 LDFLAGS_MPI = @LDFLAGS_MPI@
-LDFLAGS_PVM = @LDFLAGS_PVM@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LIBS_MPI = @LIBS_MPI@
-LIBS_PVM = @LIBS_PVM@
 LIBTOOL = @LIBTOOL@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
@@ -275,6 +260,7 @@ pkginclude_HEADERS = \
 	looper/lapack.h \
 	looper/lattice.h \
 	looper/location.h \
+	looper/measurement.h \
 	looper/model.h \
 	looper/operator.h \
 	looper/permutation.h \
@@ -302,10 +288,6 @@ loop_mpi_SOURCES = $(SRC)
 loop_mpi_CPPFLAGS = @CPPFLAGS_MPI@
 loop_mpi_LDFLAGS = @LDFLAGS_MPI@
 loop_mpi_LDADD = @LIBS_MPI@
-loop_pvm_SOURCES = $(SRC)
-loop_pvm_CPPFLAGS = @CPPFLAGS_PVM@
-loop_pvm_LDFLAGS = @LDFLAGS_PVM@
-loop_pvm_LDADD = @LIBS_PVM@
 all: loop_config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
@@ -387,9 +369,6 @@ loop_mpi$(EXEEXT): $(loop_mpi_OBJECTS) $(loop_mpi_DEPENDENCIES)
 loop_nosched$(EXEEXT): $(loop_nosched_OBJECTS) $(loop_nosched_DEPENDENCIES) 
 	@rm -f loop_nosched$(EXEEXT)
 	$(CXXLINK) $(loop_nosched_LDFLAGS) $(loop_nosched_OBJECTS) $(loop_nosched_LDADD) $(LIBS)
-loop_pvm$(EXEEXT): $(loop_pvm_OBJECTS) $(loop_pvm_DEPENDENCIES) 
-	@rm -f loop_pvm$(EXEEXT)
-	$(CXXLINK) $(loop_pvm_LDFLAGS) $(loop_pvm_OBJECTS) $(loop_pvm_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -410,11 +389,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_nosched-loop_worker.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_nosched-loop_worker_pi.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_nosched-loop_worker_sse.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_pvm-loop.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_pvm-loop_factory.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_pvm-loop_worker.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_pvm-loop_worker_pi.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_pvm-loop_worker_sse.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_worker.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_worker_pi.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_worker_sse.Po@am__quote@
@@ -579,76 +553,6 @@ loop_nosched-loop_worker_sse.obj: loop_worker_sse.C
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_worker_sse.C' object='loop_nosched-loop_worker_sse.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_nosched_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_nosched-loop_worker_sse.obj `if test -f 'loop_worker_sse.C'; then $(CYGPATH_W) 'loop_worker_sse.C'; else $(CYGPATH_W) '$(srcdir)/loop_worker_sse.C'; fi`
-
-loop_pvm-loop.o: loop.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_pvm_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_pvm-loop.o -MD -MP -MF "$(DEPDIR)/loop_pvm-loop.Tpo" -c -o loop_pvm-loop.o `test -f 'loop.C' || echo '$(srcdir)/'`loop.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_pvm-loop.Tpo" "$(DEPDIR)/loop_pvm-loop.Po"; else rm -f "$(DEPDIR)/loop_pvm-loop.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop.C' object='loop_pvm-loop.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_pvm_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_pvm-loop.o `test -f 'loop.C' || echo '$(srcdir)/'`loop.C
-
-loop_pvm-loop.obj: loop.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_pvm_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_pvm-loop.obj -MD -MP -MF "$(DEPDIR)/loop_pvm-loop.Tpo" -c -o loop_pvm-loop.obj `if test -f 'loop.C'; then $(CYGPATH_W) 'loop.C'; else $(CYGPATH_W) '$(srcdir)/loop.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_pvm-loop.Tpo" "$(DEPDIR)/loop_pvm-loop.Po"; else rm -f "$(DEPDIR)/loop_pvm-loop.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop.C' object='loop_pvm-loop.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_pvm_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_pvm-loop.obj `if test -f 'loop.C'; then $(CYGPATH_W) 'loop.C'; else $(CYGPATH_W) '$(srcdir)/loop.C'; fi`
-
-loop_pvm-loop_factory.o: loop_factory.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_pvm_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_pvm-loop_factory.o -MD -MP -MF "$(DEPDIR)/loop_pvm-loop_factory.Tpo" -c -o loop_pvm-loop_factory.o `test -f 'loop_factory.C' || echo '$(srcdir)/'`loop_factory.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_pvm-loop_factory.Tpo" "$(DEPDIR)/loop_pvm-loop_factory.Po"; else rm -f "$(DEPDIR)/loop_pvm-loop_factory.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_factory.C' object='loop_pvm-loop_factory.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_pvm_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_pvm-loop_factory.o `test -f 'loop_factory.C' || echo '$(srcdir)/'`loop_factory.C
-
-loop_pvm-loop_factory.obj: loop_factory.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_pvm_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_pvm-loop_factory.obj -MD -MP -MF "$(DEPDIR)/loop_pvm-loop_factory.Tpo" -c -o loop_pvm-loop_factory.obj `if test -f 'loop_factory.C'; then $(CYGPATH_W) 'loop_factory.C'; else $(CYGPATH_W) '$(srcdir)/loop_factory.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_pvm-loop_factory.Tpo" "$(DEPDIR)/loop_pvm-loop_factory.Po"; else rm -f "$(DEPDIR)/loop_pvm-loop_factory.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_factory.C' object='loop_pvm-loop_factory.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_pvm_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_pvm-loop_factory.obj `if test -f 'loop_factory.C'; then $(CYGPATH_W) 'loop_factory.C'; else $(CYGPATH_W) '$(srcdir)/loop_factory.C'; fi`
-
-loop_pvm-loop_worker.o: loop_worker.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_pvm_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_pvm-loop_worker.o -MD -MP -MF "$(DEPDIR)/loop_pvm-loop_worker.Tpo" -c -o loop_pvm-loop_worker.o `test -f 'loop_worker.C' || echo '$(srcdir)/'`loop_worker.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_pvm-loop_worker.Tpo" "$(DEPDIR)/loop_pvm-loop_worker.Po"; else rm -f "$(DEPDIR)/loop_pvm-loop_worker.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_worker.C' object='loop_pvm-loop_worker.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_pvm_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_pvm-loop_worker.o `test -f 'loop_worker.C' || echo '$(srcdir)/'`loop_worker.C
-
-loop_pvm-loop_worker.obj: loop_worker.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_pvm_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_pvm-loop_worker.obj -MD -MP -MF "$(DEPDIR)/loop_pvm-loop_worker.Tpo" -c -o loop_pvm-loop_worker.obj `if test -f 'loop_worker.C'; then $(CYGPATH_W) 'loop_worker.C'; else $(CYGPATH_W) '$(srcdir)/loop_worker.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_pvm-loop_worker.Tpo" "$(DEPDIR)/loop_pvm-loop_worker.Po"; else rm -f "$(DEPDIR)/loop_pvm-loop_worker.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_worker.C' object='loop_pvm-loop_worker.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_pvm_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_pvm-loop_worker.obj `if test -f 'loop_worker.C'; then $(CYGPATH_W) 'loop_worker.C'; else $(CYGPATH_W) '$(srcdir)/loop_worker.C'; fi`
-
-loop_pvm-loop_worker_pi.o: loop_worker_pi.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_pvm_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_pvm-loop_worker_pi.o -MD -MP -MF "$(DEPDIR)/loop_pvm-loop_worker_pi.Tpo" -c -o loop_pvm-loop_worker_pi.o `test -f 'loop_worker_pi.C' || echo '$(srcdir)/'`loop_worker_pi.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_pvm-loop_worker_pi.Tpo" "$(DEPDIR)/loop_pvm-loop_worker_pi.Po"; else rm -f "$(DEPDIR)/loop_pvm-loop_worker_pi.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_worker_pi.C' object='loop_pvm-loop_worker_pi.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_pvm_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_pvm-loop_worker_pi.o `test -f 'loop_worker_pi.C' || echo '$(srcdir)/'`loop_worker_pi.C
-
-loop_pvm-loop_worker_pi.obj: loop_worker_pi.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_pvm_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_pvm-loop_worker_pi.obj -MD -MP -MF "$(DEPDIR)/loop_pvm-loop_worker_pi.Tpo" -c -o loop_pvm-loop_worker_pi.obj `if test -f 'loop_worker_pi.C'; then $(CYGPATH_W) 'loop_worker_pi.C'; else $(CYGPATH_W) '$(srcdir)/loop_worker_pi.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_pvm-loop_worker_pi.Tpo" "$(DEPDIR)/loop_pvm-loop_worker_pi.Po"; else rm -f "$(DEPDIR)/loop_pvm-loop_worker_pi.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_worker_pi.C' object='loop_pvm-loop_worker_pi.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_pvm_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_pvm-loop_worker_pi.obj `if test -f 'loop_worker_pi.C'; then $(CYGPATH_W) 'loop_worker_pi.C'; else $(CYGPATH_W) '$(srcdir)/loop_worker_pi.C'; fi`
-
-loop_pvm-loop_worker_sse.o: loop_worker_sse.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_pvm_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_pvm-loop_worker_sse.o -MD -MP -MF "$(DEPDIR)/loop_pvm-loop_worker_sse.Tpo" -c -o loop_pvm-loop_worker_sse.o `test -f 'loop_worker_sse.C' || echo '$(srcdir)/'`loop_worker_sse.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_pvm-loop_worker_sse.Tpo" "$(DEPDIR)/loop_pvm-loop_worker_sse.Po"; else rm -f "$(DEPDIR)/loop_pvm-loop_worker_sse.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_worker_sse.C' object='loop_pvm-loop_worker_sse.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_pvm_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_pvm-loop_worker_sse.o `test -f 'loop_worker_sse.C' || echo '$(srcdir)/'`loop_worker_sse.C
-
-loop_pvm-loop_worker_sse.obj: loop_worker_sse.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_pvm_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_pvm-loop_worker_sse.obj -MD -MP -MF "$(DEPDIR)/loop_pvm-loop_worker_sse.Tpo" -c -o loop_pvm-loop_worker_sse.obj `if test -f 'loop_worker_sse.C'; then $(CYGPATH_W) 'loop_worker_sse.C'; else $(CYGPATH_W) '$(srcdir)/loop_worker_sse.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_pvm-loop_worker_sse.Tpo" "$(DEPDIR)/loop_pvm-loop_worker_sse.Po"; else rm -f "$(DEPDIR)/loop_pvm-loop_worker_sse.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_worker_sse.C' object='loop_pvm-loop_worker_sse.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_pvm_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_pvm-loop_worker_sse.obj `if test -f 'loop_worker_sse.C'; then $(CYGPATH_W) 'loop_worker_sse.C'; else $(CYGPATH_W) '$(srcdir)/loop_worker_sse.C'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

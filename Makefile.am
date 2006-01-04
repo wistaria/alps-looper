@@ -8,9 +8,6 @@ noinst_PROGRAMS = loop loop_evaluate loop_nosched
 if HAVE_MPI
 noinst_PROGRAMS += loop_mpi
 endif
-if HAVE_PVM
-noinst_PROGRAMS += loop_pvm
-endif
 check_PROGRAMS = loop_nosched
 
 include_HEADERS = looper.h
@@ -51,11 +48,6 @@ loop_mpi_SOURCES = $(SRC)
 loop_mpi_CPPFLAGS = @CPPFLAGS_MPI@
 loop_mpi_LDFLAGS = @LDFLAGS_MPI@
 loop_mpi_LDADD = @LIBS_MPI@
-
-loop_pvm_SOURCES = $(SRC)
-loop_pvm_CPPFLAGS = @CPPFLAGS_PVM@
-loop_pvm_LDFLAGS = @LDFLAGS_PVM@
-loop_pvm_LDADD = @LIBS_PVM@
 
 .PHONY : test tests
 test tests : check

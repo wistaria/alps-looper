@@ -1,4 +1,24 @@
-run: run-chain run-triangle
+run: run-site run-chain run-triangle
+
+run-site: run-site-p run-site-e run-site-g ../loop_evaluate
+	$(SHELL) $(srcdir)/evaluate-site.sh @bindir@
+
+run-site-p: ../loop
+	if test ! -f site-p.out.xml; then \
+	  $(DESTDIR)$(bindir)/parameter2xml $(srcdir)/site-p site-p; \
+	  cp -f site-p.in.xml site-p.out.xml; \
+	fi
+	../loop --Tmin 1 site-p.out.xml
+run-site-e: ../loop
+	if test ! -f site-e.out.xml; then \
+	  $(DESTDIR)$(bindir)/parameter2xml $(srcdir)/site-e site-e; \
+	  cp -f site-e.in.xml site-e.out.xml; \
+	fi
+	../loop --Tmin 1 site-e.out.xml
+run-site-g: ../ed/diag
+	if test ! -f site-g.out; then \
+	  ../ed/diag < $(srcdir)/site-p > site-g.out; \
+	fi
 
 run-chain: run-chain-p run-chain-e run-chain-g ../loop_evaluate
 	$(SHELL) $(srcdir)/evaluate-chain.sh @bindir@

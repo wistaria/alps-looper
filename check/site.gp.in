@@ -1,0 +1,71 @@
+set xlabel 'temperature'
+
+set ylabel 'Energy'
+plot \
+  'site-g.dat' u 1:2 title 'exact diagonalization' w lp, \
+  'site-e.dat' u 1:2:(2*$3) title 'SSE' w e, \
+  'site-p.dat' u 1:2:(2*$3) title 'path integral' w e
+pause -1
+
+set ylabel 'Specific Heat'
+plot \
+  'site-g.dat' u 1:3 title 'exact diagonalization' w lp, \
+  'site-e.dat' u 1:4:(2*$5) title 'SSE' w e, \
+  'site-p.dat' u 1:4:(2*$5) title 'path integral' w e
+pause -1
+
+set ylabel 'Magnetization'
+plot \
+  'site-g.dat' u 1:4 title 'exact diagonalization' w lp, \
+  'site-e.dat' u 1:6:(2*$7) title 'SSE' w e, \
+  'site-p.dat' u 1:6:(2*$7) title 'path integral' w e
+pause -1
+
+set ylabel 'Magnetization^2'
+plot \
+  'site-g.dat' u 1:5 title 'exact diagonalization' w lp, \
+  'site-e.dat' u 1:8:(2*$9) title 'SSE' w e, \
+  'site-p.dat' u 1:8:(2*$9) title 'path integral' w e
+pause -1
+
+set ylabel 'Magnetization^4'
+plot \
+  'site-g.dat' u 1:6 title 'exact diagonalization' w lp, \
+  'site-e.dat' u 1:10:(2*$11) title 'SSE' w e, \
+  'site-p.dat' u 1:10:(2*$11) title 'path integral' w e
+pause -1
+
+set ylabel 'Susceptibility'
+plot \
+  'site-g.dat' u 1:7 title 'exact diagonalization' w lp, \
+  'site-e.dat' u 1:12:(2*$13) title 'SSE' w e, \
+  'site-p.dat' u 1:12:(2*$13) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Magnetization'
+plot \
+  'site-g.dat' u 1:8 title 'exact diagonalization' w lp, \
+  'site-e.dat' u 1:14:(2*$15) title 'SSE' w e, \
+  'site-p.dat' u 1:14:(2*$15) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Magnetization^2'
+plot \
+  'site-g.dat' u 1:9 title 'exact diagonalization' w lp, \
+  'site-e.dat' u 1:16:(2*$17) title 'SSE' w e, \
+  'site-p.dat' u 1:16:(2*$17) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Magnetization^4'
+plot \
+  'site-g.dat' u 1:10 title 'exact diagonalization' w lp, \
+  'site-e.dat' u 1:18:(2*$18) title 'SSE' w e, \
+  'site-p.dat' u 1:18:(2*$18) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Susceptibility'
+plot \
+  'site-g.dat' u 1:11 title 'exact diagonalization' w lp, \
+  'site-e.dat' u 1:20:(2*$21) title 'SSE' w e, \
+  'site-p.dat' u 1:20:(2*$21) title 'path integral' w e
+pause -1

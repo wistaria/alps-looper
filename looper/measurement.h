@@ -55,7 +55,7 @@ struct improved_estimate
       ssize0(0), smag0(0), ssize(0), smag(0) {}
 
   template<typename G, typename BIPARTITE>
-  void at_zero(G const& g, BIPARTITE const&, int s, int c)
+  void at_zero(G const& g, BIPARTITE, int s, int c)
   {
     usize0 += 0.5;
     umag0  += (0.5-c);
@@ -66,7 +66,7 @@ struct improved_estimate
     }
   }
   template<typename G, typename BIPARTITE>
-  void start(G const& g, BIPARTITE const&, double t, int s, int c)
+  void start(G const& g, BIPARTITE, double t, int s, int c)
   {
     usize -= t * 0.5;
     umag  -= t * (0.5-c);
@@ -77,7 +77,7 @@ struct improved_estimate
     }
   }
   template<typename G, typename BIPARTITE>
-  void term(G const& g, BIPARTITE const&, double t, int s, int c)
+  void term(G const& g, BIPARTITE, double t, int s, int c)
   {
     usize += t * 0.5;
     umag  += t * (0.5-c);
@@ -182,10 +182,10 @@ struct improved_collector
       m["Staggered Magnetization^2"] << smag2;
       m["Staggered Magnetization^4"] << 3 * smag2 * smag2 - 2 * smag4;
       m["Staggered Susceptibility"] << smag / nrs;
-      m["Staggered Generalized Magnetization^2"] << ssize2;
-      m["Staggered Generalized Magnetization^4"]
+      m["Generalized Staggered Magnetization^2"] << ssize2;
+      m["Generalized Staggered Magnetization^4"]
         << 3 * ssize2 * ssize2 - 2 * ssize4;
-      m["Staggered Generalized Susceptibility"] << ssize / nrs;
+      m["Generalized Staggered Susceptibility"] << ssize / nrs;
     }
   }
 };
@@ -254,7 +254,7 @@ struct normal_estimator
   static inline void proceed(boost::mpl::false_, double&) {}
 
   template<typename QMC, class G, class BIPARTITE, class OP>
-  static void do_measurement(QMC, G const& vg, BIPARTITE const&, int nrs,
+  static void do_measurement(QMC, G const& vg, BIPARTITE, int nrs,
                              double beta, int nop,
                              std::vector<int> const& spins,
                              std::vector<OP> const& operators,

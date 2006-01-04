@@ -78,14 +78,6 @@ AC_MSG_RESULT([$ac_cv_alps_have_mpi])
 AM_CONDITIONAL(HAVE_MPI, test "$ac_cv_alps_have_mpi" = yes)
 
 dnl
-dnl check for PVM library
-dnl
-
-AC_MSG_CHECKING([for PVM library])
-AC_MSG_RESULT([$ac_cv_alps_have_pvm])
-AM_CONDITIONAL(HAVE_PVM, test "$ac_cv_alps_have_pvm" = yes)
-
-dnl
 dnl check for LAPACK
 dnl
 
@@ -110,15 +102,11 @@ AC_SUBST([CPPFLAGS_MPI], "$ac_cv_alps_cppflags_mpi")
 AC_SUBST([LDFLAGS_MPI], "$ac_cv_alps_ldflags_mpi")
 AC_SUBST([LIBS_MPI], "$ac_cv_alps_libs_mpi")
 
-AC_SUBST([CPPFLAGS_PVM], "$ac_cv_alps_cppflags_pvm")
-AC_SUBST([LDFLAGS_PVM], "$ac_cv_alps_ldflags_pvm")
-AC_SUBST([LIBS_PVM], "$ac_cv_alps_libs_pvm")
-
 dnl
 dnl generate files
 dnl
 
 AC_CONFIG_HEADERS(loop_config.h)
 AC_CONFIG_FILES(Makefile doc/Makefile test/Makefile ed/Makefile check/Makefile)
-AC_CONFIG_FILES(check/chain.gp check/triangle.gp)
+AC_CONFIG_FILES(check/site.gp check/chain.gp check/triangle.gp)
 AC_OUTPUT

@@ -32,6 +32,7 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/io.hpp>
+#include <boost/tuple/tuple.hpp>
 
 template<class MATRIX, class I, class GRAPH>
 void add_to_matrix(
@@ -206,6 +207,38 @@ std::pair<double, double> static_average2(double beta, double offset,
 }
 
 template<class VEC, class MAT>
+boost::tuple<double, double, double>
+static_average4(double beta, double offset,
+                const VEC& evals, const MAT& evecs,
+                const VEC& diagonal_matrix) {
+  typedef VEC vector_type;
+  typedef MAT matrix_type;
+  typename vector_type::const_reverse_iterator eval = evals.rbegin();
+  typename vector_type::const_reverse_iterator eval_end = evals.rend();
+  typename matrix_type::const_reverse_iterator2 evec = evecs.rbegin2();
+  double val = 0.0;
+  double val2 = 0.0;
+  double val4 = 0.0;
+  for (; eval != eval_end; ++eval, ++evec) {
+    double weight = std::exp(- beta * (*eval - offset)); // Boltzman weight
+    typename matrix_type::const_iterator1 j = evec.begin();
+    typename vector_type::const_iterator op = diagonal_matrix.begin();
+    double v = 0.0;
+    double v2 = 0.0;
+    double v4 = 0.0;
+    for (; j != evec.end(); ++j, ++op) {
+      v += looper::sqr(*j) * (*op);
+      v2 += looper::sqr(*j) * looper::sqr(*op);
+      v4 += looper::sqr(*j) * looper::sqr(looper::sqr(*op));
+    }
+    val += v * weight;
+    val2 += v2 * weight;
+    val4 += v4 * weight;
+  }
+  return boost::make_tuple(val, val2, val4);
+}
+
+template<class VEC, class MAT>
 double dynamic_average2(double beta, double offset,
                         const VEC& evals, const MAT& evecs,
                         const VEC& diagonal_matrix) {
@@ -351,19 +384,17 @@ try {
 
     double ene, ene2;
     boost::tie(ene, ene2) = static_average2(beta, gs_ene, evals);
-    ene = ene / part / nsite;
+    ene = ene / part;
     ene2 = ene2 / part / sqr(nsite);
-    double ez = static_average(beta, gs_ene, evals, hamiltonian,
-                               diagonal_energy);
-    ez = ez / part / nsite;
-    double c = sqr(beta) * nsite * (ene2 - sqr(ene));
+    double c = sqr(beta) * nsite * (ene2 - sqr(ene/nsite));
 
-    std::cout << "ground state energy          = " << gs_ene << std::endl
-              << "ground state energy per site = "
+    std::cout << "ground state energy             = " << gs_ene << std::endl
+              << "ground state energy density     = "
               << gs_ene/nsite << std::endl
-              << "energy per site              = " << ene << std::endl
-              << "diagonal energy per site     = " << ez << std::endl
-              << "specific heat                = " << c << std::endl;
+              << "energy                          = " << ene << std::endl
+              << "energy per site                 = "
+              << ene/nsite << std::endl
+              << "specific heat                   = " << c << std::endl;
 
     //
     // generate uniform/staggered Sz matrix
@@ -378,18 +409,22 @@ try {
                              params);
     }
 
-    double umag, umag2;
-    boost::tie(umag, umag2) =
-      static_average2(beta, gs_ene, evals, hamiltonian, uniform_sz);
+    double umag, umag2, umag4;
+    boost::tie(umag, umag2, umag4) =
+      static_average4(beta, gs_ene, evals, hamiltonian, uniform_sz);
     if (std::abs(umag) < 1.0e-12) umag = 0.;
     double usus = dynamic_average2(beta, gs_ene, evals, hamiltonian,
                                    uniform_sz);
-    umag = umag / part / nsite;
-    umag2 = umag2 / part / nsite;
+    umag = umag / part;
+    umag2 = umag2 / part;
+    umag4 = umag4 / part;
     usus = usus / part / nsite;
-    std::cout << "uniform magnetization        = " << umag << std::endl
-              << "uniform magnetization^2      = " << umag2 << std::endl
-              << "uniform susceptibility       = " << usus << std::endl;
+    std::cout << "uniform magnetization density   = " << umag / nsite
+              << std::endl
+              << "uniform magnetization           = " << umag << std::endl
+              << "uniform magnetization^2         = " << umag2 << std::endl
+              << "uniform magnetization^4         = " << umag4 << std::endl
+              << "uniform susceptibility          = " << usus << std::endl;
 
     if (is_bipartite) {
       diagonal_matrix_type staggered_sz(dim);
@@ -408,18 +443,22 @@ try {
         }
       }
 
-      double smag, smag2;
-      boost::tie(smag, smag2) =
-        static_average2(beta, gs_ene, evals, hamiltonian, staggered_sz);
+      double smag, smag2, smag4;
+      boost::tie(smag, smag2, smag4) =
+        static_average4(beta, gs_ene, evals, hamiltonian, staggered_sz);
       if (std::abs(smag) < 1.0e-12) smag = 0.;
       double ssus =
         dynamic_average2(beta, gs_ene, evals, hamiltonian, staggered_sz);
-      smag = smag / part / nsite;
-      smag2 = smag2 / part / nsite;
+      smag = smag / part;
+      smag2 = smag2 / part;
+      smag4 = smag4 / part;
       ssus = ssus / part / nsite;
-      std::cout << "staggered magnetization      = " << smag << std::endl
-                << "staggered magnetization^2    = " << smag2 << std::endl
-                << "staggered susceptibility     = " << ssus << std::endl;
+      std::cout << "staggered magnetization density = " << smag / nsite
+                << std::endl
+                << "staggered magnetization         = " << smag << std::endl
+                << "staggered magnetization^2       = " << smag2 << std::endl
+                << "staggered magnetization^4       = " << smag4 << std::endl
+                << "staggered susceptibility        = " << ssus << std::endl;
     }
   }
 
