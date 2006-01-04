@@ -20,6 +20,7 @@ pkginclude_HEADERS = \
 	looper/lapack.h \
 	looper/lattice.h \
 	looper/location.h \
+	looper/measurement.h \
 	looper/model.h \
 	looper/operator.h \
 	looper/permutation.h \

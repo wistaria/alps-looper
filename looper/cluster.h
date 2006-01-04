@@ -25,8 +25,6 @@
 #ifndef LOOPER_CLUSTER_H
 #define LOOPER_CLUSTER_H
 
-#include "lattice.h"
-#include "type.h"
 #include <boost/mpl/bool.hpp>
 
 namespace looper {
@@ -36,116 +34,37 @@ struct cluster_info
   cluster_info(bool t = false) : to_flip(t), weight(0) {}
   bool to_flip;
   double weight;
-};
 
-struct cluster_measure
-{
-  double usize0;
-  double ssize0;
-  double umag0;
-  double smag0;
-  double usize;
-  double ssize;
-  double umag;
-  double smag;
-  cluster_measure()
-    : usize0(0), ssize0(0), umag0(0), smag0(0),
-      usize(0), ssize(0), umag(0), smag(0)
-  {}
+  template<typename WORKER, typename FIELD> struct accumulator;
 
-  template<typename G>
-  void at_zero(boost::mpl::true_ const&, G const& g, int s, double c)
+  template<typename F>
+  struct accumulator<F, boost::mpl::true_>
   {
-    usize0 += 0.5;
-    ssize0 += 0.5 * gauge(g, s);
-    umag0  += c;
-    smag0  += c * gauge(g, s);
-  }
-  template<typename G>
-  void at_zero(boost::mpl::false_ const&, G const&, int, double c)
-  {
-    usize0 += 0.5;
-    umag0  += c;
-  }
+    typedef F cluster_fragment_t;
+    accumulator(std::vector<cluster_info>& cl,
+                std::vector<cluster_fragment_t> const& fr,
+                std::vector<double> const& fd)
+      : clusters(cl), fragments(fr), field(fd) {}
 
-  template<typename G>
-  void start(boost::mpl::true_ const&, G const& g, int s, double t, double c)
-  {
-    usize -= t;
-    ssize -= t * gauge(g, s);
-    umag  -= c * t;
-    smag  -= c * t * gauge(g, s);
-  }
-  template<typename G>
-  void start(boost::mpl::false_ const&, G const&, int, double t, double c)
-  {
-    usize -= t;
-    umag  -= c * t;
-  }
+    void start(int p, double t, int s, int c)
+    { clusters[fragments[p].id].weight -= field[s] * (0.5-c) * t; }
+    void term(int p, double t, int s, int c)
+    { clusters[fragments[p].id].weight += field[s] * (0.5-c) * t; }
+    std::vector<cluster_info>& clusters;
+    std::vector<cluster_fragment_t> const& fragments;
+    std::vector<double> const& field;
+  };
 
-  template<typename G>
-  void term(boost::mpl::true_ const&, G const& g, int s, double t, double c)
+  template<typename F>
+  struct accumulator<F, boost::mpl::false_>
   {
-    usize += t;
-    ssize += t * gauge(g, s);
-    umag  += c * t;
-    smag  += c * t * gauge(g, s);
-  }
-  template<typename G>
-  void term(boost::mpl::false_ const&, G const&, int, double t, double c)
-  {
-    usize += t;
-    umag  += c * t;
-  }
-};
-
-struct cluster_accumulator
-{
-  double usize0;
-  double ssize0;
-  double umag0;
-  double smag0;
-  double usize;
-  double ssize;
-  double umag;
-  double smag;
-  cluster_accumulator()
-    : usize0(0), ssize0(0), umag0(0), smag0(0),
-      usize(0), ssize(0), umag(0), smag(0)
-  {}
-
-  cluster_accumulator operator+(cluster_measure const& cm)
-  {
-    using looper::sqr;
-    usize0 += sqr(cm.usize0);
-    ssize0 += sqr(cm.ssize0);
-    umag0  += sqr(cm.umag0);
-    smag0  += sqr(cm.smag0);
-    usize  += sqr(cm.usize);
-    ssize  += sqr(cm.ssize);
-    umag   += sqr(cm.umag);
-    smag   += sqr(cm.smag);
-    return *this;
-  }
-
-  template<class M>
-  void commit(M& measurements, bool bipartite, int n) const
-  {
-    measurements["Magnetization"] << 0.0;
-    measurements["Magnetization Density"] << 0.0;
-    measurements["Magnetization^2"] << umag0;
-    measurements["Susceptibility"] << umag / n;
-    measurements["Generalized Magnetization^2"] << usize0;
-    measurements["Generalized Susceptibility"] << usize / n;
-    if (bipartite) {
-      measurements["Staggered Magnetization"] << 0.0;
-      measurements["Staggered Magnetization Density"] << 0.0;
-      measurements["Staggered Magnetization^2"] << smag0;
-      measurements["Staggered Susceptibility"] << smag / n;
-      measurements["Staggered Generalized Magnetization^2"] << ssize0;
-      measurements["Staggered Generalized Susceptibility"] << ssize / n;
-    }
-  }
+    typedef F cluster_fragment_t;
+    accumulator(std::vector<cluster_info> const&,
+                std::vector<cluster_fragment_t> const&,
+                std::vector<double> const&) {}
+    void start(int, double, int, double) const {}
+    void term(int, double, int, double) const {}
+  };
 };
 
 } // end namespace looper

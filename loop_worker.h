@@ -42,6 +42,8 @@ public:
   typedef looper::virtual_lattice<lattice_graph_t> virtual_lattice;
   typedef looper::graph_chooser<loop_graph_t, super_type::engine_type>
     graph_chooser;
+  typedef loop_config::improved_estimator_t        improved_estimator_t;
+  typedef loop_config::normal_estimator_t          normal_estimator_t;
 
   qmc_worker_base(alps::ProcessList const& w, alps::Parameters const& p,
                   int n, bool is_path_integral = true);
@@ -71,9 +73,8 @@ public:
   int sign(boost::call_traits<site_descriptor>::param_type s) const
   { return sign_[s]; }
 
-  bool has_field() const { return field_.size(); }
-  double field(boost::call_traits<site_descriptor>::param_type s) const
-  { return field_[s]; }
+  bool has_field() const { return !field_.empty(); }
+  std::vector<double> const& field() const { return field_; }
 
   bool use_improved_estimator() const { return use_improved_estimator_; }
 

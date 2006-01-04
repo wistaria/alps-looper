@@ -29,7 +29,7 @@
 
 qmc_worker_pi::qmc_worker_pi(alps::ProcessList const& w,
                              alps::Parameters const& p, int n)
-  : super_type(w, p, n, true)
+  : super_type(w, p, n, looper::is_path_integral<qmc_type>::type())
 {
   //
   // initialize configuration
@@ -58,38 +58,9 @@ qmc_worker_pi::qmc_worker_pi(alps::ProcessList const& w,
     << make_observable(
          RealObservable("Energy^2"), is_signed());
 
-  measurements
-    << make_observable(
-         RealObservable("Magnetization"), is_signed())
-    << make_observable(
-         RealObservable("Magnetization Density"), is_signed())
-    << make_observable(
-         RealObservable("Magnetization^2"), is_signed())
-    << make_observable(
-         RealObservable("Susceptibility"), is_signed());
-
-  if (is_bipartite()) {
-    measurements
-      << make_observable(
-           RealObservable("Staggered Magnetization"), is_signed())
-      << make_observable(
-           RealObservable("Staggered Magnetization Density"), is_signed())
-      << make_observable(
-           RealObservable("Staggered Magnetization^2"), is_signed())
-      << make_observable(
-           RealObservable("Staggered Susceptibility"), is_signed());
-  }
-
-  if (use_improved_estimator()) {
-    measurements
-      << RealObservable("Generalized Magnetization^2")
-      << RealObservable("Generalized Susceptibility");
-    if (is_bipartite()) {
-      measurements
-        << RealObservable("Staggered Generalized Magnetization^2")
-        << RealObservable("Staggered Generalized Susceptibility");
-    }
-  }
+  normal_estimator_t::init(is_bipartite(), is_signed(), measurements);
+  if (use_improved_estimator())
+    improved_estimator_t::init(is_bipartite(), is_signed(), measurements);
 }
 
 void qmc_worker_pi::dostep()
@@ -206,7 +177,12 @@ void qmc_worker_pi::dostep_impl()
        fi != fragments.end(); ++fi) fi->id = cluster_id(fragments, *fi);
   clusters.resize(0); clusters.resize(nc);
 
-  if (IMPROVE()) measures.resize(0); measures.resize(nc);
+  if (IMPROVE()) estimates.resize(0); estimates.resize(nc);
+  cluster_info_t::accumulator<cluster_fragment_t, FIELD>
+    weight(clusters, fragments, field());
+  typename improved_estimator_t::accumulator<lattice_graph_t,
+    cluster_fragment_t, IMPROVE, BIPARTITE>::type
+    accum(estimates, fragments, vgraph());
   for (std::vector<local_operator_t>::iterator oi = operators.begin();
        oi != operators.end(); ++oi) {
     double t = oi->time();
@@ -214,63 +190,40 @@ void qmc_worker_pi::dostep_impl()
       if (oi->is_bond()) {
         int s0 = vsource(oi->pos(), vlattice());
         int s1 = vtarget(oi->pos(), vlattice());
-        if (IMPROVE()) {
-          measures[fragments[oi->loop_l0()].id].
-            term(BIPARTITE(), vgraph(), s0, t, 0.5-spins_c[s0]);
-          measures[fragments[oi->loop_l1()].id].
-            term(BIPARTITE(), vgraph(), s1, t, 0.5-spins_c[s1]);
-        }
-        if (FIELD()) {
-          clusters[fragments[oi->loop_l0()].id].weight
-            += t * (0.5-spins_c[s0]) * field(s0);
-          clusters[fragments[oi->loop_l1()].id].weight
-            += t * (0.5-spins_c[s1]) * field(s1);
-        }
+        weight.term(oi->loop_l0(), t, s0, spins_c[s0]);
+        weight.term(oi->loop_l1(), t, s1, spins_c[s1]);
+        accum.term(oi->loop_l0(), t, s0, spins_c[s0]);
+        accum.term(oi->loop_l1(), t, s1, spins_c[s1]);
         spins_c[s0] ^= 1;
         spins_c[s1] ^= 1;
-        if (IMPROVE()) {
-          measures[fragments[oi->loop_u0()].id].
-            start(BIPARTITE(), vgraph(), s0, t, 0.5-spins_c[s0]);
-          measures[fragments[oi->loop_u1()].id].
-            start(BIPARTITE(), vgraph(), s1, t, 0.5-spins_c[s1]);
-        }
-        if (FIELD()) {
-          clusters[fragments[oi->loop_u0()].id].weight
-            -= t * (0.5-spins_c[s0]) * field(s0);
-          clusters[fragments[oi->loop_u1()].id].weight
-            -= t * (0.5-spins_c[s1]) * field(s1);
-        }
+        weight.start(oi->loop_u0(), t, s0, spins_c[s0]);
+        weight.start(oi->loop_u1(), t, s1, spins_c[s1]);
+        accum.start(oi->loop_u0(), t, s0, spins_c[s0]);
+        accum.start(oi->loop_u1(), t, s1, spins_c[s1]);
       } else {
         int s = oi->pos();
-        if (IMPROVE())
-          measures[fragments[oi->loop_l()].id].
-            term(BIPARTITE(), vgraph(), s, t, 0.5-spins_c[s]);
-        if (FIELD())
-          clusters[fragments[oi->loop_l()].id].weight
-            += t * (0.5-spins_c[s]) * field(s);
+        weight.term(oi->loop_l(), t, s, spins_c[s]);
+        accum.term(oi->loop_l(), t, s, spins_c[s]);
         spins_c[s] ^= 1;
-        if (IMPROVE())
-          measures[fragments[oi->loop_u()].id].
-            start(BIPARTITE(), vgraph(), s, t, 0.5-spins_c[s]);
-        if (FIELD())
-          clusters[fragments[oi->loop_u()].id].weight
-            -= t * (0.5-spins_c[s]) * field(s);
+        weight.start(oi->loop_u(), t, s, spins_c[s]);
+        accum.start(oi->loop_u(), t, s, spins_c[s]);
       }
     }
   }
-  if (IMPROVE())
-    for (unsigned int s = 0; s < nvs; ++s) {
-      int loop = fragments[s].id;
-      measures[loop].at_zero(BIPARTITE(), vgraph(), s, 0.5-spins[s]);
-      measures[loop].start(BIPARTITE(), vgraph(), s, 0, 0.5-spins[s]);
-      measures[loop].term(BIPARTITE(), vgraph(), s, beta(), 0.5-spins_c[s]);
-    }
+  for (unsigned int s = 0; s < nvs; ++s) {
+    int loop = fragments[s].id;
+    weight.start(loop, 0, s, spins[s]);
+    weight.term(loop, beta(), s, spins_c[s]);
+    accum.start(loop, 0, s, spins[s]);
+    accum.term(loop, beta(), s, spins_c[s]);
+    accum.at_zero(loop, s, spins[s]);
+  }
 
   // determine whether clusters are flipped or not
   for (std::vector<cluster_info_t>::iterator ci = clusters.begin();
        ci != clusters.end(); ++ci)
     ci->to_flip = (random() <
-      (FIELD() ? 0.5 : 0.5 * (std::tanh(0.5 * beta() * ci->weight) + 1)));
+      (FIELD() ? 0.5 : 0.5 * (std::tanh(ci->weight) + 1)));
 
   // flip operators & spins
   for (operator_iterator oi = operators.begin(); oi != operators.end(); ++oi)
@@ -294,61 +247,14 @@ void qmc_worker_pi::dostep_impl()
   measurements["Energy Density"] << ene / nrs;
   measurements["Energy^2"] << sqr(ene) - nop / sqr(beta());
 
-  // magnetization && susceptibility
+  // other measurements
   if (IMPROVE()) {
-    cluster_accumulator_t accum =
-      std::accumulate(measures.begin(), measures.end(),
-                      cluster_accumulator_t());
-    accum.commit(measurements, BIPARTITE(), nrs);
+    std::accumulate(estimates.begin(), estimates.end(),
+      typename improved_estimator_t::collector<BIPARTITE>::type()).
+      commit(nrs, measurements);
   } else {
-    double umag = 0;
-    double smag = 0;
-    site_iterator si, si_end;
-    for (boost::tie(si, si_end) = sites(vgraph()); si != si_end; ++si) {
-      umag += 0.5-spins[*si];
-    if (BIPARTITE())
-      smag += (0.5-spins[*si]) * looper::gauge(vgraph(), *si);
-    }
-    measurements["Magnetization"] << umag;
-    measurements["Magnetization Density"] << umag / nrs;
-    measurements["Magnetization^2"] << sqr(umag);
-    if (BIPARTITE()) {
-      measurements["Staggered Magnetization"] << smag;
-      measurements["Staggered Magnetization Density"] << smag / nrs;
-      measurements["Staggered Magnetization^2"] << sqr(smag);
-    }
-    double umag_a = 0; /* 0 * umag; */
-    double smag_a = 0; /* 0 * smag; */
-    std::copy(spins.begin(), spins.end(), spins_c.begin());
-    for (operator_iterator oi = operators.begin(); oi != operators.end(); ++oi)
-      if (oi->is_offdiagonal()) {
-        umag_a += t * umag;
-        if (BIPARTITE()) smag_a += t * smag;
-        if (oi->is_site()) {
-          unsigned int s = oi->pos();
-          spins_c[s] ^= 1;
-          umag += 1-2*spins_c[s];
-          if (BIPARTITE())
-            smag += (0.5-spins_c[s]) * looper::gauge(vgraph(), s);
-        } else {
-          unsigned int s0 = vsource(oi->pos(), vlattice());
-          unsigned int s1 = vtarget(oi->pos(), vlattice());
-          spins_c[s0] ^= 1;
-          spins_c[s1] ^= 1;
-          umag += 1-2*spins_c[s0] + 1-2*spins_c[s1];
-          if (BIPARTITE())
-            smag += (1-2*spins_c[s0]) * looper::gauge(vgraph(), s0)
-              + (1-2*spins_c[s1]) * looper::gauge(vgraph(), s1);
-        }
-        umag_a -= t * umag;
-        if (BIPARTITE()) smag_a -= t * smag;
-      }
-    umag_a += beta() * umag;
-    measurements["Susceptibility"] << sqr(umag_a) / beta() / nrs;
-    if (BIPARTITE()) {
-      smag_a += beta() * smag;
-      measurements["Staggered Susceptibility"] << sqr(smag_a) / beta() / nrs;
-    }
+    normal_estimator_t::do_measurement(qmc_type(), vgraph(), BIPARTITE(), nrs,
+      beta(), nop, spins, operators, spins_c, measurements);
   }
 }
 

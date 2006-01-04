@@ -25,14 +25,49 @@
 #ifndef LOOPER_TYPE_H
 #define LOOPER_TYPE_H
 
+#include <boost/mpl/bool.hpp>
+
 namespace looper {
 
 //
 // QMC types
 //
 
-struct path_integral {};
-struct sse {};
+struct path_integral
+{
+  typedef boost::mpl::true_  is_path_integral;
+  typedef boost::mpl::false_ is_sse;
+};
+
+template<typename QMC>
+struct is_path_integral
+{
+  typedef boost::mpl::false_ type;
+};
+
+template<>
+struct is_path_integral<path_integral>
+{
+  typedef boost::mpl::true_ type;
+};
+
+struct sse
+{
+  typedef boost::mpl::false_ is_path_integral;
+  typedef boost::mpl::true_  is_sse;
+};
+
+template<typename QMC>
+struct is_sse
+{
+  typedef boost::mpl::false_ type;
+};
+
+template<>
+struct is_sse<sse>
+{
+  typedef boost::mpl::true_ type;
+};
 
 } // end namespace looper
 

@@ -28,6 +28,7 @@
 #include <looper/lattice.h>
 #include <looper/location.h>
 #include <looper/graph.h>
+#include <looper/measurement.h>
 
 struct loop_config
 {
@@ -37,6 +38,10 @@ struct loop_config
   // model, weights, and local_graph
   BOOST_STATIC_CONSTANT(int, max_2s = 8);
   typedef looper::local_graph<looper::location> loop_graph_t;
+
+  // measurements
+  typedef looper::improved_estimator improved_estimator_t;
+  typedef looper::normal_estimator   normal_estimator_t;
 };
 
 #endif // ! LOOP_CONFIG_H

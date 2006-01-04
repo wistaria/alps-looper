@@ -35,8 +35,6 @@ class qmc_worker_pi : public qmc_worker_base
 public:
   typedef looper::path_integral                          qmc_type;
   typedef qmc_worker_base                                super_type;
-  typedef super_type::lattice_graph_t                    lattice_graph_t;
-  typedef super_type::loop_graph_t                       loop_graph_t;
 
   typedef looper::local_operator<qmc_type, loop_graph_t> local_operator_t;
   typedef std::vector<local_operator_t>                  operator_string_t;
@@ -44,8 +42,6 @@ public:
 
   typedef looper::union_find::node                       cluster_fragment_t;
   typedef looper::cluster_info                           cluster_info_t;
-  typedef looper::cluster_measure                        cluster_measure_t;
-  typedef looper::cluster_accumulator                    cluster_accumulator_t;
 
   qmc_worker_pi(alps::ProcessList const& w, alps::Parameters const& p, int n);
   virtual void dostep();
@@ -66,7 +62,7 @@ private:
   std::vector<cluster_fragment_t> fragments;
   std::vector<int> current;
   std::vector<cluster_info_t> clusters;
-  std::vector<cluster_measure_t> measures;
+  std::vector<improved_estimator_t::estimate::type> estimates;
 };
 
 #endif // LOOP_WORKER_PI_H
