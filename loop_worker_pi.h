@@ -49,7 +49,7 @@ public:
   void load(alps::IDump& dp);
 
 protected:
-  template<typename BIPARTITE, typename FIELD, typename IMPROVE>
+  template<typename BIPARTITE, typename FIELD, typename SIGN, typename IMPROVE>
   void dostep_impl();
 
 private:

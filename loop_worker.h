@@ -70,8 +70,10 @@ public:
   bool is_frustrated() const { return is_frustrated_; }
 
   bool is_signed() const { return is_signed_; }
-  int sign(boost::call_traits<site_descriptor>::param_type s) const
-  { return sign_[s]; }
+  int bond_sign(int b) const { return bond_sign_[b]; }
+  std::vector<int> const& bond_sign() const { return bond_sign_; }
+  int site_sign(int s) const { return site_sign_[s]; }
+  std::vector<int> const& site_sign() const { return site_sign_; }
 
   bool has_field() const { return !field_.empty(); }
   std::vector<double> const& field() const { return field_; }
@@ -106,7 +108,7 @@ private:
 
   bool is_frustrated_;
   bool is_signed_;
-  std::vector<int> sign_;
+  std::vector<int> bond_sign_, site_sign_;
   bool use_improved_estimator_;
   std::vector<double> field_;
 

@@ -166,38 +166,40 @@ struct improved_collector
   }
 
   template<typename QMC>
-  void commit(QMC, int nrs, double beta, int nop, alps::ObservableSet& m) const
+  void commit(QMC, int nrs, double beta, int nop, double sign,
+              alps::ObservableSet& m) const
   {
     m["Magnetization"] << 0.0;
     m["Magnetization Density"] << 0.0;
-    m["Magnetization^2"] << umag2;
-    m["Magnetization^4"] << 3 * umag2 * umag2 - 2 * umag4;
+    m["Magnetization^2"] << sign * umag2;
+    m["Magnetization^4"] << sign * (3 * umag2 * umag2 - 2 * umag4);
     m["Susceptibility"]
       << (typename is_path_integral<QMC>::type() ?
-          umag / beta /nrs :
-          beta * (dip(umag, nop) + umag2) / (nop + 1) / nrs);
-    m["Generalized Magnetization^2"] << usize2;
-    m["Generalized Magnetization^4"] << 3 * usize2 * usize2 - 2 * usize4;
+          sign * umag / beta /nrs :
+          sign * beta * (dip(umag, nop) + umag2) / (nop + 1) / nrs);
+    m["Generalized Magnetization^2"] << sign * usize2;
+    m["Generalized Magnetization^4"]
+      << sign * (3 * usize2 * usize2 - 2 * usize4);
     m["Generalized Susceptibility"]
       << (typename is_path_integral<QMC>::type() ?
-          usize / beta / nrs :
-          beta * (dip(usize, nop) + usize2) / (nop + 1) / nrs);
+          sign * usize / beta / nrs :
+          sign * beta * (dip(usize, nop) + usize2) / (nop + 1) / nrs);
     if (BIPARTITE()) {
       m["Staggered Magnetization"] << 0.0;
       m["Staggered Magnetization Density"] << 0.0;
-      m["Staggered Magnetization^2"] << smag2;
-      m["Staggered Magnetization^4"] << 3 * smag2 * smag2 - 2 * smag4;
+      m["Staggered Magnetization^2"] << sign * smag2;
+      m["Staggered Magnetization^4"] << sign * (3 * smag2 * smag2 - 2 * smag4);
       m["Staggered Susceptibility"]
         << (typename is_path_integral<QMC>::type() ?
-            smag / beta /nrs :
-            beta * (dip(smag, nop) + smag2) / (nop + 1) / nrs);
-      m["Generalized Staggered Magnetization^2"] << ssize2;
+            sign * smag / beta /nrs :
+            sign * beta * (dip(smag, nop) + smag2) / (nop + 1) / nrs);
+      m["Generalized Staggered Magnetization^2"] << sign * ssize2;
       m["Generalized Staggered Magnetization^4"]
-        << 3 * ssize2 * ssize2 - 2 * ssize4;
+        << sign * (3 * ssize2 * ssize2 - 2 * ssize4);
       m["Generalized Staggered Susceptibility"]
         << (typename is_path_integral<QMC>::type() ?
-            ssize / beta / nrs :
-            beta * (dip(ssize, nop) + ssize2) / (nop + 1) / nrs);
+            sign * ssize / beta / nrs :
+            sign * beta * (dip(ssize, nop) + ssize2) / (nop + 1) / nrs);
     }
   }
 };
@@ -267,7 +269,7 @@ struct normal_estimator
 
   template<typename QMC, class G, class BIPARTITE, class OP>
   static void do_measurement(QMC, G const& vg, BIPARTITE, int nrs,
-                             double beta, int nop,
+                             double beta, int nop, double sign,
                              std::vector<int> const& spins,
                              std::vector<OP> const& operators,
                              std::vector<int>& spins_c,
@@ -285,15 +287,15 @@ struct normal_estimator
     if (BIPARTITE())
       smag += (0.5-spins[*si]) * gauge(vg, *si);
     }
-    m["Magnetization"] << umag;
-    m["Magnetization Density"] << umag / nrs;
-    m["Magnetization^2"] << power2(umag);
-    m["Magnetization^4"] << power4(umag);
+    m["Magnetization"] << sign * umag;
+    m["Magnetization Density"] << sign * umag / nrs;
+    m["Magnetization^2"] << sign * power2(umag);
+    m["Magnetization^4"] << sign * power4(umag);
     if (BIPARTITE()) {
-      m["Staggered Magnetization"] << smag;
-      m["Staggered Magnetization Density"] << smag / nrs;
-      m["Staggered Magnetization^2"] << power2(smag);
-      m["Staggered Magnetization^4"] << power4(smag);
+      m["Staggered Magnetization"] << sign * smag;
+      m["Staggered Magnetization Density"] << sign * smag / nrs;
+      m["Staggered Magnetization^2"] << sign * power2(smag);
+      m["Staggered Magnetization^4"] << sign * power4(smag);
     }
     double umag_a = 0; /* 0 * umag; */
     double smag_a = 0; /* 0 * smag; */
@@ -326,19 +328,21 @@ struct normal_estimator
     }
     if (typename is_path_integral<QMC>::type()) {
       umag_a += beta * umag;
-      m["Susceptibility"] << power2(umag_a) / beta / nrs;
+      m["Susceptibility"] << sign * power2(umag_a) / beta / nrs;
       if (BIPARTITE()) {
         smag_a += beta * smag;
-        m["Staggered Susceptibility"] << power2(smag_a) / beta / nrs;
+        m["Staggered Susceptibility"] << sign * power2(smag_a) / beta / nrs;
       }
     } else {
       umag_a += nop * umag;
       m["Susceptibility"]
-        << beta * (dip(power2(umag_a), nop) + power2(umag)) / (nop + 1) / nrs;
+        << sign * beta * (dip(power2(umag_a), nop) + power2(umag))
+        / (nop + 1) / nrs;
       if (BIPARTITE()) {
         smag_a += nop * smag;
         m["Staggered Susceptibility"]
-          << beta * (dip(power2(smag_a), nop) + power2(smag)) / (nop + 1) / nrs;
+          << sign * beta * (dip(power2(smag_a), nop) + power2(smag))
+          / (nop + 1) / nrs;
       }
     }
   }

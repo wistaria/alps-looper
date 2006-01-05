@@ -39,27 +39,29 @@ try {
 
   alps::ParameterList params(std::cin);
 
-  for (int j = -1; j <= 1; ++j) {
-    std::cout << "[Jxy = -1; Jz = " << j << "]\n";
+  for (int jxy = -1; jxy <= 1; ++jxy) {
+    for (int jz = -1; jz <= 1; ++jz) {
+      std::cout << "[Jxy = " << jxy << "; Jz = " << jz << "]\n";
 
-    for (alps::ParameterList::const_iterator itr = params.begin();
-         itr != params.end(); ++itr) {
-      for (alps::Parameters::const_iterator p = itr->begin();
-           p != itr->end(); ++p) {
-        if (p->key() != "LATTICE_LIBRARY")
-          std::cout << p->key() << " = " << p->value() << std::endl;
+      for (alps::ParameterList::const_iterator itr = params.begin();
+           itr != params.end(); ++itr) {
+        for (alps::Parameters::const_iterator p = itr->begin();
+             p != itr->end(); ++p) {
+          if (p->key() != "LATTICE_LIBRARY")
+            std::cout << p->key() << " = " << p->value() << std::endl;
+        }
+
+        alps::graph_helper<> gh(*itr);
+        looper::model_parameter model(gh.graph(), alps::half_integer<int>(0.5),
+                                      (double)jxy, (double)jz);
+
+        std::cout << "model has "
+                  << (model.is_signed() ? "" : "no ")
+                  << "sign problem.\n";
+        std::cout << "model is "
+                  << (model.is_frustrated() ? "" : "not ")
+                  << "classically frustrated.\n";
       }
-
-      alps::graph_helper<> gh(*itr);
-      looper::model_parameter model(gh.graph(), alps::half_integer<int>(0.5),
-                                    -1.0, (double)j);
-
-      std::cout << "model has "
-                << (model.is_signed() ? "" : "no ")
-                << "sign problem.\n";
-      std::cout << "model is "
-                << (model.is_frustrated() ? "" : "not ")
-                << "classically frustrated.\n";
     }
   }
 

@@ -690,7 +690,7 @@ bool model_parameter::check_sign(const G& g) const
     unsigned int i = get(bond_index_t(), g, *ei);
     if (alps::is_zero<1>(bond(*ei, g).jxy)) {
       w[i] = 0;
-    } else if (bond(*ei, g).jxy > 0) {
+    } else if (bond(*ei, g).jxy < 0) {
       w[i] = 1;
     } else {
       w[i] = -1;
@@ -709,7 +709,7 @@ bool model_parameter::check_frustration(const G& g) const
     unsigned int i = get(bond_index_t(), g, *ei);
     if (alps::is_zero<1>(bond(*ei, g).jz)) {
       w[i] = 0;
-    } else if (bond(*ei, g).jz > 0) {
+    } else if (bond(*ei, g).jz < 0) {
       w[i] = 1;
     } else {
       w[i] = -1;

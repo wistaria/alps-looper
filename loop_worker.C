@@ -62,11 +62,16 @@ qmc_worker_base::qmc_worker_base(alps::ProcessList const& w,
 
     is_signed_ = mp.is_signed();
     if (mp.is_signed()) {
-      sign_.resize(0);
-      looper::weight_table::bond_weight_iterator itr, itr_end;
-      for (boost::tie(itr, itr_end) = wt.bond_weights(); itr != itr_end;
-           ++itr)
-        sign_.push_back(itr->second.sign);
+      bond_sign_.resize(num_bonds(vlat_));
+      std::fill(bond_sign_.begin(), bond_sign_.end(), 0);
+      looper::weight_table::bond_weight_iterator bi, bi_end;
+      for (boost::tie(bi, bi_end) = wt.bond_weights(); bi != bi_end; ++bi)
+        if (bi->second.sign < 0) bond_sign_[bi->first] = 1;
+      site_sign_.resize(num_sites(vlat_));
+      std::fill(site_sign_.begin(), site_sign_.end(), 0);
+      looper::weight_table::site_weight_iterator si, si_end;
+      for (boost::tie(si, si_end) = wt.site_weights(); si != si_end; ++si)
+        if (si->second.sign < 0) site_sign_[si->first] = 1;
     }
 
     if (mp.has_field()) {

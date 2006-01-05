@@ -69,21 +69,31 @@ void qmc_worker_sse::dostep()
   super_type::dostep();
 
   namespace mpl = boost::mpl;
-  dostep_impl<mpl::true_,  mpl::true_,  mpl::true_ >();
-  dostep_impl<mpl::true_,  mpl::true_,  mpl::false_>();
-  dostep_impl<mpl::true_,  mpl::false_, mpl::true_ >();
-  dostep_impl<mpl::true_,  mpl::false_, mpl::false_>();
-  dostep_impl<mpl::false_, mpl::true_,  mpl::true_ >();
-  dostep_impl<mpl::false_, mpl::true_,  mpl::false_>();
-  dostep_impl<mpl::false_, mpl::false_, mpl::true_ >();
-  dostep_impl<mpl::false_, mpl::false_, mpl::false_>();
+  //          BIPARTITE    FIELD        SIGN         IMPROVE
+  dostep_impl<mpl::true_,  mpl::true_,  mpl::true_,  mpl::true_ >();
+  dostep_impl<mpl::true_,  mpl::true_,  mpl::true_,  mpl::false_>();
+  dostep_impl<mpl::true_,  mpl::true_,  mpl::false_, mpl::true_ >();
+  dostep_impl<mpl::true_,  mpl::true_,  mpl::false_, mpl::false_>();
+  dostep_impl<mpl::true_,  mpl::false_, mpl::true_,  mpl::true_ >();
+  dostep_impl<mpl::true_,  mpl::false_, mpl::true_,  mpl::false_>();
+  dostep_impl<mpl::true_,  mpl::false_, mpl::false_, mpl::true_ >();
+  dostep_impl<mpl::true_,  mpl::false_, mpl::false_, mpl::false_>();
+  dostep_impl<mpl::false_, mpl::true_,  mpl::true_,  mpl::true_ >();
+  dostep_impl<mpl::false_, mpl::true_,  mpl::true_,  mpl::true_ >();
+  dostep_impl<mpl::false_, mpl::true_,  mpl::false_, mpl::true_ >();
+  dostep_impl<mpl::false_, mpl::true_,  mpl::false_, mpl::false_>();
+  dostep_impl<mpl::false_, mpl::false_, mpl::true_,  mpl::true_ >();
+  dostep_impl<mpl::false_, mpl::false_, mpl::true_,  mpl::true_ >();
+  dostep_impl<mpl::false_, mpl::false_, mpl::false_, mpl::true_ >();
+  dostep_impl<mpl::false_, mpl::false_, mpl::false_, mpl::false_>();
 }
 
-template<typename BIPARTITE, typename FIELD, typename IMPROVE>
+template<typename BIPARTITE, typename FIELD, typename SIGN, typename IMPROVE>
 void qmc_worker_sse::dostep_impl()
 {
   if (!(is_bipartite() == BIPARTITE() &&
         has_field() == FIELD() &&
+        is_signed() == SIGN() &&
         use_improved_estimator() == IMPROVE())) return;
 
   //
@@ -259,18 +269,26 @@ void qmc_worker_sse::dostep_impl()
 
   int nrs = num_sites(rgraph());
 
+  // sign
+  double sign = 1;
+  if (SIGN()) {
+    int n = 0;
+    for (operator_iterator oi = operators.begin(); oi != operators.end(); ++oi)
+      if (oi->is_offdiagonal())
+        if (oi->is_bond())
+          n ^= bond_sign(oi->pos());
+        else
+          n ^= site_sign(oi->pos());
+    sign = 1 - 2 * n;
+    /* if (!IMPROVE()) */ measurements["Sign"] << sign;
+  }
+
   // energy
   double ene = energy_offset() - nop / beta();
-  if (FIELD()) {
-    for (std::vector<cluster_info_t>::iterator ci = clusters.begin();
-         ci != clusters.end(); ++ci)
-      if (ci->to_flip) ene -= ci->weight / nop_or_1;
-      else ene += ci->weight / nop_or_1;
-  }
-  measurements["Energy"] << ene;
-  measurements["Energy Density"] << ene / nrs;
+  measurements["Energy"] << sign * ene;
+  measurements["Energy Density"] << sign * ene / nrs;
   measurements["Energy^2"]
-    << looper::power2(ene) - nop / looper::power2(beta());
+    << sign * (looper::power2(ene) - nop / looper::power2(beta()));
 
   // other measurements
   if (IMPROVE()) {
@@ -279,7 +297,7 @@ void qmc_worker_sse::dostep_impl()
       commit(qmc_type(), nrs, beta(), nop, measurements);
   } else {
     normal_estimator_t::do_measurement(qmc_type(), vgraph(), BIPARTITE(), nrs,
-      beta(), nop, spins, operators, spins_c, measurements);
+      beta(), nop, sign, spins, operators, spins_c, measurements);
   }
 }
 
