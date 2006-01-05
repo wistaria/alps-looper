@@ -314,7 +314,8 @@ public:
             itr->second.v[2] / (itr->second.v[2] + itr->second.v[3]) : 1);
       }
     }
-    r_graph_.distribution().init(w);
+    if (w.size()) r_graph_.distribution().init(w);
+    if (alps::is_zero(weight_)) weight_ = 1.0e-20;
     if (is_path_integral)
       r_time_.distribution() = boost::exponential_distribution<>(weight_);
   }

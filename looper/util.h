@@ -38,6 +38,10 @@
 
 namespace looper {
 
+using boost::enable_if;
+using boost::disable_if;
+using boost::is_arithmetic;
+
 //
 // function alternating_tensor
 //
@@ -79,34 +83,50 @@ inline int alternating_tensor(int i, int j, int k)
 }
 
 inline
-int alternating_tensor(const boost::tuple<int, int, int>& x)
-{
-  return alternating_tensor(x.get<0>(), x.get<1>(), x.get<2>());
-}
+int alternating_tensor(boost::tuple<int, int, int> const& x)
+{ return alternating_tensor(x.get<0>(), x.get<1>(), x.get<2>()); }
 
 
 //
-// function sqr
+// function power2, power3, power4
 //
 
 #ifndef BOOST_NO_SFINAE
 
 template<typename T>
-T sqr(T t, typename boost::enable_if<boost::is_arithmetic<T> >::type* = 0)
-{
-  return t * t;
-}
+T power2(T t, typename enable_if<is_arithmetic<T> >::type* = 0)
+{ return t * t; }
 
 template<typename T>
-T sqr(const T& t, typename boost::disable_if<boost::is_arithmetic<T> >::type* = 0)
-{
-  return t * t;
-}
+T power2(T const& t, typename disable_if<is_arithmetic<T> >::type* = 0)
+{ return t * t; }
+
+template<typename T>
+T power3(T t, typename enable_if<is_arithmetic<T> >::type* = 0)
+{ return t * t * t; }
+
+template<typename T>
+T power3(T const& t, typename disable_if<is_arithmetic<T> >::type* = 0)
+{ return t * t * t; }
+
+template<typename T>
+T power4(T t, typename enable_if<is_arithmetic<T> >::type* = 0)
+{ return power2(power2(t)); }
+
+template<typename T>
+T power4(T const& t, typename disable_if<is_arithmetic<T> >::type* = 0)
+{ return power2(power2(t)); }
 
 #else
 
 template<typename T>
-T sqr(const T& t) { return t * t; }
+T power2(T const& t) { return t * t; }
+
+template<typename T>
+T power3(T const& t) { return t * t * t; }
+
+template<typename T>
+T power4(T const& t) { return power2(power2(t)); }
 
 #endif
 
@@ -115,7 +135,7 @@ T sqr(const T& t) { return t * t; }
 //
 
 template<typename T, typename U, typename R, typename A>
-void flatten_matrix(const boost::multi_array<T, 2>& m_in,
+void flatten_matrix(boost::multi_array<T, 2> const& m_in,
                     boost::numeric::ublas::matrix<U, R, A>& m_out)
 {
   assert(m_in.shape()[0] == m_in.shape()[1]);
@@ -129,7 +149,7 @@ void flatten_matrix(const boost::multi_array<T, 2>& m_in,
 }
 
 template<typename T, typename U, typename R, typename A>
-void flatten_matrix(const boost::multi_array<T, 4>& m_in,
+void flatten_matrix(boost::multi_array<T, 4> const& m_in,
                     boost::numeric::ublas::matrix<U, R, A>& m_out)
 {
   assert(m_in.shape()[0] == m_in.shape()[2]);
@@ -153,12 +173,11 @@ void flatten_matrix(const boost::multi_array<T, 4>& m_in,
 //
 
 template<typename T>
-T dip(T x, T y, typename boost::enable_if<boost::is_arithmetic<T> >::type* = 0)
+T dip(T x, T y, typename enable_if<is_arithmetic<T> >::type* = 0)
 { return (y > T(0)) ? (x / y) : T(0); }
 
 template<typename T>
-T dip(const T& x, const T& y,
-  typename boost::disable_if<boost::is_arithmetic<T> >::type* = 0)
+T dip(T const& x, T const& y, typename disable_if<is_arithmetic<T> >::type* = 0)
 { return (y > T(0)) ? (x / y) : T(0); }
 
 
@@ -167,21 +186,19 @@ T dip(const T& x, const T& y,
 //
 
 template<typename T>
-T crop_0(T x, typename boost::enable_if<boost::is_arithmetic<T> >::type* = 0)
+T crop_0(T x, typename enable_if<is_arithmetic<T> >::type* = 0)
 { return (x > T(0)) ? x : T(0); }
 
 template<typename T>
-T crop_0(const T& x,
-  typename boost::disable_if<boost::is_arithmetic<T> >::type* = 0)
+T crop_0(T const& x, typename disable_if<is_arithmetic<T> >::type* = 0)
 { return (x > T(0)) ? x : T(0); }
 
 template<typename T>
-T crop_01(T x, typename boost::enable_if<boost::is_arithmetic<T> >::type* = 0)
+T crop_01(T x, typename enable_if<is_arithmetic<T> >::type* = 0)
 { return (x < T(1)) ? crop_0(x) : T(1); }
 
 template<typename T>
-T crop_01(const T& x,
-  typename boost::disable_if<boost::is_arithmetic<T> >::type* = 0)
+T crop_01(T const& x, typename disable_if<is_arithmetic<T> >::type* = 0)
 { return (x < T(1)) ? crop_0(x) : T(1); }
 
 //
@@ -189,37 +206,33 @@ T crop_01(const T& x,
 //
 
 template<class T>
-class integer_range {
+class integer_range
+{
 public:
   typedef T value_type;
 
-  integer_range() : mi_(), ma_() {}
+  integer_range() {}
   integer_range(value_type v) : mi_(v), ma_(v) {}
-  integer_range(const integer_range& r) : mi_(r.mi_), ma_(r.ma_) {}
-  integer_range(const std::string& str,
+  integer_range(integer_range const& r) : mi_(r.mi_), ma_(r.ma_) {}
+  integer_range(std::string const& str,
                 value_type def_mi = std::numeric_limits<value_type>::min(),
-                value_type def_ma = std::numeric_limits<value_type>::max()) :
-    mi_(), ma_()
+                value_type def_ma = std::numeric_limits<value_type>::max())
+    : mi_(def_mi), ma_(def_ma)
   {
     using namespace boost::spirit;
     bool success;
-    value_type mi = def_mi;
-    value_type ma = def_ma;
     if (std::numeric_limits<value_type>::is_signed) {
       success = parse(str.c_str(),
-        int_p[assign_a(mi)][assign_a(ma)] |
-        ('[' >> !int_p[assign_a(mi)] >> ':' >> !int_p[assign_a(ma)] >> ']'),
+        int_p[assign_a(mi_)][assign_a(ma_)] |
+        ('[' >> !int_p[assign_a(mi_)] >> ':' >> !int_p[assign_a(ma_)] >> ']'),
         space_p).full;
     } else {
       success = parse(str.c_str(),
-        uint_p[assign_a(mi)][assign_a(ma)] |
-        ('[' >> !uint_p[assign_a(mi)] >> ':' >> !uint_p[assign_a(ma)] >> ']'),
+        uint_p[assign_a(mi_)][assign_a(ma_)] |
+        ('[' >> !uint_p[assign_a(mi_)] >> ':' >> !uint_p[assign_a(ma_)] >> ']'),
         space_p).full;
     }
-    if (!success)
-      boost::throw_exception(std::runtime_error("parse error"));
-    mi_ = mi;
-    ma_ = ma;
+    if (!success) boost::throw_exception(std::runtime_error("parse error"));
   }
 
   value_type min() const { return mi_; }
@@ -236,7 +249,7 @@ namespace looper {
 #endif
 
 template<class T>
-std::ostream& operator<<(std::ostream& os, const integer_range<T>& ir)
+std::ostream& operator<<(std::ostream& os, integer_range<T> const& ir)
 {
   os << '[' << ir.min() << ':' << ir.max() << ']';
   return os;

@@ -93,12 +93,12 @@ void qmc_worker_base::accumulate() { accumulate(measurements, measurements); }
 void qmc_worker_base::accumulate(alps::ObservableSet const& m_in,
                                  alps::ObservableSet& m_out)
 {
-  using looper::sqr;
   if (m_in.has("Energy") && m_in.has("Energy^2")) {
     alps::RealObsevaluator obse_e = m_in["Energy"];
     alps::RealObsevaluator obse_e2 = m_in["Energy^2"];
     alps::RealObsevaluator eval("Specific Heat");
-    eval = sqr(beta()) * (obse_e2 - sqr(obse_e)) / num_sites(rgraph());
+    eval = looper::power2(beta()) * (obse_e2 - looper::power2(obse_e))
+      / num_sites(rgraph());
     m_out << eval;
   }
 }

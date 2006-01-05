@@ -110,7 +110,7 @@ void restricted_random_shuffle(RandomAccessIter0 perm_first,
   looper::random_shuffle(perm_first + c, perm_last, rng);
 
   // reorder permutation according to values in guide0
-  looper::guided_sort_binary(perm_first, perm_last, guide0_first);
+  guided_sort_binary(perm_first, perm_last, guide0_first);
 }
 
 } // end namespace looper

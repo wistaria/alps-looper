@@ -128,7 +128,7 @@ public:
     // diagonal elements: c - hz sz + d sz^2
     for (spin_type sz = -s; sz <= s; ++sz)
       mat_[sz.distance(-s)][sz.distance(-s)] =
-        sp.c - sp.hz * to_double(sz) +  sp.d * sqr(to_double(sz));
+        sp.c - sp.hz * to_double(sz) +  sp.d * power2(to_double(sz));
 
     // off-diagonal elements: - hx s+ / 2
     for (spin_type sz = -s; sz <= s-1; ++sz)
