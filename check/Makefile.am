@@ -6,7 +6,7 @@ run-site: run-site-p run-site-e run-site-g ../loop_evaluate
 run-site-p: ../loop
 	if test ! -f site-p.out.xml; then \
 	  echo 'REPRESENTATION = "path integral"' > site-p; \
-	  cat $(srrcdir)/site >> site-p; \
+	  cat $(srcdir)/site >> site-p; \
 	  $(DESTDIR)$(bindir)/parameter2xml site-p; \
 	  cp -f site-p.in.xml site-p.out.xml; \
 	fi
@@ -14,7 +14,7 @@ run-site-p: ../loop
 run-site-e: ../loop
 	if test ! -f site-e.out.xml; then \
 	  echo 'REPRESENTATION = "SSE"' > site-e; \
-	  cat $(srrcdir)/site >> site-e; \
+	  cat $(srcdir)/site >> site-e; \
 	  $(DESTDIR)$(bindir)/parameter2xml site-e; \
 	  cp -f site-e.in.xml site-e.out.xml; \
 	fi
@@ -30,7 +30,7 @@ run-chain: run-chain-p run-chain-e run-chain-g ../loop_evaluate
 run-chain-p: ../loop
 	if test ! -f chain-p.out.xml; then \
 	  echo 'REPRESENTATION = "path integral"' > chain-p; \
-	  cat $(srrcdir)/site >> chain-p; \
+	  cat $(srcdir)/site >> chain-p; \
 	  $(DESTDIR)$(bindir)/parameter2xml chain-p; \
 	  cp -f chain-p.in.xml chain-p.out.xml; \
 	fi
@@ -38,7 +38,7 @@ run-chain-p: ../loop
 run-chain-e: ../loop
 	if test ! -f chain-e.out.xml; then \
 	  echo 'REPRESENTATION = "SSE"' > chain-e; \
-	  cat $(srrcdir)/site >> chain-e; \
+	  cat $(srcdir)/site >> chain-e; \
 	  $(DESTDIR)$(bindir)/parameter2xml chain-e; \
 	  cp -f chain-e.in.xml chain-e.out.xml; \
 	fi
@@ -54,7 +54,7 @@ run-triangle: run-triangle-p run-triangle-e run-triangle-g ../loop_evaluate
 run-triangle-p: ../loop
 	if test ! -f triangle-p.out.xml; then \
 	  echo 'REPRESENTATION = "path integral"' > triangle-p; \
-	  cat $(srrcdir)/site >> triangle-p; \
+	  cat $(srcdir)/site >> triangle-p; \
 	  $(DESTDIR)$(bindir)/parameter2xml triangle-p; \
 	  cp -f triangle-p.in.xml triangle-p.out.xml; \
 	fi
@@ -62,7 +62,7 @@ run-triangle-p: ../loop
 run-triangle-e: ../loop
 	if test ! -f triangle-e.out.xml; then \
 	  echo 'REPRESENTATION = "SSE"' > triangle-e; \
-	  cat $(srrcdir)/site >> triangle-e; \
+	  cat $(srcdir)/site >> triangle-e; \
 	  $(DESTDIR)$(bindir)/parameter2xml triangle-e; \
 	  cp -f triangle-e.in.xml triangle-e.out.xml; \
 	fi

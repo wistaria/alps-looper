@@ -154,7 +154,7 @@ std::pair<double, double> static_average2(double beta, double offset,
   for (; eval != eval_end; ++eval) {
     double weight = std::exp(- beta * (*eval - offset)); // Boltzman weight
     val += (*eval) * weight;
-    val2 += looper::sqr(*eval) * weight;
+    val2 += looper::power2(*eval) * weight;
   }
   return std::make_pair(val, val2);
 }
@@ -174,7 +174,7 @@ double static_average(double beta, double offset,
     typename matrix_type::const_iterator1 j = evec.begin();
     typename vector_type::const_iterator op = diagonal_matrix.begin();
     double v = 0.0;
-    for (; j != evec.end(); ++j, ++op) v += looper::sqr(*j) * (*op);
+    for (; j != evec.end(); ++j, ++op) v += looper::power2(*j) * (*op);
     val += v * weight;
   }
   return val;
@@ -198,8 +198,8 @@ std::pair<double, double> static_average2(double beta, double offset,
     double v = 0.0;
     double v2 = 0.0;
     for (; j != evec.end(); ++j, ++op) {
-      v += looper::sqr(*j) * (*op);
-      v2 += looper::sqr(*j) * looper::sqr(*op);
+      v += looper::power2(*j) * (*op);
+      v2 += looper::power2(*j) * looper::power2(*op);
     }
     val += v * weight;
     val2 += v2 * weight;
@@ -228,9 +228,9 @@ static_average4(double beta, double offset,
     double v2 = 0.0;
     double v4 = 0.0;
     for (; j != evec.end(); ++j, ++op) {
-      v += looper::sqr(*j) * (*op);
-      v2 += looper::sqr(*j) * looper::sqr(*op);
-      v4 += looper::sqr(*j) * looper::sqr(looper::sqr(*op));
+      v += looper::power2(*j) * (*op);
+      v2 += looper::power2(*j) * looper::power2(*op);
+      v4 += looper::power2(*j) * looper::power4(*op);
     }
     val += v * weight;
     val2 += v2 * weight;
@@ -267,7 +267,7 @@ double dynamic_average2(double beta, double offset,
       } else {
         wij = beta * weight;
       }
-      val += 2 * looper::sqr(v) * wij;
+      val += 2 * looper::power2(v) * wij;
     }
     {
       // for evec0 = evec1
@@ -278,7 +278,7 @@ double dynamic_average2(double beta, double offset,
       typename vector_type::const_iterator op = diagonal_matrix.begin();
       for (; v0 != v0_end; ++v0, ++v1, ++op) v += (*v0) * (*op) * (*v1);
       double wij = beta * weight;
-      val += looper::sqr(v) * wij;
+      val += looper::power2(v) * wij;
     }
   }
   return val;
@@ -296,7 +296,7 @@ try {
     boost::numeric::ublas::column_major> matrix_type;
   typedef boost::numeric::ublas::vector<double> diagonal_matrix_type;
 
-  using looper::sqr;
+  using looper::power2;
 
   alps::ParameterList parameterlist;
   std::cin >> parameterlist;
@@ -386,8 +386,8 @@ try {
     double ene, ene2;
     boost::tie(ene, ene2) = static_average2(beta, gs_ene, evals);
     ene = ene / part;
-    ene2 = ene2 / part / sqr(nsite);
-    double c = sqr(beta) * nsite * (ene2 - sqr(ene/nsite));
+    ene2 = ene2 / part / power2(nsite);
+    double c = power2(beta) * nsite * (ene2 - power2(ene/nsite));
 
     std::cout << "ground state energy             = " << gs_ene << std::endl
               << "ground state energy density     = "
@@ -405,7 +405,8 @@ try {
     uniform_sz.clear();
     for (boost::tie(vi, vi_end) = sites(lattice.graph());
          vi != vi_end; ++vi) {
-      add_to_diagonal_matrix(uniform_sz, alps::SiteTermDescriptor("Sz(i)", "i"),
+      add_to_diagonal_matrix(uniform_sz,
+                             alps::SiteTermDescriptor("Sz(i)", "i"),
                              model.basis(), basis_set, *vi, lattice.graph(),
                              params);
     }
@@ -432,8 +433,8 @@ try {
       staggered_sz.clear();
       for (boost::tie(vi, vi_end) = sites(lattice.graph());
            vi != vi_end; ++vi) {
-        if (get(alps::parity_t(), lattice.graph(), *vi) ==
-            alps::parity_traits<alps::parity_t, graph_type>::white) {
+        int g = 2 * get(alps::parity_t(), lattice.graph(), *vi) - 1;
+        if (g == 1) {
           add_to_diagonal_matrix(staggered_sz,
             alps::SiteTermDescriptor("Sz(i)", "i"), model.basis(),
             basis_set, *vi, lattice.graph(), params);

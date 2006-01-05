@@ -106,14 +106,18 @@ void qmc_worker_sse::dostep_impl()
 
     // diagonal update & labeling
     if (try_gap) {
-      loop_graph_t g = choose_graph();
-      if (((is_bond(g) &&
-            is_compatible(g, spins_c[vsource(pos(g), vlattice())],
-                          spins_c[vtarget(pos(g), vlattice())])) ||
-           (is_site(g) && is_compatible(g, spins_c[pos(g)]))) &&
-          (nop + 1) * random() < bw) {
-        operators.push_back(local_operator_t(g));
-        ++nop;
+      if ((nop + 1) * random() < bw) {
+        loop_graph_t g = choose_graph();
+        if ((is_bond(g) &&
+             is_compatible(g, spins_c[vsource(pos(g), vlattice())],
+                           spins_c[vtarget(pos(g), vlattice())])) ||
+            (is_site(g) && is_compatible(g, spins_c[pos(g)]))) {
+          operators.push_back(local_operator_t(g));
+          ++nop;
+        } else {
+          try_gap = false;
+          continue;
+        }
       } else {
         try_gap = false;
         continue;
@@ -228,17 +232,17 @@ void qmc_worker_sse::dostep_impl()
   for (unsigned int s = 0; s < nvs; ++s) {
     int loop = fragments[s].id;
     weight.start(loop, 0, s, spins[s]);
-    weight.term(loop, nop, s, spins_c[s]);
+    weight.term(loop, nop+1, s, spins_c[s]);
     accum.start(loop, 0, s, spins[s]);
-    accum.term(loop, nop, s, spins_c[s]);
+    accum.term(loop, nop+1, s, spins_c[s]);
     accum.at_zero(loop, s, spins[s]);
   }
 
   // determine whether clusters are flipped or not
   for (std::vector<cluster_info_t>::iterator ci = clusters.begin();
        ci != clusters.end(); ++ci)
-    ci->to_flip = (random() <
-      (FIELD() ? 0.5 : 0.5 * (std::tanh(beta() * ci->weight / nop) + 1)));
+    ci->to_flip = ((2*random()-1)
+                   < (FIELD() ? std::tanh(beta() * ci->weight / (nop+1)) : 0));
 
   // flip operators & spins
   for (operator_iterator oi = operators.begin(); oi != operators.end(); ++oi)
@@ -257,9 +261,9 @@ void qmc_worker_sse::dostep_impl()
   double ene = energy_offset() - nop / beta();
   if (FIELD()) {
     for (std::vector<cluster_info_t>::iterator ci = clusters.begin();
-	 ci != clusters.end(); ++ci)
-      if (ci->to_flip) ene -= ci->weight / nop;
-      else ene += ci->weight / nop;
+         ci != clusters.end(); ++ci)
+      if (ci->to_flip) ene -= ci->weight / (nop+1);
+      else ene += ci->weight / (nop+1);
   }
   measurements["Energy"] << ene;
   measurements["Energy Density"] << ene / nrs;

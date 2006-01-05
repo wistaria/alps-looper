@@ -222,8 +222,7 @@ void qmc_worker_pi::dostep_impl()
   // determine whether clusters are flipped or not
   for (std::vector<cluster_info_t>::iterator ci = clusters.begin();
        ci != clusters.end(); ++ci)
-    ci->to_flip = (random() <
-      (FIELD() ? 0.5 : 0.5 * (std::tanh(ci->weight) + 1)));
+    ci->to_flip = ((2*random()-1) < (FIELD() ? std::tanh(ci->weight) : 0));
 
   // flip operators & spins
   for (operator_iterator oi = operators.begin(); oi != operators.end(); ++oi)
@@ -243,7 +242,7 @@ void qmc_worker_pi::dostep_impl()
   double ene = energy_offset() - nop / beta();
   if (FIELD()) {
     for (std::vector<cluster_info_t>::iterator ci = clusters.begin();
-	 ci != clusters.end(); ++ci)
+         ci != clusters.end(); ++ci)
       if (ci->to_flip) ene -= ci->weight / beta();
       else ene += ci->weight / beta();
   }

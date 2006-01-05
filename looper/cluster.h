@@ -47,9 +47,9 @@ struct cluster_info
       : clusters(cl), fragments(fr), field(fd) {}
 
     void start(int p, double t, int s, int c)
-    { clusters[fragments[p].id].weight -= field[s] * (0.5-c) * t; }
+    { clusters[fragments[p].id].weight -= - field[s] * (0.5-c) * t; }
     void term(int p, double t, int s, int c)
-    { clusters[fragments[p].id].weight += field[s] * (0.5-c) * t; }
+    { clusters[fragments[p].id].weight += - field[s] * (0.5-c) * t; }
     std::vector<cluster_info>& clusters;
     std::vector<cluster_fragment_t> const& fragments;
     std::vector<double> const& field;

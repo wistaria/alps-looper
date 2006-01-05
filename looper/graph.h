@@ -363,10 +363,10 @@ public:
                 bool is_path_integral = true)
     : r_graph_(eng, random_choice<>()),
       r_time_(eng, boost::exponential_distribution<>())
-  { init(wt); }
+  { init(wt, is_path_integral); }
 
   template<class WEIGHT_TABLE>
-  void init(const WEIGHT_TABLE& wt)
+  void init(const WEIGHT_TABLE& wt, bool is_path_integral)
   {
     diag_.claer();
     std::vector<double> w;
