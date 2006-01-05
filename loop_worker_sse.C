@@ -209,8 +209,8 @@ void qmc_worker_sse::dostep_impl()
 
   std::copy(spins.begin(), spins.end(), spins_c.begin());
   if (IMPROVE()) estimates.resize(0); estimates.resize(nc);
-  cluster_info_t::accumulator<cluster_fragment_t, FIELD>
-    weight(clusters, fragments, field());
+  cluster_info_t::accumulator<cluster_fragment_t, FIELD, SIGN, IMPROVE>
+    weight(clusters, fragments, field(), bond_sign(), site_sign());
   typename improved_estimator_t::accumulator<lattice_graph_t,
     cluster_fragment_t, IMPROVE, BIPARTITE>::type
     accum(estimates, fragments, vgraph());
@@ -220,6 +220,7 @@ void qmc_worker_sse::dostep_impl()
     if (oi->is_bond()) {
       int s0 = vsource(oi->pos(), vlattice());
       int s1 = vtarget(oi->pos(), vlattice());
+      weight.bond_sign(oi->loop_0(), oi->loop_1(), oi->pos());
       weight.term(oi->loop_l0(), t, s0, spins_c[s0]);
       weight.term(oi->loop_l1(), t, s1, spins_c[s1]);
       accum.term(oi->loop_l0(), t, s0, spins_c[s0]);
@@ -234,6 +235,7 @@ void qmc_worker_sse::dostep_impl()
       accum.start(oi->loop_u1(), t, s1, spins_c[s1]);
     } else {
       int s = oi->pos();
+      weight.site_sign(oi->loop_0(), oi->loop_1(), oi->pos());
       weight.term(oi->loop_l(), t, s, spins_c[s]);
       accum.term(oi->loop_l(), t, s, spins_c[s]);
       if (oi->is_offdiagonal()) spins_c[s] ^= 1;
@@ -251,10 +253,13 @@ void qmc_worker_sse::dostep_impl()
   }
 
   // determine whether clusters are flipped or not
+  double improved_sign = 1;
   for (std::vector<cluster_info_t>::iterator ci = clusters.begin();
-       ci != clusters.end(); ++ci)
+       ci != clusters.end(); ++ci) {
     ci->to_flip =
       ((2*random()-1) < (FIELD() ? std::tanh(beta()*ci->weight/nop_or_1) : 0));
+    if (SIGN() && IMPROVE() && ci->sign == 1) improved_sign = 0;
+  }
 
   // flip operators & spins
   for (operator_iterator oi = operators.begin(); oi != operators.end(); ++oi)
@@ -280,7 +285,7 @@ void qmc_worker_sse::dostep_impl()
         else
           n ^= site_sign(oi->pos());
     sign = 1 - 2 * n;
-    /* if (!IMPROVE()) */ measurements["Sign"] << sign;
+    measurements["Sign"] << (IMPROVE() ? improved_sign : sign);
   }
 
   // energy
@@ -294,7 +299,7 @@ void qmc_worker_sse::dostep_impl()
   if (IMPROVE()) {
     std::accumulate(estimates.begin(), estimates.end(),
       typename improved_estimator_t::collector<BIPARTITE>::type()).
-      commit(qmc_type(), nrs, beta(), nop, measurements);
+      commit(qmc_type(), nrs, beta(), nop, improved_sign, measurements);
   } else {
     normal_estimator_t::do_measurement(qmc_type(), vgraph(), BIPARTITE(), nrs,
       beta(), nop, sign, spins, operators, spins_c, measurements);
