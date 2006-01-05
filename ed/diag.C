@@ -27,6 +27,7 @@
 
 #include <alps/parameterlist.h>
 #include <alps/lattice.h>
+#include <alps/math.hpp>
 #include <alps/model.h>
 
 #include <boost/numeric/ublas/matrix.hpp>
@@ -392,7 +393,7 @@ try {
               << "ground state energy density     = "
               << gs_ene/nsite << std::endl
               << "energy                          = " << ene << std::endl
-              << "energy per site                 = "
+              << "energy density                  = "
               << ene/nsite << std::endl
               << "specific heat                   = " << c << std::endl;
 
@@ -412,7 +413,7 @@ try {
     double umag, umag2, umag4;
     boost::tie(umag, umag2, umag4) =
       static_average4(beta, gs_ene, evals, hamiltonian, uniform_sz);
-    if (std::abs(umag) < 1.0e-12) umag = 0.;
+    umag = alps::round<1>(umag);
     double usus = dynamic_average2(beta, gs_ene, evals, hamiltonian,
                                    uniform_sz);
     umag = umag / part;
@@ -446,7 +447,7 @@ try {
       double smag, smag2, smag4;
       boost::tie(smag, smag2, smag4) =
         static_average4(beta, gs_ene, evals, hamiltonian, staggered_sz);
-      if (std::abs(smag) < 1.0e-12) smag = 0.;
+      smag = alps::round<1>(smag);
       double ssus =
         dynamic_average2(beta, gs_ene, evals, hamiltonian, staggered_sz);
       smag = smag / part;

@@ -77,7 +77,7 @@ do_eval_g()
 {
   for p in $parameters; do
   if test -f "$p.out"; then
-    awk '$1=="T" {temp=$3} $1=="energy" && $3=="site" {ene=$5} $1=="specific" {sh=$4} $1=="uniform" && $2=="magnetization" && $3=="=" {umag=$4} $1=="uniform" && $2=="magnetization^2" {umag2=$4} $1=="uniform" && $2=="magnetization^4" {umag4=$4} $1=="uniform" && $2=="susceptibility" {usus=$4} $1=="staggered" && $2=="magnetization" && $3=="=" {smag=$4} $1=="staggered" && $2=="magnetization^2" {smag2=$4} $1=="staggered" && $2=="magnetization^4" {smag4=$4} $1=="staggered" && $2=="susceptibility" {print temp,ene,sh,umag,umag2,umag4,usus,smag,smag2,smag4,$4}' $p.out > $p.dat
+    awk '$1=="T" {temp=$3} $1=="energy" && $2=="density" {ene=$4} $1=="specific" {sh=$4} $1=="uniform" && $2=="magnetization" && $3=="=" {umag=$4} $1=="uniform" && $2=="magnetization^2" {umag2=$4} $1=="uniform" && $2=="magnetization^4" {umag4=$4} $1=="uniform" && $2=="susceptibility" {usus=$4} $1=="staggered" && $2=="magnetization" && $3=="=" {smag=$4} $1=="staggered" && $2=="magnetization^2" {smag2=$4} $1=="staggered" && $2=="magnetization^4" {smag4=$4} $1=="staggered" && $2=="susceptibility" {print temp,ene,sh,umag,umag2,umag4,usus,smag,smag2,smag4,$4}' $p.out > $p.dat
   fi
   done
 }

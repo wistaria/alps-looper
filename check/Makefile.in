@@ -328,19 +328,23 @@ run-site: run-site-p run-site-e run-site-g ../loop_evaluate
 
 run-site-p: ../loop
 	if test ! -f site-p.out.xml; then \
-	  $(DESTDIR)$(bindir)/parameter2xml $(srcdir)/site-p site-p; \
+	  echo 'REPRESENTATION = "path integral"' > site-p; \
+	  cat $(srrcdir)/site >> site-p; \
+	  $(DESTDIR)$(bindir)/parameter2xml site-p; \
 	  cp -f site-p.in.xml site-p.out.xml; \
 	fi
 	../loop --Tmin 1 site-p.out.xml
 run-site-e: ../loop
 	if test ! -f site-e.out.xml; then \
-	  $(DESTDIR)$(bindir)/parameter2xml $(srcdir)/site-e site-e; \
+	  echo 'REPRESENTATION = "SSE"' > site-e; \
+	  cat $(srrcdir)/site >> site-e; \
+	  $(DESTDIR)$(bindir)/parameter2xml site-e; \
 	  cp -f site-e.in.xml site-e.out.xml; \
 	fi
 	../loop --Tmin 1 site-e.out.xml
 run-site-g: ../ed/diag
 	if test ! -f site-g.out; then \
-	  ../ed/diag < $(srcdir)/site-p > site-g.out; \
+	  ../ed/diag < $(srcdir)/site > site-g.out; \
 	fi
 
 run-chain: run-chain-p run-chain-e run-chain-g ../loop_evaluate
@@ -348,19 +352,23 @@ run-chain: run-chain-p run-chain-e run-chain-g ../loop_evaluate
 
 run-chain-p: ../loop
 	if test ! -f chain-p.out.xml; then \
-	  $(DESTDIR)$(bindir)/parameter2xml $(srcdir)/chain-p chain-p; \
+	  echo 'REPRESENTATION = "path integral"' > chain-p; \
+	  cat $(srrcdir)/site >> chain-p; \
+	  $(DESTDIR)$(bindir)/parameter2xml chain-p; \
 	  cp -f chain-p.in.xml chain-p.out.xml; \
 	fi
 	../loop --Tmin 1 chain-p.out.xml
 run-chain-e: ../loop
 	if test ! -f chain-e.out.xml; then \
-	  $(DESTDIR)$(bindir)/parameter2xml $(srcdir)/chain-e chain-e; \
+	  echo 'REPRESENTATION = "SSE"' > chain-e; \
+	  cat $(srrcdir)/site >> chain-e; \
+	  $(DESTDIR)$(bindir)/parameter2xml chain-e; \
 	  cp -f chain-e.in.xml chain-e.out.xml; \
 	fi
 	../loop --Tmin 1 chain-e.out.xml
 run-chain-g: ../ed/diag
 	if test ! -f chain-g.out; then \
-	  ../ed/diag < $(srcdir)/chain-p > chain-g.out; \
+	  ../ed/diag < $(srcdir)/chain > chain-g.out; \
 	fi
 
 run-triangle: run-triangle-p run-triangle-e run-triangle-g ../loop_evaluate
@@ -368,19 +376,23 @@ run-triangle: run-triangle-p run-triangle-e run-triangle-g ../loop_evaluate
 
 run-triangle-p: ../loop
 	if test ! -f triangle-p.out.xml; then \
-	  $(DESTDIR)$(bindir)/parameter2xml $(srcdir)/triangle-p triangle-p; \
+	  echo 'REPRESENTATION = "path integral"' > triangle-p; \
+	  cat $(srrcdir)/site >> triangle-p; \
+	  $(DESTDIR)$(bindir)/parameter2xml triangle-p; \
 	  cp -f triangle-p.in.xml triangle-p.out.xml; \
 	fi
 	../loop --Tmin 1 triangle-p.out.xml
 run-triangle-e: ../loop
 	if test ! -f triangle-e.out.xml; then \
-	  $(DESTDIR)$(bindir)/parameter2xml $(srcdir)/triangle-e triangle-e; \
+	  echo 'REPRESENTATION = "SSE"' > triangle-e; \
+	  cat $(srrcdir)/site >> triangle-e; \
+	  $(DESTDIR)$(bindir)/parameter2xml triangle-e; \
 	  cp -f triangle-e.in.xml triangle-e.out.xml; \
 	fi
 	../loop --Tmin 1 triangle-e.out.xml
 run-triangle-g: ../loop
 	if test ! -f triangle-g.out; then \
-	  ../ed/diag < $(srcdir)/triangle-p > triangle-g.out; \
+	  ../ed/diag < $(srcdir)/triangle > triangle-g.out; \
 	fi
 
 clean-local :

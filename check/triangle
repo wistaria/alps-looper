@@ -1,6 +1,5 @@
 LATTICE = "triangle"
 MODEL = "spin"
-REPRESENTATION = "SSE"
 
 TEST = 1
 Jxy  = -1; Jz = 1

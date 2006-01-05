@@ -1,6 +1,5 @@
 LATTICE = "chain lattice"
 MODEL = "spin"
-REPRESENTATION = "path integral"
 
 TEST = 1
 local_S = 1/2; L  = 2; Jxy  = -1; Jz = -1
