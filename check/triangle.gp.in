@@ -9,14 +9,14 @@ plot \
   'triangle-p-1.dat' u 1:2:(2*$3) title 'path integral' w e
 pause -1
 
-set ylabel 'Diagonal Energy'
+set ylabel 'Specific Heat'
 plot \
   'triangle-g-1.dat' u 1:3 title 'exact diagonalization' w lp, \
   'triangle-e-1.dat' u 1:4:(2*$5) title 'SSE' w e, \
   'triangle-p-1.dat' u 1:4:(2*$5) title 'path integral' w e
 pause -1
 
-set ylabel 'Specific Heat'
+set ylabel 'Magnetization'
 plot \
   'triangle-g-1.dat' u 1:4 title 'exact diagonalization' w lp, \
   'triangle-e-1.dat' u 1:6:(2*$7) title 'SSE' w e, \
@@ -30,19 +30,18 @@ plot \
   'triangle-p-1.dat' u 1:8:(2*$9) title 'path integral' w e
 pause -1
 
-set ylabel 'Uniform Susceptibility'
+set ylabel 'Magnetization^4'
 plot \
   'triangle-g-1.dat' u 1:6 title 'exact diagonalization' w lp, \
   'triangle-e-1.dat' u 1:10:(2*$11) title 'SSE' w e, \
   'triangle-p-1.dat' u 1:10:(2*$11) title 'path integral' w e
 pause -1
 
-set ylabel 'Sign'
+set ylabel 'Susceptibility'
 plot \
+  'triangle-g-1.dat' u 1:7 title 'exact diagonalization' w lp, \
   'triangle-e-1.dat' u 1:12:(2*$13) title 'SSE' w e, \
-  'triangle-e-1.dat' u 1:14:(2*$15) title 'SSE (improved)' w e, \
-  'triangle-p-1.dat' u 1:12:(2*$13) title 'path integral' w e, \
-  'triangle-p-1.dat' u 1:14:(2*$15) title 'path integral (improved)' w e
+  'triangle-p-1.dat' u 1:12:(2*$13) title 'path integral' w e
 pause -1
 
 set title 'test 2'
@@ -54,14 +53,14 @@ plot \
   'triangle-p-2.dat' u 1:2:(2*$3) title 'path integral' w e
 pause -1
 
-set ylabel 'Diagonal Energy'
+set ylabel 'Specific Heat'
 plot \
   'triangle-g-2.dat' u 1:3 title 'exact diagonalization' w lp, \
   'triangle-e-2.dat' u 1:4:(2*$5) title 'SSE' w e, \
   'triangle-p-2.dat' u 1:4:(2*$5) title 'path integral' w e
 pause -1
 
-set ylabel 'Specific Heat'
+set ylabel 'Magnetization'
 plot \
   'triangle-g-2.dat' u 1:4 title 'exact diagonalization' w lp, \
   'triangle-e-2.dat' u 1:6:(2*$7) title 'SSE' w e, \
@@ -75,19 +74,18 @@ plot \
   'triangle-p-2.dat' u 1:8:(2*$9) title 'path integral' w e
 pause -1
 
-set ylabel 'Uniform Susceptibility'
+set ylabel 'Magnetization^4'
 plot \
   'triangle-g-2.dat' u 1:6 title 'exact diagonalization' w lp, \
   'triangle-e-2.dat' u 1:10:(2*$11) title 'SSE' w e, \
   'triangle-p-2.dat' u 1:10:(2*$11) title 'path integral' w e
 pause -1
 
-set ylabel 'Sign'
+set ylabel 'Susceptibility'
 plot \
+  'triangle-g-2.dat' u 1:7 title 'exact diagonalization' w lp, \
   'triangle-e-2.dat' u 1:12:(2*$13) title 'SSE' w e, \
-  'triangle-e-2.dat' u 1:14:(2*$15) title 'SSE (improved)' w e, \
-  'triangle-p-2.dat' u 1:12:(2*$13) title 'path integral' w e, \
-  'triangle-p-2.dat' u 1:14:(2*$15) title 'path integral (improved)' w e
+  'triangle-p-2.dat' u 1:12:(2*$13) title 'path integral' w e
 pause -1
 
 set title 'test 3'
@@ -99,14 +97,14 @@ plot \
   'triangle-p-3.dat' u 1:2:(2*$3) title 'path integral' w e
 pause -1
 
-set ylabel 'Diagonal Energy'
+set ylabel 'Specific Heat'
 plot \
   'triangle-g-3.dat' u 1:3 title 'exact diagonalization' w lp, \
   'triangle-e-3.dat' u 1:4:(2*$5) title 'SSE' w e, \
   'triangle-p-3.dat' u 1:4:(2*$5) title 'path integral' w e
 pause -1
 
-set ylabel 'Specific Heat'
+set ylabel 'Magnetization'
 plot \
   'triangle-g-3.dat' u 1:4 title 'exact diagonalization' w lp, \
   'triangle-e-3.dat' u 1:6:(2*$7) title 'SSE' w e, \
@@ -120,11 +118,18 @@ plot \
   'triangle-p-3.dat' u 1:8:(2*$9) title 'path integral' w e
 pause -1
 
-set ylabel 'Uniform Susceptibility'
+set ylabel 'Magnetization^4'
 plot \
   'triangle-g-3.dat' u 1:6 title 'exact diagonalization' w lp, \
   'triangle-e-3.dat' u 1:10:(2*$11) title 'SSE' w e, \
   'triangle-p-3.dat' u 1:10:(2*$11) title 'path integral' w e
+pause -1
+
+set ylabel 'Susceptibility'
+plot \
+  'triangle-g-3.dat' u 1:7 title 'exact diagonalization' w lp, \
+  'triangle-e-3.dat' u 1:12:(2*$13) title 'SSE' w e, \
+  'triangle-p-3.dat' u 1:12:(2*$13) title 'path integral' w e
 pause -1
 
 set title 'test 4'
@@ -136,14 +141,14 @@ plot \
   'triangle-p-4.dat' u 1:2:(2*$3) title 'path integral' w e
 pause -1
 
-set ylabel 'Diagonal Energy'
+set ylabel 'Specific Heat'
 plot \
   'triangle-g-4.dat' u 1:3 title 'exact diagonalization' w lp, \
   'triangle-e-4.dat' u 1:4:(2*$5) title 'SSE' w e, \
   'triangle-p-4.dat' u 1:4:(2*$5) title 'path integral' w e
 pause -1
 
-set ylabel 'Specific Heat'
+set ylabel 'Magnetization'
 plot \
   'triangle-g-4.dat' u 1:4 title 'exact diagonalization' w lp, \
   'triangle-e-4.dat' u 1:6:(2*$7) title 'SSE' w e, \
@@ -157,9 +162,17 @@ plot \
   'triangle-p-4.dat' u 1:8:(2*$9) title 'path integral' w e
 pause -1
 
-set ylabel 'Uniform Susceptibility'
+set ylabel 'Magnetization^4'
 plot \
   'triangle-g-4.dat' u 1:6 title 'exact diagonalization' w lp, \
   'triangle-e-4.dat' u 1:10:(2*$11) title 'SSE' w e, \
   'triangle-p-4.dat' u 1:10:(2*$11) title 'path integral' w e
 pause -1
+
+set ylabel 'Susceptibility'
+plot \
+  'triangle-g-4.dat' u 1:7 title 'exact diagonalization' w lp, \
+  'triangle-e-4.dat' u 1:12:(2*$13) title 'SSE' w e, \
+  'triangle-p-4.dat' u 1:12:(2*$13) title 'path integral' w e
+pause -1
+

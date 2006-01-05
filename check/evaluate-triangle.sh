@@ -26,22 +26,21 @@ do
     echo
 
     $BINDIR/archivecat $xmls \
-      | sed 's/Diagonal Energy Density (improved)/ed/g' \
       | sed 's/Energy Density/ene/g' \
       | sed 's/Specific Heat/sh/g' \
-      | sed 's/Magnetization\^2/zmag/g' \
-      | sed 's/Susceptibility/zsus/g' \
-      | sed 's/Sign (improved)/sgn2/g' \
-      | sed 's/Sign/sgn1/g' \
+      | sed 's/Magnetization\^2/umag2/g' \
+      | sed 's/Magnetization\^4/umag4/g' \
+      | sed 's/Magnetization/umag/g' \
+      | sed 's/Susceptibility/usus/g' \
       > archive.xml
-  
+
     for t in $tests; do
     echo "test = $t"
 
     file="$p-$t.dat"
     rm -f $file
 
-    for m in ene ed sh zmag zsus sgn1 sgn2; do
+    for m in ene sh umag umag2 umag4 usus; do
     echo "measurement = $m"
 
       cat <<EOF > plot.xml
@@ -80,7 +79,8 @@ do_eval_g()
   for p in $parameters; do
   if test -f "$p.out"; then
   for t in $tests; do
-    awk '$1=="TEST" {test=$3} $1=="T" {temp=$3} $1=="energy" {ene=$5} $1=="diagonal" && $2=="energy" {ed=$6} $1=="specific" {sh=$4} $1=="uniform" && $2=="magnetization^2" {umag=$4} $1=="uniform" && $2=="susceptibility" && test==t {print temp,ene,ed,sh,umag,$4}' t=$t $p.out > $p-$t.dat
+    echo "$p-$t"
+    awk '$1=="TEST" {test=$3} $1=="T" {temp=$3} $1=="energy" && $2=="density" {ene=$4} $1=="specific" {sh=$4} $1=="uniform" && $2=="magnetization" && $3=="=" {umag=$4} $1=="uniform" && $2=="magnetization^2" {umag2=$4} $1=="uniform" && $2=="magnetization^4" {umag4=$4} $1=="uniform" && $2=="susceptibility" && test==t {print temp,ene,sh,umag,umag2,umag4,$4}' t=$t $p.out > $p-$t.dat
   done
   fi
   done

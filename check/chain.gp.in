@@ -16,32 +16,60 @@ plot \
   'chain-p-1.dat' u 1:4:(2*$5) title 'path integral' w e
 pause -1
 
-set ylabel 'Magnetization^2'
+set ylabel 'Magnetization'
 plot \
   'chain-g-1.dat' u 1:4 title 'exact diagonalization' w lp, \
   'chain-e-1.dat' u 1:6:(2*$7) title 'SSE' w e, \
   'chain-p-1.dat' u 1:6:(2*$7) title 'path integral' w e
 pause -1
 
-set ylabel 'Uniform Susceptibility'
+set ylabel 'Magnetization^2'
 plot \
   'chain-g-1.dat' u 1:5 title 'exact diagonalization' w lp, \
   'chain-e-1.dat' u 1:8:(2*$9) title 'SSE' w e, \
   'chain-p-1.dat' u 1:8:(2*$9) title 'path integral' w e
 pause -1
 
-set ylabel 'Staggered Magnetization^2'
+set ylabel 'Magnetization^4'
 plot \
   'chain-g-1.dat' u 1:6 title 'exact diagonalization' w lp, \
   'chain-e-1.dat' u 1:10:(2*$11) title 'SSE' w e, \
   'chain-p-1.dat' u 1:10:(2*$11) title 'path integral' w e
 pause -1
 
-set ylabel 'Staggered Susceptibility'
+set ylabel 'Susceptibility'
 plot \
   'chain-g-1.dat' u 1:7 title 'exact diagonalization' w lp, \
   'chain-e-1.dat' u 1:12:(2*$13) title 'SSE' w e, \
   'chain-p-1.dat' u 1:12:(2*$13) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Magnetization'
+plot \
+  'chain-g-1.dat' u 1:8 title 'exact diagonalization' w lp, \
+  'chain-e-1.dat' u 1:14:(2*$15) title 'SSE' w e, \
+  'chain-p-1.dat' u 1:14:(2*$15) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Magnetization^2'
+plot \
+  'chain-g-1.dat' u 1:9 title 'exact diagonalization' w lp, \
+  'chain-e-1.dat' u 1:16:(2*$17) title 'SSE' w e, \
+  'chain-p-1.dat' u 1:16:(2*$17) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Magnetization^4'
+plot \
+  'chain-g-1.dat' u 1:10 title 'exact diagonalization' w lp, \
+  'chain-e-1.dat' u 1:18:(2*$18) title 'SSE' w e, \
+  'chain-p-1.dat' u 1:18:(2*$18) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Susceptibility'
+plot \
+  'chain-g-1.dat' u 1:11 title 'exact diagonalization' w lp, \
+  'chain-e-1.dat' u 1:20:(2*$21) title 'SSE' w e, \
+  'chain-p-1.dat' u 1:20:(2*$21) title 'path integral' w e
 pause -1
 
 set title 'test 2'
@@ -60,32 +88,60 @@ plot \
   'chain-p-2.dat' u 1:4:(2*$5) title 'path integral' w e
 pause -1
 
-set ylabel 'Magnetization^2'
+set ylabel 'Magnetization'
 plot \
   'chain-g-2.dat' u 1:4 title 'exact diagonalization' w lp, \
   'chain-e-2.dat' u 1:6:(2*$7) title 'SSE' w e, \
   'chain-p-2.dat' u 1:6:(2*$7) title 'path integral' w e
 pause -1
 
-set ylabel 'Uniform Susceptibility'
+set ylabel 'Magnetization^2'
 plot \
   'chain-g-2.dat' u 1:5 title 'exact diagonalization' w lp, \
   'chain-e-2.dat' u 1:8:(2*$9) title 'SSE' w e, \
   'chain-p-2.dat' u 1:8:(2*$9) title 'path integral' w e
 pause -1
 
-set ylabel 'Staggered Magnetization^2'
+set ylabel 'Magnetization^4'
 plot \
   'chain-g-2.dat' u 1:6 title 'exact diagonalization' w lp, \
   'chain-e-2.dat' u 1:10:(2*$11) title 'SSE' w e, \
   'chain-p-2.dat' u 1:10:(2*$11) title 'path integral' w e
 pause -1
 
-set ylabel 'Staggered Susceptibility'
+set ylabel 'Susceptibility'
 plot \
   'chain-g-2.dat' u 1:7 title 'exact diagonalization' w lp, \
   'chain-e-2.dat' u 1:12:(2*$13) title 'SSE' w e, \
   'chain-p-2.dat' u 1:12:(2*$13) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Magnetization'
+plot \
+  'chain-g-2.dat' u 1:8 title 'exact diagonalization' w lp, \
+  'chain-e-2.dat' u 1:14:(2*$15) title 'SSE' w e, \
+  'chain-p-2.dat' u 1:14:(2*$15) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Magnetization^2'
+plot \
+  'chain-g-2.dat' u 1:9 title 'exact diagonalization' w lp, \
+  'chain-e-2.dat' u 1:16:(2*$17) title 'SSE' w e, \
+  'chain-p-2.dat' u 1:16:(2*$17) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Magnetization^4'
+plot \
+  'chain-g-2.dat' u 1:10 title 'exact diagonalization' w lp, \
+  'chain-e-2.dat' u 1:18:(2*$18) title 'SSE' w e, \
+  'chain-p-2.dat' u 1:18:(2*$18) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Susceptibility'
+plot \
+  'chain-g-2.dat' u 1:11 title 'exact diagonalization' w lp, \
+  'chain-e-2.dat' u 1:20:(2*$21) title 'SSE' w e, \
+  'chain-p-2.dat' u 1:20:(2*$21) title 'path integral' w e
 pause -1
 
 set title 'test 3'
@@ -104,32 +160,60 @@ plot \
   'chain-p-3.dat' u 1:4:(2*$5) title 'path integral' w e
 pause -1
 
-set ylabel 'Magnetization^2'
+set ylabel 'Magnetization'
 plot \
   'chain-g-3.dat' u 1:4 title 'exact diagonalization' w lp, \
   'chain-e-3.dat' u 1:6:(2*$7) title 'SSE' w e, \
   'chain-p-3.dat' u 1:6:(2*$7) title 'path integral' w e
 pause -1
 
-set ylabel 'Uniform Susceptibility'
+set ylabel 'Magnetization^2'
 plot \
   'chain-g-3.dat' u 1:5 title 'exact diagonalization' w lp, \
   'chain-e-3.dat' u 1:8:(2*$9) title 'SSE' w e, \
   'chain-p-3.dat' u 1:8:(2*$9) title 'path integral' w e
 pause -1
 
-set ylabel 'Staggered Magnetization^2'
+set ylabel 'Magnetization^4'
 plot \
   'chain-g-3.dat' u 1:6 title 'exact diagonalization' w lp, \
   'chain-e-3.dat' u 1:10:(2*$11) title 'SSE' w e, \
   'chain-p-3.dat' u 1:10:(2*$11) title 'path integral' w e
 pause -1
 
-set ylabel 'Staggered Susceptibility'
+set ylabel 'Susceptibility'
 plot \
   'chain-g-3.dat' u 1:7 title 'exact diagonalization' w lp, \
   'chain-e-3.dat' u 1:12:(2*$13) title 'SSE' w e, \
   'chain-p-3.dat' u 1:12:(2*$13) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Magnetization'
+plot \
+  'chain-g-3.dat' u 1:8 title 'exact diagonalization' w lp, \
+  'chain-e-3.dat' u 1:14:(2*$15) title 'SSE' w e, \
+  'chain-p-3.dat' u 1:14:(2*$15) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Magnetization^2'
+plot \
+  'chain-g-3.dat' u 1:9 title 'exact diagonalization' w lp, \
+  'chain-e-3.dat' u 1:16:(2*$17) title 'SSE' w e, \
+  'chain-p-3.dat' u 1:16:(2*$17) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Magnetization^4'
+plot \
+  'chain-g-3.dat' u 1:10 title 'exact diagonalization' w lp, \
+  'chain-e-3.dat' u 1:18:(2*$18) title 'SSE' w e, \
+  'chain-p-3.dat' u 1:18:(2*$18) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Susceptibility'
+plot \
+  'chain-g-3.dat' u 1:11 title 'exact diagonalization' w lp, \
+  'chain-e-3.dat' u 1:20:(2*$21) title 'SSE' w e, \
+  'chain-p-3.dat' u 1:20:(2*$21) title 'path integral' w e
 pause -1
 
 set title 'test 4'
@@ -148,32 +232,60 @@ plot \
   'chain-p-4.dat' u 1:4:(2*$5) title 'path integral' w e
 pause -1
 
-set ylabel 'Magnetization^2'
+set ylabel 'Magnetization'
 plot \
   'chain-g-4.dat' u 1:4 title 'exact diagonalization' w lp, \
   'chain-e-4.dat' u 1:6:(2*$7) title 'SSE' w e, \
   'chain-p-4.dat' u 1:6:(2*$7) title 'path integral' w e
 pause -1
 
-set ylabel 'Uniform Susceptibility'
+set ylabel 'Magnetization^2'
 plot \
   'chain-g-4.dat' u 1:5 title 'exact diagonalization' w lp, \
   'chain-e-4.dat' u 1:8:(2*$9) title 'SSE' w e, \
   'chain-p-4.dat' u 1:8:(2*$9) title 'path integral' w e
 pause -1
 
-set ylabel 'Staggered Magnetization^2'
+set ylabel 'Magnetization^4'
 plot \
   'chain-g-4.dat' u 1:6 title 'exact diagonalization' w lp, \
   'chain-e-4.dat' u 1:10:(2*$11) title 'SSE' w e, \
   'chain-p-4.dat' u 1:10:(2*$11) title 'path integral' w e
 pause -1
 
-set ylabel 'Staggered Susceptibility'
+set ylabel 'Susceptibility'
 plot \
   'chain-g-4.dat' u 1:7 title 'exact diagonalization' w lp, \
   'chain-e-4.dat' u 1:12:(2*$13) title 'SSE' w e, \
   'chain-p-4.dat' u 1:12:(2*$13) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Magnetization'
+plot \
+  'chain-g-4.dat' u 1:8 title 'exact diagonalization' w lp, \
+  'chain-e-4.dat' u 1:14:(2*$15) title 'SSE' w e, \
+  'chain-p-4.dat' u 1:14:(2*$15) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Magnetization^2'
+plot \
+  'chain-g-4.dat' u 1:9 title 'exact diagonalization' w lp, \
+  'chain-e-4.dat' u 1:16:(2*$17) title 'SSE' w e, \
+  'chain-p-4.dat' u 1:16:(2*$17) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Magnetization^4'
+plot \
+  'chain-g-4.dat' u 1:10 title 'exact diagonalization' w lp, \
+  'chain-e-4.dat' u 1:18:(2*$18) title 'SSE' w e, \
+  'chain-p-4.dat' u 1:18:(2*$18) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Susceptibility'
+plot \
+  'chain-g-4.dat' u 1:11 title 'exact diagonalization' w lp, \
+  'chain-e-4.dat' u 1:20:(2*$21) title 'SSE' w e, \
+  'chain-p-4.dat' u 1:20:(2*$21) title 'path integral' w e
 pause -1
 
 set title 'test 5'
@@ -192,32 +304,60 @@ plot \
   'chain-p-5.dat' u 1:4:(2*$5) title 'path integral' w e
 pause -1
 
-set ylabel 'Magnetization^2'
+set ylabel 'Magnetization'
 plot \
   'chain-g-5.dat' u 1:4 title 'exact diagonalization' w lp, \
   'chain-e-5.dat' u 1:6:(2*$7) title 'SSE' w e, \
   'chain-p-5.dat' u 1:6:(2*$7) title 'path integral' w e
 pause -1
 
-set ylabel 'Uniform Susceptibility'
+set ylabel 'Magnetization^2'
 plot \
   'chain-g-5.dat' u 1:5 title 'exact diagonalization' w lp, \
   'chain-e-5.dat' u 1:8:(2*$9) title 'SSE' w e, \
   'chain-p-5.dat' u 1:8:(2*$9) title 'path integral' w e
 pause -1
 
-set ylabel 'Staggered Magnetization^2'
+set ylabel 'Magnetization^4'
 plot \
   'chain-g-5.dat' u 1:6 title 'exact diagonalization' w lp, \
   'chain-e-5.dat' u 1:10:(2*$11) title 'SSE' w e, \
   'chain-p-5.dat' u 1:10:(2*$11) title 'path integral' w e
 pause -1
 
-set ylabel 'Staggered Susceptibility'
+set ylabel 'Susceptibility'
 plot \
   'chain-g-5.dat' u 1:7 title 'exact diagonalization' w lp, \
   'chain-e-5.dat' u 1:12:(2*$13) title 'SSE' w e, \
   'chain-p-5.dat' u 1:12:(2*$13) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Magnetization'
+plot \
+  'chain-g-5.dat' u 1:8 title 'exact diagonalization' w lp, \
+  'chain-e-5.dat' u 1:14:(2*$15) title 'SSE' w e, \
+  'chain-p-5.dat' u 1:14:(2*$15) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Magnetization^2'
+plot \
+  'chain-g-5.dat' u 1:9 title 'exact diagonalization' w lp, \
+  'chain-e-5.dat' u 1:16:(2*$17) title 'SSE' w e, \
+  'chain-p-5.dat' u 1:16:(2*$17) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Magnetization^4'
+plot \
+  'chain-g-5.dat' u 1:10 title 'exact diagonalization' w lp, \
+  'chain-e-5.dat' u 1:18:(2*$18) title 'SSE' w e, \
+  'chain-p-5.dat' u 1:18:(2*$18) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Susceptibility'
+plot \
+  'chain-g-5.dat' u 1:11 title 'exact diagonalization' w lp, \
+  'chain-e-5.dat' u 1:20:(2*$21) title 'SSE' w e, \
+  'chain-p-5.dat' u 1:20:(2*$21) title 'path integral' w e
 pause -1
 
 set title 'test 6'
@@ -236,32 +376,60 @@ plot \
   'chain-p-6.dat' u 1:4:(2*$5) title 'path integral' w e
 pause -1
 
-set ylabel 'Magnetization^2'
+set ylabel 'Magnetization'
 plot \
   'chain-g-6.dat' u 1:4 title 'exact diagonalization' w lp, \
   'chain-e-6.dat' u 1:6:(2*$7) title 'SSE' w e, \
   'chain-p-6.dat' u 1:6:(2*$7) title 'path integral' w e
 pause -1
 
-set ylabel 'Uniform Susceptibility'
+set ylabel 'Magnetization^2'
 plot \
   'chain-g-6.dat' u 1:5 title 'exact diagonalization' w lp, \
   'chain-e-6.dat' u 1:8:(2*$9) title 'SSE' w e, \
   'chain-p-6.dat' u 1:8:(2*$9) title 'path integral' w e
 pause -1
 
-set ylabel 'Staggered Magnetization^2'
+set ylabel 'Magnetization^4'
 plot \
   'chain-g-6.dat' u 1:6 title 'exact diagonalization' w lp, \
   'chain-e-6.dat' u 1:10:(2*$11) title 'SSE' w e, \
   'chain-p-6.dat' u 1:10:(2*$11) title 'path integral' w e
 pause -1
 
-set ylabel 'Staggered Susceptibility'
+set ylabel 'Susceptibility'
 plot \
   'chain-g-6.dat' u 1:7 title 'exact diagonalization' w lp, \
   'chain-e-6.dat' u 1:12:(2*$13) title 'SSE' w e, \
   'chain-p-6.dat' u 1:12:(2*$13) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Magnetization'
+plot \
+  'chain-g-6.dat' u 1:8 title 'exact diagonalization' w lp, \
+  'chain-e-6.dat' u 1:14:(2*$15) title 'SSE' w e, \
+  'chain-p-6.dat' u 1:14:(2*$15) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Magnetization^2'
+plot \
+  'chain-g-6.dat' u 1:9 title 'exact diagonalization' w lp, \
+  'chain-e-6.dat' u 1:16:(2*$17) title 'SSE' w e, \
+  'chain-p-6.dat' u 1:16:(2*$17) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Magnetization^4'
+plot \
+  'chain-g-6.dat' u 1:10 title 'exact diagonalization' w lp, \
+  'chain-e-6.dat' u 1:18:(2*$18) title 'SSE' w e, \
+  'chain-p-6.dat' u 1:18:(2*$18) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Susceptibility'
+plot \
+  'chain-g-6.dat' u 1:11 title 'exact diagonalization' w lp, \
+  'chain-e-6.dat' u 1:20:(2*$21) title 'SSE' w e, \
+  'chain-p-6.dat' u 1:20:(2*$21) title 'path integral' w e
 pause -1
 
 set title 'test 7'
@@ -280,30 +448,59 @@ plot \
   'chain-p-7.dat' u 1:4:(2*$5) title 'path integral' w e
 pause -1
 
-set ylabel 'Magnetization^2'
+set ylabel 'Magnetization'
 plot \
   'chain-g-7.dat' u 1:4 title 'exact diagonalization' w lp, \
   'chain-e-7.dat' u 1:6:(2*$7) title 'SSE' w e, \
   'chain-p-7.dat' u 1:6:(2*$7) title 'path integral' w e
 pause -1
 
-set ylabel 'Uniform Susceptibility'
+set ylabel 'Magnetization^2'
 plot \
   'chain-g-7.dat' u 1:5 title 'exact diagonalization' w lp, \
   'chain-e-7.dat' u 1:8:(2*$9) title 'SSE' w e, \
   'chain-p-7.dat' u 1:8:(2*$9) title 'path integral' w e
 pause -1
 
-set ylabel 'Staggered Magnetization^2'
+set ylabel 'Magnetization^4'
 plot \
   'chain-g-7.dat' u 1:6 title 'exact diagonalization' w lp, \
   'chain-e-7.dat' u 1:10:(2*$11) title 'SSE' w e, \
   'chain-p-7.dat' u 1:10:(2*$11) title 'path integral' w e
 pause -1
 
-set ylabel 'Staggered Susceptibility'
+set ylabel 'Susceptibility'
 plot \
   'chain-g-7.dat' u 1:7 title 'exact diagonalization' w lp, \
   'chain-e-7.dat' u 1:12:(2*$13) title 'SSE' w e, \
   'chain-p-7.dat' u 1:12:(2*$13) title 'path integral' w e
 pause -1
+
+set ylabel 'Staggered Magnetization'
+plot \
+  'chain-g-7.dat' u 1:8 title 'exact diagonalization' w lp, \
+  'chain-e-7.dat' u 1:14:(2*$15) title 'SSE' w e, \
+  'chain-p-7.dat' u 1:14:(2*$15) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Magnetization^2'
+plot \
+  'chain-g-7.dat' u 1:9 title 'exact diagonalization' w lp, \
+  'chain-e-7.dat' u 1:16:(2*$17) title 'SSE' w e, \
+  'chain-p-7.dat' u 1:16:(2*$17) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Magnetization^4'
+plot \
+  'chain-g-7.dat' u 1:10 title 'exact diagonalization' w lp, \
+  'chain-e-7.dat' u 1:18:(2*$18) title 'SSE' w e, \
+  'chain-p-7.dat' u 1:18:(2*$18) title 'path integral' w e
+pause -1
+
+set ylabel 'Staggered Susceptibility'
+plot \
+  'chain-g-7.dat' u 1:11 title 'exact diagonalization' w lp, \
+  'chain-e-7.dat' u 1:20:(2*$21) title 'SSE' w e, \
+  'chain-p-7.dat' u 1:20:(2*$21) title 'path integral' w e
+pause -1
+

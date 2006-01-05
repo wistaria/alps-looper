@@ -30,7 +30,7 @@ run-chain: run-chain-p run-chain-e run-chain-g ../loop_evaluate
 run-chain-p: ../loop
 	if test ! -f chain-p.out.xml; then \
 	  echo 'REPRESENTATION = "path integral"' > chain-p; \
-	  cat $(srcdir)/site >> chain-p; \
+	  cat $(srcdir)/chain >> chain-p; \
 	  $(DESTDIR)$(bindir)/parameter2xml chain-p; \
 	  cp -f chain-p.in.xml chain-p.out.xml; \
 	fi
@@ -38,7 +38,7 @@ run-chain-p: ../loop
 run-chain-e: ../loop
 	if test ! -f chain-e.out.xml; then \
 	  echo 'REPRESENTATION = "SSE"' > chain-e; \
-	  cat $(srcdir)/site >> chain-e; \
+	  cat $(srcdir)/chain >> chain-e; \
 	  $(DESTDIR)$(bindir)/parameter2xml chain-e; \
 	  cp -f chain-e.in.xml chain-e.out.xml; \
 	fi
@@ -54,7 +54,7 @@ run-triangle: run-triangle-p run-triangle-e run-triangle-g ../loop_evaluate
 run-triangle-p: ../loop
 	if test ! -f triangle-p.out.xml; then \
 	  echo 'REPRESENTATION = "path integral"' > triangle-p; \
-	  cat $(srcdir)/site >> triangle-p; \
+	  cat $(srcdir)/triangle >> triangle-p; \
 	  $(DESTDIR)$(bindir)/parameter2xml triangle-p; \
 	  cp -f triangle-p.in.xml triangle-p.out.xml; \
 	fi
@@ -62,7 +62,7 @@ run-triangle-p: ../loop
 run-triangle-e: ../loop
 	if test ! -f triangle-e.out.xml; then \
 	  echo 'REPRESENTATION = "SSE"' > triangle-e; \
-	  cat $(srcdir)/site >> triangle-e; \
+	  cat $(srcdir)/triangle >> triangle-e; \
 	  $(DESTDIR)$(bindir)/parameter2xml triangle-e; \
 	  cp -f triangle-e.in.xml triangle-e.out.xml; \
 	fi
