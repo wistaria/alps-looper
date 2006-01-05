@@ -315,7 +315,7 @@ public:
       }
     }
     if (w.size()) r_graph_.distribution().init(w);
-    if (alps::is_zero(weight_)) weight_ = 1.0e-20;
+    if (alps::is_zero<2>(weight_)) weight_ = 1.0e-20;
     if (is_path_integral)
       r_time_.distribution() = boost::exponential_distribution<>(weight_);
   }
@@ -370,17 +370,19 @@ public:
   {
     diag_.claer();
     std::vector<double> w;
-    double r = 0;
+    weight_ = 0;
     for (typename WEIGHT_TABLE::bond_iterator itr = wt.bond_begin();
          itr != wt.bond_end(); ++itr) {
       if (alps::is_nonzero<1>(itr->second.v[0])) {
         diag_.push_back(local_graph_t::bond_graph(0, itr->first));
         w.push_back(itr->second.v[0]);
-        r += itr->second.v[0];
+        weight_ += itr->second.v[0];
       }
     }
-    r_graph_.distribution().init(w);
-    r_time_.distribution() = boost::exponential_distribution<>(r);
+    if (w.size()) r_graph_.distribution().init(w);
+    if (alps::is_zero<2>(weight_)) weight_ = 1.0e-20;
+    if (is_path_integral)
+      r_time_.distribution() = boost::exponential_distribution<>(weight_);
   }
 
   const local_graph_t& graph() const { return diag_[r_graph_()]; }
@@ -391,12 +393,14 @@ public:
   static local_graph_t offdiagonal(const location_t& loc)
   { return local_graph_t(0, loc); }
   double advance() const { return r_time_(); }
+  double weight() const { return weight_; }
 
 private:
   mutable boost::variate_generator<engine_t&,
     random_choice<> > r_graph_;
   mutable boost::variate_generator<engine_t&,
     boost::exponential_distribution<> > r_time_;
+  double weight_;
   std::vector<local_graph_t> diag_;
 };
 
