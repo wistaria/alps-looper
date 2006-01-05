@@ -237,7 +237,10 @@ public:
   typedef std::vector<bond_parameter> bond_map_type;
   typedef site_parameter::spin_type spin_type;
 
-  model_parameter() {}
+  model_parameter()
+    : sites_(), bonds_(), use_site_index_(false), use_bond_index_(false),
+      has_hz_(false), has_d_(false), signed_(false), frustrated_(false),
+      energy_offset_(0) {}
   template<typename G, typename I>
   model_parameter(const G& g, const alps::half_integer<I>& spin,
                   double Jxy, double Jz) { set_parameters(g, spin, Jxy, Jz); }
@@ -517,6 +520,8 @@ void model_parameter::set_parameters_impl(const G& /* g */,
   bonds_.resize(1);
   bonds_[0] = bond_parameter(0., Jxy, Jz);
 
+  signed_ = false;
+  frustrated_ = false;
   has_hz_ = false;
   has_d_ = false;
 }
@@ -528,6 +533,13 @@ void model_parameter::set_parameters_impl(alps::Parameters params, const G& g,
 {
   typedef typename alps::graph_traits<G>::site_iterator site_iterator;
   typedef typename alps::graph_traits<G>::bond_iterator bond_iterator;
+
+  use_site_index_ = false;
+  use_bond_index_ = false;
+  signed_ = false;
+  frustrated_ = false;
+  has_hz_ = false;
+  has_d_ = false;
 
   params.copy_undefined(hd.default_parameters());
   alps::basis_states_descriptor<I> basis(hd.basis(), g);

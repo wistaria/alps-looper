@@ -172,14 +172,29 @@ void flatten_matrix(boost::multi_array<T, 4> const& m_in,
 // dip (divide_if_positive)
 //
 
-template<typename T>
-T dip(T x, T y, typename enable_if<is_arithmetic<T> >::type* = 0)
-{ return (y > T(0)) ? (x / y) : T(0); }
+template<typename T, typename U>
+T dip(T x, U y,
+      typename enable_if<is_arithmetic<T> >::type* = 0,
+      typename enable_if<is_arithmetic<U> >::type* = 0)
+{ return (y > U(0)) ? (x / y) : T(0); }
 
-template<typename T>
-T dip(T const& x, T const& y, typename disable_if<is_arithmetic<T> >::type* = 0)
-{ return (y > T(0)) ? (x / y) : T(0); }
+template<typename T, typename U>
+T dip(T x, U const& y,
+      typename enable_if<is_arithmetic<T> >::type* = 0,
+      typename disable_if<is_arithmetic<U> >::type* = 0)
+{ return (y > U(0)) ? (x / y) : T(0); }
 
+template<typename T, typename U>
+T dip(T const& x, U y,
+      typename disable_if<is_arithmetic<T> >::type* = 0,
+      typename enable_if<is_arithmetic<U> >::type* = 0)
+{ return (y > U(0)) ? (x / y) : T(0); }
+
+template<typename T, typename U>
+T dip(T const& x, U const& y,
+      typename disable_if<is_arithmetic<T> >::type* = 0,
+      typename disable_if<is_arithmetic<U> >::type* = 0)
+{ return (y > U(0)) ? (x / y) : T(0); }
 
 //
 // function crop_0, crop_01

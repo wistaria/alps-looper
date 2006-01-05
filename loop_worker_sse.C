@@ -25,6 +25,7 @@
 #include "loop_worker_sse.h"
 #include <looper/permutation.h>
 #include <alps/fixed_capacity_vector.h>
+#include <boost/mpl/bool.hpp>
 
 qmc_worker_sse::qmc_worker_sse(alps::ProcessList const& w,
                                alps::Parameters const& p, int n)
@@ -196,6 +197,7 @@ void qmc_worker_sse::dostep_impl()
        fi != fragments.end(); ++fi) fi->id = cluster_id(fragments, *fi);
   clusters.resize(0); clusters.resize(nc);
 
+  std::copy(spins.begin(), spins.end(), spins_c.begin());
   if (IMPROVE()) estimates.resize(0); estimates.resize(nc);
   cluster_info_t::accumulator<cluster_fragment_t, FIELD>
     weight(clusters, fragments, field());
@@ -205,44 +207,44 @@ void qmc_worker_sse::dostep_impl()
   double t = 0;
   for (std::vector<local_operator_t>::iterator oi = operators.begin();
        oi != operators.end(); ++oi, t += 1) {
-    if (oi->is_offdiagonal()) {
-      if (oi->is_bond()) {
-        int s0 = vsource(oi->pos(), vlattice());
-        int s1 = vtarget(oi->pos(), vlattice());
-        weight.term(oi->loop_l0(), t, s0, spins_c[s0]);
-        weight.term(oi->loop_l1(), t, s1, spins_c[s1]);
-        accum.term(oi->loop_l0(), t, s0, spins_c[s0]);
-        accum.term(oi->loop_l1(), t, s1, spins_c[s1]);
+    if (oi->is_bond()) {
+      int s0 = vsource(oi->pos(), vlattice());
+      int s1 = vtarget(oi->pos(), vlattice());
+      weight.term(oi->loop_l0(), t, s0, spins_c[s0]);
+      weight.term(oi->loop_l1(), t, s1, spins_c[s1]);
+      accum.term(oi->loop_l0(), t, s0, spins_c[s0]);
+      accum.term(oi->loop_l1(), t, s1, spins_c[s1]);
+      if (oi->is_offdiagonal()) {
         spins_c[s0] ^= 1;
         spins_c[s1] ^= 1;
-        weight.start(oi->loop_u0(), t, s0, spins_c[s0]);
-        weight.start(oi->loop_u1(), t, s1, spins_c[s1]);
-        accum.start(oi->loop_u0(), t, s0, spins_c[s0]);
-        accum.start(oi->loop_u1(), t, s1, spins_c[s1]);
-      } else {
-        int s = oi->pos();
-        weight.term(oi->loop_l(), t, s, spins_c[s]);
-        accum.term(oi->loop_l(), t, s, spins_c[s]);
-        spins_c[s] ^= 1;
-        weight.start(oi->loop_u(), t, s, spins_c[s]);
-        accum.start(oi->loop_u(), t, s, spins_c[s]);
       }
+      weight.start(oi->loop_u0(), t, s0, spins_c[s0]);
+      weight.start(oi->loop_u1(), t, s1, spins_c[s1]);
+      accum.start(oi->loop_u0(), t, s0, spins_c[s0]);
+      accum.start(oi->loop_u1(), t, s1, spins_c[s1]);
+    } else {
+      int s = oi->pos();
+      weight.term(oi->loop_l(), t, s, spins_c[s]);
+      accum.term(oi->loop_l(), t, s, spins_c[s]);
+      if (oi->is_offdiagonal()) spins_c[s] ^= 1;
+      weight.start(oi->loop_u(), t, s, spins_c[s]);
+      accum.start(oi->loop_u(), t, s, spins_c[s]);
     }
   }
+  int nop_or_1 = std::max(nop, 1);
   for (unsigned int s = 0; s < nvs; ++s) {
-    int loop = fragments[s].id;
-    weight.start(loop, 0, s, spins[s]);
-    weight.term(loop, nop+1, s, spins_c[s]);
-    accum.start(loop, 0, s, spins[s]);
-    accum.term(loop, nop+1, s, spins_c[s]);
-    accum.at_zero(loop, s, spins[s]);
+    weight.start(s, 0, s, spins[s]);
+    weight.term(current[s], nop_or_1, s, spins_c[s]);
+    accum.start(s, 0, s, spins[s]);
+    accum.term(current[s], nop, s, spins_c[s]);
+    accum.at_zero(s, s, spins[s]);
   }
 
   // determine whether clusters are flipped or not
   for (std::vector<cluster_info_t>::iterator ci = clusters.begin();
        ci != clusters.end(); ++ci)
-    ci->to_flip = ((2*random()-1)
-                   < (FIELD() ? std::tanh(beta() * ci->weight / (nop+1)) : 0));
+    ci->to_flip =
+      ((2*random()-1) < (FIELD() ? std::tanh(beta()*ci->weight/nop_or_1) : 0));
 
   // flip operators & spins
   for (operator_iterator oi = operators.begin(); oi != operators.end(); ++oi)
@@ -262,8 +264,8 @@ void qmc_worker_sse::dostep_impl()
   if (FIELD()) {
     for (std::vector<cluster_info_t>::iterator ci = clusters.begin();
          ci != clusters.end(); ++ci)
-      if (ci->to_flip) ene -= ci->weight / (nop+1);
-      else ene += ci->weight / (nop+1);
+      if (ci->to_flip) ene -= ci->weight / nop_or_1;
+      else ene += ci->weight / nop_or_1;
   }
   measurements["Energy"] << ene;
   measurements["Energy Density"] << ene / nrs;
@@ -274,7 +276,7 @@ void qmc_worker_sse::dostep_impl()
   if (IMPROVE()) {
     std::accumulate(estimates.begin(), estimates.end(),
       typename improved_estimator_t::collector<BIPARTITE>::type()).
-      commit(nrs, measurements);
+      commit(qmc_type(), nrs, beta(), nop, measurements);
   } else {
     normal_estimator_t::do_measurement(qmc_type(), vgraph(), BIPARTITE(), nrs,
       beta(), nop, spins, operators, spins_c, measurements);

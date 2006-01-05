@@ -165,26 +165,39 @@ struct improved_collector
     return *this;
   }
 
-  void commit(int nrs, alps::ObservableSet& m) const
+  template<typename QMC>
+  void commit(QMC, int nrs, double beta, int nop, alps::ObservableSet& m) const
   {
     m["Magnetization"] << 0.0;
     m["Magnetization Density"] << 0.0;
     m["Magnetization^2"] << umag2;
     m["Magnetization^4"] << 3 * umag2 * umag2 - 2 * umag4;
-    m["Susceptibility"] << umag / nrs;
+    m["Susceptibility"]
+      << (typename is_path_integral<QMC>::type() ?
+          umag / beta /nrs :
+          beta * (dip(umag, nop) + umag2) / (nop + 1) / nrs);
     m["Generalized Magnetization^2"] << usize2;
     m["Generalized Magnetization^4"] << 3 * usize2 * usize2 - 2 * usize4;
-    m["Generalized Susceptibility"] << usize / nrs;
+    m["Generalized Susceptibility"]
+      << (typename is_path_integral<QMC>::type() ?
+          usize / beta / nrs :
+          beta * (dip(usize, nop) + usize2) / (nop + 1) / nrs);
     if (BIPARTITE()) {
       m["Staggered Magnetization"] << 0.0;
       m["Staggered Magnetization Density"] << 0.0;
       m["Staggered Magnetization^2"] << smag2;
       m["Staggered Magnetization^4"] << 3 * smag2 * smag2 - 2 * smag4;
-      m["Staggered Susceptibility"] << smag / nrs;
+      m["Staggered Susceptibility"]
+        << (typename is_path_integral<QMC>::type() ?
+            smag / beta /nrs :
+            beta * (dip(smag, nop) + smag2) / (nop + 1) / nrs);
       m["Generalized Staggered Magnetization^2"] << ssize2;
       m["Generalized Staggered Magnetization^4"]
         << 3 * ssize2 * ssize2 - 2 * ssize4;
-      m["Generalized Staggered Susceptibility"] << ssize / nrs;
+      m["Generalized Staggered Susceptibility"]
+        << (typename is_path_integral<QMC>::type() ?
+            ssize / beta / nrs :
+            beta * (dip(ssize, nop) + ssize2) / (nop + 1) / nrs);
     }
   }
 };
@@ -321,13 +334,11 @@ struct normal_estimator
     } else {
       umag_a += nop * umag;
       m["Susceptibility"]
-        << beta * ((nop ? power2(umag_a) / nop : 0) + power2(umag))
-        / (nop + 1) / nrs;
+        << beta * (dip(power2(umag_a), nop) + power2(umag)) / (nop + 1) / nrs;
       if (BIPARTITE()) {
         smag_a += nop * smag;
         m["Staggered Susceptibility"]
-          << beta * ((nop ? power2(smag_a) / nop : 0) + power2(smag))
-          / (nop + 1) / nrs;
+          << beta * (dip(power2(smag_a), nop) + power2(smag)) / (nop + 1) / nrs;
       }
     }
   }

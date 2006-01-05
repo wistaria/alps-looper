@@ -81,8 +81,8 @@ public:
   reconnect(std::vector<T>& fragments, int curr) const
   {
     assert(is_site());
-    int loop0 = add(fragments);
-    return boost::make_tuple(loop0, loop0, curr);
+    int loop1 = add(fragments);
+    return boost::make_tuple(loop1, curr, loop1);
   }
 
   template<class T>
