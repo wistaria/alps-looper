@@ -39,182 +39,8 @@ inline void add_measurement(std::string const& name, bool is_signed,
     m << make_observable(alps::RealObservable(name), is_signed);
 }
 
-struct improved_estimate
-{
-  double usize0;
-  double umag0;
-  double usize;
-  double umag;
-  double ssize0;
-  double smag0;
-  double ssize;
-  double smag;
-
-  improved_estimate()
-    : usize0(0), umag0(0), usize(0), umag(0),
-      ssize0(0), smag0(0), ssize(0), smag(0) {}
-
-  template<typename G, typename BIPARTITE>
-  void at_zero(G const& g, BIPARTITE, int s, int c)
-  {
-    usize0 += 0.5;
-    umag0  += (0.5-c);
-    if (BIPARTITE()) {
-      double gg = gauge(g, s);
-      ssize0 += gg * 0.5;
-      smag0  += gg * (0.5-c);
-    }
-  }
-  template<typename G, typename BIPARTITE>
-  void start(G const& g, BIPARTITE, double t, int s, int c)
-  {
-    usize -= t * 0.5;
-    umag  -= t * (0.5-c);
-    if (BIPARTITE()) {
-      double gg = gauge(g, s);
-      ssize -= gg * t * 0.5;
-      smag  -= gg * t * (0.5-c);
-    }
-  }
-  template<typename G, typename BIPARTITE>
-  void term(G const& g, BIPARTITE, double t, int s, int c)
-  {
-    usize += t * 0.5;
-    umag  += t * (0.5-c);
-    if (BIPARTITE()) {
-      double gg = gauge(g, s);
-      ssize += gg * t * 0.5;
-      smag  += gg * t * (0.5-c);
-    }
-  }
-};
-
-template<typename G, typename F, typename IMPROVE, typename BIPARTITE>
-struct improved_accumulator;
-
-template<typename G, typename F, typename BIPARTITE>
-struct improved_accumulator<G, F, boost::mpl::true_, BIPARTITE>
-{
-  typedef improved_estimate estimate_t;
-  typedef G                 lattice_graph_t;
-  typedef F                 cluster_fragment_t;
-  improved_accumulator(std::vector<estimate_t>& es,
-                       std::vector<cluster_fragment_t> const& fr,
-                       lattice_graph_t const& vg)
-    : estimates(es), fragments(fr), vgraph(vg) {}
-  void at_zero(int p, int s, int c)
-  { estimates[fragments[p].id].at_zero(vgraph, BIPARTITE(), s, c); }
-  void start(int p, double t, int s, int c)
-  { estimates[fragments[p].id].start(vgraph, BIPARTITE(), t, s, c); }
-  void term(int p, double t, int s, int c)
-  { estimates[fragments[p].id].term(vgraph, BIPARTITE(), t, s, c); }
-  std::vector<estimate_t>& estimates;
-  std::vector<cluster_fragment_t> const& fragments;
-  lattice_graph_t const& vgraph;
-};
-
-template<typename G, typename F, typename BIPARTITE>
-struct improved_accumulator<G, F, boost::mpl::false_, BIPARTITE>
-{
-  typedef improved_estimate estimate_t;
-  typedef G                 lattice_graph_t;
-  typedef F                 cluster_fragment_t;
-  improved_accumulator(std::vector<estimate_t> const&,
-                       std::vector<cluster_fragment_t> const&,
-                       lattice_graph_t const&) {}
-  void at_zero(int, int, int) const {}
-  void start(int, double, int, int) const {}
-  void term(int, double, int, int) const {}
-};
-
-template<typename BIPARTITE>
-struct improved_collector
-{
-  double usize2;
-  double umag2;
-  double usize4;
-  double umag4;
-  double usize;
-  double umag;
-  double ssize2;
-  double smag2;
-  double ssize4;
-  double smag4;
-  double ssize;
-  double smag;
-  improved_collector()
-    : usize2(0), umag2(0), usize4(0), umag4(0), usize(0), umag(0),
-      ssize2(0), smag2(0), ssize4(0), smag4(0), ssize(0), smag(0) {}
-
-  improved_collector operator+(improved_estimate const& cm)
-  {
-    usize2 += power2(cm.usize0);
-    umag2  += power2(cm.umag0);
-    usize4 += power4(cm.usize0);
-    umag4  += power4(cm.umag0);
-    usize  += power2(cm.usize);
-    umag   += power2(cm.umag);
-    if (BIPARTITE()) {
-      ssize2 += power2(cm.ssize0);
-      smag2  += power2(cm.smag0);
-      ssize4 += power4(cm.ssize0);
-      smag4  += power4(cm.smag0);
-      ssize  += power2(cm.ssize);
-      smag   += power2(cm.smag);
-    }
-    return *this;
-  }
-
-  template<typename QMC>
-  void commit(QMC, int nrs, double beta, int nop, double sign,
-              alps::ObservableSet& m) const
-  {
-    m["Magnetization"] << 0.0;
-    m["Magnetization Density"] << 0.0;
-    m["Magnetization^2"] << sign * umag2;
-    m["Magnetization^4"] << sign * (3 * umag2 * umag2 - 2 * umag4);
-    m["Susceptibility"]
-      << (typename is_path_integral<QMC>::type() ?
-          sign * umag / beta /nrs :
-          sign * beta * (dip(umag, nop) + umag2) / (nop + 1) / nrs);
-    m["Generalized Magnetization^2"] << sign * usize2;
-    m["Generalized Magnetization^4"]
-      << sign * (3 * usize2 * usize2 - 2 * usize4);
-    m["Generalized Susceptibility"]
-      << (typename is_path_integral<QMC>::type() ?
-          sign * usize / beta / nrs :
-          sign * beta * (dip(usize, nop) + usize2) / (nop + 1) / nrs);
-    if (BIPARTITE()) {
-      m["Staggered Magnetization"] << 0.0;
-      m["Staggered Magnetization Density"] << 0.0;
-      m["Staggered Magnetization^2"] << sign * smag2;
-      m["Staggered Magnetization^4"] << sign * (3 * smag2 * smag2 - 2 * smag4);
-      m["Staggered Susceptibility"]
-        << (typename is_path_integral<QMC>::type() ?
-            sign * smag / beta /nrs :
-            sign * beta * (dip(smag, nop) + smag2) / (nop + 1) / nrs);
-      m["Generalized Staggered Magnetization^2"] << sign * ssize2;
-      m["Generalized Staggered Magnetization^4"]
-        << sign * (3 * ssize2 * ssize2 - 2 * ssize4);
-      m["Generalized Staggered Susceptibility"]
-        << (typename is_path_integral<QMC>::type() ?
-            sign * ssize / beta / nrs :
-            sign * beta * (dip(ssize, nop) + ssize2) / (nop + 1) / nrs);
-    }
-  }
-};
-
 struct improved_estimator
 {
-  struct estimate
-  { typedef improved_estimate type; };
-  template<typename F, typename G, typename IMPROVE, typename BIPARTITE>
-  struct accumulator
-  { typedef improved_accumulator<F, G, IMPROVE, BIPARTITE> type; };
-  template<typename BIPARTITE>
-  struct collector
-  { typedef improved_collector<BIPARTITE> type; };
-
   static void init(bool is_bipartite, bool is_signed, alps::ObservableSet& m)
   {
     add_measurement("Magnetization", is_signed, m);
@@ -236,7 +62,147 @@ struct improved_estimator
       add_measurement("Generalized Staggered Susceptibility", is_signed, m);
     }
   }
+
+  struct estimate
+  {
+    double usize0, umag0, usize, umag;
+    double ssize0, smag0, ssize, smag;
+    estimate() : usize0(0), umag0(0), usize(0), umag(0),
+                 ssize0(0), smag0(0), ssize(0), smag(0) {}
+    template<typename G, typename BIPARTITE>
+    void at_zero(G const& g, BIPARTITE, int s, int c)
+    {
+      usize0 += 0.5;
+      umag0  += (0.5-c);
+      if (BIPARTITE()) {
+        double gg = gauge(g, s);
+        ssize0 += gg * 0.5;
+        smag0  += gg * (0.5-c);
+      }
+    }
+    template<typename G, typename BIPARTITE>
+    void start(G const& g, BIPARTITE, double t, int s, int c)
+    {
+      usize -= t * 0.5;
+      umag  -= t * (0.5-c);
+      if (BIPARTITE()) {
+        double gg = gauge(g, s);
+        ssize -= gg * t * 0.5;
+        smag  -= gg * t * (0.5-c);
+      }
+    }
+    template<typename G, typename BIPARTITE>
+    void term(G const& g, BIPARTITE, double t, int s, int c)
+    {
+      usize += t * 0.5;
+      umag  += t * (0.5-c);
+      if (BIPARTITE()) {
+        double gg = gauge(g, s);
+        ssize += gg * t * 0.5;
+        smag  += gg * t * (0.5-c);
+      }
+    }
+  };
+
+  template<typename G, typename F, typename BIPARTITE, typename IMPROVE>
+  struct accumulator
+  {
+    typedef G lattice_graph_t;
+    typedef F cluster_fragment_t;
+    accumulator(std::vector<estimate> const&,
+                std::vector<cluster_fragment_t> const&,
+                lattice_graph_t const&) {}
+    void at_zero(int, int, int) const {}
+    void start(int, double, int, int) const {}
+    void term(int, double, int, int) const {}
+  };
+
+  template<typename G, typename F, typename BIPARTITE>
+  struct accumulator<G, F, BIPARTITE, /* IMPROVE = */ boost::mpl::true_>
+  {
+    typedef G lattice_graph_t;
+    typedef F cluster_fragment_t;
+    accumulator(std::vector<estimate>& es,
+                std::vector<cluster_fragment_t> const& fr,
+                lattice_graph_t const& vg)
+      : estimates(es), fragments(fr), vgraph(vg) {}
+    void at_zero(int p, int s, int c)
+    { estimates[fragments[p].id].at_zero(vgraph, BIPARTITE(), s, c); }
+    void start(int p, double t, int s, int c)
+    { estimates[fragments[p].id].start(vgraph, BIPARTITE(), t, s, c); }
+    void term(int p, double t, int s, int c)
+    { estimates[fragments[p].id].term(vgraph, BIPARTITE(), t, s, c); }
+    std::vector<estimate>& estimates;
+    std::vector<cluster_fragment_t> const& fragments;
+    lattice_graph_t const& vgraph;
+  };
+
+  template<typename BIPARTITE>
+  struct collector
+  {
+    double usize2, umag2, usize4, umag4, usize, umag;
+    double ssize2, smag2, ssize4, smag4, ssize, smag;
+    collector() : usize2(0), umag2(0), usize4(0), umag4(0), usize(0), umag(0),
+                  ssize2(0), smag2(0), ssize4(0), smag4(0), ssize(0), smag(0) {}
+    collector operator+(estimate const& cm)
+    {
+      usize2 += power2(cm.usize0);
+      umag2  += power2(cm.umag0);
+      usize4 += power4(cm.usize0);
+      umag4  += power4(cm.umag0);
+      usize  += power2(cm.usize);
+      umag   += power2(cm.umag);
+      if (BIPARTITE()) {
+        ssize2 += power2(cm.ssize0);
+        smag2  += power2(cm.smag0);
+        ssize4 += power4(cm.ssize0);
+        smag4  += power4(cm.smag0);
+        ssize  += power2(cm.ssize);
+        smag   += power2(cm.smag);
+      }
+      return *this;
+    }
+    template<typename QMC>
+    void commit(QMC, int nrs, double beta, int nop, double sign,
+                alps::ObservableSet& m) const
+    {
+      m["Magnetization"] << 0.0;
+      m["Magnetization Density"] << 0.0;
+      m["Magnetization^2"] << sign * umag2;
+      m["Magnetization^4"] << sign * (3 * umag2 * umag2 - 2 * umag4);
+      m["Susceptibility"]
+        << (typename is_path_integral<QMC>::type() ?
+            sign * umag / beta /nrs :
+            sign * beta * (dip(umag, nop) + umag2) / (nop + 1) / nrs);
+      m["Generalized Magnetization^2"] << sign * usize2;
+      m["Generalized Magnetization^4"]
+        << sign * (3 * usize2 * usize2 - 2 * usize4);
+      m["Generalized Susceptibility"]
+        << (typename is_path_integral<QMC>::type() ?
+            sign * usize / beta / nrs :
+            sign * beta * (dip(usize, nop) + usize2) / (nop + 1) / nrs);
+      if (BIPARTITE()) {
+        m["Staggered Magnetization"] << 0.0;
+        m["Staggered Magnetization Density"] << 0.0;
+        m["Staggered Magnetization^2"] << sign * smag2;
+        m["Staggered Magnetization^4"]
+          << sign * (3 * smag2 * smag2 - 2 * smag4);
+        m["Staggered Susceptibility"]
+          << (typename is_path_integral<QMC>::type() ?
+              sign * smag / beta /nrs :
+              sign * beta * (dip(smag, nop) + smag2) / (nop + 1) / nrs);
+        m["Generalized Staggered Magnetization^2"] << sign * ssize2;
+        m["Generalized Staggered Magnetization^4"]
+          << sign * (3 * ssize2 * ssize2 - 2 * ssize4);
+        m["Generalized Staggered Susceptibility"]
+          << (typename is_path_integral<QMC>::type() ?
+              sign * ssize / beta / nrs :
+              sign * beta * (dip(ssize, nop) + ssize2) / (nop + 1) / nrs);
+      }
+    }
+  };
 };
+
 
 struct normal_estimator
 {
@@ -268,12 +234,11 @@ struct normal_estimator
   static inline void proceed(boost::mpl::false_, double&) {}
 
   template<typename QMC, class G, class BIPARTITE, class OP>
-  static void do_measurement(QMC, G const& vg, BIPARTITE, int nrs,
-                             double beta, int nop, double sign,
-                             std::vector<int> const& spins,
-                             std::vector<OP> const& operators,
-                             std::vector<int>& spins_c,
-                             alps::ObservableSet& m)
+  static void
+  do_measurement(QMC, G const& vg, BIPARTITE, int nrs, double beta,
+    int nop, double sign, std::vector<int> const& spins,
+    std::vector<OP> const& operators, std::vector<int>& spins_c,
+    alps::ObservableSet& m)
   {
     typedef G graph_type;
     typedef typename alps::graph_traits<G>::site_iterator site_iterator;

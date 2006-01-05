@@ -31,6 +31,11 @@ qmc_worker_sse::qmc_worker_sse(alps::ProcessList const& w,
                                alps::Parameters const& p, int n)
   : super_type(w, p, n, looper::is_path_integral<qmc_type>::type())
 {
+  if (w == alps::ProcessList()) return;
+
+  if (has_field())
+    boost::throw_exception(std::logic_error("longitudinal field is not supported in SSE representation"));
+
   //
   // initialize configuration
   //
@@ -45,19 +50,14 @@ qmc_worker_sse::qmc_worker_sse(alps::ProcessList const& w,
   // init measurements
   //
 
-  using alps::RealObservable;
-  using alps::make_observable;
-
-  if (is_signed()) measurements << RealObservable("Sign");
-
+  if (is_signed()) measurements << alps::RealObservable("Sign");
   measurements
     << make_observable(
-         RealObservable("Energy"), is_signed())
+         alps::RealObservable("Energy"), is_signed())
     << make_observable(
-         RealObservable("Energy Density"), is_signed())
+         alps::RealObservable("Energy Density"), is_signed())
     << make_observable(
-         RealObservable("Energy^2"), is_signed());
-
+         alps::RealObservable("Energy^2"), is_signed());
   normal_estimator_t::init(is_bipartite(), is_signed(), measurements);
   if (use_improved_estimator())
     improved_estimator_t::init(is_bipartite(), is_signed(), measurements);
@@ -70,18 +70,10 @@ void qmc_worker_sse::dostep()
 
   namespace mpl = boost::mpl;
   //          BIPARTITE    FIELD        SIGN         IMPROVE
-  dostep_impl<mpl::true_,  mpl::true_,  mpl::true_,  mpl::true_ >();
-  dostep_impl<mpl::true_,  mpl::true_,  mpl::true_,  mpl::false_>();
-  dostep_impl<mpl::true_,  mpl::true_,  mpl::false_, mpl::true_ >();
-  dostep_impl<mpl::true_,  mpl::true_,  mpl::false_, mpl::false_>();
   dostep_impl<mpl::true_,  mpl::false_, mpl::true_,  mpl::true_ >();
   dostep_impl<mpl::true_,  mpl::false_, mpl::true_,  mpl::false_>();
   dostep_impl<mpl::true_,  mpl::false_, mpl::false_, mpl::true_ >();
   dostep_impl<mpl::true_,  mpl::false_, mpl::false_, mpl::false_>();
-  dostep_impl<mpl::false_, mpl::true_,  mpl::true_,  mpl::true_ >();
-  dostep_impl<mpl::false_, mpl::true_,  mpl::true_,  mpl::true_ >();
-  dostep_impl<mpl::false_, mpl::true_,  mpl::false_, mpl::true_ >();
-  dostep_impl<mpl::false_, mpl::true_,  mpl::false_, mpl::false_>();
   dostep_impl<mpl::false_, mpl::false_, mpl::true_,  mpl::true_ >();
   dostep_impl<mpl::false_, mpl::false_, mpl::true_,  mpl::true_ >();
   dostep_impl<mpl::false_, mpl::false_, mpl::false_, mpl::true_ >();
@@ -211,9 +203,8 @@ void qmc_worker_sse::dostep_impl()
   if (IMPROVE()) estimates.resize(0); estimates.resize(nc);
   cluster_info_t::accumulator<cluster_fragment_t, FIELD, SIGN, IMPROVE>
     weight(clusters, fragments, field(), bond_sign(), site_sign());
-  typename improved_estimator_t::accumulator<lattice_graph_t,
-    cluster_fragment_t, IMPROVE, BIPARTITE>::type
-    accum(estimates, fragments, vgraph());
+  improved_estimator_t::accumulator<lattice_graph_t, cluster_fragment_t,
+    BIPARTITE, IMPROVE> accum(estimates, fragments, vgraph());
   double t = 0;
   for (std::vector<local_operator_t>::iterator oi = operators.begin();
        oi != operators.end(); ++oi, t += 1) {
@@ -221,32 +212,23 @@ void qmc_worker_sse::dostep_impl()
       int s0 = vsource(oi->pos(), vlattice());
       int s1 = vtarget(oi->pos(), vlattice());
       weight.bond_sign(oi->loop_0(), oi->loop_1(), oi->pos());
-      weight.term(oi->loop_l0(), t, s0, spins_c[s0]);
-      weight.term(oi->loop_l1(), t, s1, spins_c[s1]);
       accum.term(oi->loop_l0(), t, s0, spins_c[s0]);
       accum.term(oi->loop_l1(), t, s1, spins_c[s1]);
       if (oi->is_offdiagonal()) {
         spins_c[s0] ^= 1;
         spins_c[s1] ^= 1;
       }
-      weight.start(oi->loop_u0(), t, s0, spins_c[s0]);
-      weight.start(oi->loop_u1(), t, s1, spins_c[s1]);
       accum.start(oi->loop_u0(), t, s0, spins_c[s0]);
       accum.start(oi->loop_u1(), t, s1, spins_c[s1]);
     } else {
       int s = oi->pos();
       weight.site_sign(oi->loop_0(), oi->loop_1(), oi->pos());
-      weight.term(oi->loop_l(), t, s, spins_c[s]);
       accum.term(oi->loop_l(), t, s, spins_c[s]);
       if (oi->is_offdiagonal()) spins_c[s] ^= 1;
-      weight.start(oi->loop_u(), t, s, spins_c[s]);
       accum.start(oi->loop_u(), t, s, spins_c[s]);
     }
   }
-  int nop_or_1 = std::max(nop, 1);
   for (unsigned int s = 0; s < nvs; ++s) {
-    weight.start(s, 0, s, spins[s]);
-    weight.term(current[s], nop_or_1, s, spins_c[s]);
     accum.start(s, 0, s, spins[s]);
     accum.term(current[s], nop, s, spins_c[s]);
     accum.at_zero(s, s, spins[s]);
@@ -256,8 +238,7 @@ void qmc_worker_sse::dostep_impl()
   double improved_sign = 1;
   for (std::vector<cluster_info_t>::iterator ci = clusters.begin();
        ci != clusters.end(); ++ci) {
-    ci->to_flip =
-      ((2*random()-1) < (FIELD() ? std::tanh(beta()*ci->weight/nop_or_1) : 0));
+    ci->to_flip = (2*random()-1 < 0);
     if (SIGN() && IMPROVE() && ci->sign == 1) improved_sign = 0;
   }
 
@@ -298,7 +279,7 @@ void qmc_worker_sse::dostep_impl()
   // other measurements
   if (IMPROVE()) {
     std::accumulate(estimates.begin(), estimates.end(),
-      typename improved_estimator_t::collector<BIPARTITE>::type()).
+      improved_estimator_t::collector<BIPARTITE>()).
       commit(qmc_type(), nrs, beta(), nop, improved_sign, measurements);
   } else {
     normal_estimator_t::do_measurement(qmc_type(), vgraph(), BIPARTITE(), nrs,

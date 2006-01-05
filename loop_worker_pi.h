@@ -62,7 +62,7 @@ private:
   std::vector<cluster_fragment_t> fragments;
   std::vector<int> current;
   std::vector<cluster_info_t> clusters;
-  std::vector<improved_estimator_t::estimate::type> estimates;
+  std::vector<improved_estimator_t::estimate> estimates;
 };
 
 #endif // LOOP_WORKER_PI_H

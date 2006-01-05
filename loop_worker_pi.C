@@ -31,6 +31,8 @@ qmc_worker_pi::qmc_worker_pi(alps::ProcessList const& w,
                              alps::Parameters const& p, int n)
   : super_type(w, p, n, looper::is_path_integral<qmc_type>::type())
 {
+  if (w == alps::ProcessList()) return;
+
   //
   // initialize configuration
   //
@@ -45,19 +47,14 @@ qmc_worker_pi::qmc_worker_pi(alps::ProcessList const& w,
   // init measurements
   //
 
-  using alps::RealObservable;
-  using alps::make_observable;
-
-  if (is_signed()) measurements << RealObservable("Sign");
-
+  if (is_signed()) measurements << alps::RealObservable("Sign");
   measurements
     << make_observable(
-         RealObservable("Energy"), is_signed())
+         alps::RealObservable("Energy"), is_signed())
     << make_observable(
-         RealObservable("Energy Density"), is_signed())
+         alps::RealObservable("Energy Density"), is_signed())
     << make_observable(
-         RealObservable("Energy^2"), is_signed());
-
+         alps::RealObservable("Energy^2"), is_signed());
   normal_estimator_t::init(is_bipartite(), is_signed(), measurements);
   if (use_improved_estimator())
     improved_estimator_t::init(is_bipartite(), is_signed(), measurements);
@@ -191,9 +188,8 @@ void qmc_worker_pi::dostep_impl()
   if (IMPROVE()) estimates.resize(0); estimates.resize(nc);
   cluster_info_t::accumulator<cluster_fragment_t, FIELD, SIGN, IMPROVE>
     weight(clusters, fragments, field(), bond_sign(), site_sign());
-  typename improved_estimator_t::accumulator<lattice_graph_t,
-    cluster_fragment_t, IMPROVE, BIPARTITE>::type
-    accum(estimates, fragments, vgraph());
+  improved_estimator_t::accumulator<lattice_graph_t, cluster_fragment_t,
+    BIPARTITE, IMPROVE> accum(estimates, fragments, vgraph());
   for (std::vector<local_operator_t>::iterator oi = operators.begin();
        oi != operators.end(); ++oi) {
     double t = oi->time();
@@ -283,7 +279,7 @@ void qmc_worker_pi::dostep_impl()
   // other measurements
   if (IMPROVE()) {
     std::accumulate(estimates.begin(), estimates.end(),
-      typename improved_estimator_t::collector<BIPARTITE>::type()).
+      improved_estimator_t::collector<BIPARTITE>()).
       commit(qmc_type(), nrs, beta(), nop, improved_sign, measurements);
   } else {
     normal_estimator_t::do_measurement(qmc_type(), vgraph(), BIPARTITE(), nrs,

@@ -35,60 +35,59 @@ qmc_worker_base::qmc_worker_base(alps::ProcessList const& w,
     beta_(1.0 / static_cast<double>(p["T"])),
     chooser_(*engine_ptr)
 {
-  if (w != alps::ProcessList()) {
-    if (mcs_sweep_.min() < 1 || mcs_sweep_.min() > mcs_sweep_.max())
-      boost::throw_exception(std::invalid_argument(
-        "qmc_worker_base::qmc_worker_base() inconsistent MC steps"));
+  if (w == alps::ProcessList()) return;
 
-    if (beta_ < 0)
-      boost::throw_exception(std::invalid_argument(
-        "qmc_worker_base::qmc_worker_base() negative beta"));
+  if (mcs_sweep_.min() < 1 || mcs_sweep_.min() > mcs_sweep_.max())
+    boost::throw_exception(std::invalid_argument(
+      "qmc_worker_base::qmc_worker_base() inconsistent MC steps"));
 
-    looper::model_parameter mp(p, *this);
-    if (mp.is_signed())
-      std::cerr << "WARNING: model has negative signs\n";
-    energy_offset_ = mp.energy_offset();
+  if (beta_ < 0)
+    boost::throw_exception(std::invalid_argument(
+      "qmc_worker_base::qmc_worker_base() negative beta"));
 
-    vlat_.generate(graph(), mp, mp.has_d_term());
+  looper::model_parameter mp(p, *this);
+  if (mp.is_signed()) std::cerr << "WARNING: model has negative signs\n";
 
-    if (mp.is_frustrated())
-      std::cerr << "WARNING: model is classically frustrated\n";
-    is_frustrated_ = mp.is_frustrated();
-    double fs = p.value_or_default("FORCE_SCATTER", is_frustrated() ? 0.1 : 0);
+  energy_offset_ = mp.energy_offset();
 
-    looper::weight_table wt(mp, rgraph(), vlattice(), fs);
-    energy_offset_ += wt.energy_offset();
-    chooser_.init(wt, is_path_integral);
+  vlat_.generate(graph(), mp, mp.has_d_term());
+  if (mp.is_frustrated())
+    std::cerr << "WARNING: model is classically frustrated\n";
+  is_frustrated_ = mp.is_frustrated();
+  double fs = p.value_or_default("FORCE_SCATTER", is_frustrated() ? 0.1 : 0);
 
-    is_signed_ = mp.is_signed();
-    if (mp.is_signed()) {
-      bond_sign_.resize(num_bonds(vlat_));
-      std::fill(bond_sign_.begin(), bond_sign_.end(), 0);
-      looper::weight_table::bond_weight_iterator bi, bi_end;
-      for (boost::tie(bi, bi_end) = wt.bond_weights(); bi != bi_end; ++bi)
-        if (bi->second.sign < 0) bond_sign_[bi->first] = 1;
-      site_sign_.resize(num_sites(vlat_));
-      std::fill(site_sign_.begin(), site_sign_.end(), 0);
-      looper::weight_table::site_weight_iterator si, si_end;
-      for (boost::tie(si, si_end) = wt.site_weights(); si != si_end; ++si)
-        if (si->second.sign < 0) site_sign_[si->first] = 1;
-    }
+  looper::weight_table wt(mp, rgraph(), vlattice(), fs);
+  energy_offset_ += wt.energy_offset();
+  chooser_.init(wt, is_path_integral);
 
-    if (mp.has_field()) {
-      field_.resize(0);
-      site_iterator rsi, rsi_end;
-      for (boost::tie(rsi, rsi_end) = sites(rgraph()); rsi != rsi_end; ++rsi) {
-        site_iterator vsi, vsi_end;
-        for (boost::tie(vsi, vsi_end) =
-               virtual_sites(vlattice(), rgraph(), *rsi);
-             vsi != vsi_end; ++vsi)
-          field_.push_back(mp.site(*rsi, rgraph()).hz);
-      }
-    }
-
-    use_improved_estimator_ =
-      !(mp.has_field() || p.defined("DISABLE_IMPROVED_ESTIMATOR"));
+  is_signed_ = mp.is_signed();
+  if (mp.is_signed()) {
+    bond_sign_.resize(num_bonds(vlat_));
+    std::fill(bond_sign_.begin(), bond_sign_.end(), 0);
+    looper::weight_table::bond_weight_iterator bi, bi_end;
+    for (boost::tie(bi, bi_end) = wt.bond_weights(); bi != bi_end; ++bi)
+      if (bi->second.sign < 0) bond_sign_[bi->first] = 1;
+    site_sign_.resize(num_sites(vlat_));
+    std::fill(site_sign_.begin(), site_sign_.end(), 0);
+    looper::weight_table::site_weight_iterator si, si_end;
+    for (boost::tie(si, si_end) = wt.site_weights(); si != si_end; ++si)
+      if (si->second.sign < 0) site_sign_[si->first] = 1;
   }
+
+  if (mp.has_field()) {
+    field_.resize(0);
+    site_iterator rsi, rsi_end;
+    for (boost::tie(rsi, rsi_end) = sites(rgraph()); rsi != rsi_end; ++rsi) {
+      site_iterator vsi, vsi_end;
+      for (boost::tie(vsi, vsi_end) =
+             virtual_sites(vlattice(), rgraph(), *rsi);
+           vsi != vsi_end; ++vsi)
+        field_.push_back(mp.site(*rsi, rgraph()).hz);
+    }
+  }
+
+  use_improved_estimator_ =
+    !(mp.has_field() || p.defined("DISABLE_IMPROVED_ESTIMATOR"));
 }
 
 qmc_worker_base::~qmc_worker_base() {}
@@ -104,6 +103,40 @@ void qmc_worker_base::accumulate(alps::ObservableSet const& m_in,
     alps::RealObsevaluator eval("Specific Heat");
     eval = looper::power2(beta()) * (obse_e2 - looper::power2(obse_e))
       / num_sites(rgraph());
+    m_out << eval;
+  }
+  if (m_in.has("Magnetization^2") && m_in.has("Magnetization^4")) {
+    alps::RealObsevaluator obse_m2 = m_in["Magnetization^2"];
+    alps::RealObsevaluator obse_m4 = m_in["Magnetization^4"];
+    alps::RealObsevaluator eval("Binder Ratio of Magnetization");
+    eval = looper::power2(obse_m2) / obse_m4;
+    m_out << eval;
+  }
+  if (m_in.has("Staggered Magnetization^2") &&
+      m_in.has("Staggered Magnetization^4")) {
+    alps::RealObsevaluator obse_m2 = m_in["Staggered Magnetization^2"];
+    alps::RealObsevaluator obse_m4 = m_in["Staggered Magnetization^4"];
+    alps::RealObsevaluator eval("Binder Ratio of Staggered Magnetization");
+    eval = looper::power2(obse_m2) / obse_m4;
+    m_out << eval;
+  }
+  if (m_in.has("Generalized Magnetization^2") &&
+      m_in.has("Generalized Magnetization^4")) {
+    alps::RealObsevaluator obse_m2 = m_in["Generalized Magnetization^2"];
+    alps::RealObsevaluator obse_m4 = m_in["Generalized Magnetization^4"];
+    alps::RealObsevaluator eval("Binder Ratio of Generalized Magnetization");
+    eval = looper::power2(obse_m2) / obse_m4;
+    m_out << eval;
+  }
+  if (m_in.has("Generalized Staggered Magnetization^2") &&
+      m_in.has("Generalized Staggered Magnetization^4")) {
+    alps::RealObsevaluator obse_m2 =
+      m_in["Generalized Staggered Magnetization^2"];
+    alps::RealObsevaluator obse_m4 =
+      m_in["Generalized Staggered Magnetization^4"];
+    alps::RealObsevaluator
+      eval("Binder Ratio of Generalized Staggered Magnetization");
+    eval = looper::power2(obse_m2) / obse_m4;
     m_out << eval;
   }
 }

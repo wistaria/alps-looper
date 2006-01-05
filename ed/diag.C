@@ -426,7 +426,9 @@ try {
               << "uniform magnetization           = " << umag << std::endl
               << "uniform magnetization^2         = " << umag2 << std::endl
               << "uniform magnetization^4         = " << umag4 << std::endl
-              << "uniform susceptibility          = " << usus << std::endl;
+              << "uniform susceptibility          = " << usus << std::endl
+              << "binder ratio of magnetization   = " << umag2 * umag2 / umag4
+	      << std::endl;
 
     if (is_bipartite) {
       diagonal_matrix_type staggered_sz(dim);
@@ -460,7 +462,9 @@ try {
                 << "staggered magnetization         = " << smag << std::endl
                 << "staggered magnetization^2       = " << smag2 << std::endl
                 << "staggered magnetization^4       = " << smag4 << std::endl
-                << "staggered susceptibility        = " << ssus << std::endl;
+                << "staggered susceptibility        = " << ssus << std::endl
+		<< "binder ratio of staggered mag   = " << smag2 * smag2 / smag4
+		<< std::endl;
     }
   }
 

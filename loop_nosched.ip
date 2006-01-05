@@ -2,6 +2,23 @@ SEED    = 23125
 SWEEPS  = 65536
 MODEL   = "spin"
 T = 0.25
+
+REPRESENTATION = "path integral"
+{
+LATTICE = "chain lattice"
+L = 4
+}
+{
+LATTICE = "chain lattice"
+L = 4
+local_S = 1
+}
+{
+LATTICE = "site"
+Gamma = 1
+}
+
+REPRESENTATION = "SSE"
 {
 LATTICE = "chain lattice"
 L = 4
