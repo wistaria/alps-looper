@@ -172,7 +172,7 @@ struct improved_estimator
       m["Magnetization^4"] << sign * (3 * umag2 * umag2 - 2 * umag4);
       m["Susceptibility"]
         << (typename is_path_integral<QMC>::type() ?
-            sign * umag / beta /nrs :
+            sign * umag / beta / nrs :
             sign * beta * (dip(umag, nop) + umag2) / (nop + 1) / nrs);
       m["Generalized Magnetization^2"] << sign * usize2;
       m["Generalized Magnetization^4"]
