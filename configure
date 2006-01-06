@@ -463,7 +463,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CXX CXXFLAGS ac_ct_CXX CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE build build_cpu build_vendor build_os host host_cpu host_vendor host_os EGREP LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL HAVE_MPI_TRUE HAVE_MPI_FALSE DEFAULT_INCLUDES LDADD CPPFLAGS_MPI LDFLAGS_MPI LIBS_MPI LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CXX CXXFLAGS ac_ct_CXX CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE build build_cpu build_vendor build_os host host_cpu host_vendor host_os EGREP LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL HAVE_MPI_TRUE HAVE_MPI_FALSE DEFAULT_INCLUDES LDADD CPPFLAGS_MPI LDFLAGS_MPI LIBS_MPI EXIST_CHECK_TRUE EXIST_CHECK_FALSE BUILD_CHECK_TRUE BUILD_CHECK_FALSE EXIST_TEST_TRUE EXIST_TEST_FALSE BUILD_TEST_TRUE BUILD_TEST_FALSE EXIST_V31_TRUE EXIST_V31_FALSE BUILD_V31_TRUE BUILD_V31_FALSE LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -18633,11 +18633,96 @@ LIBS_MPI="$ac_cv_alps_libs_mpi"
 
 
 
+if test -f "$srcdir/check/Makefile.in"; then
+  exist_check=yes
+fi
+
+
+if test "$exist_check" = yes; then
+  EXIST_CHECK_TRUE=
+  EXIST_CHECK_FALSE='#'
+else
+  EXIST_CHECK_TRUE='#'
+  EXIST_CHECK_FALSE=
+fi
+
+
+
+if false; then
+  BUILD_CHECK_TRUE=
+  BUILD_CHECK_FALSE='#'
+else
+  BUILD_CHECK_TRUE='#'
+  BUILD_CHECK_FALSE=
+fi
+
+
+if test -f "$srcdir/test/Makefile.in"; then
+  exist_test=yes
+fi
+
+
+if test "$exist_test" = yes; then
+  EXIST_TEST_TRUE=
+  EXIST_TEST_FALSE='#'
+else
+  EXIST_TEST_TRUE='#'
+  EXIST_TEST_FALSE=
+fi
+
+
+
+if false; then
+  BUILD_TEST_TRUE=
+  BUILD_TEST_FALSE='#'
+else
+  BUILD_TEST_TRUE='#'
+  BUILD_TEST_FALSE=
+fi
+
+
+if test -f "$srcdir/v3.1/Makefile.in"; then
+  exist_v31=yes
+fi
+
+
+if test "$exist_v31" = yes; then
+  EXIST_V31_TRUE=
+  EXIST_V31_FALSE='#'
+else
+  EXIST_V31_TRUE='#'
+  EXIST_V31_FALSE=
+fi
+
+
+
+if false; then
+  BUILD_V31_TRUE=
+  BUILD_V31_FALSE='#'
+else
+  BUILD_V31_TRUE='#'
+  BUILD_V31_FALSE=
+fi
+
+
+
           ac_config_headers="$ac_config_headers loop_config.h"
 
-                                                  ac_config_files="$ac_config_files Makefile doc/Makefile test/Makefile ed/Makefile check/Makefile"
+                    ac_config_files="$ac_config_files Makefile doc/Makefile"
 
-                              ac_config_files="$ac_config_files check/site.gp check/chain.gp check/triangle.gp"
+
+if test "$exist_check" = yes; then
+                                          ac_config_files="$ac_config_files check/Makefile check/site.gp check/chain.gp check/triangle.gp"
+
+fi
+if test "$exist_test" = yes; then
+            ac_config_files="$ac_config_files test/Makefile"
+
+fi
+if test "$exist_v31" = yes; then
+            ac_config_files="$ac_config_files v3.1/Makefile"
+
+fi
 
 
 
@@ -18709,6 +18794,48 @@ if test -z "${HAVE_MPI_TRUE}" && test -z "${HAVE_MPI_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"HAVE_MPI\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"HAVE_MPI\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${EXIST_CHECK_TRUE}" && test -z "${EXIST_CHECK_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"EXIST_CHECK\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"EXIST_CHECK\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${BUILD_CHECK_TRUE}" && test -z "${BUILD_CHECK_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"BUILD_CHECK\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"BUILD_CHECK\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${EXIST_TEST_TRUE}" && test -z "${EXIST_TEST_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"EXIST_TEST\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"EXIST_TEST\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${BUILD_TEST_TRUE}" && test -z "${BUILD_TEST_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"BUILD_TEST\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"BUILD_TEST\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${EXIST_V31_TRUE}" && test -z "${EXIST_V31_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"EXIST_V31\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"EXIST_V31\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${BUILD_V31_TRUE}" && test -z "${BUILD_V31_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"BUILD_V31\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"BUILD_V31\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -19158,12 +19285,12 @@ do
   # Handling of arguments.
   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
   "doc/Makefile" ) CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
-  "test/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
-  "ed/Makefile" ) CONFIG_FILES="$CONFIG_FILES ed/Makefile" ;;
   "check/Makefile" ) CONFIG_FILES="$CONFIG_FILES check/Makefile" ;;
   "check/site.gp" ) CONFIG_FILES="$CONFIG_FILES check/site.gp" ;;
   "check/chain.gp" ) CONFIG_FILES="$CONFIG_FILES check/chain.gp" ;;
   "check/triangle.gp" ) CONFIG_FILES="$CONFIG_FILES check/triangle.gp" ;;
+  "test/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
+  "v3.1/Makefile" ) CONFIG_FILES="$CONFIG_FILES v3.1/Makefile" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
   "loop_config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS loop_config.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
@@ -19326,6 +19453,18 @@ s,@LDADD@,$LDADD,;t t
 s,@CPPFLAGS_MPI@,$CPPFLAGS_MPI,;t t
 s,@LDFLAGS_MPI@,$LDFLAGS_MPI,;t t
 s,@LIBS_MPI@,$LIBS_MPI,;t t
+s,@EXIST_CHECK_TRUE@,$EXIST_CHECK_TRUE,;t t
+s,@EXIST_CHECK_FALSE@,$EXIST_CHECK_FALSE,;t t
+s,@BUILD_CHECK_TRUE@,$BUILD_CHECK_TRUE,;t t
+s,@BUILD_CHECK_FALSE@,$BUILD_CHECK_FALSE,;t t
+s,@EXIST_TEST_TRUE@,$EXIST_TEST_TRUE,;t t
+s,@EXIST_TEST_FALSE@,$EXIST_TEST_FALSE,;t t
+s,@BUILD_TEST_TRUE@,$BUILD_TEST_TRUE,;t t
+s,@BUILD_TEST_FALSE@,$BUILD_TEST_FALSE,;t t
+s,@EXIST_V31_TRUE@,$EXIST_V31_TRUE,;t t
+s,@EXIST_V31_FALSE@,$EXIST_V31_FALSE,;t t
+s,@BUILD_V31_TRUE@,$BUILD_V31_TRUE,;t t
+s,@BUILD_V31_FALSE@,$BUILD_V31_FALSE,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
 CEOF

@@ -39,10 +39,12 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-noinst_PROGRAMS = loop$(EXEEXT) loop_evaluate$(EXEEXT) \
-	loop_nosched$(EXEEXT) $(am__EXEEXT_1)
-@HAVE_MPI_TRUE@am__append_1 = loop_mpi
-check_PROGRAMS = loop_nosched$(EXEEXT)
+@EXIST_CHECK_TRUE@am__append_1 = check
+@EXIST_TEST_TRUE@am__append_2 = test
+@EXIST_V31_TRUE@am__append_3 = v3.1
+noinst_PROGRAMS = loop$(EXEEXT) loop_evaluate$(EXEEXT) $(am__EXEEXT_1)
+@HAVE_MPI_TRUE@am__append_4 = loop_mpi
+check_PROGRAMS = diag$(EXEEXT) loop_nosched$(EXEEXT)
 DIST_COMMON = README $(am__configure_deps) $(dist_noinst_DATA) \
 	$(dist_noinst_SCRIPTS) $(include_HEADERS) \
 	$(pkginclude_HEADERS) $(srcdir)/Makefile.am \
@@ -62,6 +64,10 @@ CONFIG_HEADER = loop_config.h
 CONFIG_CLEAN_FILES =
 @HAVE_MPI_TRUE@am__EXEEXT_1 = loop_mpi$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
+am_diag_OBJECTS = diag.$(OBJEXT)
+diag_OBJECTS = $(am_diag_OBJECTS)
+diag_LDADD = $(LDADD)
+diag_DEPENDENCIES =
 am__objects_1 = loop.$(OBJEXT) loop_factory.$(OBJEXT) \
 	loop_worker.$(OBJEXT) loop_worker_pi.$(OBJEXT) \
 	loop_worker_sse.$(OBJEXT)
@@ -109,10 +115,11 @@ LTCOMPILE = $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(loop_SOURCES) $(loop_evaluate_SOURCES) $(loop_mpi_SOURCES) \
-	$(loop_nosched_SOURCES)
-DIST_SOURCES = $(loop_SOURCES) $(loop_evaluate_SOURCES) \
+SOURCES = $(diag_SOURCES) $(loop_SOURCES) $(loop_evaluate_SOURCES) \
 	$(loop_mpi_SOURCES) $(loop_nosched_SOURCES)
+DIST_SOURCES = $(diag_SOURCES) $(loop_SOURCES) \
+	$(loop_evaluate_SOURCES) $(loop_mpi_SOURCES) \
+	$(loop_nosched_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-exec-recursive install-info-recursive \
@@ -133,7 +140,7 @@ pkgincludeHEADERS_INSTALL = $(INSTALL_HEADER)
 HEADERS = $(include_HEADERS) $(pkginclude_HEADERS)
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = $(SUBDIRS)
+DIST_SUBDIRS = doc check test v3.1 .
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 top_distdir = $(distdir)
 am__remove_distdir = \
@@ -153,6 +160,12 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BUILD_CHECK_FALSE = @BUILD_CHECK_FALSE@
+BUILD_CHECK_TRUE = @BUILD_CHECK_TRUE@
+BUILD_TEST_FALSE = @BUILD_TEST_FALSE@
+BUILD_TEST_TRUE = @BUILD_TEST_TRUE@
+BUILD_V31_FALSE = @BUILD_V31_FALSE@
+BUILD_V31_TRUE = @BUILD_V31_TRUE@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -173,6 +186,12 @@ ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
+EXIST_CHECK_FALSE = @EXIST_CHECK_FALSE@
+EXIST_CHECK_TRUE = @EXIST_CHECK_TRUE@
+EXIST_TEST_FALSE = @EXIST_TEST_FALSE@
+EXIST_TEST_TRUE = @EXIST_TEST_TRUE@
+EXIST_V31_FALSE = @EXIST_V31_FALSE@
+EXIST_V31_TRUE = @EXIST_V31_TRUE@
 F77 = @F77@
 FFLAGS = @FFLAGS@
 HAVE_MPI_FALSE = @HAVE_MPI_FALSE@
@@ -250,7 +269,7 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-SUBDIRS = doc test ed check .
+SUBDIRS = doc $(am__append_1) $(am__append_2) $(am__append_3) .
 REMOVE_FOR_RELEASE = 
 distdir = alps-looper-$(VERSION)
 include_HEADERS = looper.h
@@ -273,7 +292,7 @@ pkginclude_HEADERS = \
 	looper/weight.h
 
 dist_noinst_SCRIPTS = config/run-test config/update_preamble
-dist_noinst_DATA = CITATIONS.txt LICENSE.txt loop_nosched.ip loop_nosched.op
+dist_noinst_DATA = CITATIONS.txt LICENSE.txt diag.ip diag.op loop_nosched.ip loop_nosched.op
 TESTS = $(check_PROGRAMS)
 TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
 SRC = loop.C loop_config.h loop_factory.C loop_factory.h \
@@ -283,12 +302,13 @@ SRC = loop.C loop_config.h loop_factory.C loop_factory.h \
 
 loop_SOURCES = $(SRC)
 loop_evaluate_SOURCES = loop_evaluate.C loop_worker.C
-loop_nosched_SOURCES = $(SRC)
-loop_nosched_CPPFLAGS = -DWITHOUT_SCHEDULER
 loop_mpi_SOURCES = $(SRC)
 loop_mpi_CPPFLAGS = @CPPFLAGS_MPI@
 loop_mpi_LDFLAGS = @LDFLAGS_MPI@
 loop_mpi_LDADD = @LIBS_MPI@
+loop_nosched_SOURCES = $(SRC)
+loop_nosched_CPPFLAGS = -DWITHOUT_SCHEDULER
+diag_SOURCES = diag.C
 all: loop_config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
@@ -358,6 +378,9 @@ clean-noinstPROGRAMS:
 	  echo " rm -f $$p $$f"; \
 	  rm -f $$p $$f ; \
 	done
+diag$(EXEEXT): $(diag_OBJECTS) $(diag_DEPENDENCIES) 
+	@rm -f diag$(EXEEXT)
+	$(CXXLINK) $(diag_LDFLAGS) $(diag_OBJECTS) $(diag_LDADD) $(LIBS)
 loop$(EXEEXT): $(loop_OBJECTS) $(loop_DEPENDENCIES) 
 	@rm -f loop$(EXEEXT)
 	$(CXXLINK) $(loop_LDFLAGS) $(loop_OBJECTS) $(loop_LDADD) $(LIBS)
@@ -377,6 +400,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/diag.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_evaluate.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_factory.Po@am__quote@

@@ -1,14 +1,24 @@
-SUBDIRS = doc test ed check .
+SUBDIRS = doc
+if EXIST_CHECK
+SUBDIRS += check
+endif
+if EXIST_TEST
+SUBDIRS += test
+endif
+if EXIST_V31
+SUBDIRS += v3.1
+endif
+SUBDIRS += .
 
 REMOVE_FOR_RELEASE =
 
 distdir = alps-looper-$(VERSION)
 
-noinst_PROGRAMS = loop loop_evaluate loop_nosched
+noinst_PROGRAMS = loop loop_evaluate
 if HAVE_MPI
 noinst_PROGRAMS += loop_mpi
 endif
-check_PROGRAMS = loop_nosched
+check_PROGRAMS = diag loop_nosched
 
 include_HEADERS = looper.h
 pkginclude_HEADERS = \
@@ -30,7 +40,7 @@ pkginclude_HEADERS = \
 	looper/weight.h
 
 dist_noinst_SCRIPTS = config/run-test config/update_preamble
-dist_noinst_DATA = CITATIONS.txt LICENSE.txt loop_nosched.ip loop_nosched.op
+dist_noinst_DATA = CITATIONS.txt LICENSE.txt diag.ip diag.op loop_nosched.ip loop_nosched.op
 
 TESTS = $(check_PROGRAMS)
 TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
@@ -42,13 +52,14 @@ SRC = loop.C loop_config.h loop_factory.C loop_factory.h \
 
 loop_SOURCES = $(SRC)
 loop_evaluate_SOURCES = loop_evaluate.C loop_worker.C
-loop_nosched_SOURCES = $(SRC)
-loop_nosched_CPPFLAGS = -DWITHOUT_SCHEDULER
-
 loop_mpi_SOURCES = $(SRC)
 loop_mpi_CPPFLAGS = @CPPFLAGS_MPI@
 loop_mpi_LDFLAGS = @LDFLAGS_MPI@
 loop_mpi_LDADD = @LIBS_MPI@
+
+loop_nosched_SOURCES = $(SRC)
+loop_nosched_CPPFLAGS = -DWITHOUT_SCHEDULER
+diag_SOURCES = diag.C
 
 .PHONY : test tests
 test tests : check

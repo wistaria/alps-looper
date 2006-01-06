@@ -102,11 +102,41 @@ AC_SUBST([CPPFLAGS_MPI], "$ac_cv_alps_cppflags_mpi")
 AC_SUBST([LDFLAGS_MPI], "$ac_cv_alps_ldflags_mpi")
 AC_SUBST([LIBS_MPI], "$ac_cv_alps_libs_mpi")
 
+dnl subdirectories
+
+if test -f "$srcdir/check/Makefile.in"; then
+  exist_check=yes
+fi
+AM_CONDITIONAL(EXIST_CHECK, test "$exist_check" = yes)
+AM_CONDITIONAL(BUILD_CHECK, false)
+
+if test -f "$srcdir/test/Makefile.in"; then
+  exist_test=yes
+fi
+AM_CONDITIONAL(EXIST_TEST, test "$exist_test" = yes)
+AM_CONDITIONAL(BUILD_TEST, false)
+
+if test -f "$srcdir/v3.1/Makefile.in"; then
+  exist_v31=yes
+fi
+AM_CONDITIONAL(EXIST_V31, test "$exist_v31" = yes)
+AM_CONDITIONAL(BUILD_V31, false)
+
 dnl
 dnl generate files
 dnl
 
 AC_CONFIG_HEADERS(loop_config.h)
-AC_CONFIG_FILES(Makefile doc/Makefile test/Makefile ed/Makefile check/Makefile)
-AC_CONFIG_FILES(check/site.gp check/chain.gp check/triangle.gp)
+AC_CONFIG_FILES(Makefile doc/Makefile)
+
+if test "$exist_check" = yes; then
+  AC_CONFIG_FILES(check/Makefile check/site.gp check/chain.gp check/triangle.gp)
+fi
+if test "$exist_test" = yes; then
+  AC_CONFIG_FILES(test/Makefile)
+fi
+if test "$exist_v31" = yes; then
+  AC_CONFIG_FILES(v3.1/Makefile)
+fi
+
 AC_OUTPUT

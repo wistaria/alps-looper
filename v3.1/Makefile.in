@@ -14,6 +14,7 @@
 
 @SET_MAKE@
 
+
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 VPATH = @srcdir@
@@ -36,9 +37,10 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-check_PROGRAMS = diag$(EXEEXT)
-subdir = ed
-DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
+noinst_PROGRAMS = $(am__EXEEXT_2)
+@BUILD_V31_TRUE@am__append_1 = $(PROG)
+subdir = v3.1
+DIST_COMMON = $(dist_noinst_HEADERS) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -47,10 +49,21 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/loop_config.h
 CONFIG_CLEAN_FILES =
-am_diag_OBJECTS = diag.$(OBJEXT)
-diag_OBJECTS = $(am_diag_OBJECTS)
-diag_LDADD = $(LDADD)
-diag_DEPENDENCIES =
+am__EXEEXT_1 = loop$(EXEEXT) loop_evaluate$(EXEEXT) loop_cmd$(EXEEXT)
+@BUILD_V31_TRUE@am__EXEEXT_2 = $(am__EXEEXT_1)
+PROGRAMS = $(noinst_PROGRAMS)
+am_loop_OBJECTS = loop.$(OBJEXT) loop_factory.$(OBJEXT)
+loop_OBJECTS = $(am_loop_OBJECTS)
+loop_LDADD = $(LDADD)
+loop_DEPENDENCIES =
+am_loop_cmd_OBJECTS = loop_cmd.$(OBJEXT)
+loop_cmd_OBJECTS = $(am_loop_cmd_OBJECTS)
+loop_cmd_LDADD = $(LDADD)
+loop_cmd_DEPENDENCIES =
+am_loop_evaluate_OBJECTS = loop_evaluate.$(OBJEXT)
+loop_evaluate_OBJECTS = $(am_loop_evaluate_OBJECTS)
+loop_evaluate_LDADD = $(LDADD)
+loop_evaluate_DEPENDENCIES =
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -61,9 +74,18 @@ LTCXXCOMPILE = $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) \
 CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --tag=CXX --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(diag_SOURCES)
-DIST_SOURCES = $(diag_SOURCES)
-DATA = $(dist_noinst_DATA)
+COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) \
+	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
+	$(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+SOURCES = $(loop_SOURCES) $(loop_cmd_SOURCES) $(loop_evaluate_SOURCES)
+DIST_SOURCES = $(loop_SOURCES) $(loop_cmd_SOURCES) \
+	$(loop_evaluate_SOURCES)
+HEADERS = $(dist_noinst_HEADERS)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -76,6 +98,12 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BUILD_CHECK_FALSE = @BUILD_CHECK_FALSE@
+BUILD_CHECK_TRUE = @BUILD_CHECK_TRUE@
+BUILD_TEST_FALSE = @BUILD_TEST_FALSE@
+BUILD_TEST_TRUE = @BUILD_TEST_TRUE@
+BUILD_V31_FALSE = @BUILD_V31_FALSE@
+BUILD_V31_TRUE = @BUILD_V31_TRUE@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -87,7 +115,7 @@ CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
 CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
-DEFAULT_INCLUDES = @DEFAULT_INCLUDES@
+DEFAULT_INCLUDES = -I$(top_builddir)/v3.1 -I$(top_srcdir)/v3.1
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 ECHO = @ECHO@
@@ -96,6 +124,12 @@ ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
+EXIST_CHECK_FALSE = @EXIST_CHECK_FALSE@
+EXIST_CHECK_TRUE = @EXIST_CHECK_TRUE@
+EXIST_TEST_FALSE = @EXIST_TEST_FALSE@
+EXIST_TEST_TRUE = @EXIST_TEST_TRUE@
+EXIST_V31_FALSE = @EXIST_V31_FALSE@
+EXIST_V31_TRUE = @EXIST_V31_TRUE@
 F77 = @F77@
 FFLAGS = @FFLAGS@
 HAVE_MPI_FALSE = @HAVE_MPI_FALSE@
@@ -173,11 +207,31 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-TESTS = $(check_PROGRAMS)
-TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
-diag_SOURCES = diag.C
-dist_noinst_SCRIPT = extract.sh run-diag.sh
-dist_noinst_DATA = diag.ip diag.op heisenberg.dat heisenberg.ip ising-x.ip ising-z.ip ising.dat xy-x.ip xy-z.ip xy.dat
+PROG = loop loop_evaluate loop_cmd
+dist_noinst_HEADERS = looper.h \
+	looper/amida.h \
+	looper/exact_diag.h \
+	looper/fill_duration.h \
+	looper/find_bridges.h \
+	looper/graph.h \
+	looper/lapack.h \
+	looper/measurement.h \
+	looper/model.h \
+	looper/node.h \
+	looper/operator.h \
+	looper/path_integral.h \
+	looper/permutation.h \
+	looper/random_choice.h \
+	looper/sign.h \
+	looper/sse.h \
+	looper/union_find.h \
+	looper/util.h \
+	looper/vector_helper.h \
+	looper/weight.h
+
+loop_SOURCES = loop.C loop_factory.C loop_factory.h loop_worker.h
+loop_evaluate_SOURCES = loop_evaluate.C loop_worker.h
+loop_cmd_SOURCES = loop_cmd.C loop_worker.h
 all: all-am
 
 .SUFFIXES:
@@ -191,9 +245,9 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__confi
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign  ed/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign  v3.1/Makefile'; \
 	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign  ed/Makefile
+	  $(AUTOMAKE) --foreign  v3.1/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -212,15 +266,21 @@ $(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 
-clean-checkPROGRAMS:
-	@list='$(check_PROGRAMS)'; for p in $$list; do \
+clean-noinstPROGRAMS:
+	@list='$(noinst_PROGRAMS)'; for p in $$list; do \
 	  f=`echo $$p|sed 's/$(EXEEXT)$$//'`; \
 	  echo " rm -f $$p $$f"; \
 	  rm -f $$p $$f ; \
 	done
-diag$(EXEEXT): $(diag_OBJECTS) $(diag_DEPENDENCIES) 
-	@rm -f diag$(EXEEXT)
-	$(CXXLINK) $(diag_LDFLAGS) $(diag_OBJECTS) $(diag_LDADD) $(LIBS)
+loop$(EXEEXT): $(loop_OBJECTS) $(loop_DEPENDENCIES) 
+	@rm -f loop$(EXEEXT)
+	$(CXXLINK) $(loop_LDFLAGS) $(loop_OBJECTS) $(loop_LDADD) $(LIBS)
+loop_cmd$(EXEEXT): $(loop_cmd_OBJECTS) $(loop_cmd_DEPENDENCIES) 
+	@rm -f loop_cmd$(EXEEXT)
+	$(CXXLINK) $(loop_cmd_LDFLAGS) $(loop_cmd_OBJECTS) $(loop_cmd_LDADD) $(LIBS)
+loop_evaluate$(EXEEXT): $(loop_evaluate_OBJECTS) $(loop_evaluate_DEPENDENCIES) 
+	@rm -f loop_evaluate$(EXEEXT)
+	$(CXXLINK) $(loop_evaluate_LDFLAGS) $(loop_evaluate_OBJECTS) $(loop_evaluate_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -228,7 +288,10 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/diag.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_cmd.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_evaluate.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_factory.Po@am__quote@
 
 .C.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
@@ -309,80 +372,8 @@ GTAGS:
 distclean-tags:
 	-rm -f TAGS ID GTAGS GRTAGS GSYMS GPATH tags
 
-check-TESTS: $(TESTS)
-	@failed=0; all=0; xfail=0; xpass=0; skip=0; \
-	srcdir=$(srcdir); export srcdir; \
-	list='$(TESTS)'; \
-	if test -n "$$list"; then \
-	  for tst in $$list; do \
-	    if test -f ./$$tst; then dir=./; \
-	    elif test -f $$tst; then dir=; \
-	    else dir="$(srcdir)/"; fi; \
-	    if $(TESTS_ENVIRONMENT) $${dir}$$tst; then \
-	      all=`expr $$all + 1`; \
-	      case " $(XFAIL_TESTS) " in \
-	      *" $$tst "*) \
-		xpass=`expr $$xpass + 1`; \
-		failed=`expr $$failed + 1`; \
-		echo "XPASS: $$tst"; \
-	      ;; \
-	      *) \
-		echo "PASS: $$tst"; \
-	      ;; \
-	      esac; \
-	    elif test $$? -ne 77; then \
-	      all=`expr $$all + 1`; \
-	      case " $(XFAIL_TESTS) " in \
-	      *" $$tst "*) \
-		xfail=`expr $$xfail + 1`; \
-		echo "XFAIL: $$tst"; \
-	      ;; \
-	      *) \
-		failed=`expr $$failed + 1`; \
-		echo "FAIL: $$tst"; \
-	      ;; \
-	      esac; \
-	    else \
-	      skip=`expr $$skip + 1`; \
-	      echo "SKIP: $$tst"; \
-	    fi; \
-	  done; \
-	  if test "$$failed" -eq 0; then \
-	    if test "$$xfail" -eq 0; then \
-	      banner="All $$all tests passed"; \
-	    else \
-	      banner="All $$all tests behaved as expected ($$xfail expected failures)"; \
-	    fi; \
-	  else \
-	    if test "$$xpass" -eq 0; then \
-	      banner="$$failed of $$all tests failed"; \
-	    else \
-	      banner="$$failed of $$all tests did not behave as expected ($$xpass unexpected passes)"; \
-	    fi; \
-	  fi; \
-	  dashes="$$banner"; \
-	  skipped=""; \
-	  if test "$$skip" -ne 0; then \
-	    skipped="($$skip tests were not run)"; \
-	    test `echo "$$skipped" | wc -c` -le `echo "$$banner" | wc -c` || \
-	      dashes="$$skipped"; \
-	  fi; \
-	  report=""; \
-	  if test "$$failed" -ne 0 && test -n "$(PACKAGE_BUGREPORT)"; then \
-	    report="Please report to $(PACKAGE_BUGREPORT)"; \
-	    test `echo "$$report" | wc -c` -le `echo "$$banner" | wc -c` || \
-	      dashes="$$report"; \
-	  fi; \
-	  dashes=`echo "$$dashes" | sed s/./=/g`; \
-	  echo "$$dashes"; \
-	  echo "$$banner"; \
-	  test -z "$$skipped" || echo "$$skipped"; \
-	  test -z "$$report" || echo "$$report"; \
-	  echo "$$dashes"; \
-	  test "$$failed" -eq 0; \
-	else :; fi
-
 distdir: $(DISTFILES)
+	$(mkdir_p) $(distdir)/looper
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \
@@ -410,10 +401,8 @@ distdir: $(DISTFILES)
 	  fi; \
 	done
 check-am: all-am
-	$(MAKE) $(AM_MAKEFLAGS) $(check_PROGRAMS)
-	$(MAKE) $(AM_MAKEFLAGS) check-TESTS
 check: check-am
-all-am: Makefile $(DATA)
+all-am: Makefile $(PROGRAMS) $(HEADERS)
 installdirs:
 install: install-am
 install-exec: install-exec-am
@@ -439,9 +428,14 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
-clean-am: clean-checkPROGRAMS clean-generic clean-libtool \
+clean: clean-am
+
+clean-am: clean-generic clean-libtool clean-local clean-noinstPROGRAMS \
 	mostlyclean-am
 
+distclean: distclean-am
+	-rm -rf ./$(DEPDIR)
+	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-libtool distclean-tags
 
@@ -485,26 +479,22 @@ ps-am:
 
 uninstall-am: uninstall-info-am
 
-.PHONY: CTAGS GTAGS all all-am check check-TESTS check-am clean \
-	clean-checkPROGRAMS clean-generic clean-libtool ctags \
-	distclean distclean-compile distclean-generic \
-	distclean-libtool distclean-tags distdir dvi dvi-am html \
-	html-am info info-am install install-am install-data \
-	install-data-am install-exec install-exec-am install-info \
-	install-info-am install-man install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags uninstall uninstall-am uninstall-info-am
+.PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
+	clean-libtool clean-local clean-noinstPROGRAMS ctags distclean \
+	distclean-compile distclean-generic distclean-libtool \
+	distclean-tags distdir dvi dvi-am html html-am info info-am \
+	install install-am install-data install-data-am install-exec \
+	install-exec-am install-info install-info-am install-man \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
+	pdf pdf-am ps ps-am tags uninstall uninstall-am \
+	uninstall-info-am
 
 
-clean: clean-am clean-extra
-clean-extra:
-	rm -f $(check_PROGRAMS)
-distclean: distclean-extra distclean-am
-distclean-extra: clean-extra
-	rm -rf ./$(DEPDIR)
-	rm -f Makefile
+prog: $(PROG)
+clean-local:
+	rm -f $(PROG)
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
