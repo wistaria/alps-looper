@@ -265,6 +265,7 @@ pkginclude_HEADERS = \
 	looper/operator.h \
 	looper/permutation.h \
 	looper/random_choice.h \
+	looper/spin.h \
 	looper/type.h \
 	looper/union_find.h \
 	looper/util.h \
