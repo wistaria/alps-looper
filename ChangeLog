@@ -1,6 +1,8 @@
-2005-04-01  Synge Todo <wistaria@comp-phys.org>
+2006-01-06  Synge Todo <wistaria@comp-phys.org>
 
-	* Added simple and self-contained loop code (alps-looper/simple/)
+	* First working version of new alps-looper (candidate of version 3.2)
+
+	* Old version is moved into v3.1 subdirectory
 	
 2005-02-23  Synge Todo <wistaria@comp-phys.org>
 

@@ -1,5 +1,12 @@
 run: run-site run-chain run-triangle
 
+../loop:
+	(cd .. && make loop)
+../loop_evaluate:
+	(cd .. && make loop_evaluate)
+../diag:
+	(cd .. && make diag)
+
 run-site: run-site-p run-site-e run-site-g ../loop_evaluate
 	$(SHELL) $(srcdir)/evaluate-site.sh @bindir@
 
@@ -19,9 +26,9 @@ run-site-e: ../loop
 	  cp -f site-e.in.xml site-e.out.xml; \
 	fi
 	../loop --Tmin 1 site-e.out.xml
-run-site-g: ../ed/diag
+run-site-g: ../diag
 	if test ! -f site-g.out; then \
-	  ../ed/diag < $(srcdir)/site > site-g.out; \
+	  ../diag < $(srcdir)/site > site-g.out; \
 	fi
 
 run-chain: run-chain-p run-chain-e run-chain-g ../loop_evaluate
@@ -43,9 +50,9 @@ run-chain-e: ../loop
 	  cp -f chain-e.in.xml chain-e.out.xml; \
 	fi
 	../loop --Tmin 1 chain-e.out.xml
-run-chain-g: ../ed/diag
+run-chain-g: ../diag
 	if test ! -f chain-g.out; then \
-	  ../ed/diag < $(srcdir)/chain > chain-g.out; \
+	  ../diag < $(srcdir)/chain > chain-g.out; \
 	fi
 
 run-triangle: run-triangle-p run-triangle-e run-triangle-g ../loop_evaluate
@@ -69,7 +76,7 @@ run-triangle-e: ../loop
 	../loop --Tmin 1 triangle-e.out.xml
 run-triangle-g: ../loop
 	if test ! -f triangle-g.out; then \
-	  ../ed/diag < $(srcdir)/triangle > triangle-g.out; \
+	  ../diag < $(srcdir)/triangle > triangle-g.out; \
 	fi
 
 clean-local :
