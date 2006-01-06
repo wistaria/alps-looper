@@ -239,7 +239,7 @@ void qmc_worker_sse::dostep_impl()
   for (std::vector<cluster_info_t>::iterator ci = clusters.begin();
        ci != clusters.end(); ++ci) {
     ci->to_flip = (2*random()-1 < 0);
-    if (SIGN() && IMPROVE() && ci->sign == 1) improved_sign = 0;
+    if (SIGN() && IMPROVE()) if (ci->sign & 1 == 1) improved_sign = 0;
   }
 
   // flip operators & spins
@@ -261,11 +261,8 @@ void qmc_worker_sse::dostep_impl()
     int n = 0;
     for (operator_iterator oi = operators.begin(); oi != operators.end(); ++oi)
       if (oi->is_offdiagonal())
-        if (oi->is_bond())
-          n ^= bond_sign(oi->pos());
-        else
-          n ^= site_sign(oi->pos());
-    sign = 1 - 2 * n;
+        n += (oi->is_bond()) ? bond_sign(oi->pos()) : site_sign(oi->pos());
+    if (n & 1 == 1) sign = -1;
     measurements["Sign"] << (IMPROVE() ? improved_sign : sign);
   }
 

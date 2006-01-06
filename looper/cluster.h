@@ -85,13 +85,13 @@ struct cluster_info
       : clusters(cl), fragments(fr), bond_s(bs), site_s(ss) {}
     void bond_sign(int p0, int p1, int b)
     {
-      clusters[fragments[p0].id].sign ^= bond_s[b];
-      clusters[fragments[p1].id].sign ^= bond_s[b];
+      clusters[fragments[p0].id].sign += bond_s[b];
+      clusters[fragments[p1].id].sign += bond_s[b];
     }
     void site_sign(int p0, int p1, int s)
     {
-      clusters[fragments[p0].id].sign ^= site_s[s];
-      clusters[fragments[p1].id].sign ^= site_s[s];
+      clusters[fragments[p0].id].sign += site_s[s];
+      clusters[fragments[p1].id].sign += site_s[s];
     }
     std::vector<cluster_info>& clusters;
     std::vector<cluster_fragment_t> const& fragments;
