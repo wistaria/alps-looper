@@ -6,7 +6,7 @@ site weight (standard): C = 0, Hx = 0.1 : v[0] = 0.05, offset = 0.05, sign = 1
 bond weight (standard): C = 0, Jxy = 1, Jz = 1.5 : v[0] = 0.5, v[1] = 0.25, v[2] = 0, v[3] = 0, offset = 0.375, sign = -1
 bond weight (ergodic): C = 0, Jxy = 1, Jz = 1.5 : v[0] = 0.45, v[1] = 0.35, v[2] = 0.05, v[3] = 0, offset = 0.425, sign = -1
 site weight (standard): C = 0, Hx = 0.1 : v[0] = 0.05, offset = 0.05, sign = 1
-bond weight (standard): C = 0, Jxy = 1, Jz = 1 : v[0] = 0.5, v[1] = -0, v[2] = 0, v[3] = 0, offset = 0.25, sign = -1
+bond weight (standard): C = 0, Jxy = 1, Jz = 1 : v[0] = 0.5, v[1] = 0, v[2] = 0, v[3] = 0, offset = 0.25, sign = -1
 bond weight (ergodic): C = 0, Jxy = 1, Jz = 1 : v[0] = 0.45, v[1] = 0.1, v[2] = 0.05, v[3] = 0, offset = 0.3, sign = -1
 site weight (standard): C = 0, Hx = 0.1 : v[0] = 0.05, offset = 0.05, sign = 1
 bond weight (standard): C = 0, Jxy = 1, Jz = 0.5 : v[0] = 0.375, v[1] = 0, v[2] = 0.125, v[3] = 0, offset = 0.25, sign = -1
@@ -36,7 +36,7 @@ site weight (standard): C = 0, Hx = 0 : v[0] = 0, offset = 0, sign = 1
 bond weight (standard): C = 0, Jxy = -1, Jz = 2.3 : v[0] = 0.5, v[1] = 0.65, v[2] = 0, v[3] = 0, offset = 0.575, sign = 1
 bond weight (ergodic): C = 0, Jxy = -1, Jz = 2.3 : v[0] = 0.45, v[1] = 0.75, v[2] = 0.05, v[3] = 0, offset = 0.625, sign = 1
 site weight (standard): C = 0, Hx = 0 : v[0] = 0, offset = 0, sign = 1
-bond weight (standard): C = 0, Jxy = -1, Jz = 1 : v[0] = 0.5, v[1] = -0, v[2] = 0, v[3] = 0, offset = 0.25, sign = 1
+bond weight (standard): C = 0, Jxy = -1, Jz = 1 : v[0] = 0.5, v[1] = 0, v[2] = 0, v[3] = 0, offset = 0.25, sign = 1
 bond weight (ergodic): C = 0, Jxy = -1, Jz = 1 : v[0] = 0.45, v[1] = 0.1, v[2] = 0.05, v[3] = 0, offset = 0.3, sign = 1
 site weight (standard): C = 0, Hx = 0 : v[0] = 0, offset = 0, sign = 1
 bond weight (standard): C = 0, Jxy = -1, Jz = 0.3 : v[0] = 0.325, v[1] = 0, v[2] = 0.175, v[3] = 0, offset = 0.25, sign = 1

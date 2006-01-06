@@ -24,6 +24,7 @@
 
 #include <looper/model.h>
 #include <looper/weight.h>
+#include <alps/math.hpp>
 #include <alps/parameterlist.h>
 #include <boost/random.hpp>
 #include <iostream>
@@ -32,7 +33,7 @@ void output(const looper::site_parameter& p, const looper::site_weight& w)
 {
   std::cout << "C = " << p.c
             << ", Hx = " << p.hx
-            << " : v[0] = " << w.v[0]
+            << " : v[0] = " << alps::round<1>(w.v[0])
             << ", offset = " << w.offset
             << ", sign = " << w.sign << std::endl;
   w.check(p);
@@ -43,10 +44,10 @@ void output(const looper::bond_parameter& p, const looper::bond_weight& w)
   std::cout << "C = " << p.c
             << ", Jxy = " << p.jxy
             << ", Jz = " << p.jz
-            << " : v[0] = " << w.v[0]
-            << ", v[1] = " << w.v[1]
-            << ", v[2] = " << w.v[2]
-            << ", v[3] = " << w.v[3]
+            << " : v[0] = " << alps::round<1>(w.v[0])
+            << ", v[1] = " << alps::round<1>(w.v[1])
+            << ", v[2] = " << alps::round<1>(w.v[2])
+            << ", v[3] = " << alps::round<1>(w.v[3])
             << ", offset = " << w.offset
             << ", sign = " << w.sign << std::endl;
   w.check(p);
