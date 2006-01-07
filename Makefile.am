@@ -18,7 +18,7 @@ noinst_PROGRAMS = loop loop_evaluate
 if HAVE_MPI
 noinst_PROGRAMS += loop_mpi
 endif
-check_PROGRAMS = diag loop_nosched
+check_PROGRAMS = diag loop-ns
 
 include_HEADERS = looper.h
 pkginclude_HEADERS = \
@@ -39,7 +39,7 @@ pkginclude_HEADERS = \
 	looper/weight.h
 
 dist_noinst_SCRIPTS = config/run-test config/update_preamble
-dist_noinst_DATA = CITATIONS.txt LICENSE.txt diag.ip diag.op loop_nosched.ip loop_nosched.op
+dist_noinst_DATA = CITATIONS.txt LICENSE.txt diag.ip diag.op loop-ns.ip loop-ns.op
 
 TESTS = $(check_PROGRAMS)
 TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
@@ -56,8 +56,8 @@ loop_mpi_CPPFLAGS = @CPPFLAGS_MPI@
 loop_mpi_LDFLAGS = @LDFLAGS_MPI@
 loop_mpi_LDADD = @LIBS_MPI@
 
-loop_nosched_SOURCES = $(SRC)
-loop_nosched_CPPFLAGS = -DWITHOUT_SCHEDULER
+loop_ns_SOURCES = $(SRC)
+loop_ns_CPPFLAGS = -DWITHOUT_SCHEDULER
 diag_SOURCES = diag.C
 
 .PHONY : test tests
