@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2003-2005 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 2003-2006 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -428,7 +428,7 @@ try {
               << "uniform magnetization^4         = " << umag4 << std::endl
               << "uniform susceptibility          = " << usus << std::endl
               << "binder ratio of magnetization   = " << umag2 * umag2 / umag4
-	      << std::endl;
+              << std::endl;
 
     if (is_bipartite) {
       diagonal_matrix_type staggered_sz(dim);
@@ -463,8 +463,8 @@ try {
                 << "staggered magnetization^2       = " << smag2 << std::endl
                 << "staggered magnetization^4       = " << smag4 << std::endl
                 << "staggered susceptibility        = " << ssus << std::endl
-		<< "binder ratio of staggered mag   = " << smag2 * smag2 / smag4
-		<< std::endl;
+                << "binder ratio of staggered mag   = " << smag2 * smag2 / smag4
+                << std::endl;
     }
   }
 
