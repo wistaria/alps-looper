@@ -28,8 +28,8 @@
 //   `The Art of Computer Programming, Vol. 1, Fundamental Algorithms'
 //   3rd edition (Addison Wesley, Reading, 1997) Sec 2.3.3.
 
-#ifndef LOOPER_UNION_FIND_H
-#define LOOPER_UNION_FIND_H
+#ifndef LOOPER_UNIONFIND_H
+#define LOOPER_UNIONFIND_H
 
 #include <algorithm> // for std::swap
 #include <vector>
@@ -96,4 +96,4 @@ inline int unify(std::vector<T>& v, int g0, int g1)
 } // end namespace union_find
 } // end namespace looper
 
-#endif
+#endif // LOOPER_UNIONFIND_H

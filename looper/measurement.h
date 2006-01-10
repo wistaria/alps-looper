@@ -104,27 +104,31 @@ struct improved_estimator
     }
   };
 
-  template<typename G, typename F, typename BIPARTITE, typename IMPROVE>
-  struct accumulator
+  template<typename EST, typename G, typename F, typename BIPARTITE,
+           typename IMPROVE>
+  struct accumulator_base
   {
+    typedef EST estimate_t;
     typedef G lattice_graph_t;
     typedef F cluster_fragment_t;
-    accumulator(std::vector<estimate> const&,
-                std::vector<cluster_fragment_t> const&,
-                lattice_graph_t const&) {}
+    accumulator_base(std::vector<estimate_t> const&,
+                     std::vector<cluster_fragment_t> const&,
+                     lattice_graph_t const&) {}
     void at_zero(int, int, int) const {}
     void start(int, double, int, int) const {}
     void term(int, double, int, int) const {}
   };
 
-  template<typename G, typename F, typename BIPARTITE>
-  struct accumulator<G, F, BIPARTITE, /* IMPROVE = */ boost::mpl::true_>
+  template<typename EST, typename G, typename F, typename BIPARTITE>
+  struct accumulator_base<EST, G, F, BIPARTITE,
+                          /* IMPROVE = */ boost::mpl::true_>
   {
+    typedef EST estimate_t;
     typedef G lattice_graph_t;
     typedef F cluster_fragment_t;
-    accumulator(std::vector<estimate>& es,
-                std::vector<cluster_fragment_t> const& fr,
-                lattice_graph_t const& vg)
+    accumulator_base(std::vector<estimate_t>& es,
+                    std::vector<cluster_fragment_t> const& fr,
+                    lattice_graph_t const& vg)
       : estimates(es), fragments(fr), vgraph(vg) {}
     void at_zero(int p, int s, int c)
     { estimates[fragments[p].id].at_zero(vgraph, BIPARTITE(), s, c); }
@@ -132,9 +136,19 @@ struct improved_estimator
     { estimates[fragments[p].id].start(vgraph, BIPARTITE(), t, s, c); }
     void term(int p, double t, int s, int c)
     { estimates[fragments[p].id].term(vgraph, BIPARTITE(), t, s, c); }
-    std::vector<estimate>& estimates;
+    std::vector<estimate_t>& estimates;
     std::vector<cluster_fragment_t> const& fragments;
     lattice_graph_t const& vgraph;
+  };
+
+  template<typename G, typename F, typename BIPARTITE, typename IMPROVE>
+  struct accumulator :
+    public accumulator_base<estimate, G, F, BIPARTITE, IMPROVE>
+  {
+    typedef accumulator_base<estimate, G, F, BIPARTITE, IMPROVE> super_type;
+    accumulator(std::vector<estimate>& es, std::vector<F> const& fr,
+                G const& vg)
+      : accumulator_base<estimate, G, F, BIPARTITE, IMPROVE>(es, fr, vg) {}
   };
 
   template<typename BIPARTITE>
@@ -144,7 +158,8 @@ struct improved_estimator
     double ssize2, smag2, ssize4, smag4, ssize, smag;
     collector() : usize2(0), umag2(0), usize4(0), umag4(0), usize(0), umag(0),
                   ssize2(0), smag2(0), ssize4(0), smag4(0), ssize(0), smag(0) {}
-    collector operator+(estimate const& cm)
+    template<typename EST>
+    collector operator+(EST const& cm)
     {
       usize2 += power2(cm.usize0);
       umag2  += power2(cm.umag0);

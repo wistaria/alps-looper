@@ -29,8 +29,8 @@
 //   R. E. Tarjan, A Note on Finding the Bridges on a Graph,
 //   Information Processing Letters 2 160-161 (1974).
 
-#ifndef LOOPER_FIND_BRIDGES_H
-#define LOOPER_FIND_BRIDGES_H
+#ifndef LOOPER_FINDBRIDGE_H
+#define LOOPER_FINDBRIDGE_H
 
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/filtered_graph.hpp>
@@ -213,4 +213,4 @@ inline void find_bridges(
 
 } // end namespace looper
 
-#endif // LOOPER_FIND_BRIDGES_H
+#endif // LOOPER_FINDBRIDGE_H
