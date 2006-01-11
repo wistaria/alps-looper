@@ -4,7 +4,7 @@ check_PROGRAMS = \
 	compatibility \
 	edge_type \
 	filtered_graph \
-	find_bridges \
+	find_bridge \
 	generate_01 \
 	gesvd \
 	hypercubic \
@@ -28,7 +28,7 @@ dist_noinst_DATA = \
 	compatibility.op \
 	edge_type.ip edge_type.op \
 	filtered_graph.ip filtered_graph.op \
-	find_bridges.ip find_bridges.op \
+	find_bridge.ip find_bridge.op \
 	gesvd.ip gesvd.op \
 	hypercubic.ip hypercubic.op \
 	llsp.ip llsp.op \
@@ -53,7 +53,7 @@ bond_matrix_SOURCES = bond_matrix.C
 compatibility_SOURCES = compatibility.C
 edge_type_SOURCES = edge_type.C
 filtered_graph_SOURCES = filtered_graph.C
-find_bridges_SOURCES = find_bridges.C
+find_bridge_SOURCES = find_bridge.C
 generate_01_SOURCES = generate_01.C
 gesvd_SOURCES = gesvd.C
 hypercubic_SOURCES = hypercubic.C

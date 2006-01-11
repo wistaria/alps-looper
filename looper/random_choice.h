@@ -22,8 +22,8 @@
 *
 *****************************************************************************/
 
-#ifndef LOOPER_RANDOMCHOICE_H
-#define LOOPER_RANDOMCHOICE_H
+#ifndef LOOPER_RANDOM_CHOICE_H
+#define LOOPER_RANDOM_CHOICE_H
 
 #include <cmath>
 #include <cstdlib>
@@ -255,4 +255,4 @@ private:
 
 } // end namespace looper
 
-#endif // LOOPER_RANDOMCHOICE_H
+#endif // LOOPER_RANDOM_CHOICE_H

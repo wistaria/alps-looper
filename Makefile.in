@@ -44,7 +44,7 @@ host_triplet = @host@
 @EXIST_V31_TRUE@am__append_3 = v3.1
 noinst_PROGRAMS = loop$(EXEEXT) loop_evaluate$(EXEEXT) $(am__EXEEXT_1)
 @HAVE_MPI_TRUE@am__append_4 = loop_mpi
-check_PROGRAMS = diag$(EXEEXT) loop-ns$(EXEEXT)
+check_PROGRAMS = diag$(EXEEXT) loop_ns$(EXEEXT)
 DIST_COMMON = README $(am__configure_deps) $(dist_noinst_DATA) \
 	$(dist_noinst_SCRIPTS) $(include_HEADERS) \
 	$(pkginclude_HEADERS) $(srcdir)/Makefile.am \
@@ -68,32 +68,30 @@ am_diag_OBJECTS = diag.$(OBJEXT)
 diag_OBJECTS = $(am_diag_OBJECTS)
 diag_LDADD = $(LDADD)
 diag_DEPENDENCIES =
-am__objects_1 = loop.$(OBJEXT) loop_factory.$(OBJEXT) \
-	loop_worker.$(OBJEXT) loop_worker_pi.$(OBJEXT) \
-	loop_worker_sse.$(OBJEXT)
-am_loop_OBJECTS = $(am__objects_1)
+am__objects_1 = loop_factory.$(OBJEXT) loop_worker.$(OBJEXT) \
+	loop_worker_pi.$(OBJEXT) loop_worker_sse.$(OBJEXT)
+am_loop_OBJECTS = loop.$(OBJEXT) $(am__objects_1)
 loop_OBJECTS = $(am_loop_OBJECTS)
 loop_LDADD = $(LDADD)
 loop_DEPENDENCIES =
-am__objects_2 = loop_ns-loop.$(OBJEXT) loop_ns-loop_factory.$(OBJEXT) \
-	loop_ns-loop_worker.$(OBJEXT) loop_ns-loop_worker_pi.$(OBJEXT) \
-	loop_ns-loop_worker_sse.$(OBJEXT)
-am_loop_ns_OBJECTS = $(am__objects_2)
-loop_ns_OBJECTS = $(am_loop_ns_OBJECTS)
-loop_ns_LDADD = $(LDADD)
-loop_ns_DEPENDENCIES =
-am_loop_evaluate_OBJECTS = loop_evaluate.$(OBJEXT) \
-	loop_worker.$(OBJEXT)
+am_loop_evaluate_OBJECTS = loop_evaluate.$(OBJEXT) $(am__objects_1)
 loop_evaluate_OBJECTS = $(am_loop_evaluate_OBJECTS)
 loop_evaluate_LDADD = $(LDADD)
 loop_evaluate_DEPENDENCIES =
-am__objects_3 = loop_mpi-loop.$(OBJEXT) \
-	loop_mpi-loop_factory.$(OBJEXT) loop_mpi-loop_worker.$(OBJEXT) \
+am__objects_2 = loop_mpi-loop_factory.$(OBJEXT) \
+	loop_mpi-loop_worker.$(OBJEXT) \
 	loop_mpi-loop_worker_pi.$(OBJEXT) \
 	loop_mpi-loop_worker_sse.$(OBJEXT)
-am_loop_mpi_OBJECTS = $(am__objects_3)
+am_loop_mpi_OBJECTS = loop_mpi-loop.$(OBJEXT) $(am__objects_2)
 loop_mpi_OBJECTS = $(am_loop_mpi_OBJECTS)
 loop_mpi_DEPENDENCIES =
+am__objects_3 = loop_ns-loop_factory.$(OBJEXT) \
+	loop_ns-loop_worker.$(OBJEXT) loop_ns-loop_worker_pi.$(OBJEXT) \
+	loop_ns-loop_worker_sse.$(OBJEXT)
+am_loop_ns_OBJECTS = loop_ns-loop.$(OBJEXT) $(am__objects_3)
+loop_ns_OBJECTS = $(am_loop_ns_OBJECTS)
+loop_ns_LDADD = $(LDADD)
+loop_ns_DEPENDENCIES =
 SCRIPTS = $(dist_noinst_SCRIPTS)
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
@@ -113,10 +111,11 @@ LTCOMPILE = $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(diag_SOURCES) $(loop_SOURCES) $(loop_ns_SOURCES) \
-	$(loop_evaluate_SOURCES) $(loop_mpi_SOURCES)
-DIST_SOURCES = $(diag_SOURCES) $(loop_SOURCES) $(loop_ns_SOURCES) \
-	$(loop_evaluate_SOURCES) $(loop_mpi_SOURCES)
+SOURCES = $(diag_SOURCES) $(loop_SOURCES) $(loop_evaluate_SOURCES) \
+	$(loop_mpi_SOURCES) $(loop_ns_SOURCES)
+DIST_SOURCES = $(diag_SOURCES) $(loop_SOURCES) \
+	$(loop_evaluate_SOURCES) $(loop_mpi_SOURCES) \
+	$(loop_ns_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-exec-recursive install-info-recursive \
@@ -271,7 +270,8 @@ REMOVE_FOR_RELEASE =
 distdir = alps-looper-$(VERSION)
 include_HEADERS = looper.h
 pkginclude_HEADERS = \
-	looper/find_bridges.h \
+	looper/cluster.h \
+	looper/find_bridge.h \
 	looper/graph.h \
 	looper/lapack.h \
 	looper/lattice.h \
@@ -288,21 +288,21 @@ pkginclude_HEADERS = \
 	looper/weight.h
 
 dist_noinst_SCRIPTS = config/run-test config/update_preamble
-dist_noinst_DATA = CITATIONS.txt LICENSE.txt diag.ip diag.op loop-ns.ip loop-ns.op
+dist_noinst_DATA = CITATIONS.txt LICENSE.txt diag.ip diag.op loop_ns.ip loop_ns.op
 TESTS = $(check_PROGRAMS)
 TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
-SRC = loop.C loop_config.h loop_factory.C loop_factory.h \
+SRC = loop_config.h loop_factory.C loop_factory.h \
 	loop_worker.h loop_worker.C \
 	loop_worker_pi.h loop_worker_pi.C \
 	loop_worker_sse.h loop_worker_sse.C
 
-loop_SOURCES = $(SRC)
-loop_evaluate_SOURCES = loop_evaluate.C loop_worker.C
-loop_mpi_SOURCES = $(SRC)
+loop_SOURCES = loop.C $(SRC)
+loop_evaluate_SOURCES = loop_evaluate.C $(SRC)
+loop_mpi_SOURCES = loop.C $(SRC)
 loop_mpi_CPPFLAGS = @CPPFLAGS_MPI@
 loop_mpi_LDFLAGS = @LDFLAGS_MPI@
 loop_mpi_LDADD = @LIBS_MPI@
-loop_ns_SOURCES = $(SRC)
+loop_ns_SOURCES = loop.C $(SRC)
 loop_ns_CPPFLAGS = -DWITHOUT_SCHEDULER
 diag_SOURCES = diag.C
 all: loop_config.h
@@ -380,15 +380,15 @@ diag$(EXEEXT): $(diag_OBJECTS) $(diag_DEPENDENCIES)
 loop$(EXEEXT): $(loop_OBJECTS) $(loop_DEPENDENCIES) 
 	@rm -f loop$(EXEEXT)
 	$(CXXLINK) $(loop_LDFLAGS) $(loop_OBJECTS) $(loop_LDADD) $(LIBS)
-loop-ns$(EXEEXT): $(loop_ns_OBJECTS) $(loop_ns_DEPENDENCIES) 
-	@rm -f loop-ns$(EXEEXT)
-	$(CXXLINK) $(loop_ns_LDFLAGS) $(loop_ns_OBJECTS) $(loop_ns_LDADD) $(LIBS)
 loop_evaluate$(EXEEXT): $(loop_evaluate_OBJECTS) $(loop_evaluate_DEPENDENCIES) 
 	@rm -f loop_evaluate$(EXEEXT)
 	$(CXXLINK) $(loop_evaluate_LDFLAGS) $(loop_evaluate_OBJECTS) $(loop_evaluate_LDADD) $(LIBS)
 loop_mpi$(EXEEXT): $(loop_mpi_OBJECTS) $(loop_mpi_DEPENDENCIES) 
 	@rm -f loop_mpi$(EXEEXT)
 	$(CXXLINK) $(loop_mpi_LDFLAGS) $(loop_mpi_OBJECTS) $(loop_mpi_LDADD) $(LIBS)
+loop_ns$(EXEEXT): $(loop_ns_OBJECTS) $(loop_ns_DEPENDENCIES) 
+	@rm -f loop_ns$(EXEEXT)
+	$(CXXLINK) $(loop_ns_LDFLAGS) $(loop_ns_OBJECTS) $(loop_ns_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -434,76 +434,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
-
-loop_ns-loop.o: loop.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_ns-loop.o -MD -MP -MF "$(DEPDIR)/loop_ns-loop.Tpo" -c -o loop_ns-loop.o `test -f 'loop.C' || echo '$(srcdir)/'`loop.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_ns-loop.Tpo" "$(DEPDIR)/loop_ns-loop.Po"; else rm -f "$(DEPDIR)/loop_ns-loop.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop.C' object='loop_ns-loop.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_ns-loop.o `test -f 'loop.C' || echo '$(srcdir)/'`loop.C
-
-loop_ns-loop.obj: loop.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_ns-loop.obj -MD -MP -MF "$(DEPDIR)/loop_ns-loop.Tpo" -c -o loop_ns-loop.obj `if test -f 'loop.C'; then $(CYGPATH_W) 'loop.C'; else $(CYGPATH_W) '$(srcdir)/loop.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_ns-loop.Tpo" "$(DEPDIR)/loop_ns-loop.Po"; else rm -f "$(DEPDIR)/loop_ns-loop.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop.C' object='loop_ns-loop.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_ns-loop.obj `if test -f 'loop.C'; then $(CYGPATH_W) 'loop.C'; else $(CYGPATH_W) '$(srcdir)/loop.C'; fi`
-
-loop_ns-loop_factory.o: loop_factory.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_ns-loop_factory.o -MD -MP -MF "$(DEPDIR)/loop_ns-loop_factory.Tpo" -c -o loop_ns-loop_factory.o `test -f 'loop_factory.C' || echo '$(srcdir)/'`loop_factory.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_ns-loop_factory.Tpo" "$(DEPDIR)/loop_ns-loop_factory.Po"; else rm -f "$(DEPDIR)/loop_ns-loop_factory.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_factory.C' object='loop_ns-loop_factory.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_ns-loop_factory.o `test -f 'loop_factory.C' || echo '$(srcdir)/'`loop_factory.C
-
-loop_ns-loop_factory.obj: loop_factory.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_ns-loop_factory.obj -MD -MP -MF "$(DEPDIR)/loop_ns-loop_factory.Tpo" -c -o loop_ns-loop_factory.obj `if test -f 'loop_factory.C'; then $(CYGPATH_W) 'loop_factory.C'; else $(CYGPATH_W) '$(srcdir)/loop_factory.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_ns-loop_factory.Tpo" "$(DEPDIR)/loop_ns-loop_factory.Po"; else rm -f "$(DEPDIR)/loop_ns-loop_factory.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_factory.C' object='loop_ns-loop_factory.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_ns-loop_factory.obj `if test -f 'loop_factory.C'; then $(CYGPATH_W) 'loop_factory.C'; else $(CYGPATH_W) '$(srcdir)/loop_factory.C'; fi`
-
-loop_ns-loop_worker.o: loop_worker.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_ns-loop_worker.o -MD -MP -MF "$(DEPDIR)/loop_ns-loop_worker.Tpo" -c -o loop_ns-loop_worker.o `test -f 'loop_worker.C' || echo '$(srcdir)/'`loop_worker.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_ns-loop_worker.Tpo" "$(DEPDIR)/loop_ns-loop_worker.Po"; else rm -f "$(DEPDIR)/loop_ns-loop_worker.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_worker.C' object='loop_ns-loop_worker.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_ns-loop_worker.o `test -f 'loop_worker.C' || echo '$(srcdir)/'`loop_worker.C
-
-loop_ns-loop_worker.obj: loop_worker.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_ns-loop_worker.obj -MD -MP -MF "$(DEPDIR)/loop_ns-loop_worker.Tpo" -c -o loop_ns-loop_worker.obj `if test -f 'loop_worker.C'; then $(CYGPATH_W) 'loop_worker.C'; else $(CYGPATH_W) '$(srcdir)/loop_worker.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_ns-loop_worker.Tpo" "$(DEPDIR)/loop_ns-loop_worker.Po"; else rm -f "$(DEPDIR)/loop_ns-loop_worker.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_worker.C' object='loop_ns-loop_worker.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_ns-loop_worker.obj `if test -f 'loop_worker.C'; then $(CYGPATH_W) 'loop_worker.C'; else $(CYGPATH_W) '$(srcdir)/loop_worker.C'; fi`
-
-loop_ns-loop_worker_pi.o: loop_worker_pi.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_ns-loop_worker_pi.o -MD -MP -MF "$(DEPDIR)/loop_ns-loop_worker_pi.Tpo" -c -o loop_ns-loop_worker_pi.o `test -f 'loop_worker_pi.C' || echo '$(srcdir)/'`loop_worker_pi.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_ns-loop_worker_pi.Tpo" "$(DEPDIR)/loop_ns-loop_worker_pi.Po"; else rm -f "$(DEPDIR)/loop_ns-loop_worker_pi.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_worker_pi.C' object='loop_ns-loop_worker_pi.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_ns-loop_worker_pi.o `test -f 'loop_worker_pi.C' || echo '$(srcdir)/'`loop_worker_pi.C
-
-loop_ns-loop_worker_pi.obj: loop_worker_pi.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_ns-loop_worker_pi.obj -MD -MP -MF "$(DEPDIR)/loop_ns-loop_worker_pi.Tpo" -c -o loop_ns-loop_worker_pi.obj `if test -f 'loop_worker_pi.C'; then $(CYGPATH_W) 'loop_worker_pi.C'; else $(CYGPATH_W) '$(srcdir)/loop_worker_pi.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_ns-loop_worker_pi.Tpo" "$(DEPDIR)/loop_ns-loop_worker_pi.Po"; else rm -f "$(DEPDIR)/loop_ns-loop_worker_pi.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_worker_pi.C' object='loop_ns-loop_worker_pi.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_ns-loop_worker_pi.obj `if test -f 'loop_worker_pi.C'; then $(CYGPATH_W) 'loop_worker_pi.C'; else $(CYGPATH_W) '$(srcdir)/loop_worker_pi.C'; fi`
-
-loop_ns-loop_worker_sse.o: loop_worker_sse.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_ns-loop_worker_sse.o -MD -MP -MF "$(DEPDIR)/loop_ns-loop_worker_sse.Tpo" -c -o loop_ns-loop_worker_sse.o `test -f 'loop_worker_sse.C' || echo '$(srcdir)/'`loop_worker_sse.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_ns-loop_worker_sse.Tpo" "$(DEPDIR)/loop_ns-loop_worker_sse.Po"; else rm -f "$(DEPDIR)/loop_ns-loop_worker_sse.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_worker_sse.C' object='loop_ns-loop_worker_sse.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_ns-loop_worker_sse.o `test -f 'loop_worker_sse.C' || echo '$(srcdir)/'`loop_worker_sse.C
-
-loop_ns-loop_worker_sse.obj: loop_worker_sse.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_ns-loop_worker_sse.obj -MD -MP -MF "$(DEPDIR)/loop_ns-loop_worker_sse.Tpo" -c -o loop_ns-loop_worker_sse.obj `if test -f 'loop_worker_sse.C'; then $(CYGPATH_W) 'loop_worker_sse.C'; else $(CYGPATH_W) '$(srcdir)/loop_worker_sse.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_ns-loop_worker_sse.Tpo" "$(DEPDIR)/loop_ns-loop_worker_sse.Po"; else rm -f "$(DEPDIR)/loop_ns-loop_worker_sse.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_worker_sse.C' object='loop_ns-loop_worker_sse.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_ns-loop_worker_sse.obj `if test -f 'loop_worker_sse.C'; then $(CYGPATH_W) 'loop_worker_sse.C'; else $(CYGPATH_W) '$(srcdir)/loop_worker_sse.C'; fi`
 
 loop_mpi-loop.o: loop.C
 @am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_mpi-loop.o -MD -MP -MF "$(DEPDIR)/loop_mpi-loop.Tpo" -c -o loop_mpi-loop.o `test -f 'loop.C' || echo '$(srcdir)/'`loop.C; \
@@ -574,6 +504,76 @@ loop_mpi-loop_worker_sse.obj: loop_worker_sse.C
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_worker_sse.C' object='loop_mpi-loop_worker_sse.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_mpi-loop_worker_sse.obj `if test -f 'loop_worker_sse.C'; then $(CYGPATH_W) 'loop_worker_sse.C'; else $(CYGPATH_W) '$(srcdir)/loop_worker_sse.C'; fi`
+
+loop_ns-loop.o: loop.C
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_ns-loop.o -MD -MP -MF "$(DEPDIR)/loop_ns-loop.Tpo" -c -o loop_ns-loop.o `test -f 'loop.C' || echo '$(srcdir)/'`loop.C; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_ns-loop.Tpo" "$(DEPDIR)/loop_ns-loop.Po"; else rm -f "$(DEPDIR)/loop_ns-loop.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop.C' object='loop_ns-loop.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_ns-loop.o `test -f 'loop.C' || echo '$(srcdir)/'`loop.C
+
+loop_ns-loop.obj: loop.C
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_ns-loop.obj -MD -MP -MF "$(DEPDIR)/loop_ns-loop.Tpo" -c -o loop_ns-loop.obj `if test -f 'loop.C'; then $(CYGPATH_W) 'loop.C'; else $(CYGPATH_W) '$(srcdir)/loop.C'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_ns-loop.Tpo" "$(DEPDIR)/loop_ns-loop.Po"; else rm -f "$(DEPDIR)/loop_ns-loop.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop.C' object='loop_ns-loop.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_ns-loop.obj `if test -f 'loop.C'; then $(CYGPATH_W) 'loop.C'; else $(CYGPATH_W) '$(srcdir)/loop.C'; fi`
+
+loop_ns-loop_factory.o: loop_factory.C
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_ns-loop_factory.o -MD -MP -MF "$(DEPDIR)/loop_ns-loop_factory.Tpo" -c -o loop_ns-loop_factory.o `test -f 'loop_factory.C' || echo '$(srcdir)/'`loop_factory.C; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_ns-loop_factory.Tpo" "$(DEPDIR)/loop_ns-loop_factory.Po"; else rm -f "$(DEPDIR)/loop_ns-loop_factory.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_factory.C' object='loop_ns-loop_factory.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_ns-loop_factory.o `test -f 'loop_factory.C' || echo '$(srcdir)/'`loop_factory.C
+
+loop_ns-loop_factory.obj: loop_factory.C
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_ns-loop_factory.obj -MD -MP -MF "$(DEPDIR)/loop_ns-loop_factory.Tpo" -c -o loop_ns-loop_factory.obj `if test -f 'loop_factory.C'; then $(CYGPATH_W) 'loop_factory.C'; else $(CYGPATH_W) '$(srcdir)/loop_factory.C'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_ns-loop_factory.Tpo" "$(DEPDIR)/loop_ns-loop_factory.Po"; else rm -f "$(DEPDIR)/loop_ns-loop_factory.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_factory.C' object='loop_ns-loop_factory.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_ns-loop_factory.obj `if test -f 'loop_factory.C'; then $(CYGPATH_W) 'loop_factory.C'; else $(CYGPATH_W) '$(srcdir)/loop_factory.C'; fi`
+
+loop_ns-loop_worker.o: loop_worker.C
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_ns-loop_worker.o -MD -MP -MF "$(DEPDIR)/loop_ns-loop_worker.Tpo" -c -o loop_ns-loop_worker.o `test -f 'loop_worker.C' || echo '$(srcdir)/'`loop_worker.C; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_ns-loop_worker.Tpo" "$(DEPDIR)/loop_ns-loop_worker.Po"; else rm -f "$(DEPDIR)/loop_ns-loop_worker.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_worker.C' object='loop_ns-loop_worker.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_ns-loop_worker.o `test -f 'loop_worker.C' || echo '$(srcdir)/'`loop_worker.C
+
+loop_ns-loop_worker.obj: loop_worker.C
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_ns-loop_worker.obj -MD -MP -MF "$(DEPDIR)/loop_ns-loop_worker.Tpo" -c -o loop_ns-loop_worker.obj `if test -f 'loop_worker.C'; then $(CYGPATH_W) 'loop_worker.C'; else $(CYGPATH_W) '$(srcdir)/loop_worker.C'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_ns-loop_worker.Tpo" "$(DEPDIR)/loop_ns-loop_worker.Po"; else rm -f "$(DEPDIR)/loop_ns-loop_worker.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_worker.C' object='loop_ns-loop_worker.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_ns-loop_worker.obj `if test -f 'loop_worker.C'; then $(CYGPATH_W) 'loop_worker.C'; else $(CYGPATH_W) '$(srcdir)/loop_worker.C'; fi`
+
+loop_ns-loop_worker_pi.o: loop_worker_pi.C
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_ns-loop_worker_pi.o -MD -MP -MF "$(DEPDIR)/loop_ns-loop_worker_pi.Tpo" -c -o loop_ns-loop_worker_pi.o `test -f 'loop_worker_pi.C' || echo '$(srcdir)/'`loop_worker_pi.C; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_ns-loop_worker_pi.Tpo" "$(DEPDIR)/loop_ns-loop_worker_pi.Po"; else rm -f "$(DEPDIR)/loop_ns-loop_worker_pi.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_worker_pi.C' object='loop_ns-loop_worker_pi.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_ns-loop_worker_pi.o `test -f 'loop_worker_pi.C' || echo '$(srcdir)/'`loop_worker_pi.C
+
+loop_ns-loop_worker_pi.obj: loop_worker_pi.C
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_ns-loop_worker_pi.obj -MD -MP -MF "$(DEPDIR)/loop_ns-loop_worker_pi.Tpo" -c -o loop_ns-loop_worker_pi.obj `if test -f 'loop_worker_pi.C'; then $(CYGPATH_W) 'loop_worker_pi.C'; else $(CYGPATH_W) '$(srcdir)/loop_worker_pi.C'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_ns-loop_worker_pi.Tpo" "$(DEPDIR)/loop_ns-loop_worker_pi.Po"; else rm -f "$(DEPDIR)/loop_ns-loop_worker_pi.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_worker_pi.C' object='loop_ns-loop_worker_pi.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_ns-loop_worker_pi.obj `if test -f 'loop_worker_pi.C'; then $(CYGPATH_W) 'loop_worker_pi.C'; else $(CYGPATH_W) '$(srcdir)/loop_worker_pi.C'; fi`
+
+loop_ns-loop_worker_sse.o: loop_worker_sse.C
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_ns-loop_worker_sse.o -MD -MP -MF "$(DEPDIR)/loop_ns-loop_worker_sse.Tpo" -c -o loop_ns-loop_worker_sse.o `test -f 'loop_worker_sse.C' || echo '$(srcdir)/'`loop_worker_sse.C; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_ns-loop_worker_sse.Tpo" "$(DEPDIR)/loop_ns-loop_worker_sse.Po"; else rm -f "$(DEPDIR)/loop_ns-loop_worker_sse.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_worker_sse.C' object='loop_ns-loop_worker_sse.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_ns-loop_worker_sse.o `test -f 'loop_worker_sse.C' || echo '$(srcdir)/'`loop_worker_sse.C
+
+loop_ns-loop_worker_sse.obj: loop_worker_sse.C
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_ns-loop_worker_sse.obj -MD -MP -MF "$(DEPDIR)/loop_ns-loop_worker_sse.Tpo" -c -o loop_ns-loop_worker_sse.obj `if test -f 'loop_worker_sse.C'; then $(CYGPATH_W) 'loop_worker_sse.C'; else $(CYGPATH_W) '$(srcdir)/loop_worker_sse.C'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_ns-loop_worker_sse.Tpo" "$(DEPDIR)/loop_ns-loop_worker_sse.Po"; else rm -f "$(DEPDIR)/loop_ns-loop_worker_sse.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_worker_sse.C' object='loop_ns-loop_worker_sse.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_ns_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_ns-loop_worker_sse.obj `if test -f 'loop_worker_sse.C'; then $(CYGPATH_W) 'loop_worker_sse.C'; else $(CYGPATH_W) '$(srcdir)/loop_worker_sse.C'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

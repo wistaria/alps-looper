@@ -23,7 +23,7 @@
 *
 *****************************************************************************/
 
-#include <looper/find_bridges.h>
+#include <looper/find_bridge.h>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/connected_components.hpp>
 #include <cmath>

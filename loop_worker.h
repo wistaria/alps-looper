@@ -42,8 +42,6 @@ public:
   typedef looper::virtual_lattice<lattice_graph_t> virtual_lattice;
   typedef looper::graph_chooser<loop_graph_t, super_type::engine_type>
     graph_chooser;
-  typedef loop_config::improved_estimator_t        improved_estimator_t;
-  typedef loop_config::normal_estimator_t          normal_estimator_t;
 
   qmc_worker_base(alps::ProcessList const& w, alps::Parameters const& p,
                   int n, bool is_path_integral = true);
@@ -90,8 +88,9 @@ public:
   double advance() const { return chooser_.advance(); }
   double total_graph_weight() const { return chooser_.weight(); }
 
-  void accumulate();
-  void accumulate(alps::ObservableSet const& m_in, alps::ObservableSet& m_out);
+  void evaluate() { this->evaluate(measurements, measurements); }
+  virtual void evaluate(alps::ObservableSet const& /* m_in */,
+                        alps::ObservableSet& /* m_out */) const {}
 
   virtual void save(alps::ODump& dp) const;
   virtual void load(alps::IDump& dp);

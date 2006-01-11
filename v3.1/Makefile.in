@@ -49,21 +49,21 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/loop_config.h
 CONFIG_CLEAN_FILES =
-am__EXEEXT_1 = loop$(EXEEXT) loop_evaluate$(EXEEXT) loop_cmd$(EXEEXT)
+am__EXEEXT_1 = loop$(EXEEXT) loop_evaluate$(EXEEXT) loop_ns$(EXEEXT)
 @BUILD_V31_TRUE@am__EXEEXT_2 = $(am__EXEEXT_1)
 PROGRAMS = $(noinst_PROGRAMS)
 am_loop_OBJECTS = loop.$(OBJEXT) loop_factory.$(OBJEXT)
 loop_OBJECTS = $(am_loop_OBJECTS)
 loop_LDADD = $(LDADD)
 loop_DEPENDENCIES =
-am_loop_cmd_OBJECTS = loop_cmd.$(OBJEXT)
-loop_cmd_OBJECTS = $(am_loop_cmd_OBJECTS)
-loop_cmd_LDADD = $(LDADD)
-loop_cmd_DEPENDENCIES =
 am_loop_evaluate_OBJECTS = loop_evaluate.$(OBJEXT)
 loop_evaluate_OBJECTS = $(am_loop_evaluate_OBJECTS)
 loop_evaluate_LDADD = $(LDADD)
 loop_evaluate_DEPENDENCIES =
+am_loop_ns_OBJECTS = loop_ns.$(OBJEXT)
+loop_ns_OBJECTS = $(am_loop_ns_OBJECTS)
+loop_ns_LDADD = $(LDADD)
+loop_ns_DEPENDENCIES =
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -82,9 +82,9 @@ LTCOMPILE = $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(loop_SOURCES) $(loop_cmd_SOURCES) $(loop_evaluate_SOURCES)
-DIST_SOURCES = $(loop_SOURCES) $(loop_cmd_SOURCES) \
-	$(loop_evaluate_SOURCES)
+SOURCES = $(loop_SOURCES) $(loop_evaluate_SOURCES) $(loop_ns_SOURCES)
+DIST_SOURCES = $(loop_SOURCES) $(loop_evaluate_SOURCES) \
+	$(loop_ns_SOURCES)
 HEADERS = $(dist_noinst_HEADERS)
 ETAGS = etags
 CTAGS = ctags
@@ -207,12 +207,11 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-PROG = loop loop_evaluate loop_cmd
+PROG = loop loop_evaluate loop_ns
 dist_noinst_HEADERS = looper.h \
 	looper/amida.h \
 	looper/exact_diag.h \
 	looper/fill_duration.h \
-	looper/find_bridges.h \
 	looper/graph.h \
 	looper/lapack.h \
 	looper/measurement.h \
@@ -231,7 +230,7 @@ dist_noinst_HEADERS = looper.h \
 
 loop_SOURCES = loop.C loop_factory.C loop_factory.h loop_worker.h
 loop_evaluate_SOURCES = loop_evaluate.C loop_worker.h
-loop_cmd_SOURCES = loop_cmd.C loop_worker.h
+loop_ns_SOURCES = loop_ns.C loop_worker.h
 all: all-am
 
 .SUFFIXES:
@@ -275,12 +274,12 @@ clean-noinstPROGRAMS:
 loop$(EXEEXT): $(loop_OBJECTS) $(loop_DEPENDENCIES) 
 	@rm -f loop$(EXEEXT)
 	$(CXXLINK) $(loop_LDFLAGS) $(loop_OBJECTS) $(loop_LDADD) $(LIBS)
-loop_cmd$(EXEEXT): $(loop_cmd_OBJECTS) $(loop_cmd_DEPENDENCIES) 
-	@rm -f loop_cmd$(EXEEXT)
-	$(CXXLINK) $(loop_cmd_LDFLAGS) $(loop_cmd_OBJECTS) $(loop_cmd_LDADD) $(LIBS)
 loop_evaluate$(EXEEXT): $(loop_evaluate_OBJECTS) $(loop_evaluate_DEPENDENCIES) 
 	@rm -f loop_evaluate$(EXEEXT)
 	$(CXXLINK) $(loop_evaluate_LDFLAGS) $(loop_evaluate_OBJECTS) $(loop_evaluate_LDADD) $(LIBS)
+loop_ns$(EXEEXT): $(loop_ns_OBJECTS) $(loop_ns_DEPENDENCIES) 
+	@rm -f loop_ns$(EXEEXT)
+	$(CXXLINK) $(loop_ns_LDFLAGS) $(loop_ns_OBJECTS) $(loop_ns_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -289,9 +288,9 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_cmd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_evaluate.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_factory.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_ns.Po@am__quote@
 
 .C.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \

@@ -63,6 +63,30 @@ struct improved_estimator
     }
   }
 
+  static void evaluate(alps::ObservableSet const& m_in,
+                       alps::ObservableSet& m_out)
+  {
+    if (m_in.has("Generalized Magnetization^2") &&
+        m_in.has("Generalized Magnetization^4")) {
+      alps::RealObsevaluator obse_m2 = m_in["Generalized Magnetization^2"];
+      alps::RealObsevaluator obse_m4 = m_in["Generalized Magnetization^4"];
+      alps::RealObsevaluator eval("Binder Ratio of Generalized Magnetization");
+      eval = looper::power2(obse_m2) / obse_m4;
+      m_out << eval;
+    }
+    if (m_in.has("Generalized Staggered Magnetization^2") &&
+        m_in.has("Generalized Staggered Magnetization^4")) {
+      alps::RealObsevaluator obse_m2 =
+        m_in["Generalized Staggered Magnetization^2"];
+      alps::RealObsevaluator obse_m4 =
+        m_in["Generalized Staggered Magnetization^4"];
+      alps::RealObsevaluator
+        eval("Binder Ratio of Generalized Staggered Magnetization");
+      eval = looper::power2(obse_m2) / obse_m4;
+      m_out << eval;
+    }
+  }
+
   struct estimate
   {
     double usize0, umag0, usize, umag;
@@ -234,6 +258,26 @@ struct normal_estimator
       add_measurement("Staggered Magnetization^2", is_signed, m);
       add_measurement("Staggered Magnetization^4", is_signed, m);
       add_measurement("Staggered Susceptibility", is_signed, m);
+    }
+  }
+
+  static void evaluate(alps::ObservableSet const& m_in,
+                       alps::ObservableSet& m_out)
+  {
+    if (m_in.has("Magnetization^2") && m_in.has("Magnetization^4")) {
+      alps::RealObsevaluator obse_m2 = m_in["Magnetization^2"];
+      alps::RealObsevaluator obse_m4 = m_in["Magnetization^4"];
+      alps::RealObsevaluator eval("Binder Ratio of Magnetization");
+      eval = looper::power2(obse_m2) / obse_m4;
+      m_out << eval;
+    }
+    if (m_in.has("Staggered Magnetization^2") &&
+        m_in.has("Staggered Magnetization^4")) {
+      alps::RealObsevaluator obse_m2 = m_in["Staggered Magnetization^2"];
+      alps::RealObsevaluator obse_m4 = m_in["Staggered Magnetization^4"];
+      alps::RealObsevaluator eval("Binder Ratio of Staggered Magnetization");
+      eval = looper::power2(obse_m2) / obse_m4;
+      m_out << eval;
     }
   }
 

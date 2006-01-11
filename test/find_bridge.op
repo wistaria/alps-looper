@@ -31,7 +31,7 @@ finding all the bridges in a naive method (O(N^2)):
   find a bridge (6 -- 4)
   find a bridge (10 -- 4)
   found 4 bridge(s)
-finding all the bridges by find_bridges() (O(N)):
+finding all the bridges by find_bridge() (O(N)):
   find a bridge (7 -- 8)
   find a bridge (3 -- 7)
   find a bridge (4 -- 10)

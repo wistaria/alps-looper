@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-#include "loop_worker.h"
+#include "loop_factory.h"
 #include <alps/alea.h>
 #include <alps/scheduler.h>
 #include <boost/filesystem/operations.hpp>
@@ -38,19 +38,21 @@ try {
     std::exit(-1);
   }
 
-  alps::scheduler::SimpleMCFactory<alps::scheduler::DummyMCRun> factory;
-  alps::scheduler::init(factory);
+  alps::scheduler::SimpleMCFactory<alps::scheduler::DummyMCRun> dummy_factory;
+  alps::scheduler::init(dummy_factory);
   for (int i = 1; i < argc; ++i) {
     boost::filesystem::path p =
       boost::filesystem::complete(boost::filesystem::path(argv[i]));
     alps::ProcessList nowhere;
     alps::scheduler::MCSimulation sim(nowhere,p);
-    qmc_worker_base worker(nowhere, sim.get_parameters(), 0);
+    qmc_worker_base *worker =
+      factory().make_qmc_worker(nowhere, sim.get_parameters(), 0);
     alps::ObservableSet m;
-    worker.accumulate(sim.get_measurements(), m);
+    worker->evaluate(sim.get_measurements(), m);
     for (alps::ObservableSet::iterator itr = m.begin(); itr != m.end(); ++itr)
       sim << *(itr->second);
     sim.checkpoint(p);
+    delete worker;
   }
 
 #ifndef BOOST_NO_EXCEPTIONS

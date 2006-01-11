@@ -29,8 +29,8 @@
 //   R. E. Tarjan, A Note on Finding the Bridges on a Graph,
 //   Information Processing Letters 2 160-161 (1974).
 
-#ifndef LOOPER_FINDBRIDGE_H
-#define LOOPER_FINDBRIDGE_H
+#ifndef LOOPER_FIND_BRIDGE_H
+#define LOOPER_FIND_BRIDGE_H
 
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/filtered_graph.hpp>
@@ -104,10 +104,10 @@ mask_edge(
 }
 
 
-// algorithm find_bridges
+// algorithm find_bridge
 
 template<typename Graph, typename BridgeVisitor>
-inline void find_bridges(
+inline void find_bridge(
   const Graph& g,
   typename boost::graph_traits<Graph>::vertex_descriptor start_vertex,
   BridgeVisitor vis)
@@ -199,18 +199,18 @@ inline void find_bridges(
 }
 
 
-// find_bridges with a skip edge
+// find_bridge with a skip edge
 
 template<typename Graph, typename BridgeVisitor>
-inline void find_bridges(
+inline void find_bridge(
   const Graph& g,
   typename boost::graph_traits<Graph>::vertex_descriptor start_vertex,
   BridgeVisitor& vis,
   typename boost::graph_traits<Graph>::edge_descriptor skip_edge)
 {
-  find_bridges(mask_edge(g, skip_edge), start_vertex, vis);
+  find_bridge(mask_edge(g, skip_edge), start_vertex, vis);
 }
 
 } // end namespace looper
 
-#endif // LOOPER_FINDBRIDGE_H
+#endif // LOOPER_FIND_BRIDGE_H

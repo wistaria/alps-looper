@@ -18,11 +18,12 @@ noinst_PROGRAMS = loop loop_evaluate
 if HAVE_MPI
 noinst_PROGRAMS += loop_mpi
 endif
-check_PROGRAMS = diag loop-ns
+check_PROGRAMS = diag loop_ns
 
 include_HEADERS = looper.h
 pkginclude_HEADERS = \
-	looper/find_bridges.h \
+	looper/cluster.h \
+	looper/find_bridge.h \
 	looper/graph.h \
 	looper/lapack.h \
 	looper/lattice.h \
@@ -39,24 +40,24 @@ pkginclude_HEADERS = \
 	looper/weight.h
 
 dist_noinst_SCRIPTS = config/run-test config/update_preamble
-dist_noinst_DATA = CITATIONS.txt LICENSE.txt diag.ip diag.op loop-ns.ip loop-ns.op
+dist_noinst_DATA = CITATIONS.txt LICENSE.txt diag.ip diag.op loop_ns.ip loop_ns.op
 
 TESTS = $(check_PROGRAMS)
 TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
 
-SRC = loop.C loop_config.h loop_factory.C loop_factory.h \
+SRC = loop_config.h loop_factory.C loop_factory.h \
 	loop_worker.h loop_worker.C \
 	loop_worker_pi.h loop_worker_pi.C \
 	loop_worker_sse.h loop_worker_sse.C
 
-loop_SOURCES = $(SRC)
-loop_evaluate_SOURCES = loop_evaluate.C loop_worker.C
-loop_mpi_SOURCES = $(SRC)
+loop_SOURCES = loop.C $(SRC)
+loop_evaluate_SOURCES = loop_evaluate.C $(SRC)
+loop_mpi_SOURCES = loop.C $(SRC)
 loop_mpi_CPPFLAGS = @CPPFLAGS_MPI@
 loop_mpi_LDFLAGS = @LDFLAGS_MPI@
 loop_mpi_LDADD = @LIBS_MPI@
 
-loop_ns_SOURCES = $(SRC)
+loop_ns_SOURCES = loop.C $(SRC)
 loop_ns_CPPFLAGS = -DWITHOUT_SCHEDULER
 diag_SOURCES = diag.C
 

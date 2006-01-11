@@ -284,6 +284,21 @@ void qmc_worker_sse::dostep_impl()
   }
 }
 
+void qmc_worker_sse::evaluate(alps::ObservableSet const& m_in,
+                              alps::ObservableSet& m_out) const
+{
+  if (m_in.has("Energy") && m_in.has("Energy^2")) {
+    alps::RealObsevaluator obse_e = m_in["Energy"];
+    alps::RealObsevaluator obse_e2 = m_in["Energy^2"];
+    alps::RealObsevaluator eval("Specific Heat");
+    eval = looper::power2(beta()) * (obse_e2 - looper::power2(obse_e))
+      / num_sites(rgraph());
+    m_out << eval;
+  }
+  normal_estimator_t::evaluate(m_in, m_out);
+  improved_estimator_t::evaluate(m_in, m_out);
+}
+
 void qmc_worker_sse::save(alps::ODump& dp) const
 {
   super_type::save(dp);

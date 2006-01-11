@@ -92,55 +92,6 @@ qmc_worker_base::qmc_worker_base(alps::ProcessList const& w,
 
 qmc_worker_base::~qmc_worker_base() {}
 
-void qmc_worker_base::accumulate() { accumulate(measurements, measurements); }
-
-void qmc_worker_base::accumulate(alps::ObservableSet const& m_in,
-                                 alps::ObservableSet& m_out)
-{
-  if (m_in.has("Energy") && m_in.has("Energy^2")) {
-    alps::RealObsevaluator obse_e = m_in["Energy"];
-    alps::RealObsevaluator obse_e2 = m_in["Energy^2"];
-    alps::RealObsevaluator eval("Specific Heat");
-    eval = looper::power2(beta()) * (obse_e2 - looper::power2(obse_e))
-      / num_sites(rgraph());
-    m_out << eval;
-  }
-  if (m_in.has("Magnetization^2") && m_in.has("Magnetization^4")) {
-    alps::RealObsevaluator obse_m2 = m_in["Magnetization^2"];
-    alps::RealObsevaluator obse_m4 = m_in["Magnetization^4"];
-    alps::RealObsevaluator eval("Binder Ratio of Magnetization");
-    eval = looper::power2(obse_m2) / obse_m4;
-    m_out << eval;
-  }
-  if (m_in.has("Staggered Magnetization^2") &&
-      m_in.has("Staggered Magnetization^4")) {
-    alps::RealObsevaluator obse_m2 = m_in["Staggered Magnetization^2"];
-    alps::RealObsevaluator obse_m4 = m_in["Staggered Magnetization^4"];
-    alps::RealObsevaluator eval("Binder Ratio of Staggered Magnetization");
-    eval = looper::power2(obse_m2) / obse_m4;
-    m_out << eval;
-  }
-  if (m_in.has("Generalized Magnetization^2") &&
-      m_in.has("Generalized Magnetization^4")) {
-    alps::RealObsevaluator obse_m2 = m_in["Generalized Magnetization^2"];
-    alps::RealObsevaluator obse_m4 = m_in["Generalized Magnetization^4"];
-    alps::RealObsevaluator eval("Binder Ratio of Generalized Magnetization");
-    eval = looper::power2(obse_m2) / obse_m4;
-    m_out << eval;
-  }
-  if (m_in.has("Generalized Staggered Magnetization^2") &&
-      m_in.has("Generalized Staggered Magnetization^4")) {
-    alps::RealObsevaluator obse_m2 =
-      m_in["Generalized Staggered Magnetization^2"];
-    alps::RealObsevaluator obse_m4 =
-      m_in["Generalized Staggered Magnetization^4"];
-    alps::RealObsevaluator
-      eval("Binder Ratio of Generalized Staggered Magnetization");
-    eval = looper::power2(obse_m2) / obse_m4;
-    m_out << eval;
-  }
-}
-
 void qmc_worker_base::save(alps::ODump& dp) const
 {
   super_type::save(dp);

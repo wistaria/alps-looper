@@ -83,22 +83,23 @@ int main(int argc, char** argv)
     boost::timer tm;
     if (!p->defined("SEED")) (*p)["SEED"] = static_cast<unsigned int>(time(0));
     std::cout << "[input parameters]\n" << *p;
-    qmc_worker_base* sim =
+    qmc_worker_base* worker =
       factory().make_qmc_worker(alps::ProcessList(1), *p, 0);
     bool thermalized = false;
-    while (sim->work_done() < 1.0) {
-      sim->dostep();
-      if (!thermalized && sim->is_thermalized()) {
-        const_cast<alps::ObservableSet&>(sim->get_measurements()).reset(true);
+    while (worker->work_done() < 1.0) {
+      worker->dostep();
+      if (!thermalized && worker->is_thermalized()) {
+        const_cast<alps::ObservableSet&>(worker->get_measurements()).
+          reset(true);
         thermalized = true;
       }
     }
-    sim->accumulate();
+    worker->evaluate();
     double t = tm.elapsed();
     std::cerr << "[speed]\nelapsed time = " << t << " sec ("
-              << (sim->mcs()) / t << " MCS/sec)\n";
-    std::cout << "[results]\n" << sim->get_measurements();
-    delete sim;
+              << (worker->mcs()) / t << " MCS/sec)\n";
+    std::cout << "[results]\n" << worker->get_measurements();
+    delete worker;
   }
 
 #ifndef BOOST_NO_EXCEPTIONS

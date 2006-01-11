@@ -23,7 +23,7 @@
 *
 *****************************************************************************/
 
-#include <looper/find_bridges.h>
+#include <looper/find_bridge.h>
 #include <boost/graph/connected_components.hpp>
 #include <cmath>
 #include <boost/random.hpp>
@@ -132,7 +132,7 @@ int main(int , char**)
   std::cout << "  found " << nb << " bridge(s)\n";
 
   nb = 0;
-  std::cout << "finding all the bridges by find_bridges() (O(N)):\n";
-  looper::find_bridges(g, *vertices(g).first, bridge_visitor(nb));
+  std::cout << "finding all the bridges by find_bridge() (O(N)):\n";
+  looper::find_bridge(g, *vertices(g).first, bridge_visitor(nb));
   std::cout << "  found " << nb << " bridge(s)\n";
 }

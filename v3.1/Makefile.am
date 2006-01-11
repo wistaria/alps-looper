@@ -1,6 +1,6 @@
 DEFAULT_INCLUDES = -I$(top_builddir)/v3.1 -I$(top_srcdir)/v3.1
 
-PROG = loop loop_evaluate loop_cmd
+PROG = loop loop_evaluate loop_ns
 
 noinst_PROGRAMS =
 if BUILD_V31
@@ -11,7 +11,6 @@ dist_noinst_HEADERS = looper.h \
 	looper/amida.h \
 	looper/exact_diag.h \
 	looper/fill_duration.h \
-	looper/find_bridges.h \
 	looper/graph.h \
 	looper/lapack.h \
 	looper/measurement.h \
@@ -30,7 +29,7 @@ dist_noinst_HEADERS = looper.h \
 
 loop_SOURCES = loop.C loop_factory.C loop_factory.h loop_worker.h
 loop_evaluate_SOURCES = loop_evaluate.C loop_worker.h
-loop_cmd_SOURCES = loop_cmd.C loop_worker.h
+loop_ns_SOURCES = loop_ns.C loop_worker.h
 
 prog: $(PROG)
 clean-local:

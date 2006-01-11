@@ -43,8 +43,13 @@ public:
   typedef looper::union_find::node                       cluster_fragment_t;
   typedef looper::cluster_info                           cluster_info_t;
 
+  typedef loop_config::improved_estimator_t              improved_estimator_t;
+  typedef loop_config::normal_estimator_t                normal_estimator_t;
+
   qmc_worker_sse(alps::ProcessList const& w, alps::Parameters const& p, int n);
   virtual void dostep();
+  virtual void evaluate(alps::ObservableSet const& m_in,
+                        alps::ObservableSet& m_out) const;
   void save(alps::ODump& dp) const;
   void load(alps::IDump& dp);
 
