@@ -22,11 +22,13 @@
 *
 *****************************************************************************/
 
-#include "looper/find_bridges.h"
+#include "looper/cluster.h"
+#include "looper/find_bridge.h"
 #include "looper/graph.h"
 #include "looper/lapack.h"
 #include "looper/lattice.h"
 #include "looper/location.h"
+#include "looper/measurement.h"
 #include "looper/model.h"
 #include "looper/operator.h"
 #include "looper/permutation.h"

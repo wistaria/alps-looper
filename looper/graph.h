@@ -263,14 +263,15 @@ public:
       r_graph_(eng, random_choice<>()),
       r_time_(eng, boost::exponential_distribution<>()) {}
   template<class WEIGHT_TABLE>
-  graph_chooser(engine_t& eng, const WEIGHT_TABLE& wt, bool is_path_integral)
+  graph_chooser(engine_t& eng, const WEIGHT_TABLE& wt, double beta,
+                bool is_path_integral)
     : r_uniform_(eng, boost::uniform_real<>(0, 1)),
       r_graph_(eng, random_choice<>()),
       r_time_(eng, boost::exponential_distribution<>())
-  { init(wt, is_path_integral); }
+  { init(wt, beta, is_path_integral); }
 
   template<class WEIGHT_TABLE>
-  void init(const WEIGHT_TABLE& wt, bool is_path_integral)
+  void init(const WEIGHT_TABLE& wt, double beta, bool is_path_integral)
   {
     graph_.resize(0);
     diag_.resize(0);
@@ -317,7 +318,8 @@ public:
     if (w.size()) r_graph_.distribution().init(w);
     if (alps::is_zero<2>(weight_)) weight_ = 1.0e-20;
     if (is_path_integral)
-      r_time_.distribution() = boost::exponential_distribution<>(weight_);
+      r_time_.distribution() =
+	boost::exponential_distribution<>(weight_ / beta);
   }
 
   const local_graph_t& graph() const { return graph_[r_graph_()]; }
@@ -359,14 +361,14 @@ public:
   typedef ENGINE                                 engine_t;
 
   template<class WEIGHT_TABLE>
-  graph_chooser(engine_t& eng, const WEIGHT_TABLE& wt,
+  graph_chooser(engine_t& eng, const WEIGHT_TABLE& wt, double beta,
                 bool is_path_integral = true)
     : r_graph_(eng, random_choice<>()),
       r_time_(eng, boost::exponential_distribution<>())
-  { init(wt, is_path_integral); }
+  { init(wt, beta, is_path_integral); }
 
   template<class WEIGHT_TABLE>
-  void init(const WEIGHT_TABLE& wt, bool is_path_integral)
+  void init(const WEIGHT_TABLE& wt, double beta, bool is_path_integral)
   {
     diag_.claer();
     std::vector<double> w;
@@ -382,7 +384,8 @@ public:
     if (w.size()) r_graph_.distribution().init(w);
     if (alps::is_zero<2>(weight_)) weight_ = 1.0e-20;
     if (is_path_integral)
-      r_time_.distribution() = boost::exponential_distribution<>(weight_);
+      r_time_.distribution() =
+        boost::exponential_distribution<>(weight_ / beta);
   }
 
   const local_graph_t& graph() const { return diag_[r_graph_()]; }

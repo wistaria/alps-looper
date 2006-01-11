@@ -108,7 +108,7 @@ void qmc_worker_pi::dostep_impl()
 
   double t = advance();
   for (operator_iterator opi = operators_p.begin();
-       t < beta() || opi != operators_p.end();) {
+       t < 1 || opi != operators_p.end();) {
 
     // diagonal update & labeling
     if (opi == operators_p.end() || t < opi->time()) {
@@ -221,9 +221,9 @@ void qmc_worker_pi::dostep_impl()
   }
   for (unsigned int s = 0; s < nvs; ++s) {
     weight.start(s, 0, s, spins[s]);
-    weight.term(current[s], beta(), s, spins_c[s]);
+    weight.term(current[s], 1, s, spins_c[s]);
     accum.start(s, 0, s, spins[s]);
-    accum.term(current[s], beta(), s, spins_c[s]);
+    accum.term(current[s], 1, s, spins_c[s]);
     accum.at_zero(s, s, spins[s]);
   }
 
@@ -265,8 +265,8 @@ void qmc_worker_pi::dostep_impl()
   if (FIELD()) {
     for (std::vector<cluster_info_t>::iterator ci = clusters.begin();
          ci != clusters.end(); ++ci)
-      if (ci->to_flip) ene -= ci->weight / beta();
-      else ene += ci->weight / beta();
+      if (ci->to_flip) ene -= ci->weight;
+      else ene += ci->weight;
   }
   measurements["Energy"] << sign * ene;
   measurements["Energy Density"] << sign * ene / nrs;
@@ -287,16 +287,16 @@ void qmc_worker_pi::dostep_impl()
 void qmc_worker_pi::evaluate(alps::ObservableSet const& m_in,
                              alps::ObservableSet& m_out) const
 {
+  int nrs = num_sites(rgraph());
   if (m_in.has("Energy") && m_in.has("Energy^2")) {
     alps::RealObsevaluator obse_e = m_in["Energy"];
     alps::RealObsevaluator obse_e2 = m_in["Energy^2"];
     alps::RealObsevaluator eval("Specific Heat");
-    eval = looper::power2(beta()) * (obse_e2 - looper::power2(obse_e))
-      / num_sites(rgraph());
+    eval = looper::power2(beta()) * (obse_e2 - looper::power2(obse_e)) / nrs;
     m_out << eval;
   }
-  normal_estimator_t::evaluate(m_in, m_out);
-  improved_estimator_t::evaluate(m_in, m_out);
+  normal_estimator_t::evaluate(beta(), nrs, m_in, m_out);
+  improved_estimator_t::evaluate(beta(), nrs, m_in, m_out);
 }
 
 void qmc_worker_pi::save(alps::ODump& dp) const

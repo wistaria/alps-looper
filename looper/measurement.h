@@ -63,7 +63,8 @@ struct improved_estimator
     }
   }
 
-  static void evaluate(alps::ObservableSet const& m_in,
+  static void evaluate(double /* beta */, int /* nrs */,
+                       alps::ObservableSet const& m_in,
                        alps::ObservableSet& m_out)
   {
     if (m_in.has("Generalized Magnetization^2") &&
@@ -211,14 +212,14 @@ struct improved_estimator
       m["Magnetization^4"] << sign * (3 * umag2 * umag2 - 2 * umag4);
       m["Susceptibility"]
         << (typename is_path_integral<QMC>::type() ?
-            sign * umag / beta / nrs :
+            sign * beta * umag / nrs :
             sign * beta * (dip(umag, nop) + umag2) / (nop + 1) / nrs);
       m["Generalized Magnetization^2"] << sign * usize2;
       m["Generalized Magnetization^4"]
         << sign * (3 * usize2 * usize2 - 2 * usize4);
       m["Generalized Susceptibility"]
         << (typename is_path_integral<QMC>::type() ?
-            sign * usize / beta / nrs :
+            sign * beta * usize / nrs :
             sign * beta * (dip(usize, nop) + usize2) / (nop + 1) / nrs);
       if (BIPARTITE()) {
         m["Staggered Magnetization"] << 0.0;
@@ -228,14 +229,14 @@ struct improved_estimator
           << sign * (3 * smag2 * smag2 - 2 * smag4);
         m["Staggered Susceptibility"]
           << (typename is_path_integral<QMC>::type() ?
-              sign * smag / beta /nrs :
+              sign * beta * smag /nrs :
               sign * beta * (dip(smag, nop) + smag2) / (nop + 1) / nrs);
         m["Generalized Staggered Magnetization^2"] << sign * ssize2;
         m["Generalized Staggered Magnetization^4"]
           << sign * (3 * ssize2 * ssize2 - 2 * ssize4);
         m["Generalized Staggered Susceptibility"]
           << (typename is_path_integral<QMC>::type() ?
-              sign * ssize / beta / nrs :
+              sign * beta * ssize / nrs :
               sign * beta * (dip(ssize, nop) + ssize2) / (nop + 1) / nrs);
       }
     }
@@ -261,7 +262,8 @@ struct normal_estimator
     }
   }
 
-  static void evaluate(alps::ObservableSet const& m_in,
+  static void evaluate(double beta, int nrs,
+                       alps::ObservableSet const& m_in,
                        alps::ObservableSet& m_out)
   {
     if (m_in.has("Magnetization^2") && m_in.has("Magnetization^4")) {
@@ -352,10 +354,10 @@ struct normal_estimator
     }
     if (typename is_path_integral<QMC>::type()) {
       umag_a += beta * umag;
-      m["Susceptibility"] << sign * power2(umag_a) / beta / nrs;
+      m["Susceptibility"] << sign * beta * power2(umag_a) / nrs;
       if (BIPARTITE()) {
         smag_a += beta * smag;
-        m["Staggered Susceptibility"] << sign * power2(smag_a) / beta / nrs;
+        m["Staggered Susceptibility"] << sign * beta * power2(smag_a) / nrs;
       }
     } else {
       umag_a += nop * umag;
