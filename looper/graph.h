@@ -319,7 +319,7 @@ public:
     if (alps::is_zero<2>(weight_)) weight_ = 1.0e-20;
     if (is_path_integral)
       r_time_.distribution() =
-	boost::exponential_distribution<>(weight_ / beta);
+        boost::exponential_distribution<>(beta * weight_);
   }
 
   const local_graph_t& graph() const { return graph_[r_graph_()]; }
@@ -362,7 +362,7 @@ public:
 
   template<class WEIGHT_TABLE>
   graph_chooser(engine_t& eng, const WEIGHT_TABLE& wt, double beta,
-                bool is_path_integral = true)
+                bool is_path_integral)
     : r_graph_(eng, random_choice<>()),
       r_time_(eng, boost::exponential_distribution<>())
   { init(wt, beta, is_path_integral); }
@@ -385,7 +385,7 @@ public:
     if (alps::is_zero<2>(weight_)) weight_ = 1.0e-20;
     if (is_path_integral)
       r_time_.distribution() =
-        boost::exponential_distribution<>(weight_ / beta);
+        boost::exponential_distribution<>(beta * weight_);
   }
 
   const local_graph_t& graph() const { return diag_[r_graph_()]; }

@@ -32,8 +32,8 @@
 
 namespace looper {
 
-inline void add_measurement(std::string const& name, bool is_signed,
-                            alps::ObservableSet& m)
+inline void add_measurement(alps::ObservableSet& m, std::string const& name,
+                            bool is_signed = false)
 {
   if (!m.has(name))
     m << make_observable(alps::RealObservable(name), is_signed);
@@ -43,23 +43,23 @@ struct improved_estimator
 {
   static void init(bool is_bipartite, bool is_signed, alps::ObservableSet& m)
   {
-    add_measurement("Magnetization", is_signed, m);
-    add_measurement("Magnetization Density", is_signed, m);
-    add_measurement("Magnetization^2", is_signed, m);
-    add_measurement("Magnetization^4", is_signed, m);
-    add_measurement("Susceptibility", is_signed, m);
-    add_measurement("Generalized Magnetization^2", is_signed, m);
-    add_measurement("Generalized Magnetization^4", is_signed, m);
-    add_measurement("Generalized Susceptibility", is_signed, m);
+    add_measurement(m, "Magnetization", is_signed);
+    add_measurement(m, "Magnetization Density", is_signed);
+    add_measurement(m, "Magnetization^2", is_signed);
+    add_measurement(m, "Magnetization^4", is_signed);
+    add_measurement(m, "Susceptibility", is_signed);
+    add_measurement(m, "Generalized Magnetization^2", is_signed);
+    add_measurement(m, "Generalized Magnetization^4", is_signed);
+    add_measurement(m, "Generalized Susceptibility", is_signed);
     if (is_bipartite) {
-      add_measurement("Staggered Magnetization", is_signed, m);
-      add_measurement("Staggered Magnetization Density", is_signed, m);
-      add_measurement("Staggered Magnetization^2", is_signed, m);
-      add_measurement("Staggered Magnetization^4", is_signed, m);
-      add_measurement("Staggered Susceptibility", is_signed, m);
-      add_measurement("Generalized Staggered Magnetization^2", is_signed, m);
-      add_measurement("Generalized Staggered Magnetization^4", is_signed, m);
-      add_measurement("Generalized Staggered Susceptibility", is_signed, m);
+      add_measurement(m, "Staggered Magnetization", is_signed);
+      add_measurement(m, "Staggered Magnetization Density", is_signed);
+      add_measurement(m, "Staggered Magnetization^2", is_signed);
+      add_measurement(m, "Staggered Magnetization^4", is_signed);
+      add_measurement(m, "Staggered Susceptibility", is_signed);
+      add_measurement(m, "Generalized Staggered Magnetization^2", is_signed);
+      add_measurement(m, "Generalized Staggered Magnetization^4", is_signed);
+      add_measurement(m, "Generalized Staggered Susceptibility", is_signed);
     }
   }
 
@@ -203,7 +203,7 @@ struct improved_estimator
       return *this;
     }
     template<typename QMC>
-    void commit(QMC, int nrs, double beta, int nop, double sign,
+    void commit(QMC, double beta, int nrs, int nop, double sign,
                 alps::ObservableSet& m) const
     {
       m["Magnetization"] << 0.0;
@@ -248,21 +248,21 @@ struct normal_estimator
 {
   static void init(bool is_bipartite, bool is_signed, alps::ObservableSet& m)
   {
-    add_measurement("Magnetization", is_signed, m);
-    add_measurement("Magnetization Density", is_signed, m);
-    add_measurement("Magnetization^2", is_signed, m);
-    add_measurement("Magnetization^4", is_signed, m);
-    add_measurement("Susceptibility", is_signed, m);
+    add_measurement(m, "Magnetization", is_signed);
+    add_measurement(m, "Magnetization Density", is_signed);
+    add_measurement(m, "Magnetization^2", is_signed);
+    add_measurement(m, "Magnetization^4", is_signed);
+    add_measurement(m, "Susceptibility", is_signed);
     if (is_bipartite) {
-      add_measurement("Staggered Magnetization", is_signed, m);
-      add_measurement("Staggered Magnetization Density", is_signed, m);
-      add_measurement("Staggered Magnetization^2", is_signed, m);
-      add_measurement("Staggered Magnetization^4", is_signed, m);
-      add_measurement("Staggered Susceptibility", is_signed, m);
+      add_measurement(m, "Staggered Magnetization", is_signed);
+      add_measurement(m, "Staggered Magnetization Density", is_signed);
+      add_measurement(m, "Staggered Magnetization^2", is_signed);
+      add_measurement(m, "Staggered Magnetization^4", is_signed);
+      add_measurement(m, "Staggered Susceptibility", is_signed);
     }
   }
 
-  static void evaluate(double beta, int nrs,
+  static void evaluate(double /* beta */, int /* nrs */,
                        alps::ObservableSet const& m_in,
                        alps::ObservableSet& m_out)
   {
@@ -296,7 +296,7 @@ struct normal_estimator
 
   template<typename QMC, class G, class BIPARTITE, class OP>
   static void
-  do_measurement(QMC, G const& vg, BIPARTITE, int nrs, double beta,
+  do_measurement(QMC, G const& vg, BIPARTITE, double beta, int nrs,
     int nop, double sign, std::vector<int> const& spins,
     std::vector<OP> const& operators, std::vector<int>& spins_c,
     alps::ObservableSet& m)

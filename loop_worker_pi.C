@@ -277,10 +277,10 @@ void qmc_worker_pi::dostep_impl()
   if (IMPROVE()) {
     std::accumulate(estimates.begin(), estimates.end(),
       improved_estimator_t::collector<BIPARTITE>()).
-      commit(qmc_type(), nrs, beta(), nop, improved_sign, measurements);
+      commit(qmc_type(), beta(), nrs, nop, improved_sign, measurements);
   } else {
-    normal_estimator_t::do_measurement(qmc_type(), vgraph(), BIPARTITE(), nrs,
-      beta(), nop, sign, spins, operators, spins_c, measurements);
+    normal_estimator_t::do_measurement(qmc_type(), vgraph(), BIPARTITE(),
+      beta(), nrs, nop, sign, spins, operators, spins_c, measurements);
   }
 }
 
