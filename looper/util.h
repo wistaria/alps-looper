@@ -33,6 +33,7 @@
 #include <boost/tuple/tuple.hpp>
 #include <boost/type_traits/is_arithmetic.hpp>
 #include <boost/utility/enable_if.hpp>
+#include <complex>
 #include <limits>
 #include <stdexcept>
 
@@ -102,6 +103,10 @@ T power2(T const& t, typename disable_if<is_arithmetic<T> >::type* = 0)
 { return t * t; }
 
 template<typename T>
+T power2(std::complex<T> const& t)
+{ return power2(real(t)) * power2(imag(t)); }
+
+template<typename T>
 T power3(T t, typename enable_if<is_arithmetic<T> >::type* = 0)
 { return t * t * t; }
 
@@ -115,6 +120,10 @@ T power4(T t, typename enable_if<is_arithmetic<T> >::type* = 0)
 
 template<typename T>
 T power4(T const& t, typename disable_if<is_arithmetic<T> >::type* = 0)
+{ return power2(power2(t)); }
+
+template<typename T>
+T power4(std::complex<T> const& t)
 { return power2(power2(t)); }
 
 #else

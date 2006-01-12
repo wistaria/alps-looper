@@ -55,9 +55,9 @@ qmc_worker_pi::qmc_worker_pi(alps::ProcessList const& w,
          alps::RealObservable("Energy Density"), is_signed())
     << make_observable(
          alps::RealObservable("Energy^2"), is_signed());
-  normal_estimator_t::init(is_bipartite(), is_signed(), measurements);
+  normal_estimator_t::init(measurements, is_bipartite(), is_signed());
   if (use_improved_estimator())
-    improved_estimator_t::init(is_bipartite(), is_signed(), measurements);
+    improved_estimator_t::init(measurements, is_bipartite(), is_signed());
 }
 
 void qmc_worker_pi::dostep()
@@ -277,10 +277,10 @@ void qmc_worker_pi::dostep_impl()
   if (IMPROVE()) {
     std::accumulate(estimates.begin(), estimates.end(),
       improved_estimator_t::collector<BIPARTITE>()).
-      commit(qmc_type(), beta(), nrs, nop, improved_sign, measurements);
+      commit(measurements, qmc_type(), beta(), nrs, nop, improved_sign);
   } else {
-    normal_estimator_t::do_measurement(qmc_type(), vgraph(), BIPARTITE(),
-      beta(), nrs, nop, sign, spins, operators, spins_c, measurements);
+    normal_estimator_t::do_measurement(measurements, qmc_type(), vgraph(),
+      BIPARTITE(), beta(), nrs, nop, sign, spins, operators, spins_c);
   }
 }
 
@@ -295,8 +295,8 @@ void qmc_worker_pi::evaluate(alps::ObservableSet const& m_in,
     eval = looper::power2(beta()) * (obse_e2 - looper::power2(obse_e)) / nrs;
     m_out << eval;
   }
-  normal_estimator_t::evaluate(beta(), nrs, m_in, m_out);
-  improved_estimator_t::evaluate(beta(), nrs, m_in, m_out);
+  normal_estimator_t::evaluate(m_out, beta(), nrs, m_in);
+  improved_estimator_t::evaluate(m_out, beta(), nrs, m_in);
 }
 
 void qmc_worker_pi::save(alps::ODump& dp) const
