@@ -104,7 +104,7 @@ T power2(T const& t, typename disable_if<is_arithmetic<T> >::type* = 0)
 
 template<typename T>
 T power2(std::complex<T> const& t)
-{ return power2(real(t)) * power2(imag(t)); }
+{ return power2(real(t)) + power2(imag(t)); }
 
 template<typename T>
 T power3(T t, typename enable_if<is_arithmetic<T> >::type* = 0)

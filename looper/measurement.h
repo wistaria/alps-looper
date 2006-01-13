@@ -230,8 +230,8 @@ struct estimator_adaptor : public estimator_base
     void commit(alps::ObservableSet& m, double beta, int nrs, int nop,
                 double sign) const
     {
-      base0::commit(m, QMC(), beta, nrs, nop, sign);
-      base1::commit(m, QMC(), beta, nrs, nop, sign);
+      base0::commit(m, beta, nrs, nop, sign);
+      base1::commit(m, beta, nrs, nop, sign);
     }
   };
 
