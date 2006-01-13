@@ -274,9 +274,8 @@ void qmc_worker_pi::dostep_impl()
     << sign * (looper::power2(ene) - nop / looper::power2(beta()));
 
   // other measurements
-  if (IMPROVE()) {
-    std::accumulate(estimates.begin(), estimates.end(),
-      improved_estimator_t::collector<BIPARTITE>()).
+  std::accumulate(estimates.begin(), estimates.end(),
+    improved_estimator_t::collector<BIPARTITE, IMPROVE>()).
       commit(measurements, qmc_type(), beta(), nrs, nop, improved_sign);
   } else {
     normal_estimator_t::do_measurement(measurements, qmc_type(), vgraph(),

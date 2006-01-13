@@ -57,11 +57,29 @@ static inline void proceed(boost::mpl::false_, double&) {}
 
 } // end namespace measurement
 
+template<typename ESTIMATOR>
+struct estimate_type
+{
+  typedef typename ESTIMATOR::estimate type;
+};
 
-struct empty_improved_estimator
+template<typename ESTIMATOR, typename BIPARTITE, typename IMPROVE>
+struct collector_type
+{
+  typedef typename ESTIMATOR::collector<BIPARTITE, IMPROVE> type;
+};
+
+template<typename ESTIMATOR>
+struct evaluator_type
+{
+  typedef typename ESTIMATOR::evaluator type;
+};
+
+
+struct empty_estimator
 {
 public:
-  static void init(alps::ObservableSet&, bool, bool) {}
+  static void init(alps::ObservableSet&, bool, bool, bool) {}
   static void evaluate(alps::ObservableSet&, double, int,
                        alps::ObservableSet const&) {}
   struct estimate
@@ -81,6 +99,11 @@ public:
     template<typename QMC>
     void commit(alps::ObservableSet&, QMC, double, int, int, double) const {}
   };
+  template<typename QMC, class G, class BIPARTITE, class OP>
+  static void
+  do_normal_measurement(alps::ObservableSet const&, QMC, G const&, BIPARTITE,
+                 double, int, int, double, std::vector<int> const&,
+                 std::vector<OP> const&, std::vector<int> const&) {}
 };
 
 struct empty_normal_estimator
@@ -89,11 +112,6 @@ public:
   static void init(alps::ObservableSet&, bool, bool) {}
   static void evaluate(alps::ObservableSet&, double, int,
                        alps::ObservableSet const&) {}
-  template<typename QMC, class G, class BIPARTITE, class OP>
-  static void
-  do_measurement(alps::ObservableSet const&, QMC, G const&, BIPARTITE,
-                 double, int, int, double, std::vector<int> const&,
-                 std::vector<OP> const&, std::vector<int> const&) {}
 };
 
 
