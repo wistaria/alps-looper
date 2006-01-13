@@ -46,44 +46,65 @@ inline void remove_measurement(alps::ObservableSet& m, std::string const& name)
 
 // for path integral
 template<typename OP>
-static inline void proceed(boost::mpl::true_, double& t, OP const& op)
+inline void proceed(boost::mpl::true_, double& t, OP const& op)
 { t = op.time(); }
 template<typename OP>
-static inline void proceed(boost::mpl::false_, double&, OP const&) {}
+inline void proceed(boost::mpl::false_, double&, OP const&) {}
 
 // for sse
-static inline void proceed(boost::mpl::true_, double& t) { t += 1; }
-static inline void proceed(boost::mpl::false_, double&) {}
-
-} // end namespace measurement
+inline void proceed(boost::mpl::true_, double& t) { t += 1; }
+inline void proceed(boost::mpl::false_, double&) {}
 
 template<typename ESTIMATOR>
-struct estimate_type
+struct estimate
 {
   typedef typename ESTIMATOR::estimate type;
 };
 
-template<typename ESTIMATOR, typename BIPARTITE, typename IMPROVE>
-struct collector_type
+template<typename ESTIMATOR, typename G, typename F, typename BIPARTITE,
+         typename IMPROVE>
+struct accumulator
 {
-  typedef typename ESTIMATOR::collector<BIPARTITE, IMPROVE> type;
+  typedef typename estimate<ESTIMATOR>::type estimate_t;
+  typedef typename
+    ESTIMATOR::template accumulator<estimate_t, G, F, BIPARTITE, IMPROVE>
+    type;
 };
 
-template<typename ESTIMATOR>
-struct evaluator_type
+template<typename ESTIMATOR, typename QMC, typename BIPARTITE,
+         typename IMPROVE>
+struct collector
 {
-  typedef typename ESTIMATOR::evaluator type;
+  typedef typename ESTIMATOR::template collector<QMC, BIPARTITE, IMPROVE> type;
 };
 
-
-struct empty_estimator
+template<typename ESTIMATOR, typename QMC, typename BIPARTITE,
+         typename IMPROVE>
+struct normal_estimator
 {
-public:
-  static void init(alps::ObservableSet&, bool, bool, bool) {}
-  static void evaluate(alps::ObservableSet&, double, int,
-                       alps::ObservableSet const&) {}
+  typedef typename
+    ESTIMATOR::template normal_estimator<QMC, BIPARTITE, IMPROVE>
+    type;
+};
+
+} // end namespace measurement
+
+
+struct estimator_base
+{
+  static void initialize(alps::ObservableSet& /* m */,
+                         bool /* is_bipartite */,
+                         bool /* is_signed */,
+                         bool /* use_improved_estimator */) {}
+  static void evaluate(alps::ObservableSet& /* m_out */,
+                       double /* beta */, int /* nrs */,
+                       alps::ObservableSet const& /* m_in */) {}
+
+  // improved estimator
+
   struct estimate
   {
+    estimate() {}
     template<typename G, typename BIPARTITE>
     void at_zero(G const&, BIPARTITE, int, int) const {}
     template<typename G, typename BIPARTITE>
@@ -91,49 +112,81 @@ public:
     template<typename G, typename BIPARTITE>
     void term(G const&, BIPARTITE, double, int, int) const {}
   };
-  template<typename BIPARTITE>
+  template<typename EST, typename G, typename F, typename BIPARTITE,
+           typename IMPROVE>
+  struct accumulator
+  {
+    typedef EST estimate_t;
+    typedef G lattice_graph_t;
+    typedef F cluster_fragment_t;
+    accumulator(std::vector<estimate_t> const&,
+                std::vector<cluster_fragment_t> const&,
+                lattice_graph_t const&) {}
+    void at_zero(int, int, int) const {}
+    void start(int, double, int, int) const {}
+    void term(int, double, int, int) const {}
+  };
+  template<typename EST, typename G, typename F, typename BIPARTITE>
+  struct accumulator<EST, G, F, BIPARTITE, /* IMPROVE = */ boost::mpl::true_>
+  {
+    typedef EST estimate_t;
+    typedef G lattice_graph_t;
+    typedef F cluster_fragment_t;
+    accumulator(std::vector<estimate_t>& es,
+                std::vector<cluster_fragment_t> const& fr,
+                lattice_graph_t const& vg)
+      : estimates(es), fragments(fr), vgraph(vg) {}
+    void at_zero(int p, int s, int c)
+    { estimates[fragments[p].id].at_zero(vgraph, BIPARTITE(), s, c); }
+    void start(int p, double t, int s, int c)
+    { estimates[fragments[p].id].start(vgraph, BIPARTITE(), t, s, c); }
+    void term(int p, double t, int s, int c)
+    { estimates[fragments[p].id].term(vgraph, BIPARTITE(), t, s, c); }
+    std::vector<estimate_t>& estimates;
+    std::vector<cluster_fragment_t> const& fragments;
+    lattice_graph_t const& vgraph;
+  };
+  template<typename QMC, typename BIPARTITE, typename IMPROVE>
   struct collector
   {
-    template<typename EST>
+    template<class EST>
     collector operator+(EST const&) const { return *this; }
-    template<typename QMC>
-    void commit(alps::ObservableSet&, QMC, double, int, int, double) const {}
+    void commit(alps::ObservableSet&, double, int, int, double) const {}
   };
-  template<typename QMC, class G, class BIPARTITE, class OP>
-  static void
-  do_normal_measurement(alps::ObservableSet const&, QMC, G const&, BIPARTITE,
-                 double, int, int, double, std::vector<int> const&,
-                 std::vector<OP> const&, std::vector<int> const&) {}
-};
 
-struct empty_normal_estimator
-{
-public:
-  static void init(alps::ObservableSet&, bool, bool) {}
-  static void evaluate(alps::ObservableSet&, double, int,
-                       alps::ObservableSet const&) {}
+  // normal estimator
+
+  template<typename QMC, typename BIPARTITE, typename IMPROVE>
+  struct normal_estimator
+  {
+    template<class G, class OP>
+    static void measure(alps::ObservableSet const&, G const&,
+                        double, int, int, double, std::vector<int> const&,
+                        std::vector<OP> const&, std::vector<int> const&) {}
+  };
 };
 
 
 template<typename ESTIMATOR0, typename ESTIMATOR1>
-struct improved_estimator_adaptor
+struct estimator_adaptor : public estimator_base
 {
-public:
   typedef ESTIMATOR0 estimator0;
   typedef ESTIMATOR1 estimator1;
-  static void init(alps::ObservableSet& m, bool is_bipartite, bool is_signed)
+
+  static void initialize(alps::ObservableSet& m, bool is_bipartite,
+                         bool is_signed, bool use_improved_estimator)
   {
-    estimator0::init(m, is_bipartite, is_signed);
-    estimator1::init(m, is_bipartite, is_signed);
-  }
-  static void evaluate(alps::ObservableSet& m_out, double beta, int nrs,
+    estimator0::initialize(m, is_bipartite, is_signed, use_improved_estimator);
+    estimator1::initialize(m, is_bipartite, is_signed, use_improved_estimator);
+  };
+
+  static void evaluate(alps::ObservableSet& m, double beta, int nrs,
                        alps::ObservableSet const& m_in)
   {
-    estimator0::evaluate(m_out, beta, nrs, m_in);
-    estimator1::evaluate(m_out, beta, nrs, m_in);
+    estimator0::evaluate(m, beta, nrs, m_in);
+    estimator1::evaluate(m, beta, nrs, m_in);
   }
 
-public:
   struct estimate : public estimator0::estimate, public estimator1::estimate
   {
     estimate() : estimator0::estimate(), estimator1::estimate() {}
@@ -157,62 +210,15 @@ public:
     }
   };
 
-
-private:
-  template<typename EST, typename G, typename F, typename BIPARTITE,
-           typename IMPROVE>
-  struct accumulator_base
+  template<typename QMC, typename BIPARTITE, typename IMPROVE>
+  struct collector
+    : public estimator0::template collector<QMC, BIPARTITE, IMPROVE>,
+      public estimator1::template collector<QMC, BIPARTITE, IMPROVE>
   {
-    typedef EST estimate_t;
-    typedef G lattice_graph_t;
-    typedef F cluster_fragment_t;
-    accumulator_base(std::vector<estimate_t> const&,
-                     std::vector<cluster_fragment_t> const&,
-                     lattice_graph_t const&) {}
-    void at_zero(int, int, int) const {}
-    void start(int, double, int, int) const {}
-    void term(int, double, int, int) const {}
-  };
-  template<typename EST, typename G, typename F, typename BIPARTITE>
-  struct accumulator_base<EST, G, F, BIPARTITE,
-                          /* IMPROVE = */ boost::mpl::true_>
-  {
-    typedef EST estimate_t;
-    typedef G lattice_graph_t;
-    typedef F cluster_fragment_t;
-    accumulator_base(std::vector<estimate_t>& es,
-                    std::vector<cluster_fragment_t> const& fr,
-                    lattice_graph_t const& vg)
-      : estimates(es), fragments(fr), vgraph(vg) {}
-    void at_zero(int p, int s, int c)
-    { estimates[fragments[p].id].at_zero(vgraph, BIPARTITE(), s, c); }
-    void start(int p, double t, int s, int c)
-    { estimates[fragments[p].id].start(vgraph, BIPARTITE(), t, s, c); }
-    void term(int p, double t, int s, int c)
-    { estimates[fragments[p].id].term(vgraph, BIPARTITE(), t, s, c); }
-    std::vector<estimate_t>& estimates;
-    std::vector<cluster_fragment_t> const& fragments;
-    lattice_graph_t const& vgraph;
-  };
-
-public:
-  template<typename G, typename F, typename BIPARTITE, typename IMPROVE>
-  struct accumulator :
-    public accumulator_base<estimate, G, F, BIPARTITE, IMPROVE>
-  {
-    typedef accumulator_base<estimate, G, F, BIPARTITE, IMPROVE> super_type;
-    accumulator(std::vector<estimate>& es, std::vector<F> const& fr,
-                G const& vg)
-      : accumulator_base<estimate, G, F, BIPARTITE, IMPROVE>(es, fr, vg) {}
-  };
-
-public:
-  template<typename BIPARTITE>
-  struct collector : public estimator0::template collector<BIPARTITE>,
-                     public estimator1::template collector<BIPARTITE>
-  {
-    typedef typename estimator0::template collector<BIPARTITE> base0;
-    typedef typename estimator1::template collector<BIPARTITE> base1;
+    typedef typename estimator0::template collector<QMC, BIPARTITE, IMPROVE>
+      base0;
+    typedef typename estimator1::template collector<QMC, BIPARTITE, IMPROVE>
+      base1;
     collector() : base0(), base1() {}
     template<typename EST>
     collector operator+(EST const& cm)
@@ -221,249 +227,167 @@ public:
       base1::operator+(cm);
       return *this;
     }
-    template<typename QMC>
-    void commit(alps::ObservableSet& m, QMC, double beta, int nrs, int nop,
+    void commit(alps::ObservableSet& m, double beta, int nrs, int nop,
                 double sign) const
     {
       base0::commit(m, QMC(), beta, nrs, nop, sign);
       base1::commit(m, QMC(), beta, nrs, nop, sign);
     }
   };
-};
 
-template<typename ESTIMATOR0, typename ESTIMATOR1>
-struct normal_estimator_adaptor
-{
-public:
-  typedef ESTIMATOR0 estimator0;
-  typedef ESTIMATOR1 estimator1;
-
-  static void init(alps::ObservableSet& m, bool is_bipartite, bool is_signed)
+  template<typename QMC, typename BIPARTITE, typename IMPROVE>
+  struct normal_estimator
   {
-    estimator0::init(m, is_bipartite, is_signed);
-    estimator1::init(m, is_bipartite, is_signed);
-  }
-
-  static void evaluate(alps::ObservableSet& m, double beta, int nrs,
-                       alps::ObservableSet const& m_in)
-  {
-    estimator0::evaluate(m, beta, nrs, m_in);
-    estimator1::evaluate(m, beta, nrs, m_in);
-  }
-
-  template<typename QMC, class G, class BIPARTITE, class OP>
-  static void
-  do_measurement(alps::ObservableSet& m, QMC, G const& vg, BIPARTITE,
-                 double beta, int nrs, int nop, double sign,
-                 std::vector<int> const& spins,
-                 std::vector<OP> const& operators, std::vector<int>& spins_c)
-  {
-    estimator0::do_measurement(m, QMC(), vg, BIPARTITE(), beta, nrs, nop, sign,
-                               spins, operators, spins_c);
-    estimator1::do_measurement(m, QMC(), vg, BIPARTITE(), beta, nrs, nop, sign,
-                               spins, operators, spins_c);
-  }
-};
-
-
-struct susceptibility
-{
-  struct estimator_base
-  {
-    static void init(alps::ObservableSet& m, bool is_bipartite, bool is_signed,
-                     bool use_improved_estimator)
+    template<typename G, class OP>
+    static void measure(alps::ObservableSet& m, G const& vg,
+                        double beta, int nrs, int nop, double sign,
+                        std::vector<int> const& spins,
+                        std::vector<OP> const& operators,
+                        std::vector<int>& spins_c)
     {
-      using looper::measurement::add_measurement;
-      add_measurement(m, "Magnetization", is_signed);
-      add_measurement(m, "Magnetization Density", is_signed);
-      add_measurement(m, "Magnetization^2", is_signed);
-      add_measurement(m, "Magnetization^4", is_signed);
-      add_measurement(m, "Susceptibility", is_signed);
+      estimator0::template normal_estimator<QMC, BIPARTITE, IMPROVE>::
+        measure(m, vg, beta, nrs, nop, sign, spins, operators, spins_c);
+      estimator1::template normal_estimator<QMC, BIPARTITE, IMPROVE>::
+        measure(m, vg, beta, nrs, nop, sign, spins, operators, spins_c);
+    }
+  };
+};
+
+
+struct susceptibility_estimator : public estimator_base
+{
+  static void initialize(alps::ObservableSet& m, bool is_bipartite,
+                         bool is_signed, bool use_improved_estimator)
+  {
+    using looper::measurement::add_measurement;
+    add_measurement(m, "Magnetization", is_signed);
+    add_measurement(m, "Magnetization Density", is_signed);
+    add_measurement(m, "Magnetization^2", is_signed);
+    add_measurement(m, "Magnetization^4", is_signed);
+    add_measurement(m, "Susceptibility", is_signed);
+    if (use_improved_estimator) {
+      add_measurement(m, "Generalized Magnetization^2", is_signed);
+      add_measurement(m, "Generalized Magnetization^4", is_signed);
+      add_measurement(m, "Generalized Susceptibility", is_signed);
+    }
+    if (is_bipartite) {
+      add_measurement(m, "Staggered Magnetization", is_signed);
+      add_measurement(m, "Staggered Magnetization Density", is_signed);
+      add_measurement(m, "Staggered Magnetization^2", is_signed);
+      add_measurement(m, "Staggered Magnetization^4", is_signed);
+      add_measurement(m, "Staggered Susceptibility", is_signed);
       if (use_improved_estimator) {
-        add_measurement(m, "Generalized Magnetization^2", is_signed);
-        add_measurement(m, "Generalized Magnetization^4", is_signed);
-        add_measurement(m, "Generalized Susceptibility", is_signed);
-      }
-      if (is_bipartite) {
-        add_measurement(m, "Staggered Magnetization", is_signed);
-        add_measurement(m, "Staggered Magnetization Density", is_signed);
-        add_measurement(m, "Staggered Magnetization^2", is_signed);
-        add_measurement(m, "Staggered Magnetization^4", is_signed);
-        add_measurement(m, "Staggered Susceptibility", is_signed);
-        if (use_improved_estimator) {
-          add_measurement(m, "Generalized Staggered Magnetization^2",
-                          is_signed);
-          add_measurement(m, "Generalized Staggered Magnetization^4",
-                          is_signed);
-          add_measurement(m, "Generalized Staggered Susceptibility",
-                          is_signed);
-        }
+        add_measurement(m, "Generalized Staggered Magnetization^2",
+                        is_signed);
+        add_measurement(m, "Generalized Staggered Magnetization^4",
+                        is_signed);
+        add_measurement(m, "Generalized Staggered Susceptibility",
+                        is_signed);
       }
     }
+  }
 
-    static void evaluate(alps::ObservableSet& m,
-                         double /* beta */, int /* nrs */,
-                         alps::ObservableSet const& m_in)
+  static void evaluate(alps::ObservableSet& m, double, int,
+                       alps::ObservableSet const& m_in)
+  {
+    using looper::power2;
+    using looper::measurement::remove_measurement;
+    using alps::RealObsevaluator;
+    if (m_in.has("Magnetization^2") && m_in.has("Magnetization^4")) {
+      remove_measurement(m, "Binder Ratio of Magnetization");
+      RealObsevaluator obse_m2 = m_in["Magnetization^2"];
+      RealObsevaluator obse_m4 = m_in["Magnetization^4"];
+      RealObsevaluator eval("Binder Ratio of Magnetization");
+      eval = power2(obse_m2) / obse_m4;
+      m << eval;
+    }
+    if (m_in.has("Staggered Magnetization^2") &&
+        m_in.has("Staggered Magnetization^4")) {
+      remove_measurement(m, "Binder Ratio of Staggered Magnetization");
+      RealObsevaluator obse_m2 = m_in["Staggered Magnetization^2"];
+      RealObsevaluator obse_m4 = m_in["Staggered Magnetization^4"];
+      RealObsevaluator eval("Binder Ratio of Staggered Magnetization");
+      eval = power2(obse_m2) / obse_m4;
+      m << eval;
+    }
+    if (m_in.has("Generalized Magnetization^2") &&
+        m_in.has("Generalized Magnetization^4")) {
+      remove_measurement(m, "Binder Ratio of Generalized Magnetization");
+      RealObsevaluator obse_m2 = m_in["Generalized Magnetization^2"];
+      RealObsevaluator obse_m4 = m_in["Generalized Magnetization^4"];
+      RealObsevaluator eval("Binder Ratio of Generalized Magnetization");
+      eval = power2(obse_m2) / obse_m4;
+      m << eval;
+    }
+    if (m_in.has("Generalized Staggered Magnetization^2") &&
+        m_in.has("Generalized Staggered Magnetization^4")) {
+      remove_measurement(m,
+        "Binder Ratio of Generalized Staggered Magnetization");
+      RealObsevaluator obse_m2 =
+        m_in["Generalized Staggered Magnetization^2"];
+      RealObsevaluator obse_m4 =
+        m_in["Generalized Staggered Magnetization^4"];
+      RealObsevaluator
+        eval("Binder Ratio of Generalized Staggered Magnetization");
+      eval = power2(obse_m2) / obse_m4;
+      m << eval;
+    }
+  }
+
+  struct estimate
+  {
+    double usize0, umag0, usize, umag;
+    double ssize0, smag0, ssize, smag;
+    estimate() : usize0(0), umag0(0), usize(0), umag(0),
+                 ssize0(0), smag0(0), ssize(0), smag(0) {}
+    template<typename G, typename BIPARTITE>
+    void at_zero(G const& g, BIPARTITE, int s, int c)
     {
-      using looper::measurement::remove_measurement;
-      if (m_in.has("Magnetization^2") &&
-          m_in.has("Magnetization^4")) {
-        remove_measurement(m, "Binder Ratio of Magnetization");
-        alps::RealObsevaluator obse_m2 = m_in["Magnetization^2"];
-        alps::RealObsevaluator obse_m4 = m_in["Magnetization^4"];
-        alps::RealObsevaluator
-          eval("Binder Ratio of Magnetization");
-        eval = looper::power2(obse_m2) / obse_m4;
-        m << eval;
+      usize0 += 0.5;
+      umag0  += (0.5-c);
+      if (BIPARTITE()) {
+        double gg = gauge(g, s);
+        ssize0 += gg * 0.5;
+        smag0  += gg * (0.5-c);
       }
-      if (m_in.has("Staggered Magnetization^2") &&
-          m_in.has("Staggered Magnetization^4")) {
-        remove_measurement(m,
-          "Binder Ratio of Staggered Magnetization");
-        alps::RealObsevaluator obse_m2 =
-          m_in["Staggered Magnetization^2"];
-        alps::RealObsevaluator obse_m4 =
-          m_in["Staggered Magnetization^4"];
-        alps::RealObsevaluator
-          eval("Binder Ratio of Staggered Magnetization");
-        eval = looper::power2(obse_m2) / obse_m4;
-        m << eval;
+    }
+    template<typename G, typename BIPARTITE>
+    void start(G const& g, BIPARTITE, double t, int s, int c)
+    {
+      usize -= t * 0.5;
+      umag  -= t * (0.5-c);
+      if (BIPARTITE()) {
+        double gg = gauge(g, s);
+        ssize -= gg * t * 0.5;
+        smag  -= gg * t * (0.5-c);
       }
-      if (m_in.has("Generalized Magnetization^2") &&
-          m_in.has("Generalized Magnetization^4")) {
-        remove_measurement(m, "Binder Ratio of Generalized Magnetization");
-        alps::RealObsevaluator obse_m2 = m_in["Generalized Magnetization^2"];
-        alps::RealObsevaluator obse_m4 = m_in["Generalized Magnetization^4"];
-        alps::RealObsevaluator
-          eval("Binder Ratio of Generalized Magnetization");
-        eval = looper::power2(obse_m2) / obse_m4;
-        m << eval;
-      }
-      if (m_in.has("Generalized Staggered Magnetization^2") &&
-          m_in.has("Generalized Staggered Magnetization^4")) {
-        remove_measurement(m,
-          "Binder Ratio of Generalized Staggered Magnetization");
-        alps::RealObsevaluator obse_m2 =
-          m_in["Generalized Staggered Magnetization^2"];
-        alps::RealObsevaluator obse_m4 =
-          m_in["Generalized Staggered Magnetization^4"];
-        alps::RealObsevaluator
-          eval("Binder Ratio of Generalized Staggered Magnetization");
-        eval = looper::power2(obse_m2) / obse_m4;
-        m << eval;
+    }
+    template<typename G, typename BIPARTITE>
+    void term(G const& g, BIPARTITE, double t, int s, int c)
+    {
+      usize += t * 0.5;
+      umag  += t * (0.5-c);
+      if (BIPARTITE()) {
+        double gg = gauge(g, s);
+        ssize += gg * t * 0.5;
+        smag  += gg * t * (0.5-c);
       }
     }
   };
 
-  struct improved_estimator
+  template<typename QMC, typename BIPARTITE, typename IMPROVE>
+  struct collector
   {
-    static void init(alps::ObservableSet& m, bool is_bipartite, bool is_signed)
-    { estimator_base::init(m, is_bipartite, is_signed, true); }
-
-    static void evaluate(alps::ObservableSet& m, double beta, int nrs,
-                         alps::ObservableSet const& m_in)
-    { estimator_base::evaluate(m, beta, nrs, m_in); }
-
-    struct estimate
+    double usize2, umag2, usize4, umag4, usize, umag;
+    double ssize2, smag2, ssize4, smag4, ssize, smag;
+    collector() : usize2(0), umag2(0), usize4(0), umag4(0),
+                  usize(0), umag(0),
+                  ssize2(0), smag2(0), ssize4(0), smag4(0),
+                  ssize(0), smag(0) {}
+    template<typename EST>
+    collector operator+(EST const& cm)
     {
-      double usize0, umag0, usize, umag;
-      double ssize0, smag0, ssize, smag;
-      estimate() : usize0(0), umag0(0), usize(0), umag(0),
-                   ssize0(0), smag0(0), ssize(0), smag(0) {}
-      template<typename G, typename BIPARTITE>
-      void at_zero(G const& g, BIPARTITE, int s, int c)
-      {
-        usize0 += 0.5;
-        umag0  += (0.5-c);
-        if (BIPARTITE()) {
-          double gg = gauge(g, s);
-          ssize0 += gg * 0.5;
-          smag0  += gg * (0.5-c);
-        }
-      }
-      template<typename G, typename BIPARTITE>
-      void start(G const& g, BIPARTITE, double t, int s, int c)
-      {
-        usize -= t * 0.5;
-        umag  -= t * (0.5-c);
-        if (BIPARTITE()) {
-          double gg = gauge(g, s);
-          ssize -= gg * t * 0.5;
-          smag  -= gg * t * (0.5-c);
-        }
-      }
-      template<typename G, typename BIPARTITE>
-      void term(G const& g, BIPARTITE, double t, int s, int c)
-      {
-        usize += t * 0.5;
-        umag  += t * (0.5-c);
-        if (BIPARTITE()) {
-          double gg = gauge(g, s);
-          ssize += gg * t * 0.5;
-          smag  += gg * t * (0.5-c);
-        }
-      }
-    };
-
-    template<typename EST, typename G, typename F, typename BIPARTITE,
-             typename IMPROVE>
-    struct accumulator_base
-    {
-      typedef EST estimate_t;
-      typedef G lattice_graph_t;
-      typedef F cluster_fragment_t;
-      accumulator_base(std::vector<estimate_t> const&,
-                       std::vector<cluster_fragment_t> const&,
-                       lattice_graph_t const&) {}
-      void at_zero(int, int, int) const {}
-      void start(int, double, int, int) const {}
-      void term(int, double, int, int) const {}
-    };
-
-    template<typename EST, typename G, typename F, typename BIPARTITE>
-    struct accumulator_base<EST, G, F, BIPARTITE,
-                            /* IMPROVE = */ boost::mpl::true_>
-    {
-      typedef EST estimate_t;
-      typedef G lattice_graph_t;
-      typedef F cluster_fragment_t;
-      accumulator_base(std::vector<estimate_t>& es,
-                       std::vector<cluster_fragment_t> const& fr,
-                       lattice_graph_t const& vg)
-        : estimates(es), fragments(fr), vgraph(vg) {}
-      void at_zero(int p, int s, int c)
-      { estimates[fragments[p].id].at_zero(vgraph, BIPARTITE(), s, c); }
-      void start(int p, double t, int s, int c)
-      { estimates[fragments[p].id].start(vgraph, BIPARTITE(), t, s, c); }
-      void term(int p, double t, int s, int c)
-      { estimates[fragments[p].id].term(vgraph, BIPARTITE(), t, s, c); }
-      std::vector<estimate_t>& estimates;
-      std::vector<cluster_fragment_t> const& fragments;
-      lattice_graph_t const& vgraph;
-    };
-
-    template<typename G, typename F, typename BIPARTITE, typename IMPROVE>
-    struct accumulator :
-      public accumulator_base<estimate, G, F, BIPARTITE, IMPROVE>
-    {
-      typedef accumulator_base<estimate, G, F, BIPARTITE, IMPROVE> super_type;
-      accumulator(std::vector<estimate>& es, std::vector<F> const& fr,
-                  G const& vg)
-        : accumulator_base<estimate, G, F, BIPARTITE, IMPROVE>(es, fr, vg) {}
-    };
-
-    template<typename BIPARTITE>
-    struct collector
-    {
-      double usize2, umag2, usize4, umag4, usize, umag;
-      double ssize2, smag2, ssize4, smag4, ssize, smag;
-      collector() : usize2(0), umag2(0), usize4(0), umag4(0),
-                    usize(0), umag(0),
-                    ssize2(0), smag2(0), ssize4(0), smag4(0),
-                    ssize(0), smag(0) {}
-      template<typename EST>
-      collector operator+(EST const& cm)
-      {
+      if (IMPROVE()) {
         usize2 += power2(cm.usize0);
         umag2  += power2(cm.umag0);
         usize4 += power4(cm.usize0);
@@ -478,12 +402,13 @@ struct susceptibility
           ssize  += power2(cm.ssize);
           smag   += power2(cm.smag);
         }
-        return *this;
       }
-      template<typename QMC>
-      void commit(alps::ObservableSet& m, QMC, double beta, int nrs, int nop,
-                  double sign) const
-      {
+      return *this;
+    }
+    void commit(alps::ObservableSet& m, double beta, int nrs, int nop,
+                double sign) const
+    {
+      if (IMPROVE()) {
         m["Magnetization"] << 0.0;
         m["Magnetization Density"] << 0.0;
         m["Magnetization^2"] << sign * umag2;
@@ -518,25 +443,21 @@ struct susceptibility
                 sign * beta * (dip(ssize, nop) + ssize2) / (nop + 1) / nrs);
         }
       }
-    };
+    }
   };
 
+  template<typename QMC, typename BIPARTITE, typename IMPROVE>
   struct normal_estimator
   {
-    static void init(alps::ObservableSet& m, bool is_bipartite, bool is_signed)
-    { estimator_base::init(m, is_bipartite, is_signed, false); }
-
-    static void evaluate(alps::ObservableSet& m, double beta, int nrs,
-                         alps::ObservableSet const& m_in)
-    { estimator_base::evaluate(m, beta, nrs, m_in); }
-
-    template<typename QMC, class G, class BIPARTITE, class OP>
-    static void
-    do_measurement(alps::ObservableSet& m, QMC, G const& vg, BIPARTITE,
-                   double beta, int nrs, int nop, double sign,
-                   std::vector<int> const& spins,
-                   std::vector<OP> const& operators, std::vector<int>& spins_c)
+    template<class G, class OP>
+    static void measure(alps::ObservableSet& m, G const& vg,
+                        double beta, int nrs, int nop, double sign,
+                        std::vector<int> const& spins,
+                        std::vector<OP> const& operators,
+                        std::vector<int>& spins_c)
     {
+      if (IMPROVE()) return;
+
       typedef G graph_type;
       typedef typename alps::graph_traits<G>::site_iterator site_iterator;
       typedef typename std::vector<OP>::const_iterator operator_iterator;
@@ -609,9 +530,6 @@ struct susceptibility
     }
   };
 };
-
-typedef susceptibility::improved_estimator improved_estimator;
-typedef susceptibility::normal_estimator   normal_estimator;
 
 } // end namespace looper
 

@@ -33,18 +33,18 @@
 class qmc_worker_pi : public qmc_worker_base
 {
 public:
-  typedef looper::path_integral                          qmc_type;
-  typedef qmc_worker_base                                super_type;
+  typedef looper::path_integral                            qmc_type;
+  typedef qmc_worker_base                                  super_type;
 
-  typedef looper::local_operator<qmc_type, loop_graph_t> local_operator_t;
-  typedef std::vector<local_operator_t>                  operator_string_t;
-  typedef operator_string_t::iterator                    operator_iterator;
+  typedef looper::local_operator<qmc_type, loop_graph_t>   local_operator_t;
+  typedef std::vector<local_operator_t>                    operator_string_t;
+  typedef operator_string_t::iterator                      operator_iterator;
 
-  typedef looper::union_find::node                       cluster_fragment_t;
-  typedef looper::cluster_info                           cluster_info_t;
+  typedef looper::union_find::node                         cluster_fragment_t;
+  typedef looper::cluster_info                             cluster_info_t;
 
-  typedef loop_config::improved_estimator_t              improved_estimator_t;
-  typedef loop_config::normal_estimator_t                normal_estimator_t;
+  typedef loop_config::estimator_t                         estimator_t;
+  typedef looper::measurement::estimate<estimator_t>::type estimate_t;
 
   qmc_worker_pi(alps::ProcessList const& w, alps::Parameters const& p, int n);
   virtual void dostep();
@@ -67,7 +67,7 @@ private:
   std::vector<cluster_fragment_t> fragments;
   std::vector<int> current;
   std::vector<cluster_info_t> clusters;
-  std::vector<improved_estimator_t::estimate> estimates;
+  std::vector<estimate_t> estimates;
 };
 
 #endif // LOOP_WORKER_PI_H

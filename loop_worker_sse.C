@@ -58,9 +58,8 @@ qmc_worker_sse::qmc_worker_sse(alps::ProcessList const& w,
          alps::RealObservable("Energy Density"), is_signed())
     << make_observable(
          alps::RealObservable("Energy^2"), is_signed());
-  normal_estimator_t::init(measurements, is_bipartite(), is_signed());
-  if (use_improved_estimator())
-    improved_estimator_t::init(measurements, is_bipartite(), is_signed());
+  estimator_t::initialize(measurements, is_bipartite(), is_signed(),
+                          use_improved_estimator());
 }
 
 void qmc_worker_sse::dostep()
@@ -203,8 +202,9 @@ void qmc_worker_sse::dostep_impl()
   if (IMPROVE()) estimates.resize(0); estimates.resize(nc);
   cluster_info_t::accumulator<cluster_fragment_t, FIELD, SIGN, IMPROVE>
     weight(clusters, fragments, field(), bond_sign(), site_sign());
-  improved_estimator_t::accumulator<lattice_graph_t, cluster_fragment_t,
-    BIPARTITE, IMPROVE> accum(estimates, fragments, vgraph());
+  typename looper::measurement::accumulator<estimator_t, lattice_graph_t,
+    cluster_fragment_t, BIPARTITE, IMPROVE>::type
+    accum(estimates, fragments, vgraph());
   double t = 0;
   for (std::vector<local_operator_t>::iterator oi = operators.begin();
        oi != operators.end(); ++oi, t += 1) {
@@ -275,13 +275,14 @@ void qmc_worker_sse::dostep_impl()
 
   // other measurements
   if (IMPROVE()) {
-    std::accumulate(estimates.begin(), estimates.end(),
-      improved_estimator_t::collector<BIPARTITE>()).
-      commit(measurements, qmc_type(), beta(), nrs, nop, improved_sign);
-  } else {
-    normal_estimator_t::do_measurement(measurements, qmc_type(), vgraph(),
-      BIPARTITE(), beta(), nrs, nop, sign, spins, operators, spins_c);
+    typename looper::measurement::collector<estimator_t, qmc_type, BIPARTITE,
+      IMPROVE>::type coll;
+    coll = std::accumulate(estimates.begin(), estimates.end(), coll);
+    coll.commit(measurements, beta(), nrs, nop, improved_sign);
   }
+  looper::measurement::normal_estimator<estimator_t, qmc_type, BIPARTITE,
+    IMPROVE>::type::measure(measurements, vgraph(), beta(), nrs, nop, sign,
+                            spins, operators, spins_c);
 }
 
 void qmc_worker_sse::evaluate(alps::ObservableSet const& m_in,
@@ -295,8 +296,7 @@ void qmc_worker_sse::evaluate(alps::ObservableSet const& m_in,
     eval = looper::power2(beta()) * (obse_e2 - looper::power2(obse_e)) / nrs;
     m_out << eval;
   }
-  normal_estimator_t::evaluate(m_out, beta(), nrs, m_in);
-  improved_estimator_t::evaluate(m_out, beta(), nrs, m_in);
+  estimator_t::evaluate(m_out, beta(), nrs, m_in);
 }
 
 void qmc_worker_sse::save(alps::ODump& dp) const
