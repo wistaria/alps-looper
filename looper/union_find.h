@@ -96,4 +96,4 @@ inline int unify(std::vector<T>& v, int g0, int g1)
 } // end namespace union_find
 } // end namespace looper
 
-#endif // LOOPER_UNION_FIND_H
+#endif
