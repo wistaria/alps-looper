@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2005 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -23,41 +23,36 @@
 *****************************************************************************/
 
 #include "loop_factory.h"
-#include "loop_worker_pi.h"
-#include "loop_worker_sse.h"
 #include <looper/version.h>
 
-alps::scheduler::MCSimulation* factory::make_task(const alps::ProcessList& w,
+alps::scheduler::MCSimulation*
+qmc_factory::make_task(const alps::ProcessList& w,
   const boost::filesystem::path& fn) const
-{
-  return new alps::scheduler::MCSimulation(w, fn);
-}
+{ return new alps::scheduler::MCSimulation(w, fn); }
 
-alps::scheduler::MCSimulation* factory::make_task(const alps::ProcessList& w,
+alps::scheduler::MCSimulation*
+qmc_factory::make_task(const alps::ProcessList& w,
   const boost::filesystem::path& fn, const alps::Parameters&) const
-{
-  return new alps::scheduler::MCSimulation(w, fn);
-}
+{ return new alps::scheduler::MCSimulation(w, fn); }
 
-alps::scheduler::MCRun* factory::make_worker(const alps::ProcessList& w,
+abstract_qmc_worker*
+qmc_factory::make_qmc_worker(const alps::ProcessList& w,
   const alps::Parameters& p, int n) const
 {
-  return make_qmc_worker(w, p, n);
-}
-
-qmc_worker_base* factory::make_qmc_worker(const alps::ProcessList& w,
-  const alps::Parameters& p, int n) const
-{
-  if (!p.defined("REPRESENTATION") ||
-      p["REPRESENTATION"] == "path integral") {
-    return new qmc_worker_pi(w, p, n);
-  } else if (p["REPRESENTATION"] == "SSE") {
-    return new qmc_worker_sse(w, p, n);
+  if (p.defined("REPRESENTATION")) {
+    map_type::const_iterator itr = creators_.find(p["REPRESENTATION"]);
+    if (itr == creators_.end() || itr->second == 0)
+      boost::throw_exception(std::runtime_error("unknown representation"));
+    return itr->second->create(w, p, n);
   } else {
-    boost::throw_exception(std::invalid_argument("unknwon representation"));
+    if (creators_.size() == 1 && creators_.begin()->second)
+      return creators_.begin()->second->create(w, p, n);
+    else
+      boost::throw_exception(std::runtime_error("no worker is registered"));
   }
-  return 0;
 }
 
-void factory::print_copyright(std::ostream& os) const
+void qmc_factory::print_copyright(std::ostream& os) const
 { looper::print_copyright(os); }
+
+qmc_factory* qmc_factory::ptr_ = 0;

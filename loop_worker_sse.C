@@ -22,7 +22,9 @@
 *
 *****************************************************************************/
 
+#include "loop_factory.h"
 #include "loop_worker_sse.h"
+
 #include <looper/permutation.h>
 #include <alps/fixed_capacity_vector.h>
 #include <boost/mpl/bool.hpp>
@@ -309,4 +311,11 @@ void qmc_worker_sse::load(alps::IDump& dp)
 {
   super_type::load(dp);
   dp >> spins >> operators;
+}
+
+namespace {
+
+const bool registered =
+  qmc_factory::instance().register_worker<qmc_worker_sse>("SSE");
+
 }

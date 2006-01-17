@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2005 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -24,35 +24,8 @@
 
 #include "loop_factory.h"
 
-#ifndef WITHOUT_SCHEDULER
-
 #include <alps/osiris.h>
 #include <alps/scheduler.h>
-
-int main(int argc, char** argv)
-{
-#ifndef BOOST_NO_EXCEPTIONS
-  try {
-#endif
-
-    return alps::scheduler::start(argc, argv, factory());
-
-#ifndef BOOST_NO_EXCEPTIONS
-  }
-  catch (std::exception& exc) {
-    std::cerr << exc.what() << "\n";
-    alps::comm_exit(true);
-    return -1;
-  }
-  catch (...) {
-    std::cerr << "Fatal Error: Unknown Exception!\n";
-    return -2;
-  }
-#endif
-}
-
-#else
-
 #include <boost/timer.hpp>
 #include <time.h>
 
@@ -61,6 +34,12 @@ int main(int argc, char** argv)
 #ifndef BOOST_NO_EXCEPTIONS
   try {
 #endif
+
+#ifndef WITHOUT_SCHEDULER
+
+  return alps::scheduler::start(argc, argv, qmc_factory::instance());
+
+#else
 
   alps::ParameterList parameterlist;
   switch (argc) {
@@ -83,8 +62,8 @@ int main(int argc, char** argv)
     boost::timer tm;
     if (!p->defined("SEED")) (*p)["SEED"] = static_cast<unsigned int>(time(0));
     std::cout << "[input parameters]\n" << *p;
-    qmc_worker_base* worker =
-      factory().make_qmc_worker(alps::ProcessList(1), *p, 0);
+    abstract_qmc_worker* worker =
+      qmc_factory::instance().make_qmc_worker(alps::ProcessList(1), *p, 0);
     bool thermalized = false;
     while (worker->work_done() < 1.0) {
       worker->dostep();
@@ -102,10 +81,13 @@ int main(int argc, char** argv)
     delete worker;
   }
 
+#endif
+
 #ifndef BOOST_NO_EXCEPTIONS
   }
   catch (std::exception& exc) {
     std::cerr << exc.what() << "\n";
+    alps::comm_exit(true);
     return -1;
   }
   catch (...) {
@@ -114,5 +96,3 @@ int main(int argc, char** argv)
   }
 #endif
 }
-
-#endif

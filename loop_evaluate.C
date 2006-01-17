@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2003-2005 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 2003-2006 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -45,8 +45,8 @@ try {
       boost::filesystem::complete(boost::filesystem::path(argv[i]));
     alps::ProcessList nowhere;
     alps::scheduler::MCSimulation sim(nowhere,p);
-    qmc_worker_base *worker =
-      factory().make_qmc_worker(nowhere, sim.get_parameters(), 0);
+    abstract_qmc_worker *worker =
+      qmc_factory::instance().make_qmc_worker(nowhere, sim.get_parameters(), 0);
     alps::ObservableSet m;
     worker->evaluate(sim.get_measurements(), m);
     for (alps::ObservableSet::iterator itr = m.begin(); itr != m.end(); ++itr)

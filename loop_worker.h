@@ -30,13 +30,26 @@
 #include <alps/alea.h>
 #include <alps/scheduler.h>
 
-class qmc_worker_base
+class abstract_qmc_worker
   : public alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
 {
 public:
   typedef alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
     super_type;
-  typedef loop_config::lattice_graph_t             lattice_graph_t;
+  typedef loop_config::lattice_graph_t lattice_graph_t;
+  abstract_qmc_worker(alps::ProcessList const& w, alps::Parameters const& p,
+                      int n) : super_type(w, p, n) {}
+  virtual ~abstract_qmc_worker() {}
+  virtual unsigned int mcs() const = 0;
+  void evaluate() { this->evaluate(measurements, measurements); }
+  virtual void evaluate(alps::ObservableSet const& m_in,
+                        alps::ObservableSet& m_out) const = 0;
+};
+
+class qmc_worker_base : public abstract_qmc_worker
+{
+public:
+  typedef abstract_qmc_worker super_type;
   typedef loop_config::loop_graph_t                loop_graph_t;
   typedef loop_graph_t::location_t                 location_t;
   typedef looper::virtual_lattice<lattice_graph_t> virtual_lattice;
