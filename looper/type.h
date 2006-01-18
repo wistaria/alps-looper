@@ -53,6 +53,6 @@ template<typename QMC>
 struct is_sse
 { typedef typename QMC::is_sse type; };
 
-} // end namespace looper
+} // end namepspace looper
 
 #endif // LOOPER_TYPE_H

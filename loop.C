@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-#include "loop_factory.h"
+#include <loop_factory.h>
 
 #include <alps/osiris.h>
 #include <alps/scheduler.h>

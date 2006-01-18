@@ -126,7 +126,6 @@ dnl
 dnl generate files
 dnl
 
-AC_CONFIG_HEADERS(loop_config.h)
 AC_CONFIG_FILES(Makefile doc/Makefile)
 
 if test "$exist_check" = yes; then

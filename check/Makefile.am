@@ -1,3 +1,6 @@
+dist_noinst_SCRIPTS = evaluate-chain.sh evaluate-site.sh evaluate-triangle.sh
+dist_noinst_DATA = chain site triangle
+
 run: run-site run-chain run-triangle
 
 ../loop:

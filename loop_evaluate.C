@@ -22,8 +22,9 @@
 *
 *****************************************************************************/
 
-#include "loop_config.h"
-#include "loop_evaluate.h"
+#include <loop_config.h>
+
+#include <looper/evaluate.h>
 #include <alps/alea.h>
 #include <alps/scheduler.h>
 #include <boost/filesystem/operations.hpp>
@@ -42,7 +43,7 @@ try {
     std::exit(-1);
   }
 
-  typedef qmc_evaluator<loop_config::estimator_t> evaluator_t;
+  typedef looper::evaluator<loop_config::estimator_t> evaluator_t;
   scheduler::SimpleMCFactory<evaluator_t> evaluator_factory;
   scheduler::init(evaluator_factory);
   for (int i = 1; i < argc; ++i) {

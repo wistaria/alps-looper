@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-#include "loop_worker.h"
+#include <loop_worker.h>
 #include <looper/weight.h>
 
 qmc_worker::qmc_worker(alps::ProcessList const& w,
@@ -88,6 +88,12 @@ qmc_worker::qmc_worker(alps::ProcessList const& w,
   use_improved_estimator_ =
     !(mp.has_field() || p.defined("DISABLE_IMPROVED_ESTIMATOR"));
 
-  info_["Number of Real Sites"] = num_sites(rgraph());
-  info_["Inverse Temperature"] = beta_;
+  looper::evaluator<loop_config::estimator_t>::
+    add_info(info_, beta_, num_sites(rgraph()));
+}
+
+void qmc_worker::evaluate()
+{
+  looper::evaluator<loop_config::estimator_t>::
+    evaluate(measurements, info_, measurements);
 }

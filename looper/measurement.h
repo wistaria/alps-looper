@@ -34,6 +34,10 @@ namespace looper {
 
 namespace measurement {
 
+//
+// helper functions
+//
+
 inline void add_measurement(alps::ObservableSet& m, std::string const& name,
                             bool is_signed = false)
 {
@@ -54,6 +58,11 @@ inline void proceed(boost::mpl::false_, double&, OP const&) {}
 // for sse
 inline void proceed(boost::mpl::true_, double& t) { t += 1; }
 inline void proceed(boost::mpl::false_, double&) {}
+
+
+//
+// traits classes
+//
 
 template<typename ESTIMATOR>
 struct estimate
@@ -90,7 +99,11 @@ struct normal_estimator
 } // end namespace measurement
 
 
-struct estimator_base
+//
+// base_estimator
+//
+
+struct base_estimator
 {
   static void initialize(alps::ObservableSet& /* m */,
                          bool /* is_bipartite */,
@@ -161,14 +174,19 @@ struct estimator_base
   {
     template<class G, class OP>
     static void measure(alps::ObservableSet const&, G const&,
-                        double, int, int, double, std::vector<int> const&,
-                        std::vector<OP> const&, std::vector<int> const&) {}
+                        double, int, int, double, double,
+                        std::vector<int> const&, std::vector<OP> const&,
+                        std::vector<int> const&) {}
   };
 };
 
 
+//
+// estimator_adaptor
+//
+
 template<typename ESTIMATOR0, typename ESTIMATOR1>
-struct estimator_adaptor : public estimator_base
+struct estimator_adaptor : public base_estimator
 {
   typedef ESTIMATOR0 estimator0;
   typedef ESTIMATOR1 estimator1;
@@ -240,21 +258,77 @@ struct estimator_adaptor : public estimator_base
   {
     template<typename G, class OP>
     static void measure(alps::ObservableSet& m, G const& vg,
-                        double beta, int nrs, int nop, double sign,
+                        double beta, int nrs, int nop, double sign, double ene,
                         std::vector<int> const& spins,
                         std::vector<OP> const& operators,
                         std::vector<int>& spins_c)
     {
       estimator0::template normal_estimator<QMC, BIPARTITE, IMPROVE>::
-        measure(m, vg, beta, nrs, nop, sign, spins, operators, spins_c);
+        measure(m, vg, beta, nrs, nop, sign, ene, spins, operators, spins_c);
       estimator1::template normal_estimator<QMC, BIPARTITE, IMPROVE>::
-        measure(m, vg, beta, nrs, nop, sign, spins, operators, spins_c);
+        measure(m, vg, beta, nrs, nop, sign, ene, spins, operators, spins_c);
     }
   };
 };
 
 
-struct susceptibility_estimator : public estimator_base
+//
+// energy_estimator
+//
+
+struct energy_estimator : public base_estimator
+{
+  static void initialize(alps::ObservableSet& m, bool is_bipartite,
+                         bool is_signed, bool use_improved_estimator)
+  {
+    using looper::measurement::add_measurement;
+    add_measurement(m, "Energy", is_signed);
+    add_measurement(m, "Energy Density", is_signed);
+    add_measurement(m, "Energy^2", is_signed);
+  }
+
+  static void evaluate(alps::ObservableSet& m, double beta, int nrs,
+                       alps::ObservableSet const& m_in)
+  {
+    using looper::measurement::remove_measurement;
+    using alps::RealObsevaluator;
+    using looper::power2;
+    if (m_in.has("Energy") && m_in.has("Energy^2")) {
+      remove_measurement(m, "Specific Heat");
+      RealObsevaluator obse_e = m_in["Energy"];
+      RealObsevaluator obse_e2 = m_in["Energy^2"];
+      RealObsevaluator eval("Specific Heat");
+      eval = power2(beta) * (obse_e2 - power2(obse_e)) / nrs;
+      m << eval;
+    }
+  }
+
+  // no improved estimator
+
+  // normal_estimator
+
+  template<typename QMC, typename BIPARTITE, typename IMPROVE>
+  struct normal_estimator
+  {
+    template<class G, class OP>
+    static void measure(alps::ObservableSet& m, G const& vg,
+                        double beta, int nrs, int nop, double sign, double ene,
+                        std::vector<int> const& spins,
+                        std::vector<OP> const& operators,
+                        std::vector<int>& spins_c)
+    {
+      m["Energy"] << sign * ene;
+      m["Energy Density"] << sign * ene / nrs;
+      m["Energy^2"] << sign * (power2(ene) - nop / power2(beta));
+    }
+  };
+};
+
+//
+// susceptibility_estimator
+//
+
+struct susceptibility_estimator : public base_estimator
 {
   static void initialize(alps::ObservableSet& m, bool is_bipartite,
                          bool is_signed, bool use_improved_estimator)
@@ -451,7 +525,7 @@ struct susceptibility_estimator : public estimator_base
   {
     template<class G, class OP>
     static void measure(alps::ObservableSet& m, G const& vg,
-                        double beta, int nrs, int nop, double sign,
+                        double beta, int nrs, int nop, double sign, double,
                         std::vector<int> const& spins,
                         std::vector<OP> const& operators,
                         std::vector<int>& spins_c)
@@ -530,6 +604,9 @@ struct susceptibility_estimator : public estimator_base
     }
   };
 };
+
+typedef estimator_adaptor<energy_estimator, susceptibility_estimator>
+  default_estimator;
 
 } // end namespace looper
 

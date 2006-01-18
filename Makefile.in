@@ -48,10 +48,9 @@ check_PROGRAMS = diag$(EXEEXT) loop_ns$(EXEEXT)
 DIST_COMMON = README $(am__configure_deps) $(dist_noinst_DATA) \
 	$(dist_noinst_SCRIPTS) $(include_HEADERS) \
 	$(pkginclude_HEADERS) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(srcdir)/loop_config.h.in \
-	$(top_srcdir)/configure ChangeLog config/config.guess \
-	config/config.sub config/depcomp config/install-sh \
-	config/ltmain.sh config/missing
+	$(srcdir)/Makefile.in $(top_srcdir)/configure ChangeLog \
+	config/config.guess config/config.sub config/depcomp \
+	config/install-sh config/ltmain.sh config/missing
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -60,7 +59,6 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno configure.status.lineno
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = loop_config.h
 CONFIG_CLEAN_FILES =
 @HAVE_MPI_TRUE@am__EXEEXT_1 = loop_mpi$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
@@ -271,6 +269,7 @@ distdir = alps-looper-$(VERSION)
 include_HEADERS = looper.h
 pkginclude_HEADERS = \
 	looper/cluster.h \
+	looper/evaluate.h \
 	looper/find_bridge.h \
 	looper/graph.h \
 	looper/lapack.h \
@@ -282,6 +281,7 @@ pkginclude_HEADERS = \
 	looper/permutation.h \
 	looper/qwl_histogram.h \
 	looper/random_choice.h \
+	looper/time.h \
 	looper/type.h \
 	looper/union_find.h \
 	looper/util.h \
@@ -292,13 +292,11 @@ dist_noinst_SCRIPTS = config/run-test config/update_preamble
 dist_noinst_DATA = CITATIONS.txt LICENSE.txt diag.ip diag.op loop_ns.ip loop_ns.op
 TESTS = $(check_PROGRAMS)
 TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
-SRC = loop_config.h loop_factory.C loop_factory.h \
-	loop_worker.h loop_worker.C \
-	loop_worker_pi.h loop_worker_pi.C \
-	loop_worker_sse.h loop_worker_sse.C
+SRC = loop_factory.C loop_factory.h loop_worker.h loop_worker.C \
+	loop_worker_pi.h loop_worker_pi.C loop_worker_sse.h loop_worker_sse.C
 
-loop_SOURCES = loop.C $(SRC)
-loop_evaluate_SOURCES = loop_evaluate.C loop_evaluate.h loop_config.h
+loop_SOURCES = loop.C loop_config.h $(SRC)
+loop_evaluate_SOURCES = loop_evaluate.C loop_config.h
 loop_mpi_SOURCES = loop.C $(SRC)
 loop_mpi_CPPFLAGS = @CPPFLAGS_MPI@
 loop_mpi_LDFLAGS = @LDFLAGS_MPI@
@@ -306,8 +304,7 @@ loop_mpi_LDADD = @LIBS_MPI@
 loop_ns_SOURCES = loop.C $(SRC)
 loop_ns_CPPFLAGS = -DWITHOUT_SCHEDULER
 diag_SOURCES = diag.C
-all: loop_config.h
-	$(MAKE) $(AM_MAKEFLAGS) all-recursive
+all: all-recursive
 
 .SUFFIXES:
 .SUFFIXES: .C .lo .o .obj
@@ -344,23 +341,6 @@ $(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 	cd $(srcdir) && $(AUTOCONF)
 $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	cd $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
-
-loop_config.h: stamp-h1
-	@if test ! -f $@; then \
-	  rm -f stamp-h1; \
-	  $(MAKE) stamp-h1; \
-	else :; fi
-
-stamp-h1: $(srcdir)/loop_config.h.in $(top_builddir)/config.status
-	@rm -f stamp-h1
-	cd $(top_builddir) && $(SHELL) ./config.status loop_config.h
-$(srcdir)/loop_config.h.in: @MAINTAINER_MODE_TRUE@ $(am__configure_deps) 
-	cd $(top_srcdir) && $(AUTOHEADER)
-	rm -f stamp-h1
-	touch $@
-
-distclean-hdr:
-	-rm -f loop_config.h stamp-h1
 
 clean-checkPROGRAMS:
 	@list='$(check_PROGRAMS)'; for p in $$list; do \
@@ -701,7 +681,7 @@ ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	mkid -fID $$unique
 tags: TAGS
 
-TAGS: tags-recursive $(HEADERS) $(SOURCES) loop_config.h.in $(TAGS_DEPENDENCIES) \
+TAGS: tags-recursive $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
 		$(TAGS_FILES) $(LISP)
 	tags=; \
 	here=`pwd`; \
@@ -718,7 +698,7 @@ TAGS: tags-recursive $(HEADERS) $(SOURCES) loop_config.h.in $(TAGS_DEPENDENCIES)
 	      tags="$$tags $$include_option=$$here/$$subdir/TAGS"; \
 	  fi; \
 	done; \
-	list='$(SOURCES) $(HEADERS) loop_config.h.in $(LISP) $(TAGS_FILES)'; \
+	list='$(SOURCES) $(HEADERS)  $(LISP) $(TAGS_FILES)'; \
 	unique=`for i in $$list; do \
 	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
 	  done | \
@@ -730,11 +710,11 @@ TAGS: tags-recursive $(HEADERS) $(SOURCES) loop_config.h.in $(TAGS_DEPENDENCIES)
 	    $$tags $$unique; \
 	fi
 ctags: CTAGS
-CTAGS: ctags-recursive $(HEADERS) $(SOURCES) loop_config.h.in $(TAGS_DEPENDENCIES) \
+CTAGS: ctags-recursive $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
 		$(TAGS_FILES) $(LISP)
 	tags=; \
 	here=`pwd`; \
-	list='$(SOURCES) $(HEADERS) loop_config.h.in $(LISP) $(TAGS_FILES)'; \
+	list='$(SOURCES) $(HEADERS)  $(LISP) $(TAGS_FILES)'; \
 	unique=`for i in $$list; do \
 	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
 	  done | \
@@ -971,8 +951,7 @@ check-am: all-am
 	$(MAKE) $(AM_MAKEFLAGS) $(check_PROGRAMS)
 	$(MAKE) $(AM_MAKEFLAGS) check-TESTS
 check: check-recursive
-all-am: Makefile $(PROGRAMS) $(SCRIPTS) $(DATA) $(HEADERS) \
-		loop_config.h
+all-am: Makefile $(PROGRAMS) $(SCRIPTS) $(DATA) $(HEADERS)
 installdirs: installdirs-recursive
 installdirs-am:
 	for dir in "$(DESTDIR)$(includedir)" "$(DESTDIR)$(pkgincludedir)"; do \
@@ -1012,7 +991,7 @@ distclean: distclean-recursive
 	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
-	distclean-hdr distclean-libtool distclean-tags
+	distclean-libtool distclean-tags
 
 dvi: dvi-recursive
 
@@ -1064,14 +1043,14 @@ uninstall-info: uninstall-info-recursive
 	clean-libtool clean-noinstPROGRAMS clean-recursive ctags \
 	ctags-recursive dist dist-all dist-bzip2 dist-gzip dist-shar \
 	dist-tarZ dist-zip distcheck distclean distclean-compile \
-	distclean-generic distclean-hdr distclean-libtool \
-	distclean-recursive distclean-tags distcleancheck distdir \
-	distuninstallcheck dvi dvi-am html html-am info info-am \
-	install install-am install-data install-data-am install-exec \
-	install-exec-am install-includeHEADERS install-info \
-	install-info-am install-man install-pkgincludeHEADERS \
-	install-strip installcheck installcheck-am installdirs \
-	installdirs-am maintainer-clean maintainer-clean-generic \
+	distclean-generic distclean-libtool distclean-recursive \
+	distclean-tags distcleancheck distdir distuninstallcheck dvi \
+	dvi-am html html-am info info-am install install-am \
+	install-data install-data-am install-exec install-exec-am \
+	install-includeHEADERS install-info install-info-am \
+	install-man install-pkgincludeHEADERS install-strip \
+	installcheck installcheck-am installdirs installdirs-am \
+	maintainer-clean maintainer-clean-generic \
 	maintainer-clean-recursive mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool mostlyclean-recursive \
 	pdf pdf-am ps ps-am tags tags-recursive uninstall uninstall-am \

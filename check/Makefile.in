@@ -13,6 +13,8 @@
 # PARTICULAR PURPOSE.
 
 @SET_MAKE@
+
+
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 VPATH = @srcdir@
@@ -36,7 +38,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 subdir = check
-DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
+DIST_COMMON = $(dist_noinst_DATA) $(dist_noinst_SCRIPTS) \
+	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(srcdir)/chain.gp.in $(srcdir)/site.gp.in \
 	$(srcdir)/triangle.gp.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -44,10 +47,11 @@ am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = $(top_builddir)/loop_config.h
 CONFIG_CLEAN_FILES = site.gp chain.gp triangle.gp
+SCRIPTS = $(dist_noinst_SCRIPTS)
 SOURCES =
 DIST_SOURCES =
+DATA = $(dist_noinst_DATA)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMDEP_FALSE = @AMDEP_FALSE@
@@ -167,6 +171,8 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
+dist_noinst_SCRIPTS = evaluate-chain.sh evaluate-site.sh evaluate-triangle.sh
+dist_noinst_DATA = chain site triangle
 all: all-am
 
 .SUFFIXES:
@@ -251,7 +257,7 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile
+all-am: Makefile $(SCRIPTS) $(DATA)
 installdirs:
 install: install-am
 install-exec: install-exec-am
@@ -332,6 +338,7 @@ uninstall-am: uninstall-info-am
 	maintainer-clean maintainer-clean-generic mostlyclean \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	uninstall uninstall-am uninstall-info-am
+
 
 run: run-site run-chain run-triangle
 

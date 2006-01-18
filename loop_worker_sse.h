@@ -25,7 +25,7 @@
 #ifndef LOOP_WORKER_SSE_H
 #define LOOP_WORKER_SSE_H
 
-#include "loop_worker.h"
+#include <loop_worker.h>
 #include <looper/cluster.h>
 #include <looper/operator.h>
 #include <looper/type.h>

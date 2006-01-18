@@ -25,7 +25,7 @@
 #ifndef LOOP_WORKER_PI_H
 #define LOOP_WORKER_PI_H
 
-#include "loop_worker.h"
+#include <loop_worker.h>
 #include <looper/cluster.h>
 #include <looper/operator.h>
 #include <looper/type.h>
@@ -33,12 +33,13 @@
 class qmc_worker_pi : public qmc_worker
 {
 public:
-  typedef looper::path_integral                            qmc_type;
-  typedef qmc_worker                                       super_type;
+  typedef looper::path_integral         qmc_type;
+  typedef qmc_worker                    super_type;
 
-  typedef looper::local_operator<qmc_type, loop_graph_t>   local_operator_t;
-  typedef std::vector<local_operator_t>                    operator_string_t;
-  typedef operator_string_t::iterator                      operator_iterator;
+  typedef looper::local_operator<qmc_type, loop_graph_t, time_t>
+                                        local_operator_t;
+  typedef std::vector<local_operator_t> operator_string_t;
+  typedef operator_string_t::iterator   operator_iterator;
 
   typedef looper::union_find::node                         cluster_fragment_t;
   typedef looper::cluster_info                             cluster_info_t;

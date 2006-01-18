@@ -29,18 +29,22 @@
 #include <looper/location.h>
 #include <looper/graph.h>
 #include <looper/measurement.h>
+#include <looper/time.h>
 
 struct loop_config
 {
   // lattice structure
   typedef looper::graph_type lattice_graph_t;
 
+  // imaginary time
+  typedef double time_t;
+
   // model, weights, and local_graph
   BOOST_STATIC_CONSTANT(int, max_2s = 8);
   typedef looper::local_graph<looper::location> loop_graph_t;
 
   // measurements
-  typedef looper::susceptibility_estimator estimator_t;
+  typedef looper::default_estimator estimator_t;
 };
 
 #endif // ! LOOP_CONFIG_H

@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-#include "loop_factory.h"
+#include <loop_factory.h>
 #include <looper/version.h>
 
 alps::scheduler::MCSimulation*

@@ -25,8 +25,10 @@
 #ifndef LOOPER_OPERATOR_H
 #define LOOPER_OPERATOR_H
 
+#include "time.h"
 #include "type.h"
 
+#include <boost/call_traits.hpp>
 #include <boost/throw_exception.hpp>
 #include <stdexcept>
 
@@ -39,11 +41,11 @@ struct local_operator_type
   BOOST_STATIC_CONSTANT(int, identity    = 2 /* 10 */);
 };
 
-template<class QMC, class LOC_G>
+template<class QMC, class LOC_G, class TIME = imaginary_time<> >
 class local_operator;
 
-template<class LOC_G>
-class local_operator<sse, LOC_G>
+template<class LOC_G, class TIME>
+class local_operator<sse, LOC_G, TIME>
 {
 public:
   typedef LOC_G                              local_graph_t;
@@ -102,15 +104,17 @@ public:
   int loop0, loop1; // no checkpoint
 };
 
-template<class LOC_G>
-class local_operator<path_integral, LOC_G> : public local_operator<sse, LOC_G>
+template<class LOC_G, class TIME>
+class local_operator<path_integral, LOC_G, TIME>
+  : public local_operator<sse, LOC_G, TIME>
 {
 public:
-  typedef local_operator<sse, LOC_G>         super_type;
+  typedef local_operator<sse, LOC_G, TIME>   super_type;
   typedef typename super_type::local_graph_t local_graph_t;
   typedef typename super_type::location_t    location_t;
+  typedef TIME                               time_t;
 
-  local_operator() : super_type(), time_() {}
+  local_operator() : super_type(), time_(0) {}
   local_operator(int type, const location_t& loc); // not defined
   local_operator(int type, const location_t& loc, double time)
     : super_type(type, loc), time_(time) {}
@@ -119,33 +123,36 @@ public:
     : super_type(g), time_(time) {}
 
   bool is_identity() const; // not defined
-  double time() const { return time_; }
+  typename boost::call_traits<time_t>::param_type time() const
+  { return time_; }
 
   void save(alps::ODump& dump) const { super_type::save(dump); dump << time_; }
   void load(alps::IDump& dump) { super_type::load(dump); dump >> time_; }
 
 private:
-  double time_;
+  time_t time_;
 };
 
-template<class QMC, class LOC_G>
-int type(const local_operator<QMC, LOC_G>& op) { return op.type(); }
-template<class QMC, class LOC_G>
-bool is_diagonal(const local_operator<QMC, LOC_G>& op)
+template<class QMC, class LOC_G, class TIME>
+int type(const local_operator<QMC, LOC_G, TIME>& op) { return op.type(); }
+template<class QMC, class LOC_G, class TIME>
+bool is_diagonal(const local_operator<QMC, LOC_G, TIME>& op)
 { return op.is_diagonal(); }
-template<class QMC, class LOC_G>
-bool is_offdiagonal(const local_operator<QMC, LOC_G>& op)
+template<class QMC, class LOC_G, class TIME>
+bool is_offdiagonal(const local_operator<QMC, LOC_G, TIME>& op)
 { return op.is_offdiagonal(); }
-template<class LOC_G>
-bool is_identity(const local_operator<sse, LOC_G>& op)
+template<class LOC_G, class TIME>
+bool is_identity(const local_operator<sse, LOC_G, TIME>& op)
 { return op.is_identity(); }
 
-template<class QMC, class LOC_G>
-int pos(const local_operator<QMC, LOC_G>& op) { return op.pos(); }
-template<class QMC, class LOC_G>
-bool is_site(const local_operator<QMC, LOC_G>& op) { return op.is_site(); }
-template<class QMC, class LOC_G>
-bool is_bond(const local_operator<QMC, LOC_G>& op) { return op.is_bond(); }
+template<class QMC, class LOC_G, class TIME>
+int pos(const local_operator<QMC, LOC_G, TIME>& op) { return op.pos(); }
+template<class QMC, class LOC_G, class TIME>
+bool is_site(const local_operator<QMC, LOC_G, TIME>& op)
+{ return op.is_site(); }
+template<class QMC, class LOC_G, class TIME>
+bool is_bond(const local_operator<QMC, LOC_G, TIME>& op)
+{ return op.is_bond(); }
 
 } // end namespace looper
 
@@ -153,14 +160,14 @@ bool is_bond(const local_operator<QMC, LOC_G>& op) { return op.is_bond(); }
 namespace looper {
 #endif
 
-template<class QMC, class LOC_G>
+template<class QMC, class LOC_G, class TIME>
 alps::ODump& operator<<(alps::ODump& dump,
-                        const looper::local_operator<QMC, LOC_G>& op)
+                        const looper::local_operator<QMC, LOC_G, TIME>& op)
 { op.save(dump); return dump; }
 
-template<class QMC, class LOC_G>
+template<class QMC, class LOC_G, class TIME>
 alps::IDump& operator>>(alps::IDump& dump,
-                        looper::local_operator<QMC, LOC_G>& op)
+                        looper::local_operator<QMC, LOC_G, TIME>& op)
 { op.load(dump); return dump; }
 
 #ifndef BOOST_NO_OPERATORS_IN_NAMESPACE

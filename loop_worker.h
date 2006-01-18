@@ -25,9 +25,9 @@
 #ifndef LOOP_WORKER_H
 #define LOOP_WORKER_H
 
-#include "loop_config.h"
-#include "loop_evaluate.h"
+#include <loop_config.h>
 
+#include <looper/evaluate.h>
 #include <looper/model.h>
 #include <alps/alea.h>
 #include <alps/scheduler.h>
@@ -38,7 +38,8 @@ class qmc_worker
 public:
   typedef alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
     super_type;
-  typedef loop_config::lattice_graph_t lattice_graph_t;
+  typedef loop_config::lattice_graph_t             lattice_graph_t;
+  typedef loop_config::time_t                      time_t;
   typedef loop_config::loop_graph_t                loop_graph_t;
   typedef loop_graph_t::location_t                 location_t;
   typedef looper::virtual_lattice<lattice_graph_t> virtual_lattice;
@@ -46,7 +47,7 @@ public:
     graph_chooser;
 
   qmc_worker(alps::ProcessList const& w, alps::Parameters const& p,
-                  int n, bool is_path_integral = true);
+             int n, bool is_path_integral = true);
   virtual ~qmc_worker() {}
 
   virtual void dostep() { ++mcs_; }
@@ -90,11 +91,7 @@ public:
   double advance() const { return chooser_.advance(); }
   double total_graph_weight() const { return chooser_.weight(); }
 
-  void evaluate()
-  {
-    qmc_evaluator<loop_config::estimator_t>::
-      evaluate(measurements, info_, measurements);
-  }
+  virtual void evaluate();
 
   virtual void save(alps::ODump& dp) const
   { super_type::save(dp); dp << info_ << mcs_; }

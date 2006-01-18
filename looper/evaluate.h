@@ -22,23 +22,31 @@
 *
 *****************************************************************************/
 
-#ifndef LOOP_EVALUATE_H
-#define LOOP_EVALUATE_H
+#ifndef LOOPER_EVALUATE_H
+#define LOOPER_EVALUATE_H
 
 #include <looper/util.h>
 #include <alps/alea.h>
 #include <alps/scheduler.h>
 
+namespace looper {
+
 template<typename ESTIMATOR>
-class qmc_evaluator : public alps::scheduler::MCRun
+class evaluator : public alps::scheduler::MCRun
 {
 public:
   typedef ESTIMATOR              estimator_t;
   typedef alps::scheduler::MCRun super_type;
 
-  qmc_evaluator(alps::ProcessList const& w, alps::Parameters const& p, int n)
+  evaluator(alps::ProcessList const& w, alps::Parameters const& p, int n)
     : super_type(w, p, n) {}
-  void load(alps::IDump& dp) { std::cerr << "loading information\n"; super_type::load(dp); dp >> info_; }
+  void load(alps::IDump& dp) { super_type::load(dp); dp >> info_; }
+
+  static void add_info(alps::Parameters& info, double beta, unsigned int nrs)
+  {
+    info["Inverse Temperature"] = beta;
+    info["Number of Real Sites"] = nrs;
+  }
 
   void evaluate(alps::scheduler::MCSimulation& sim) const
   {
@@ -47,22 +55,15 @@ public:
     for (alps::ObservableSet::const_iterator itr = m.begin(); itr != m.end();
          ++itr) sim << *(itr->second);
   }
+
   static void evaluate(alps::ObservableSet& m,
                        alps::Parameters const& info,
                        alps::ObservableSet const& m_in)
   {
-    using looper::power2;
-    if (info.defined("Number of Real Sites") &&
-        info.defined("Inverse Temperature")) {
-      int nrs = static_cast<int>(info["Number of Real Sites"]);
-      double beta = static_cast<double>(info["Inverse Temperature"]);
-      if (m_in.has("Energy") && m_in.has("Energy^2")) {
-        alps::RealObsevaluator obse_e = m_in["Energy"];
-        alps::RealObsevaluator obse_e2 = m_in["Energy^2"];
-        alps::RealObsevaluator eval("Specific Heat");
-        eval = power2(beta) * (obse_e2 - power2(obse_e)) / nrs;
-        m << eval;
-      }
+    if (info.defined("Inverse Temperature") &&
+        info.defined("Number of Real Sites")) {
+      double beta(info["Inverse Temperature"]);
+      int nrs(info["Number of Real Sites"]);
       estimator_t::evaluate(m, beta, nrs, m_in);
     }
   }
@@ -71,4 +72,6 @@ private:
   alps::Parameters info_;
 };
 
-#endif // LOOP_EVALUATE_H
+} // end namespace looper
+
+#endif // LOOPER_EVALUATE_H

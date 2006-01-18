@@ -22,8 +22,8 @@
 *
 *****************************************************************************/
 
-#include "loop_factory.h"
-#include "loop_worker_pi.h"
+#include <loop_factory.h>
+#include <loop_worker_pi.h>
 
 #include <looper/permutation.h>
 #include <alps/fixed_capacity_vector.h>
@@ -50,13 +50,6 @@ qmc_worker_pi::qmc_worker_pi(alps::ProcessList const& w,
   //
 
   if (is_signed()) measurements << alps::RealObservable("Sign");
-  measurements
-    << make_observable(
-         alps::RealObservable("Energy"), is_signed())
-    << make_observable(
-         alps::RealObservable("Energy Density"), is_signed())
-    << make_observable(
-         alps::RealObservable("Energy^2"), is_signed());
   estimator_t::initialize(measurements, is_bipartite(), is_signed(),
                           use_improved_estimator());
 }
@@ -270,12 +263,7 @@ void qmc_worker_pi::dostep_impl()
       if (ci->to_flip) ene -= ci->weight;
       else ene += ci->weight;
   }
-  measurements["Energy"] << sign * ene;
-  measurements["Energy Density"] << sign * ene / nrs;
-  measurements["Energy^2"]
-    << sign * (looper::power2(ene) - nop / looper::power2(beta()));
 
-  // other measurements
   if (IMPROVE()) {
     typename looper::measurement::collector<estimator_t, qmc_type, BIPARTITE,
       IMPROVE>::type coll;
@@ -284,7 +272,7 @@ void qmc_worker_pi::dostep_impl()
   }
   looper::measurement::normal_estimator<estimator_t, qmc_type, BIPARTITE,
     IMPROVE>::type::measure(measurements, vgraph(), beta(), nrs, nop, sign,
-                            spins, operators, spins_c);
+                            ene, spins, operators, spins_c);
 }
 
 void qmc_worker_pi::save(alps::ODump& dp) const
@@ -302,6 +290,6 @@ void qmc_worker_pi::load(alps::IDump& dp)
 namespace {
 
 const bool registered =
-  qmc_factory::instance().register_worker<qmc_worker_pi>("path integral");
+  qmc_factory::instance()->register_worker<qmc_worker_pi>("path integral");
 
 }

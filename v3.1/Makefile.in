@@ -47,7 +47,6 @@ am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = $(top_builddir)/loop_config.h
 CONFIG_CLEAN_FILES =
 am__EXEEXT_1 = loop$(EXEEXT) loop_evaluate$(EXEEXT) loop_ns$(EXEEXT)
 @BUILD_V31_TRUE@am__EXEEXT_2 = $(am__EXEEXT_1)
@@ -220,6 +219,7 @@ dist_noinst_HEADERS = looper.h \
 	looper/operator.h \
 	looper/path_integral.h \
 	looper/permutation.h \
+	looper/qmc.h \
 	looper/random_choice.h \
 	looper/sign.h \
 	looper/sse.h \
