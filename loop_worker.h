@@ -26,39 +26,28 @@
 #define LOOP_WORKER_H
 
 #include "loop_config.h"
+#include "loop_evaluate.h"
+
 #include <looper/model.h>
 #include <alps/alea.h>
 #include <alps/scheduler.h>
 
-class abstract_qmc_worker
+class qmc_worker
   : public alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
 {
 public:
   typedef alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
     super_type;
   typedef loop_config::lattice_graph_t lattice_graph_t;
-  abstract_qmc_worker(alps::ProcessList const& w, alps::Parameters const& p,
-                      int n) : super_type(w, p, n) {}
-  virtual ~abstract_qmc_worker() {}
-  virtual unsigned int mcs() const = 0;
-  void evaluate() { this->evaluate(measurements, measurements); }
-  virtual void evaluate(alps::ObservableSet const& m_in,
-                        alps::ObservableSet& m_out) const = 0;
-};
-
-class qmc_worker_base : public abstract_qmc_worker
-{
-public:
-  typedef abstract_qmc_worker super_type;
   typedef loop_config::loop_graph_t                loop_graph_t;
   typedef loop_graph_t::location_t                 location_t;
   typedef looper::virtual_lattice<lattice_graph_t> virtual_lattice;
   typedef looper::graph_chooser<loop_graph_t, super_type::engine_type>
     graph_chooser;
 
-  qmc_worker_base(alps::ProcessList const& w, alps::Parameters const& p,
+  qmc_worker(alps::ProcessList const& w, alps::Parameters const& p,
                   int n, bool is_path_integral = true);
-  virtual ~qmc_worker_base();
+  virtual ~qmc_worker() {}
 
   virtual void dostep() { ++mcs_; }
   bool can_work() const
@@ -101,17 +90,25 @@ public:
   double advance() const { return chooser_.advance(); }
   double total_graph_weight() const { return chooser_.weight(); }
 
-  void evaluate() { this->evaluate(measurements, measurements); }
-  virtual void evaluate(alps::ObservableSet const& /* m_in */,
-                        alps::ObservableSet& /* m_out */) const {}
+  void evaluate()
+  {
+    qmc_evaluator<loop_config::estimator_t>::
+      evaluate(measurements, info_, measurements);
+  }
 
-  virtual void save(alps::ODump& dp) const;
-  virtual void load(alps::IDump& dp);
+  virtual void save(alps::ODump& dp) const
+  { super_type::save(dp); dp << info_ << mcs_; }
+  virtual void load(alps::IDump& dp)
+  { super_type::load(dp); dp >> info_ >> mcs_; }
 
 private:
+  // to be dumped/restored
+  alps::Parameters info_;
+  unsigned int mcs_;
+
+  // working area (not dumped/restored)
   looper::integer_range<unsigned int> mcs_sweep_;
   unsigned int mcs_therm_;
-  unsigned int mcs_; // to be dumped/restored
 
   virtual_lattice vlat_;
 
@@ -126,7 +123,5 @@ private:
 
   graph_chooser chooser_;
 };
-
-template<class QMC> class qmc_worker;
 
 #endif // LOOP_WORKER_H

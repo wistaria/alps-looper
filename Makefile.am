@@ -32,6 +32,7 @@ pkginclude_HEADERS = \
 	looper/model.h \
 	looper/operator.h \
 	looper/permutation.h \
+	looper/qwl_histogram.h \
 	looper/random_choice.h \
 	looper/type.h \
 	looper/union_find.h \
@@ -51,7 +52,7 @@ SRC = loop_config.h loop_factory.C loop_factory.h \
 	loop_worker_sse.h loop_worker_sse.C
 
 loop_SOURCES = loop.C $(SRC)
-loop_evaluate_SOURCES = loop_evaluate.C $(SRC)
+loop_evaluate_SOURCES = loop_evaluate.C loop_evaluate.h loop_config.h
 loop_mpi_SOURCES = loop.C $(SRC)
 loop_mpi_CPPFLAGS = @CPPFLAGS_MPI@
 loop_mpi_LDFLAGS = @LDFLAGS_MPI@

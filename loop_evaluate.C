@@ -22,7 +22,8 @@
 *
 *****************************************************************************/
 
-#include "loop_factory.h"
+#include "loop_config.h"
+#include "loop_evaluate.h"
 #include <alps/alea.h>
 #include <alps/scheduler.h>
 #include <boost/filesystem/operations.hpp>
@@ -33,26 +34,25 @@ int main(int argc, char** argv)
 try {
 #endif
 
+  namespace scheduler = alps::scheduler;
+  namespace filesystem = boost::filesystem;
+
   if (argc < 2) {
     std::cerr << "Usage: " << argv[0] << " file1 [file2 [...]]\n";
     std::exit(-1);
   }
 
-  alps::scheduler::SimpleMCFactory<alps::scheduler::DummyMCRun> dummy_factory;
-  alps::scheduler::init(dummy_factory);
+  typedef qmc_evaluator<loop_config::estimator_t> evaluator_t;
+  scheduler::SimpleMCFactory<evaluator_t> evaluator_factory;
+  scheduler::init(evaluator_factory);
   for (int i = 1; i < argc; ++i) {
-    boost::filesystem::path p =
-      boost::filesystem::complete(boost::filesystem::path(argv[i]));
+    filesystem::path p = complete(filesystem::path(argv[i]));
     alps::ProcessList nowhere;
-    alps::scheduler::MCSimulation sim(nowhere,p);
-    abstract_qmc_worker *worker =
-      qmc_factory::instance().make_qmc_worker(nowhere, sim.get_parameters(), 0);
-    alps::ObservableSet m;
-    worker->evaluate(sim.get_measurements(), m);
-    for (alps::ObservableSet::iterator itr = m.begin(); itr != m.end(); ++itr)
-      sim << *(itr->second);
-    sim.checkpoint(p);
-    delete worker;
+    scheduler::MCSimulation sim(nowhere, p);
+    if (sim.runs.size()) {
+      dynamic_cast<evaluator_t*>(sim.runs[0])->evaluate(sim);
+      sim.checkpoint(p);
+    }
   }
 
 #ifndef BOOST_NO_EXCEPTIONS

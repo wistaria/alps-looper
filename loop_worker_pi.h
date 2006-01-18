@@ -30,11 +30,11 @@
 #include <looper/operator.h>
 #include <looper/type.h>
 
-class qmc_worker_pi : public qmc_worker_base
+class qmc_worker_pi : public qmc_worker
 {
 public:
   typedef looper::path_integral                            qmc_type;
-  typedef qmc_worker_base                                  super_type;
+  typedef qmc_worker                                       super_type;
 
   typedef looper::local_operator<qmc_type, loop_graph_t>   local_operator_t;
   typedef std::vector<local_operator_t>                    operator_string_t;
@@ -48,8 +48,6 @@ public:
 
   qmc_worker_pi(alps::ProcessList const& w, alps::Parameters const& p, int n);
   virtual void dostep();
-  virtual void evaluate(alps::ObservableSet const& m_in,
-                        alps::ObservableSet& m_out) const;
   void save(alps::ODump& dp) const;
   void load(alps::IDump& dp);
 

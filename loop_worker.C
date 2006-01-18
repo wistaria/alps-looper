@@ -25,25 +25,24 @@
 #include "loop_worker.h"
 #include <looper/weight.h>
 
-qmc_worker_base::qmc_worker_base(alps::ProcessList const& w,
-                                 alps::Parameters const& p, int n,
-                                 bool is_path_integral)
+qmc_worker::qmc_worker(alps::ProcessList const& w,
+                       alps::Parameters const& p, int n,
+                       bool is_path_integral)
   : super_type(w, p, n),
+    info_(),
+    mcs_(0),
     mcs_sweep_(p.value_or_default("SWEEPS", "[65536:]")),
     mcs_therm_(p.value_or_default("THERMALIZATION", mcs_sweep_.min() >> 3)),
-    mcs_(0),
     beta_(1.0 / static_cast<double>(p["T"])),
     chooser_(*engine_ptr)
 {
-  if (w == alps::ProcessList()) return;
-
   if (mcs_sweep_.min() < 1 || mcs_sweep_.min() > mcs_sweep_.max())
     boost::throw_exception(std::invalid_argument(
-      "qmc_worker_base::qmc_worker_base() inconsistent MC steps"));
+      "qmc_worker::qmc_worker() inconsistent MC steps"));
 
   if (beta_ < 0)
     boost::throw_exception(std::invalid_argument(
-      "qmc_worker_base::qmc_worker_base() negative beta"));
+      "qmc_worker::qmc_worker() negative beta"));
 
   looper::model_parameter mp(p, *this);
   if (mp.is_signed()) std::cerr << "WARNING: model has negative signs\n";
@@ -88,19 +87,7 @@ qmc_worker_base::qmc_worker_base(alps::ProcessList const& w,
 
   use_improved_estimator_ =
     !(mp.has_field() || p.defined("DISABLE_IMPROVED_ESTIMATOR"));
-}
 
-qmc_worker_base::~qmc_worker_base() {}
-
-void qmc_worker_base::save(alps::ODump& dp) const
-{
-  super_type::save(dp);
-  dp << mcs_;
-}
-
-void qmc_worker_base::load(alps::IDump& dp)
-{
-  super_type::load(dp);
-  dp >> mcs_;
-  if (where.empty()) measurements.compact();
+  info_["Number of Real Sites"] = num_sites(rgraph());
+  info_["Inverse Temperature"] = beta_;
 }

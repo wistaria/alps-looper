@@ -287,20 +287,6 @@ void qmc_worker_sse::dostep_impl()
                             spins, operators, spins_c);
 }
 
-void qmc_worker_sse::evaluate(alps::ObservableSet const& m_in,
-                              alps::ObservableSet& m_out) const
-{
-  int nrs = num_sites(rgraph());
-  if (m_in.has("Energy") && m_in.has("Energy^2")) {
-    alps::RealObsevaluator obse_e = m_in["Energy"];
-    alps::RealObsevaluator obse_e2 = m_in["Energy^2"];
-    alps::RealObsevaluator eval("Specific Heat");
-    eval = looper::power2(beta()) * (obse_e2 - looper::power2(obse_e)) / nrs;
-    m_out << eval;
-  }
-  estimator_t::evaluate(m_out, beta(), nrs, m_in);
-}
-
 void qmc_worker_sse::save(alps::ODump& dp) const
 {
   super_type::save(dp);

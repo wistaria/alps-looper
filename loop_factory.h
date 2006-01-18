@@ -33,7 +33,7 @@ class abstract_worker_creator
 {
 public:
   virtual ~abstract_worker_creator() {}
-  virtual abstract_qmc_worker* create(const alps::ProcessList& w,
+  virtual alps::scheduler::MCRun* create(const alps::ProcessList& w,
     const alps::Parameters& p, int n) const = 0;
 };
 
@@ -43,7 +43,7 @@ class worker_creator : public abstract_worker_creator
 public:
   typedef WORKER worker_type;
   virtual ~worker_creator() {}
-  abstract_qmc_worker* create(const alps::ProcessList& w,
+  alps::scheduler::MCRun* create(const alps::ProcessList& w,
     const alps::Parameters& p, int n) const
   { return new worker_type(w, p, n); }
 };
@@ -57,10 +57,7 @@ public:
   alps::scheduler::MCSimulation* make_task(const alps::ProcessList& w,
     const boost::filesystem::path& fn, const alps::Parameters&) const;
   alps::scheduler::MCRun* make_worker(const alps::ProcessList& w,
-    const alps::Parameters& p, int n) const
-  { return make_qmc_worker(w, p, n); }
-  abstract_qmc_worker* make_qmc_worker(const alps::ProcessList& w,
-    const alps::Parameters& p, int n) const;
+                                      const alps::Parameters& p, int n) const;
 
   void print_copyright(std::ostream& os) const;
 
@@ -80,10 +77,10 @@ public:
     return true;
   }
 
-  static qmc_factory& instance()
+  static qmc_factory* instance()
   {
     if (!ptr_) ptr_ = new qmc_factory;
-    return *ptr_;
+    return ptr_;
   }
 
 private:

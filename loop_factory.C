@@ -35,8 +35,8 @@ qmc_factory::make_task(const alps::ProcessList& w,
   const boost::filesystem::path& fn, const alps::Parameters&) const
 { return new alps::scheduler::MCSimulation(w, fn); }
 
-abstract_qmc_worker*
-qmc_factory::make_qmc_worker(const alps::ProcessList& w,
+alps::scheduler::MCRun*
+qmc_factory::make_worker(const alps::ProcessList& w,
   const alps::Parameters& p, int n) const
 {
   if (p.defined("REPRESENTATION")) {
@@ -50,6 +50,7 @@ qmc_factory::make_qmc_worker(const alps::ProcessList& w,
     else
       boost::throw_exception(std::runtime_error("no worker is registered"));
   }
+  return 0;
 }
 
 void qmc_factory::print_copyright(std::ostream& os) const
