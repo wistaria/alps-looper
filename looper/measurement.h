@@ -129,8 +129,8 @@ struct base_estimator
     template<typename G, typename BIPARTITE, typename T>
     void term(G const&, BIPARTITE, T const&, int, int) const {}
   };
-  template<typename EST, typename G, typename T, typename F, typename BIPARTITE,
-           typename IMPROVE>
+  template<typename EST, typename G, typename T, typename F,
+           typename BIPARTITE, typename IMPROVE>
   struct accumulator
   {
     typedef EST estimate_t;
@@ -144,8 +144,9 @@ struct base_estimator
     void start(int, time_t const&, int, int) const {}
     void term(int, time_t const&, int, int) const {}
   };
-  template<typename EST, typename G, typename T, typename F, typename BIPARTITE>
-  struct accumulator<EST, G, T, F, BIPARTITE, /* IMPROVE = */ boost::mpl::true_>
+  template<typename EST, typename G, typename T, typename F,
+           typename BIPARTITE>
+  struct accumulator<EST, G, T, F, BIPARTITE, boost::mpl::true_>
   {
     typedef EST estimate_t;
     typedef G lattice_graph_t;
@@ -603,10 +604,10 @@ struct susceptibility_estimator : public base_estimator
         measurement::proceed(typename is_sse<QMC>::type(), t);
       }
       if (typename is_path_integral<QMC>::type()) {
-        umag_a += beta * umag;
+        umag_a += umag;
         m["Susceptibility"] << sign * beta * power2(umag_a) / nrs;
         if (BIPARTITE()) {
-          smag_a += beta * smag;
+          smag_a += smag;
           m["Staggered Susceptibility"] << sign * beta * power2(smag_a) / nrs;
         }
       } else {

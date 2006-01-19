@@ -56,12 +56,12 @@ struct imaginary_time<boost::mpl::true_>
   std::complex<double> ctime_;
 };
 
-template<typename FOURIER>
-std::complex<double> ctime(imaginary_time<FOURIER> const& t)
+inline
+std::complex<double> ctime(imaginary_time<boost::mpl::false_> const& t)
 { return ctime(t.time_); }
 
 inline
-std::complex<double> const& ctime(imaginary_time<boost::mpl::true_> const& t)
+std::complex<double> ctime(imaginary_time<boost::mpl::true_> const& t)
 { return t.ctime_; }
 
 } // end namespace looper

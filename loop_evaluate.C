@@ -34,6 +34,8 @@ int main(int argc, char** argv)
 try {
 #endif
 
+  typedef looper::evaluator<loop_config::estimator_t> evaluator_t;
+
   if (argc < 2) {
     std::cerr << "Usage: " << argv[0] << " file1 [file2 [...]]\n";
     std::exit(-1);
