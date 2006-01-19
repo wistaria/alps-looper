@@ -50,7 +50,7 @@ struct loop_config
   typedef looper::local_graph<looper::location> loop_graph_t;
 
   // measurements
-  typedef estimator_adaptor<energy_estimator, susceptibility_estimator>
+  typedef looper::estimator_adaptor<energy_estimator, susceptibility_estimator>
     estimator_t;
 };
 
