@@ -22,8 +22,7 @@
 *
 *****************************************************************************/
 
-#include <loop_config.h>
-
+#include "loop_config.h"
 #include <looper/evaluate.h>
 #include <alps/alea.h>
 #include <alps/scheduler.h>
@@ -37,13 +36,13 @@ try {
 
   namespace scheduler = alps::scheduler;
   namespace filesystem = boost::filesystem;
+  typedef looper::evaluator<loop_config::estimator_t> evaluator_t;
 
   if (argc < 2) {
     std::cerr << "Usage: " << argv[0] << " file1 [file2 [...]]\n";
     std::exit(-1);
   }
 
-  typedef looper::evaluator<loop_config::estimator_t> evaluator_t;
   scheduler::SimpleMCFactory<evaluator_t> evaluator_factory;
   scheduler::init(evaluator_factory);
   for (int i = 1; i < argc; ++i) {

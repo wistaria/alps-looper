@@ -23,7 +23,10 @@
 *****************************************************************************/
 
 #include "loop_factory.h"
+#include <alps/osiris.h>
 #include <alps/scheduler.h>
+#include <boost/timer.hpp>
+#include <time.h>
 
 int main(int argc, char** argv)
 {
@@ -31,7 +34,46 @@ int main(int argc, char** argv)
   try {
 #endif
 
-  return alps::scheduler::start(argc, argv, *qmc_factory::instance());
+  alps::ParameterList parameterlist;
+  switch (argc) {
+  case 1:
+    std::cin >> parameterlist;
+    break;
+  case 2:
+    {
+      boost::filesystem::ifstream is(argv[1]);
+      is >> parameterlist;
+      break;
+    }
+  default:
+    boost::throw_exception(std::invalid_argument(
+      "Usage: " + std::string(argv[0]) + " [paramfile]"));
+  }
+
+  for (alps::ParameterList::iterator p = parameterlist.begin();
+       p != parameterlist.end(); ++p) {
+    boost::timer tm;
+    if (!p->defined("SEED")) (*p)["SEED"] = static_cast<unsigned int>(time(0));
+    std::cout << "[input parameters]\n" << *p;
+    int sweeps((*p)["SWEEPS"]);
+    int therm(p->value_or_default("THERMALIZATION", sweeps >> 3));
+    alps::scheduler::MCRun* worker = dynamic_cast<qmc_worker*>(
+      qmc_factory::instance()->make_worker(alps::ProcessList(1), *p, 0));
+    bool thermalized = false;
+    while (worker->work_done() < 1.0) {
+      worker->dostep();
+      if (!thermalized && worker->is_thermalized()) {
+        const_cast<alps::ObservableSet&>(worker->get_measurements()).reset(1);
+        thermalized = true;
+      }
+    }
+    dynamic_cast<qmc_worker*>(worker)->evaluate();
+    double t = tm.elapsed();
+    std::cerr << "[speed]\nelapsed time = " << t << " sec ("
+              << (sweeps + therm) / t << " MCS/sec)\n";
+    std::cout << "[results]\n" << worker->get_measurements();
+    delete worker;
+  }
 
 #ifndef BOOST_NO_EXCEPTIONS
   }

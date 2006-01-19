@@ -27,8 +27,12 @@
 
 #include "type.h"
 #include "util.h"
+
 #include <alps/alea.h>
+#include <boost/call_traits.hpp>
+#include <boost/mpl/bool.hpp>
 #include <string>
+#include <vector>
 
 namespace looper {
 
@@ -70,13 +74,13 @@ struct estimate
   typedef typename ESTIMATOR::estimate type;
 };
 
-template<typename ESTIMATOR, typename G, typename F, typename BIPARTITE,
-         typename IMPROVE>
+template<typename ESTIMATOR, typename G, typename T, typename F,
+  typename BIPARTITE, typename IMPROVE>
 struct accumulator
 {
   typedef typename estimate<ESTIMATOR>::type estimate_t;
   typedef typename
-    ESTIMATOR::template accumulator<estimate_t, G, F, BIPARTITE, IMPROVE>
+  ESTIMATOR::template accumulator<estimate_t, G, T, F, BIPARTITE, IMPROVE>
     type;
 };
 
@@ -120,30 +124,32 @@ struct base_estimator
     estimate() {}
     template<typename G, typename BIPARTITE>
     void at_zero(G const&, BIPARTITE, int, int) const {}
-    template<typename G, typename BIPARTITE>
-    void start(G const&, BIPARTITE, double, int, int) const {}
-    template<typename G, typename BIPARTITE>
-    void term(G const&, BIPARTITE, double, int, int) const {}
+    template<typename G, typename BIPARTITE, typename T>
+    void start(G const&, BIPARTITE, T const&, int, int) const {}
+    template<typename G, typename BIPARTITE, typename T>
+    void term(G const&, BIPARTITE, T const&, int, int) const {}
   };
-  template<typename EST, typename G, typename F, typename BIPARTITE,
+  template<typename EST, typename G, typename T, typename F, typename BIPARTITE,
            typename IMPROVE>
   struct accumulator
   {
     typedef EST estimate_t;
     typedef G lattice_graph_t;
+    typedef T time_t;
     typedef F cluster_fragment_t;
     accumulator(std::vector<estimate_t> const&,
                 std::vector<cluster_fragment_t> const&,
                 lattice_graph_t const&) {}
     void at_zero(int, int, int) const {}
-    void start(int, double, int, int) const {}
-    void term(int, double, int, int) const {}
+    void start(int, time_t const&, int, int) const {}
+    void term(int, time_t const&, int, int) const {}
   };
-  template<typename EST, typename G, typename F, typename BIPARTITE>
-  struct accumulator<EST, G, F, BIPARTITE, /* IMPROVE = */ boost::mpl::true_>
+  template<typename EST, typename G, typename T, typename F, typename BIPARTITE>
+  struct accumulator<EST, G, T, F, BIPARTITE, /* IMPROVE = */ boost::mpl::true_>
   {
     typedef EST estimate_t;
     typedef G lattice_graph_t;
+    typedef T time_t;
     typedef F cluster_fragment_t;
     accumulator(std::vector<estimate_t>& es,
                 std::vector<cluster_fragment_t> const& fr,
@@ -151,9 +157,11 @@ struct base_estimator
       : estimates(es), fragments(fr), vgraph(vg) {}
     void at_zero(int p, int s, int c)
     { estimates[fragments[p].id].at_zero(vgraph, BIPARTITE(), s, c); }
-    void start(int p, double t, int s, int c)
+    void start(int p, typename boost::call_traits<time_t>::parameter_type t,
+               int s, int c)
     { estimates[fragments[p].id].start(vgraph, BIPARTITE(), t, s, c); }
-    void term(int p, double t, int s, int c)
+    void term(int p, typename boost::call_traits<time_t>::parameter_type t,
+              int s, int c)
     { estimates[fragments[p].id].term(vgraph, BIPARTITE(), t, s, c); }
     std::vector<estimate_t>& estimates;
     std::vector<cluster_fragment_t> const& fragments;
@@ -185,71 +193,137 @@ struct base_estimator
 // estimator_adaptor
 //
 
-template<typename ESTIMATOR0, typename ESTIMATOR1>
+template<typename ESTIMATOR1,
+         typename ESTIMATOR2,
+         typename ESTIMATOR3 = base_estimator,
+         typename ESTIMATOR4 = base_estimator,
+         typename ESTIMATOR5 = base_estimator>
 struct estimator_adaptor : public base_estimator
 {
-  typedef ESTIMATOR0 estimator0;
   typedef ESTIMATOR1 estimator1;
+  typedef ESTIMATOR2 estimator2;
+  typedef ESTIMATOR3 estimator3;
+  typedef ESTIMATOR4 estimator4;
+  typedef ESTIMATOR5 estimator5;
 
   static void initialize(alps::ObservableSet& m, bool is_bipartite,
                          bool is_signed, bool use_improved_estimator)
   {
-    estimator0::initialize(m, is_bipartite, is_signed, use_improved_estimator);
     estimator1::initialize(m, is_bipartite, is_signed, use_improved_estimator);
+    estimator2::initialize(m, is_bipartite, is_signed, use_improved_estimator);
+    estimator3::initialize(m, is_bipartite, is_signed, use_improved_estimator);
+    estimator4::initialize(m, is_bipartite, is_signed, use_improved_estimator);
+    estimator5::initialize(m, is_bipartite, is_signed, use_improved_estimator);
   };
 
   static void evaluate(alps::ObservableSet& m, double beta, int nrs,
                        alps::ObservableSet const& m_in)
   {
-    estimator0::evaluate(m, beta, nrs, m_in);
     estimator1::evaluate(m, beta, nrs, m_in);
+    estimator2::evaluate(m, beta, nrs, m_in);
+    estimator3::evaluate(m, beta, nrs, m_in);
+    estimator4::evaluate(m, beta, nrs, m_in);
+    estimator5::evaluate(m, beta, nrs, m_in);
   }
 
-  struct estimate : public estimator0::estimate, public estimator1::estimate
+  struct estimate
+    : public estimator1::estimate,
+      public estimator2::estimate,
+      public estimator3::estimate,
+      public estimator4::estimate,
+      public estimator5::estimate
   {
-    estimate() : estimator0::estimate(), estimator1::estimate() {}
+    estimate()
+      : estimator1::estimate(),
+        estimator2::estimate(),
+        estimator3::estimate(),
+        estimator4::estimate(),
+        estimator5::estimate()
+    {}
     template<typename G, typename BIPARTITE>
     void at_zero(G const& g, BIPARTITE, int s, int c)
     {
-      estimator0::estimate::at_zero(g, BIPARTITE(), s, c);
       estimator1::estimate::at_zero(g, BIPARTITE(), s, c);
+      estimator2::estimate::at_zero(g, BIPARTITE(), s, c);
+      estimator3::estimate::at_zero(g, BIPARTITE(), s, c);
+      estimator4::estimate::at_zero(g, BIPARTITE(), s, c);
+      estimator5::estimate::at_zero(g, BIPARTITE(), s, c);
     }
     template<typename G, typename BIPARTITE>
     void start(G const& g, BIPARTITE, double t, int s, int c)
     {
-      estimator0::estimate::start(g, BIPARTITE(), t, s, c);
       estimator1::estimate::start(g, BIPARTITE(), t, s, c);
+      estimator2::estimate::start(g, BIPARTITE(), t, s, c);
+      estimator3::estimate::start(g, BIPARTITE(), t, s, c);
+      estimator4::estimate::start(g, BIPARTITE(), t, s, c);
+      estimator5::estimate::start(g, BIPARTITE(), t, s, c);
+    }
+    template<typename G, typename T, typename BIPARTITE>
+    void start(G const& g, BIPARTITE, T const& t, int s, int c)
+    {
+      estimator1::estimate::start(g, BIPARTITE(), t, s, c);
+      estimator2::estimate::start(g, BIPARTITE(), t, s, c);
+      estimator3::estimate::start(g, BIPARTITE(), t, s, c);
+      estimator4::estimate::start(g, BIPARTITE(), t, s, c);
+      estimator5::estimate::start(g, BIPARTITE(), t, s, c);
     }
     template<typename G, typename BIPARTITE>
     void term(G const& g, BIPARTITE, double t, int s, int c)
     {
-      estimator0::estimate::term(g, BIPARTITE(), t, s, c);
       estimator1::estimate::term(g, BIPARTITE(), t, s, c);
+      estimator2::estimate::term(g, BIPARTITE(), t, s, c);
+      estimator3::estimate::term(g, BIPARTITE(), t, s, c);
+      estimator4::estimate::term(g, BIPARTITE(), t, s, c);
+      estimator5::estimate::term(g, BIPARTITE(), t, s, c);
+    }
+    template<typename G, typename T, typename BIPARTITE>
+    void term(G const& g, BIPARTITE, T const& t, int s, int c)
+    {
+      estimator1::estimate::term(g, BIPARTITE(), t, s, c);
+      estimator2::estimate::term(g, BIPARTITE(), t, s, c);
+      estimator3::estimate::term(g, BIPARTITE(), t, s, c);
+      estimator4::estimate::term(g, BIPARTITE(), t, s, c);
+      estimator5::estimate::term(g, BIPARTITE(), t, s, c);
     }
   };
 
   template<typename QMC, typename BIPARTITE, typename IMPROVE>
   struct collector
-    : public estimator0::template collector<QMC, BIPARTITE, IMPROVE>,
-      public estimator1::template collector<QMC, BIPARTITE, IMPROVE>
+    : public estimator1::template collector<QMC, BIPARTITE, IMPROVE>,
+      public estimator2::template collector<QMC, BIPARTITE, IMPROVE>,
+      public estimator3::template collector<QMC, BIPARTITE, IMPROVE>,
+      public estimator4::template collector<QMC, BIPARTITE, IMPROVE>,
+      public estimator5::template collector<QMC, BIPARTITE, IMPROVE>
   {
-    typedef typename estimator0::template collector<QMC, BIPARTITE, IMPROVE>
-      base0;
     typedef typename estimator1::template collector<QMC, BIPARTITE, IMPROVE>
       base1;
-    collector() : base0(), base1() {}
+    typedef typename estimator2::template collector<QMC, BIPARTITE, IMPROVE>
+      base2;
+    typedef typename estimator3::template collector<QMC, BIPARTITE, IMPROVE>
+      base3;
+    typedef typename estimator4::template collector<QMC, BIPARTITE, IMPROVE>
+      base4;
+    typedef typename estimator5::template collector<QMC, BIPARTITE, IMPROVE>
+      base5;
+    collector() : base1(), base2(), base3(), base4(), base5() {}
     template<typename EST>
     collector operator+(EST const& cm)
     {
-      base0::operator+(cm);
       base1::operator+(cm);
+      base2::operator+(cm);
+      base3::operator+(cm);
+      base4::operator+(cm);
+      base5::operator+(cm);
       return *this;
     }
     void commit(alps::ObservableSet& m, double beta, int nrs, int nop,
                 double sign) const
     {
-      base0::commit(m, beta, nrs, nop, sign);
       base1::commit(m, beta, nrs, nop, sign);
+      base2::commit(m, beta, nrs, nop, sign);
+      base3::commit(m, beta, nrs, nop, sign);
+      base4::commit(m, beta, nrs, nop, sign);
+      base5::commit(m, beta, nrs, nop, sign);
     }
   };
 
@@ -263,9 +337,15 @@ struct estimator_adaptor : public base_estimator
                         std::vector<OP> const& operators,
                         std::vector<int>& spins_c)
     {
-      estimator0::template normal_estimator<QMC, BIPARTITE, IMPROVE>::
-        measure(m, vg, beta, nrs, nop, sign, ene, spins, operators, spins_c);
       estimator1::template normal_estimator<QMC, BIPARTITE, IMPROVE>::
+        measure(m, vg, beta, nrs, nop, sign, ene, spins, operators, spins_c);
+      estimator2::template normal_estimator<QMC, BIPARTITE, IMPROVE>::
+        measure(m, vg, beta, nrs, nop, sign, ene, spins, operators, spins_c);
+      estimator3::template normal_estimator<QMC, BIPARTITE, IMPROVE>::
+        measure(m, vg, beta, nrs, nop, sign, ene, spins, operators, spins_c);
+      estimator4::template normal_estimator<QMC, BIPARTITE, IMPROVE>::
+        measure(m, vg, beta, nrs, nop, sign, ene, spins, operators, spins_c);
+      estimator5::template normal_estimator<QMC, BIPARTITE, IMPROVE>::
         measure(m, vg, beta, nrs, nop, sign, ene, spins, operators, spins_c);
     }
   };
@@ -278,8 +358,8 @@ struct estimator_adaptor : public base_estimator
 
 struct energy_estimator : public base_estimator
 {
-  static void initialize(alps::ObservableSet& m, bool is_bipartite,
-                         bool is_signed, bool use_improved_estimator)
+  static void initialize(alps::ObservableSet& m, bool /* is_bipartite */,
+                         bool is_signed, bool /* use_improved_estimator */)
   {
     using looper::measurement::add_measurement;
     add_measurement(m, "Energy", is_signed);
@@ -311,11 +391,11 @@ struct energy_estimator : public base_estimator
   struct normal_estimator
   {
     template<class G, class OP>
-    static void measure(alps::ObservableSet& m, G const& vg,
+    static void measure(alps::ObservableSet& m, G const& /* vg */,
                         double beta, int nrs, int nop, double sign, double ene,
-                        std::vector<int> const& spins,
-                        std::vector<OP> const& operators,
-                        std::vector<int>& spins_c)
+                        std::vector<int> const& /* spins */,
+                        std::vector<OP> const& /* operators */,
+                        std::vector<int>& /* spins_c */)
     {
       m["Energy"] << sign * ene;
       m["Energy Density"] << sign * ene / nrs;
@@ -604,9 +684,6 @@ struct susceptibility_estimator : public base_estimator
     }
   };
 };
-
-typedef estimator_adaptor<energy_estimator, susceptibility_estimator>
-  default_estimator;
 
 } // end namespace looper
 

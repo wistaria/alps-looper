@@ -22,12 +22,55 @@
 *
 *****************************************************************************/
 
-#include <loop_factory.h>
-#include <loop_worker_sse.h>
-
+#include "loop_factory.h"
+#include "loop_worker.h"
+#include <looper/cluster.h>
+#include <looper/operator.h>
 #include <looper/permutation.h>
+#include <looper/type.h>
 #include <alps/fixed_capacity_vector.h>
-#include <boost/mpl/bool.hpp>
+
+class qmc_worker_sse : public qmc_worker
+{
+public:
+  typedef looper::sse                   qmc_type;
+  typedef qmc_worker                    super_type;
+
+  typedef looper::local_operator<qmc_type, loop_graph_t, time_t>
+                                        local_operator_t;
+  typedef std::vector<local_operator_t> operator_string_t;
+  typedef operator_string_t::iterator   operator_iterator;
+
+  typedef looper::union_find::node      cluster_fragment_t;
+  typedef looper::cluster_info          cluster_info_t;
+
+  typedef loop_config::estimator_t      estimator_t;
+  typedef looper::measurement::estimate<estimator_t>::type estimate_t;
+
+  qmc_worker_sse(alps::ProcessList const& w, alps::Parameters const& p, int n);
+  virtual void dostep();
+
+  void save(alps::ODump& dp) const
+  { super_type::save(dp); dp << spins << operators; }
+  void load(alps::IDump& dp)
+  { super_type::load(dp); dp >> spins >> operators; }
+
+protected:
+  template<typename BIPARTITE, typename FIELD, typename SIGN, typename IMPROVE>
+  void dostep_impl();
+
+private:
+  std::vector<int> spins;
+  std::vector<local_operator_t> operators;
+
+  // working vectors (no checkpointing)
+  std::vector<int> spins_c;
+  std::vector<local_operator_t> operators_p;
+  std::vector<cluster_fragment_t> fragments;
+  std::vector<int> current;
+  std::vector<cluster_info_t> clusters;
+  std::vector<estimate_t> estimates;
+};
 
 qmc_worker_sse::qmc_worker_sse(alps::ProcessList const& w,
                                alps::Parameters const& p, int n)
@@ -198,7 +241,7 @@ void qmc_worker_sse::dostep_impl()
   cluster_info_t::accumulator<cluster_fragment_t, FIELD, SIGN, IMPROVE>
     weight(clusters, fragments, field(), bond_sign(), site_sign());
   typename looper::measurement::accumulator<estimator_t, lattice_graph_t,
-    cluster_fragment_t, BIPARTITE, IMPROVE>::type
+    time_t, cluster_fragment_t, BIPARTITE, IMPROVE>::type
     accum(estimates, fragments, vgraph());
   double t = 0;
   for (std::vector<local_operator_t>::iterator oi = operators.begin();
@@ -275,17 +318,9 @@ void qmc_worker_sse::dostep_impl()
                             ene, spins, operators, spins_c);
 }
 
-void qmc_worker_sse::save(alps::ODump& dp) const
-{
-  super_type::save(dp);
-  dp << spins << operators;
-}
-
-void qmc_worker_sse::load(alps::IDump& dp)
-{
-  super_type::load(dp);
-  dp >> spins >> operators;
-}
+//
+// dynamic registration to the qmc_factory
+//
 
 namespace {
 

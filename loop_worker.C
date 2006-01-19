@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-#include <loop_worker.h>
+#include "loop_worker.h"
 #include <looper/weight.h>
 
 qmc_worker::qmc_worker(alps::ProcessList const& w,
@@ -97,3 +97,9 @@ void qmc_worker::evaluate()
   looper::evaluator<loop_config::estimator_t>::
     evaluate(measurements, info_, measurements);
 }
+
+void qmc_worker::save(alps::ODump& dp) const
+{ super_type::save(dp); dp << info_ << mcs_; }
+
+void qmc_worker::load(alps::IDump& dp)
+{ super_type::load(dp); dp >> info_ >> mcs_; }

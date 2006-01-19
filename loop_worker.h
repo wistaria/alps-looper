@@ -25,7 +25,7 @@
 #ifndef LOOP_WORKER_H
 #define LOOP_WORKER_H
 
-#include <loop_config.h>
+#include "loop_config.h"
 
 #include <looper/evaluate.h>
 #include <looper/model.h>
@@ -49,6 +49,11 @@ public:
   qmc_worker(alps::ProcessList const& w, alps::Parameters const& p,
              int n, bool is_path_integral = true);
   virtual ~qmc_worker() {}
+
+  virtual void evaluate();
+
+  virtual void save(alps::ODump& dp) const;
+  virtual void load(alps::IDump& dp);
 
   virtual void dostep() { ++mcs_; }
   bool can_work() const
@@ -90,13 +95,6 @@ public:
   { return chooser_.offdiagonal(loc); }
   double advance() const { return chooser_.advance(); }
   double total_graph_weight() const { return chooser_.weight(); }
-
-  virtual void evaluate();
-
-  virtual void save(alps::ODump& dp) const
-  { super_type::save(dp); dp << info_ << mcs_; }
-  virtual void load(alps::IDump& dp)
-  { super_type::load(dp); dp >> info_ >> mcs_; }
 
 private:
   // to be dumped/restored
