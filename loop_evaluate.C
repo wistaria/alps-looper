@@ -34,21 +34,17 @@ int main(int argc, char** argv)
 try {
 #endif
 
-  namespace scheduler = alps::scheduler;
-  namespace filesystem = boost::filesystem;
-  typedef looper::evaluator<loop_config::estimator_t> evaluator_t;
-
   if (argc < 2) {
     std::cerr << "Usage: " << argv[0] << " file1 [file2 [...]]\n";
     std::exit(-1);
   }
 
-  scheduler::SimpleMCFactory<evaluator_t> evaluator_factory;
-  scheduler::init(evaluator_factory);
+  alps::scheduler::SimpleMCFactory<evaluator_t> evaluator_factory;
+  alps::scheduler::init(evaluator_factory);
   for (int i = 1; i < argc; ++i) {
-    filesystem::path p = complete(filesystem::path(argv[i]));
+    boost::filesystem::path p = complete(boost::filesystem::path(argv[i]));
     alps::ProcessList nowhere;
-    scheduler::MCSimulation sim(nowhere, p);
+    alps::scheduler::MCSimulation sim(nowhere, p);
     if (sim.runs.size()) {
       dynamic_cast<evaluator_t*>(sim.runs[0])->evaluate(sim);
       sim.checkpoint(p);

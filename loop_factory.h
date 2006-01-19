@@ -22,8 +22,7 @@
 *
 *****************************************************************************/
 
-#include "loop_worker.h"
-
+#include <alps/scheduler.h>
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/throw_exception.hpp>
@@ -57,6 +56,8 @@ public:
     const boost::filesystem::path& fn) const;
   alps::scheduler::MCSimulation* make_task(const alps::ProcessList& w,
     const boost::filesystem::path& fn, const alps::Parameters&) const;
+  alps::scheduler::MCSimulation* make_task(const alps::ProcessList& w,
+    const alps::Parameters&) const { return 0; }
   alps::scheduler::MCRun* make_worker(const alps::ProcessList& w,
                                       const alps::Parameters& p, int n) const;
 

@@ -23,6 +23,7 @@
 *****************************************************************************/
 
 #include "loop_factory.h"
+#include <alps/osiris/comm.h>
 #include <alps/scheduler.h>
 
 int main(int argc, char** argv)
