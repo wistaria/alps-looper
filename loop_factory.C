@@ -48,7 +48,8 @@ qmc_factory::make_worker(const alps::ProcessList& w,
     if (creators_.size() == 1 && creators_.begin()->second)
       return creators_.begin()->second->create(w, p, n);
     else
-      boost::throw_exception(std::runtime_error("no worker is registered"));
+      boost::throw_exception(std::runtime_error(
+        "representation is not specified"));
   }
   return 0;
 }
