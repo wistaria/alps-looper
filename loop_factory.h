@@ -56,7 +56,7 @@ public:
     const boost::filesystem::path& fn) const;
   alps::scheduler::MCSimulation* make_task(const alps::ProcessList& w,
     const boost::filesystem::path& fn, const alps::Parameters&) const;
-  alps::scheduler::MCSimulation* make_task(const alps::ProcessList& w,
+  alps::scheduler::MCSimulation* make_task(const alps::ProcessList&,
     const alps::Parameters&) const { return 0; }
   alps::scheduler::MCRun* make_worker(const alps::ProcessList& w,
                                       const alps::Parameters& p, int n) const;

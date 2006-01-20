@@ -47,7 +47,7 @@ public:
   }
 
   mc_steps& operator++() { ++mcs_; return *this; }
-  mc_steps& operator++(int) { mc_steps tmp = *this; ++mcs_; return tmp; }
+  mc_steps operator++(int) { mc_steps tmp = *this; ++mcs_; return tmp; }
 
   unsigned int operator()() const { return mcs_; }
   bool can_work() const
