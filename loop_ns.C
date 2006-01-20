@@ -56,10 +56,8 @@ int main(int argc, char** argv)
     boost::timer tm;
     if (!p->defined("SEED")) (*p)["SEED"] = static_cast<unsigned int>(time(0));
     std::cout << "[input parameters]\n" << *p;
-    int sweeps((*p)["SWEEPS"]);
-    int therm(p->value_or_default("THERMALIZATION", sweeps >> 3));
-    alps::scheduler::MCRun* worker = dynamic_cast<qmc_worker*>(
-      qmc_factory::instance()->make_worker(alps::ProcessList(1), *p, 0));
+    alps::scheduler::MCRun* worker =
+      qmc_factory::instance()->make_worker(alps::ProcessList(1), *p, 0);
     bool thermalized = false;
     while (worker->work_done() < 1.0) {
       worker->dostep();
@@ -69,9 +67,7 @@ int main(int argc, char** argv)
       }
     }
     dynamic_cast<qmc_worker*>(worker)->evaluate();
-    double t = tm.elapsed();
-    std::cerr << "[speed]\nelapsed time = " << t << " sec ("
-              << (sweeps + therm) / t << " MCS/sec)\n";
+    std::cerr << "[speed]\nelapsed time = " << tm.elapsed() << " sec\n";
     std::cout << "[results]\n" << worker->get_measurements();
     delete worker;
   }

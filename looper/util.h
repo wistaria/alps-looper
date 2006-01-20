@@ -25,6 +25,7 @@
 #ifndef LOOPER_UTIL_H
 #define LOOPER_UTIL_H
 
+#include <alps/osiris.h>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/multi_array.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
@@ -262,6 +263,9 @@ public:
   value_type min() const { return mi_; }
   value_type max() const { return ma_; }
 
+  void save(alps::ODump& dp) const { dp << mi_ << ma_; }
+  void load(alps::IDump& dp) { dp >> mi_ >> ma_; }
+
 private:
   value_type mi_, ma_;
 };
@@ -274,10 +278,15 @@ namespace looper {
 
 template<class T>
 std::ostream& operator<<(std::ostream& os, integer_range<T> const& ir)
-{
-  os << '[' << ir.min() << ':' << ir.max() << ']';
-  return os;
-}
+{ os << '[' << ir.min() << ':' << ir.max() << ']'; return os; }
+
+template<class T>
+alps::ODump& operator<<(alps::ODump& dp, looper::integer_range<T> const& ir)
+{ ir.save(dp); return dp; }
+
+template<class T>
+alps::IDump& operator>>(alps::IDump& dp, looper::integer_range<T>& ir)
+{ ir.load(dp); return dp; }
 
 #ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
 } // end namespace looper

@@ -29,6 +29,7 @@
 
 #include <looper/evaluate.h>
 #include <looper/model.h>
+#include <looper/montecarlo.h>
 #include <alps/alea.h>
 #include <alps/scheduler.h>
 
@@ -56,15 +57,10 @@ public:
   virtual void load(alps::IDump& dp);
 
   virtual void dostep() { ++mcs_; }
-  bool can_work() const
-  { return mcs_ < mcs_therm_ || mcs_ - mcs_therm_ < mcs_sweep_.max(); }
-  bool is_thermalized() const { return mcs_ >= mcs_therm_; }
-  double work_done() const
-  {
-    return is_thermalized() ?
-      (double(mcs_ - mcs_therm_) / mcs_sweep_.min()) : 0.;
-  }
-  unsigned int mcs() const { return mcs_; }
+  bool can_work() const { return mcs_.can_work(); }
+  bool is_thermalized() const { return mcs_.is_thermalized(); }
+  double work_done() const { return mcs_.work_done(); }
+  unsigned int mcs() const { return mcs_(); }
 
   lattice_graph_t const& rgraph() const { return super_type::graph(); }
   lattice_graph_t const& vgraph() const { return vlat_.graph(); }
@@ -99,11 +95,7 @@ public:
 private:
   // to be dumped/restored
   alps::Parameters info_;
-  unsigned int mcs_;
-
-  // working area (not dumped/restored)
-  looper::integer_range<unsigned int> mcs_sweep_;
-  unsigned int mcs_therm_;
+  looper::mc_steps mcs_;
 
   virtual_lattice vlat_;
 

@@ -31,6 +31,7 @@
 #include "looper/location.h"
 #include "looper/measurement.h"
 #include "looper/model.h"
+#include "looper/montecarlo.h"
 #include "looper/operator.h"
 #include "looper/permutation.h"
 #include "looper/random_choice.h"

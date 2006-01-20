@@ -28,6 +28,7 @@
 #include "type.h"
 #include "util.h"
 
+#include <alps/lattice/graph_traits.h>
 #include <alps/alea.h>
 #include <boost/call_traits.hpp>
 #include <boost/mpl/bool.hpp>

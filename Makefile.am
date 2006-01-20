@@ -31,6 +31,7 @@ pkginclude_HEADERS = \
 	looper/location.h \
 	looper/measurement.h \
 	looper/model.h \
+	looper/montecarlo.h \
 	looper/operator.h \
 	looper/permutation.h \
 	looper/qwl_histogram.h \
