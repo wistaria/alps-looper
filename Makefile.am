@@ -9,6 +9,7 @@ if EXIST_V31
 SUBDIRS += v3.1
 endif
 SUBDIRS += .
+DIST_SUBDIRS = $(SUBDIRS)
 
 REMOVE_FOR_RELEASE = check
 

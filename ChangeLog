@@ -2,7 +2,9 @@
 
         * version 3.2b1
 
-	* ToDo: fixed for negative signs, external field for SSE, QWL, add
+	- prerequisites: boost-1.31.1, alps snapshot (2006/01/20), lapack
+
+	- ToDo: fixed for negative signs, external field for SSE, QWL, add
 	measurement of stiffness, more tests, documentation
 	
 2006-01-06  Synge Todo <wistaria@comp-phys.org>
