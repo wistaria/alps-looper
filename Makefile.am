@@ -10,7 +10,7 @@ SUBDIRS += v3.1
 endif
 SUBDIRS += .
 
-REMOVE_FOR_RELEASE =
+REMOVE_FOR_RELEASE = check
 
 distdir = alps-looper-$(VERSION)
 
