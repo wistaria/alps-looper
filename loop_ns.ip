@@ -12,6 +12,7 @@ L = 4
 LATTICE = "chain lattice"
 L = 4
 local_S = 1
+T = 1/L
 }
 {
 LATTICE = "site"

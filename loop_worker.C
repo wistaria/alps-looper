@@ -28,13 +28,10 @@
 qmc_worker::qmc_worker(alps::ProcessList const& w,
                        alps::Parameters const& p, int n,
                        bool is_path_integral)
-  : super_type(w, p, n),
-    info_(),
-    mcs_(0),
+  : super_type(w, p, n), info_(), mcs_(0),
     mcs_sweep_(p.value_or_default("SWEEPS", "[65536:]")),
     mcs_therm_(p.value_or_default("THERMALIZATION", mcs_sweep_.min() >> 3)),
-    beta_(1.0 / static_cast<double>(p["T"])),
-    chooser_(*engine_ptr)
+    beta_(1.0 / alps::evaluate("T", p)), chooser_(*engine_ptr)
 {
   if (mcs_sweep_.min() < 1 || mcs_sweep_.min() > mcs_sweep_.max())
     boost::throw_exception(std::invalid_argument(
@@ -42,7 +39,7 @@ qmc_worker::qmc_worker(alps::ProcessList const& w,
 
   if (beta_ < 0)
     boost::throw_exception(std::invalid_argument(
-      "qmc_worker::qmc_worker() negative beta"));
+      "qmc_worker::qmc_worker() negative temperature"));
 
   looper::model_parameter mp(p, *this);
   if (mp.is_signed()) std::cerr << "WARNING: model has negative signs\n";
