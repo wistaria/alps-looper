@@ -50,9 +50,6 @@ inline void add_measurement(alps::ObservableSet& m, std::string const& name,
     m << make_observable(alps::RealObservable(name), is_signed);
 }
 
-inline void remove_measurement(alps::ObservableSet& m, std::string const& name)
-{ if (m.has(name)) m.removeObservable(name); }
-
 // for path integral
 template<typename OP>
 inline void proceed(boost::mpl::true_, double& t, OP const& op)
