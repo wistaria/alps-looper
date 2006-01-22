@@ -53,11 +53,10 @@ public:
     alps::ObservableSet m;
     evaluate(m, info_, sim.get_measurements());
     for (alps::ObservableSet::const_iterator itr = m.begin(); itr != m.end();
-         ++itr) sim << *(itr->second);
+         ++itr) sim.addObservable(*(itr->second));
   }
 
-  static void evaluate(alps::ObservableSet& m,
-                       alps::Parameters const& info,
+  static void evaluate(alps::ObservableSet& m, alps::Parameters const& info,
                        alps::ObservableSet const& m_in)
   {
     if (info.defined("Inverse Temperature") &&

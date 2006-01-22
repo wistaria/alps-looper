@@ -312,16 +312,13 @@ struct energy_estimator : public base_estimator
   static void evaluate(alps::ObservableSet& m, double beta, int nrs,
                        alps::ObservableSet const& m_in)
   {
-    using looper::measurement::remove_measurement;
     using alps::RealObsevaluator;
-    using looper::power2;
     if (m_in.has("Energy") && m_in.has("Energy^2")) {
-      remove_measurement(m, "Specific Heat");
       RealObsevaluator obse_e = m_in["Energy"];
       RealObsevaluator obse_e2 = m_in["Energy^2"];
       RealObsevaluator eval("Specific Heat");
       eval = power2(beta) * (obse_e2 - power2(obse_e)) / nrs;
-      m << eval;
+      m.addObservable(eval);
     }
   }
 
@@ -386,39 +383,32 @@ struct susceptibility_estimator : public base_estimator
   static void evaluate(alps::ObservableSet& m, double, int,
                        alps::ObservableSet const& m_in)
   {
-    using looper::power2;
-    using looper::measurement::remove_measurement;
     using alps::RealObsevaluator;
     if (m_in.has("Magnetization^2") && m_in.has("Magnetization^4")) {
-      remove_measurement(m, "Binder Ratio of Magnetization");
       RealObsevaluator obse_m2 = m_in["Magnetization^2"];
       RealObsevaluator obse_m4 = m_in["Magnetization^4"];
       RealObsevaluator eval("Binder Ratio of Magnetization");
       eval = power2(obse_m2) / obse_m4;
-      m << eval;
+      m.addObservable(eval);
     }
     if (m_in.has("Staggered Magnetization^2") &&
         m_in.has("Staggered Magnetization^4")) {
-      remove_measurement(m, "Binder Ratio of Staggered Magnetization");
       RealObsevaluator obse_m2 = m_in["Staggered Magnetization^2"];
       RealObsevaluator obse_m4 = m_in["Staggered Magnetization^4"];
       RealObsevaluator eval("Binder Ratio of Staggered Magnetization");
       eval = power2(obse_m2) / obse_m4;
-      m << eval;
+      m.addObservable(eval);
     }
     if (m_in.has("Generalized Magnetization^2") &&
         m_in.has("Generalized Magnetization^4")) {
-      remove_measurement(m, "Binder Ratio of Generalized Magnetization");
       RealObsevaluator obse_m2 = m_in["Generalized Magnetization^2"];
       RealObsevaluator obse_m4 = m_in["Generalized Magnetization^4"];
       RealObsevaluator eval("Binder Ratio of Generalized Magnetization");
       eval = power2(obse_m2) / obse_m4;
-      m << eval;
+      m.addObservable(eval);
     }
     if (m_in.has("Generalized Staggered Magnetization^2") &&
         m_in.has("Generalized Staggered Magnetization^4")) {
-      remove_measurement(m,
-        "Binder Ratio of Generalized Staggered Magnetization");
       RealObsevaluator obse_m2 =
         m_in["Generalized Staggered Magnetization^2"];
       RealObsevaluator obse_m4 =
@@ -426,7 +416,7 @@ struct susceptibility_estimator : public base_estimator
       RealObsevaluator
         eval("Binder Ratio of Generalized Staggered Magnetization");
       eval = power2(obse_m2) / obse_m4;
-      m << eval;
+      m.addObservable(eval);
     }
   }
 
