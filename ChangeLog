@@ -8,6 +8,10 @@
 
 	- prerequisites: boost-1.31.1, alps snapshot (2006/01/20), lapack
 
+	- new features: new internal tree-like data structure for
+	clusters, two-pass cluster update, support for longitudinal field,
+	transverse field, single-ion anisotropy (D-term), variable length SSE
+	
 	- ToDo: fixed for negative signs, external field for SSE, QWL, add
 	measurement of stiffness, more tests, documentation
 	
