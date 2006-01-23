@@ -94,7 +94,6 @@ public:
 
 private:
   // to be dumped/restored
-  alps::Parameters info_;
   looper::mc_steps mcs_;
 
   virtual_lattice vlat_;

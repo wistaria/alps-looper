@@ -111,8 +111,7 @@ struct base_estimator
                          bool /* is_bipartite */,
                          bool /* is_signed */,
                          bool /* use_improved_estimator */) {}
-  static void evaluate(alps::ObservableSet& /* m_out */,
-                       alps::ObservableSet const& /* m_in */) {}
+  static void evaluate(alps::ObservableSet&, alps::ObservableSet const&) {}
 
   // improved estimator
 
@@ -204,8 +203,7 @@ struct estimator_adaptor : public base_estimator
     estimator2::initialize(m, is_bipartite, is_signed, use_improved_estimator);
   };
 
-  static void evaluate(alps::ObservableSet& m,
-                       alps::ObservableSet const& m_in)
+  static void evaluate(alps::ObservableSet& m, alps::ObservableSet const& m_in)
   {
     estimator1::evaluate(m, m_in);
     estimator2::evaluate(m, m_in);
@@ -305,8 +303,7 @@ struct energy_estimator : public base_estimator
     add_measurement(m, "Energy^2", is_signed);
   }
 
-  static void evaluate(alps::ObservableSet& m,
-                       alps::ObservableSet const& m_in)
+  static void evaluate(alps::ObservableSet& m, alps::ObservableSet const& m_in)
   {
     if (m_in.has("Inverse Temperature") &&
         m_in.has("Number of Sites") &&
@@ -383,8 +380,7 @@ struct susceptibility_estimator : public base_estimator
     }
   }
 
-  static void evaluate(alps::ObservableSet& m,
-                       alps::ObservableSet const& m_in)
+  static void evaluate(alps::ObservableSet& m, alps::ObservableSet const& m_in)
   {
     if (m_in.has("Magnetization^2") && m_in.has("Magnetization^4")) {
       alps::RealObsevaluator obse_m2 = m_in["Magnetization^2"];

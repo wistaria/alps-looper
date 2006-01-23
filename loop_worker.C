@@ -28,7 +28,7 @@
 qmc_worker::qmc_worker(alps::ProcessList const& w,
                        alps::Parameters const& p, int n,
                        bool is_path_integral)
-  : super_type(w, p, n), info_(), mcs_(p),
+  : super_type(w, p, n), mcs_(p),
     beta_(1.0 / alps::evaluate("T", p)), chooser_(*engine_ptr)
 {
   if (beta_ < 0)
@@ -99,7 +99,7 @@ void qmc_worker::evaluate()
 }
 
 void qmc_worker::save(alps::ODump& dp) const
-{ super_type::save(dp); dp << info_ << mcs_; }
+{ super_type::save(dp); dp << mcs_; }
 
 void qmc_worker::load(alps::IDump& dp)
-{ super_type::load(dp); dp >> info_ >> mcs_; }
+{ super_type::load(dp); dp >> mcs_; }

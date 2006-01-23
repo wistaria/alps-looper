@@ -40,8 +40,6 @@ public:
 
   evaluator(alps::ProcessList const& w, alps::Parameters const& p, int n)
     : super_type(w, p, n) {}
-  void load(alps::IDump& dp) { super_type::load(dp); }
-
 
   void evaluate(alps::scheduler::MCSimulation& sim) const
   {
@@ -52,9 +50,7 @@ public:
   }
 
   static void evaluate(alps::ObservableSet& m, alps::ObservableSet const& m_in)
-  {
-    estimator_t::evaluate(m, m_in);
-  }
+  { estimator_t::evaluate(m, m_in); }
 };
 
 } // end namespace looper
