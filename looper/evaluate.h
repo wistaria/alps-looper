@@ -40,35 +40,21 @@ public:
 
   evaluator(alps::ProcessList const& w, alps::Parameters const& p, int n)
     : super_type(w, p, n) {}
-  void load(alps::IDump& dp) { super_type::load(dp); dp >> info_; }
+  void load(alps::IDump& dp) { super_type::load(dp); }
 
-  static void add_info(alps::Parameters& info, double beta, unsigned int nrs)
-  {
-    info["Inverse Temperature"] = beta;
-    info["Number of Real Sites"] = nrs;
-  }
 
   void evaluate(alps::scheduler::MCSimulation& sim) const
   {
     alps::ObservableSet m;
-    evaluate(m, info_, sim.get_measurements());
+    evaluate(m, sim.get_measurements());
     for (alps::ObservableSet::const_iterator itr = m.begin(); itr != m.end();
          ++itr) sim.addObservable(*(itr->second));
   }
 
-  static void evaluate(alps::ObservableSet& m, alps::Parameters const& info,
-                       alps::ObservableSet const& m_in)
+  static void evaluate(alps::ObservableSet& m, alps::ObservableSet const& m_in)
   {
-    if (info.defined("Inverse Temperature") &&
-        info.defined("Number of Real Sites")) {
-      double beta(info["Inverse Temperature"]);
-      int nrs(info["Number of Real Sites"]);
-      estimator_t::evaluate(m, beta, nrs, m_in);
-    }
+    estimator_t::evaluate(m, m_in);
   }
-
-private:
-  alps::Parameters info_;
 };
 
 } // end namespace looper

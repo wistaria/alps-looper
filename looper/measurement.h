@@ -112,7 +112,6 @@ struct base_estimator
                          bool /* is_signed */,
                          bool /* use_improved_estimator */) {}
   static void evaluate(alps::ObservableSet& /* m_out */,
-                       double /* beta */, int /* nrs */,
                        alps::ObservableSet const& /* m_in */) {}
 
   // improved estimator
@@ -205,11 +204,11 @@ struct estimator_adaptor : public base_estimator
     estimator2::initialize(m, is_bipartite, is_signed, use_improved_estimator);
   };
 
-  static void evaluate(alps::ObservableSet& m, double beta, int nrs,
+  static void evaluate(alps::ObservableSet& m,
                        alps::ObservableSet const& m_in)
   {
-    estimator1::evaluate(m, beta, nrs, m_in);
-    estimator2::evaluate(m, beta, nrs, m_in);
+    estimator1::evaluate(m, m_in);
+    estimator2::evaluate(m, m_in);
   }
 
   struct estimate : public estimator1::estimate, public estimator2::estimate
@@ -306,14 +305,21 @@ struct energy_estimator : public base_estimator
     add_measurement(m, "Energy^2", is_signed);
   }
 
-  static void evaluate(alps::ObservableSet& m, double beta, int nrs,
+  static void evaluate(alps::ObservableSet& m,
                        alps::ObservableSet const& m_in)
   {
-    using alps::RealObsevaluator;
-    if (m_in.has("Energy") && m_in.has("Energy^2")) {
-      RealObsevaluator obse_e = m_in["Energy"];
-      RealObsevaluator obse_e2 = m_in["Energy^2"];
-      RealObsevaluator eval("Specific Heat");
+    if (m_in.has("Inverse Temperature") &&
+        m_in.has("Number of Sites") &&
+        m_in.has("Energy") && m_in.has("Energy^2")) {
+      double beta =
+        dynamic_cast<const alps::AbstractSimpleObservable<double>&>(
+          m_in["Inverse Temperature"]).mean();
+      double nrs =
+        dynamic_cast<const alps::AbstractSimpleObservable<double>&>(
+          m_in["Number of Sites"]).mean();
+      alps::RealObsevaluator obse_e = m_in["Energy"];
+      alps::RealObsevaluator obse_e2 = m_in["Energy^2"];
+      alps::RealObsevaluator eval("Specific Heat");
       eval = power2(beta) * (obse_e2 - power2(obse_e)) / nrs;
       m.addObservable(eval);
     }
@@ -377,40 +383,39 @@ struct susceptibility_estimator : public base_estimator
     }
   }
 
-  static void evaluate(alps::ObservableSet& m, double, int,
+  static void evaluate(alps::ObservableSet& m,
                        alps::ObservableSet const& m_in)
   {
-    using alps::RealObsevaluator;
     if (m_in.has("Magnetization^2") && m_in.has("Magnetization^4")) {
-      RealObsevaluator obse_m2 = m_in["Magnetization^2"];
-      RealObsevaluator obse_m4 = m_in["Magnetization^4"];
-      RealObsevaluator eval("Binder Ratio of Magnetization");
+      alps::RealObsevaluator obse_m2 = m_in["Magnetization^2"];
+      alps::RealObsevaluator obse_m4 = m_in["Magnetization^4"];
+      alps::RealObsevaluator eval("Binder Ratio of Magnetization");
       eval = power2(obse_m2) / obse_m4;
       m.addObservable(eval);
     }
     if (m_in.has("Staggered Magnetization^2") &&
         m_in.has("Staggered Magnetization^4")) {
-      RealObsevaluator obse_m2 = m_in["Staggered Magnetization^2"];
-      RealObsevaluator obse_m4 = m_in["Staggered Magnetization^4"];
-      RealObsevaluator eval("Binder Ratio of Staggered Magnetization");
+      alps::RealObsevaluator obse_m2 = m_in["Staggered Magnetization^2"];
+      alps::RealObsevaluator obse_m4 = m_in["Staggered Magnetization^4"];
+      alps::RealObsevaluator eval("Binder Ratio of Staggered Magnetization");
       eval = power2(obse_m2) / obse_m4;
       m.addObservable(eval);
     }
     if (m_in.has("Generalized Magnetization^2") &&
         m_in.has("Generalized Magnetization^4")) {
-      RealObsevaluator obse_m2 = m_in["Generalized Magnetization^2"];
-      RealObsevaluator obse_m4 = m_in["Generalized Magnetization^4"];
-      RealObsevaluator eval("Binder Ratio of Generalized Magnetization");
+      alps::RealObsevaluator obse_m2 = m_in["Generalized Magnetization^2"];
+      alps::RealObsevaluator obse_m4 = m_in["Generalized Magnetization^4"];
+      alps::RealObsevaluator eval("Binder Ratio of Generalized Magnetization");
       eval = power2(obse_m2) / obse_m4;
       m.addObservable(eval);
     }
     if (m_in.has("Generalized Staggered Magnetization^2") &&
         m_in.has("Generalized Staggered Magnetization^4")) {
-      RealObsevaluator obse_m2 =
+      alps::RealObsevaluator obse_m2 =
         m_in["Generalized Staggered Magnetization^2"];
-      RealObsevaluator obse_m4 =
+      alps::RealObsevaluator obse_m4 =
         m_in["Generalized Staggered Magnetization^4"];
-      RealObsevaluator
+      alps::RealObsevaluator
         eval("Binder Ratio of Generalized Staggered Magnetization");
       eval = power2(obse_m2) / obse_m4;
       m.addObservable(eval);

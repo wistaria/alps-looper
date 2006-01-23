@@ -110,6 +110,7 @@ Generalized Susceptibility: 1.25525 +/- 0.00354; tau = 0.581
     bin #8   : 512      entries: error = 0.00354712
     bin #9   : 256      entries: error = 0.00355345
     bin #10  : 128      entries: error = 0.00353754
+Inverse Temperature: 4 +/- 0
 Magnetization: 0 +/- 0; tau = nan
     bin #1   : 65536    entries: error = 0
     bin #2   : 32768    entries: error = 0
@@ -154,6 +155,7 @@ Magnetization^4: 0.0374985 +/- 0.00087; tau = 0.894
     bin #8   : 512      entries: error = 0.00090757
     bin #9   : 256      entries: error = 0.000929693
     bin #10  : 128      entries: error = 0.000870372
+Number of Sites: 4 +/- 0
 Specific Heat: 0.234398 +/- 0.0235
 Staggered Magnetization: 0 +/- 0; tau = nan
     bin #1   : 65536    entries: error = 0
@@ -334,6 +336,7 @@ Generalized Susceptibility: 3.78977 +/- 0.0113; tau = 0.693 WARNING: check error
     bin #8   : 512      entries: error = 0.0101787
     bin #9   : 256      entries: error = 0.0102882
     bin #10  : 128      entries: error = 0.0112895
+Inverse Temperature: 4 +/- 0
 Magnetization: 0 +/- 0; tau = nan
     bin #1   : 65536    entries: error = 0
     bin #2   : 32768    entries: error = 0
@@ -378,6 +381,7 @@ Magnetization^4: 0.0353928 +/- 0.000898; tau = 1.02
     bin #8   : 512      entries: error = 0.000921036
     bin #9   : 256      entries: error = 0.000886132
     bin #10  : 128      entries: error = 0.000898197
+Number of Sites: 4 +/- 0
 Specific Heat: 0.146627 +/- 0.0673
 Staggered Magnetization: 0 +/- 0; tau = nan
     bin #1   : 65536    entries: error = 0
@@ -557,6 +561,7 @@ Generalized Susceptibility: 0.480667 +/- 0.00157; tau = 0.846
     bin #8   : 512      entries: error = 0.00158414
     bin #9   : 256      entries: error = 0.00156136
     bin #10  : 128      entries: error = 0.00157392
+Inverse Temperature: 4 +/- 0
 Magnetization: 0 +/- 0; tau = nan
     bin #1   : 65536    entries: error = 0
     bin #2   : 32768    entries: error = 0
@@ -601,6 +606,7 @@ Magnetization^4: 0.0625 +/- 0; tau = nan
     bin #8   : 512      entries: error = 0
     bin #9   : 256      entries: error = 0
     bin #10  : 128      entries: error = 0
+Number of Sites: 1 +/- 0
 Specific Heat: 0.302784 +/- 0.0289
 Staggered Magnetization: 0 +/- 0; tau = nan
     bin #1   : 65536    entries: error = 0
@@ -780,6 +786,7 @@ Generalized Susceptibility: 1.25463 +/- 0.00318; tau = 0.543
     bin #8   : 512      entries: error = 0.0031339
     bin #9   : 256      entries: error = 0.00310614
     bin #10  : 128      entries: error = 0.00318463
+Inverse Temperature: 4 +/- 0
 Magnetization: 0 +/- 0; tau = nan
     bin #1   : 65536    entries: error = 0
     bin #2   : 32768    entries: error = 0
@@ -824,6 +831,7 @@ Magnetization^4: 0.035553 +/- 0.000811; tau = 0.792
     bin #8   : 512      entries: error = 0.000879497
     bin #9   : 256      entries: error = 0.000862342
     bin #10  : 128      entries: error = 0.000810557
+Number of Sites: 4 +/- 0
 Specific Heat: 0.243931 +/- 0.0186
 Staggered Magnetization: 0 +/- 0; tau = nan
     bin #1   : 65536    entries: error = 0
@@ -1004,6 +1012,7 @@ Generalized Susceptibility: 3.78378 +/- 0.00988; tau = 0.46
     bin #8   : 512      entries: error = 0.0092901
     bin #9   : 256      entries: error = 0.00967867
     bin #10  : 128      entries: error = 0.0098756
+Inverse Temperature: 4 +/- 0
 Magnetization: 0 +/- 0; tau = nan
     bin #1   : 65536    entries: error = 0
     bin #2   : 32768    entries: error = 0
@@ -1048,6 +1057,7 @@ Magnetization^4: 0.0341263 +/- 0.0009; tau = 1.12
     bin #8   : 512      entries: error = 0.000846817
     bin #9   : 256      entries: error = 0.000869441
     bin #10  : 128      entries: error = 0.000899734
+Number of Sites: 4 +/- 0
 Specific Heat: 0.28605 +/- 0.0574
 Staggered Magnetization: 0 +/- 0; tau = nan
     bin #1   : 65536    entries: error = 0
@@ -1227,6 +1237,7 @@ Generalized Susceptibility: 0.48135 +/- 0.00128; tau = 0.592
     bin #8   : 512      entries: error = 0.001332
     bin #9   : 256      entries: error = 0.00131413
     bin #10  : 128      entries: error = 0.00128235
+Inverse Temperature: 4 +/- 0
 Magnetization: 0 +/- 0; tau = nan
     bin #1   : 65536    entries: error = 0
     bin #2   : 32768    entries: error = 0
@@ -1271,6 +1282,7 @@ Magnetization^4: 0.0625 +/- 0; tau = nan
     bin #8   : 512      entries: error = 0
     bin #9   : 256      entries: error = 0
     bin #10  : 128      entries: error = 0
+Number of Sites: 1 +/- 0
 Specific Heat: 0.299164 +/- 0.0277
 Staggered Magnetization: 0 +/- 0; tau = nan
     bin #1   : 65536    entries: error = 0

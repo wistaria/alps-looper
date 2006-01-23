@@ -51,12 +51,12 @@ public:
              int n, bool is_path_integral = true);
   virtual ~qmc_worker() {}
 
+  virtual void dostep();
   virtual void evaluate();
 
   virtual void save(alps::ODump& dp) const;
   virtual void load(alps::IDump& dp);
 
-  virtual void dostep() { ++mcs_; }
   bool can_work() const { return mcs_.can_work(); }
   bool is_thermalized() const { return mcs_.is_thermalized(); }
   double work_done() const { return mcs_.work_done(); }

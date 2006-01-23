@@ -79,14 +79,23 @@ qmc_worker::qmc_worker(alps::ProcessList const& w,
   use_improved_estimator_ =
     !(mp.has_field() || p.defined("DISABLE_IMPROVED_ESTIMATOR"));
 
-  looper::evaluator<loop_config::estimator_t>::
-    add_info(info_, beta_, num_sites(rgraph()));
+  measurements <<
+    make_observable(alps::SimpleRealObservable("Inverse Temperature"));
+  measurements <<
+    make_observable(alps::SimpleRealObservable("Number of Sites"));
+}
+
+void qmc_worker::dostep()
+{
+  ++mcs_;
+  measurements["Inverse Temperature"] << beta_;
+  measurements["Number of Sites"] << (double)num_sites(rgraph());
 }
 
 void qmc_worker::evaluate()
 {
   looper::evaluator<loop_config::estimator_t>::
-    evaluate(measurements, info_, measurements);
+    evaluate(measurements, measurements);
 }
 
 void qmc_worker::save(alps::ODump& dp) const
