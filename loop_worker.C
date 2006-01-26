@@ -28,8 +28,8 @@
 qmc_worker::qmc_worker(alps::ProcessList const& w,
                        alps::Parameters const& p, int n,
                        bool is_path_integral)
-  : super_type(w, p, n), mcs_(p),
-    beta_(1.0 / alps::evaluate("T", p)), chooser_(*engine_ptr)
+  : super_type(w, p, n), beta_(1.0 / alps::evaluate("T", p)),
+    chooser_(*engine_ptr)
 {
   if (beta_ < 0)
     boost::throw_exception(std::invalid_argument(
@@ -87,7 +87,9 @@ qmc_worker::qmc_worker(alps::ProcessList const& w,
 
 void qmc_worker::dostep()
 {
-  ++mcs_;
+  if (!super_type::can_work()) return;
+  super_type::dostep();
+
   measurements["Inverse Temperature"] << beta_;
   measurements["Number of Sites"] << (double)num_sites(rgraph());
 }
@@ -99,7 +101,7 @@ void qmc_worker::evaluate()
 }
 
 void qmc_worker::save(alps::ODump& dp) const
-{ super_type::save(dp); dp << mcs_; }
+{ super_type::save(dp); }
 
 void qmc_worker::load(alps::IDump& dp)
-{ super_type::load(dp); dp >> mcs_; }
+{ super_type::load(dp); }

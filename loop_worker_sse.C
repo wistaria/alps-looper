@@ -56,8 +56,11 @@ public:
   { super_type::load(dp); dp >> spins >> operators; }
 
 protected:
+  void build();
   template<typename BIPARTITE, typename FIELD, typename SIGN, typename IMPROVE>
-  void dostep_impl();
+  void flip();
+  template<typename BIPARTITE, typename IMPROVE>
+  void measure();
 
 private:
   std::vector<int> spins;
@@ -102,33 +105,37 @@ qmc_worker_sse::qmc_worker_sse(alps::ProcessList const& w,
 
 void qmc_worker_sse::dostep()
 {
+  namespace mpl = boost::mpl;
+
   if (!can_work()) return;
   super_type::dostep();
 
-  namespace mpl = boost::mpl;
-  //          BIPARTITE    FIELD        SIGN         IMPROVE
-  dostep_impl<mpl::true_,  mpl::false_, mpl::true_,  mpl::true_ >();
-  dostep_impl<mpl::true_,  mpl::false_, mpl::true_,  mpl::false_>();
-  dostep_impl<mpl::true_,  mpl::false_, mpl::false_, mpl::true_ >();
-  dostep_impl<mpl::true_,  mpl::false_, mpl::false_, mpl::false_>();
-  dostep_impl<mpl::false_, mpl::false_, mpl::true_,  mpl::true_ >();
-  dostep_impl<mpl::false_, mpl::false_, mpl::true_,  mpl::true_ >();
-  dostep_impl<mpl::false_, mpl::false_, mpl::false_, mpl::true_ >();
-  dostep_impl<mpl::false_, mpl::false_, mpl::false_, mpl::false_>();
+  build();
+
+  //   BIPARTITE    FIELD        SIGN         IMPROVE
+  flip<mpl::true_,  mpl::false_, mpl::true_,  mpl::true_ >();
+  flip<mpl::true_,  mpl::false_, mpl::true_,  mpl::false_>();
+  flip<mpl::true_,  mpl::false_, mpl::false_, mpl::true_ >();
+  flip<mpl::true_,  mpl::false_, mpl::false_, mpl::false_>();
+  flip<mpl::false_, mpl::false_, mpl::true_,  mpl::true_ >();
+  flip<mpl::false_, mpl::false_, mpl::true_,  mpl::true_ >();
+  flip<mpl::false_, mpl::false_, mpl::false_, mpl::true_ >();
+  flip<mpl::false_, mpl::false_, mpl::false_, mpl::false_>();
+
+  //      BIPARTITE    IMPROVE
+  measure<mpl::true_,  mpl::true_ >();
+  measure<mpl::true_,  mpl::false_>();
+  measure<mpl::false_, mpl::true_ >();
+  measure<mpl::false_, mpl::false_>();
 }
 
-template<typename BIPARTITE, typename FIELD, typename SIGN, typename IMPROVE>
-void qmc_worker_sse::dostep_impl()
+
+//
+// diagonal update and cluster construction
+//
+
+void qmc_worker_sse::build()
 {
-  if (!(is_bipartite() == BIPARTITE() &&
-        has_field() == FIELD() &&
-        is_signed() == SIGN() &&
-        use_improved_estimator() == IMPROVE())) return;
-
-  //
-  // diagonal update and cluster construction
-  //
-
   // initialize spin & operator information
   int nop = operators.size();
   std::copy(spins.begin(), spins.end(), spins_c.begin());
@@ -223,10 +230,23 @@ void qmc_worker_sse::dostep_impl()
         unify(fragments, offset+i, current[offset+r[i]]);
     }
   }
+}
 
-  //
-  // cluster flip
-  //
+
+//
+// cluster flip
+//
+
+template<typename BIPARTITE, typename FIELD, typename SIGN, typename IMPROVE>
+void qmc_worker_sse::flip()
+{
+  if (!(is_bipartite() == BIPARTITE() &&
+        has_field() == FIELD() &&
+        is_signed() == SIGN() &&
+        use_improved_estimator() == IMPROVE())) return;
+
+  int nvs = num_sites(vgraph());
+  int nop = operators.size();
 
   // assign cluster id
   int nc = 0;
@@ -287,32 +307,44 @@ void qmc_worker_sse::dostep_impl()
   for (int s = 0; s < nvs; ++s)
     if (clusters[fragments[s].id].to_flip) spins[s] ^= 1;
 
-  //
-  // measurements
-  //
+  // improved measurement
+  if (IMPROVE()) {
+    typename looper::measurement::collector<estimator_t, qmc_type, BIPARTITE,
+      IMPROVE>::type coll;
+    coll = std::accumulate(estimates.begin(), estimates.end(), coll);
+    coll.commit(measurements, beta(), num_sites(rgraph()), nop, improved_sign);
+    if (SIGN()) measurements["Sign"] << improved_sign;
+  }
+}
+
+
+//
+// measurements
+//
+
+template<typename BIPARTITE, typename IMPROVE>
+void qmc_worker_sse::measure()
+{
+  if (!(is_bipartite() == BIPARTITE() &&
+        use_improved_estimator() == IMPROVE())) return;
 
   int nrs = num_sites(rgraph());
 
   // sign
   double sign = 1;
-  if (SIGN()) {
+  if (is_signed()) {
     int n = 0;
     for (operator_iterator oi = operators.begin(); oi != operators.end(); ++oi)
       if (oi->is_offdiagonal())
         n += (oi->is_bond()) ? bond_sign(oi->pos()) : site_sign(oi->pos());
     if (n & 1 == 1) sign = -1;
-    measurements["Sign"] << (IMPROVE() ? improved_sign : sign);
+    if (!use_improved_estimator()) measurements["Sign"] << sign;
   }
 
   // energy
+  int nop = operators.size();
   double ene = energy_offset() - nop / beta();
 
-  if (IMPROVE()) {
-    typename looper::measurement::collector<estimator_t, qmc_type, BIPARTITE,
-      IMPROVE>::type coll;
-    coll = std::accumulate(estimates.begin(), estimates.end(), coll);
-    coll.commit(measurements, beta(), nrs, nop, improved_sign);
-  }
   looper::measurement::normal_estimator<estimator_t, qmc_type, BIPARTITE,
     IMPROVE>::type::measure(measurements, vgraph(), beta(), nrs, nop, sign,
                             ene, spins, operators, spins_c);

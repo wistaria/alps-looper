@@ -27,6 +27,7 @@
 
 #include "util.h"
 #include <alps/osiris.h>
+#include <alps/scheduler.h>
 #include <boost/throw_exception.hpp>
 #include <stdexcept>
 
@@ -65,7 +66,7 @@ private:
   unsigned int therm_;
 };
 
-} // end namepspace looper
+} // end namespace looper
 
 #ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
 namespace looper {
@@ -80,5 +81,35 @@ inline alps::IDump& operator>>(alps::IDump& dp, looper::mc_steps& mcs)
 #ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
 } // end namespace looper
 #endif
+
+namespace looper {
+
+template<typename GRAPH>
+class mc_worker : public alps::scheduler::LatticeModelMCRun<GRAPH>
+{
+public:
+  typedef GRAPH                                               lattice_graph_t;
+  typedef alps::scheduler::LatticeModelMCRun<lattice_graph_t> super_type;
+
+  mc_worker(alps::ProcessList const& w, alps::Parameters const& p, int n)
+    : super_type(w, p, n), mcs_(p) {}
+  virtual ~mc_worker() {}
+
+  virtual void dostep() { ++mcs_; }
+  virtual void evaluate() = 0;
+
+  virtual void save(alps::ODump& dp) const { super_type::save(dp); dp << mcs_; }
+  virtual void load(alps::IDump& dp) { super_type::load(dp); dp >> mcs_; }
+
+  bool can_work() const { return mcs_.can_work(); }
+  bool is_thermalized() const { return mcs_.is_thermalized(); }
+  double work_done() const { return mcs_.work_done(); }
+  unsigned int mcs() const { return mcs_(); }
+
+private:
+  looper::mc_steps mcs_;
+};
+
+} // end namepspace looper
 
 #endif // LOOPER_MONTECARLO_H

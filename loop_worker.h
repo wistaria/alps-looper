@@ -33,12 +33,10 @@
 #include <alps/alea.h>
 #include <alps/scheduler.h>
 
-class qmc_worker
-  : public alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
+class qmc_worker : public looper::mc_worker<loop_config::lattice_graph_t>
 {
 public:
-  typedef alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
-    super_type;
+  typedef looper::mc_worker<loop_config::lattice_graph_t>  super_type;
   typedef loop_config::lattice_graph_t             lattice_graph_t;
   typedef loop_config::time_t                      time_t;
   typedef loop_config::loop_graph_t                loop_graph_t;
@@ -56,11 +54,6 @@ public:
 
   virtual void save(alps::ODump& dp) const;
   virtual void load(alps::IDump& dp);
-
-  bool can_work() const { return mcs_.can_work(); }
-  bool is_thermalized() const { return mcs_.is_thermalized(); }
-  double work_done() const { return mcs_.work_done(); }
-  unsigned int mcs() const { return mcs_(); }
 
   lattice_graph_t const& rgraph() const { return super_type::graph(); }
   lattice_graph_t const& vgraph() const { return vlat_.graph(); }
@@ -93,9 +86,6 @@ public:
   double total_graph_weight() const { return chooser_.weight(); }
 
 private:
-  // to be dumped/restored
-  looper::mc_steps mcs_;
-
   virtual_lattice vlat_;
 
   double beta_;
