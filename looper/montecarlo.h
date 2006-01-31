@@ -57,6 +57,10 @@ public:
   double work_done() const
   { return is_thermalized() ? (double(mcs_ - therm_) / sweep_.min()) : 0; }
 
+  unsigned int num_thermalization() const { return therm_; }
+  std::pair<unsigned int, unsigned int> num_sweeps() const
+  { return std::make_pair(sweep_.min(), sweep_.max()); }
+
   void save(alps::ODump& dp) const { dp << mcs_ << sweep_ << therm_; }
   void load(alps::IDump& dp) { dp >> mcs_ >> sweep_ >> therm_; }
 
@@ -105,6 +109,10 @@ public:
   bool is_thermalized() const { return mcs_.is_thermalized(); }
   double work_done() const { return mcs_.work_done(); }
   unsigned int mcs() const { return mcs_(); }
+
+  unsigned int num_thermalization() const { return mcs_.num_thermalization(); }
+  std::pair<unsigned int, unsigned int> num_sweeps() const
+  { return mcs_.num_sweeps(); }
 
 private:
   looper::mc_steps mcs_;
