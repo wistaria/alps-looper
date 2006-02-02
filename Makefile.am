@@ -1,6 +1,13 @@
+#
+# subdirectories
+#
+
 SUBDIRS = doc
 if EXIST_CHECK
 SUBDIRS += check
+endif
+if EXIST_EXTRAS
+SUBDIRS += extras
 endif
 if EXIST_TEST
 SUBDIRS += test
@@ -8,21 +15,14 @@ endif
 if EXIST_V31
 SUBDIRS += v3.1
 endif
-SUBDIRS += .
 DIST_SUBDIRS = $(SUBDIRS)
 
-REMOVE_FOR_RELEASE = check
+#
+# files
+#
 
-distdir = alps-looper-$(VERSION)
-
-noinst_PROGRAMS = loop loop_evaluate
-if HAVE_MPI
-noinst_PROGRAMS += loop_mpi
-endif
-check_PROGRAMS = diag loop_ns
-
-include_HEADERS = looper.h
-pkginclude_HEADERS = \
+dist_noinst_HEADERS = \
+	looper.h \
 	looper/cluster.h \
 	looper/evaluate.h \
 	looper/find_bridge.h \
@@ -46,6 +46,16 @@ pkginclude_HEADERS = \
 
 dist_noinst_SCRIPTS = config/run-test config/update_preamble
 dist_noinst_DATA = CITATIONS.txt LICENSE.txt diag.ip diag.op loop_ns.ip loop_ns.op
+
+#
+# programs
+#
+
+noinst_PROGRAMS = loop loop_evaluate
+if HAVE_MPI
+noinst_PROGRAMS += loop_mpi
+endif
+check_PROGRAMS = diag loop_ns
 
 TESTS = $(check_PROGRAMS)
 TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
@@ -74,20 +84,46 @@ update-preamble:
 	  find $(top_srcdir) -type f -name '*\.h' -or -name '*\.C' -or -name '*\.hpp' -or -name '*\.h\.in' | xargs $(top_srcdir)/config/update_preamble; \
 	fi
 
+#
+# release and snapshot
+#
+
+REMOVE_FOR_STANDARD = check extras looper/extras test
+REMOVE_FOR_PRO = check
+
+distdir = alps-looper-$(VERSION)
+distdir_pro = alps-looper-pro-$(VERSION)
+
 .PHONY : release snapshot
 release snapshot :
 	rm -rf $(distdir)
 	$(MAKE) dist
 	tar zxf $(distdir).tar.gz
 	rm -f $(distdir).tar.gz
-	cd $(distdir); rm -rf $(REMOVE_FOR_RELEASE)
+	cd $(distdir); rm -rf $(REMOVE_FOR_PRO)
+	if test "$@" = "snapshot"; then \
+	  date=`date +%Y%m%d`; \
+	  rm -rf alps-looper-pro-$$date; \
+	  mv -f $(distdir) alps-looper-pro-$$date; \
+	  tar zcf alps-looper-pro-$$date.tar.gz alps-looper-pro-$$date; \
+	  mv -f alps-looper-pro-$$date $(distdir); \
+	else \
+	  rm -rf $(distdir_pro); \
+	  mv -f $(distdir) $(distdir_pro); \
+	  tar zcf $(distdir_pro).tar.gz $(distdir_pro); \
+	  mv -f $(distdir_pro) $(distdir); \
+	fi
+	cd $(distdir); rm -rf $(REMOVE_FOR_STANDARD)
 	if test "$@" = "snapshot"; then \
 	  date=`date +%Y%m%d`; \
 	  rm -rf alps-looper-$$date; \
 	  mv -f $(distdir) alps-looper-$$date; \
 	  tar zcf alps-looper-$$date.tar.gz alps-looper-$$date; \
-	  rm -rf alps-looper-$$date; \
+	  mv -f alps-looper-$$date $(distdir); \
 	else \
-	  tar zcf $(distdir).tar.gz $(distdir); \
 	  rm -rf $(distdir); \
+	  mv -f $(distdir) $(distdir); \
+	  tar zcf $(distdir).tar.gz $(distdir); \
+	  mv -f $(distdir) $(distdir); \
 	fi
+	rm -rf $(distdir)

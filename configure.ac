@@ -110,6 +110,12 @@ fi
 AM_CONDITIONAL(EXIST_CHECK, test "$exist_check" = yes)
 AM_CONDITIONAL(BUILD_CHECK, false)
 
+if test -f "$srcdir/extras/Makefile.in"; then
+  exist_extras=yes
+fi
+AM_CONDITIONAL(EXIST_EXTRAS, test "$exist_extras" = yes)
+AM_CONDITIONAL(BUILD_EXTRAS, false)
+
 if test -f "$srcdir/test/Makefile.in"; then
   exist_test=yes
 fi
@@ -130,6 +136,9 @@ AC_CONFIG_FILES(Makefile doc/Makefile)
 
 if test "$exist_check" = yes; then
   AC_CONFIG_FILES(check/Makefile check/site.gp check/chain.gp check/triangle.gp)
+fi
+if test "$exist_extras" = yes; then
+  AC_CONFIG_FILES(extras/Makefile extras/gap/Makefile)
 fi
 if test "$exist_test" = yes; then
   AC_CONFIG_FILES(test/Makefile)

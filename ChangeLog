@@ -1,3 +1,7 @@
+2006-01-26  Synge Todo <wistaria@comp-phys.org>
+
+	* Added extras subdirectory
+	
 2006-01-23  Synge Todo <wistaria@comp-phys.org>
 
 	* Fixed evaluation of non-linear quantities.

@@ -463,7 +463,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CXX CXXFLAGS ac_ct_CXX CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE build build_cpu build_vendor build_os host host_cpu host_vendor host_os EGREP LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL HAVE_MPI_TRUE HAVE_MPI_FALSE DEFAULT_INCLUDES LDADD CPPFLAGS_MPI LDFLAGS_MPI LIBS_MPI EXIST_CHECK_TRUE EXIST_CHECK_FALSE BUILD_CHECK_TRUE BUILD_CHECK_FALSE EXIST_TEST_TRUE EXIST_TEST_FALSE BUILD_TEST_TRUE BUILD_TEST_FALSE EXIST_V31_TRUE EXIST_V31_FALSE BUILD_V31_TRUE BUILD_V31_FALSE LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CXX CXXFLAGS ac_ct_CXX CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE build build_cpu build_vendor build_os host host_cpu host_vendor host_os EGREP LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL HAVE_MPI_TRUE HAVE_MPI_FALSE DEFAULT_INCLUDES LDADD CPPFLAGS_MPI LDFLAGS_MPI LIBS_MPI EXIST_CHECK_TRUE EXIST_CHECK_FALSE BUILD_CHECK_TRUE BUILD_CHECK_FALSE EXIST_EXTRAS_TRUE EXIST_EXTRAS_FALSE BUILD_EXTRAS_TRUE BUILD_EXTRAS_FALSE EXIST_TEST_TRUE EXIST_TEST_FALSE BUILD_TEST_TRUE BUILD_TEST_FALSE EXIST_V31_TRUE EXIST_V31_FALSE BUILD_V31_TRUE BUILD_V31_FALSE LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -18657,6 +18657,30 @@ else
 fi
 
 
+if test -f "$srcdir/extras/Makefile.in"; then
+  exist_extras=yes
+fi
+
+
+if test "$exist_extras" = yes; then
+  EXIST_EXTRAS_TRUE=
+  EXIST_EXTRAS_FALSE='#'
+else
+  EXIST_EXTRAS_TRUE='#'
+  EXIST_EXTRAS_FALSE=
+fi
+
+
+
+if false; then
+  BUILD_EXTRAS_TRUE=
+  BUILD_EXTRAS_FALSE='#'
+else
+  BUILD_EXTRAS_TRUE='#'
+  BUILD_EXTRAS_FALSE=
+fi
+
+
 if test -f "$srcdir/test/Makefile.in"; then
   exist_test=yes
 fi
@@ -18711,6 +18735,10 @@ fi
 
 if test "$exist_check" = yes; then
                                           ac_config_files="$ac_config_files check/Makefile check/site.gp check/chain.gp check/triangle.gp"
+
+fi
+if test "$exist_extras" = yes; then
+                      ac_config_files="$ac_config_files extras/Makefile extras/gap/Makefile"
 
 fi
 if test "$exist_test" = yes; then
@@ -18837,6 +18865,20 @@ if test -z "${BUILD_CHECK_TRUE}" && test -z "${BUILD_CHECK_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"BUILD_CHECK\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"BUILD_CHECK\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${EXIST_EXTRAS_TRUE}" && test -z "${EXIST_EXTRAS_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"EXIST_EXTRAS\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"EXIST_EXTRAS\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${BUILD_EXTRAS_TRUE}" && test -z "${BUILD_EXTRAS_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"BUILD_EXTRAS\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"BUILD_EXTRAS\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -19313,6 +19355,8 @@ do
   "check/site.gp" ) CONFIG_FILES="$CONFIG_FILES check/site.gp" ;;
   "check/chain.gp" ) CONFIG_FILES="$CONFIG_FILES check/chain.gp" ;;
   "check/triangle.gp" ) CONFIG_FILES="$CONFIG_FILES check/triangle.gp" ;;
+  "extras/Makefile" ) CONFIG_FILES="$CONFIG_FILES extras/Makefile" ;;
+  "extras/gap/Makefile" ) CONFIG_FILES="$CONFIG_FILES extras/gap/Makefile" ;;
   "test/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
   "v3.1/Makefile" ) CONFIG_FILES="$CONFIG_FILES v3.1/Makefile" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
@@ -19479,6 +19523,10 @@ s,@EXIST_CHECK_TRUE@,$EXIST_CHECK_TRUE,;t t
 s,@EXIST_CHECK_FALSE@,$EXIST_CHECK_FALSE,;t t
 s,@BUILD_CHECK_TRUE@,$BUILD_CHECK_TRUE,;t t
 s,@BUILD_CHECK_FALSE@,$BUILD_CHECK_FALSE,;t t
+s,@EXIST_EXTRAS_TRUE@,$EXIST_EXTRAS_TRUE,;t t
+s,@EXIST_EXTRAS_FALSE@,$EXIST_EXTRAS_FALSE,;t t
+s,@BUILD_EXTRAS_TRUE@,$BUILD_EXTRAS_TRUE,;t t
+s,@BUILD_EXTRAS_FALSE@,$BUILD_EXTRAS_FALSE,;t t
 s,@EXIST_TEST_TRUE@,$EXIST_TEST_TRUE,;t t
 s,@EXIST_TEST_FALSE@,$EXIST_TEST_FALSE,;t t
 s,@BUILD_TEST_TRUE@,$BUILD_TEST_TRUE,;t t

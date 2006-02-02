@@ -23,34 +23,36 @@
 *
 *****************************************************************************/
 
-#ifndef LOOPER_QWL_HISTOGRAM_H
-#define LOOPER_QWL_HISTOGRAM_H
+#ifndef LOOPER_HISTOGRAM_H
+#define LOOPER_HISTOGRAM_H
 
 #include "alps/scheduler/montecarlo.h"
 #include <vector>
 #include <algorithm>
 #include <valarray>
 
+namespace looper {
+
 template<typename T>
 class histogram
 {
 public:
-  histogram() : data(), left_(0), right_(0) {}
+  histogram() : data_(), left_(0), right_(0) {}
 
   void resize(unsigned int newsize, unsigned int newleft = 0)
   {
-    data.resize(newsize);
+    data_.resize(newsize);
     left_ = newleft;
     right_ = left_ + size() - 1;
     fill(0);
   }
 
-  void fill(T x) { std::fill(data.begin(), data.end(), x); }
+  void fill(T const& x) { std::fill(data_.begin(), data_.end(), x); }
 
   void subtract()
   {
-    T x = data[0];
-    for (unsigned int i=0;i<data.size();++i) data[i] -= x;
+    T x = data_[0];
+    for (unsigned int i = 0; i < data_.size(); ++i) data_[i] -= x;
   }
 
   std::valarray<T> getvalarray(unsigned int min, unsigned int max) const
@@ -58,43 +60,57 @@ public:
     std::valarray<T> dval;
     dval.resize(max - min + 1);
     int count = 0;
-    for (int i = min-left(); i <= max-left(); ++i) {
-      dval[count]=data[i];
-      ++count;
-    }
+    for (int i = min-left(); i <= max-left(); ++i, ++count)
+      dval[count] = data_[i];
     return dval;
   }
 
-  const T& operator[](unsigned int i) const { return data[i - left()]; }
-  T& operator[](unsigned int i) { return data[i - left()]; }
+  const T& operator[](unsigned int i) const { return data_[i - left()]; }
+  T& operator[](unsigned int i) { return data_[i - left()]; }
 
   unsigned int left() const { return left_; }
   unsigned int right() const { return right_; }
-  unsigned int size() const { return data.size(); }
+  unsigned int size() const { return data_.size(); }
   double flatness() const
   {
-    double av = data[0];
-    for (int i = 1; i < size(); ++i) av += data[i];
+    double av = std::accumulate(data_.begin(), data_.end(), 0.);
     av /= size();
-    double diff = std::abs(data[0] - av);
+    double diff = std::abs(data_[0] - av);
     for (int i = 1; i < size(); ++i)
-      if (diff < std::abs(data[i] - av)) diff = std::abs(data[i] - av);
-    return (av > 0 ? diff / av : 0);
+      diff = std::max(diff, std::abs(data_[i] - av));
+    return dip(diff, av);
   }
   T min() const
   {
-    T min = data[0];
-    for (int i = 1; i < size(); ++i) if (data[i] < min) min = data[i];
+    T min = data_[0];
+    for (int i = 1; i < size(); ++i) if (data_[i] < min) min = data_[i];
     return min;
   }
-  void save(alps::ODump& dump) const { dump << data << left_; }
+  void save(alps::ODump& dump) const { dump << data_ << left_; }
   void load(alps::IDump& dump)
-  { dump >> data >> left_; right_ = left_ + size() - 1; }
+  { dump >> data_ >> left_; right_ = left_ + size() - 1; }
 
- private:
-  std::vector<T> data;
+private:
+  std::vector<T> data_;
   unsigned int left_;
   unsigned int right_;
 };
 
-#endif // LOOPER_QWL_HISTOGRAM
+template<typename T>
+class histogram_descriptor
+{
+public:
+  typedef histogram<T> histogram_t;
+  histogram_descriptor(histogram_t& h, unsigned int p) : hist_(h), pos_(p) {}
+  operator<<(T const& x) { hist_[pos_] += x; }
+private:
+  histogram_t& hist_;
+  unsigned int pos_;
+};
+
+template<typename T>
+class histogram_set;
+
+} // end namespace loper
+
+#endif // LOOPER_HISTOGRAM

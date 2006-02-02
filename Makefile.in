@@ -14,6 +14,10 @@
 
 @SET_MAKE@
 
+#
+# subdirectories
+#
+
 
 
 
@@ -40,17 +44,18 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 @EXIST_CHECK_TRUE@am__append_1 = check
-@EXIST_TEST_TRUE@am__append_2 = test
-@EXIST_V31_TRUE@am__append_3 = v3.1
+@EXIST_EXTRAS_TRUE@am__append_2 = extras
+@EXIST_TEST_TRUE@am__append_3 = test
+@EXIST_V31_TRUE@am__append_4 = v3.1
 noinst_PROGRAMS = loop$(EXEEXT) loop_evaluate$(EXEEXT) $(am__EXEEXT_1)
-@HAVE_MPI_TRUE@am__append_4 = loop_mpi
+@HAVE_MPI_TRUE@am__append_5 = loop_mpi
 check_PROGRAMS = diag$(EXEEXT) loop_ns$(EXEEXT)
 DIST_COMMON = README $(am__configure_deps) $(dist_noinst_DATA) \
-	$(dist_noinst_SCRIPTS) $(include_HEADERS) \
-	$(pkginclude_HEADERS) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(top_srcdir)/configure ChangeLog \
-	config/config.guess config/config.sub config/depcomp \
-	config/install-sh config/ltmain.sh config/missing
+	$(dist_noinst_HEADERS) $(dist_noinst_SCRIPTS) \
+	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
+	$(top_srcdir)/configure ChangeLog config/config.guess \
+	config/config.sub config/depcomp config/install-sh \
+	config/ltmain.sh config/missing
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -118,17 +123,7 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	pdf-recursive ps-recursive uninstall-info-recursive \
 	uninstall-recursive
 DATA = $(dist_noinst_DATA)
-am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
-am__vpath_adj = case $$p in \
-    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
-    *) f=$$p;; \
-  esac;
-am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
-am__installdirs = "$(DESTDIR)$(includedir)" \
-	"$(DESTDIR)$(pkgincludedir)"
-includeHEADERS_INSTALL = $(INSTALL_HEADER)
-pkgincludeHEADERS_INSTALL = $(INSTALL_HEADER)
-HEADERS = $(include_HEADERS) $(pkginclude_HEADERS)
+HEADERS = $(dist_noinst_HEADERS)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -152,6 +147,8 @@ AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
 BUILD_CHECK_FALSE = @BUILD_CHECK_FALSE@
 BUILD_CHECK_TRUE = @BUILD_CHECK_TRUE@
+BUILD_EXTRAS_FALSE = @BUILD_EXTRAS_FALSE@
+BUILD_EXTRAS_TRUE = @BUILD_EXTRAS_TRUE@
 BUILD_TEST_FALSE = @BUILD_TEST_FALSE@
 BUILD_TEST_TRUE = @BUILD_TEST_TRUE@
 BUILD_V31_FALSE = @BUILD_V31_FALSE@
@@ -178,6 +175,8 @@ EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 EXIST_CHECK_FALSE = @EXIST_CHECK_FALSE@
 EXIST_CHECK_TRUE = @EXIST_CHECK_TRUE@
+EXIST_EXTRAS_FALSE = @EXIST_EXTRAS_FALSE@
+EXIST_EXTRAS_TRUE = @EXIST_EXTRAS_TRUE@
 EXIST_TEST_FALSE = @EXIST_TEST_FALSE@
 EXIST_TEST_TRUE = @EXIST_TEST_TRUE@
 EXIST_V31_FALSE = @EXIST_V31_FALSE@
@@ -259,12 +258,15 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-SUBDIRS = doc $(am__append_1) $(am__append_2) $(am__append_3) .
+SUBDIRS = doc $(am__append_1) $(am__append_2) $(am__append_3) \
+	$(am__append_4)
 DIST_SUBDIRS = $(SUBDIRS)
-REMOVE_FOR_RELEASE = check
-distdir = alps-looper-$(VERSION)
-include_HEADERS = looper.h
-pkginclude_HEADERS = \
+
+#
+# files
+#
+dist_noinst_HEADERS = \
+	looper.h \
 	looper/cluster.h \
 	looper/evaluate.h \
 	looper/find_bridge.h \
@@ -303,6 +305,14 @@ loop_mpi_LDFLAGS = @LDFLAGS_MPI@
 loop_mpi_LDADD = @LIBS_MPI@
 loop_ns_SOURCES = loop_ns.C loop_config.h $(SRC)
 diag_SOURCES = diag.C
+
+#
+# release and snapshot
+#
+REMOVE_FOR_STANDARD = check extras looper/extras test
+REMOVE_FOR_PRO = check
+distdir = alps-looper-$(VERSION)
+distdir_pro = alps-looper-pro-$(VERSION)
 all: all-recursive
 
 .SUFFIXES:
@@ -490,40 +500,6 @@ clean-libtool:
 distclean-libtool:
 	-rm -f libtool
 uninstall-info-am:
-install-includeHEADERS: $(include_HEADERS)
-	@$(NORMAL_INSTALL)
-	test -z "$(includedir)" || $(mkdir_p) "$(DESTDIR)$(includedir)"
-	@list='$(include_HEADERS)'; for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  f=$(am__strip_dir) \
-	  echo " $(includeHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(includedir)/$$f'"; \
-	  $(includeHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(includedir)/$$f"; \
-	done
-
-uninstall-includeHEADERS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(include_HEADERS)'; for p in $$list; do \
-	  f=$(am__strip_dir) \
-	  echo " rm -f '$(DESTDIR)$(includedir)/$$f'"; \
-	  rm -f "$(DESTDIR)$(includedir)/$$f"; \
-	done
-install-pkgincludeHEADERS: $(pkginclude_HEADERS)
-	@$(NORMAL_INSTALL)
-	test -z "$(pkgincludedir)" || $(mkdir_p) "$(DESTDIR)$(pkgincludedir)"
-	@list='$(pkginclude_HEADERS)'; for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  f=$(am__strip_dir) \
-	  echo " $(pkgincludeHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(pkgincludedir)/$$f'"; \
-	  $(pkgincludeHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(pkgincludedir)/$$f"; \
-	done
-
-uninstall-pkgincludeHEADERS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(pkginclude_HEADERS)'; for p in $$list; do \
-	  f=$(am__strip_dir) \
-	  echo " rm -f '$(DESTDIR)$(pkgincludedir)/$$f'"; \
-	  rm -f "$(DESTDIR)$(pkgincludedir)/$$f"; \
-	done
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run `make' without going through this Makefile.
@@ -879,9 +855,6 @@ check: check-recursive
 all-am: Makefile $(PROGRAMS) $(SCRIPTS) $(DATA) $(HEADERS)
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(includedir)" "$(DESTDIR)$(pkgincludedir)"; do \
-	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
-	done
 install: install-recursive
 install-exec: install-exec-recursive
 install-data: install-data-recursive
@@ -928,7 +901,7 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-includeHEADERS install-pkgincludeHEADERS
+install-data-am:
 
 install-exec-am:
 
@@ -958,8 +931,7 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-includeHEADERS uninstall-info-am \
-	uninstall-pkgincludeHEADERS
+uninstall-am: uninstall-info-am
 
 uninstall-info: uninstall-info-recursive
 
@@ -972,15 +944,13 @@ uninstall-info: uninstall-info-recursive
 	distclean-tags distcleancheck distdir distuninstallcheck dvi \
 	dvi-am html html-am info info-am install install-am \
 	install-data install-data-am install-exec install-exec-am \
-	install-includeHEADERS install-info install-info-am \
-	install-man install-pkgincludeHEADERS install-strip \
+	install-info install-info-am install-man install-strip \
 	installcheck installcheck-am installdirs installdirs-am \
 	maintainer-clean maintainer-clean-generic \
 	maintainer-clean-recursive mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool mostlyclean-recursive \
 	pdf pdf-am ps ps-am tags tags-recursive uninstall uninstall-am \
-	uninstall-includeHEADERS uninstall-info-am \
-	uninstall-pkgincludeHEADERS
+	uninstall-info-am
 
 
 .PHONY : test tests
@@ -998,17 +968,33 @@ release snapshot :
 	$(MAKE) dist
 	tar zxf $(distdir).tar.gz
 	rm -f $(distdir).tar.gz
-	cd $(distdir); rm -rf $(REMOVE_FOR_RELEASE)
+	cd $(distdir); rm -rf $(REMOVE_FOR_PRO)
+	if test "$@" = "snapshot"; then \
+	  date=`date +%Y%m%d`; \
+	  rm -rf alps-looper-pro-$$date; \
+	  mv -f $(distdir) alps-looper-pro-$$date; \
+	  tar zcf alps-looper-pro-$$date.tar.gz alps-looper-pro-$$date; \
+	  mv -f alps-looper-pro-$$date $(distdir); \
+	else \
+	  rm -rf $(distdir_pro); \
+	  mv -f $(distdir) $(distdir_pro); \
+	  tar zcf $(distdir_pro).tar.gz $(distdir_pro); \
+	  mv -f $(distdir_pro) $(distdir); \
+	fi
+	cd $(distdir); rm -rf $(REMOVE_FOR_STANDARD)
 	if test "$@" = "snapshot"; then \
 	  date=`date +%Y%m%d`; \
 	  rm -rf alps-looper-$$date; \
 	  mv -f $(distdir) alps-looper-$$date; \
 	  tar zcf alps-looper-$$date.tar.gz alps-looper-$$date; \
-	  rm -rf alps-looper-$$date; \
+	  mv -f alps-looper-$$date $(distdir); \
 	else \
-	  tar zcf $(distdir).tar.gz $(distdir); \
 	  rm -rf $(distdir); \
+	  mv -f $(distdir) $(distdir); \
+	  tar zcf $(distdir).tar.gz $(distdir); \
+	  mv -f $(distdir) $(distdir); \
 	fi
+	rm -rf $(distdir)
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
