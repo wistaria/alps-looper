@@ -26,6 +26,7 @@
 #include "looper/evalute.h"
 #include "looper/find_bridge.h"
 #include "looper/graph.h"
+#include "looper/histogram.h"
 #include "looper/lapack.h"
 #include "looper/lattice.h"
 #include "looper/location.h"

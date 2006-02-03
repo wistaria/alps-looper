@@ -27,6 +27,7 @@ dist_noinst_HEADERS = \
 	looper/evaluate.h \
 	looper/find_bridge.h \
 	looper/graph.h \
+	looper/histogram.h \
 	looper/lapack.h \
 	looper/lattice.h \
 	looper/location.h \
@@ -35,7 +36,6 @@ dist_noinst_HEADERS = \
 	looper/montecarlo.h \
 	looper/operator.h \
 	looper/permutation.h \
-	looper/qwl_histogram.h \
 	looper/random_choice.h \
 	looper/time.h \
 	looper/type.h \
