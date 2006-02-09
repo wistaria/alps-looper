@@ -24,7 +24,7 @@ nodist_gap_mpi_SOURCES = $(SRC)
        gap_mpi_CPPFLAGS = @CPPFLAGS_MPI@ -DLOOP_CONFIG_HEADER=\"gap_config.h\"
        gap_mpi_LDFLAGS = @LDFLAGS_MPI@
        gap_mpi_LDADD = @LIBS_MPI@
-nodist_gap_evaluate_SOURCES = $(SRC_EVALUTE)
+nodist_gap_evaluate_SOURCES = $(SRC_EVALUATE)
        gap_evaluate_CPPFLAGS = @CPPFLAGS@ -DLOOP_CONFIG_HEADER=\"gap_config.h\"
 nodist_gap_ns_SOURCES = $(SRC_NS)
        gap_ns_CPPFLAGS = @CPPFLAGS@ -DLOOP_CONFIG_HEADER=\"gap_config.h\"
