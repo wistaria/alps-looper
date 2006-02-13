@@ -87,9 +87,6 @@ qmc_worker::qmc_worker(alps::ProcessList const& w,
 
 void qmc_worker::dostep()
 {
-  if (!super_type::can_work()) return;
-  super_type::dostep();
-
   measurements["Inverse Temperature"] << beta_;
   measurements["Number of Sites"] << (double)num_sites(rgraph());
 }

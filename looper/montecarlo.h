@@ -48,7 +48,8 @@ public:
   }
 
   mc_steps& operator++() { ++mcs_; return *this; }
-  mc_steps operator++(int) { mc_steps tmp = *this; ++mcs_; return tmp; }
+  mc_steps operator++(int)
+  { mc_steps tmp = *this; this->operator++(); return tmp; }
 
   unsigned int operator()() const { return mcs_; }
   bool can_work() const
@@ -86,38 +87,36 @@ inline alps::IDump& operator>>(alps::IDump& dp, looper::mc_steps& mcs)
 } // end namespace looper
 #endif
 
-namespace looper {
 
-template<typename GRAPH>
-class mc_worker : public alps::scheduler::LatticeModelMCRun<GRAPH>
+class wl_steps
 {
 public:
-  typedef GRAPH                                               lattice_graph_t;
-  typedef alps::scheduler::LatticeModelMCRun<lattice_graph_t> super_type;
+  wl_steps() {}
+  wl_steps(alps::Parameters const& p)
+    : steps_(0), logf_steps_(0), block_steps_(0), done_(false),
+      num_logf_steps_(p.value_or_default("WANG_LANDAU_STEPS", 16)),
+      num_block_steps_(p.value_or_default("BLOCK_STEPS", 10000))
+  {}
 
-  mc_worker(alps::ProcessList const& w, alps::Parameters const& p, int n)
-    : super_type(w, p, n), mcs_(p) {}
-  virtual ~mc_worker() {}
+  wl_steps& operator++()
+  { ++steps_; ++logf_steps_; ++block_steps_; return *this; }
+  wl_steps operator++(int)
+  { qwl_steps tmp = *this; this->operator++(); return tmp; }
+  unsigned int operator()() const { return steps_; }
 
-  virtual void dostep() { ++mcs_; }
-  virtual void evaluate() = 0;
+  bool is_thermalized() const { return steps_; }
+  double work_done() const { return done_ ? 1 : 0; }
 
-  virtual void save(alps::ODump& dp) const { super_type::save(dp); dp << mcs_; }
-  virtual void load(alps::IDump& dp) { super_type::load(dp); dp >> mcs_; }
-
-  bool can_work() const { return mcs_.can_work(); }
-  bool is_thermalized() const { return mcs_.is_thermalized(); }
-  double work_done() const { return mcs_.work_done(); }
-  unsigned int mcs() const { return mcs_(); }
-
-  unsigned int num_thermalization() const { return mcs_.num_thermalization(); }
-  std::pair<unsigned int, unsigned int> num_sweeps() const
-  { return mcs_.num_sweeps(); }
+  void save(alps::ODump& dp) const { dp << steps_ << logf_steps_ << block_steps_; }
+  void load(alps::IDump& dp) { dp >> steps_ >> logf_steps_ >> block_steps_; }
 
 private:
-  looper::mc_steps mcs_;
+  unsigned int steps_;
+  unsigned int logf_steps_;
+  unsigned int block_steps_;
+  bool done_;
+  unsigned int num_logf_steps_;
+  unsigned int num_block_steps_;
 };
-
-} // end namepspace looper
 
 #endif // LOOPER_MONTECARLO_H

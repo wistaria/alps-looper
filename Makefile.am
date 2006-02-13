@@ -63,7 +63,8 @@ TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
 SRC = loop_factory.h loop_factory.C \
 	loop_worker.h loop_worker.C \
 	loop_worker_pi.C \
-	loop_worker_sse.C
+	loop_worker_sse.C \
+	loop_worker_swl.C
 
 loop_SOURCES = loop.C loop_config.h $(SRC)
 loop_evaluate_SOURCES = loop_evaluate.C loop_config.h

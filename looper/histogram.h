@@ -30,6 +30,9 @@
 #include <boost/call_traits.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <algorithm>
+#include <cmath>
+#include <map>
+#include <string>
 #include <valarray>
 #include <vector>
 
@@ -39,8 +42,6 @@ template<typename T>
 class histogram
 {
 public:
-  using namespace boost::lambda;
-
   histogram() : left_(0) {}
 
   void resize(unsigned int size, unsigned int left = 0)
@@ -54,7 +55,7 @@ public:
   { std::fill(data_.begin(), data_.end(), x); }
 
   void subtract()
-  { std::for_each(data_.begin(), data_.end(), _1 -= data_[0]); }
+  { std::for_each(data_.begin(), data_.end(), boost::lambda::_1 -= data_[0]); }
 
   std::valarray<T> get_array(unsigned int min, unsigned int max) const
   {
@@ -102,19 +103,24 @@ class histogram_descriptor
 public:
   typedef histogram<T> histogram_t;
   histogram_descriptor(histogram_t& h, unsigned int p) : hist_(h), pos_(p) {}
-  operator<<(T const& x) { hist_[pos_] += x; }
+  histogram_descriptor& operator<<(T const& x)
+  {
+    hist_[pos_] += x;
+    return *this;
+  }
 private:
   histogram_t& hist_;
   unsigned int pos_;
 };
 
 template<typename T>
-class histogram_set : public std::map<histogram<T> >
+class histogram_set : public std::map<std::string, histogram<T> >
 {
 public:
-  typedef std::map<histogram<T> > super_type;
-  typedef histogram<T> histogram_type;
-  typedef histogram_descriptor<T> descriptor_type;
+  typedef std::map<std::string, histogram<T> > super_type;
+  typedef histogram<T>                         histogram_type;
+  typedef histogram_descriptor<T>              descriptor_type;
+
   histogram_set() : super_type() {}
   histogram_set(histogram_set const& h) : super_type(h) {}
   ~histogram_set() {}

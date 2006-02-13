@@ -29,14 +29,15 @@
 
 #include <looper/evaluate.h>
 #include <looper/model.h>
-#include <looper/montecarlo.h>
 #include <alps/alea.h>
 #include <alps/scheduler.h>
 
-class qmc_worker : public looper::mc_worker<loop_config::lattice_graph_t>
+class qmc_worker
+  : public alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
 {
 public:
-  typedef looper::mc_worker<loop_config::lattice_graph_t>  super_type;
+  typedef alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
+                                                   super_type;
   typedef loop_config::lattice_graph_t             lattice_graph_t;
   typedef loop_config::time_t                      time_t;
   typedef loop_config::loop_graph_t                loop_graph_t;

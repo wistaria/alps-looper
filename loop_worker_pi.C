@@ -25,6 +25,7 @@
 #include "loop_factory.h"
 #include "loop_worker.h"
 #include <looper/cluster.h>
+#include <looper/montecarlo.h>
 #include <looper/operator.h>
 #include <looper/permutation.h>
 #include <looper/type.h>
@@ -48,12 +49,15 @@ public:
   typedef looper::measurement::estimate<estimator_t>::type estimate_t;
 
   qmc_worker_pi(alps::ProcessList const& w, alps::Parameters const& p, int n);
-  virtual void dostep();
+  void dostep();
+
+  bool is_thermalized() const { return mcs.is_thermalized(); }
+  double work_done() const { return mcs.work_done(); }
 
   void save(alps::ODump& dp) const
-  { super_type::save(dp); dp << spins << operators; }
+  { super_type::save(dp); dp << mcs << spins << operators; }
   void load(alps::IDump& dp)
-  { super_type::load(dp); dp >> spins >> operators; }
+  { super_type::load(dp); dp >> mcs >> spins >> operators; }
 
 protected:
   void build();
@@ -63,6 +67,7 @@ protected:
   void measure();
 
 private:
+  looper::mc_steps mcs;
   std::vector<int> spins;
   std::vector<local_operator_t> operators;
 
@@ -77,7 +82,7 @@ private:
 
 qmc_worker_pi::qmc_worker_pi(alps::ProcessList const& w,
                              alps::Parameters const& p, int n)
-  : super_type(w, p, n, looper::is_path_integral<qmc_type>::type())
+  : super_type(w, p, n, looper::is_path_integral<qmc_type>::type()), mcs(p)
 {
   if (w == alps::ProcessList()) return;
 
@@ -104,7 +109,8 @@ void qmc_worker_pi::dostep()
 {
   namespace mpl = boost::mpl;
 
-  if (!can_work()) return;
+  if (!mcs.can_work()) return;
+  ++mcs;
   super_type::dostep();
 
   build();

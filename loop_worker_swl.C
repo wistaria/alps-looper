@@ -25,16 +25,17 @@
 #include "loop_factory.h"
 #include "loop_worker.h"
 #include <looper/cluster.h>
+#include <looper/histogram.h>
+#include <looper/montecarlo.h>
 #include <looper/operator.h>
 #include <looper/permutation.h>
-#include <looper/qwl_histogram.h>
 #include <looper/type.h>
 #include <alps/fixed_capacity_vector.h>
 
-class qmc_worker_qwl_pi : public qmc_worker
+class qmc_worker_swl : public qmc_worker
 {
 public:
-  typedef looper::path_integral         qmc_type;
+  typedef looper::sse                   qmc_type;
   typedef qmc_worker                    super_type;
 
   typedef looper::local_operator<qmc_type, loop_graph_t, time_t>
@@ -48,13 +49,16 @@ public:
   typedef loop_config::estimator_t      estimator_t;
   typedef looper::measurement::estimate<estimator_t>::type estimate_t;
 
-  qmc_worker_qwl_pi(alps::ProcessList const& w, alps::Parameters const& p, int n);
-  virtual void dostep();
+  qmc_worker_swl(alps::ProcessList const& w, alps::Parameters const& p, int n);
+  void dostep();
+
+  bool is_thermalized() const { return mcs.is_thermalized(); }
+  double work_done() const { return mcs.work_done(); }
 
   void save(alps::ODump& dp) const
-  { super_type::save(dp); dp << spins << operators; }
+  { super_type::save(dp); dp << mcs << spins << operators; }
   void load(alps::IDump& dp)
-  { super_type::load(dp); dp >> spins >> operators; }
+  { super_type::load(dp); dp >> mcs >> spins >> operators; }
 
 protected:
   void build();
@@ -64,6 +68,7 @@ protected:
   void measure();
 
 private:
+  looper::wl_steps mcs;
   std::vector<int> spins;
   std::vector<local_operator_t> operators;
 
@@ -74,13 +79,18 @@ private:
   std::vector<int> current;
   std::vector<cluster_info_t> clusters;
   std::vector<estimate_t> estimates;
+
+  looper::histogram_set<double> histograms;
 };
 
-qmc_worker_qwl_pi::qmc_worker_qwl_pi(alps::ProcessList const& w,
-                             alps::Parameters const& p, int n)
-  : super_type(w, p, n, looper::is_path_integral<qmc_type>::type())
+qmc_worker_swl::qmc_worker_swl(alps::ProcessList const& w,
+                               alps::Parameters const& p, int n)
+  : super_type(w, p, n, looper::is_path_integral<qmc_type>::type()), mcs(p)
 {
   if (w == alps::ProcessList()) return;
+
+  if (has_field())
+    boost::throw_exception(std::logic_error("longitudinal field is not supported in SSE representation"));
 
   //
   // initialize configuration
@@ -101,28 +111,21 @@ qmc_worker_qwl_pi::qmc_worker_qwl_pi(alps::ProcessList const& w,
                           use_improved_estimator());
 }
 
-void qmc_worker_qwl_pi::dostep()
+void qmc_worker_swl::dostep()
 {
   namespace mpl = boost::mpl;
 
-  if (!can_work()) return;
+  if (!mcs.can_work()) return;
+  ++mcs;
   super_type::dostep();
 
   build();
 
   //   BIPARTITE    FIELD        SIGN         IMPROVE
-  flip<mpl::true_,  mpl::true_,  mpl::true_,  mpl::true_ >();
-  flip<mpl::true_,  mpl::true_,  mpl::true_,  mpl::false_>();
-  flip<mpl::true_,  mpl::true_,  mpl::false_, mpl::true_ >();
-  flip<mpl::true_,  mpl::true_,  mpl::false_, mpl::false_>();
   flip<mpl::true_,  mpl::false_, mpl::true_,  mpl::true_ >();
   flip<mpl::true_,  mpl::false_, mpl::true_,  mpl::false_>();
   flip<mpl::true_,  mpl::false_, mpl::false_, mpl::true_ >();
   flip<mpl::true_,  mpl::false_, mpl::false_, mpl::false_>();
-  flip<mpl::false_, mpl::true_,  mpl::true_,  mpl::true_ >();
-  flip<mpl::false_, mpl::true_,  mpl::true_,  mpl::true_ >();
-  flip<mpl::false_, mpl::true_,  mpl::false_, mpl::true_ >();
-  flip<mpl::false_, mpl::true_,  mpl::false_, mpl::false_>();
   flip<mpl::false_, mpl::false_, mpl::true_,  mpl::true_ >();
   flip<mpl::false_, mpl::false_, mpl::true_,  mpl::true_ >();
   flip<mpl::false_, mpl::false_, mpl::false_, mpl::true_ >();
@@ -140,9 +143,10 @@ void qmc_worker_qwl_pi::dostep()
 // diagonal update and cluster construction
 //
 
-void qmc_worker_qwl_pi::build()
+void qmc_worker_swl::build()
 {
   // initialize spin & operator information
+  int nop = operators.size();
   std::copy(spins.begin(), spins.end(), spins_c.begin());
   std::swap(operators, operators_p); operators.resize(0);
 
@@ -151,32 +155,51 @@ void qmc_worker_qwl_pi::build()
   fragments.resize(0); fragments.resize(nvs);
   for (int s = 0; s < nvs; ++s) current[s] = s;
 
-  double t = advance();
+  double bw = beta() * total_graph_weight();
+  bool try_gap = true;
   for (operator_iterator opi = operators_p.begin();
-       t < 1 || opi != operators_p.end();) {
+       try_gap || opi != operators_p.end();) {
 
     // diagonal update & labeling
-    if (opi == operators_p.end() || t < opi->time()) {
-      loop_graph_t g = choose_graph();
-      if (((is_bond(g) &&
-            is_compatible(g, spins_c[vsource(pos(g), vlattice())],
-                          spins_c[vtarget(pos(g), vlattice())])) ||
-          (is_site(g) && is_compatible(g, spins_c[pos(g)])))) {
-        operators.push_back(local_operator_t(g, t));
-        t += advance();
+    if (try_gap) {
+      if ((nop + 1) * random() < bw) {
+        loop_graph_t g = choose_graph();
+        if ((is_bond(g) &&
+             is_compatible(g, spins_c[vsource(pos(g), vlattice())],
+                           spins_c[vtarget(pos(g), vlattice())])) ||
+            (is_site(g) && is_compatible(g, spins_c[pos(g)]))) {
+          operators.push_back(local_operator_t(g));
+          ++nop;
+        } else {
+          try_gap = false;
+          continue;
+        }
       } else {
-        t += advance();
+        try_gap = false;
         continue;
       }
     } else {
       if (opi->is_diagonal()) {
-        ++opi;
-        continue;
+        if (bw * random() < nop) {
+          --nop;
+          ++opi;
+          continue;
+        } else {
+          if (opi->is_site()) {
+            opi->assign_graph(choose_diagonal(opi->loc(),
+              spins_c[opi->pos()]));
+          } else {
+            opi->assign_graph(choose_diagonal(opi->loc(),
+              spins_c[vsource(opi->pos(), vlattice())],
+              spins_c[vtarget(opi->pos(), vlattice())]));
+          }
+        }
       } else {
         opi->assign_graph(choose_offdiagonal(opi->loc()));
-        operators.push_back(*opi);
-        ++opi;
       }
+      operators.push_back(*opi);
+      ++opi;
+      try_gap = true;
     }
 
     operator_iterator oi = operators.end() - 1;
@@ -224,7 +247,7 @@ void qmc_worker_qwl_pi::build()
 //
 
 template<typename BIPARTITE, typename FIELD, typename SIGN, typename IMPROVE>
-void qmc_worker_qwl_pi::flip()
+void qmc_worker_swl::flip()
 {
   if (!(is_bipartite() == BIPARTITE() &&
         has_field() == FIELD() &&
@@ -249,40 +272,32 @@ void qmc_worker_qwl_pi::flip()
   typename looper::measurement::accumulator<estimator_t, lattice_graph_t,
     time_t, cluster_fragment_t, BIPARTITE, IMPROVE>::type
     accum(estimates, fragments, vgraph());
+  double t = 0;
   for (std::vector<local_operator_t>::iterator oi = operators.begin();
-       oi != operators.end(); ++oi) {
-    time_t t = oi->time();
+       oi != operators.end(); ++oi, t += 1) {
     if (oi->is_bond()) {
       int s0 = vsource(oi->pos(), vlattice());
       int s1 = vtarget(oi->pos(), vlattice());
       weight.bond_sign(oi->loop_0(), oi->loop_1(), oi->pos());
-      weight.term(oi->loop_l0(), t, s0, spins_c[s0]);
-      weight.term(oi->loop_l1(), t, s1, spins_c[s1]);
       accum.term(oi->loop_l0(), t, s0, spins_c[s0]);
       accum.term(oi->loop_l1(), t, s1, spins_c[s1]);
       if (oi->is_offdiagonal()) {
         spins_c[s0] ^= 1;
         spins_c[s1] ^= 1;
       }
-      weight.start(oi->loop_u0(), t, s0, spins_c[s0]);
-      weight.start(oi->loop_u1(), t, s1, spins_c[s1]);
       accum.start(oi->loop_u0(), t, s0, spins_c[s0]);
       accum.start(oi->loop_u1(), t, s1, spins_c[s1]);
     } else {
       int s = oi->pos();
       weight.site_sign(oi->loop_0(), oi->loop_1(), oi->pos());
-      weight.term(oi->loop_l(), t, s, spins_c[s]);
       accum.term(oi->loop_l(), t, s, spins_c[s]);
       if (oi->is_offdiagonal()) spins_c[s] ^= 1;
-      weight.start(oi->loop_u(), t, s, spins_c[s]);
       accum.start(oi->loop_u(), t, s, spins_c[s]);
     }
   }
   for (unsigned int s = 0; s < nvs; ++s) {
-    weight.start(s, time_t(0), s, spins[s]);
-    weight.term(current[s], time_t(1), s, spins_c[s]);
-    accum.start(s, time_t(0), s, spins[s]);
-    accum.term(current[s], time_t(1), s, spins_c[s]);
+    accum.start(s, 0, s, spins[s]);
+    accum.term(current[s], nop, s, spins_c[s]);
     accum.at_zero(s, s, spins[s]);
   }
 
@@ -290,7 +305,7 @@ void qmc_worker_qwl_pi::flip()
   double improved_sign = 1;
   for (std::vector<cluster_info_t>::iterator ci = clusters.begin();
        ci != clusters.end(); ++ci) {
-    ci->to_flip = ((2*random()-1) < (FIELD() ? std::tanh(ci->weight) : 0));
+    ci->to_flip = (2*random()-1 < 0);
     if (SIGN() && IMPROVE()) if (ci->sign & 1 == 1) improved_sign = 0;
   }
 
@@ -317,7 +332,7 @@ void qmc_worker_qwl_pi::flip()
 //
 
 template<typename BIPARTITE, typename IMPROVE>
-void qmc_worker_qwl_pi::measure()
+void qmc_worker_swl::measure()
 {
   if (!(is_bipartite() == BIPARTITE() &&
         use_improved_estimator() == IMPROVE())) return;
@@ -338,12 +353,6 @@ void qmc_worker_qwl_pi::measure()
   // energy
   int nop = operators.size();
   double ene = energy_offset() - nop / beta();
-  if (has_field()) {
-    for (std::vector<cluster_info_t>::iterator ci = clusters.begin();
-         ci != clusters.end(); ++ci)
-      if (ci->to_flip) ene -= ci->weight;
-      else ene += ci->weight;
-  }
 
   looper::measurement::normal_estimator<estimator_t, qmc_type, BIPARTITE,
     IMPROVE>::type::measure(measurements, vgraph(), beta(), nrs, nop, sign,
@@ -357,6 +366,6 @@ void qmc_worker_qwl_pi::measure()
 namespace {
 
 const bool registered =
-  qmc_factory::instance()->register_worker<qmc_worker_qwl_pi>("path integral quantum Wang-Langau");
+  qmc_factory::instance()->register_worker<qmc_worker_swl>("SSE QWL");
 
 }
