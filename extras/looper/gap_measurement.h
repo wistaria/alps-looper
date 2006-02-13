@@ -33,8 +33,9 @@
 
 struct gap_estimator : public looper::base_estimator
 {
-  static void initialize(alps::ObservableSet& m, bool is_bipartite,
-                         bool is_signed, bool use_improved_estimator)
+  template<class T>
+  static void initialize(T& m, bool is_bipartite, bool is_signed,
+                         bool use_improved_estimator)
   {
     using looper::measurement::add_measurement;
     if (is_bipartite)

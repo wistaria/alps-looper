@@ -87,6 +87,7 @@ inline alps::IDump& operator>>(alps::IDump& dp, looper::mc_steps& mcs)
 } // end namespace looper
 #endif
 
+namespace looper {
 
 class wl_steps
 {
@@ -101,14 +102,16 @@ public:
   wl_steps& operator++()
   { ++steps_; ++logf_steps_; ++block_steps_; return *this; }
   wl_steps operator++(int)
-  { qwl_steps tmp = *this; this->operator++(); return tmp; }
+  { wl_steps tmp = *this; this->operator++(); return tmp; }
   unsigned int operator()() const { return steps_; }
-
+  bool can_work() const { true; }
   bool is_thermalized() const { return steps_; }
   double work_done() const { return done_ ? 1 : 0; }
 
-  void save(alps::ODump& dp) const { dp << steps_ << logf_steps_ << block_steps_; }
-  void load(alps::IDump& dp) { dp >> steps_ >> logf_steps_ >> block_steps_; }
+  void save(alps::ODump& dp) const
+  { dp << steps_ << logf_steps_ << block_steps_; }
+  void load(alps::IDump& dp)
+  { dp >> steps_ >> logf_steps_ >> block_steps_; }
 
 private:
   unsigned int steps_;
@@ -118,5 +121,21 @@ private:
   unsigned int num_logf_steps_;
   unsigned int num_block_steps_;
 };
+
+} // end namespace looper
+
+#ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
+namespace looper {
+#endif
+
+inline alps::ODump& operator<<(alps::ODump& dp, looper::wl_steps const& mcs)
+{ mcs.save(dp); return dp; }
+
+inline alps::IDump& operator>>(alps::IDump& dp, looper::wl_steps& mcs)
+{ mcs.load(dp); return dp; }
+
+#ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
+} // end namespace looper
+#endif
 
 #endif // LOOPER_MONTECARLO_H

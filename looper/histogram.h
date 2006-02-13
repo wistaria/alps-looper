@@ -26,6 +26,8 @@
 #ifndef LOOPER_HISTOGRAM_H
 #define LOOPER_HISTOGRAM_H
 
+#include "util.h"
+
 #include <alps/osiris.h>
 #include <boost/call_traits.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -127,6 +129,8 @@ public:
 
   void add_histogram(std::string const& name)
   { super_type::operator[](name) = histogram_type(); }
+  bool has(std::string const& name) const
+  { return super_type::end() != super_type::find(name); }
 
   void set_index(unsigned int p) { index_ = p; }
 
@@ -136,6 +140,12 @@ public:
 private:
   unsigned int index_;
 };
+
+
+template<typename T>
+void add_measurement(histogram_set<T>& h, std::string const& name,
+                     bool is_signed = false)
+{ if (!h.has(name)) h.add_histogram(name); }
 
 } // end namespace loper
 

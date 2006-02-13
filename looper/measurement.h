@@ -37,8 +37,6 @@
 
 namespace looper {
 
-namespace measurement {
-
 //
 // helper functions
 //
@@ -49,6 +47,8 @@ inline void add_measurement(alps::ObservableSet& m, std::string const& name,
   if (!m.has(name))
     m << make_observable(alps::RealObservable(name), is_signed);
 }
+
+namespace measurement {
 
 // for path integral
 template<typename OP>
@@ -107,7 +107,8 @@ struct normal_estimator
 
 struct base_estimator
 {
-  static void initialize(alps::ObservableSet& /* m */,
+  template<class T>
+  static void initialize(T& /* m */,
                          bool /* is_bipartite */,
                          bool /* is_signed */,
                          bool /* use_improved_estimator */) {}
@@ -196,8 +197,9 @@ struct estimator_adaptor : public base_estimator
   typedef ESTIMATOR1 estimator1;
   typedef ESTIMATOR2 estimator2;
 
-  static void initialize(alps::ObservableSet& m, bool is_bipartite,
-                         bool is_signed, bool use_improved_estimator)
+  template<class T>
+  static void initialize(T& m, bool is_bipartite, bool is_signed,
+                         bool use_improved_estimator)
   {
     estimator1::initialize(m, is_bipartite, is_signed, use_improved_estimator);
     estimator2::initialize(m, is_bipartite, is_signed, use_improved_estimator);
@@ -294,10 +296,10 @@ struct estimator_adaptor : public base_estimator
 
 struct energy_estimator : public base_estimator
 {
-  static void initialize(alps::ObservableSet& m, bool /* is_bipartite */,
-                         bool is_signed, bool /* use_improved_estimator */)
+  template<class T>
+  static void initialize(T& m, bool /* is_bipartite */, bool is_signed,
+                         bool /* use_improved_estimator */)
   {
-    using looper::measurement::add_measurement;
     add_measurement(m, "Energy", is_signed);
     add_measurement(m, "Energy Density", is_signed);
     add_measurement(m, "Energy^2", is_signed);
@@ -349,10 +351,10 @@ struct energy_estimator : public base_estimator
 
 struct susceptibility_estimator : public base_estimator
 {
-  static void initialize(alps::ObservableSet& m, bool is_bipartite,
-                         bool is_signed, bool use_improved_estimator)
+  template<class T>
+  static void initialize(T& m, bool is_bipartite, bool is_signed,
+                         bool use_improved_estimator)
   {
-    using looper::measurement::add_measurement;
     add_measurement(m, "Magnetization", is_signed);
     add_measurement(m, "Magnetization Density", is_signed);
     add_measurement(m, "Magnetization^2", is_signed);

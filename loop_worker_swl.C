@@ -72,6 +72,11 @@ private:
   std::vector<int> spins;
   std::vector<local_operator_t> operators;
 
+  looper::histogram<double> g;
+  looper::histogram<double> count;
+
+  looper::histogram_set<double> histograms;
+
   // working vectors (no checkpointing)
   std::vector<int> spins_c;
   std::vector<local_operator_t> operators_p;
@@ -79,8 +84,6 @@ private:
   std::vector<int> current;
   std::vector<cluster_info_t> clusters;
   std::vector<estimate_t> estimates;
-
-  looper::histogram_set<double> histograms;
 };
 
 qmc_worker_swl::qmc_worker_swl(alps::ProcessList const& w,
@@ -106,8 +109,8 @@ qmc_worker_swl::qmc_worker_swl(alps::ProcessList const& w,
   // init measurements
   //
 
-  if (is_signed()) measurements << alps::RealObservable("Sign");
-  estimator_t::initialize(measurements, is_bipartite(), is_signed(),
+  if (is_signed()) add_measurement(histograms, "Sign");
+  estimator_t::initialize(histograms, is_bipartite(), is_signed(),
                           use_improved_estimator());
 }
 
