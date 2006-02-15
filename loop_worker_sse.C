@@ -113,7 +113,6 @@ void qmc_worker_sse::dostep()
   namespace mpl = boost::mpl;
 
   if (!mcs.can_work()) return;
-  ++mcs;
   super_type::dostep();
 
   build();
@@ -133,6 +132,8 @@ void qmc_worker_sse::dostep()
   measure<mpl::true_,  mpl::false_>();
   measure<mpl::false_, mpl::true_ >();
   measure<mpl::false_, mpl::false_>();
+
+  ++mcs;
 }
 
 

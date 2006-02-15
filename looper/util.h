@@ -262,6 +262,7 @@ public:
 
   value_type min() const { return mi_; }
   value_type max() const { return ma_; }
+  value_type size() const { return ma_ - mi_ + 1; }
 
   void save(alps::ODump& dp) const { dp << mi_ << ma_; }
   void load(alps::IDump& dp) { dp >> mi_ >> ma_; }

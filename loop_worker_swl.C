@@ -72,10 +72,9 @@ private:
   std::vector<int> spins;
   std::vector<local_operator_t> operators;
 
-  looper::histogram<double> g;
-  looper::histogram<double> count;
-
-  looper::histogram_set<double> histograms;
+  looper::integer_range<int> exp_range;
+  looper::wl_histogram histogram;
+  looper::histogram_set<double> measurement_histograms;
 
   // working vectors (no checkpointing)
   std::vector<int> spins_c;
@@ -88,7 +87,11 @@ private:
 
 qmc_worker_swl::qmc_worker_swl(alps::ProcessList const& w,
                                alps::Parameters const& p, int n)
-  : super_type(w, p, n, looper::is_path_integral<qmc_type>::type()), mcs(p)
+  : super_type(w, p, n, looper::is_path_integral<qmc_type>::type()),
+    exp_range(p["EXPANSION_RANGE"]),
+    zhou_bhatt(p.value_or_default("USE_ZHOU_BHATT", true)),
+    mcs(p, exp_range, zhou_bhatt),
+    histogram(exp_range)
 {
   if (w == alps::ProcessList()) return;
 
@@ -104,14 +107,6 @@ qmc_worker_swl::qmc_worker_swl(alps::ProcessList const& w,
   operators.resize(0);
   spins_c.resize(nvs);
   current.resize(nvs);
-
-  //
-  // init measurements
-  //
-
-  if (is_signed()) add_measurement(histograms, "Sign");
-  estimator_t::initialize(histograms, is_bipartite(), is_signed(),
-                          use_improved_estimator());
 }
 
 void qmc_worker_swl::dostep()
@@ -119,7 +114,6 @@ void qmc_worker_swl::dostep()
   namespace mpl = boost::mpl;
 
   if (!mcs.can_work()) return;
-  ++mcs;
   super_type::dostep();
 
   build();
@@ -134,11 +128,17 @@ void qmc_worker_swl::dostep()
   flip<mpl::false_, mpl::false_, mpl::false_, mpl::true_ >();
   flip<mpl::false_, mpl::false_, mpl::false_, mpl::false_>();
 
-  //      BIPARTITE    IMPROVE
-  measure<mpl::true_,  mpl::true_ >();
-  measure<mpl::true_,  mpl::false_>();
-  measure<mpl::false_, mpl::true_ >();
-  measure<mpl::false_, mpl::false_>();
+  if (is_thermalized()) {
+    //      BIPARTITE    IMPROVE
+    measure<mpl::true_,  mpl::true_ >();
+    measure<mpl::true_,  mpl::false_>();
+    measure<mpl::false_, mpl::true_ >();
+    measure<mpl::false_, mpl::false_>();
+  }
+
+  if (mcs.stage_final()) {}
+
+  ++mcs;
 }
 
 

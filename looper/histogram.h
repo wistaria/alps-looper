@@ -40,6 +40,70 @@
 
 namespace looper {
 
+class wl_histogram
+{
+public:
+  wl_histogram() : offset_(0) {}
+  template<class T>
+  explicit wl_histogram(integer_range<T> const& r)
+    : offset_(r.min()), g_(r.max() - r.min() + 1), hist_(r.max() - r.min() + 1)
+  {}
+
+  template<class T>
+  void resize(integer_range<T> const& r)
+  {
+    offset_ = r.min();
+    g_.clear();
+    g_.resize(r.max() - r.min() + 1, 0);
+    hist_.clear();
+    hist_.resize(r.max() - r.min() + 1, 0);
+  }
+
+  void visit(int n, double logf)
+  {
+    int i = n - offset_;
+    if (i >= 0 && i < size()) {
+      g_[i] += logf;
+      hist_[i] += 1;
+    }
+  }
+
+  void clear_histogram() { std::fill(hist_.begin(), hist_.end(), 0); }
+
+  double flatness() const
+  {
+    double av = std::accumulate(hist_.begin(), hist_.end(), 0);
+    av /= size();
+    double diff = 0;
+    for (int i = 0; i < size(); ++i)
+      diff = std::max(diff, std::abs(hist_[i] - av));
+    return diff / av;
+  }
+  int min() const
+  {
+    int m = 0;
+    for (int i = 0; i < size(); ++i) m = std::min(m, hist_[i]);
+    return m;
+  }
+
+  void save(alps::ODump& dp) const { dp << offset_ << g_ << hist_; }
+  void load(alps::IDump& dp) { dp >> offset_ >> g_ >> hist_; }
+
+  void generate_transition_prob(std::vector<double>& prob) const
+  {
+    prob.resize(size() - 1);
+    for (int i = 0; i < size() - 1; ++i) prob[i] = std::exp(g_[i] - g_[i+1]);
+  }
+
+protected:
+  int size() const { return g_.size(); }
+
+private:
+  int offset_;
+  std::vector<double> g_;
+  std::vector<int> hist_;
+};
+
 template<typename T>
 class histogram
 {
@@ -89,9 +153,9 @@ public:
     for (int i = 1; i < size(); ++i) if (data_[i] < min) min = data_[i];
     return min;
   }
-  void save(alps::ODump& dump) const { dump << data_ << left_; }
-  void load(alps::IDump& dump)
-  { dump >> data_ >> left_; right_ = left_ + size() - 1; }
+  void save(alps::ODump& dp) const { dp << data_ << left_; }
+  void load(alps::IDump& dp)
+  { dp >> data_ >> left_; right_ = left_ + size() - 1; }
 
 private:
   std::vector<T> data_;

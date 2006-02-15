@@ -92,34 +92,49 @@ namespace looper {
 class wl_steps
 {
 public:
-  wl_steps() {}
-  wl_steps(alps::Parameters const& p)
-    : steps_(0), logf_steps_(0), block_steps_(0), done_(false),
-      num_logf_steps_(p.value_or_default("WANG_LANDAU_STEPS", 16)),
-      num_block_steps_(p.value_or_default("BLOCK_STEPS", 10000))
+  wl_steps() : mcs_(0), stage_(0) {}
+  template<class T>
+  wl_steps(alps::Parameters const& p, integer_range<T> const& exp_range,
+           bool zhou_bhatt)
+    : mcs_(0), stage_(0),
+      block_(zhou_bhatt ? exp_range.size() : p.value_or_default("BLOCK_SWEEPS", 65536)),
+      zhou_bhatt_(zhou_bhatt),
+      sweep_(p.value_or_default("SWEEPS",
+                                std::numeric_limits<unsigned int>::max()))),
+      iteration_(p.value_or_default("WANG_LANDAU_ITERATIONS", 16))
   {}
 
   wl_steps& operator++()
-  { ++steps_; ++logf_steps_; ++block_steps_; return *this; }
+  {
+    ++mcs_;
+    if (stage_ < iteration_ && mcs_ >= block_) {
+      ++stage_;
+      mcs_ = 0;
+      if (zhou_bhatt_) block_ = static_cast<unsigned int>(1.4 * block_);
+    }
+    return *this;
+  }
   wl_steps operator++(int)
   { wl_steps tmp = *this; this->operator++(); return tmp; }
-  unsigned int operator()() const { return steps_; }
-  bool can_work() const { true; }
-  bool is_thermalized() const { return steps_; }
-  double work_done() const { return done_ ? 1 : 0; }
 
-  void save(alps::ODump& dp) const
-  { dp << steps_ << logf_steps_ << block_steps_; }
-  void load(alps::IDump& dp)
-  { dp >> steps_ >> logf_steps_ >> block_steps_; }
+  unsigned int operator()() const { return mcs_; }
+  unsigned int stage() const { return stage_; }
+  bool can_work() const { return !is_thermzlized() || mcs_ < sweep_; }
+  bool is_thermalized() const { return stage_ == iteration_; }
+  double work_done() const { return is_thermalized() && mcs_ >= sweep_; }
+  bool stage_final() const { return mcs_ == block_ - 1; }
+
+  void save(alps::ODump& dp) const { dp << mcs_ << stage_ << block_; }
+  void load(alps::IDump& dp) { dp >> mcs_ >> stage_ >> block_; }
 
 private:
-  unsigned int steps_;
-  unsigned int logf_steps_;
-  unsigned int block_steps_;
-  bool done_;
-  unsigned int num_logf_steps_;
-  unsigned int num_block_steps_;
+  unsigned int mcs_;
+  unsigned int stage_;
+  unsigned int block_;
+
+  bool zhou_bhatt_;
+  unsigned int sweep_;
+  unsigned int iteration_;
 };
 
 } // end namespace looper
