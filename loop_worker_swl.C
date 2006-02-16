@@ -68,11 +68,14 @@ protected:
   void measure();
 
 private:
+  looper::integer_range<int> exp_range;
   looper::wl_steps mcs;
   std::vector<int> spins;
   std::vector<local_operator_t> operators;
 
-  looper::integer_range<int> exp_range;
+  double factor;
+  int min_visit;
+  double flatness;
   looper::wl_histogram histogram;
   looper::histogram_set<double> measurement_histograms;
 
@@ -88,25 +91,48 @@ private:
 qmc_worker_swl::qmc_worker_swl(alps::ProcessList const& w,
                                alps::Parameters const& p, int n)
   : super_type(w, p, n, looper::is_path_integral<qmc_type>::type()),
-    exp_range(p["EXPANSION_RANGE"]),
-    zhou_bhatt(p.value_or_default("USE_ZHOU_BHATT", true)),
-    mcs(p, exp_range, zhou_bhatt),
+    exp_range(p.value_or_default("EXPANSION_RANGE", "[0:500]")),
+    mcs(p, exp_range),
     histogram(exp_range)
 {
   if (w == alps::ProcessList()) return;
 
   if (has_field())
-    boost::throw_exception(std::logic_error("longitudinal field is not supported in SSE representation"));
+    boost::throw_exception(std::logic_error("longitudinal field is not "
+                                            "supported in SSE representation"));
 
   //
   // initialize configuration
   //
 
   int nvs = num_sites(vgraph());
+  int nvb = num_bonds(vgraph());
   spins.resize(nvs); std::fill(spins.begin(), spins.end(), 0 /* all up */);
   operators.resize(0);
   spins_c.resize(nvs);
   current.resize(nvs);
+
+  //
+  // initialize histogram
+  //
+
+  if (exp_range.min() < 0)
+    boost::throw_exception(std::invalid_argument("minimum of expansion order "
+                                                 "must not be negative"));
+
+  if (mcs.use_zhou_bhatt()) {
+    factor = p.value_or_default("INITIAL_MODIFICATION_FACTOR", exp(1));
+    min_visit = static_cast<int>(1 / log(factor));
+    flatness = parms.value_or_default("FLATNESS_THRESHOLD", -1.);
+  } else {
+    factor = p.value_or_default("INITIAL_INCREASE_FACTOR",
+      exp(exp_range.max() * log(1.*nvb) / mcs.num_block_sweeps()));
+    min_visit = 0;
+    flatness = parms.value_or_default("FLATNESS_THRESHOLD", 0.2);
+  }
+  if (factor <= 1)
+    boost::throw_exception(std::invalid_argument("initial modification factor "
+                                                 "must be larger than 1"));
 }
 
 void qmc_worker_swl::dostep()
@@ -114,6 +140,7 @@ void qmc_worker_swl::dostep()
   namespace mpl = boost::mpl;
 
   if (!mcs.can_work()) return;
+  ++mcs;
   super_type::dostep();
 
   build();
@@ -130,15 +157,23 @@ void qmc_worker_swl::dostep()
 
   if (is_thermalized()) {
     //      BIPARTITE    IMPROVE
-    measure<mpl::true_,  mpl::true_ >();
+    /* measure<mpl::true_,  mpl::true_ >();
     measure<mpl::true_,  mpl::false_>();
     measure<mpl::false_, mpl::true_ >();
-    measure<mpl::false_, mpl::false_>();
+    measure<mpl::false_, mpl::false_>(); */
   }
 
-  if (mcs.stage_final()) {}
-
-  ++mcs;
+  if (!mcs.is_thermalized() && mcs() == mcs.num_block_sweeps()) {
+    if (histogram.check_flatness(flatness) &&
+        histogram.check_visit(min_visit)) {
+      histogram.clear();
+      mcs.next_stage();
+      std::cerr << "stage " << mcs.stage() << " becomes flat\n";
+    } else {
+      mcs.reset_stage();
+      std::cerr << "stage " << mcs.stage() << " is not flat yet\n";
+    }
+  }
 }
 
 
@@ -158,14 +193,13 @@ void qmc_worker_swl::build()
   fragments.resize(0); fragments.resize(nvs);
   for (int s = 0; s < nvs; ++s) current[s] = s;
 
-  double bw = beta() * total_graph_weight();
   bool try_gap = true;
   for (operator_iterator opi = operators_p.begin();
        try_gap || opi != operators_p.end();) {
 
     // diagonal update & labeling
     if (try_gap) {
-      if ((nop + 1) * random() < bw) {
+      if (random() < histogram.accept_rate(nop)) {
         loop_graph_t g = choose_graph();
         if ((is_bond(g) &&
              is_compatible(g, spins_c[vsource(pos(g), vlattice())],
@@ -175,17 +209,21 @@ void qmc_worker_swl::build()
           ++nop;
         } else {
           try_gap = false;
+          if (!mcs.is_thermalized()) histogram.visit(nop, factor);
           continue;
         }
       } else {
         try_gap = false;
+        if (!mcs.is_thermalized()) histogram.visit(nop, factor);
         continue;
       }
     } else {
       if (opi->is_diagonal()) {
-        if (bw * random() < nop) {
+        if (nop > exp_range.min() &&
+            histogram.accept_rate(nop-1) * random() < 1) {
           --nop;
           ++opi;
+          if (!mcs.is_thermalized()) histogram.visit(nop, factor);
           continue;
         } else {
           if (opi->is_site()) {
@@ -204,6 +242,7 @@ void qmc_worker_swl::build()
       ++opi;
       try_gap = true;
     }
+    if (!mcs.is_thermalized()) histogram.visit(nop, factor);
 
     operator_iterator oi = operators.end() - 1;
     if (oi->is_bond()) {

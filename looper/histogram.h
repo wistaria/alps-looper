@@ -46,61 +46,58 @@ public:
   wl_histogram() : offset_(0) {}
   template<class T>
   explicit wl_histogram(integer_range<T> const& r)
-    : offset_(r.min()), g_(r.max() - r.min() + 1), hist_(r.max() - r.min() + 1)
+    : offset_(r.min()),
+      accept_(r.max() - r.min() + 1, 1),
+      hist_(r.max() - r.min() + 1, 0)
   {}
 
   template<class T>
   void resize(integer_range<T> const& r)
   {
     offset_ = r.min();
-    g_.clear();
-    g_.resize(r.max() - r.min() + 1, 0);
+    accept_.clear();
+    accept_.resize(r.max() - r.min() + 1, 1);
+    accept_.back() = 0;
     hist_.clear();
     hist_.resize(r.max() - r.min() + 1, 0);
   }
 
-  void visit(int n, double logf)
+  void visit(int nop, double factor)
   {
-    int i = n - offset_;
-    if (i >= 0 && i < size()) {
-      g_[i] += logf;
-      hist_[i] += 1;
-    }
+    int i = nop - offset_;
+    if (i >= 1) accept_[i-1] /= factor;
+    accept_[i] *= factor;
+    hist_[i] += 1;
   }
 
-  void clear_histogram() { std::fill(hist_.begin(), hist_.end(), 0); }
+  void clear() { std::fill(hist_.begin(), hist_.end(), 0); }
 
-  double flatness() const
+  bool check_flatness(double thresh) const
   {
-    double av = std::accumulate(hist_.begin(), hist_.end(), 0);
-    av /= size();
-    double diff = 0;
-    for (int i = 0; i < size(); ++i)
-      diff = std::max(diff, std::abs(hist_[i] - av));
-    return diff / av;
-  }
-  int min() const
-  {
-    int m = 0;
-    for (int i = 0; i < size(); ++i) m = std::min(m, hist_[i]);
-    return m;
+    if (thresh < 0) return true;
+    int av = std::accumulate(hist_.begin(), hist_.end(), 0) / hist_.size();
+    int tn = static_cast<int>(thresh * av);
+    for (std::vector<int>::const_iterator itr = hist_.begin();
+         itr != hist_.end(); ++itr) if (std::abs(*itr - av) >= tn) return false;
+    return true;
   }
 
-  void save(alps::ODump& dp) const { dp << offset_ << g_ << hist_; }
-  void load(alps::IDump& dp) { dp >> offset_ >> g_ >> hist_; }
-
-  void generate_transition_prob(std::vector<double>& prob) const
+  bool check_visit(int thresh) const
   {
-    prob.resize(size() - 1);
-    for (int i = 0; i < size() - 1; ++i) prob[i] = std::exp(g_[i] - g_[i+1]);
+    if (thresh == 0) return true;
+    for (std::vector<int>::const_iterator itr = hist_.begin();
+         itr != hist_.end(); ++itr) if (*itr < thresh) return false;
+    return true;
   }
 
-protected:
-  int size() const { return g_.size(); }
+  double accept_rate(int nop) const { return accept_[nop - offset_]; }
+
+  void save(alps::ODump& dp) const { dp << offset_ << accept_ << hist_; }
+  void load(alps::IDump& dp) { dp >> offset_ >> accept_ >> hist_; }
 
 private:
   int offset_;
-  std::vector<double> g_;
+  std::vector<double> accept_;
   std::vector<int> hist_;
 };
 

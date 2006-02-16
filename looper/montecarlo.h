@@ -94,13 +94,12 @@ class wl_steps
 public:
   wl_steps() : mcs_(0), stage_(0) {}
   template<class T>
-  wl_steps(alps::Parameters const& p, integer_range<T> const& exp_range,
-           bool zhou_bhatt)
-    : mcs_(0), stage_(0),
-      block_(zhou_bhatt ? exp_range.size() : p.value_or_default("BLOCK_SWEEPS", 65536)),
-      zhou_bhatt_(zhou_bhatt),
-      sweep_(p.value_or_default("SWEEPS",
-                                std::numeric_limits<unsigned int>::max()))),
+  wl_steps(alps::Parameters const& p, integer_range<T> const& exp_range)
+    : zhou_bhatt_(p.value_or_default("USE_ZHOU_BHATT", true)),
+      mcs_(0), stage_(0),
+      block_(zhou_bhatt_ ? exp_range.size() :
+             static_cast<int>(p.value_or_default("BLOCK_SWEEPS", 65536))),
+      sweep_(p.value_or_default("SWEEPS", std::numeric_limits<int>::max())),
       iteration_(p.value_or_default("WANG_LANDAU_ITERATIONS", 16))
   {}
 
@@ -110,31 +109,43 @@ public:
     if (stage_ < iteration_ && mcs_ >= block_) {
       ++stage_;
       mcs_ = 0;
-      if (zhou_bhatt_) block_ = static_cast<unsigned int>(1.4 * block_);
+      if (zhou_bhatt_) block_ = static_cast<int>(1.4 * block_);
     }
     return *this;
   }
   wl_steps operator++(int)
   { wl_steps tmp = *this; this->operator++(); return tmp; }
 
-  unsigned int operator()() const { return mcs_; }
-  unsigned int stage() const { return stage_; }
-  bool can_work() const { return !is_thermzlized() || mcs_ < sweep_; }
+  void reset_stage() { mcs_ = 0; }
+  void next_stage()
+  {
+    ++stage_;
+    mcs_ = 0;
+    if (zhou_bhatt_) block_ = static_cast<int>(1.4 * block_);
+  }
+
+  bool use_zhou_bhatt() const { return zhou_bhatt_; }
+
+  int operator()() const { return mcs_; }
+  int stage() const { return stage_; }
+  bool can_work() const { return !is_thermalized() || mcs_ < sweep_; }
   bool is_thermalized() const { return stage_ == iteration_; }
   double work_done() const { return is_thermalized() && mcs_ >= sweep_; }
-  bool stage_final() const { return mcs_ == block_ - 1; }
+  bool stage_final() const { return !is_thermalized() && mcs_ == block_-1; }
+
+  int num_block_sweeps() const { return block_; }
+  int num_sweeps() const { return sweep_; }
 
   void save(alps::ODump& dp) const { dp << mcs_ << stage_ << block_; }
   void load(alps::IDump& dp) { dp >> mcs_ >> stage_ >> block_; }
 
 private:
-  unsigned int mcs_;
-  unsigned int stage_;
-  unsigned int block_;
-
   bool zhou_bhatt_;
-  unsigned int sweep_;
-  unsigned int iteration_;
+  int mcs_;
+  int stage_;
+  int block_;
+  int sweep_;
+  int iteration_;
 };
 
 } // end namespace looper
