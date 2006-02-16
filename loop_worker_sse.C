@@ -87,7 +87,8 @@ qmc_worker_sse::qmc_worker_sse(alps::ProcessList const& w,
   if (w == alps::ProcessList()) return;
 
   if (has_field())
-    boost::throw_exception(std::logic_error("longitudinal field is not supported in SSE representation"));
+    boost::throw_exception(std::logic_error("longitudinal field is not "
+      "supported in SSE representation"));
 
   //
   // initialize configuration
@@ -113,6 +114,7 @@ void qmc_worker_sse::dostep()
   namespace mpl = boost::mpl;
 
   if (!mcs.can_work()) return;
+  ++mcs;
   super_type::dostep();
 
   build();
@@ -132,8 +134,6 @@ void qmc_worker_sse::dostep()
   measure<mpl::true_,  mpl::false_>();
   measure<mpl::false_, mpl::true_ >();
   measure<mpl::false_, mpl::false_>();
-
-  ++mcs;
 }
 
 

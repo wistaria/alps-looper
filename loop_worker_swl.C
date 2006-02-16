@@ -99,14 +99,13 @@ qmc_worker_swl::qmc_worker_swl(alps::ProcessList const& w,
 
   if (has_field())
     boost::throw_exception(std::logic_error("longitudinal field is not "
-                                            "supported in SSE representation"));
+      "supported in SSE representation"));
 
   //
   // initialize configuration
   //
 
   int nvs = num_sites(vgraph());
-  int nvb = num_bonds(vgraph());
   spins.resize(nvs); std::fill(spins.begin(), spins.end(), 0 /* all up */);
   operators.resize(0);
   spins_c.resize(nvs);
@@ -126,7 +125,7 @@ qmc_worker_swl::qmc_worker_swl(alps::ProcessList const& w,
     flatness = parms.value_or_default("FLATNESS_THRESHOLD", -1.);
   } else {
     factor = p.value_or_default("INITIAL_INCREASE_FACTOR",
-      exp(exp_range.max() * log(1.*nvb) / mcs.num_block_sweeps()));
+      exp(exp_range.max() * log(1.*nvs) / mcs.num_block_sweeps()));
     min_visit = 0;
     flatness = parms.value_or_default("FLATNESS_THRESHOLD", 0.2);
   }
@@ -155,23 +154,28 @@ void qmc_worker_swl::dostep()
   flip<mpl::false_, mpl::false_, mpl::false_, mpl::true_ >();
   flip<mpl::false_, mpl::false_, mpl::false_, mpl::false_>();
 
+  /*
   if (is_thermalized()) {
     //      BIPARTITE    IMPROVE
-    /* measure<mpl::true_,  mpl::true_ >();
+    measure<mpl::true_,  mpl::true_ >();
     measure<mpl::true_,  mpl::false_>();
     measure<mpl::false_, mpl::true_ >();
-    measure<mpl::false_, mpl::false_>(); */
+    measure<mpl::false_, mpl::false_>();
   }
+  */
 
   if (!mcs.is_thermalized() && mcs() == mcs.num_block_sweeps()) {
     if (histogram.check_flatness(flatness) &&
         histogram.check_visit(min_visit)) {
+      // std::cerr << "stage " << mcs.stage() << " becomes flat\n";
+      // histogram.output_dos("dos " + boost::lexical_cast<std::string>(mcs.stage()));
+      factor = std::sqrt(factor);
+      if (mcs.use_zhou_bhatt()) min_visit *= 2;
       histogram.clear();
       mcs.next_stage();
-      std::cerr << "stage " << mcs.stage() << " becomes flat\n";
     } else {
+      // std::cerr << "stage " << mcs.stage() << " is not flat yet\n";
       mcs.reset_stage();
-      std::cerr << "stage " << mcs.stage() << " is not flat yet\n";
     }
   }
 }
@@ -359,13 +363,13 @@ void qmc_worker_swl::flip()
     if (clusters[fragments[s].id].to_flip) spins[s] ^= 1;
 
   // improved measurement
-  if (IMPROVE()) {
+  /*  if (IMPROVE()) {
     typename looper::measurement::collector<estimator_t, qmc_type, BIPARTITE,
       IMPROVE>::type coll;
     coll = std::accumulate(estimates.begin(), estimates.end(), coll);
     coll.commit(measurements, beta(), num_sites(rgraph()), nop, improved_sign);
     if (SIGN()) measurements["Sign"] << improved_sign;
-  }
+    } */
 }
 
 

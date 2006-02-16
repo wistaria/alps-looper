@@ -49,7 +49,7 @@ public:
     : offset_(r.min()),
       accept_(r.max() - r.min() + 1, 1),
       hist_(r.max() - r.min() + 1, 0)
-  {}
+  { accept_.back() = 0; }
 
   template<class T>
   void resize(integer_range<T> const& r)
@@ -90,10 +90,24 @@ public:
     return true;
   }
 
+  int operator[](int nop) const {
+    int i = nop - offset_;
+    return (i >= 0 && i < hist_.size()) ? hist_[i] : 0;
+  }
+
   double accept_rate(int nop) const { return accept_[nop - offset_]; }
 
   void save(alps::ODump& dp) const { dp << offset_ << accept_ << hist_; }
   void load(alps::IDump& dp) { dp >> offset_ >> accept_ >> hist_; }
+
+  void output_dos(std::string const& prefix) const
+  {
+    double logg = 0;
+    for (int i = 0; i < accept_.size(); ++i) {
+      std::cout << prefix << ' ' << offset_ + i << ' ' << logg << std::endl;
+      logg -= log(accept_[i]);
+    }
+  }
 
 private:
   int offset_;

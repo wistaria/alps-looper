@@ -103,16 +103,7 @@ public:
       iteration_(p.value_or_default("WANG_LANDAU_ITERATIONS", 16))
   {}
 
-  wl_steps& operator++()
-  {
-    ++mcs_;
-    if (stage_ < iteration_ && mcs_ >= block_) {
-      ++stage_;
-      mcs_ = 0;
-      if (zhou_bhatt_) block_ = static_cast<int>(1.4 * block_);
-    }
-    return *this;
-  }
+  wl_steps& operator++() { ++mcs_; return *this; }
   wl_steps operator++(int)
   { wl_steps tmp = *this; this->operator++(); return tmp; }
 
