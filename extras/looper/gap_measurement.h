@@ -37,13 +37,12 @@ struct gap_estimator : public looper::base_estimator
   static void initialize(T& m, bool is_bipartite, bool is_signed,
                          bool use_improved_estimator)
   {
-    using looper::measurement::add_measurement;
     if (is_bipartite)
-      add_measurement(m, "Staggered Susceptibility [w=2pi/beta]",
-                      is_signed);
+      looper::add_measurement(m, "Staggered Susceptibility [w=2pi/beta]",
+                              is_signed);
     if (use_improved_estimator)
-      add_measurement(m, "Generalized Susceptibility [w=2pi/beta]",
-                      is_signed);
+      looper::add_measurement(m, "Generalized Susceptibility [w=2pi/beta]",
+                              is_signed);
   }
 
   static void evaluate(alps::ObservableSet& m, alps::ObservableSet const& m_in)
