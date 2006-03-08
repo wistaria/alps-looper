@@ -38,6 +38,8 @@
 #include <valarray>
 #include <vector>
 
+#if 1
+
 namespace looper {
 
 class wl_histogram
@@ -46,9 +48,7 @@ public:
   wl_histogram() : offset_(0) {}
   template<class T>
   explicit wl_histogram(integer_range<T> const& r)
-    : offset_(r.min()),
-      accept_(r.max() - r.min() + 1, 1),
-      hist_(r.max() - r.min() + 1, 0)
+    : offset_(r.min()), accept_(r.size(), 1), hist_(r.size(), 0)
   { accept_.back() = 0; }
 
   template<class T>
@@ -56,11 +56,12 @@ public:
   {
     offset_ = r.min();
     accept_.clear();
-    accept_.resize(r.max() - r.min() + 1, 1);
+    accept_.resize(r.size(), 1);
     accept_.back() = 0;
     hist_.clear();
-    hist_.resize(r.max() - r.min() + 1, 0);
+    hist_.resize(r.size(), 0);
   }
+  void clear() { std::fill(hist_.begin(), hist_.end(), 0); }
 
   void visit(int nop, double factor)
   {
@@ -69,8 +70,6 @@ public:
     accept_[i] *= factor;
     hist_[i] += 1;
   }
-
-  void clear() { std::fill(hist_.begin(), hist_.end(), 0); }
 
   bool check_flatness(double thresh) const
   {
@@ -81,7 +80,6 @@ public:
          itr != hist_.end(); ++itr) if (std::abs(*itr - av) >= tn) return false;
     return true;
   }
-
   bool check_visit(int thresh) const
   {
     if (thresh == 0) return true;
@@ -90,12 +88,8 @@ public:
     return true;
   }
 
-  int operator[](int nop) const {
-    int i = nop - offset_;
-    return (i >= 0 && i < hist_.size()) ? hist_[i] : 0;
-  }
-
   double accept_rate(int nop) const { return accept_[nop - offset_]; }
+  int operator[](int nop) const { return hist_[nop - offset_]; }
 
   void save(alps::ODump& dp) const { dp << offset_ << accept_ << hist_; }
   void load(alps::IDump& dp) { dp >> offset_ >> accept_ >> hist_; }
@@ -114,6 +108,111 @@ private:
   std::vector<double> accept_;
   std::vector<int> hist_;
 };
+
+} // end namespace looper
+
+#ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
+namespace looper {
+#endif
+
+inline alps::ODump& operator<<(alps::ODump& dp, looper::wl_histogram const& h)
+{ h.save(dp); return dp; }
+
+inline alps::IDump& operator>>(alps::IDump& dp, looper::wl_histogram& h)
+{ h.load(dp); return dp; }
+
+#ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
+} // end namespace looper
+#endif
+
+# else
+
+namespace looper {
+
+class wl_histogram
+{
+public:
+  wl_histogram() : offset_(0) {}
+  template<class T>
+  explicit wl_histogram(integer_range<T> const& r)
+    : offset_(r.min()), logg_(r.size(), 0), hist_(r.size(), 0) {}
+
+  template<class T>
+  void resize(integer_range<T> const& r)
+  {
+    offset_ = r.min();
+    logg_.clear();
+    logg_.resize(r.size(), 0);
+    hist_.clear();
+    hist_.resize(r.size(), 0);
+  }
+  void clear() { std::fill(hist_.begin(), hist_.end(), 0); }
+
+  void visit(int nop, double logf)
+  {
+    int i = nop - offset_;
+    logg_[i] += logf;
+    hist_[i] += 1;
+  }
+
+  bool check_flatness(double thresh) const
+  {
+    if (thresh < 0) return true;
+    int av = std::accumulate(hist_.begin(), hist_.end(), 0) / hist_.size();
+    int tn = static_cast<int>(thresh * av);
+    for (std::vector<int>::const_iterator itr = hist_.begin();
+         itr != hist_.end(); ++itr) if (std::abs(*itr - av) >= tn) return false;
+    return true;
+  }
+  bool check_visit(int thresh) const
+  {
+    if (thresh == 0) return true;
+    for (std::vector<int>::const_iterator itr = hist_.begin();
+         itr != hist_.end(); ++itr) if (*itr < thresh) return false;
+    return true;
+  }
+
+  double accept_rate(int nop) const
+  {
+    int i = nop - offset_;
+    return (i < logg_.size() - 1) ? exp(logg_[i] - logg_[i+1]) : 0;
+  }
+  int operator[](int nop) const { return hist_[nop - offset_]; }
+
+  void save(alps::ODump& dp) const { dp << offset_ << logg_ << hist_; }
+  void load(alps::IDump& dp) { dp >> offset_ >> logg_ >> hist_; }
+
+  void output_dos(std::string const& prefix) const
+  {
+    for (int i = 0; i < logg_.size(); ++i)
+      std::cout << prefix << ' ' << offset_ + i << ' ' << logg_[i] << std::endl;
+  }
+
+private:
+  int offset_;
+  std::vector<double> logg_;
+  std::vector<int> hist_;
+};
+
+} // end namespace looper
+
+#ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
+namespace looper {
+#endif
+
+inline alps::ODump& operator<<(alps::ODump& dp, looper::wl_histogram const& h)
+{ h.save(dp); return dp; }
+
+inline alps::IDump& operator>>(alps::IDump& dp, looper::wl_histogram& h)
+{ h.load(dp); return dp; }
+
+#ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
+} // end namespace looper
+#endif
+
+#endif
+
+namespace looper {
 
 template<typename T>
 class histogram

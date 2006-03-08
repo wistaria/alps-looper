@@ -52,7 +52,7 @@ public:
   void dostep();
 
   bool is_thermalized() const { return mcs.is_thermalized(); }
-  double work_done() const { return mcs.work_done(); }
+  double work_done() const { return mcs.progress(); }
 
   void save(alps::ODump& dp) const
   { super_type::save(dp); dp << mcs << spins << operators; }
@@ -67,6 +67,10 @@ protected:
   void measure();
 
 private:
+  // random number generator
+  boost::variate_generator<super_type::engine_type&,
+    boost::exponential_distribution<> > r_time;
+
   looper::mc_steps mcs;
   std::vector<int> spins;
   std::vector<local_operator_t> operators;
@@ -78,11 +82,15 @@ private:
   std::vector<int> current;
   std::vector<cluster_info_t> clusters;
   std::vector<estimate_t> estimates;
+
 };
 
 qmc_worker_pi::qmc_worker_pi(alps::ProcessList const& w,
                              alps::Parameters const& p, int n)
-  : super_type(w, p, n, looper::is_path_integral<qmc_type>::type()), mcs(p)
+  : super_type(w, p, n, looper::is_path_integral<qmc_type>::type()),
+    r_time(*engine_ptr,
+           boost::exponential_distribution<>(beta() * total_graph_weight())),
+    mcs(p)
 {
   if (w == alps::ProcessList()) return;
 
@@ -156,7 +164,7 @@ void qmc_worker_pi::build()
   fragments.resize(0); fragments.resize(nvs);
   for (int s = 0; s < nvs; ++s) current[s] = s;
 
-  double t = advance();
+  double t = r_time();
   for (operator_iterator opi = operators_p.begin();
        t < 1 || opi != operators_p.end();) {
 
@@ -168,9 +176,9 @@ void qmc_worker_pi::build()
                           spins_c[vtarget(pos(g), vlattice())])) ||
           (is_site(g) && is_compatible(g, spins_c[pos(g)])))) {
         operators.push_back(local_operator_t(g, t));
-        t += advance();
+        t += r_time();
       } else {
-        t += advance();
+        t += r_time();
         continue;
       }
     } else {

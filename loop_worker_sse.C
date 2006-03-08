@@ -52,7 +52,7 @@ public:
   void dostep();
 
   bool is_thermalized() const { return mcs.is_thermalized(); }
-  double work_done() const { return mcs.work_done(); }
+  double work_done() const { return mcs.progress(); }
 
   void save(alps::ODump& dp) const
   { super_type::save(dp); dp << mcs << spins << operators; }

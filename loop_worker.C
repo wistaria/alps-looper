@@ -48,7 +48,7 @@ qmc_worker::qmc_worker(alps::ProcessList const& w,
 
   looper::weight_table wt(mp, rgraph(), vlattice(), fs);
   energy_offset_ += wt.energy_offset();
-  chooser_.init(wt, beta_, is_path_integral);
+  chooser_.init(wt, is_path_integral);
 
   is_signed_ = mp.is_signed();
   if (mp.is_signed()) {

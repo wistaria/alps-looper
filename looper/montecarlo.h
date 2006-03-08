@@ -36,39 +36,37 @@ namespace looper {
 class mc_steps
 {
 public:
-  mc_steps() : mcs_(0) {}
+  mc_steps() : mcs_(0), sweep_("[0:]"), therm_(0) {}
   mc_steps(alps::Parameters const& p)
     : mcs_(0),
       sweep_(p.value_or_default("SWEEPS", "[65536:]")),
       therm_(p.value_or_default("THERMALIZATION", sweep_.min() >> 3))
   {
     if (sweep_.min() < 1 || sweep_.min() > sweep_.max())
-      boost::throw_exception(std::invalid_argument(
-        "qmc_worker::qmc_worker() inconsistent MC steps"));
+      boost::throw_exception(std::invalid_argument("mc_steps::mc_steps() "
+        "inconsistent MC steps"));
   }
 
   mc_steps& operator++() { ++mcs_; return *this; }
   mc_steps operator++(int)
   { mc_steps tmp = *this; this->operator++(); return tmp; }
 
-  unsigned int operator()() const { return mcs_; }
+  int operator()() const { return mcs_; }
   bool can_work() const
   { return mcs_ < therm_ || mcs_ - therm_ < sweep_.max(); }
   bool is_thermalized() const { return mcs_ >= therm_; }
-  double work_done() const
-  { return is_thermalized() ? (double(mcs_ - therm_) / sweep_.min()) : 0; }
+  double progress() const { return 1. * mcs_ / (therm_ + sweep_.min()); }
 
-  unsigned int num_thermalization() const { return therm_; }
-  std::pair<unsigned int, unsigned int> num_sweeps() const
-  { return std::make_pair(sweep_.min(), sweep_.max()); }
+  int mcs_thermalization() const { return therm_; }
+  looper::integer_range<int> mcs_sweeps() const { return sweep_; }
 
   void save(alps::ODump& dp) const { dp << mcs_ << sweep_ << therm_; }
   void load(alps::IDump& dp) { dp >> mcs_ >> sweep_ >> therm_; }
 
 private:
-  unsigned int mcs_;
-  looper::integer_range<unsigned int> sweep_;
-  unsigned int therm_;
+  int mcs_;
+  looper::integer_range<int> sweep_;
+  int therm_;
 };
 
 } // end namespace looper
@@ -95,47 +93,69 @@ public:
   wl_steps() : mcs_(0), stage_(0) {}
   template<class T>
   wl_steps(alps::Parameters const& p, integer_range<T> const& exp_range)
-    : zhou_bhatt_(p.value_or_default("USE_ZHOU_BHATT", true)),
-      mcs_(0), stage_(0),
+    : mcs_(0), stage_(0),
+      multicanonical_(p.value_or_default("PERFORM_MULTICANONICAL_MEASUREMENT",
+                                         true)),
+      zhou_bhatt_(p.value_or_default("USE_ZHOU_BHATT", true)),
       block_(zhou_bhatt_ ? exp_range.size() :
              static_cast<int>(p.value_or_default("BLOCK_SWEEPS", 65536))),
-      sweep_(p.value_or_default("SWEEPS", std::numeric_limits<int>::max())),
-      iteration_(p.value_or_default("WANG_LANDAU_ITERATIONS", 16))
-  {}
+      sweep_(p.value_or_default("SWEEPS", "[65536:]")),
+      iteration_(p.value_or_default("WANG_LANDAU_ITERATIONS", 16)) {}
 
   wl_steps& operator++() { ++mcs_; return *this; }
   wl_steps operator++(int)
   { wl_steps tmp = *this; this->operator++(); return tmp; }
-
   void reset_stage() { mcs_ = 0; }
   void next_stage()
   {
     ++stage_;
     mcs_ = 0;
-    if (zhou_bhatt_) block_ = static_cast<int>(1.4 * block_);
+    if (use_zhou_bhatt()) block_ = static_cast<int>(1.41 * block_);
   }
-
-  bool use_zhou_bhatt() const { return zhou_bhatt_; }
 
   int operator()() const { return mcs_; }
   int stage() const { return stage_; }
-  bool can_work() const { return !is_thermalized() || mcs_ < sweep_; }
-  bool is_thermalized() const { return stage_ == iteration_; }
-  double work_done() const { return is_thermalized() && mcs_ >= sweep_; }
-  bool stage_final() const { return !is_thermalized() && mcs_ == block_-1; }
+  bool can_work() const
+  {
+    if (perform_multicanonical_measurement())
+      return !doing_multicanonical() || mcs_ < sweep_.max();
+    else
+      return stage_ < iteration_;
+  }
+  bool doing_multicanonical() const { return stage_ == iteration_; }
+  double progress() const
+  {
+    if (perform_multicanonical_measurement())
+      return doing_multicanonical() ?
+        (iteration_ + 1. * mcs_ / sweep_.min()) / (iteration_ + 1) :
+        (stage_ + 1. * mcs_ / block_) / (iteration_ + 1);
+    else
+      return (stage_ + 1. * mcs_ / block_) / iteration_;
+  }
 
-  int num_block_sweeps() const { return block_; }
-  int num_sweeps() const { return sweep_; }
+  bool perform_multicanonical_measurement() const { return multicanonical_; }
+  bool use_zhou_bhatt() const { return zhou_bhatt_; }
+  int mcs_block() const { return block_; }
+  looper::integer_range<int> mcs_sweeps() const { return sweep_; }
 
-  void save(alps::ODump& dp) const { dp << mcs_ << stage_ << block_; }
-  void load(alps::IDump& dp) { dp >> mcs_ >> stage_ >> block_; }
+  void save(alps::ODump& dp) const
+  {
+    dp << mcs_ << stage_ << multicanonical_ << zhou_bhatt_ << block_
+       << sweep_ << iteration_;
+  }
+  void load(alps::IDump& dp)
+  {
+    dp >> mcs_ >> stage_ >> multicanonical_ >> zhou_bhatt_ >> block_
+       >> sweep_ >> iteration_;
+  }
 
 private:
-  bool zhou_bhatt_;
   int mcs_;
   int stage_;
+  bool multicanonical_;
+  bool zhou_bhatt_;
   int block_;
-  int sweep_;
+  looper::integer_range<int> sweep_;
   int iteration_;
 };
 

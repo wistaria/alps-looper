@@ -52,8 +52,8 @@ public:
   qmc_worker_swl(alps::ProcessList const& w, alps::Parameters const& p, int n);
   void dostep();
 
-  bool is_thermalized() const { return mcs.is_thermalized(); }
-  double work_done() const { return mcs.work_done(); }
+  bool is_thermalized() const { return true; }
+  double work_done() const { return mcs.progress(); }
 
   void save(alps::ODump& dp) const
   { super_type::save(dp); dp << mcs << spins << operators; }
@@ -125,7 +125,7 @@ qmc_worker_swl::qmc_worker_swl(alps::ProcessList const& w,
     flatness = parms.value_or_default("FLATNESS_THRESHOLD", -1.);
   } else {
     factor = p.value_or_default("INITIAL_INCREASE_FACTOR",
-      exp(exp_range.max() * log(1.*nvs) / mcs.num_block_sweeps()));
+      exp(exp_range.max() * log(1.*nvs) / mcs.mcs_block()));
     min_visit = 0;
     flatness = parms.value_or_default("FLATNESS_THRESHOLD", 0.2);
   }
@@ -164,7 +164,7 @@ void qmc_worker_swl::dostep()
   }
   */
 
-  if (!mcs.is_thermalized() && mcs() == mcs.num_block_sweeps()) {
+  if (!mcs.doing_multicanonical() && mcs() == mcs.mcs_block()) {
     if (histogram.check_flatness(flatness) &&
         histogram.check_visit(min_visit)) {
       // std::cerr << "stage " << mcs.stage() << " becomes flat\n";
@@ -213,12 +213,12 @@ void qmc_worker_swl::build()
           ++nop;
         } else {
           try_gap = false;
-          if (!mcs.is_thermalized()) histogram.visit(nop, factor);
+          if (!mcs.doing_multicanonical()) histogram.visit(nop, factor);
           continue;
         }
       } else {
         try_gap = false;
-        if (!mcs.is_thermalized()) histogram.visit(nop, factor);
+        if (!mcs.doing_multicanonical()) histogram.visit(nop, factor);
         continue;
       }
     } else {
@@ -227,7 +227,7 @@ void qmc_worker_swl::build()
             histogram.accept_rate(nop-1) * random() < 1) {
           --nop;
           ++opi;
-          if (!mcs.is_thermalized()) histogram.visit(nop, factor);
+          if (!mcs.doing_multicanonical()) histogram.visit(nop, factor);
           continue;
         } else {
           if (opi->is_site()) {
@@ -246,7 +246,7 @@ void qmc_worker_swl::build()
       ++opi;
       try_gap = true;
     }
-    if (!mcs.is_thermalized()) histogram.visit(nop, factor);
+    if (!mcs.doing_multicanonical()) histogram.visit(nop, factor);
 
     operator_iterator oi = operators.end() - 1;
     if (oi->is_bond()) {

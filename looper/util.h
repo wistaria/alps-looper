@@ -237,7 +237,9 @@ public:
   typedef T value_type;
 
   integer_range() {}
-  integer_range(value_type v) : mi_(v), ma_(v) {}
+  explicit integer_range(value_type v) : mi_(v), ma_(v) {}
+  explicit integer_range(value_type vmin, value_type vmax)
+    : mi_(vmin), ma_(vmax) {}
   integer_range(integer_range const& r) : mi_(r.mi_), ma_(r.ma_) {}
   integer_range(std::string const& str,
                 value_type def_mi = std::numeric_limits<value_type>::min(),

@@ -83,7 +83,6 @@ public:
   { return chooser_.diagonal(loc, c0, c1); }
   loop_graph_t choose_offdiagonal(location_t const& loc) const
   { return chooser_.offdiagonal(loc); }
-  double advance() const { return chooser_.advance(); }
   double total_graph_weight() const { return chooser_.weight(); }
 
 private:
