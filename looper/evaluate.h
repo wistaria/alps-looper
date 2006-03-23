@@ -28,6 +28,7 @@
 #include <looper/util.h>
 #include <alps/alea.h>
 #include <alps/scheduler.h>
+#include <boost/regex.hpp>
 
 namespace looper {
 
@@ -41,16 +42,41 @@ public:
   evaluator(alps::ProcessList const& w, alps::Parameters const& p, int n)
     : super_type(w, p, n) {}
 
-  void evaluate(alps::scheduler::MCSimulation& sim) const
+  void evaluate(alps::scheduler::MCSimulation& sim,
+                alps::Parameters const& np) const
   {
-    alps::ObservableSet m;
-    evaluate(m, sim.get_measurements());
-    for (alps::ObservableSet::const_iterator itr = m.begin(); itr != m.end();
-         ++itr) sim.addObservable(*(itr->second));
+    if (regex_match(sim.get_parameters().value_or_default("REPRESENTATION", ""),
+                    boost::regex("QWL$"), boost::match_default)) {
+      qwl_evaluate(sim.get_measurements(), sim.get_parameters(), np);
+    } else {
+      alps::ObservableSet m;
+      evaluate(m, sim.get_measurements());
+      for (alps::ObservableSet::const_iterator itr = m.begin(); itr != m.end();
+           ++itr) sim.addObservable(*(itr->second));
+    }
   }
 
   static void evaluate(alps::ObservableSet& m, alps::ObservableSet const& m_in)
   { estimator_t::evaluate(m, m_in); }
+
+  static void qwl_evaluate(alps::ObservableSet const& m,
+                           alps::Parameters const& p,
+                           alps::Parameters const& np)
+  {
+    if (!np.defined("T_MIN") && !p.defined("T_MIN"))
+      boost::throw_exception(std::invalid_argument(
+        "parameter T_MIN is not defined"));
+    if (!np.defined("T_MAX") && !p.defined("T_MAX"))
+      boost::throw_exception(std::invalid_argument(
+        "parameter T_MAX is not defined"));
+    if (!np.defined("DELTA_T") && !p.defined("DELTA_T"))
+      boost::throw_exception(std::invalid_argument(
+        "parameter DELTA_T is not defined"));
+    double t_min = np.value_or_default("T_MIN", p.value_or_default("T_MIN", 0));
+    double t_max = np.value_or_default("T_MAX", p.value_or_default("T_MAX", 0));
+    double delta_t = np.value_or_default("DELTA_T",
+                                         p.value_or_default("DELTA_T", 0));
+  }
 };
 
 } // end namespace looper

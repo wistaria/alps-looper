@@ -27,6 +27,59 @@
 #include <alps/alea.h>
 #include <alps/scheduler.h>
 #include <boost/filesystem/operations.hpp>
+#include <boost/program_options.hpp>
+
+class options
+{
+public:
+  typedef std::vector<std::string>::iterator file_iterator;
+  typedef std::vector<std::string>::const_iterator const_file_iterator;
+
+  options() {}
+  options(int argc, char** argv) { parse(argc, argv); }
+
+  bool parse(int argc, char** argv)
+  {
+    namespace po = boost::program_options;
+
+    po::options_description desc("options");
+    desc.add_options()
+      ("help", "produce help message")
+      ("T_MIN", po::value<double>(), "set minimum temperature")
+      ("T_MAX", po::value<double>(), "set maximum temperature")
+      ("DELTA_T", po::value<double>(), "set delta T")
+      ("input-file", po::value<std::vector<std::string> >(&files_),
+       "input file");
+
+    po::positional_options_description p;
+    p.add("input-file", -1);
+
+    po::variables_map vm;
+    store(po::command_line_parser(argc, argv).options(desc).positional(p).run(),
+          vm);
+    notify(vm);
+
+    if (vm.count("help")) {
+      std::cout << desc << "\n";
+      return false;
+    }
+
+    if (vm.count("T_MIN")) params_["T_MIN"] = vm["T_MIN"].as<double>();
+    if (vm.count("T_MAX")) params_["T_MAX"] = vm["T_MAX"].as<double>();
+    if (vm.count("DELTA_T")) params_["DELTA_T"] = vm["DELTA_T"].as<double>();
+
+    return true;
+  }
+
+  alps::Parameters const& parameters() const { return params_; }
+  unsigned int num_files() const { return files_.size(); }
+  boost::filesystem::path file(unsigned int i) const
+  { return complete(boost::filesystem::path(files_[i])); }
+
+private:
+  alps::Parameters params_;
+  std::vector<std::string> files_;
+};
 
 int main(int argc, char** argv)
 {
@@ -36,19 +89,17 @@ try {
 
   typedef looper::evaluator<loop_config::estimator_t> evaluator_t;
 
-  if (argc < 2) {
-    std::cerr << "Usage: " << argv[0] << " file1 [file2 [...]]\n";
-    std::exit(-1);
-  }
+  options opts;
+  if (!opts.parse(argc, argv)) std::exit(-1);
 
   alps::scheduler::SimpleMCFactory<evaluator_t> evaluator_factory;
   alps::scheduler::init(evaluator_factory);
-  for (int i = 1; i < argc; ++i) {
-    boost::filesystem::path p = complete(boost::filesystem::path(argv[i]));
+  for (int i = 0; i < opts.num_files(); ++i) {
+    boost::filesystem::path p = opts.file(i);
     alps::ProcessList nowhere;
     alps::scheduler::MCSimulation sim(nowhere, p);
     if (sim.runs.size()) {
-      dynamic_cast<evaluator_t*>(sim.runs[0])->evaluate(sim);
+      dynamic_cast<evaluator_t*>(sim.runs[0])->evaluate(sim, opts.parameters());
       sim.checkpoint(p);
     }
   }
