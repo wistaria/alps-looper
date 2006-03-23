@@ -109,6 +109,7 @@ qmc_worker_pi::qmc_worker_pi(alps::ProcessList const& w,
   //
 
   if (is_signed()) measurements << alps::RealObservable("Sign");
+  looper::energy_estimator::initialize(measurements, is_signed());
   estimator_t::initialize(measurements, is_bipartite(), is_signed(),
                           use_improved_estimator());
 }
@@ -357,10 +358,11 @@ void qmc_worker_pi::measure()
       if (ci->to_flip) ene -= ci->weight;
       else ene += ci->weight;
   }
+  looper::energy_estimator::measure(measurements, beta(), nrs, nop, sign, ene);
 
   looper::measurement::normal_estimator<estimator_t, qmc_type, BIPARTITE,
     IMPROVE>::type::measure(measurements, vgraph(), beta(), nrs, nop, sign,
-                            ene, spins, operators, spins_c);
+                            spins, operators, spins_c);
 }
 
 //

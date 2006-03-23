@@ -109,7 +109,8 @@ struct gap_estimator : public looper::base_estimator
       p += looper::power2(cm.p);
       return *this;
     }
-    void commit(alps::ObservableSet& m, double beta, int nrs, int nop,
+    template<typename M>
+    void commit(M& m, double beta, int nrs, int nop,
                 double sign) const
     {
       using looper::power2;
@@ -126,7 +127,7 @@ struct gap_estimator : public looper::base_estimator
   {
     template<class G, class OP>
     static void measure(alps::ObservableSet& m, G const& vg,
-                        double beta, int nrs, int, double sign, double,
+                        double beta, int nrs, int, double sign,
                         std::vector<int> const& spins,
                         std::vector<OP> const& operators,
                         std::vector<int>& spins_c)

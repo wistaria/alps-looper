@@ -57,7 +57,7 @@ public:
   }
 
   static void evaluate(alps::ObservableSet& m, alps::ObservableSet const& m_in)
-  { estimator_t::evaluate(m, m_in); }
+  { energy_estimator::evaluate(m, m_in); estimator_t::evaluate(m, m_in); }
 
   static void qwl_evaluate(alps::ObservableSet const& m,
                            alps::Parameters const& p,

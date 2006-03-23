@@ -215,110 +215,61 @@ inline alps::IDump& operator>>(alps::IDump& dp, looper::wl_histogram& h)
 namespace looper {
 
 template<typename T>
-class histogram
-{
-public:
-  histogram() : left_(0) {}
-
-  void resize(unsigned int size, unsigned int left = 0)
-  {
-    data_.clear();
-    data_.resize(size, 0);
-    left_ = left;
-  }
-
-  void fill(typename boost::call_traits<T>::param_type x)
-  { std::fill(data_.begin(), data_.end(), x); }
-
-  void subtract()
-  { std::for_each(data_.begin(), data_.end(), boost::lambda::_1 -= data_[0]); }
-
-  std::valarray<T> get_array(unsigned int min, unsigned int max) const
-  {
-    std::valarray<T> dval;
-    dval.resize(max - min + 1);
-    int count = 0;
-    for (int i = min - left_; i <= max - left_; ++i, ++count)
-      dval[count] = data_[i];
-    return dval;
-  }
-
-  const T& operator[](unsigned int i) const { return data_[i - left_]; }
-  T& operator[](unsigned int i) { return data_[i - left_]; }
-
-  unsigned int left() const { return left_; }
-  unsigned int right() const { return left_ + size() - 1; }
-  unsigned int size() const { return data_.size(); }
-  double flatness() const
-  {
-    double av = std::accumulate(data_.begin(), data_.end(), 0.) / size();
-    double diff = std::abs(data_[0] - av);
-    for (int i = 1; i < size(); ++i)
-      diff = std::max(diff, std::abs(data_[i] - av));
-    return dip(diff, av);
-  }
-  T min() const
-  {
-    T min = data_[0];
-    for (int i = 1; i < size(); ++i) if (data_[i] < min) min = data_[i];
-    return min;
-  }
-  void save(alps::ODump& dp) const { dp << data_ << left_; }
-  void load(alps::IDump& dp)
-  { dp >> data_ >> left_; right_ = left_ + size() - 1; }
-
-private:
-  std::vector<T> data_;
-  unsigned int left_;
-  unsigned int right_;
-};
-
-template<typename T>
 class histogram_descriptor
 {
 public:
-  typedef histogram<T> histogram_t;
-  histogram_descriptor(histogram_t& h, unsigned int p) : hist_(h), pos_(p) {}
-  histogram_descriptor& operator<<(T const& x)
-  {
-    hist_[pos_] += x;
-    return *this;
-  }
+  typedef T                                   histogram_type;
+  typedef typename histogram_type::value_type value_type;
+  histogram_descriptor(value_type *p) : ptr_(p) {}
+  histogram_descriptor& operator<<(value_type const& x)
+  { *ptr_ += x; return *this; }
 private:
-  histogram_t& hist_;
-  unsigned int pos_;
+  value_type *ptr_;
 };
 
 template<typename T>
-class histogram_set : public std::map<std::string, histogram<T> >
+class histogram_set
 {
 public:
-  typedef std::map<std::string, histogram<T> > super_type;
-  typedef histogram<T>                         histogram_type;
-  typedef histogram_descriptor<T>              descriptor_type;
+  typedef std::vector<T>                         histogram_type;
+  typedef std::map<std::string, histogram_type > map_type;
+  typedef histogram_descriptor<histogram_type>   descriptor_type;
 
-  histogram_set() : super_type() {}
-  histogram_set(histogram_set const& h) : super_type(h) {}
-  ~histogram_set() {}
+  histogram_set() {}
+  template<typename U>
+  histogram_set(integer_range<U> const& r) :
+    offset_(r.min()), size_(r.size()), map_() {}
+  histogram_set(histogram_set const& h) :
+    offset_(h.offset_), size_(h.size_), map_(h.map_), pos_(h.pos_) {}
+
+  template<typename U>
+  void initialize(integer_range<U> const& r)
+  {
+    offset_ = r.min();
+    size_ = r.size();
+    map_.clear();
+  }
 
   void add_histogram(std::string const& name)
-  { super_type::operator[](name) = histogram_type(); }
+  { map_[name] = histogram_type(size_, 0); }
   bool has(std::string const& name) const
-  { return super_type::end() != super_type::find(name); }
+  { return map_.find(name) != map_.end(); }
 
-  void set_index(unsigned int p) { index_ = p; }
-
-  descriptor_type& operator[](std::string const& name)
-  { return descriptor_type(super_type::operator[](name), index_); }
+  void set_position(unsigned int p) { pos_ = p; }
+  descriptor_type operator[](std::string const& name)
+  { return descriptor_type(&map_[name][pos_ - offset_]); }
 
 private:
-  unsigned int index_;
+  int offset_;
+  unsigned int size_;
+  map_type map_;
+  unsigned int pos_;
 };
 
 
 template<typename T>
 void add_measurement(histogram_set<T>& h, std::string const& name,
-                     bool is_signed = false)
+                     bool /* is_signed */ = false)
 { if (!h.has(name)) h.add_histogram(name); }
 
 } // end namespace loper

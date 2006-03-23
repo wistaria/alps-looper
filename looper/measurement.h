@@ -170,7 +170,8 @@ struct base_estimator
   {
     template<class EST>
     collector operator+(EST const&) const { return *this; }
-    void commit(alps::ObservableSet&, double, int, int, double) const {}
+    template<typename M>
+    void commit(M&, double, int, int, double) const {}
   };
 
   // normal estimator
@@ -180,7 +181,7 @@ struct base_estimator
   {
     template<class G, class OP>
     static void measure(alps::ObservableSet const&, G const&,
-                        double, int, int, double, double,
+                        double, int, int, double,
                         std::vector<int> const&, std::vector<OP> const&,
                         std::vector<int> const&) {}
   };
@@ -263,7 +264,8 @@ struct estimator_adaptor : public base_estimator
       base2::operator+(cm);
       return *this;
     }
-    void commit(alps::ObservableSet& m, double beta, int nrs, int nop,
+    template<typename M>
+    void commit(M& m, double beta, int nrs, int nop,
                 double sign) const
     {
       base1::commit(m, beta, nrs, nop, sign);
@@ -276,15 +278,15 @@ struct estimator_adaptor : public base_estimator
   {
     template<typename G, class OP>
     static void measure(alps::ObservableSet& m, G const& vg,
-                        double beta, int nrs, int nop, double sign, double ene,
+                        double beta, int nrs, int nop, double sign,
                         std::vector<int> const& spins,
                         std::vector<OP> const& operators,
                         std::vector<int>& spins_c)
     {
       estimator1::template normal_estimator<QMC, BIPARTITE, IMPROVE>::
-        measure(m, vg, beta, nrs, nop, sign, ene, spins, operators, spins_c);
+        measure(m, vg, beta, nrs, nop, sign, spins, operators, spins_c);
       estimator2::template normal_estimator<QMC, BIPARTITE, IMPROVE>::
-        measure(m, vg, beta, nrs, nop, sign, ene, spins, operators, spins_c);
+        measure(m, vg, beta, nrs, nop, sign, spins, operators, spins_c);
     }
   };
 };
@@ -294,11 +296,10 @@ struct estimator_adaptor : public base_estimator
 // energy_estimator
 //
 
-struct energy_estimator : public base_estimator
+struct energy_estimator
 {
   template<class T>
-  static void initialize(T& m, bool /* is_bipartite */, bool is_signed,
-                         bool /* use_improved_estimator */)
+  static void initialize(T& m, bool is_signed)
   {
     add_measurement(m, "Energy", is_signed);
     add_measurement(m, "Energy Density", is_signed);
@@ -328,21 +329,13 @@ struct energy_estimator : public base_estimator
 
   // normal_estimator
 
-  template<typename QMC, typename BIPARTITE, typename IMPROVE>
-  struct normal_estimator
+  static void measure(alps::ObservableSet& m, double beta, int nrs, int nop,
+                      double sign, double ene)
   {
-    template<class G, class OP>
-    static void measure(alps::ObservableSet& m, G const& /* vg */,
-                        double beta, int nrs, int nop, double sign, double ene,
-                        std::vector<int> const& /* spins */,
-                        std::vector<OP> const& /* operators */,
-                        std::vector<int>& /* spins_c */)
-    {
-      m["Energy"] << sign * ene;
-      m["Energy Density"] << sign * ene / nrs;
-      m["Energy^2"] << sign * (power2(ene) - nop / power2(beta));
-    }
-  };
+    m["Energy"] << sign * ene;
+    m["Energy Density"] << sign * ene / nrs;
+    m["Energy^2"] << sign * (power2(ene) - nop / power2(beta));
+  }
 };
 
 //
@@ -491,7 +484,8 @@ struct susceptibility_estimator : public base_estimator
       }
       return *this;
     }
-    void commit(alps::ObservableSet& m, double beta, int nrs, int nop,
+    template<typename M>
+    void commit(M& m, double beta, int nrs, int nop,
                 double sign) const
     {
       if (IMPROVE()) {
@@ -537,7 +531,7 @@ struct susceptibility_estimator : public base_estimator
   {
     template<class G, class OP>
     static void measure(alps::ObservableSet& m, G const& vg,
-                        double beta, int nrs, int nop, double sign, double,
+                        double beta, int nrs, int nop, double sign,
                         std::vector<int> const& spins,
                         std::vector<OP> const& operators,
                         std::vector<int>& spins_c)

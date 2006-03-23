@@ -132,6 +132,14 @@ qmc_worker_swl::qmc_worker_swl(alps::ProcessList const& w,
   if (factor <= 1)
     boost::throw_exception(std::invalid_argument("initial modification factor "
                                                  "must be larger than 1"));
+  //
+  // initialize measurements
+  //
+
+  measurement_histograms.initialize(exp_range);
+  if (is_signed()) measurement_histograms.add_histogram("Sign");
+  estimator_t::initialize(measurement_histograms, is_bipartite(), is_signed(),
+                          use_improved_estimator());
 }
 
 void qmc_worker_swl::dostep()
@@ -154,15 +162,13 @@ void qmc_worker_swl::dostep()
   flip<mpl::false_, mpl::false_, mpl::false_, mpl::true_ >();
   flip<mpl::false_, mpl::false_, mpl::false_, mpl::false_>();
 
-  /*
-  if (is_thermalized()) {
+  if (mcs.doing_multicanonical()) {
     //      BIPARTITE    IMPROVE
     measure<mpl::true_,  mpl::true_ >();
     measure<mpl::true_,  mpl::false_>();
     measure<mpl::false_, mpl::true_ >();
     measure<mpl::false_, mpl::false_>();
   }
-  */
 
   if (!mcs.doing_multicanonical() && mcs() == mcs.mcs_block()) {
     if (histogram.check_flatness(flatness) &&
@@ -363,13 +369,15 @@ void qmc_worker_swl::flip()
     if (clusters[fragments[s].id].to_flip) spins[s] ^= 1;
 
   // improved measurement
-  /*  if (IMPROVE()) {
+  if (IMPROVE()) {
     typename looper::measurement::collector<estimator_t, qmc_type, BIPARTITE,
       IMPROVE>::type coll;
     coll = std::accumulate(estimates.begin(), estimates.end(), coll);
-    coll.commit(measurements, beta(), num_sites(rgraph()), nop, improved_sign);
-    if (SIGN()) measurements["Sign"] << improved_sign;
-    } */
+    measurement_histograms.set_position(nop);
+    coll.commit(measurement_histograms, beta(), num_sites(rgraph()), nop,
+                improved_sign);
+    if (SIGN()) measurement_histograms["Sign"] << improved_sign;
+  }
 }
 
 
@@ -398,11 +406,11 @@ void qmc_worker_swl::measure()
 
   // energy
   int nop = operators.size();
-  double ene = energy_offset() - nop / beta();
 
+  measurement_histograms.set_position(nop);
   looper::measurement::normal_estimator<estimator_t, qmc_type, BIPARTITE,
     IMPROVE>::type::measure(measurements, vgraph(), beta(), nrs, nop, sign,
-                            ene, spins, operators, spins_c);
+                            spins, operators, spins_c);
 }
 
 //

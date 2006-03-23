@@ -105,6 +105,7 @@ qmc_worker_sse::qmc_worker_sse(alps::ProcessList const& w,
   //
 
   if (is_signed()) measurements << alps::RealObservable("Sign");
+  looper::energy_estimator::initialize(measurements, is_signed());
   estimator_t::initialize(measurements, is_bipartite(), is_signed(),
                           use_improved_estimator());
 }
@@ -351,10 +352,11 @@ void qmc_worker_sse::measure()
   // energy
   int nop = operators.size();
   double ene = energy_offset() - nop / beta();
+  looper::energy_estimator::measure(measurements, beta(), nrs, nop, sign, ene);
 
   looper::measurement::normal_estimator<estimator_t, qmc_type, BIPARTITE,
     IMPROVE>::type::measure(measurements, vgraph(), beta(), nrs, nop, sign,
-                            ene, spins, operators, spins_c);
+                            spins, operators, spins_c);
 }
 
 //
