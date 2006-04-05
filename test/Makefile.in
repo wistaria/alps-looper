@@ -42,9 +42,9 @@ check_PROGRAMS = alternating_tensor$(EXEEXT) bond_matrix$(EXEEXT) \
 	generate_01$(EXEEXT) gesvd$(EXEEXT) hypercubic$(EXEEXT) \
 	llsp$(EXEEXT) model_parameter$(EXEEXT) parse_vector$(EXEEXT) \
 	permutation$(EXEEXT) postorder$(EXEEXT) random_choice$(EXEEXT) \
-	range$(EXEEXT) sign$(EXEEXT) site_matrix$(EXEEXT) \
-	syev$(EXEEXT) union_find$(EXEEXT) virtual_lattice$(EXEEXT) \
-	weight$(EXEEXT)
+	range$(EXEEXT) regex$(EXEEXT) sign$(EXEEXT) \
+	site_matrix$(EXEEXT) syev$(EXEEXT) union_find$(EXEEXT) \
+	virtual_lattice$(EXEEXT) weight$(EXEEXT)
 subdir = test
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
@@ -118,6 +118,10 @@ am_range_OBJECTS = range.$(OBJEXT)
 range_OBJECTS = $(am_range_OBJECTS)
 range_LDADD = $(LDADD)
 range_DEPENDENCIES =
+am_regex_OBJECTS = regex.$(OBJEXT)
+regex_OBJECTS = $(am_regex_OBJECTS)
+regex_LDADD = $(LDADD)
+regex_DEPENDENCIES =
 am_sign_OBJECTS = sign.$(OBJEXT)
 sign_OBJECTS = $(am_sign_OBJECTS)
 sign_LDADD = $(LDADD)
@@ -159,9 +163,9 @@ SOURCES = $(alternating_tensor_SOURCES) $(bond_matrix_SOURCES) \
 	$(llsp_SOURCES) $(model_parameter_SOURCES) \
 	$(parse_vector_SOURCES) $(permutation_SOURCES) \
 	$(postorder_SOURCES) $(random_choice_SOURCES) $(range_SOURCES) \
-	$(sign_SOURCES) $(site_matrix_SOURCES) $(syev_SOURCES) \
-	$(union_find_SOURCES) $(virtual_lattice_SOURCES) \
-	$(weight_SOURCES)
+	$(regex_SOURCES) $(sign_SOURCES) $(site_matrix_SOURCES) \
+	$(syev_SOURCES) $(union_find_SOURCES) \
+	$(virtual_lattice_SOURCES) $(weight_SOURCES)
 DIST_SOURCES = $(alternating_tensor_SOURCES) $(bond_matrix_SOURCES) \
 	$(compatibility_SOURCES) $(edge_type_SOURCES) \
 	$(filtered_graph_SOURCES) $(find_bridge_SOURCES) \
@@ -169,9 +173,9 @@ DIST_SOURCES = $(alternating_tensor_SOURCES) $(bond_matrix_SOURCES) \
 	$(llsp_SOURCES) $(model_parameter_SOURCES) \
 	$(parse_vector_SOURCES) $(permutation_SOURCES) \
 	$(postorder_SOURCES) $(random_choice_SOURCES) $(range_SOURCES) \
-	$(sign_SOURCES) $(site_matrix_SOURCES) $(syev_SOURCES) \
-	$(union_find_SOURCES) $(virtual_lattice_SOURCES) \
-	$(weight_SOURCES)
+	$(regex_SOURCES) $(sign_SOURCES) $(site_matrix_SOURCES) \
+	$(syev_SOURCES) $(union_find_SOURCES) \
+	$(virtual_lattice_SOURCES) $(weight_SOURCES)
 DATA = $(dist_noinst_DATA)
 ETAGS = etags
 CTAGS = ctags
@@ -314,6 +318,7 @@ dist_noinst_DATA = \
 	postorder.ip postorder.op \
 	random_choice.op \
 	range.ip range.op \
+	regex.op \
 	sign.ip sign.op \
 	site_matrix.ip site_matrix.op \
 	syev.op \
@@ -339,6 +344,7 @@ permutation_SOURCES = permutation.C
 postorder_SOURCES = postorder.C
 random_choice_SOURCES = random_choice.C
 range_SOURCES = range.C
+regex_SOURCES = regex.C
 sign_SOURCES = sign.C
 site_matrix_SOURCES = site_matrix.C
 syev_SOURCES = syev.C
@@ -433,6 +439,9 @@ random_choice$(EXEEXT): $(random_choice_OBJECTS) $(random_choice_DEPENDENCIES)
 range$(EXEEXT): $(range_OBJECTS) $(range_DEPENDENCIES) 
 	@rm -f range$(EXEEXT)
 	$(CXXLINK) $(range_LDFLAGS) $(range_OBJECTS) $(range_LDADD) $(LIBS)
+regex$(EXEEXT): $(regex_OBJECTS) $(regex_DEPENDENCIES) 
+	@rm -f regex$(EXEEXT)
+	$(CXXLINK) $(regex_LDFLAGS) $(regex_OBJECTS) $(regex_LDADD) $(LIBS)
 sign$(EXEEXT): $(sign_OBJECTS) $(sign_DEPENDENCIES) 
 	@rm -f sign$(EXEEXT)
 	$(CXXLINK) $(sign_LDFLAGS) $(sign_OBJECTS) $(sign_LDADD) $(LIBS)
@@ -474,6 +483,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/postorder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/random_choice.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/range.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/regex.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sign.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/site_matrix.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/syev.Po@am__quote@

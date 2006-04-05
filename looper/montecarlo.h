@@ -137,6 +137,7 @@ public:
   bool use_zhou_bhatt() const { return zhou_bhatt_; }
   int mcs_block() const { return block_; }
   looper::integer_range<int> mcs_sweeps() const { return sweep_; }
+  int num_iterations() const { return iteration_; }
 
   void save(alps::ODump& dp) const
   {

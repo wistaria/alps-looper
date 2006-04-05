@@ -140,6 +140,19 @@ qmc_worker_swl::qmc_worker_swl(alps::ProcessList const& w,
   if (is_signed()) measurement_histograms.add_histogram("Sign");
   estimator_t::initialize(measurement_histograms, is_bipartite(), is_signed(),
                           use_improved_estimator());
+
+  measurements
+    << alps::SimpleRealObservable("Energy Offset")
+    << alps::SimpleRealVectorObservable("Partition Function Coefficient")
+    << alps::SimpleRealObservable("Histogram");
+
+  if (parms.defined("STORE_ALL_HISTOGRAMS"))
+    for (int p = 0; p < mcs.num_iterations(); ++p)
+      measurements
+        << alps::SimpleRealVectorObservable("Partition Function Coefficient "
+             "(iteration #" + boost::lexical_cast<std::string>(p) + ")")
+        << alps::SimpleRealVectorObservable("Histogram "
+             "(iteration #" + boost::lexical_cast<std::string>(p) + ")");
 }
 
 void qmc_worker_swl::dostep()
