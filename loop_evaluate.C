@@ -88,23 +88,23 @@ int main(int argc, char** argv)
 try {
 #endif
 
-  //  typedef looper::evaluator<loop_config::estimator_t> evaluator_t;
+  typedef looper::evaluator<loop_config::estimator_t> evaluator_t;
 
   options opts;
   if (!opts.parse(argc, argv)) std::exit(-1);
 
-//   alps::scheduler::SimpleMCFactory<evaluator_t> evaluator_factory;
-//   alps::scheduler::init(evaluator_factory);
-//   for (int i = 0; i < opts.num_files(); ++i) {
-//     boost::filesystem::path f = opts.file(i);
-//     alps::ProcessList nowhere;
-//     alps::scheduler::MCSimulation sim(nowhere, f);
-//     if (sim.runs.size()) {
-//       dynamic_cast<evaluator_t*>(sim.runs[0])->
-//         evaluate(sim, opts.parameters(), f);
-//       sim.checkpoint(p);
-//     }
-//   }
+  alps::scheduler::SimpleMCFactory<evaluator_t> evaluator_factory;
+  alps::scheduler::init(evaluator_factory);
+  for (int i = 0; i < opts.num_files(); ++i) {
+    boost::filesystem::path f = opts.file(i);
+    alps::ProcessList nowhere;
+    alps::scheduler::MCSimulation sim(nowhere, f);
+    if (sim.runs.size()) {
+      dynamic_cast<evaluator_t*>(sim.runs[0])->
+        evaluate(sim, opts.parameters(), f);
+      sim.checkpoint(f);
+    }
+  }
 
 #ifndef BOOST_NO_EXCEPTIONS
 }
