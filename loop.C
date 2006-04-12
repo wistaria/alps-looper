@@ -32,7 +32,7 @@ int main(int argc, char** argv)
   try {
 #endif
 
-  return alps::scheduler::start(argc, argv, *qmc_factory::instance());
+  return alps::scheduler::start(argc, argv, *loop_factory::instance());
 
 #ifndef BOOST_NO_EXCEPTIONS
   }

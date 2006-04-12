@@ -15,7 +15,6 @@ check_PROGRAMS = \
 	postorder \
 	random_choice \
 	range \
-	regex \
 	sign \
 	site_matrix \
 	syev \
@@ -39,7 +38,6 @@ dist_noinst_DATA = \
 	postorder.ip postorder.op \
 	random_choice.op \
 	range.ip range.op \
-	regex.op \
 	sign.ip sign.op \
 	site_matrix.ip site_matrix.op \
 	syev.op \
@@ -66,7 +64,6 @@ permutation_SOURCES = permutation.C
 postorder_SOURCES = postorder.C
 random_choice_SOURCES = random_choice.C
 range_SOURCES = range.C
-regex_SOURCES = regex.C
 sign_SOURCES = sign.C
 site_matrix_SOURCES = site_matrix.C
 syev_SOURCES = syev.C
@@ -75,5 +72,3 @@ virtual_lattice_SOURCES = virtual_lattice.C
 weight_SOURCES = weight.C
 
 test tests : $(check_PROGRAMS)
-clean-local :
-	rm -f amida.xdr

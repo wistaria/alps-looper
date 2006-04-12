@@ -22,6 +22,7 @@
 *
 *****************************************************************************/
 
+#include <looper/evaluator.h>
 #include <alps/scheduler.h>
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
@@ -48,7 +49,7 @@ public:
   { return new worker_type(w, p, n); }
 };
 
-class qmc_factory
+class loop_factory
   : public alps::scheduler::Factory, private boost::noncopyable
 {
 public:
@@ -79,17 +80,84 @@ public:
     return true;
   }
 
-  static qmc_factory* instance()
+  static loop_factory* instance()
   {
-    if (!ptr_) ptr_ = new qmc_factory;
+    if (!ptr_) ptr_ = new loop_factory;
     return ptr_;
   }
 
 private:
-  qmc_factory() {}
-  ~qmc_factory() {}
+  loop_factory() {}
+  ~loop_factory() {}
 
-  static qmc_factory* ptr_;
+  static loop_factory* ptr_;
+
+  typedef boost::shared_ptr<abstract_worker_creator> pointer_type;
+  typedef std::map<std::string, pointer_type> map_type;
+  map_type creators_;
+};
+
+class abstract_evaluator_creator
+{
+public:
+  virtual ~abstract_evaluator_creator() {}
+  virtual looper::abstract_evaluator* create(const alps::ProcessList& w,
+    const alps::Parameters& p, int n) const = 0;
+};
+
+template <typename EVALUATOR>
+class evaluator_creator : public abstract_evaluator_creator
+{
+public:
+  typedef EVALUATOR evaluator_type;
+  virtual ~evaluator_creator() {}
+  looper::abstract_evaluator* create(const alps::ProcessList& w,
+    const alps::Parameters& p, int n) const
+  { return new evaluator_type(w, p, n); }
+};
+
+class evaluator_factory
+  : ::Factory, private boost::noncopyable
+{
+public:
+  alps::scheduler::MCSimulation* make_task(const alps::ProcessList& w,
+    const boost::filesystem::path& fn) const;
+  alps::scheduler::MCSimulation* make_task(const alps::ProcessList& w,
+    const boost::filesystem::path& fn, const alps::Parameters&) const;
+  alps::scheduler::MCSimulation* make_task(const alps::ProcessList&,
+    const alps::Parameters&) const { return 0; }
+  alps::scheduler::MCRun* make_worker(const alps::ProcessList& w,
+                                      const alps::Parameters& p, int n) const;
+
+  void print_copyright(std::ostream& os) const;
+
+  template<typename WORKER>
+  bool register_worker(std::string const& name)
+  {
+    bool isnew = (creators_.find(name) == creators_.end());
+    creators_[name] = pointer_type(new worker_creator<WORKER>());
+    return isnew;
+  }
+
+  bool unregister_worker(std::string const& name)
+  {
+    map_type::iterator itr = creators_.find(name);
+    if (itr == creators_.end()) return false;
+    creators_.erase(itr);
+    return true;
+  }
+
+  static loop_factory* instance()
+  {
+    if (!ptr_) ptr_ = new loop_factory;
+    return ptr_;
+  }
+
+private:
+  loop_factory() {}
+  ~loop_factory() {}
+
+  static loop_factory* ptr_;
 
   typedef boost::shared_ptr<abstract_worker_creator> pointer_type;
   typedef std::map<std::string, pointer_type> map_type;

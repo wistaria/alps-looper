@@ -35,8 +35,17 @@
 
 namespace looper {
 
+class abstract_evaluator : public alps::scheduler::MCRun
+{
+  virtual ~abstract_evaluator(alps::ProcessList const&,
+                              alps::Parameters const&, int) {}
+  virtual void evaluate(alps::scheduler::MCSimulation& sim,
+                        alps::Parameters const& np,
+                        boost::filesystem::path const& f) const = 0;
+};
+
 template<typename ESTIMATOR>
-class evaluator : public alps::scheduler::MCRun
+class evaluator : public abstract_evaluator
 {
 public:
   typedef ESTIMATOR              estimator_t;
