@@ -32,7 +32,7 @@
 #include <alps/alea.h>
 #include <alps/scheduler.h>
 
-class qmc_worker
+class loop_worker
   : public alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
 {
 public:
@@ -46,9 +46,9 @@ public:
   typedef looper::graph_chooser<loop_graph_t, super_type::engine_type>
     graph_chooser;
 
-  qmc_worker(alps::ProcessList const& w, alps::Parameters const& p,
-             int n, bool is_path_integral = true);
-  virtual ~qmc_worker() {}
+  loop_worker(alps::ProcessList const& w, alps::Parameters const& p,
+              int n, bool is_path_integral = true);
+  virtual ~loop_worker() {}
 
   virtual void dostep();
   virtual void evaluate();

@@ -31,11 +31,11 @@
 #include <looper/type.h>
 #include <alps/fixed_capacity_vector.h>
 
-class qmc_worker_pi : public qmc_worker
+class loop_worker_pi : public loop_worker
 {
 public:
   typedef looper::path_integral         qmc_type;
-  typedef qmc_worker                    super_type;
+  typedef loop_worker                   super_type;
 
   typedef looper::local_operator<qmc_type, loop_graph_t, time_t>
                                         local_operator_t;
@@ -48,7 +48,7 @@ public:
   typedef loop_config::estimator_t      estimator_t;
   typedef looper::measurement::estimate<estimator_t>::type estimate_t;
 
-  qmc_worker_pi(alps::ProcessList const& w, alps::Parameters const& p, int n);
+  loop_worker_pi(alps::ProcessList const& w, alps::Parameters const& p, int n);
   void dostep();
 
   bool is_thermalized() const { return mcs.is_thermalized(); }
@@ -85,8 +85,8 @@ private:
 
 };
 
-qmc_worker_pi::qmc_worker_pi(alps::ProcessList const& w,
-                             alps::Parameters const& p, int n)
+loop_worker_pi::loop_worker_pi(alps::ProcessList const& w,
+                               alps::Parameters const& p, int n)
   : super_type(w, p, n, looper::is_path_integral<qmc_type>::type()),
     r_time(*engine_ptr,
            boost::exponential_distribution<>(beta() * total_graph_weight())),
@@ -114,7 +114,7 @@ qmc_worker_pi::qmc_worker_pi(alps::ProcessList const& w,
                           use_improved_estimator());
 }
 
-void qmc_worker_pi::dostep()
+void loop_worker_pi::dostep()
 {
   namespace mpl = boost::mpl;
 
@@ -154,7 +154,7 @@ void qmc_worker_pi::dostep()
 // diagonal update and cluster construction
 //
 
-void qmc_worker_pi::build()
+void loop_worker_pi::build()
 {
   // initialize spin & operator information
   std::copy(spins.begin(), spins.end(), spins_c.begin());
@@ -238,7 +238,7 @@ void qmc_worker_pi::build()
 //
 
 template<typename BIPARTITE, typename FIELD, typename SIGN, typename IMPROVE>
-void qmc_worker_pi::flip()
+void loop_worker_pi::flip()
 {
   if (!(is_bipartite() == BIPARTITE() &&
         has_field() == FIELD() &&
@@ -331,7 +331,7 @@ void qmc_worker_pi::flip()
 //
 
 template<typename BIPARTITE, typename IMPROVE>
-void qmc_worker_pi::measure()
+void loop_worker_pi::measure()
 {
   if (!(is_bipartite() == BIPARTITE() &&
         use_improved_estimator() == IMPROVE())) return;
@@ -366,12 +366,12 @@ void qmc_worker_pi::measure()
 }
 
 //
-// dynamic registration to the qmc_factory
+// dynamic registration to the loop_factory
 //
 
 namespace {
 
 const bool registered =
-  qmc_factory::instance()->register_worker<qmc_worker_pi>("path integral");
+  loop_factory::instance()->register_worker<loop_worker_pi>("path integral");
 
 }

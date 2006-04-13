@@ -25,6 +25,7 @@
 #ifndef LOOPER_EVALUATE_H
 #define LOOPER_EVALUATE_H
 
+#include "measurement.h"
 #include "util.h"
 
 #include <alps/alea.h>
@@ -37,8 +38,10 @@ namespace looper {
 
 class abstract_evaluator : public alps::scheduler::MCRun
 {
-  virtual ~abstract_evaluator(alps::ProcessList const&,
-                              alps::Parameters const&, int) {}
+public:
+  abstract_evaluator(alps::ProcessList const& w, alps::Parameters const& p,
+                     int n) : alps::scheduler::MCRun(w, p, n) {}
+  virtual ~abstract_evaluator() {}
   virtual void evaluate(alps::scheduler::MCSimulation& sim,
                         alps::Parameters const& np,
                         boost::filesystem::path const& f) const = 0;
@@ -48,8 +51,8 @@ template<typename ESTIMATOR>
 class evaluator : public abstract_evaluator
 {
 public:
-  typedef ESTIMATOR              estimator_t;
-  typedef alps::scheduler::MCRun super_type;
+  typedef ESTIMATOR          estimator_t;
+  typedef abstract_evaluator super_type;
 
   evaluator(alps::ProcessList const& w, alps::Parameters const& p, int n)
     : super_type(w, p, n) {}
@@ -157,7 +160,8 @@ public:
       pl.set_name(long_name + " versus Temperature (" + prefix + ")");
       pl.set_labels("Temperature", long_name);
       pl << itr->second;
-      alps::oxstream(prefix + ".plot." + short_name + ".xml") << pl;
+      alps::oxstream oxs(prefix + ".plot." + short_name + ".xml");
+      oxs << pl;
     }
   }
 };

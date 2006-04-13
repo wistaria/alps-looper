@@ -310,8 +310,8 @@ struct energy_estimator
   {
     if (m_in.has("Inverse Temperature") && m_in.has("Number of Sites") &&
         m_in.has("Energy") && m_in.has("Energy^2")) {
-      double beta = alps::RealObsevaluator(m["Inverse Temperature"]).mean();
-      double nrs = alps::RealObsevaluator(m["Number of Sites"]).mean();
+      double beta = alps::RealObsevaluator(m_in["Inverse Temperature"]).mean();
+      double nrs = alps::RealObsevaluator(m_in["Number of Sites"]).mean();
       alps::RealObsevaluator obse_e = m_in["Energy"];
       alps::RealObsevaluator obse_e2 = m_in["Energy^2"];
       alps::RealObsevaluator eval("Specific Heat");

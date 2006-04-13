@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-#include <looper/evaluator.h>
+#include <looper/evaluate.h>
 #include <alps/scheduler.h>
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
@@ -117,7 +117,7 @@ public:
 };
 
 class evaluator_factory
-  : ::Factory, private boost::noncopyable
+  : alps::scheduler::Factory, private boost::noncopyable
 {
 public:
   alps::scheduler::MCSimulation* make_task(const alps::ProcessList& w,
@@ -131,15 +131,15 @@ public:
 
   void print_copyright(std::ostream& os) const;
 
-  template<typename WORKER>
-  bool register_worker(std::string const& name)
+  template<typename EVALUATOR>
+  bool register_evaluator(std::string const& name)
   {
     bool isnew = (creators_.find(name) == creators_.end());
-    creators_[name] = pointer_type(new worker_creator<WORKER>());
+    creators_[name] = pointer_type(new evaluator_creator<EVALUATOR>());
     return isnew;
   }
 
-  bool unregister_worker(std::string const& name)
+  bool unregister_evaluator(std::string const& name)
   {
     map_type::iterator itr = creators_.find(name);
     if (itr == creators_.end()) return false;
@@ -147,19 +147,19 @@ public:
     return true;
   }
 
-  static loop_factory* instance()
+  static evaluator_factory* instance()
   {
-    if (!ptr_) ptr_ = new loop_factory;
+    if (!ptr_) ptr_ = new evaluator_factory;
     return ptr_;
   }
 
 private:
-  loop_factory() {}
-  ~loop_factory() {}
+  evaluator_factory() {}
+  ~evaluator_factory() {}
 
-  static loop_factory* ptr_;
+  static evaluator_factory* ptr_;
 
-  typedef boost::shared_ptr<abstract_worker_creator> pointer_type;
+  typedef boost::shared_ptr<abstract_evaluator_creator> pointer_type;
   typedef std::map<std::string, pointer_type> map_type;
   map_type creators_;
 };

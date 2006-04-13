@@ -57,7 +57,7 @@ int main(int argc, char** argv)
     if (!p->defined("SEED")) (*p)["SEED"] = static_cast<unsigned int>(time(0));
     std::cout << "[input parameters]\n" << *p;
     alps::scheduler::MCRun* worker =
-      qmc_factory::instance()->make_worker(alps::ProcessList(1), *p, 0);
+      loop_factory::instance()->make_worker(alps::ProcessList(1), *p, 0);
     bool thermalized = false;
     while (worker->work_done() < 1.0) {
       worker->dostep();
@@ -66,7 +66,7 @@ int main(int argc, char** argv)
         thermalized = true;
       }
     }
-    dynamic_cast<qmc_worker*>(worker)->evaluate();
+    dynamic_cast<loop_worker*>(worker)->evaluate();
     std::cerr << "[speed]\nelapsed time = " << tm.elapsed() << " sec\n";
     std::cout << "[results]\n" << worker->get_measurements();
     delete worker;

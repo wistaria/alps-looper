@@ -26,17 +26,17 @@
 #include <looper/version.h>
 
 alps::scheduler::MCSimulation*
-qmc_factory::make_task(const alps::ProcessList& w,
+loop_factory::make_task(const alps::ProcessList& w,
   const boost::filesystem::path& fn) const
 { return new alps::scheduler::MCSimulation(w, fn); }
 
 alps::scheduler::MCSimulation*
-qmc_factory::make_task(const alps::ProcessList& w,
+loop_factory::make_task(const alps::ProcessList& w,
   const boost::filesystem::path& fn, const alps::Parameters&) const
 { return new alps::scheduler::MCSimulation(w, fn); }
 
 alps::scheduler::MCRun*
-qmc_factory::make_worker(const alps::ProcessList& w,
+loop_factory::make_worker(const alps::ProcessList& w,
   const alps::Parameters& p, int n) const
 {
   if (p.defined("REPRESENTATION")) {
@@ -54,7 +54,7 @@ qmc_factory::make_worker(const alps::ProcessList& w,
   return 0;
 }
 
-void qmc_factory::print_copyright(std::ostream& os) const
+void loop_factory::print_copyright(std::ostream& os) const
 { looper::print_copyright(os); }
 
-qmc_factory* qmc_factory::ptr_ = 0;
+loop_factory* loop_factory::ptr_ = 0;
