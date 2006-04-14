@@ -101,8 +101,8 @@ class abstract_evaluator_creator
 {
 public:
   virtual ~abstract_evaluator_creator() {}
-  virtual looper::abstract_evaluator* create(const alps::ProcessList& w,
-    const alps::Parameters& p, int n) const = 0;
+  virtual looper::abstract_evaluator* create(const alps::Parameters& p)
+    const = 0;
 };
 
 template <typename EVALUATOR>
@@ -111,25 +111,14 @@ class evaluator_creator : public abstract_evaluator_creator
 public:
   typedef EVALUATOR evaluator_type;
   virtual ~evaluator_creator() {}
-  looper::abstract_evaluator* create(const alps::ProcessList& w,
-    const alps::Parameters& p, int n) const
-  { return new evaluator_type(w, p, n); }
+  looper::abstract_evaluator* create(const alps::Parameters& p) const
+  { return new evaluator_type(p); }
 };
 
-class evaluator_factory
-  : alps::scheduler::Factory, private boost::noncopyable
+class evaluator_factory : private boost::noncopyable
 {
 public:
-  alps::scheduler::MCSimulation* make_task(const alps::ProcessList& w,
-    const boost::filesystem::path& fn) const;
-  alps::scheduler::MCSimulation* make_task(const alps::ProcessList& w,
-    const boost::filesystem::path& fn, const alps::Parameters&) const;
-  alps::scheduler::MCSimulation* make_task(const alps::ProcessList&,
-    const alps::Parameters&) const { return 0; }
-  alps::scheduler::MCRun* make_worker(const alps::ProcessList& w,
-                                      const alps::Parameters& p, int n) const;
-
-  void print_copyright(std::ostream& os) const;
+  abstract_evaluator* make_evaluator(alps::Parameters const& p) const;
 
   template<typename EVALUATOR>
   bool register_evaluator(std::string const& name)

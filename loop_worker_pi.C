@@ -25,6 +25,7 @@
 #include "loop_factory.h"
 #include "loop_worker.h"
 #include <looper/cluster.h>
+#include <looper/evaluate.h>
 #include <looper/montecarlo.h>
 #include <looper/operator.h>
 #include <looper/permutation.h>
@@ -365,13 +366,48 @@ void loop_worker_pi::measure()
                             spins, operators, spins_c);
 }
 
+
 //
-// dynamic registration to the loop_factory
+// evaluator
+//
+
+class evaluator_pi : public looper::abstract_evaluator
+{
+public:
+  typedef loop_config::estimator_t estimator_t;
+  typedef abstract_evaluator       super_type;
+
+  evaluator_pi(alps::ProcessList const& w, alps::Parameters const& p, int n)
+    : super_type(w, p, n) {}
+
+  void evaluate(alps::scheduler::MCSimulation& sim,
+                alps::Parameters const&,
+                boost::filesystem::path const&) const
+  {
+    alps::ObservableSet m;
+    evaluate(m, sim.get_measurements());
+    for (alps::ObservableSet::const_iterator itr = m.begin(); itr != m.end();
+         ++itr) sim.addObservable(*(itr->second));
+  }
+
+  static void evaluate(alps::ObservableSet& m, alps::ObservableSet const& m_in)
+  {
+    looper::energy_estimator::evaluate(m, m_in);
+    estimator_t::evaluate(m, m_in);
+  }
+};
+
+
+//
+// dynamic registration to the factories
 //
 
 namespace {
 
-const bool registered =
+const bool loop_registered =
   loop_factory::instance()->register_worker<loop_worker_pi>("path integral");
+const bool evaluator_registered =
+  evaluator_factory::instance()->register_evaluator<evaluator_pi>
+  ("path integral");
 
 }

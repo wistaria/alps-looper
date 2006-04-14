@@ -57,4 +57,28 @@ loop_factory::make_worker(const alps::ProcessList& w,
 void loop_factory::print_copyright(std::ostream& os) const
 { looper::print_copyright(os); }
 
+looper::abstract_evaluator*
+evaluator_factory::make_evaluator(const alps::Parameters& p) const
+{
+  if (p.defined("REPRESENTATION")) {
+    map_type::const_iterator itr = creators_.find(p["REPRESENTATION"]);
+    if (itr == creators_.end() || itr->second == 0)
+      boost::throw_exception(std::runtime_error("unknown representation"));
+    return itr->second->create(p);
+  } else {
+    if (creators_.size() == 1 && creators_.begin()->second)
+      return creators_.begin()->second->create(p);
+    else
+      boost::throw_exception(std::runtime_error(
+        "representation is not specified"));
+  }
+  return 0;
+}
+
+//
+// initialization static members
+//
+
 loop_factory* loop_factory::ptr_ = 0;
+
+evaluator_factory* evaluator_factory::ptr_ = 0;
