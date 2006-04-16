@@ -52,12 +52,12 @@ struct site_parameter
   double d;    // single-ion anisotropy:  + d * (Sz)^2
 
   site_parameter(double s_in = 0.5, double c_in = 0, double hx_in = 0,
-                 double hz_in = 0, double d_in = 0) :
-    s(s_in), c(c_in), hx(hx_in), hz(hz_in), d(d_in) {}
+                 double hz_in = 0, double d_in = 0)
+    : s(s_in), c(c_in), hx(hx_in), hz(hz_in), d(d_in) {}
   template<typename J>
   site_parameter(const alps::half_integer<J>& s_in, double c_in = 0,
-                 double hx_in = 0, double hz_in = 0, double d_in = 0) :
-    s(s_in), c(c_in), hx(hx_in), hz(hz_in), d(d_in) {}
+                 double hx_in = 0, double hz_in = 0, double d_in = 0)
+    : s(s_in), c(c_in), hx(hx_in), hz(hz_in), d(d_in) {}
   site_parameter(const boost::multi_array<double, 2>& mat) { do_fit(mat); }
 
   bool operator==(const site_parameter& rhs) const
@@ -66,11 +66,13 @@ struct site_parameter
       alps::is_equal<1>(hx, rhs.hx) && alps::is_equal<1>(hz, rhs.hz) &&
       alps::is_equal<1>(d, rhs.d);
   }
+  bool operator!=(const site_parameter& rhs) const { return !operator==(rhs); }
 
-  bool operator!=(const site_parameter& rhs) const
-  { return !operator==(rhs); }
+  bool is_quantal() const { return alps::is_nonzero<1>(hx); }
+  bool has_hz() const { return alps::is_nonzero<1>(hz); }
+  bool has_d() const { return alps::is_nonzero<1>(d); }
 
-private:
+protected:
   void do_fit(const boost::multi_array<double, 2>& mat);
 };
 
@@ -91,10 +93,11 @@ struct bond_parameter
       alps::is_equal<1>(jxy, rhs.jxy) &&
       alps::is_equal<1>(jz, rhs.jz);
   }
-  bool operator!=(const bond_parameter& rhs) const
-  { return !operator==(rhs); }
+  bool operator!=(const bond_parameter& rhs) const { return !operator==(rhs); }
 
-private:
+  bool is_quantal() const { return alps::is_nonzero<1>(jxy); }
+
+protected:
   void do_fit(const boost::multi_array<double, 4>& mat);
 };
 
@@ -239,8 +242,8 @@ public:
 
   model_parameter()
     : sites_(), bonds_(), use_site_index_(false), use_bond_index_(false),
-      has_hz_(false), has_d_(false), signed_(false), frustrated_(false),
-      energy_offset_(0) {}
+      quantal_(false), has_hz_(false), has_d_(false), signed_(false),
+      frustrated_(false), energy_offset_(0) {}
   template<typename G, typename I>
   model_parameter(const G& g, const alps::half_integer<I>& spin,
                   double Jxy, double Jz) { set_parameters(g, spin, Jxy, Jz); }
@@ -355,10 +358,11 @@ public:
     return bonds_[0];
   }
 
-  bool is_signed() const { return signed_; }
-  bool is_frustrated() const { return frustrated_; }
+  bool is_quantal() const { return quantal_; }
   bool has_field() const { return has_hz_; }
   bool has_d_term() const { return has_d_; }
+  bool is_signed() const { return signed_; }
+  bool is_frustrated() const { return frustrated_; }
   double energy_offset() const { return energy_offset_; }
 
 protected:
@@ -382,6 +386,7 @@ private:
   bond_map_type bonds_;
   bool use_site_index_;
   bool use_bond_index_;
+  bool quantal_;
   bool has_hz_;
   bool has_d_;
   bool signed_;
@@ -520,10 +525,11 @@ void model_parameter::set_parameters_impl(const G& /* g */,
   bonds_.resize(1);
   bonds_[0] = bond_parameter(0., Jxy, Jz);
 
-  signed_ = false;
-  frustrated_ = false;
+  quantal_ = bonds_[0].is_quantal();
   has_hz_ = false;
   has_d_ = false;
+  signed_ = false;
+  frustrated_ = false;
 }
 
 template<typename G, typename I>
@@ -536,10 +542,11 @@ void model_parameter::set_parameters_impl(alps::Parameters params, const G& g,
 
   use_site_index_ = false;
   use_bond_index_ = false;
-  signed_ = false;
-  frustrated_ = false;
+  quantal_ = false;
   has_hz_ = false;
   has_d_ = false;
+  signed_ = false;
+  frustrated_ = false;
 
   params.copy_undefined(hd.default_parameters());
   alps::basis_states_descriptor<I> basis(hd.basis(), g);
@@ -581,8 +588,9 @@ void model_parameter::set_parameters_impl(alps::Parameters params, const G& g,
       unsigned int t = get(site_type_t(), g, *vi);
       sites_[i] = site_parameter(get_matrix(double(), hd.site_term(t),
         hd.basis().site_basis(t), p));
-      if (alps::is_nonzero<1>(sites_[i].hz)) has_hz_ = true;
-      if (alps::is_nonzero<1>(sites_[i].d)) has_d_ = true;
+      quantal_ |= sites_[i].is_quantal();
+      has_hz_ |= sites_[i].has_hz();
+      has_d_ |= sites_[i].has_d();
     }
   } else {
     std::vector<bool> checked(sites_.size(), false);
@@ -592,8 +600,9 @@ void model_parameter::set_parameters_impl(alps::Parameters params, const G& g,
       if (!checked[t]) {
         sites_[t] = site_parameter(get_matrix(double(), hd.site_term(t),
           hd.basis().site_basis(t), params));
-        if (alps::is_nonzero<1>(sites_[t].hz)) has_hz_ = true;
-        if (alps::is_nonzero<1>(sites_[t].d)) has_d_ = true;
+        quantal_ |= sites_[t].is_quantal();
+        has_hz_ |= sites_[t].has_hz();
+        has_d_ |= sites_[t].has_d();
         checked[t] = true;
       }
     }
@@ -654,6 +663,7 @@ void model_parameter::set_parameters_impl(alps::Parameters params, const G& g,
       bonds_[i] = bond_parameter(get_matrix(double(), hd.bond_term(t),
         hd.basis().site_basis(st0),
         hd.basis().site_basis(st1), p));
+      quantal_ |= bonds_[i].is_quantal();
     }
   } else {
     std::vector<bool> checked(bonds_.size(), false);
@@ -666,6 +676,7 @@ void model_parameter::set_parameters_impl(alps::Parameters params, const G& g,
         bonds_[t] = bond_parameter(get_matrix(double(), hd.bond_term(t),
           hd.basis().site_basis(st0),
           hd.basis().site_basis(st1), params));
+        quantal_ |= bonds_[t].is_quantal();
         checked[t] = true;
       }
     }

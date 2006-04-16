@@ -24,7 +24,7 @@ DIST_SUBDIRS = $(SUBDIRS)
 dist_noinst_HEADERS = \
 	looper.h \
 	looper/cluster.h \
-	looper/evaluate.h \
+	looper/evaluator.h \
 	looper/find_bridge.h \
 	looper/graph.h \
 	looper/histogram.h \

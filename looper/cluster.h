@@ -39,10 +39,9 @@ struct cluster_info
   template<typename F, typename FIELD>
   struct field_accumulator
   {
-    typedef F cluster_fragment_t;
-    field_accumulator(std::vector<cluster_info> const&,
-                      std::vector<cluster_fragment_t> const&,
-                      std::vector<double> const&) {}
+    // typedef F cluster_fragment_t;
+    template<typename D0, typename D1, typename D2>
+    field_accumulator(D0 const&, D1 const&, D2 const&) {}
     void start(int, double, int, double) const {}
     void term(int, double, int, double) const {}
   };
@@ -67,10 +66,8 @@ struct cluster_info
   struct sign_accumulator
   {
     typedef F cluster_fragment_t;
-    sign_accumulator(std::vector<cluster_info> const&,
-                     std::vector<cluster_fragment_t> const&,
-                     std::vector<int> const&,
-                     std::vector<int> const&) {}
+    template<typename D0, typename D1, typename D2, typename D3>
+    sign_accumulator(D0 const&, D1 const&, D2 const&, D3 const&) {}
     void bond_sign(int, int, int) const {}
     void site_sign(int, int, int) const {}
   };
@@ -105,11 +102,8 @@ struct cluster_info
       public sign_accumulator<F, SIGN, IMPROVE>
   {
     typedef F cluster_fragment_t;
-    accumulator(std::vector<cluster_info>& cl,
-                std::vector<cluster_fragment_t> const& fr,
-                std::vector<double> const& fd,
-                std::vector<int> const& bs,
-                std::vector<int> const& ss)
+    template<typename CL, typename FR, typename FD, typename BS, typename SS>
+    accumulator(CL& cl, FR const& fr, FD const& fd, BS const& bs, SS const& ss)
       : field_accumulator<F, FIELD>(cl, fr, fd),
         sign_accumulator<F, SIGN, IMPROVE>(cl, fr, bs, ss) {}
   };

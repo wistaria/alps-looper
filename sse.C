@@ -93,8 +93,6 @@ loop_worker_sse::loop_worker_sse(alps::ProcessList const& w,
                                  alps::Parameters const& p, int n)
   : super_type(w, p, n, looper::is_path_integral<qmc_type>::type()), mcs(p)
 {
-  if (w == alps::ProcessList()) return;
-
   if (has_field())
     boost::throw_exception(std::logic_error("longitudinal field is not "
       "supported in SSE representation"));
@@ -103,7 +101,7 @@ loop_worker_sse::loop_worker_sse(alps::ProcessList const& w,
   // initialize configuration
   //
 
-  int nvs = num_sites(vgraph());
+  int nvs = num_sites(vlattice());
   spins.resize(nvs); std::fill(spins.begin(), spins.end(), 0 /* all up */);
   operators.resize(0);
   spins_c.resize(nvs);
@@ -159,7 +157,7 @@ void loop_worker_sse::build()
   std::swap(operators, operators_p); operators.resize(0);
 
   // initialize cluster information (setup cluster fragments)
-  int nvs = num_sites(vgraph());
+  int nvs = num_sites(vlattice());
   fragments.resize(0); fragments.resize(nvs);
   for (int s = 0; s < nvs; ++s) current[s] = s;
 
@@ -262,7 +260,7 @@ void loop_worker_sse::flip()
         is_signed() == SIGN() &&
         use_improved_estimator() == IMPROVE())) return;
 
-  int nvs = num_sites(vgraph());
+  int nvs = num_sites(vlattice());
   int nop = operators.size();
 
   // assign cluster id

@@ -100,13 +100,11 @@ loop_worker_pi::loop_worker_pi(alps::ProcessList const& w,
            boost::exponential_distribution<>(beta() * total_graph_weight())),
     mcs(p)
 {
-  if (w == alps::ProcessList()) return;
-
   //
   // initialize configuration
   //
 
-  int nvs = num_sites(vgraph());
+  int nvs = num_sites(vlattice());
   spins.resize(nvs); std::fill(spins.begin(), spins.end(), 0 /* all up */);
   operators.resize(0);
   spins_c.resize(nvs);
@@ -169,7 +167,7 @@ void loop_worker_pi::build()
   std::swap(operators, operators_p); operators.resize(0);
 
   // initialize cluster information (setup cluster fragments)
-  int nvs = num_sites(vgraph());
+  int nvs = num_sites(vlattice());
   fragments.resize(0); fragments.resize(nvs);
   for (int s = 0; s < nvs; ++s) current[s] = s;
 
@@ -253,7 +251,7 @@ void loop_worker_pi::flip()
         is_signed() == SIGN() &&
         use_improved_estimator() == IMPROVE())) return;
 
-  int nvs = num_sites(vgraph());
+  int nvs = num_sites(vlattice());
   int nop = operators.size();
 
   // assign cluster id
