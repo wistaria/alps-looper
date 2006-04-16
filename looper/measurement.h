@@ -489,16 +489,16 @@ struct susceptibility_estimator : public base_estimator
         m["Magnetization^2"] << sign * umag2;
         m["Magnetization^4"] << sign * (3 * umag2 * umag2 - 2 * umag4);
         m["Susceptibility"]
-          << (typename is_path_integral<QMC>::type() ?
-              sign * beta * umag / nrs :
-              sign * beta * (dip(umag, nop) + umag2) / (nop + 1) / nrs);
+          << (typename is_sse<QMC>::type() ?
+              sign * beta * (dip(umag, nop) + umag2) / (nop + 1) / nrs :
+              sign * beta * umag / nrs);
         m["Generalized Magnetization^2"] << sign * usize2;
         m["Generalized Magnetization^4"]
           << sign * (3 * usize2 * usize2 - 2 * usize4);
         m["Generalized Susceptibility"]
-          << (typename is_path_integral<QMC>::type() ?
-              sign * beta * usize / nrs :
-              sign * beta * (dip(usize, nop) + usize2) / (nop + 1) / nrs);
+          << (typename is_sse<QMC>::type() ?
+              sign * beta * (dip(usize, nop) + usize2) / (nop + 1) / nrs :
+              sign * beta * usize / nrs);
         if (BIPARTITE()) {
           m["Staggered Magnetization"] << 0.0;
           m["Staggered Magnetization Density"] << 0.0;
@@ -506,16 +506,16 @@ struct susceptibility_estimator : public base_estimator
           m["Staggered Magnetization^4"]
             << sign * (3 * smag2 * smag2 - 2 * smag4);
           m["Staggered Susceptibility"]
-            << (typename is_path_integral<QMC>::type() ?
-                sign * beta * smag /nrs :
-                sign * beta * (dip(smag, nop) + smag2) / (nop + 1) / nrs);
+            << (typename is_sse<QMC>::type() ?
+                sign * beta * (dip(smag, nop) + smag2) / (nop + 1) / nrs :
+                sign * beta * smag /nrs);
           m["Generalized Staggered Magnetization^2"] << sign * ssize2;
           m["Generalized Staggered Magnetization^4"]
             << sign * (3 * ssize2 * ssize2 - 2 * ssize4);
           m["Generalized Staggered Susceptibility"]
-            << (typename is_path_integral<QMC>::type() ?
-                sign * beta * ssize / nrs :
-                sign * beta * (dip(ssize, nop) + ssize2) / (nop + 1) / nrs);
+            << (typename is_sse<QMC>::type() ?
+                sign * beta * (dip(ssize, nop) + ssize2) / (nop + 1) / nrs :
+                sign * beta * ssize / nrs);
         }
       }
     }

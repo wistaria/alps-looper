@@ -25,16 +25,19 @@
 #include "loop_factory.h"
 #include "loop_worker.h"
 #include <looper/cluster.h>
+#include <looper/evaluator_impl.h>
 #include <looper/montecarlo.h>
 #include <looper/operator.h>
 #include <looper/permutation.h>
 #include <looper/type.h>
 #include <alps/fixed_capacity_vector.h>
 
-class loop_worker_sse : public loop_worker
+namespace {
+
+class loop_worker_pi : public loop_worker
 {
 public:
-  typedef looper::sse                   qmc_type;
+  typedef looper::path_integral         qmc_type;
   typedef loop_worker                   super_type;
 
   typedef looper::local_operator<qmc_type, loop_graph_t, time_t>
@@ -48,8 +51,7 @@ public:
   typedef loop_config::estimator_t      estimator_t;
   typedef looper::measurement::estimate<estimator_t>::type estimate_t;
 
-  loop_worker_sse(alps::ProcessList const& w, alps::Parameters const& p,
-                  int n);
+  loop_worker_pi(alps::ProcessList const& w, alps::Parameters const& p, int n);
   void dostep();
 
   bool is_thermalized() const { return mcs.is_thermalized(); }
@@ -68,6 +70,10 @@ protected:
   void measure();
 
 private:
+  // random number generator
+  boost::variate_generator<super_type::engine_type&,
+    boost::exponential_distribution<> > r_time;
+
   looper::mc_steps mcs;
   std::vector<int> spins;
   std::vector<local_operator_t> operators;
@@ -79,17 +85,22 @@ private:
   std::vector<int> current;
   std::vector<cluster_info_t> clusters;
   std::vector<estimate_t> estimates;
+
 };
 
-loop_worker_sse::loop_worker_sse(alps::ProcessList const& w,
-                                 alps::Parameters const& p, int n)
-  : super_type(w, p, n, looper::is_path_integral<qmc_type>::type()), mcs(p)
+
+//
+// member functions of loop_worker_pi
+//
+
+loop_worker_pi::loop_worker_pi(alps::ProcessList const& w,
+                               alps::Parameters const& p, int n)
+  : super_type(w, p, n, looper::is_path_integral<qmc_type>::type()),
+    r_time(*engine_ptr,
+           boost::exponential_distribution<>(beta() * total_graph_weight())),
+    mcs(p)
 {
   if (w == alps::ProcessList()) return;
-
-  if (has_field())
-    boost::throw_exception(std::logic_error("longitudinal field is not "
-      "supported in SSE representation"));
 
   //
   // initialize configuration
@@ -111,7 +122,7 @@ loop_worker_sse::loop_worker_sse(alps::ProcessList const& w,
                           use_improved_estimator());
 }
 
-void loop_worker_sse::dostep()
+void loop_worker_pi::dostep()
 {
   namespace mpl = boost::mpl;
 
@@ -122,12 +133,20 @@ void loop_worker_sse::dostep()
   build();
 
   //   BIPARTITE    FIELD        SIGN         IMPROVE
+  flip<mpl::true_,  mpl::true_,  mpl::true_,  mpl::true_ >();
+  flip<mpl::true_,  mpl::true_,  mpl::true_,  mpl::false_>();
+  flip<mpl::true_,  mpl::true_,  mpl::false_, mpl::true_ >();
+  flip<mpl::true_,  mpl::true_,  mpl::false_, mpl::false_>();
   flip<mpl::true_,  mpl::false_, mpl::true_,  mpl::true_ >();
   flip<mpl::true_,  mpl::false_, mpl::true_,  mpl::false_>();
   flip<mpl::true_,  mpl::false_, mpl::false_, mpl::true_ >();
   flip<mpl::true_,  mpl::false_, mpl::false_, mpl::false_>();
+  flip<mpl::false_, mpl::true_,  mpl::true_,  mpl::true_ >();
+  flip<mpl::false_, mpl::true_,  mpl::true_,  mpl::false_>();
+  flip<mpl::false_, mpl::true_,  mpl::false_, mpl::true_ >();
+  flip<mpl::false_, mpl::true_,  mpl::false_, mpl::false_>();
   flip<mpl::false_, mpl::false_, mpl::true_,  mpl::true_ >();
-  flip<mpl::false_, mpl::false_, mpl::true_,  mpl::true_ >();
+  flip<mpl::false_, mpl::false_, mpl::true_,  mpl::false_>();
   flip<mpl::false_, mpl::false_, mpl::false_, mpl::true_ >();
   flip<mpl::false_, mpl::false_, mpl::false_, mpl::false_>();
 
@@ -143,10 +162,9 @@ void loop_worker_sse::dostep()
 // diagonal update and cluster construction
 //
 
-void loop_worker_sse::build()
+void loop_worker_pi::build()
 {
   // initialize spin & operator information
-  int nop = operators.size();
   std::copy(spins.begin(), spins.end(), spins_c.begin());
   std::swap(operators, operators_p); operators.resize(0);
 
@@ -155,51 +173,32 @@ void loop_worker_sse::build()
   fragments.resize(0); fragments.resize(nvs);
   for (int s = 0; s < nvs; ++s) current[s] = s;
 
-  double bw = beta() * total_graph_weight();
-  bool try_gap = true;
+  double t = r_time();
   for (operator_iterator opi = operators_p.begin();
-       try_gap || opi != operators_p.end();) {
+       t < 1 || opi != operators_p.end();) {
 
     // diagonal update & labeling
-    if (try_gap) {
-      if ((nop + 1) * random() < bw) {
-        loop_graph_t g = choose_graph();
-        if ((is_bond(g) &&
-             is_compatible(g, spins_c[vsource(pos(g), vlattice())],
-                           spins_c[vtarget(pos(g), vlattice())])) ||
-            (is_site(g) && is_compatible(g, spins_c[pos(g)]))) {
-          operators.push_back(local_operator_t(g));
-          ++nop;
-        } else {
-          try_gap = false;
-          continue;
-        }
+    if (opi == operators_p.end() || t < opi->time()) {
+      loop_graph_t g = choose_graph();
+      if (((is_bond(g) &&
+            is_compatible(g, spins_c[vsource(pos(g), vlattice())],
+                          spins_c[vtarget(pos(g), vlattice())])) ||
+          (is_site(g) && is_compatible(g, spins_c[pos(g)])))) {
+        operators.push_back(local_operator_t(g, t));
+        t += r_time();
       } else {
-        try_gap = false;
+        t += r_time();
         continue;
       }
     } else {
       if (opi->is_diagonal()) {
-        if (bw * random() < nop) {
-          --nop;
-          ++opi;
-          continue;
-        } else {
-          if (opi->is_site()) {
-            opi->assign_graph(choose_diagonal(opi->loc(),
-              spins_c[opi->pos()]));
-          } else {
-            opi->assign_graph(choose_diagonal(opi->loc(),
-              spins_c[vsource(opi->pos(), vlattice())],
-              spins_c[vtarget(opi->pos(), vlattice())]));
-          }
-        }
+        ++opi;
+        continue;
       } else {
         opi->assign_graph(choose_offdiagonal(opi->loc()));
+        operators.push_back(*opi);
+        ++opi;
       }
-      operators.push_back(*opi);
-      ++opi;
-      try_gap = true;
     }
 
     operator_iterator oi = operators.end() - 1;
@@ -247,7 +246,7 @@ void loop_worker_sse::build()
 //
 
 template<typename BIPARTITE, typename FIELD, typename SIGN, typename IMPROVE>
-void loop_worker_sse::flip()
+void loop_worker_pi::flip()
 {
   if (!(is_bipartite() == BIPARTITE() &&
         has_field() == FIELD() &&
@@ -272,32 +271,40 @@ void loop_worker_sse::flip()
   typename looper::measurement::accumulator<estimator_t, lattice_graph_t,
     time_t, cluster_fragment_t, BIPARTITE, IMPROVE>::type
     accum(estimates, fragments, vgraph());
-  double t = 0;
   for (std::vector<local_operator_t>::iterator oi = operators.begin();
-       oi != operators.end(); ++oi, t += 1) {
+       oi != operators.end(); ++oi) {
+    time_t t = oi->time();
     if (oi->is_bond()) {
       int s0 = vsource(oi->pos(), vlattice());
       int s1 = vtarget(oi->pos(), vlattice());
       weight.bond_sign(oi->loop_0(), oi->loop_1(), oi->pos());
+      weight.term(oi->loop_l0(), t, s0, spins_c[s0]);
+      weight.term(oi->loop_l1(), t, s1, spins_c[s1]);
       accum.term(oi->loop_l0(), t, s0, spins_c[s0]);
       accum.term(oi->loop_l1(), t, s1, spins_c[s1]);
       if (oi->is_offdiagonal()) {
         spins_c[s0] ^= 1;
         spins_c[s1] ^= 1;
       }
+      weight.start(oi->loop_u0(), t, s0, spins_c[s0]);
+      weight.start(oi->loop_u1(), t, s1, spins_c[s1]);
       accum.start(oi->loop_u0(), t, s0, spins_c[s0]);
       accum.start(oi->loop_u1(), t, s1, spins_c[s1]);
     } else {
       int s = oi->pos();
       weight.site_sign(oi->loop_0(), oi->loop_1(), oi->pos());
+      weight.term(oi->loop_l(), t, s, spins_c[s]);
       accum.term(oi->loop_l(), t, s, spins_c[s]);
       if (oi->is_offdiagonal()) spins_c[s] ^= 1;
+      weight.start(oi->loop_u(), t, s, spins_c[s]);
       accum.start(oi->loop_u(), t, s, spins_c[s]);
     }
   }
   for (unsigned int s = 0; s < nvs; ++s) {
-    accum.start(s, 0, s, spins[s]);
-    accum.term(current[s], nop, s, spins_c[s]);
+    weight.start(s, time_t(0), s, spins[s]);
+    weight.term(current[s], time_t(1), s, spins_c[s]);
+    accum.start(s, time_t(0), s, spins[s]);
+    accum.term(current[s], time_t(1), s, spins_c[s]);
     accum.at_zero(s, s, spins[s]);
   }
 
@@ -305,7 +312,7 @@ void loop_worker_sse::flip()
   double improved_sign = 1;
   for (std::vector<cluster_info_t>::iterator ci = clusters.begin();
        ci != clusters.end(); ++ci) {
-    ci->to_flip = (2*random()-1 < 0);
+    ci->to_flip = ((2*random()-1) < (FIELD() ? std::tanh(ci->weight) : 0));
     if (SIGN() && IMPROVE()) if (ci->sign & 1 == 1) improved_sign = 0;
   }
 
@@ -332,7 +339,7 @@ void loop_worker_sse::flip()
 //
 
 template<typename BIPARTITE, typename IMPROVE>
-void loop_worker_sse::measure()
+void loop_worker_pi::measure()
 {
   if (!(is_bipartite() == BIPARTITE() &&
         use_improved_estimator() == IMPROVE())) return;
@@ -353,6 +360,12 @@ void loop_worker_sse::measure()
   // energy
   int nop = operators.size();
   double ene = energy_offset() - nop / beta();
+  if (has_field()) {
+    for (std::vector<cluster_info_t>::iterator ci = clusters.begin();
+         ci != clusters.end(); ++ci)
+      if (ci->to_flip) ene -= ci->weight;
+      else ene += ci->weight;
+  }
   looper::energy_estimator::measure(measurements, beta(), nrs, nop, sign, ene);
 
   looper::measurement::normal_estimator<estimator_t, qmc_type, BIPARTITE,
@@ -360,13 +373,15 @@ void loop_worker_sse::measure()
                             spins, operators, spins_c);
 }
 
+
 //
-// dynamic registration to the loop_factory
+// dynamic registration to the factories
 //
 
-namespace {
+const bool loop_registered =
+  loop_factory::instance()->register_worker<loop_worker_pi>("path integral");
+const bool evaluator_registered = evaluator_factory::instance()->
+  register_evaluator<looper::evaluator<loop_config::estimator_t> >
+  ("path integral");
 
-const bool registered =
-  loop_factory::instance()->register_worker<loop_worker_sse>("SSE");
-
-}
+} // end namespace

@@ -22,9 +22,7 @@
 *
 *****************************************************************************/
 
-#include "loop_config.h"
-#include <looper/evaluate.h>
-#include <alps/alea.h>
+#include "loop_factory.h"
 #include <alps/scheduler.h>
 #include <boost/filesystem/operations.hpp>
 #include <boost/program_options.hpp>
@@ -40,8 +38,6 @@ public:
 
   bool parse(int argc, char** argv)
   {
-    namespace po = boost::program_options;
-
     boost::program_options::options_description desc("options");
     desc.add_options()
       ("help", "produce help message")
@@ -89,22 +85,16 @@ int main(int argc, char** argv)
 try {
 #endif
 
-  typedef looper::evaluator<loop_config::estimator_t> evaluator_t;
-
   options opts;
   if (!opts.parse(argc, argv)) std::exit(-1);
 
-  // alps::scheduler::SimpleMCFactory<evaluator_t> evaluator_factory;
-  // alps::scheduler::init(evaluator_factory);
   for (int i = 0; i < opts.num_files(); ++i) {
     boost::filesystem::path f = opts.file(i);
     alps::ProcessList nowhere;
     alps::scheduler::MCSimulation sim(nowhere, f);
     if (sim.runs.size()) {
-      evaluator_factory::instance()->make_evaluator()->
+      evaluator_factory::instance()->make_evaluator(sim.get_parameters())->
         evaluate(sim, opts.parameters(), f);
-      //      dynamic_cast<evaluator_t*>(sim.runs[0])->
-      //        evaluate(sim, opts.parameters(), f);
       sim.checkpoint(f);
     }
   }

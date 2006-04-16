@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-#include <looper/evaluate.h>
+#include <looper/evaluator.h>
 #include <alps/scheduler.h>
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
@@ -101,7 +101,7 @@ class abstract_evaluator_creator
 {
 public:
   virtual ~abstract_evaluator_creator() {}
-  virtual looper::abstract_evaluator* create(const alps::Parameters& p)
+  virtual looper::abstract_evaluator* create()
     const = 0;
 };
 
@@ -111,14 +111,13 @@ class evaluator_creator : public abstract_evaluator_creator
 public:
   typedef EVALUATOR evaluator_type;
   virtual ~evaluator_creator() {}
-  looper::abstract_evaluator* create(const alps::Parameters& p) const
-  { return new evaluator_type(p); }
+  looper::abstract_evaluator* create() const { return new evaluator_type(); }
 };
 
 class evaluator_factory : private boost::noncopyable
 {
 public:
-  abstract_evaluator* make_evaluator(alps::Parameters const& p) const;
+  looper::abstract_evaluator* make_evaluator(alps::Parameters const& p) const;
 
   template<typename EVALUATOR>
   bool register_evaluator(std::string const& name)

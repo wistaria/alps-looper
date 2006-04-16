@@ -27,7 +27,6 @@
 
 #include "loop_config.h"
 
-#include <looper/evaluate.h>
 #include <looper/model.h>
 #include <alps/alea.h>
 #include <alps/scheduler.h>
@@ -51,7 +50,6 @@ public:
   virtual ~loop_worker() {}
 
   virtual void dostep();
-  virtual void evaluate();
 
   virtual void save(alps::ODump& dp) const;
   virtual void load(alps::IDump& dp);

@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 2003-2006 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -22,41 +22,25 @@
 *
 *****************************************************************************/
 
-#ifndef LOOPER_TYPE_H
-#define LOOPER_TYPE_H
+#ifndef LOOPER_EVALUATOR_H
+#define LOOPER_EVALUATOR_H
 
-#include <boost/mpl/bool.hpp>
+#include <alps/alea.h>
+#include <alps/scheduler.h>
 
 namespace looper {
 
-//
-// QMC types
-//
+class abstract_evaluator
+{
+public:
+  virtual ~abstract_evaluator() {}
+  virtual void evaluate(alps::scheduler::MCSimulation&,
+                        alps::Parameters const&,
+                        boost::filesystem::path const&) const = 0;
+  virtual void evaluate(alps::ObservableSet& m,
+                        alps::ObservableSet const& m_in) const = 0;
+};
 
-struct classical {};
-struct path_integral {};
-struct sse {};
+} // end namespace looper
 
-//
-// meta functions
-//
-
-template<typename QMC>
-struct is_path_integral
-{ typedef boost::mpl::false_ type; };
-
-template<>
-struct is_path_integral<path_integral>
-{ typedef boost::mpl::true_ type; };
-
-template<typename QMC>
-struct is_sse
-{ typedef boost::mpl::false_ type; };
-
-template<>
-struct is_sse<sse>
-{ typedef boost::mpl::true_ type; };
-
-} // end namepspace looper
-
-#endif // LOOPER_TYPE_H
+#endif // LOOPER_EVALUATOR_H

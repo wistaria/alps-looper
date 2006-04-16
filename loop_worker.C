@@ -91,12 +91,6 @@ void loop_worker::dostep()
   measurements["Number of Sites"] << (double)num_sites(rgraph());
 }
 
-void loop_worker::evaluate()
-{
-  looper::evaluator<loop_config::estimator_t>::
-    evaluate(measurements, measurements);
-}
-
 void loop_worker::save(alps::ODump& dp) const
 { super_type::save(dp); }
 

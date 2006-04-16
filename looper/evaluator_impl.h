@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 2003-2006 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -22,41 +22,35 @@
 *
 *****************************************************************************/
 
-#ifndef LOOPER_TYPE_H
-#define LOOPER_TYPE_H
+#ifndef LOOPER_EVALUATOR_IMPL_H
+#define LOOPER_EVALUATOR_IMPL_H
 
-#include <boost/mpl/bool.hpp>
+#include "evaluator.h"
+#include "measurement.h"
 
 namespace looper {
 
-//
-// QMC types
-//
+template<typename ESTIMATOR>
+class evaluator : public abstract_evaluator
+{
+public:
+  typedef ESTIMATOR estimator_t;
+  void evaluate(alps::scheduler::MCSimulation& sim, alps::Parameters const&,
+                boost::filesystem::path const&) const
+  {
+    alps::ObservableSet m;
+    evaluate(m, sim.get_measurements());
+    for (alps::ObservableSet::const_iterator itr = m.begin(); itr != m.end();
+         ++itr) sim.addObservable(*(itr->second));
+  }
 
-struct classical {};
-struct path_integral {};
-struct sse {};
+  void evaluate(alps::ObservableSet& m, alps::ObservableSet const& m_in) const
+  {
+    looper::energy_estimator::evaluate(m, m_in);
+    estimator_t::evaluate(m, m_in);
+  }
+};
 
-//
-// meta functions
-//
+} // end namespace looper
 
-template<typename QMC>
-struct is_path_integral
-{ typedef boost::mpl::false_ type; };
-
-template<>
-struct is_path_integral<path_integral>
-{ typedef boost::mpl::true_ type; };
-
-template<typename QMC>
-struct is_sse
-{ typedef boost::mpl::false_ type; };
-
-template<>
-struct is_sse<sse>
-{ typedef boost::mpl::true_ type; };
-
-} // end namepspace looper
-
-#endif // LOOPER_TYPE_H
+#endif // LOOPER_EVALUATOR_IMPL_H

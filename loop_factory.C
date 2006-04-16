@@ -64,10 +64,10 @@ evaluator_factory::make_evaluator(const alps::Parameters& p) const
     map_type::const_iterator itr = creators_.find(p["REPRESENTATION"]);
     if (itr == creators_.end() || itr->second == 0)
       boost::throw_exception(std::runtime_error("unknown representation"));
-    return itr->second->create(p);
+    return itr->second->create();
   } else {
     if (creators_.size() == 1 && creators_.begin()->second)
-      return creators_.begin()->second->create(p);
+      return creators_.begin()->second->create();
     else
       boost::throw_exception(std::runtime_error(
         "representation is not specified"));
@@ -75,8 +75,9 @@ evaluator_factory::make_evaluator(const alps::Parameters& p) const
   return 0;
 }
 
+
 //
-// initialization static members
+// initialization of static member pointer of factories
 //
 
 loop_factory* loop_factory::ptr_ = 0;

@@ -46,8 +46,7 @@ struct loop_config
 
   // measurements
   typedef looper::estimator_adaptor<
-            looper::estimator_adaptor<looper::energy_estimator,
-                                      looper::susceptibility_estimator>,
+            looper::susceptibility_estimator,
             gap_estimator> estimator_t;
 };
 

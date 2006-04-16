@@ -25,14 +25,16 @@
 #include "loop_factory.h"
 #include "loop_worker.h"
 #include <looper/cluster.h>
-#include <looper/histogram.h>
+#include <looper/evaluator_impl.h>
 #include <looper/montecarlo.h>
 #include <looper/operator.h>
 #include <looper/permutation.h>
 #include <looper/type.h>
 #include <alps/fixed_capacity_vector.h>
 
-class loop_worker_swl : public loop_worker
+namespace {
+
+class loop_worker_sse : public loop_worker
 {
 public:
   typedef looper::sse                   qmc_type;
@@ -49,11 +51,11 @@ public:
   typedef loop_config::estimator_t      estimator_t;
   typedef looper::measurement::estimate<estimator_t>::type estimate_t;
 
-  loop_worker_swl(alps::ProcessList const& w, alps::Parameters const& p,
+  loop_worker_sse(alps::ProcessList const& w, alps::Parameters const& p,
                   int n);
   void dostep();
 
-  bool is_thermalized() const { return true; }
+  bool is_thermalized() const { return mcs.is_thermalized(); }
   double work_done() const { return mcs.progress(); }
 
   void save(alps::ODump& dp) const
@@ -69,16 +71,9 @@ protected:
   void measure();
 
 private:
-  looper::integer_range<int> exp_range;
-  looper::wl_steps mcs;
+  looper::mc_steps mcs;
   std::vector<int> spins;
   std::vector<local_operator_t> operators;
-
-  double factor;
-  int min_visit;
-  double flatness;
-  looper::wl_histogram histogram;
-  looper::histogram_set<double> measurement_histograms;
 
   // working vectors (no checkpointing)
   std::vector<int> spins_c;
@@ -89,12 +84,14 @@ private:
   std::vector<estimate_t> estimates;
 };
 
-loop_worker_swl::loop_worker_swl(alps::ProcessList const& w,
+
+//
+// member functions of loop_worker_sse
+//
+
+loop_worker_sse::loop_worker_sse(alps::ProcessList const& w,
                                  alps::Parameters const& p, int n)
-  : super_type(w, p, n, looper::is_path_integral<qmc_type>::type()),
-    exp_range(p.value_or_default("EXPANSION_RANGE", "[0:500]")),
-    mcs(p, exp_range),
-    histogram(exp_range)
+  : super_type(w, p, n, looper::is_path_integral<qmc_type>::type()), mcs(p)
 {
   if (w == alps::ProcessList()) return;
 
@@ -113,50 +110,16 @@ loop_worker_swl::loop_worker_swl(alps::ProcessList const& w,
   current.resize(nvs);
 
   //
-  // initialize histogram
+  // init measurements
   //
 
-  if (exp_range.min() < 0)
-    boost::throw_exception(std::invalid_argument("minimum of expansion order "
-                                                 "must not be negative"));
-
-  if (mcs.use_zhou_bhatt()) {
-    factor = p.value_or_default("INITIAL_MODIFICATION_FACTOR", exp(1));
-    min_visit = static_cast<int>(1 / log(factor));
-    flatness = parms.value_or_default("FLATNESS_THRESHOLD", -1.);
-  } else {
-    factor = p.value_or_default("INITIAL_INCREASE_FACTOR",
-      exp(exp_range.max() * log(1.*nvs) / mcs.mcs_block()));
-    min_visit = 0;
-    flatness = parms.value_or_default("FLATNESS_THRESHOLD", 0.2);
-  }
-  if (factor <= 1)
-    boost::throw_exception(std::invalid_argument("initial modification factor "
-                                                 "must be larger than 1"));
-  //
-  // initialize measurements
-  //
-
-  measurement_histograms.initialize(exp_range);
-  if (is_signed()) measurement_histograms.add_histogram("Sign");
-  estimator_t::initialize(measurement_histograms, is_bipartite(), is_signed(),
+  if (is_signed()) measurements << alps::RealObservable("Sign");
+  looper::energy_estimator::initialize(measurements, is_signed());
+  estimator_t::initialize(measurements, is_bipartite(), is_signed(),
                           use_improved_estimator());
-
-  measurements
-    << alps::SimpleRealObservable("Energy Offset")
-    << alps::SimpleRealVectorObservable("Partition Function Coefficient")
-    << alps::SimpleRealObservable("Histogram");
-
-  if (parms.defined("STORE_ALL_HISTOGRAMS"))
-    for (int p = 0; p < mcs.num_iterations(); ++p)
-      measurements
-        << alps::SimpleRealVectorObservable("Partition Function Coefficient "
-             "(iteration #" + boost::lexical_cast<std::string>(p) + ")")
-        << alps::SimpleRealVectorObservable("Histogram "
-             "(iteration #" + boost::lexical_cast<std::string>(p) + ")");
 }
 
-void loop_worker_swl::dostep()
+void loop_worker_sse::dostep()
 {
   namespace mpl = boost::mpl;
 
@@ -176,28 +139,11 @@ void loop_worker_swl::dostep()
   flip<mpl::false_, mpl::false_, mpl::false_, mpl::true_ >();
   flip<mpl::false_, mpl::false_, mpl::false_, mpl::false_>();
 
-  if (mcs.doing_multicanonical()) {
-    //      BIPARTITE    IMPROVE
-    measure<mpl::true_,  mpl::true_ >();
-    measure<mpl::true_,  mpl::false_>();
-    measure<mpl::false_, mpl::true_ >();
-    measure<mpl::false_, mpl::false_>();
-  }
-
-  if (!mcs.doing_multicanonical() && mcs() == mcs.mcs_block()) {
-    if (histogram.check_flatness(flatness) &&
-        histogram.check_visit(min_visit)) {
-      // std::cerr << "stage " << mcs.stage() << " becomes flat\n";
-      // histogram.output_dos("dos " + boost::lexical_cast<std::string>(mcs.stage()));
-      factor = std::sqrt(factor);
-      if (mcs.use_zhou_bhatt()) min_visit *= 2;
-      histogram.clear();
-      mcs.next_stage();
-    } else {
-      // std::cerr << "stage " << mcs.stage() << " is not flat yet\n";
-      mcs.reset_stage();
-    }
-  }
+  //      BIPARTITE    IMPROVE
+  measure<mpl::true_,  mpl::true_ >();
+  measure<mpl::true_,  mpl::false_>();
+  measure<mpl::false_, mpl::true_ >();
+  measure<mpl::false_, mpl::false_>();
 }
 
 
@@ -205,7 +151,7 @@ void loop_worker_swl::dostep()
 // diagonal update and cluster construction
 //
 
-void loop_worker_swl::build()
+void loop_worker_sse::build()
 {
   // initialize spin & operator information
   int nop = operators.size();
@@ -217,13 +163,14 @@ void loop_worker_swl::build()
   fragments.resize(0); fragments.resize(nvs);
   for (int s = 0; s < nvs; ++s) current[s] = s;
 
+  double bw = beta() * total_graph_weight();
   bool try_gap = true;
   for (operator_iterator opi = operators_p.begin();
        try_gap || opi != operators_p.end();) {
 
     // diagonal update & labeling
     if (try_gap) {
-      if (random() < histogram.accept_rate(nop)) {
+      if ((nop + 1) * random() < bw) {
         loop_graph_t g = choose_graph();
         if ((is_bond(g) &&
              is_compatible(g, spins_c[vsource(pos(g), vlattice())],
@@ -233,21 +180,17 @@ void loop_worker_swl::build()
           ++nop;
         } else {
           try_gap = false;
-          if (!mcs.doing_multicanonical()) histogram.visit(nop, factor);
           continue;
         }
       } else {
         try_gap = false;
-        if (!mcs.doing_multicanonical()) histogram.visit(nop, factor);
         continue;
       }
     } else {
       if (opi->is_diagonal()) {
-        if (nop > exp_range.min() &&
-            histogram.accept_rate(nop-1) * random() < 1) {
+        if (bw * random() < nop) {
           --nop;
           ++opi;
-          if (!mcs.doing_multicanonical()) histogram.visit(nop, factor);
           continue;
         } else {
           if (opi->is_site()) {
@@ -266,7 +209,6 @@ void loop_worker_swl::build()
       ++opi;
       try_gap = true;
     }
-    if (!mcs.doing_multicanonical()) histogram.visit(nop, factor);
 
     operator_iterator oi = operators.end() - 1;
     if (oi->is_bond()) {
@@ -313,7 +255,7 @@ void loop_worker_swl::build()
 //
 
 template<typename BIPARTITE, typename FIELD, typename SIGN, typename IMPROVE>
-void loop_worker_swl::flip()
+void loop_worker_sse::flip()
 {
   if (!(is_bipartite() == BIPARTITE() &&
         has_field() == FIELD() &&
@@ -387,10 +329,8 @@ void loop_worker_swl::flip()
     typename looper::measurement::collector<estimator_t, qmc_type, BIPARTITE,
       IMPROVE>::type coll;
     coll = std::accumulate(estimates.begin(), estimates.end(), coll);
-    measurement_histograms.set_position(nop);
-    coll.commit(measurement_histograms, beta(), num_sites(rgraph()), nop,
-                improved_sign);
-    if (SIGN()) measurement_histograms["Sign"] << improved_sign;
+    coll.commit(measurements, beta(), num_sites(rgraph()), nop, improved_sign);
+    if (SIGN()) measurements["Sign"] << improved_sign;
   }
 }
 
@@ -400,7 +340,7 @@ void loop_worker_swl::flip()
 //
 
 template<typename BIPARTITE, typename IMPROVE>
-void loop_worker_swl::measure()
+void loop_worker_sse::measure()
 {
   if (!(is_bipartite() == BIPARTITE() &&
         use_improved_estimator() == IMPROVE())) return;
@@ -420,20 +360,22 @@ void loop_worker_swl::measure()
 
   // energy
   int nop = operators.size();
+  double ene = energy_offset() - nop / beta();
+  looper::energy_estimator::measure(measurements, beta(), nrs, nop, sign, ene);
 
-  measurement_histograms.set_position(nop);
   looper::measurement::normal_estimator<estimator_t, qmc_type, BIPARTITE,
     IMPROVE>::type::measure(measurements, vgraph(), beta(), nrs, nop, sign,
                             spins, operators, spins_c);
 }
 
-//
-// dynamic registration to the loop_factory
-//
 
-namespace {
+//
+// dynamic registration to the factories
+//
 
 const bool registered =
-  loop_factory::instance()->register_worker<loop_worker_swl>("SSE QWL");
+  loop_factory::instance()->register_worker<loop_worker_sse>("SSE");
+const bool evaluator_registered = evaluator_factory::instance()->
+  register_evaluator<looper::evaluator<loop_config::estimator_t> >("SSE");
 
-}
+} // end namespace

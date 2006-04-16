@@ -25,17 +25,22 @@
 #include "loop_factory.h"
 #include "loop_worker.h"
 #include <looper/cluster.h>
-#include <looper/evaluate.h>
+#include <looper/evaluator.h>
+#include <looper/histogram.h>
 #include <looper/montecarlo.h>
 #include <looper/operator.h>
 #include <looper/permutation.h>
 #include <looper/type.h>
 #include <alps/fixed_capacity_vector.h>
+#include <alps/plot.h>
+#include <boost/regex.hpp>
 
-class loop_worker_pi : public loop_worker
+namespace {
+
+class loop_worker_swl : public loop_worker
 {
 public:
-  typedef looper::path_integral         qmc_type;
+  typedef looper::sse                   qmc_type;
   typedef loop_worker                   super_type;
 
   typedef looper::local_operator<qmc_type, loop_graph_t, time_t>
@@ -49,10 +54,11 @@ public:
   typedef loop_config::estimator_t      estimator_t;
   typedef looper::measurement::estimate<estimator_t>::type estimate_t;
 
-  loop_worker_pi(alps::ProcessList const& w, alps::Parameters const& p, int n);
+  loop_worker_swl(alps::ProcessList const& w, alps::Parameters const& p,
+                  int n);
   void dostep();
 
-  bool is_thermalized() const { return mcs.is_thermalized(); }
+  bool is_thermalized() const { return true; }
   double work_done() const { return mcs.progress(); }
 
   void save(alps::ODump& dp) const
@@ -68,13 +74,16 @@ protected:
   void measure();
 
 private:
-  // random number generator
-  boost::variate_generator<super_type::engine_type&,
-    boost::exponential_distribution<> > r_time;
-
-  looper::mc_steps mcs;
+  looper::integer_range<int> exp_range;
+  looper::wl_steps mcs;
   std::vector<int> spins;
   std::vector<local_operator_t> operators;
+
+  double factor;
+  int min_visit;
+  double flatness;
+  looper::wl_histogram histogram;
+  looper::histogram_set<double> measurement_histograms;
 
   // working vectors (no checkpointing)
   std::vector<int> spins_c;
@@ -83,17 +92,25 @@ private:
   std::vector<int> current;
   std::vector<cluster_info_t> clusters;
   std::vector<estimate_t> estimates;
-
 };
 
-loop_worker_pi::loop_worker_pi(alps::ProcessList const& w,
-                               alps::Parameters const& p, int n)
+
+//
+// member function of loop_worker_swl
+//
+
+loop_worker_swl::loop_worker_swl(alps::ProcessList const& w,
+                                 alps::Parameters const& p, int n)
   : super_type(w, p, n, looper::is_path_integral<qmc_type>::type()),
-    r_time(*engine_ptr,
-           boost::exponential_distribution<>(beta() * total_graph_weight())),
-    mcs(p)
+    exp_range(p.value_or_default("EXPANSION_RANGE", "[0:500]")),
+    mcs(p, exp_range),
+    histogram(exp_range)
 {
   if (w == alps::ProcessList()) return;
+
+  if (has_field())
+    boost::throw_exception(std::logic_error("longitudinal field is not "
+      "supported in SSE representation"));
 
   //
   // initialize configuration
@@ -106,16 +123,50 @@ loop_worker_pi::loop_worker_pi(alps::ProcessList const& w,
   current.resize(nvs);
 
   //
-  // init measurements
+  // initialize histogram
   //
 
-  if (is_signed()) measurements << alps::RealObservable("Sign");
-  looper::energy_estimator::initialize(measurements, is_signed());
-  estimator_t::initialize(measurements, is_bipartite(), is_signed(),
+  if (exp_range.min() < 0)
+    boost::throw_exception(std::invalid_argument("minimum of expansion order "
+                                                 "must not be negative"));
+
+  if (mcs.use_zhou_bhatt()) {
+    factor = p.value_or_default("INITIAL_MODIFICATION_FACTOR", exp(1));
+    min_visit = static_cast<int>(1 / log(factor));
+    flatness = parms.value_or_default("FLATNESS_THRESHOLD", -1.);
+  } else {
+    factor = p.value_or_default("INITIAL_INCREASE_FACTOR",
+      exp(exp_range.max() * log(1.*nvs) / mcs.mcs_block()));
+    min_visit = 0;
+    flatness = parms.value_or_default("FLATNESS_THRESHOLD", 0.2);
+  }
+  if (factor <= 1)
+    boost::throw_exception(std::invalid_argument("initial modification factor "
+                                                 "must be larger than 1"));
+  //
+  // initialize measurements
+  //
+
+  measurement_histograms.initialize(exp_range);
+  if (is_signed()) measurement_histograms.add_histogram("Sign");
+  estimator_t::initialize(measurement_histograms, is_bipartite(), is_signed(),
                           use_improved_estimator());
+
+  measurements
+    << alps::SimpleRealObservable("Energy Offset")
+    << alps::SimpleRealVectorObservable("Partition Function Coefficient")
+    << alps::SimpleRealObservable("Histogram");
+
+  if (parms.defined("STORE_ALL_HISTOGRAMS"))
+    for (int p = 0; p < mcs.num_iterations(); ++p)
+      measurements
+        << alps::SimpleRealVectorObservable("Partition Function Coefficient "
+             "(iteration #" + boost::lexical_cast<std::string>(p) + ")")
+        << alps::SimpleRealVectorObservable("Histogram "
+             "(iteration #" + boost::lexical_cast<std::string>(p) + ")");
 }
 
-void loop_worker_pi::dostep()
+void loop_worker_swl::dostep()
 {
   namespace mpl = boost::mpl;
 
@@ -126,28 +177,37 @@ void loop_worker_pi::dostep()
   build();
 
   //   BIPARTITE    FIELD        SIGN         IMPROVE
-  flip<mpl::true_,  mpl::true_,  mpl::true_,  mpl::true_ >();
-  flip<mpl::true_,  mpl::true_,  mpl::true_,  mpl::false_>();
-  flip<mpl::true_,  mpl::true_,  mpl::false_, mpl::true_ >();
-  flip<mpl::true_,  mpl::true_,  mpl::false_, mpl::false_>();
   flip<mpl::true_,  mpl::false_, mpl::true_,  mpl::true_ >();
   flip<mpl::true_,  mpl::false_, mpl::true_,  mpl::false_>();
   flip<mpl::true_,  mpl::false_, mpl::false_, mpl::true_ >();
   flip<mpl::true_,  mpl::false_, mpl::false_, mpl::false_>();
-  flip<mpl::false_, mpl::true_,  mpl::true_,  mpl::true_ >();
-  flip<mpl::false_, mpl::true_,  mpl::true_,  mpl::true_ >();
-  flip<mpl::false_, mpl::true_,  mpl::false_, mpl::true_ >();
-  flip<mpl::false_, mpl::true_,  mpl::false_, mpl::false_>();
   flip<mpl::false_, mpl::false_, mpl::true_,  mpl::true_ >();
   flip<mpl::false_, mpl::false_, mpl::true_,  mpl::true_ >();
   flip<mpl::false_, mpl::false_, mpl::false_, mpl::true_ >();
   flip<mpl::false_, mpl::false_, mpl::false_, mpl::false_>();
 
-  //      BIPARTITE    IMPROVE
-  measure<mpl::true_,  mpl::true_ >();
-  measure<mpl::true_,  mpl::false_>();
-  measure<mpl::false_, mpl::true_ >();
-  measure<mpl::false_, mpl::false_>();
+  if (mcs.doing_multicanonical()) {
+    //      BIPARTITE    IMPROVE
+    measure<mpl::true_,  mpl::true_ >();
+    measure<mpl::true_,  mpl::false_>();
+    measure<mpl::false_, mpl::true_ >();
+    measure<mpl::false_, mpl::false_>();
+  }
+
+  if (!mcs.doing_multicanonical() && mcs() == mcs.mcs_block()) {
+    if (histogram.check_flatness(flatness) &&
+        histogram.check_visit(min_visit)) {
+      // std::cerr << "stage " << mcs.stage() << " becomes flat\n";
+      // histogram.output_dos("dos " + boost::lexical_cast<std::string>(mcs.stage()));
+      factor = std::sqrt(factor);
+      if (mcs.use_zhou_bhatt()) min_visit *= 2;
+      histogram.clear();
+      mcs.next_stage();
+    } else {
+      // std::cerr << "stage " << mcs.stage() << " is not flat yet\n";
+      mcs.reset_stage();
+    }
+  }
 }
 
 
@@ -155,9 +215,10 @@ void loop_worker_pi::dostep()
 // diagonal update and cluster construction
 //
 
-void loop_worker_pi::build()
+void loop_worker_swl::build()
 {
   // initialize spin & operator information
+  int nop = operators.size();
   std::copy(spins.begin(), spins.end(), spins_c.begin());
   std::swap(operators, operators_p); operators.resize(0);
 
@@ -166,33 +227,56 @@ void loop_worker_pi::build()
   fragments.resize(0); fragments.resize(nvs);
   for (int s = 0; s < nvs; ++s) current[s] = s;
 
-  double t = r_time();
+  bool try_gap = true;
   for (operator_iterator opi = operators_p.begin();
-       t < 1 || opi != operators_p.end();) {
+       try_gap || opi != operators_p.end();) {
 
     // diagonal update & labeling
-    if (opi == operators_p.end() || t < opi->time()) {
-      loop_graph_t g = choose_graph();
-      if (((is_bond(g) &&
-            is_compatible(g, spins_c[vsource(pos(g), vlattice())],
-                          spins_c[vtarget(pos(g), vlattice())])) ||
-          (is_site(g) && is_compatible(g, spins_c[pos(g)])))) {
-        operators.push_back(local_operator_t(g, t));
-        t += r_time();
+    if (try_gap) {
+      if (random() < histogram.accept_rate(nop)) {
+        loop_graph_t g = choose_graph();
+        if ((is_bond(g) &&
+             is_compatible(g, spins_c[vsource(pos(g), vlattice())],
+                           spins_c[vtarget(pos(g), vlattice())])) ||
+            (is_site(g) && is_compatible(g, spins_c[pos(g)]))) {
+          operators.push_back(local_operator_t(g));
+          ++nop;
+        } else {
+          try_gap = false;
+          if (!mcs.doing_multicanonical()) histogram.visit(nop, factor);
+          continue;
+        }
       } else {
-        t += r_time();
+        try_gap = false;
+        if (!mcs.doing_multicanonical()) histogram.visit(nop, factor);
         continue;
       }
     } else {
       if (opi->is_diagonal()) {
-        ++opi;
-        continue;
+        if (nop > exp_range.min() &&
+            histogram.accept_rate(nop-1) * random() < 1) {
+          --nop;
+          ++opi;
+          if (!mcs.doing_multicanonical()) histogram.visit(nop, factor);
+          continue;
+        } else {
+          if (opi->is_site()) {
+            opi->assign_graph(choose_diagonal(opi->loc(),
+              spins_c[opi->pos()]));
+          } else {
+            opi->assign_graph(choose_diagonal(opi->loc(),
+              spins_c[vsource(opi->pos(), vlattice())],
+              spins_c[vtarget(opi->pos(), vlattice())]));
+          }
+        }
       } else {
         opi->assign_graph(choose_offdiagonal(opi->loc()));
-        operators.push_back(*opi);
-        ++opi;
       }
+      operators.push_back(*opi);
+      ++opi;
+      try_gap = true;
     }
+    if (!mcs.doing_multicanonical()) histogram.visit(nop, factor);
 
     operator_iterator oi = operators.end() - 1;
     if (oi->is_bond()) {
@@ -239,7 +323,7 @@ void loop_worker_pi::build()
 //
 
 template<typename BIPARTITE, typename FIELD, typename SIGN, typename IMPROVE>
-void loop_worker_pi::flip()
+void loop_worker_swl::flip()
 {
   if (!(is_bipartite() == BIPARTITE() &&
         has_field() == FIELD() &&
@@ -264,40 +348,32 @@ void loop_worker_pi::flip()
   typename looper::measurement::accumulator<estimator_t, lattice_graph_t,
     time_t, cluster_fragment_t, BIPARTITE, IMPROVE>::type
     accum(estimates, fragments, vgraph());
+  double t = 0;
   for (std::vector<local_operator_t>::iterator oi = operators.begin();
-       oi != operators.end(); ++oi) {
-    time_t t = oi->time();
+       oi != operators.end(); ++oi, t += 1) {
     if (oi->is_bond()) {
       int s0 = vsource(oi->pos(), vlattice());
       int s1 = vtarget(oi->pos(), vlattice());
       weight.bond_sign(oi->loop_0(), oi->loop_1(), oi->pos());
-      weight.term(oi->loop_l0(), t, s0, spins_c[s0]);
-      weight.term(oi->loop_l1(), t, s1, spins_c[s1]);
       accum.term(oi->loop_l0(), t, s0, spins_c[s0]);
       accum.term(oi->loop_l1(), t, s1, spins_c[s1]);
       if (oi->is_offdiagonal()) {
         spins_c[s0] ^= 1;
         spins_c[s1] ^= 1;
       }
-      weight.start(oi->loop_u0(), t, s0, spins_c[s0]);
-      weight.start(oi->loop_u1(), t, s1, spins_c[s1]);
       accum.start(oi->loop_u0(), t, s0, spins_c[s0]);
       accum.start(oi->loop_u1(), t, s1, spins_c[s1]);
     } else {
       int s = oi->pos();
       weight.site_sign(oi->loop_0(), oi->loop_1(), oi->pos());
-      weight.term(oi->loop_l(), t, s, spins_c[s]);
       accum.term(oi->loop_l(), t, s, spins_c[s]);
       if (oi->is_offdiagonal()) spins_c[s] ^= 1;
-      weight.start(oi->loop_u(), t, s, spins_c[s]);
       accum.start(oi->loop_u(), t, s, spins_c[s]);
     }
   }
   for (unsigned int s = 0; s < nvs; ++s) {
-    weight.start(s, time_t(0), s, spins[s]);
-    weight.term(current[s], time_t(1), s, spins_c[s]);
-    accum.start(s, time_t(0), s, spins[s]);
-    accum.term(current[s], time_t(1), s, spins_c[s]);
+    accum.start(s, 0, s, spins[s]);
+    accum.term(current[s], nop, s, spins_c[s]);
     accum.at_zero(s, s, spins[s]);
   }
 
@@ -305,7 +381,7 @@ void loop_worker_pi::flip()
   double improved_sign = 1;
   for (std::vector<cluster_info_t>::iterator ci = clusters.begin();
        ci != clusters.end(); ++ci) {
-    ci->to_flip = ((2*random()-1) < (FIELD() ? std::tanh(ci->weight) : 0));
+    ci->to_flip = (2*random()-1 < 0);
     if (SIGN() && IMPROVE()) if (ci->sign & 1 == 1) improved_sign = 0;
   }
 
@@ -321,8 +397,10 @@ void loop_worker_pi::flip()
     typename looper::measurement::collector<estimator_t, qmc_type, BIPARTITE,
       IMPROVE>::type coll;
     coll = std::accumulate(estimates.begin(), estimates.end(), coll);
-    coll.commit(measurements, beta(), num_sites(rgraph()), nop, improved_sign);
-    if (SIGN()) measurements["Sign"] << improved_sign;
+    measurement_histograms.set_position(nop);
+    coll.commit(measurement_histograms, beta(), num_sites(rgraph()), nop,
+                improved_sign);
+    if (SIGN()) measurement_histograms["Sign"] << improved_sign;
   }
 }
 
@@ -332,7 +410,7 @@ void loop_worker_pi::flip()
 //
 
 template<typename BIPARTITE, typename IMPROVE>
-void loop_worker_pi::measure()
+void loop_worker_swl::measure()
 {
   if (!(is_bipartite() == BIPARTITE() &&
         use_improved_estimator() == IMPROVE())) return;
@@ -352,15 +430,8 @@ void loop_worker_pi::measure()
 
   // energy
   int nop = operators.size();
-  double ene = energy_offset() - nop / beta();
-  if (has_field()) {
-    for (std::vector<cluster_info_t>::iterator ci = clusters.begin();
-         ci != clusters.end(); ++ci)
-      if (ci->to_flip) ene -= ci->weight;
-      else ene += ci->weight;
-  }
-  looper::energy_estimator::measure(measurements, beta(), nrs, nop, sign, ene);
 
+  measurement_histograms.set_position(nop);
   looper::measurement::normal_estimator<estimator_t, qmc_type, BIPARTITE,
     IMPROVE>::type::measure(measurements, vgraph(), beta(), nrs, nop, sign,
                             spins, operators, spins_c);
@@ -371,43 +442,112 @@ void loop_worker_pi::measure()
 // evaluator
 //
 
-class evaluator_pi : public looper::abstract_evaluator
+class evaluator : public looper::abstract_evaluator
 {
 public:
   typedef loop_config::estimator_t estimator_t;
-  typedef abstract_evaluator       super_type;
-
-  evaluator_pi(alps::ProcessList const& w, alps::Parameters const& p, int n)
-    : super_type(w, p, n) {}
-
-  void evaluate(alps::scheduler::MCSimulation& sim,
-                alps::Parameters const&,
-                boost::filesystem::path const&) const
-  {
-    alps::ObservableSet m;
-    evaluate(m, sim.get_measurements());
-    for (alps::ObservableSet::const_iterator itr = m.begin(); itr != m.end();
-         ++itr) sim.addObservable(*(itr->second));
-  }
-
-  static void evaluate(alps::ObservableSet& m, alps::ObservableSet const& m_in)
-  {
-    looper::energy_estimator::evaluate(m, m_in);
-    estimator_t::evaluate(m, m_in);
-  }
+  void evaluate(alps::scheduler::MCSimulation& sim, alps::Parameters const&,
+                boost::filesystem::path const&) const;
+  void evaluate(alps::ObservableSet& m,
+                alps::ObservableSet const& m_in) const {}
 };
 
+void evaluator::evaluate(alps::scheduler::MCSimulation& sim,
+                         alps::Parameters const& np,
+                         boost::filesystem::path const& f) const
+{
+  const alps::Parameters& p = sim.get_parameters();
+  const alps::ObservableSet& m = sim.get_measurements();
+  double nrs = alps::RealObsevaluator(m["Number of Sites"]).mean();
 
-//
-// dynamic registration to the factories
-//
+  typedef std::map<std::string, alps::plot::Set<double> > plot_set_type;
+  plot_set_type plot_set;
 
-namespace {
+  double t_min;
+  if (np.defined("T_MIN"))
+    t_min = np["T_MIN"];
+  else if (p.defined("T_MIN"))
+    t_min = p["T_MIN"];
+  else
+    boost::throw_exception(std::invalid_argument("T_MIN not defined"));
 
-const bool loop_registered =
-  loop_factory::instance()->register_worker<loop_worker_pi>("path integral");
-const bool evaluator_registered =
-  evaluator_factory::instance()->register_evaluator<evaluator_pi>
-  ("path integral");
+  double t_max;
+  if (np.defined("T_MAX"))
+    t_max = np["T_MAX"];
+  else if (p.defined("T_MAX"))
+    t_max = p["T_MAX"];
+  else
+    boost::throw_exception(std::invalid_argument("T_MAX not defined"));
 
+  double t_delta;
+  if (np.defined("T_DELTA"))
+    t_delta = np["T_DELTA"];
+  else if (p.defined("T_DELTA"))
+    t_delta = p["T_DELTA"];
+  else
+    boost::throw_exception(std::invalid_argument("T_DELTA not defined"));
+
+  // density of state
+  std::valarray<double> g =
+    alps::RealVectorObsevaluator(m["Partition Function Coefficient"]).mean();
+
+  // energy
+  double offset = alps::RealObsevaluator(m["Energy Offset"]).mean();
+  plot_set["Energy Density"] = alps::plot::Set<double>();
+  plot_set["Free Energy Density"] = alps::plot::Set<double>();
+  plot_set["Entropy Density"] = alps::plot::Set<double>();
+  plot_set["Specific Heat"] = alps::plot::Set<double>();
+
+  for (double t = t_min; t < t_max + t_delta/2; t += t_delta) {
+    double lb = -std::log(t);
+    double maxx = g[0];
+    for (int i = 1; i < g.size(); ++i) maxx = std::max(g[i] + lb*i, maxx);
+    double z = 0;
+    double sn = 0;
+    double sn2 = 0;
+    for (int i = 0; i < g.size(); ++i) {
+      double c = std::exp(g[i] + lb*i - maxx);
+      z += c;
+      sn += i*c;
+      sn2 += i*i*c;
+    }
+    double energy        = offset - t*sn/z;
+    double free_energy   = offset - t * (std::log(z) + maxx);
+    plot_set["Energy Density"] << t << energy / nrs;
+    plot_set["Free Energy Density"] << t << free_energy / nrs;
+    plot_set["Entropy Density"] << t << (energy - free_energy) / (t * nrs);
+    plot_set["Specific Heat"] << t << (sn2/z - (sn/z) * (sn/z) - sn/z) / nrs;
+  }
+
+  // ouptut
+  std::string prefix =
+    regex_replace(f.string(), boost::regex("\\.out\\.xml$"), "");
+
+  for (plot_set_type::const_iterator itr = plot_set.begin();
+       itr != plot_set.end(); ++itr) {
+    std::string long_name = itr->first;
+    std::string short_name =
+      regex_replace(long_name,
+                    boost::regex("(\\sDensity$)|([A-Z])|(\\s)"),
+                    "(?2\\l$2)(?3_)",
+                    boost::match_default | boost::format_all);
+    alps::plot::Plot<double> pl;
+    pl.set_name(long_name + " versus Temperature (" + prefix + ")");
+    pl.set_labels("Temperature", long_name);
+    pl << itr->second;
+    alps::oxstream oxs(prefix + ".plot." + short_name + ".xml");
+    oxs << pl;
+  }
 }
+
+
+//
+// dynamic registration to the loop_factory
+//
+
+const bool registered =
+  loop_factory::instance()->register_worker<loop_worker_swl>("SSE QWL");
+const bool evaluator_registered =
+  evaluator_factory::instance()->register_evaluator<evaluator>("SSE QWL");
+
+} // end namespace

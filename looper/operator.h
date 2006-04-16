@@ -41,6 +41,7 @@ struct local_operator_type
   BOOST_STATIC_CONSTANT(int, identity    = 2 /* 10 */);
 };
 
+
 template<class QMC, class LOC_G, class TIME = imaginary_time<> >
 class local_operator;
 

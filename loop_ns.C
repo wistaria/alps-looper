@@ -66,10 +66,16 @@ int main(int argc, char** argv)
         thermalized = true;
       }
     }
-    dynamic_cast<loop_worker*>(worker)->evaluate();
-    std::cerr << "[speed]\nelapsed time = " << tm.elapsed() << " sec\n";
-    std::cout << "[results]\n" << worker->get_measurements();
+    alps::ObservableSet m = worker->get_measurements();
     delete worker;
+
+    looper::abstract_evaluator* evaluator =
+      evaluator_factory::instance()->make_evaluator(*p);
+    evaluator->evaluate(m, m);
+    delete evaluator;
+
+    std::cerr << "[speed]\nelapsed time = " << tm.elapsed() << " sec\n";
+    std::cout << "[results]\n" << m;
   }
 
 #ifndef BOOST_NO_EXCEPTIONS
