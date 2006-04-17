@@ -82,15 +82,15 @@ public:
 
   static loop_factory* instance()
   {
-    if (!ptr_) ptr_ = new loop_factory;
-    return ptr_;
+    if (!instance_) instance_ = new loop_factory;
+    return instance_;
   }
 
 private:
   loop_factory() {}
   ~loop_factory() {}
 
-  static loop_factory* ptr_;
+  static loop_factory* instance_;
 
   typedef boost::shared_ptr<abstract_worker_creator> pointer_type;
   typedef std::map<std::string, pointer_type> map_type;
@@ -137,15 +137,15 @@ public:
 
   static evaluator_factory* instance()
   {
-    if (!ptr_) ptr_ = new evaluator_factory;
-    return ptr_;
+    if (!instance_) instance_ = new evaluator_factory;
+    return instance_;
   }
 
 private:
   evaluator_factory() {}
   ~evaluator_factory() {}
 
-  static evaluator_factory* ptr_;
+  static evaluator_factory* instance_;
 
   typedef boost::shared_ptr<abstract_evaluator_creator> pointer_type;
   typedef std::map<std::string, pointer_type> map_type;

@@ -25,6 +25,7 @@ dist_noinst_HEADERS = \
 	looper.h \
 	looper/cluster.h \
 	looper/evaluator.h \
+	looper/evaluator_impl.h \
 	looper/find_bridge.h \
 	looper/graph.h \
 	looper/histogram.h \

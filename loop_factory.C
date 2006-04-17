@@ -80,6 +80,6 @@ evaluator_factory::make_evaluator(const alps::Parameters& p) const
 // initialization of static member pointer of factories
 //
 
-loop_factory* loop_factory::ptr_ = 0;
+loop_factory* loop_factory::instance_ = 0;
 
-evaluator_factory* evaluator_factory::ptr_ = 0;
+evaluator_factory* evaluator_factory::instance_ = 0;
