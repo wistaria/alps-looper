@@ -101,8 +101,7 @@ class abstract_evaluator_creator
 {
 public:
   virtual ~abstract_evaluator_creator() {}
-  virtual looper::abstract_evaluator* create()
-    const = 0;
+  virtual looper::abstract_evaluator* create() const = 0;
 };
 
 template <typename EVALUATOR>
