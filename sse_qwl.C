@@ -62,9 +62,17 @@ public:
   double work_done() const { return mcs.progress(); }
 
   void save(alps::ODump& dp) const
-  { super_type::save(dp); dp << mcs << spins << operators; }
+  {
+    super_type::save(dp);
+    dp << mcs << spins << operators << factor << histogram
+       << measurement_histograms;
+  }
   void load(alps::IDump& dp)
-  { super_type::load(dp); dp >> mcs >> spins >> operators; }
+  {
+    super_type::load(dp);
+    dp >> mcs >> spins >> operators >> factor >> histogram
+       >> measurement_histograms;
+  }
 
 protected:
   void build();
@@ -74,14 +82,16 @@ protected:
   void measure();
 
 private:
+  // parmeters
   looper::integer_range<int> exp_range;
+  bool store_all_histograms;
+  int min_visit;
+  double flatness;
+
   looper::wl_steps mcs;
   std::vector<int> spins;
   std::vector<local_operator_t> operators;
-
   double factor;
-  int min_visit;
-  double flatness;
   looper::wl_histogram histogram;
   looper::histogram_set<double> measurement_histograms;
 
@@ -145,23 +155,27 @@ loop_worker_swl::loop_worker_swl(alps::ProcessList const& w,
   // initialize measurements
   //
 
+  store_all_histograms =  parms.defined("STORE_ALL_HISTOGRAMS");
   measurement_histograms.initialize(exp_range);
-  if (is_signed()) measurement_histograms.add_histogram("Sign");
-  estimator_t::initialize(measurement_histograms, is_bipartite(), is_signed(),
-                          use_improved_estimator());
-
   measurements
     << alps::SimpleRealObservable("Energy Offset")
     << alps::SimpleRealVectorObservable("Partition Function Coefficient")
-    << alps::SimpleRealObservable("Histogram");
-
-  if (parms.defined("STORE_ALL_HISTOGRAMS"))
-    for (int p = 0; p < mcs.num_iterations(); ++p)
+    << alps::SimpleRealVectorObservable("Histogram");
+  if (store_all_histograms) {
+    for (int p = 0; p < mcs.num_iterations()-1; ++p) {
+      std::string suffix =
+        "(iteration #" + boost::lexical_cast<std::string>(p) + ")";
+      std::cout << suffix << std::endl;
       measurements
-        << alps::SimpleRealVectorObservable("Partition Function Coefficient "
-             "(iteration #" + boost::lexical_cast<std::string>(p) + ")")
-        << alps::SimpleRealVectorObservable("Histogram "
-             "(iteration #" + boost::lexical_cast<std::string>(p) + ")");
+        << alps::SimpleRealVectorObservable("Partition Function Coefficient " +
+                                            suffix)
+        << alps::SimpleRealVectorObservable("Histogram " + suffix);
+    }
+  }
+  if (is_signed()) measurement_histograms.add_histogram("Sign");
+  estimator_t::initialize(measurement_histograms, is_bipartite(), is_signed(),
+                          use_improved_estimator());
+  measurements.reset(true);
 }
 
 void loop_worker_swl::dostep()
@@ -195,17 +209,30 @@ void loop_worker_swl::dostep()
   if (!mcs.doing_multicanonical() && mcs() == mcs.mcs_block()) {
     if (histogram.check_flatness(flatness) &&
         histogram.check_visit(min_visit)) {
-      // std::cerr << "stage " << mcs.stage() << " becomes flat\n";
-      // histogram.output_dos("dos " + boost::lexical_cast<std::string>(mcs.stage()));
+      std::cerr << "stage " << mcs.stage() << " becomes flat\n";
+      // histogram.output();
+      if (mcs.stage()  == mcs.num_iterations()-1) {
+        histogram.store(measurements, "Partition Function Coefficient",
+                        "Histogram");
+      } else if (store_all_histograms) {
+        std::string suffix =
+          "(iteration #" + boost::lexical_cast<std::string>(mcs.stage()) + ")";
+        histogram.store(measurements,
+                        "Partition Function Coefficient " + suffix,
+                        "Histogram " + suffix);
+      }
+      std::cout << measurements;
       factor = std::sqrt(factor);
       if (mcs.use_zhou_bhatt()) min_visit *= 2;
       histogram.clear();
       mcs.next_stage();
     } else {
-      // std::cerr << "stage " << mcs.stage() << " is not flat yet\n";
+      std::cerr << "stage " << mcs.stage() << " is not flat yet\n";
+      // histogram.output();
       mcs.reset_stage();
     }
   }
+  if (work_done() >= 1.0) std::cout << measurements;
 }
 
 
@@ -231,7 +258,7 @@ void loop_worker_swl::build()
 
     // diagonal update & labeling
     if (try_gap) {
-      if (random() < histogram.accept_rate(nop)) {
+      if (random() < histogram.accept_rate(nop, nop+1)) {
         loop_graph_t g = choose_graph();
         if ((is_bond(g) &&
              is_compatible(g, spins_c[vsource(pos(g), vlattice())],
@@ -251,8 +278,7 @@ void loop_worker_swl::build()
       }
     } else {
       if (opi->is_diagonal()) {
-        if (nop > exp_range.min() &&
-            histogram.accept_rate(nop-1) * random() < 1) {
+        if (random() < histogram.accept_rate(nop, nop-1)) {
           --nop;
           ++opi;
           if (!mcs.doing_multicanonical()) histogram.visit(nop, factor);
