@@ -3,48 +3,41 @@ SWEEPS  = 65536
 MODEL   = "spin"
 T = 0.25
 
-REPRESENTATION = "path integral"
-{
 LATTICE = "chain lattice"
 L = 4
-}
-{
+{ REPRESENTATION = "diagonalization" }
+{ REPRESENTATION = "path integral" }
+{ REPRESENTATION = "SSE" }
+
 LATTICE = "chain lattice"
 L = 4
 local_S = 1
 T = 1/L
-}
-{
+{ REPRESENTATION = "diagonalization" }
+{ REPRESENTATION = "path integral" }
+{ REPRESENTATION = "SSE" }
+
 LATTICE = "site"
 Gamma = 1
-}
+{ REPRESENTATION = "diagonalization" }
+{ REPRESENTATION = "path integral" }
+{ REPRESENTATION = "SSE" }
 
-REPRESENTATION = "SSE"
-{
-LATTICE = "chain lattice"
-L = 4
-}
-{
-LATTICE = "chain lattice"
-L = 4
-local_S = 1
-}
-{
-LATTICE = "site"
-Gamma = 1
-}
-
-REPRESENTATION = "Ising"
-{
 LATTICE = "chain lattice"
 Jz = -1
 Jxy = 0
 L = 4
-}
-{
+{ REPRESENTATION = "diagonalization" }
+{ REPRESENTATION = "path integral" }
+{ REPRESENTATION = "SSE" }
+{ REPRESENTATION = "Ising" }
+
 LATTICE = "chain lattice"
 Jz = -1
 Jxy = 0
 local_S = 1
 L = 4
-}
+{ REPRESENTATION = "diagonalization" }
+{ REPRESENTATION = "path integral" }
+{ REPRESENTATION = "SSE" }
+{ REPRESENTATION = "Ising" }

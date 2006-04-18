@@ -46,7 +46,7 @@ dist_noinst_HEADERS = \
 	looper/weight.h
 
 dist_noinst_SCRIPTS = config/run-test config/update_preamble
-dist_noinst_DATA = CITATIONS.txt LICENSE.txt diag.ip diag.op loop_ns.ip loop_ns.op
+dist_noinst_DATA = CITATIONS.txt LICENSE.txt loop_ns.ip loop_ns.op
 
 #
 # programs
@@ -56,7 +56,7 @@ noinst_PROGRAMS = loop loop_evaluate
 if HAVE_MPI
 noinst_PROGRAMS += loop_mpi
 endif
-check_PROGRAMS = diag loop_ns
+check_PROGRAMS = loop_ns
 
 TESTS = $(check_PROGRAMS)
 TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
@@ -65,6 +65,7 @@ SRC = \
 	loop_config.h \
 	loop_factory.h loop_factory.C \
 	loop_worker.h loop_worker.C \
+	diag.C \
 	ising.C \
 	path_integral.C \
 	sse.C \
@@ -78,7 +79,6 @@ loop_mpi_LDFLAGS = @LDFLAGS_MPI@
 loop_mpi_LDADD = @LIBS_MPI@
 
 loop_ns_SOURCES = loop_ns.C $(SRC)
-diag_SOURCES = diag.C
 
 .PHONY : test tests
 test tests : check

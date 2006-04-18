@@ -34,11 +34,11 @@
 
 namespace {
 
-class loop_worker_sse : public loop_worker
+class loop_worker : public loop_worker_base
 {
 public:
   typedef looper::sse                   qmc_type;
-  typedef loop_worker                   super_type;
+  typedef loop_worker_base              super_type;
 
   typedef looper::local_operator<qmc_type, loop_graph_t, time_t>
                                         local_operator_t;
@@ -51,8 +51,7 @@ public:
   typedef loop_config::estimator_t      estimator_t;
   typedef looper::measurement::estimate<estimator_t>::type estimate_t;
 
-  loop_worker_sse(alps::ProcessList const& w, alps::Parameters const& p,
-                  int n);
+  loop_worker(alps::ProcessList const& w, alps::Parameters const& p, int n);
   void dostep();
 
   bool is_thermalized() const { return mcs.is_thermalized(); }
@@ -86,12 +85,13 @@ private:
 
 
 //
-// member functions of loop_worker_sse
+// member functions of loop_worker
 //
 
-loop_worker_sse::loop_worker_sse(alps::ProcessList const& w,
-                                 alps::Parameters const& p, int n)
-  : super_type(w, p, n, looper::is_path_integral<qmc_type>::type()), mcs(p)
+loop_worker::loop_worker(alps::ProcessList const& w,
+                         alps::Parameters const& p, int n)
+  : super_type(w, p, n, looper::is_path_integral<qmc_type>::type()),
+    mcs(p)
 {
   if (has_field())
     boost::throw_exception(std::logic_error("longitudinal field is not "
@@ -117,7 +117,7 @@ loop_worker_sse::loop_worker_sse(alps::ProcessList const& w,
                           use_improved_estimator());
 }
 
-void loop_worker_sse::dostep()
+void loop_worker::dostep()
 {
   namespace mpl = boost::mpl;
 
@@ -133,7 +133,7 @@ void loop_worker_sse::dostep()
   flip<mpl::true_,  mpl::false_, mpl::false_, mpl::true_ >();
   flip<mpl::true_,  mpl::false_, mpl::false_, mpl::false_>();
   flip<mpl::false_, mpl::false_, mpl::true_,  mpl::true_ >();
-  flip<mpl::false_, mpl::false_, mpl::true_,  mpl::true_ >();
+  flip<mpl::false_, mpl::false_, mpl::true_,  mpl::false_>();
   flip<mpl::false_, mpl::false_, mpl::false_, mpl::true_ >();
   flip<mpl::false_, mpl::false_, mpl::false_, mpl::false_>();
 
@@ -149,7 +149,7 @@ void loop_worker_sse::dostep()
 // diagonal update and cluster construction
 //
 
-void loop_worker_sse::build()
+void loop_worker::build()
 {
   // initialize spin & operator information
   int nop = operators.size();
@@ -253,7 +253,7 @@ void loop_worker_sse::build()
 //
 
 template<typename BIPARTITE, typename FIELD, typename SIGN, typename IMPROVE>
-void loop_worker_sse::flip()
+void loop_worker::flip()
 {
   if (!(is_bipartite() == BIPARTITE() &&
         has_field() == FIELD() &&
@@ -338,7 +338,7 @@ void loop_worker_sse::flip()
 //
 
 template<typename BIPARTITE, typename IMPROVE>
-void loop_worker_sse::measure()
+void loop_worker::measure()
 {
   if (!(is_bipartite() == BIPARTITE() &&
         use_improved_estimator() == IMPROVE())) return;
@@ -371,8 +371,8 @@ void loop_worker_sse::measure()
 // dynamic registration to the factories
 //
 
-const bool registered =
-  loop_factory::instance()->register_worker<loop_worker_sse>("SSE");
+const bool worker_registered =
+  loop_factory::instance()->register_worker<loop_worker>("SSE");
 const bool evaluator_registered = evaluator_factory::instance()->
   register_evaluator<looper::evaluator<loop_config::estimator_t> >("SSE");
 

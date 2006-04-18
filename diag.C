@@ -22,18 +22,26 @@
 *
 *****************************************************************************/
 
+#include "loop_config.h"
+#include "loop_factory.h"
 #include <looper/lapack.h>
 #include <looper/util.h>
-
-#include <alps/parameterlist.h>
-#include <alps/lattice.h>
 #include <alps/math.hpp>
-#include <alps/model.h>
-
+#include <alps/scheduler.h>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/tuple/tuple.hpp>
+
+namespace {
+
+void add(alps::ObservableSet& m, std::string const& name, double val)
+{
+  alps::RealObservable obs(name);
+  obs.reset(true);
+  obs << val;
+  m << obs;
+}
 
 template<class MATRIX, class I, class GRAPH>
 void add_to_matrix(
@@ -284,199 +292,210 @@ double dynamic_average2(double beta, double offset,
   return val;
 }
 
-
-int main()
+class diag_worker
+  : public alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
 {
-#ifndef BOOST_NO_EXCEPTIONS
-try {
-#endif
-
+public:
+  typedef alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
+                                                   super_type;
+  typedef loop_config::lattice_graph_t             lattice_graph_t;
   typedef boost::numeric::ublas::vector<double> vector_type;
   typedef boost::numeric::ublas::matrix<double,
     boost::numeric::ublas::column_major> matrix_type;
   typedef boost::numeric::ublas::vector<double> diagonal_matrix_type;
 
+  diag_worker(alps::ProcessList const& w, alps::Parameters const& p, int n)
+    : super_type(w, p, n), done(false), params(p) {}
+
+  void dostep();
+
+  bool is_thermalized() const { return true; }
+  double work_done() const { return done ? 1 : 0; }
+
+  void save(alps::ODump& dp) const { super_type::save(dp); dp << done; }
+  void load(alps::IDump& dp) { super_type::load(dp); dp >> done; }
+
+private:
+  bool done;
+  alps::Parameters params;
+};
+
+
+void diag_worker::dostep()
+{
   using looper::power2;
 
-  alps::ParameterList parameterlist;
-  std::cin >> parameterlist;
-  for (alps::ParameterList::const_iterator p = parameterlist.begin();
-       p != parameterlist.end(); ++p) {
+  if (done) return;
 
-    //
-    // parameters
-    //
+  //
+  // parameters
+  //
 
-    alps::Parameters params(*p);
-    assert(params.defined("T"));
-    for (alps::Parameters::const_iterator ps = p->begin(); ps != p->end(); ++ps)
-      if (ps->key() != "LATTICE_LIBRARY" && ps->key() != "MODEL_LIBRARY")
-        std::cout << ps->key() << " = " << ps->value() << std::endl;
-    double beta = 1.0 / static_cast<double>(params["T"]);
+  double beta = 1.0 / alps::evaluate("T", params);
+  int nsite = num_sites(graph());
+  std::map<std::string, double> m;
 
-    //
-    // lattice & graph
-    //
+  m["Temperature"] = 1/beta;
+  m["Inverse Temperature"] = beta;
+  m["Number of Sites"] = (double)num_sites();
 
-    typedef alps::graph_helper<>::graph_type graph_type;
-    alps::graph_helper<> lattice(params);
-    int nsite = num_sites(lattice.graph());
-    bool is_bipartite = alps::set_parity(lattice.graph());
+  //
+  // generate basis set
+  //
 
-    //
-    // model
-    //
+  alps::basis_states<short>
+    basis_set(alps::basis_states_descriptor<short>(model().basis(), graph()));
+  int dim = basis_set.size();
+  m["Dimension of Matrix"] = dim;
 
-    alps::model_helper<> model(params);
-    params.copy_undefined(model.model().default_parameters());
+  //
+  // generate Hamiltonian matrix
+  //
 
-    //
-    // generate basis set
-    //
+  matrix_type hamiltonian(dim, dim);
+  hamiltonian.clear();
+  site_iterator vi, vi_end;
+  for (boost::tie(vi, vi_end) = sites(); vi != vi_end; ++vi) {
+    add_to_matrix(hamiltonian, model(), model().basis(),
+                  basis_set, *vi, graph(), params);
+  }
+  bond_iterator ei, ei_end;
+  for (boost::tie(ei, ei_end) = bonds(); ei != ei_end; ++ei) {
+    add_to_matrix(hamiltonian, model(), model().basis(),
+                  basis_set, *ei, source(*ei, graph()),
+                  target(*ei, graph()), graph(), params);
+  }
+  diagonal_matrix_type diagonal_energy(dim);
+  for (int i = 0; i < dim; ++i) diagonal_energy(i) = hamiltonian(i,i);
 
-    alps::basis_states<short>
-      basis_set(alps::basis_states_descriptor<short>(model.basis(),
-                                                     lattice.graph()));
-    int dim = basis_set.size();
-    std::cout << "dimension of matrix = " << dim << std::endl;
+  //
+  // diagonalization
+  //
 
-    //
-    // generate Hamiltonian matrix
-    //
+  vector_type evals(dim);
+  std::cerr << "start diagonalization... " << std::flush;
+  looper::diagonalize(hamiltonian, evals);
+  std::cout << "done\n";
 
-    matrix_type hamiltonian(dim, dim);
-    hamiltonian.clear();
-    alps::graph_traits<graph_type>::site_iterator vi, vi_end;
-    for (boost::tie(vi, vi_end) = sites(lattice.graph());
-         vi != vi_end; ++vi) {
-      add_to_matrix(hamiltonian, model.model(), model.basis(),
-                    basis_set, *vi, lattice.graph(), params);
-    }
-    alps::graph_traits<graph_type>::bond_iterator ei, ei_end;
-    for (boost::tie(ei, ei_end) = bonds(lattice.graph()); ei != ei_end; ++ei) {
-      add_to_matrix(hamiltonian, model.model(), model.basis(),
-                    basis_set, *ei, source(*ei, lattice.graph()),
-                    target(*ei, lattice.graph()), lattice.graph(), params);
-    }
-    diagonal_matrix_type diagonal_energy(dim);
-    for (int i = 0; i < dim; ++i) diagonal_energy(i) = hamiltonian(i,i);
+  //
+  // partition function, energy and specific heat
+  //
 
-    //
-    // diagonalization
-    //
-
-    vector_type evals(dim);
-    std::cout << "diagonalization... " << std::flush;
-    looper::diagonalize(hamiltonian, evals);
-    std::cout << "done\n";
-
-    //
-    // partition function, energy and specific heat
-    //
-
-    double gs_ene = evals(0);
-    double part = 0.;
-    vector_type::reverse_iterator eval_end = evals.rend();
-    for (vector_type::reverse_iterator eval = evals.rbegin();
-         eval != eval_end; ++eval) {
-      double weight = std::exp(- beta * (*eval - gs_ene)); // Boltzman weight
-      part += weight; // partition function
-    }
-
-    double ene, ene2;
-    boost::tie(ene, ene2) = static_average2(beta, gs_ene, evals);
-    ene = ene / part;
-    ene2 = ene2 / part / power2(nsite);
-    double c = power2(beta) * nsite * (ene2 - power2(ene/nsite));
-
-    std::cout << "ground state energy             = " << gs_ene << std::endl
-              << "ground state energy density     = "
-              << gs_ene/nsite << std::endl
-              << "energy                          = " << ene << std::endl
-              << "energy density                  = "
-              << ene/nsite << std::endl
-              << "specific heat                   = " << c << std::endl;
-
-    //
-    // generate uniform/staggered Sz matrix
-    //
-
-    diagonal_matrix_type uniform_sz(dim);
-    uniform_sz.clear();
-    for (boost::tie(vi, vi_end) = sites(lattice.graph());
-         vi != vi_end; ++vi) {
-      add_to_diagonal_matrix(uniform_sz,
-                             alps::SiteTermDescriptor("Sz(i)", "i"),
-                             model.basis(), basis_set, *vi, lattice.graph(),
-                             params);
-    }
-
-    double umag, umag2, umag4;
-    boost::tie(umag, umag2, umag4) =
-      static_average4(beta, gs_ene, evals, hamiltonian, uniform_sz);
-    umag = alps::round<1>(umag);
-    double usus = dynamic_average2(beta, gs_ene, evals, hamiltonian,
-                                   uniform_sz);
-    umag = umag / part;
-    umag2 = umag2 / part;
-    umag4 = umag4 / part;
-    usus = usus / part / nsite;
-    std::cout << "uniform magnetization density   = " << umag / nsite
-              << std::endl
-              << "uniform magnetization           = " << umag << std::endl
-              << "uniform magnetization^2         = " << umag2 << std::endl
-              << "uniform magnetization^4         = " << umag4 << std::endl
-              << "uniform susceptibility          = " << usus << std::endl
-              << "binder ratio of magnetization   = " << umag2 * umag2 / umag4
-              << std::endl;
-
-    if (is_bipartite) {
-      diagonal_matrix_type staggered_sz(dim);
-      staggered_sz.clear();
-      for (boost::tie(vi, vi_end) = sites(lattice.graph());
-           vi != vi_end; ++vi) {
-        int g = 2 * get(alps::parity_t(), lattice.graph(), *vi) - 1;
-        if (g == 1) {
-          add_to_diagonal_matrix(staggered_sz,
-            alps::SiteTermDescriptor("Sz(i)", "i"), model.basis(),
-            basis_set, *vi, lattice.graph(), params);
-        } else {
-          add_to_diagonal_matrix(staggered_sz,
-            alps::SiteTermDescriptor("-Sz(i)", "i"), model.basis(),
-            basis_set, *vi, lattice.graph(), params);
-        }
-      }
-
-      double smag, smag2, smag4;
-      boost::tie(smag, smag2, smag4) =
-        static_average4(beta, gs_ene, evals, hamiltonian, staggered_sz);
-      smag = alps::round<1>(smag);
-      double ssus =
-        dynamic_average2(beta, gs_ene, evals, hamiltonian, staggered_sz);
-      smag = smag / part;
-      smag2 = smag2 / part;
-      smag4 = smag4 / part;
-      ssus = ssus / part / nsite;
-      std::cout << "staggered magnetization density = " << smag / nsite
-                << std::endl
-                << "staggered magnetization         = " << smag << std::endl
-                << "staggered magnetization^2       = " << smag2 << std::endl
-                << "staggered magnetization^4       = " << smag4 << std::endl
-                << "staggered susceptibility        = " << ssus << std::endl
-                << "binder ratio of staggered mag   = " << smag2 * smag2 / smag4
-                << std::endl;
-    }
+  double gs_ene = evals(0);
+  double part = 0.;
+  vector_type::reverse_iterator eval_end = evals.rend();
+  for (vector_type::reverse_iterator eval = evals.rbegin();
+       eval != eval_end; ++eval) {
+    double weight = std::exp(- beta * (*eval - gs_ene)); // Boltzmann weight
+    part += weight; // partition function
   }
 
-#ifndef BOOST_NO_EXCEPTIONS
+  double ene, ene2;
+  boost::tie(ene, ene2) = static_average2(beta, gs_ene, evals);
+  ene = ene / part;
+  ene2 = ene2 / part / power2(nsite);
+  double fe = gs_ene - std::log(part) / beta;
+  m["Ground State Energy"] = gs_ene;
+  m["Ground State Energy Density"] = gs_ene / nsite;
+  m["Energy"] = ene;
+  m["Energy Density"] = ene / nsite;
+  m["Specific Heat"] = power2(beta) * nsite * (ene2 - power2(ene/nsite));
+  m["Free Energy"] = fe;
+  m["Free Energy Density"] = fe / nsite;
+  m["Entropy"] = beta * (ene - fe);
+  m["Entropy Density"] = beta * (ene - fe) / nsite;
+
+  //
+  // generate uniform/staggered Sz matrix
+  //
+
+  diagonal_matrix_type uniform_sz(dim);
+  uniform_sz.clear();
+  for (boost::tie(vi, vi_end) = sites(); vi != vi_end; ++vi)
+    add_to_diagonal_matrix(uniform_sz,
+                           alps::SiteTermDescriptor("Sz(i)", "i"),
+                           model().basis(), basis_set, *vi, graph(),
+                           params);
+
+  double umag, umag2, umag4;
+  boost::tie(umag, umag2, umag4) =
+    static_average4(beta, gs_ene, evals, hamiltonian, uniform_sz);
+  umag = alps::round<1>(umag);
+  m["Magnetization"] = umag / part;
+  m["Magnetization Density"] = umag / part / nsite;
+  m["Magnetization^2"] = umag2 / part;
+  m["Magnetization^4"] = umag4 / part;
+  m["Susceptibility"] =
+    dynamic_average2(beta, gs_ene, evals, hamiltonian, uniform_sz) / part
+    / nsite;
+  m["Binder Ratio of Magnetization"] = power2(umag2 / part) / (umag4 / part);
+
+  if (is_bipartite()) {
+    diagonal_matrix_type staggered_sz(dim);
+    staggered_sz.clear();
+    for (boost::tie(vi, vi_end) = sites(); vi != vi_end; ++vi) {
+      int g = 2 * get(alps::parity_t(), graph(), *vi) - 1;
+      if (g == 1) {
+        add_to_diagonal_matrix(staggered_sz,
+                               alps::SiteTermDescriptor("Sz(i)", "i"),
+                               model().basis(), basis_set, *vi, graph(),
+                               params);
+      } else {
+        add_to_diagonal_matrix(staggered_sz,
+                               alps::SiteTermDescriptor("-Sz(i)", "i"),
+                               model().basis(), basis_set, *vi, graph(),
+                               params);
+      }
+    }
+
+    double smag, smag2, smag4;
+    boost::tie(smag, smag2, smag4) =
+      static_average4(beta, gs_ene, evals, hamiltonian, staggered_sz);
+    smag = alps::round<1>(smag);
+    m["Staggered Magnetization"] = smag / part;
+    m["Staggered Magnetization Density"] = smag / part / nsite;
+    m["Staggered Magnetization^2"] = smag2 / part;
+    m["Staggered Magnetization^4"] = smag4 / part;
+    m["Staggered Susceptibility"] =
+      dynamic_average2(beta, gs_ene, evals, hamiltonian, staggered_sz) / part
+      / nsite;
+    m["Binder Ratio of Staggered Magnetization"] =
+      power2(smag2 / part) / (smag4 / part);
+
+  }
+
+  for (std::map<std::string, double>::const_iterator itr = m.begin();
+       itr != m.end(); ++itr)
+    measurements << alps::SimpleRealObservable(itr->first);
+  measurements.reset(true);
+  for (std::map<std::string, double>::const_iterator itr = m.begin();
+       itr != m.end(); ++itr) {
+    measurements[itr->first] << itr->second;
+    measurements[itr->first] << itr->second;
+  }
+
+  std::cout << measurements;
+
+  done = true;
 }
-catch (std::exception& exc) {
-  std::cerr << exc.what() << "\n";
-  return -1;
-}
-catch (...) {
-  std::cerr << "Fatal Error: Unknown Exception!\n";
-  return -2;
-}
-#endif
-}
+
+
+class dummy_evaluator : public looper::abstract_evaluator
+{
+public:
+  void evaluate(alps::scheduler::MCSimulation&, alps::Parameters const&,
+                boost::filesystem::path const&) const {}
+  void evaluate(alps::ObservableSet&, alps::ObservableSet const&) const {}
+};
+
+
+//
+// dynamic registration to the factories
+//
+
+const bool worker_registered = loop_factory::instance()->
+  register_worker<diag_worker>("diagonalization");
+const bool evaluator_registered = evaluator_factory::instance()->
+  register_evaluator<dummy_evaluator>("diagonalization");
+
+} // end namespace

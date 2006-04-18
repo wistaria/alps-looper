@@ -36,11 +36,11 @@
 
 namespace {
 
-class loop_worker_swl : public loop_worker
+class loop_worker : public loop_worker_base
 {
 public:
   typedef looper::sse                   qmc_type;
-  typedef loop_worker                   super_type;
+  typedef loop_worker_base              super_type;
 
   typedef looper::local_operator<qmc_type, loop_graph_t, time_t>
                                         local_operator_t;
@@ -53,8 +53,7 @@ public:
   typedef loop_config::estimator_t      estimator_t;
   typedef looper::measurement::estimate<estimator_t>::type estimate_t;
 
-  loop_worker_swl(alps::ProcessList const& w, alps::Parameters const& p,
-                  int n);
+  loop_worker(alps::ProcessList const& w, alps::Parameters const& p, int n);
   void dostep();
 
   bool is_thermalized() const { return true; }
@@ -105,11 +104,11 @@ private:
 
 
 //
-// member function of loop_worker_swl
+// member functions of loop_worker
 //
 
-loop_worker_swl::loop_worker_swl(alps::ProcessList const& w,
-                                 alps::Parameters const& p, int n)
+loop_worker::loop_worker(alps::ProcessList const& w,
+                         alps::Parameters const& p, int n)
   : super_type(w, p, n, looper::is_path_integral<qmc_type>::type()),
     exp_range(p.value_or_default("EXPANSION_RANGE", "[0:500]")),
     mcs(p, exp_range),
@@ -179,7 +178,7 @@ loop_worker_swl::loop_worker_swl(alps::ProcessList const& w,
   measurements.reset(true);
 }
 
-void loop_worker_swl::dostep()
+void loop_worker::dostep()
 {
   namespace mpl = boost::mpl;
 
@@ -196,17 +195,15 @@ void loop_worker_swl::dostep()
   flip<mpl::true_,  mpl::false_, mpl::false_, mpl::true_ >();
   flip<mpl::true_,  mpl::false_, mpl::false_, mpl::false_>();
   flip<mpl::false_, mpl::false_, mpl::true_,  mpl::true_ >();
-  flip<mpl::false_, mpl::false_, mpl::true_,  mpl::true_ >();
+  flip<mpl::false_, mpl::false_, mpl::true_,  mpl::false_>();
   flip<mpl::false_, mpl::false_, mpl::false_, mpl::true_ >();
   flip<mpl::false_, mpl::false_, mpl::false_, mpl::false_>();
 
-  if (mcs.doing_multicanonical()) {
-    //      BIPARTITE    IMPROVE
-    measure<mpl::true_,  mpl::true_ >();
-    measure<mpl::true_,  mpl::false_>();
-    measure<mpl::false_, mpl::true_ >();
-    measure<mpl::false_, mpl::false_>();
-  }
+  //      BIPARTITE    IMPROVE
+  measure<mpl::true_,  mpl::true_ >();
+  measure<mpl::true_,  mpl::false_>();
+  measure<mpl::false_, mpl::true_ >();
+  measure<mpl::false_, mpl::false_>();
 
   if (!mcs.doing_multicanonical() && mcs() == mcs.mcs_block()) {
     if (histogram.check_flatness(flatness) &&
@@ -237,7 +234,7 @@ void loop_worker_swl::dostep()
 // diagonal update and cluster construction
 //
 
-void loop_worker_swl::build()
+void loop_worker::build()
 {
   // initialize spin & operator information
   int nop = operators.size();
@@ -345,7 +342,7 @@ void loop_worker_swl::build()
 //
 
 template<typename BIPARTITE, typename FIELD, typename SIGN, typename IMPROVE>
-void loop_worker_swl::flip()
+void loop_worker::flip()
 {
   if (!(is_bipartite() == BIPARTITE() &&
         has_field() == FIELD() &&
@@ -432,10 +429,11 @@ void loop_worker_swl::flip()
 //
 
 template<typename BIPARTITE, typename IMPROVE>
-void loop_worker_swl::measure()
+void loop_worker::measure()
 {
   if (!(is_bipartite() == BIPARTITE() &&
         use_improved_estimator() == IMPROVE())) return;
+  if (!mcs.doing_multicanonical()) return;
 
   int nrs = num_sites(rgraph());
 
@@ -459,11 +457,12 @@ void loop_worker_swl::measure()
                             spins, operators, spins_c);
 }
 
+
 //
-// dynamic registration to the loop_factory
+// dynamic registration to the factories
 //
 
-const bool registered =
-  loop_factory::instance()->register_worker<loop_worker_swl>("SSE QWL");
+const bool worker_registered =
+  loop_factory::instance()->register_worker<loop_worker>("SSE QWL");
 
 } // end namespace

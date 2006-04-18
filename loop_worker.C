@@ -25,15 +25,15 @@
 #include "loop_worker.h"
 #include <looper/weight.h>
 
-loop_worker::loop_worker(alps::ProcessList const& w,
-                         alps::Parameters const& p, int n,
-                         bool is_path_integral)
+loop_worker_base::loop_worker_base(alps::ProcessList const& w,
+                                   alps::Parameters const& p, int n,
+                                   bool is_path_integral)
   : super_type(w, p, n), beta_(1.0 / alps::evaluate("T", p)),
     chooser_(*engine_ptr)
 {
   if (beta_ < 0)
     boost::throw_exception(std::invalid_argument(
-      "loop_worker::loop_worker() negative temperature"));
+      "loop_worker_base::loop_worker_base() negative temperature"));
 
   looper::model_parameter mp(p, *this);
   if (mp.is_signed()) std::cerr << "WARNING: model has negative signs\n";
@@ -80,19 +80,20 @@ loop_worker::loop_worker(alps::ProcessList const& w,
     !(mp.has_field() || p.defined("DISABLE_IMPROVED_ESTIMATOR"));
 
   measurements <<
+    make_observable(alps::SimpleRealObservable("Temperature"));
+  measurements <<
     make_observable(alps::SimpleRealObservable("Inverse Temperature"));
   measurements <<
     make_observable(alps::SimpleRealObservable("Number of Sites"));
 }
 
-void loop_worker::dostep()
+void loop_worker_base::dostep()
 {
+  measurements["Temperature"] << 1/beta_;
   measurements["Inverse Temperature"] << beta_;
   measurements["Number of Sites"] << (double)num_sites(rgraph());
 }
 
-void loop_worker::save(alps::ODump& dp) const
-{ super_type::save(dp); }
+void loop_worker_base::save(alps::ODump& dp) const { super_type::save(dp); }
 
-void loop_worker::load(alps::IDump& dp)
-{ super_type::load(dp); }
+void loop_worker_base::load(alps::IDump& dp) { super_type::load(dp); }

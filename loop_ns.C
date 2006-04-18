@@ -58,7 +58,7 @@ int main(int argc, char** argv)
     std::cout << "[input parameters]\n" << *p;
     alps::scheduler::MCRun* worker =
       loop_factory::instance()->make_worker(alps::ProcessList(1), *p, 0);
-    bool thermalized = false;
+    bool thermalized = worker->is_thermalized();
     while (worker->work_done() < 1.0) {
       worker->dostep();
       if (!thermalized && worker->is_thermalized()) {

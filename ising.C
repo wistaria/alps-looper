@@ -157,6 +157,8 @@ loop_worker::loop_worker(alps::ProcessList const& w,
   use_improved_estimator =
     !(has_field() || p.defined("DISABLE_IMPROVED_ESTIMATOR"));
   measurements <<
+    make_observable(alps::SimpleRealObservable("Temperature"));
+  measurements <<
     make_observable(alps::SimpleRealObservable("Inverse Temperature"));
   measurements <<
     make_observable(alps::SimpleRealObservable("Number of Sites"));
@@ -173,6 +175,7 @@ void loop_worker::dostep()
 
   if (!mcs.can_work()) return;
   ++mcs;
+  measurements["Temperature"] << 1/beta;
   measurements["Inverse Temperature"] << beta;
   measurements["Number of Sites"] << (double)num_sites(rgraph());
 

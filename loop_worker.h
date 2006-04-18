@@ -23,7 +23,7 @@
 *****************************************************************************/
 
 #ifndef LOOP_WORKER_H
-#define LOOP_WORKER_H
+#define LOOP_WORKER_BASE_H
 
 #include "loop_config.h"
 
@@ -31,7 +31,7 @@
 #include <alps/alea.h>
 #include <alps/scheduler.h>
 
-class loop_worker
+class loop_worker_base
   : public alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
 {
 public:
@@ -45,9 +45,9 @@ public:
   typedef looper::graph_chooser<loop_graph_t, super_type::engine_type>
     graph_chooser;
 
-  loop_worker(alps::ProcessList const& w, alps::Parameters const& p,
-              int n, bool is_path_integral = true);
-  virtual ~loop_worker() {}
+  loop_worker_base(alps::ProcessList const& w, alps::Parameters const& p,
+                   int n, bool is_path_integral = true);
+  virtual ~loop_worker_base() {}
 
   virtual void dostep();
 

@@ -34,11 +34,11 @@
 
 namespace {
 
-class loop_worker_pi : public loop_worker
+class loop_worker : public loop_worker_base
 {
 public:
   typedef looper::path_integral         qmc_type;
-  typedef loop_worker                   super_type;
+  typedef loop_worker_base              super_type;
 
   typedef looper::local_operator<qmc_type, loop_graph_t, time_t>
                                         local_operator_t;
@@ -51,7 +51,7 @@ public:
   typedef loop_config::estimator_t      estimator_t;
   typedef looper::measurement::estimate<estimator_t>::type estimate_t;
 
-  loop_worker_pi(alps::ProcessList const& w, alps::Parameters const& p, int n);
+  loop_worker(alps::ProcessList const& w, alps::Parameters const& p, int n);
   void dostep();
 
   bool is_thermalized() const { return mcs.is_thermalized(); }
@@ -85,16 +85,15 @@ private:
   std::vector<int> current;
   std::vector<cluster_info_t> clusters;
   std::vector<estimate_t> estimates;
-
 };
 
 
 //
-// member functions of loop_worker_pi
+// member functions of loop_worker
 //
 
-loop_worker_pi::loop_worker_pi(alps::ProcessList const& w,
-                               alps::Parameters const& p, int n)
+loop_worker::loop_worker(alps::ProcessList const& w,
+                         alps::Parameters const& p, int n)
   : super_type(w, p, n, looper::is_path_integral<qmc_type>::type()),
     r_time(*engine_ptr,
            boost::exponential_distribution<>(beta() * total_graph_weight())),
@@ -120,7 +119,7 @@ loop_worker_pi::loop_worker_pi(alps::ProcessList const& w,
                           use_improved_estimator());
 }
 
-void loop_worker_pi::dostep()
+void loop_worker::dostep()
 {
   namespace mpl = boost::mpl;
 
@@ -160,7 +159,7 @@ void loop_worker_pi::dostep()
 // diagonal update and cluster construction
 //
 
-void loop_worker_pi::build()
+void loop_worker::build()
 {
   // initialize spin & operator information
   std::copy(spins.begin(), spins.end(), spins_c.begin());
@@ -244,7 +243,7 @@ void loop_worker_pi::build()
 //
 
 template<typename BIPARTITE, typename FIELD, typename SIGN, typename IMPROVE>
-void loop_worker_pi::flip()
+void loop_worker::flip()
 {
   if (!(is_bipartite() == BIPARTITE() &&
         has_field() == FIELD() &&
@@ -337,7 +336,7 @@ void loop_worker_pi::flip()
 //
 
 template<typename BIPARTITE, typename IMPROVE>
-void loop_worker_pi::measure()
+void loop_worker::measure()
 {
   if (!(is_bipartite() == BIPARTITE() &&
         use_improved_estimator() == IMPROVE())) return;
@@ -376,8 +375,8 @@ void loop_worker_pi::measure()
 // dynamic registration to the factories
 //
 
-const bool loop_registered =
-  loop_factory::instance()->register_worker<loop_worker_pi>("path integral");
+const bool worker_registered =
+  loop_factory::instance()->register_worker<loop_worker>("path integral");
 const bool evaluator_registered = evaluator_factory::instance()->
   register_evaluator<looper::evaluator<loop_config::estimator_t> >
   ("path integral");
