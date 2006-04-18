@@ -71,7 +71,7 @@ SRC = \
 	sse_qwl.C
 
 loop_SOURCES = loop.C $(SRC)
-loop_evaluate_SOURCES = loop_evaluate.C $(SRC)
+loop_evaluate_SOURCES = loop_evaluate.C qwl_evaluate.C $(SRC)
 loop_mpi_SOURCES = loop.C $(SRC)
 loop_mpi_CPPFLAGS = @CPPFLAGS_MPI@
 loop_mpi_LDFLAGS = @LDFLAGS_MPI@

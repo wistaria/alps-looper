@@ -63,7 +63,7 @@ public:
       return false;
     }
     if (vm.count("t_min")) params_["T_MIN"] = vm["t_min"].as<double>();
-    if (vm.count("t_max")) params_["T_MAX"] = vm["t_min"].as<double>();
+    if (vm.count("t_max")) params_["T_MAX"] = vm["t_max"].as<double>();
     if (vm.count("t_delta")) params_["T_DELTA"] = vm["t_delta"].as<double>();
 
     return true;

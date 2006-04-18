@@ -27,7 +27,6 @@
 #define LOOPER_HISTOGRAM_H
 
 #include "util.h"
-
 #include <alps/osiris.h>
 #include <cmath>
 #include <map>
@@ -47,14 +46,15 @@ public:
     hist_.resize(r.size(), 0);
   }
 
+  void subtract() { double g = logg_[0]; logg_ -= g; }
   void clear() { hist_ = 0; }
 
-  void visit(int pos, double logf)
+  void visit(int pos, double logf, bool update_weight)
   {
     int i = pos - offset_;
     if (i >= 0 && i < logg_.size()) {
-      logg_[i] += logf;
       hist_[i] += 1;
+      if (update_weight) logg_[i] += logf;
     }
   }
 
@@ -83,16 +83,17 @@ public:
     }
 
   }
-  // int operator[](int pos) const { return hist_[pos - offset_]; }
 
   void save(alps::ODump& dp) const { dp << offset_ << logg_ << hist_; }
   void load(alps::IDump& dp) { dp >> offset_ >> logg_ >> hist_; }
 
   void store(alps::ObservableSet& m, std::string const& gname,
-             std::string const& hname) const
+             std::string const& hname, bool multicanonical) const
   {
+    std::valarray<double> h = hist_;
+    h *= (h.size() / h.sum());
     m[gname] << logg_;
-    m[hname] << hist_;
+    m[hname] << h;
   }
 
   void output(std::ostream& os = std::cout) const

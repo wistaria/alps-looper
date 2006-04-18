@@ -25,7 +25,6 @@
 #include "loop_factory.h"
 #include "loop_worker.h"
 #include <looper/cluster.h>
-#include <looper/evaluator.h>
 #include <looper/histogram.h>
 #include <looper/montecarlo.h>
 #include <looper/operator.h>
@@ -64,13 +63,13 @@ public:
   void save(alps::ODump& dp) const
   {
     super_type::save(dp);
-    dp << mcs << spins << operators << factor << histogram
+    dp << mcs << spins << operators << logf << histogram
        << measurement_histograms;
   }
   void load(alps::IDump& dp)
   {
     super_type::load(dp);
-    dp >> mcs >> spins >> operators >> factor >> histogram
+    dp >> mcs >> spins >> operators >> logf >> histogram
        >> measurement_histograms;
   }
 
@@ -91,7 +90,7 @@ private:
   looper::wl_steps mcs;
   std::vector<int> spins;
   std::vector<local_operator_t> operators;
-  double factor;
+  double logf;
   looper::wl_histogram histogram;
   looper::histogram_set<double> measurement_histograms;
 
@@ -131,26 +130,29 @@ loop_worker_swl::loop_worker_swl(alps::ProcessList const& w,
   current.resize(nvs);
 
   //
-  // initialize histogram
+  // Wang Landau parameters
   //
 
   if (exp_range.min() < 0)
     boost::throw_exception(std::invalid_argument("minimum of expansion order "
                                                  "must not be negative"));
-
+  double f =
+    p.value_or_default("INITIAL_MODIFICATION_FACTOR",
+                       mcs.use_zhou_bhatt() ? std::exp(1) :
+                       std::exp(exp_range.max() * std::log(1.*nvs) /
+                                mcs.mcs_block()));
+  logf = std::log(f);
+  if (logf <= 0)
+    boost::throw_exception(std::invalid_argument("initial modification factor "
+                                                 "must be larger than 1"));
   if (mcs.use_zhou_bhatt()) {
-    factor = p.value_or_default("INITIAL_MODIFICATION_FACTOR", exp(1));
-    min_visit = static_cast<int>(1 / log(factor));
+    min_visit = static_cast<int>(1 / logf);
     flatness = parms.value_or_default("FLATNESS_THRESHOLD", -1.);
   } else {
-    factor = p.value_or_default("INITIAL_INCREASE_FACTOR",
-      exp(exp_range.max() * log(1.*nvs) / mcs.mcs_block()));
     min_visit = 0;
     flatness = parms.value_or_default("FLATNESS_THRESHOLD", 0.2);
   }
-  if (factor <= 1)
-    boost::throw_exception(std::invalid_argument("initial modification factor "
-                                                 "must be larger than 1"));
+
   //
   // initialize measurements
   //
@@ -162,10 +164,9 @@ loop_worker_swl::loop_worker_swl(alps::ProcessList const& w,
     << alps::SimpleRealVectorObservable("Partition Function Coefficient")
     << alps::SimpleRealVectorObservable("Histogram");
   if (store_all_histograms) {
-    for (int p = 0; p < mcs.num_iterations()-1; ++p) {
+    for (int p = 0; p < mcs.num_iterations(); ++p) {
       std::string suffix =
         "(iteration #" + boost::lexical_cast<std::string>(p) + ")";
-      std::cout << suffix << std::endl;
       measurements
         << alps::SimpleRealVectorObservable("Partition Function Coefficient " +
                                             suffix)
@@ -185,6 +186,7 @@ void loop_worker_swl::dostep()
   if (!mcs.can_work()) return;
   ++mcs;
   super_type::dostep();
+  measurements["Energy Offset"] << energy_offset();
 
   build();
 
@@ -209,30 +211,25 @@ void loop_worker_swl::dostep()
   if (!mcs.doing_multicanonical() && mcs() == mcs.mcs_block()) {
     if (histogram.check_flatness(flatness) &&
         histogram.check_visit(min_visit)) {
-      std::cerr << "stage " << mcs.stage() << " becomes flat\n";
-      // histogram.output();
-      if (mcs.stage()  == mcs.num_iterations()-1) {
-        histogram.store(measurements, "Partition Function Coefficient",
-                        "Histogram");
-      } else if (store_all_histograms) {
-        std::string suffix =
-          "(iteration #" + boost::lexical_cast<std::string>(mcs.stage()) + ")";
-        histogram.store(measurements,
-                        "Partition Function Coefficient " + suffix,
-                        "Histogram " + suffix);
-      }
-      std::cout << measurements;
-      factor = std::sqrt(factor);
+      std::cerr << "stage " << mcs.stage() << ": histogram becomes flat\n";
+      histogram.subtract();
+      std::string suffix =
+        "(iteration #" + boost::lexical_cast<std::string>(mcs.stage()) + ")";
+      histogram.store(measurements, "Partition Function Coefficient " + suffix,
+                      "Histogram " + suffix, mcs.doing_multicanonical());
+      logf = 0.5 * logf;
       if (mcs.use_zhou_bhatt()) min_visit *= 2;
       histogram.clear();
       mcs.next_stage();
     } else {
-      std::cerr << "stage " << mcs.stage() << " is not flat yet\n";
-      // histogram.output();
+      std::cerr << "stage " << mcs.stage() << ": histogram is not flat yet\n";
+      histogram.subtract();
       mcs.reset_stage();
     }
   }
-  if (work_done() >= 1.0) std::cout << measurements;
+  if (mcs.doing_multicanonical() && mcs() == mcs.mcs_sweeps())
+    histogram.store(measurements, "Partition Function Coefficient", "Histogram",
+                    mcs.doing_multicanonical());
 }
 
 
@@ -252,13 +249,14 @@ void loop_worker_swl::build()
   fragments.resize(0); fragments.resize(nvs);
   for (int s = 0; s < nvs; ++s) current[s] = s;
 
+  double bw = total_graph_weight();
   bool try_gap = true;
   for (operator_iterator opi = operators_p.begin();
        try_gap || opi != operators_p.end();) {
 
     // diagonal update & labeling
     if (try_gap) {
-      if (random() < histogram.accept_rate(nop, nop+1)) {
+      if ((nop+1) * random() < bw * histogram.accept_rate(nop, nop+1)) {
         loop_graph_t g = choose_graph();
         if ((is_bond(g) &&
              is_compatible(g, spins_c[vsource(pos(g), vlattice())],
@@ -268,20 +266,20 @@ void loop_worker_swl::build()
           ++nop;
         } else {
           try_gap = false;
-          if (!mcs.doing_multicanonical()) histogram.visit(nop, factor);
+          histogram.visit(nop, logf, !mcs.doing_multicanonical());
           continue;
         }
       } else {
         try_gap = false;
-        if (!mcs.doing_multicanonical()) histogram.visit(nop, factor);
+        histogram.visit(nop, logf, !mcs.doing_multicanonical());
         continue;
       }
     } else {
       if (opi->is_diagonal()) {
-        if (random() < histogram.accept_rate(nop, nop-1)) {
+        if (bw * random() < nop * histogram.accept_rate(nop, nop-1)) {
           --nop;
           ++opi;
-          if (!mcs.doing_multicanonical()) histogram.visit(nop, factor);
+          histogram.visit(nop, logf, !mcs.doing_multicanonical());
           continue;
         } else {
           if (opi->is_site()) {
@@ -300,7 +298,7 @@ void loop_worker_swl::build()
       ++opi;
       try_gap = true;
     }
-    if (!mcs.doing_multicanonical()) histogram.visit(nop, factor);
+    histogram.visit(nop, logf, !mcs.doing_multicanonical());
 
     operator_iterator oi = operators.end() - 1;
     if (oi->is_bond()) {
@@ -461,116 +459,11 @@ void loop_worker_swl::measure()
                             spins, operators, spins_c);
 }
 
-
-//
-// evaluator
-//
-
-class evaluator : public looper::abstract_evaluator
-{
-public:
-  typedef loop_config::estimator_t estimator_t;
-  void evaluate(alps::scheduler::MCSimulation& sim, alps::Parameters const&,
-                boost::filesystem::path const&) const;
-  void evaluate(alps::ObservableSet&, alps::ObservableSet const&) const {}
-};
-
-void evaluator::evaluate(alps::scheduler::MCSimulation& sim,
-                         alps::Parameters const& np,
-                         boost::filesystem::path const& f) const
-{
-  const alps::Parameters& p = sim.get_parameters();
-  const alps::ObservableSet& m = sim.get_measurements();
-  double nrs = alps::RealObsevaluator(m["Number of Sites"]).mean();
-
-  typedef std::map<std::string, alps::plot::Set<double> > plot_set_type;
-  plot_set_type plot_set;
-
-  double t_min;
-  if (np.defined("T_MIN"))
-    t_min = np["T_MIN"];
-  else if (p.defined("T_MIN"))
-    t_min = p["T_MIN"];
-  else
-    boost::throw_exception(std::invalid_argument("T_MIN not defined"));
-
-  double t_max;
-  if (np.defined("T_MAX"))
-    t_max = np["T_MAX"];
-  else if (p.defined("T_MAX"))
-    t_max = p["T_MAX"];
-  else
-    boost::throw_exception(std::invalid_argument("T_MAX not defined"));
-
-  double t_delta;
-  if (np.defined("T_DELTA"))
-    t_delta = np["T_DELTA"];
-  else if (p.defined("T_DELTA"))
-    t_delta = p["T_DELTA"];
-  else
-    boost::throw_exception(std::invalid_argument("T_DELTA not defined"));
-
-  // density of state
-  std::valarray<double> g =
-    alps::RealVectorObsevaluator(m["Partition Function Coefficient"]).mean();
-
-  // energy
-  double offset = alps::RealObsevaluator(m["Energy Offset"]).mean();
-  plot_set["Energy Density"] = alps::plot::Set<double>();
-  plot_set["Free Energy Density"] = alps::plot::Set<double>();
-  plot_set["Entropy Density"] = alps::plot::Set<double>();
-  plot_set["Specific Heat"] = alps::plot::Set<double>();
-
-  for (double t = t_min; t < t_max + t_delta/2; t += t_delta) {
-    double lb = -std::log(t);
-    double maxx = g[0];
-    for (int i = 1; i < g.size(); ++i) maxx = std::max(g[i] + lb*i, maxx);
-    double z = 0;
-    double sn = 0;
-    double sn2 = 0;
-    for (int i = 0; i < g.size(); ++i) {
-      double c = std::exp(g[i] + lb*i - maxx);
-      z += c;
-      sn += i*c;
-      sn2 += i*i*c;
-    }
-    double energy        = offset - t*sn/z;
-    double free_energy   = offset - t * (std::log(z) + maxx);
-    plot_set["Energy Density"] << t << energy / nrs;
-    plot_set["Free Energy Density"] << t << free_energy / nrs;
-    plot_set["Entropy Density"] << t << (energy - free_energy) / (t * nrs);
-    plot_set["Specific Heat"] << t << (sn2/z - (sn/z) * (sn/z) - sn/z) / nrs;
-  }
-
-  // ouptut
-  std::string prefix =
-    regex_replace(f.string(), boost::regex("\\.out\\.xml$"), "");
-
-  for (plot_set_type::const_iterator itr = plot_set.begin();
-       itr != plot_set.end(); ++itr) {
-    std::string long_name = itr->first;
-    std::string short_name =
-      regex_replace(long_name,
-                    boost::regex("(\\sDensity$)|([A-Z])|(\\s)"),
-                    "(?2\\l$2)(?3_)",
-                    boost::match_default | boost::format_all);
-    alps::plot::Plot<double> pl;
-    pl.set_name(long_name + " versus Temperature (" + prefix + ")");
-    pl.set_labels("Temperature", long_name);
-    pl << itr->second;
-    alps::oxstream oxs(prefix + ".plot." + short_name + ".xml");
-    oxs << pl;
-  }
-}
-
-
 //
 // dynamic registration to the loop_factory
 //
 
 const bool registered =
   loop_factory::instance()->register_worker<loop_worker_swl>("SSE QWL");
-const bool evaluator_registered =
-  evaluator_factory::instance()->register_evaluator<evaluator>("SSE QWL");
 
 } // end namespace

@@ -94,12 +94,11 @@ public:
   template<class T>
   wl_steps(alps::Parameters const& p, integer_range<T> const& exp_range)
     : mcs_(0), stage_(0),
-      multicanonical_(p.value_or_default("PERFORM_MULTICANONICAL_MEASUREMENT",
-                                         true)),
-      zhou_bhatt_(p.value_or_default("USE_ZHOU_BHATT", true)),
-      block_(zhou_bhatt_ ? exp_range.size() :
-             static_cast<int>(p.value_or_default("BLOCK_SWEEPS", 65536))),
-      sweep_(p.value_or_default("SWEEPS", "[65536:]")),
+      multicanonical_(!p.defined("DISABLE_MULTICANONICAL_MEASUREMENT")),
+      zhou_bhatt_(!p.defined("DISABLE_ZHOU_BHATT")),
+      block_(zhou_bhatt_ ? exp_range.size() : static_cast<int>(
+        p.value_or_default("BLOCK_SWEEPS", 65536))),
+      sweep_(p.value_or_default("SWEEPS", 65536)),
       iteration_(p.value_or_default("WANG_LANDAU_ITERATIONS", 16)) {}
 
   wl_steps& operator++() { ++mcs_; return *this; }
@@ -118,7 +117,7 @@ public:
   bool can_work() const
   {
     if (perform_multicanonical_measurement())
-      return !doing_multicanonical() || mcs_ < sweep_.max();
+      return !doing_multicanonical() || mcs_ < sweep_;
     else
       return stage_ < iteration_;
   }
@@ -127,7 +126,7 @@ public:
   {
     if (perform_multicanonical_measurement())
       return doing_multicanonical() ?
-        (iteration_ + 1. * mcs_ / sweep_.min()) / (iteration_ + 1) :
+        (iteration_ + 1. * mcs_ / sweep_) / (iteration_ + 1) :
         (stage_ + 1. * mcs_ / block_) / (iteration_ + 1);
     else
       return (stage_ + 1. * mcs_ / block_) / iteration_;
@@ -136,7 +135,7 @@ public:
   bool perform_multicanonical_measurement() const { return multicanonical_; }
   bool use_zhou_bhatt() const { return zhou_bhatt_; }
   int mcs_block() const { return block_; }
-  looper::integer_range<int> mcs_sweeps() const { return sweep_; }
+  int mcs_sweeps() const { return sweep_; }
   int num_iterations() const { return iteration_; }
 
   void save(alps::ODump& dp) const
@@ -156,7 +155,7 @@ private:
   bool multicanonical_;
   bool zhou_bhatt_;
   int block_;
-  looper::integer_range<int> sweep_;
+  int sweep_;
   int iteration_;
 };
 

@@ -168,7 +168,7 @@ void loop_worker_sse::build()
 
     // diagonal update & labeling
     if (try_gap) {
-      if ((nop + 1) * random() < bw) {
+      if ((nop+1) * random() < bw) {
         loop_graph_t g = choose_graph();
         if ((is_bond(g) &&
              is_compatible(g, spins_c[vsource(pos(g), vlattice())],
