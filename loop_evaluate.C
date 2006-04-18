@@ -88,6 +88,9 @@ try {
   options opts;
   if (!opts.parse(argc, argv)) std::exit(-1);
 
+  alps::scheduler::SimpleMCFactory<alps::scheduler::DummyMCRun> factory;
+  alps::scheduler::init(factory);
+
   for (int i = 0; i < opts.num_files(); ++i) {
     boost::filesystem::path f = opts.file(i);
     alps::ProcessList nowhere;
