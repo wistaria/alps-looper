@@ -26,6 +26,7 @@ Gamma = 1
 LATTICE = "chain lattice"
 Jz = -1
 Jxy = 0
+Gamma = 0
 L = 4
 { REPRESENTATION = "diagonalization" }
 { REPRESENTATION = "path integral" }

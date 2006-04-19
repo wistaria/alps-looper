@@ -249,6 +249,7 @@ Susceptibility: 0.0373611 +/- 0.000866; tau = 0.918
     bin #8   : 512      entries: error = 0.000901475
     bin #9   : 256      entries: error = 0.000920785
     bin #10  : 128      entries: error = 0.000865905
+Temperature: 0.25 +/- 0
 [input parameters]
 SEED = 23125;
 SWEEPS = 65536;
@@ -501,6 +502,7 @@ Susceptibility: 0.0352325 +/- 0.000893; tau = 1.09
     bin #8   : 512      entries: error = 0.000909909
     bin #9   : 256      entries: error = 0.000881582
     bin #10  : 128      entries: error = 0.000893407
+Temperature: 0.25 +/- 0
 [input parameters]
 SEED = 23125;
 SWEEPS = 65536;
@@ -752,3 +754,4 @@ Susceptibility: 0.480667 +/- 0.00157; tau = 0.846
     bin #8   : 512      entries: error = 0.00158414
     bin #9   : 256      entries: error = 0.00156136
     bin #10  : 128      entries: error = 0.00157392
+Temperature: 0.25 +/- 0

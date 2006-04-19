@@ -375,7 +375,7 @@ void diag_worker::dostep()
   vector_type evals(dim);
   std::cerr << "start diagonalization... " << std::flush;
   looper::diagonalize(hamiltonian, evals);
-  std::cout << "done\n";
+  std::cerr << "done\n";
 
   //
   // partition function, energy and specific heat
@@ -473,8 +473,6 @@ void diag_worker::dostep()
     measurements[itr->first] << itr->second;
     measurements[itr->first] << itr->second;
   }
-
-  std::cout << measurements;
 
   done = true;
 }

@@ -2,7 +2,7 @@ set xlabel 'temperature'
 
 set ylabel 'Energy'
 plot \
-  'site-g.dat' u 1:2 title 'exact diagonalization' w lp, \
+  "site-d.dat' u 1:2 title 'exact diagonalization' w lp, \
   'site-e.dat' u 1:2:(2*$3) title 'SSE' w e, \
   'site-p.dat' u 1:2:(2*$3) title 'path integral' w e
 pause -1
