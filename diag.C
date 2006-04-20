@@ -367,7 +367,7 @@ void diag_worker::dostep()
   matrix_type mat(dim, dim);
   mat.clear();
   for (int i = 0; i < dim; ++i) mat(i,i) = 1;
-  
+
   for (int k = 0; k < 5; ++k) {
     if (k != 0) mat = prod(hamiltonian, mat);
     double tr = 0;
