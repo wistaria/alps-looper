@@ -35,14 +35,6 @@
 
 namespace {
 
-void add(alps::ObservableSet& m, std::string const& name, double val)
-{
-  alps::RealObservable obs(name);
-  obs.reset(true);
-  obs << val;
-  m << obs;
-}
-
 template<class MATRIX, class I, class GRAPH>
 void add_to_matrix(
   MATRIX& matrix,
@@ -367,6 +359,22 @@ void diag_worker::dostep()
   }
   diagonal_matrix_type diagonal_energy(dim);
   for (int i = 0; i < dim; ++i) diagonal_energy(i) = hamiltonian(i,i);
+
+  //
+  // partition function coefficients
+  //
+
+  matrix_type mat(dim, dim);
+  mat.clear();
+  for (int i = 0; i < dim; ++i) mat(i,i) = 1;
+  
+  for (int k = 0; k < 5; ++k) {
+    if (k != 0) mat = prod(hamiltonian, mat);
+    double tr = 0;
+    for (int i = 0; i < dim; ++i) tr += mat(i,i);
+    m["Partition Function Coefficient #" + boost::lexical_cast<std::string>(k)]
+      = tr;
+  }
 
   //
   // diagonalization

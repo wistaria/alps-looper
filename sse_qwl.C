@@ -137,7 +137,7 @@ loop_worker::loop_worker(alps::ProcessList const& w,
                                                  "must not be negative"));
   double f =
     p.value_or_default("INITIAL_MODIFICATION_FACTOR",
-                       mcs.use_zhou_bhatt() ? std::exp(1) :
+                       mcs.use_zhou_bhatt() ? std::exp(1.) :
                        std::exp(exp_range.max() * std::log(1.*nvs) /
                                 mcs.mcs_block()));
   logf = std::log(f);
