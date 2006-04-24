@@ -48,7 +48,7 @@ struct gap_estimator : public looper::base_estimator
   static void evaluate(alps::ObservableSet& m, alps::ObservableSet const& m_in)
   {
     if (m_in.has("Inverse Temperature")) {
-      double beta = alps::RealObsevaluator(m["Inverse Temperature"]).mean();
+      double beta = alps::RealObsevaluator(m_in["Inverse Temperature"]).mean();
       if (m_in.has("Generalized Susceptibility") &&
           m_in.has("Generalized Susceptibility [w=2pi/beta]")) {
         alps::RealObsevaluator obse_s0 = m_in["Generalized Susceptibility"];

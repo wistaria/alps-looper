@@ -477,10 +477,8 @@ void diag_worker::dostep()
     measurements << alps::SimpleRealObservable(itr->first);
   measurements.reset(true);
   for (std::map<std::string, double>::const_iterator itr = m.begin();
-       itr != m.end(); ++itr) {
+       itr != m.end(); ++itr)
     measurements[itr->first] << itr->second;
-    measurements[itr->first] << itr->second;
-  }
 
   done = true;
 }
