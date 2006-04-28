@@ -23,7 +23,6 @@
 *****************************************************************************/
 
 #include "loop_factory.h"
-#include "loop_worker.h"
 #include <alps/osiris/comm.h>
 #include <alps/scheduler.h>
 #include <boost/timer.hpp>

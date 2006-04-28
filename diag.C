@@ -284,29 +284,20 @@ double dynamic_average2(double beta, double offset,
   return val;
 }
 
+
 class diag_worker
   : public alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
 {
 public:
   typedef alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
-                                                   super_type;
-  typedef loop_config::lattice_graph_t             lattice_graph_t;
-  typedef boost::numeric::ublas::vector<double> vector_type;
-  typedef boost::numeric::ublas::matrix<double,
-    boost::numeric::ublas::column_major> matrix_type;
-  typedef boost::numeric::ublas::vector<double> diagonal_matrix_type;
-
+    super_type;
   diag_worker(alps::ProcessList const& w, alps::Parameters const& p, int n)
     : super_type(w, p, n), done(false), params(p) {}
-
   void dostep();
-
   bool is_thermalized() const { return true; }
   double work_done() const { return done ? 1 : 0; }
-
   void save(alps::ODump& dp) const { super_type::save(dp); dp << done; }
   void load(alps::IDump& dp) { super_type::load(dp); dp >> done; }
-
 private:
   bool done;
   alps::Parameters params;
@@ -315,80 +306,70 @@ private:
 
 void diag_worker::dostep()
 {
-  using looper::power2;
+  typedef boost::numeric::ublas::vector<double> vector_type;
+  typedef boost::numeric::ublas::matrix<double,
+    boost::numeric::ublas::column_major> matrix_type;
+  typedef boost::numeric::ublas::vector<double> diagonal_matrix_type;
 
   if (done) return;
+  done = true;
 
-  //
   // parameters
-  //
-
   double beta = 1.0 / alps::evaluate("T", params);
-  int nsite = num_sites(graph());
-  std::map<std::string, double> m;
+  if (beta < 0)
+    boost::throw_exception(std::invalid_argument("negative temperature"));
+  double nsite = num_sites();
 
+  // measurements
+  std::map<std::string, double> m;
   m["Temperature"] = 1/beta;
   m["Inverse Temperature"] = beta;
-  m["Number of Sites"] = (double)num_sites();
+  m["Number of Sites"] = nsite;
 
-  //
   // generate basis set
-  //
-
   alps::basis_states<short>
     basis_set(alps::basis_states_descriptor<short>(model().basis(), graph()));
   int dim = basis_set.size();
   m["Dimension of Matrix"] = dim;
 
-  //
   // generate Hamiltonian matrix
-  //
-
   matrix_type hamiltonian(dim, dim);
   hamiltonian.clear();
   site_iterator vi, vi_end;
-  for (boost::tie(vi, vi_end) = sites(); vi != vi_end; ++vi) {
+  for (boost::tie(vi, vi_end) = sites(); vi != vi_end; ++vi)
     add_to_matrix(hamiltonian, model(), model().basis(),
                   basis_set, *vi, graph(), params);
-  }
   bond_iterator ei, ei_end;
-  for (boost::tie(ei, ei_end) = bonds(); ei != ei_end; ++ei) {
+  for (boost::tie(ei, ei_end) = bonds(); ei != ei_end; ++ei)
     add_to_matrix(hamiltonian, model(), model().basis(),
                   basis_set, *ei, source(*ei, graph()),
-                  target(*ei, graph()), graph(), params);
-  }
+                  target(*ei /*, graph() */), graph(), params);
   diagonal_matrix_type diagonal_energy(dim);
   for (int i = 0; i < dim; ++i) diagonal_energy(i) = hamiltonian(i,i);
 
-  //
   // partition function coefficients
-  //
-
   matrix_type mat(dim, dim);
   mat.clear();
   for (int i = 0; i < dim; ++i) mat(i,i) = 1;
-
+  double f = 1;
   for (int k = 0; k < 5; ++k) {
-    if (k != 0) mat = prod(hamiltonian, mat);
+    if (k != 0) {
+      mat = prod(hamiltonian, mat);
+      f *= -k;
+    }
     double tr = 0;
     for (int i = 0; i < dim; ++i) tr += mat(i,i);
     m["Partition Function Coefficient #" + boost::lexical_cast<std::string>(k)]
-      = tr;
+      = tr / f;
   }
 
-  //
   // diagonalization
-  //
-
   vector_type evals(dim);
   std::cerr << "start diagonalization... " << std::flush;
   looper::diagonalize(hamiltonian, evals);
   std::cerr << "done\n";
 
-  //
   // partition function, energy and specific heat
-  //
-
   double gs_ene = evals(0);
   double part = 0.;
   vector_type::reverse_iterator eval_end = evals.rend();
@@ -401,22 +382,20 @@ void diag_worker::dostep()
   double ene, ene2;
   boost::tie(ene, ene2) = static_average2(beta, gs_ene, evals);
   ene = ene / part;
-  ene2 = ene2 / part / power2(nsite);
+  ene2 = ene2 / part / looper::power2(nsite);
   double fe = gs_ene - std::log(part) / beta;
   m["Ground State Energy"] = gs_ene;
   m["Ground State Energy Density"] = gs_ene / nsite;
   m["Energy"] = ene;
   m["Energy Density"] = ene / nsite;
-  m["Specific Heat"] = power2(beta) * nsite * (ene2 - power2(ene/nsite));
+  m["Specific Heat"] =
+    looper::power2(beta) * nsite * (ene2 - looper::power2(ene/nsite));
   m["Free Energy"] = fe;
   m["Free Energy Density"] = fe / nsite;
   m["Entropy"] = beta * (ene - fe);
   m["Entropy Density"] = beta * (ene - fe) / nsite;
 
-  //
   // generate uniform/staggered Sz matrix
-  //
-
   diagonal_matrix_type uniform_sz(dim);
   uniform_sz.clear();
   for (boost::tie(vi, vi_end) = sites(); vi != vi_end; ++vi)
@@ -424,7 +403,6 @@ void diag_worker::dostep()
                            alps::SiteTermDescriptor("Sz(i)", "i"),
                            model().basis(), basis_set, *vi, graph(),
                            params);
-
   double umag, umag2, umag4;
   boost::tie(umag, umag2, umag4) =
     static_average4(beta, gs_ene, evals, hamiltonian, uniform_sz);
@@ -436,8 +414,8 @@ void diag_worker::dostep()
   m["Susceptibility"] =
     dynamic_average2(beta, gs_ene, evals, hamiltonian, uniform_sz) / part
     / nsite;
-  m["Binder Ratio of Magnetization"] = power2(umag2 / part) / (umag4 / part);
-
+  m["Binder Ratio of Magnetization"] =
+    looper::power2(umag2 / part) / (umag4 / part);
   if (is_bipartite()) {
     diagonal_matrix_type staggered_sz(dim);
     staggered_sz.clear();
@@ -455,7 +433,6 @@ void diag_worker::dostep()
                                params);
       }
     }
-
     double smag, smag2, smag4;
     boost::tie(smag, smag2, smag4) =
       static_average4(beta, gs_ene, evals, hamiltonian, staggered_sz);
@@ -468,10 +445,10 @@ void diag_worker::dostep()
       dynamic_average2(beta, gs_ene, evals, hamiltonian, staggered_sz) / part
       / nsite;
     m["Binder Ratio of Staggered Magnetization"] =
-      power2(smag2 / part) / (smag4 / part);
-
+      looper::power2(smag2 / part) / (smag4 / part);
   }
 
+  // store measurements
   for (std::map<std::string, double>::const_iterator itr = m.begin();
        itr != m.end(); ++itr)
     measurements << alps::SimpleRealObservable(itr->first);
@@ -479,8 +456,6 @@ void diag_worker::dostep()
   for (std::map<std::string, double>::const_iterator itr = m.begin();
        itr != m.end(); ++itr)
     measurements[itr->first] << itr->second;
-
-  done = true;
 }
 
 

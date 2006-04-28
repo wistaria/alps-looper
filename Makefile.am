@@ -56,20 +56,38 @@ noinst_PROGRAMS = loop loop_evaluate
 if HAVE_MPI
 noinst_PROGRAMS += loop_mpi
 endif
-check_PROGRAMS = loop_ns
+
+check_PROGRAMS =
+if ENABLE_DIAG
+if ENABLE_ISING
+if ENABLE_PI
+if ENABLE_SSE
+check_PROGRAMS += loop_ns
+endif
+endif
+endif
+endif
 
 TESTS = $(check_PROGRAMS)
 TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
 
-SRC = \
-	loop_config.h \
-	loop_factory.h loop_factory.C \
-	loop_worker.h loop_worker.C \
-	diag.C \
-	ising.C \
-	path_integral.C \
-	sse.C \
-	sse_qwl.C
+SRC = loop_config.h loop_factory.h loop_factory.C
+
+if ENABLE_DIAG
+SRC += diag.C
+endif
+if ENABLE_ISING
+SRC += ising.C
+endif
+if ENABLE_PI
+SRC += path_integral.C
+endif
+if ENABLE_SSE
+SRC += sse.C
+endif
+if ENABLE_SSE_QWL
+SRC += sse_qwl.C
+endif
 
 loop_SOURCES = loop.C $(SRC)
 loop_evaluate_SOURCES = loop_evaluate.C qwl_evaluate.C $(SRC)

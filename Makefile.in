@@ -47,9 +47,15 @@ host_triplet = @host@
 @EXIST_EXTRAS_TRUE@am__append_2 = extras
 @EXIST_TEST_TRUE@am__append_3 = test
 @EXIST_V31_TRUE@am__append_4 = v3.1
-noinst_PROGRAMS = loop$(EXEEXT) loop_evaluate$(EXEEXT) $(am__EXEEXT_1)
+noinst_PROGRAMS = loop$(EXEEXT) loop_evaluate$(EXEEXT) $(am__EXEEXT_2)
 @HAVE_MPI_TRUE@am__append_5 = loop_mpi
-check_PROGRAMS = loop_ns$(EXEEXT)
+check_PROGRAMS = $(am__EXEEXT_1)
+@ENABLE_DIAG_TRUE@@ENABLE_ISING_TRUE@@ENABLE_PI_TRUE@@ENABLE_SSE_TRUE@am__append_6 = loop_ns
+@ENABLE_DIAG_TRUE@am__append_7 = diag.C
+@ENABLE_ISING_TRUE@am__append_8 = ising.C
+@ENABLE_PI_TRUE@am__append_9 = path_integral.C
+@ENABLE_SSE_TRUE@am__append_10 = sse.C
+@ENABLE_SSE_QWL_TRUE@am__append_11 = sse_qwl.C
 DIST_COMMON = README $(am__configure_deps) $(dist_noinst_DATA) \
 	$(dist_noinst_HEADERS) $(dist_noinst_SCRIPTS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
@@ -65,28 +71,47 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno configure.status.lineno
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
-@HAVE_MPI_TRUE@am__EXEEXT_1 = loop_mpi$(EXEEXT)
+@ENABLE_DIAG_TRUE@@ENABLE_ISING_TRUE@@ENABLE_PI_TRUE@@ENABLE_SSE_TRUE@am__EXEEXT_1 = loop_ns$(EXEEXT)
+@HAVE_MPI_TRUE@am__EXEEXT_2 = loop_mpi$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
-am__objects_1 = loop_factory.$(OBJEXT) loop_worker.$(OBJEXT) \
-	diag.$(OBJEXT) ising.$(OBJEXT) path_integral.$(OBJEXT) \
-	sse.$(OBJEXT) sse_qwl.$(OBJEXT)
-am_loop_OBJECTS = loop.$(OBJEXT) $(am__objects_1)
+am__loop_SOURCES_DIST = loop.C loop_config.h loop_factory.h \
+	loop_factory.C diag.C ising.C path_integral.C sse.C sse_qwl.C
+@ENABLE_DIAG_TRUE@am__objects_1 = diag.$(OBJEXT)
+@ENABLE_ISING_TRUE@am__objects_2 = ising.$(OBJEXT)
+@ENABLE_PI_TRUE@am__objects_3 = path_integral.$(OBJEXT)
+@ENABLE_SSE_TRUE@am__objects_4 = sse.$(OBJEXT)
+@ENABLE_SSE_QWL_TRUE@am__objects_5 = sse_qwl.$(OBJEXT)
+am__objects_6 = loop_factory.$(OBJEXT) $(am__objects_1) \
+	$(am__objects_2) $(am__objects_3) $(am__objects_4) \
+	$(am__objects_5)
+am_loop_OBJECTS = loop.$(OBJEXT) $(am__objects_6)
 loop_OBJECTS = $(am_loop_OBJECTS)
 loop_LDADD = $(LDADD)
 loop_DEPENDENCIES =
+am__loop_evaluate_SOURCES_DIST = loop_evaluate.C qwl_evaluate.C \
+	loop_config.h loop_factory.h loop_factory.C diag.C ising.C \
+	path_integral.C sse.C sse_qwl.C
 am_loop_evaluate_OBJECTS = loop_evaluate.$(OBJEXT) \
-	qwl_evaluate.$(OBJEXT) $(am__objects_1)
+	qwl_evaluate.$(OBJEXT) $(am__objects_6)
 loop_evaluate_OBJECTS = $(am_loop_evaluate_OBJECTS)
 loop_evaluate_LDADD = $(LDADD)
 loop_evaluate_DEPENDENCIES =
-am__objects_2 = loop_mpi-loop_factory.$(OBJEXT) \
-	loop_mpi-loop_worker.$(OBJEXT) loop_mpi-diag.$(OBJEXT) \
-	loop_mpi-ising.$(OBJEXT) loop_mpi-path_integral.$(OBJEXT) \
-	loop_mpi-sse.$(OBJEXT) loop_mpi-sse_qwl.$(OBJEXT)
-am_loop_mpi_OBJECTS = loop_mpi-loop.$(OBJEXT) $(am__objects_2)
+am__loop_mpi_SOURCES_DIST = loop.C loop_config.h loop_factory.h \
+	loop_factory.C diag.C ising.C path_integral.C sse.C sse_qwl.C
+@ENABLE_DIAG_TRUE@am__objects_7 = loop_mpi-diag.$(OBJEXT)
+@ENABLE_ISING_TRUE@am__objects_8 = loop_mpi-ising.$(OBJEXT)
+@ENABLE_PI_TRUE@am__objects_9 = loop_mpi-path_integral.$(OBJEXT)
+@ENABLE_SSE_TRUE@am__objects_10 = loop_mpi-sse.$(OBJEXT)
+@ENABLE_SSE_QWL_TRUE@am__objects_11 = loop_mpi-sse_qwl.$(OBJEXT)
+am__objects_12 = loop_mpi-loop_factory.$(OBJEXT) $(am__objects_7) \
+	$(am__objects_8) $(am__objects_9) $(am__objects_10) \
+	$(am__objects_11)
+am_loop_mpi_OBJECTS = loop_mpi-loop.$(OBJEXT) $(am__objects_12)
 loop_mpi_OBJECTS = $(am_loop_mpi_OBJECTS)
 loop_mpi_DEPENDENCIES =
-am_loop_ns_OBJECTS = loop_ns.$(OBJEXT) $(am__objects_1)
+am__loop_ns_SOURCES_DIST = loop_ns.C loop_config.h loop_factory.h \
+	loop_factory.C diag.C ising.C path_integral.C sse.C sse_qwl.C
+am_loop_ns_OBJECTS = loop_ns.$(OBJEXT) $(am__objects_6)
 loop_ns_OBJECTS = $(am_loop_ns_OBJECTS)
 loop_ns_LDADD = $(LDADD)
 loop_ns_DEPENDENCIES =
@@ -111,8 +136,9 @@ LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 SOURCES = $(loop_SOURCES) $(loop_evaluate_SOURCES) $(loop_mpi_SOURCES) \
 	$(loop_ns_SOURCES)
-DIST_SOURCES = $(loop_SOURCES) $(loop_evaluate_SOURCES) \
-	$(loop_mpi_SOURCES) $(loop_ns_SOURCES)
+DIST_SOURCES = $(am__loop_SOURCES_DIST) \
+	$(am__loop_evaluate_SOURCES_DIST) $(am__loop_mpi_SOURCES_DIST) \
+	$(am__loop_ns_SOURCES_DIST)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-exec-recursive install-info-recursive \
@@ -169,6 +195,16 @@ ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
+ENABLE_DIAG_FALSE = @ENABLE_DIAG_FALSE@
+ENABLE_DIAG_TRUE = @ENABLE_DIAG_TRUE@
+ENABLE_ISING_FALSE = @ENABLE_ISING_FALSE@
+ENABLE_ISING_TRUE = @ENABLE_ISING_TRUE@
+ENABLE_PI_FALSE = @ENABLE_PI_FALSE@
+ENABLE_PI_TRUE = @ENABLE_PI_TRUE@
+ENABLE_SSE_FALSE = @ENABLE_SSE_FALSE@
+ENABLE_SSE_QWL_FALSE = @ENABLE_SSE_QWL_FALSE@
+ENABLE_SSE_QWL_TRUE = @ENABLE_SSE_QWL_TRUE@
+ENABLE_SSE_TRUE = @ENABLE_SSE_TRUE@
 EXEEXT = @EXEEXT@
 EXIST_CHECK_FALSE = @EXIST_CHECK_FALSE@
 EXIST_CHECK_TRUE = @EXIST_CHECK_TRUE@
@@ -290,16 +326,9 @@ dist_noinst_SCRIPTS = config/run-test config/update_preamble
 dist_noinst_DATA = CITATIONS.txt LICENSE.txt loop_ns.ip loop_ns.op
 TESTS = $(check_PROGRAMS)
 TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
-SRC = \
-	loop_config.h \
-	loop_factory.h loop_factory.C \
-	loop_worker.h loop_worker.C \
-	diag.C \
-	ising.C \
-	path_integral.C \
-	sse.C \
-	sse_qwl.C
-
+SRC = loop_config.h loop_factory.h loop_factory.C $(am__append_7) \
+	$(am__append_8) $(am__append_9) $(am__append_10) \
+	$(am__append_11)
 loop_SOURCES = loop.C $(SRC)
 loop_evaluate_SOURCES = loop_evaluate.C qwl_evaluate.C $(SRC)
 loop_mpi_SOURCES = loop.C $(SRC)
@@ -394,12 +423,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_mpi-ising.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_mpi-loop.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_mpi-loop_factory.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_mpi-loop_worker.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_mpi-path_integral.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_mpi-sse.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_mpi-sse_qwl.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_ns.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_worker.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/path_integral.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qwl_evaluate.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sse.Po@am__quote@
@@ -453,20 +480,6 @@ loop_mpi-loop_factory.obj: loop_factory.C
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_factory.C' object='loop_mpi-loop_factory.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_mpi-loop_factory.obj `if test -f 'loop_factory.C'; then $(CYGPATH_W) 'loop_factory.C'; else $(CYGPATH_W) '$(srcdir)/loop_factory.C'; fi`
-
-loop_mpi-loop_worker.o: loop_worker.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_mpi-loop_worker.o -MD -MP -MF "$(DEPDIR)/loop_mpi-loop_worker.Tpo" -c -o loop_mpi-loop_worker.o `test -f 'loop_worker.C' || echo '$(srcdir)/'`loop_worker.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_mpi-loop_worker.Tpo" "$(DEPDIR)/loop_mpi-loop_worker.Po"; else rm -f "$(DEPDIR)/loop_mpi-loop_worker.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_worker.C' object='loop_mpi-loop_worker.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_mpi-loop_worker.o `test -f 'loop_worker.C' || echo '$(srcdir)/'`loop_worker.C
-
-loop_mpi-loop_worker.obj: loop_worker.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_mpi-loop_worker.obj -MD -MP -MF "$(DEPDIR)/loop_mpi-loop_worker.Tpo" -c -o loop_mpi-loop_worker.obj `if test -f 'loop_worker.C'; then $(CYGPATH_W) 'loop_worker.C'; else $(CYGPATH_W) '$(srcdir)/loop_worker.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_mpi-loop_worker.Tpo" "$(DEPDIR)/loop_mpi-loop_worker.Po"; else rm -f "$(DEPDIR)/loop_mpi-loop_worker.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_worker.C' object='loop_mpi-loop_worker.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_mpi-loop_worker.obj `if test -f 'loop_worker.C'; then $(CYGPATH_W) 'loop_worker.C'; else $(CYGPATH_W) '$(srcdir)/loop_worker.C'; fi`
 
 loop_mpi-diag.o: diag.C
 @am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_mpi-diag.o -MD -MP -MF "$(DEPDIR)/loop_mpi-diag.Tpo" -c -o loop_mpi-diag.o `test -f 'diag.C' || echo '$(srcdir)/'`diag.C; \

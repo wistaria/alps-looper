@@ -88,7 +88,7 @@ public:
   void load(alps::IDump& dp) { dp >> offset_ >> logg_ >> hist_; }
 
   void store(alps::ObservableSet& m, std::string const& gname,
-             std::string const& hname, bool multicanonical) const
+             std::string const& hname, bool /* multicanonical */) const
   {
     std::valarray<double> h = hist_;
     h *= (h.size() / h.sum());

@@ -45,14 +45,18 @@ class loop_worker
   : public alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
 {
 public:
-  typedef looper::classical                        mc_type;
+  typedef looper::classical                                mc_type;
   typedef alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
-                                                   super_type;
-  typedef loop_config::lattice_graph_t             lattice_graph_t;
-  typedef looper::virtual_lattice<lattice_graph_t> virtual_lattice;
-  typedef std::vector<dummy_operator>              operator_string_t;
-  typedef looper::union_find::node                 cluster_fragment_t;
-  typedef loop_config::estimator_t                 estimator_t;
+                                                           super_type;
+
+  typedef loop_config::lattice_graph_t                     lattice_graph_t;
+  typedef std::vector<dummy_operator>                      operator_string_t;
+
+  typedef looper::union_find::node                         cluster_fragment_t;
+  typedef looper::cluster_info                             cluster_info_t;
+
+  typedef loop_config::estimator_t                         estimator_t;
+  typedef looper::measurement::estimate<estimator_t>::type estimate_t;
 
   loop_worker(alps::ProcessList const& w, alps::Parameters const& p, int n);
   void dostep();
@@ -65,11 +69,6 @@ public:
   void load(alps::IDump& dp)
   { super_type::load(dp); dp >> mcs >> spins; }
 
-  lattice_graph_t const& rgraph() const { return super_type::graph(); }
-  lattice_graph_t const& vgraph() const { return vlattice.graph(); }
-
-  bool has_field() const { return !field.empty(); }
-
 protected:
   void build();
   template<typename BIPARTITE, typename FIELD, typename IMPROVE>
@@ -78,22 +77,23 @@ protected:
   void measure();
 
 private:
+  // parameters
+  double beta;
+  double energy_offset;
+  bool has_field, is_frustrated, use_improved_estimator;
+  std::vector<double> field;
+  std::vector<double> coupling;
+  boost::numeric::ublas::matrix<double> prob;
+  looper::virtual_lattice<lattice_graph_t> vlattice;
+
+  // configuration (checkpoint)
   looper::mc_steps mcs;
   std::vector<int> spins;
 
-  // parameters (no checkpointing)
-  virtual_lattice vlattice;
-  double beta;
-  double energy_offset;
-  std::vector<double> coupling;
-  std::vector<double> field;
-  boost::numeric::ublas::matrix<double> prob;
-  bool use_improved_estimator;
-
-  // working vectors (no checkpointing)
+  // working vectors
   std::vector<cluster_fragment_t> fragments;
-  std::vector<looper::cluster_info> clusters;
-  std::vector<looper::measurement::estimate<estimator_t>::type> estimates;
+  std::vector<cluster_info_t> clusters;
+  std::vector<estimate_t> estimates;
 };
 
 
@@ -104,58 +104,60 @@ private:
 loop_worker::loop_worker(alps::ProcessList const& w,
                          alps::Parameters const& p, int n)
   : super_type(w, p, n),
-    mcs(p),
-    beta(1.0 / alps::evaluate("T", p))
+    mcs(p)
 {
+  beta = 1.0 / alps::evaluate("T", p);
   if (beta < 0)
-    boost::throw_exception(std::invalid_argument(
-      "loop_worker::loop_worker() negative temperature"));
+    boost::throw_exception(std::invalid_argument("negative temperature"));
 
   looper::model_parameter mp(p, *this);
-  if (mp.is_quantal())
-    boost::throw_exception(std::invalid_argument(
-     "loop_worker::loop_worker() not a classical Ising model"));
-  if (mp.has_field())
-    boost::throw_exception(std::invalid_argument(
-      "longitudinal field is not supported yet"));
-  if (mp.is_frustrated())
-    std::cerr << "WARNING: model is classically frustrated\n";
   energy_offset = mp.energy_offset();
+  has_field = mp.has_field();
+  is_frustrated = mp.is_frustrated();
+  use_improved_estimator =
+    !has_field && !p.defined("DISABLE_IMPROVED_ESTIMATOR");
 
-  vlattice.generate(rgraph(), mp, mp.has_d_term());
+  if (mp.is_quantal())
+    boost::throw_exception(std::invalid_argument("not classical Ising model"));
+  if (has_field) std::cerr << "WARNING: model has magnetic field\n";
+  if (is_frustrated)
+    std::cerr << "WARNING: model is classically frustrated\n";
+  if (!use_improved_estimator)
+    std::cerr << "WARNING: improved estimator is disabled\n";
+
+  vlattice.generate(graph(), mp, mp.has_d_term());
 
   coupling.resize(num_bonds(vlattice));
   prob.resize(num_bonds(vlattice), 2);
   int b = 0;
   bond_iterator rbi, rbi_end;
-  for (boost::tie(rbi, rbi_end) = bonds(rgraph()); rbi != rbi_end; ++rbi) {
-    double jz = -mp.bond(*rbi, rgraph()).jz; // positive for ferromagnetic
+  for (boost::tie(rbi, rbi_end) = bonds(); rbi != rbi_end; ++rbi) {
+    double jz = -mp.bond(*rbi, graph()).jz; // positive for ferromagnetic
     bond_iterator vbi, vbi_end;
-    for (boost::tie(vbi, vbi_end) = virtual_bonds(vlattice, rgraph(), *rbi);
+    for (boost::tie(vbi, vbi_end) = virtual_bonds(vlattice, graph(), *rbi);
          vbi != vbi_end; ++vbi, ++b) {
       coupling[b] = jz;
       prob(b, 0) = 1-std::exp(-0.5*beta*jz); // for parallel
       prob(b, 1) = 1-std::exp( 0.5*beta*jz); // for antiparallel
     }
   }
-  if (mp.has_field()) {
-    field.resize(0);
+  if (has_field) {
+    field.resize(num_sites(vlattice));
+    int i = 0;
     site_iterator rsi, rsi_end;
-    for (boost::tie(rsi, rsi_end) = sites(rgraph()); rsi != rsi_end; ++rsi) {
+    for (boost::tie(rsi, rsi_end) = sites(); rsi != rsi_end; ++rsi) {
       site_iterator vsi, vsi_end;
-      for (boost::tie(vsi, vsi_end) = virtual_sites(vlattice, rgraph(), *rsi);
-           vsi != vsi_end; ++vsi)
-        field.push_back(mp.site(*rsi, rgraph()).hz);
+      for (boost::tie(vsi, vsi_end) = virtual_sites(vlattice, graph(), *rsi);
+           vsi != vsi_end; ++vsi, ++i)
+        field[i] = mp.site(*rsi, graph()).hz;
     }
   }
 
-  // initialize configuration
+  // configuration
   int nvs = num_sites(vlattice);
   spins.resize(nvs); std::fill(spins.begin(), spins.end(), 0 /* all up */);
 
-  // init measurements
-  use_improved_estimator =
-    !(has_field() || p.defined("DISABLE_IMPROVED_ESTIMATOR"));
+  // measurements
   measurements <<
     make_observable(alps::SimpleRealObservable("Temperature"));
   measurements <<
@@ -175,9 +177,6 @@ void loop_worker::dostep()
 
   if (!mcs.can_work()) return;
   ++mcs;
-  measurements["Temperature"] << 1/beta;
-  measurements["Inverse Temperature"] << beta;
-  measurements["Number of Sites"] << (double)num_sites(rgraph());
 
   build();
 
@@ -219,9 +218,9 @@ void loop_worker::build()
   // symmetrize spins
   alps::fixed_capacity_vector<int, loop_config::max_2s> r;
   site_iterator rsi, rsi_end;
-  for (boost::tie(rsi, rsi_end) = sites(rgraph()); rsi != rsi_end; ++rsi) {
+  for (boost::tie(rsi, rsi_end) = sites(); rsi != rsi_end; ++rsi) {
     site_iterator vsi, vsi_end;
-    boost::tie(vsi, vsi_end) = virtual_sites(vlattice, rgraph(), *rsi);
+    boost::tie(vsi, vsi_end) = virtual_sites(vlattice, graph(), *rsi);
     int offset = *vsi;
     int s2 = *vsi_end - *vsi;
     if (s2 > 1) {
@@ -257,11 +256,11 @@ void loop_worker::flip()
   clusters.resize(0); clusters.resize(nc);
 
   if (IMPROVE()) estimates.resize(0); estimates.resize(nc);
-  looper::cluster_info::accumulator<cluster_fragment_t, FIELD,
+  cluster_info_t::accumulator<cluster_fragment_t, FIELD,
     boost::mpl::false_, IMPROVE> weight(clusters, fragments, field, 0, 0);
   typename looper::measurement::accumulator<estimator_t, lattice_graph_t,
     time_t, cluster_fragment_t, BIPARTITE, IMPROVE>::type
-    accum(estimates, fragments, vgraph());
+    accum(estimates, fragments, vlattice.graph());
   for (unsigned int s = 0; s < nvs; ++s) {
     weight.start(s, time_t(0), s, spins[s]);
     weight.term(s, time_t(1), s, spins[s]);
@@ -271,9 +270,10 @@ void loop_worker::flip()
   }
 
   // determine whether clusters are flipped or not
-  for (std::vector<looper::cluster_info>::iterator ci = clusters.begin();
-       ci != clusters.end(); ++ci)
+  for (std::vector<cluster_info_t>::iterator ci = clusters.begin();
+       ci != clusters.end(); ++ci) {
     ci->to_flip = ((2*random()-1) < (FIELD() ? std::tanh(ci->weight) : 0));
+  }
 
   // flip spins
   for (int s = 0; s < nvs; ++s)
@@ -284,7 +284,7 @@ void loop_worker::flip()
     typename looper::measurement::collector<estimator_t, mc_type, BIPARTITE,
       IMPROVE>::type coll;
     coll = std::accumulate(estimates.begin(), estimates.end(), coll);
-    coll.commit(measurements, beta, num_sites(rgraph()), 0, 1);
+    coll.commit(measurements, beta, num_sites(), 0, 1);
   }
   measurements["Number of Clusters"] << (double)clusters.size();
 }
@@ -300,7 +300,10 @@ void loop_worker::measure()
   if (!(is_bipartite() == BIPARTITE() &&
         use_improved_estimator == IMPROVE())) return;
 
-  int nrs = num_sites(rgraph());
+  int nrs = num_sites();
+  measurements["Temperature"] << 1/beta;
+  measurements["Inverse Temperature"] << beta;
+  measurements["Number of Sites"] << (double)nrs;
 
   // energy
   double ene = energy_offset;
@@ -310,8 +313,8 @@ void loop_worker::measure()
     int s1 = vtarget(b, vlattice);
     ene -= 0.5 * coupling[b] * (0.5 - (spins[s0] ^ spins[s1]));
   }
-  if (has_field()) {
-    for (std::vector<looper::cluster_info>::iterator ci = clusters.begin();
+  if (has_field) {
+    for (std::vector<cluster_info_t>::iterator ci = clusters.begin();
          ci != clusters.end(); ++ci)
       if (ci->to_flip) ene -= ci->weight;
       else ene += ci->weight;
@@ -319,7 +322,7 @@ void loop_worker::measure()
   looper::energy_estimator::measure(measurements, beta, nrs, 0, 1, ene);
 
   looper::measurement::normal_estimator<estimator_t, mc_type, BIPARTITE,
-    IMPROVE>::type::measure(measurements, vgraph(), beta, nrs, 0, 1,
+    IMPROVE>::type::measure(measurements, vlattice.graph(), beta, nrs, 0, 1,
                             spins, operator_string_t(), spins);
 }
 

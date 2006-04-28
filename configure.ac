@@ -102,7 +102,68 @@ AC_SUBST([CPPFLAGS_MPI], "$ac_cv_alps_cppflags_mpi")
 AC_SUBST([LDFLAGS_MPI], "$ac_cv_alps_ldflags_mpi")
 AC_SUBST([LIBS_MPI], "$ac_cv_alps_libs_mpi")
 
+dnl
+dnl methods
+dnl
+
+AC_ARG_ENABLE(all-method,
+  AC_HELP_STRING([--enable-all-method],
+    [enable all methods]),
+  [
+  if test "x$enableval" != "xno"; then
+    enable_diag=yes
+    enable_ising=yes
+  else
+    enable_pi=no
+    enable_sse=no
+    enable_sse_qwl=no
+  fi
+  ]
+)
+
+AC_ARG_ENABLE(diag,
+  AC_HELP_STRING([--enable-diag],
+    [enable exact diagonalization method]),
+  [test "x$enableval" != "xno" && enable_diag=yes]
+)
+test -z "$enable_diag" && enable_diag=no
+AM_CONDITIONAL(ENABLE_DIAG, test "$enable_diag" = yes)
+
+AC_ARG_ENABLE(ising,
+  AC_HELP_STRING([--enable-ising],
+    [enable Swendsen-Wang method for classical Ising model]),
+  [test "x$enableval" != "xno" && enable_ising=yes]
+)
+test -z "$enable_ising" && enable_ising=no
+AM_CONDITIONAL(ENABLE_ISING, test "$enable_ising" = yes)
+
+AC_ARG_ENABLE(path-integral,
+  AC_HELP_STRING([--disable-path-integral],
+    [disable path integral method]),
+  [test "x$enableval" != "xyes" && enable_pi=no]
+)
+test -z "$enable_pi" && enable_pi=yes
+AM_CONDITIONAL(ENABLE_PI, test "$enable_pi" = yes)
+
+AC_ARG_ENABLE(sse,
+  AC_HELP_STRING([--disable-sse],
+    [disable SSE method]),
+  [test "x$enableval" != "xyes" && enable_sse=no]
+)
+test -z "$enable_sse" && enable_sse=yes
+AM_CONDITIONAL(ENABLE_SSE, test "$enable_sse" = yes)
+
+AC_ARG_ENABLE(sse-qwl,
+  AC_HELP_STRING([--disable-sse-qwl],
+    [disable SSE quantum Wang-Landau method]),
+  [test "x$enableval" != "xyes" && enable_sse_qwl=no]
+)
+test -z "$enable_sse_qwl" && enable_sse_qwl=yes
+AM_CONDITIONAL(ENABLE_SSE_QWL, test "$enable_sse_qwl" = yes)
+
+dnl
 dnl subdirectories
+dnl
 
 if test -f "$srcdir/check/Makefile.in"; then
   exist_check=yes
