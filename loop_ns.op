@@ -26,9 +26,9 @@ Magnetization^4: 0.0361119 +/- inf
 Number of Sites: 4 +/- inf
 Partition Function Coefficient #0: 16 +/- inf
 Partition Function Coefficient #1: 0 +/- inf
-Partition Function Coefficient #2: 12 +/- inf
-Partition Function Coefficient #3: -6 +/- inf
-Partition Function Coefficient #4: 24 +/- inf
+Partition Function Coefficient #2: 6 +/- inf
+Partition Function Coefficient #3: 1 +/- inf
+Partition Function Coefficient #4: 1 +/- inf
 Specific Heat: 0.231684 +/- inf
 Staggered Magnetization: 0 +/- inf
 Staggered Magnetization Density: 0 +/- inf
@@ -194,6 +194,7 @@ Magnetization^4: 0.0374985 +/- 0.00087; tau = 0.894
     bin #8   : 512      entries: error = 0.00090757
     bin #9   : 256      entries: error = 0.000929693
     bin #10  : 128      entries: error = 0.000870372
+Number of Clusters: 7.93118 +/- 0.0108717
 Number of Sites: 4 +/- 0
 Specific Heat: 0.234398 +/- 0.0235
 Staggered Magnetization: 0 +/- 0; tau = nan
@@ -420,6 +421,7 @@ Magnetization^4: 0.035553 +/- 0.000811; tau = 0.792
     bin #8   : 512      entries: error = 0.000879497
     bin #9   : 256      entries: error = 0.000862342
     bin #10  : 128      entries: error = 0.000810557
+Number of Clusters: 7.92773 +/- 0.0109021
 Number of Sites: 4 +/- 0
 Specific Heat: 0.243931 +/- 0.0186
 Staggered Magnetization: 0 +/- 0; tau = nan
@@ -518,9 +520,9 @@ Magnetization^4: 0.0349426 +/- inf
 Number of Sites: 4 +/- inf
 Partition Function Coefficient #0: 81 +/- inf
 Partition Function Coefficient #1: 0 +/- inf
-Partition Function Coefficient #2: 432 +/- inf
-Partition Function Coefficient #3: -216 +/- inf
-Partition Function Coefficient #4: 6624 +/- inf
+Partition Function Coefficient #2: 216 +/- inf
+Partition Function Coefficient #3: 36 +/- inf
+Partition Function Coefficient #4: 276 +/- inf
 Specific Heat: 0.199712 +/- inf
 Staggered Magnetization: 0 +/- inf
 Staggered Magnetization Density: 0 +/- inf
@@ -687,6 +689,7 @@ Magnetization^4: 0.0353928 +/- 0.000898; tau = 1.02
     bin #8   : 512      entries: error = 0.000921036
     bin #9   : 256      entries: error = 0.000886132
     bin #10  : 128      entries: error = 0.000898197
+Number of Clusters: 15.9173 +/- 0.0154992
 Number of Sites: 4 +/- 0
 Specific Heat: 0.146627 +/- 0.0673
 Staggered Magnetization: 0 +/- 0; tau = nan
@@ -914,6 +917,7 @@ Magnetization^4: 0.0341263 +/- 0.0009; tau = 1.12
     bin #8   : 512      entries: error = 0.000846817
     bin #9   : 256      entries: error = 0.000869441
     bin #10  : 128      entries: error = 0.000899734
+Number of Clusters: 15.9415 +/- 0.0155593
 Number of Sites: 4 +/- 0
 Specific Heat: 0.28605 +/- 0.0574
 Staggered Magnetization: 0 +/- 0; tau = nan
@@ -1013,9 +1017,9 @@ Magnetization^4: 0.50899 +/- inf
 Number of Sites: 1 +/- inf
 Partition Function Coefficient #0: 3 +/- inf
 Partition Function Coefficient #1: 0 +/- inf
-Partition Function Coefficient #2: 2 +/- inf
+Partition Function Coefficient #2: 1 +/- inf
 Partition Function Coefficient #3: 0 +/- inf
-Partition Function Coefficient #4: 2 +/- inf
+Partition Function Coefficient #4: 0.0833333 +/- inf
 Specific Heat: 0.303203 +/- inf
 Staggered Magnetization: 0 +/- inf
 Staggered Magnetization Density: 0 +/- inf
@@ -1183,6 +1187,7 @@ Magnetization^4: 0.509155 +/- 0.00031; tau = 0.199 WARNING: check error converge
     bin #8   : 512      entries: error = 0.000267347
     bin #9   : 256      entries: error = 0.000282222
     bin #10  : 128      entries: error = 0.000309615
+Number of Clusters: 7.96034 +/- 0.0109699
 Number of Sites: 1 +/- 0
 Specific Heat: 0.21946 +/- 0.0589
 Staggered Magnetization: 0 +/- 0; tau = nan
@@ -1411,6 +1416,7 @@ Magnetization^4: 0.509071 +/- 0.000283; tau = 0.0898
     bin #8   : 512      entries: error = 0.000268253
     bin #9   : 256      entries: error = 0.000276115
     bin #10  : 128      entries: error = 0.00028312
+Number of Clusters: 7.98047 +/- 0.0110671
 Number of Sites: 1 +/- 0
 Specific Heat: 0.333893 +/- 0.0535
 Staggered Magnetization: 0 +/- 0; tau = nan
@@ -1512,9 +1518,9 @@ Magnetization^4: 255.759 +/- inf
 Number of Sites: 4 +/- inf
 Partition Function Coefficient #0: 81 +/- inf
 Partition Function Coefficient #1: 0 +/- inf
-Partition Function Coefficient #2: 144 +/- inf
+Partition Function Coefficient #2: 72 +/- inf
 Partition Function Coefficient #3: 0 +/- inf
-Partition Function Coefficient #4: 1296 +/- inf
+Partition Function Coefficient #4: 54 +/- inf
 Specific Heat: 0.0224559 +/- inf
 Staggered Magnetization: 0 +/- inf
 Staggered Magnetization Density: 0 +/- inf
@@ -1684,6 +1690,7 @@ Magnetization^4: 255.764 +/- 0.0311; tau = 1.02
     bin #8   : 512      entries: error = 0.0305231
     bin #9   : 256      entries: error = 0.0317809
     bin #10  : 128      entries: error = 0.0310699
+Number of Clusters: 1.0027 +/- 0.000203877
 Number of Sites: 4 +/- 0
 Specific Heat: 0.0254558 +/- 0.0439 WARNING: check error convergence
 Staggered Magnetization: 0 +/- 0; tau = nan
@@ -1914,6 +1921,7 @@ Magnetization^4: 255.739 +/- 0.0349; tau = 1.25
     bin #8   : 512      entries: error = 0.03299
     bin #9   : 256      entries: error = 0.0324055
     bin #10  : 128      entries: error = 0.0348936
+Number of Clusters: 1.00298 +/- 0.000212762
 Number of Sites: 4 +/- 0
 Specific Heat: 0.105314 +/- 0.0471
 Staggered Magnetization: 0 +/- 0; tau = nan
@@ -2246,9 +2254,9 @@ Magnetization^4: 255.759 +/- inf
 Number of Sites: 4 +/- inf
 Partition Function Coefficient #0: 81 +/- inf
 Partition Function Coefficient #1: 0 +/- inf
-Partition Function Coefficient #2: 144 +/- inf
+Partition Function Coefficient #2: 72 +/- inf
 Partition Function Coefficient #3: 0 +/- inf
-Partition Function Coefficient #4: 1296 +/- inf
+Partition Function Coefficient #4: 54 +/- inf
 Specific Heat: 0.0224559 +/- inf
 Staggered Magnetization: 0 +/- inf
 Staggered Magnetization Density: 0 +/- inf
@@ -2418,6 +2426,7 @@ Magnetization^4: 255.764 +/- 0.0311; tau = 1.02
     bin #8   : 512      entries: error = 0.0305231
     bin #9   : 256      entries: error = 0.0317809
     bin #10  : 128      entries: error = 0.0310699
+Number of Clusters: 1.0027 +/- 0.000203877
 Number of Sites: 4 +/- 0
 Specific Heat: 0.0254558 +/- 0.0439 WARNING: check error convergence
 Staggered Magnetization: 0 +/- 0; tau = nan
@@ -2648,6 +2657,7 @@ Magnetization^4: 255.739 +/- 0.0349; tau = 1.25
     bin #8   : 512      entries: error = 0.03299
     bin #9   : 256      entries: error = 0.0324055
     bin #10  : 128      entries: error = 0.0348936
+Number of Clusters: 1.00298 +/- 0.000212762
 Number of Sites: 4 +/- 0
 Specific Heat: 0.105314 +/- 0.0471
 Staggered Magnetization: 0 +/- 0; tau = nan
