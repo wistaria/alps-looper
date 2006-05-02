@@ -69,14 +69,12 @@ public:
   void save(alps::ODump& dp) const
   {
     super_type::save(dp);
-    dp << mcs << spins << operators << logf << histogram
-       << measurement_histograms;
+    dp << mcs << spins << operators << logf << histogram << obs;
   }
   void load(alps::IDump& dp)
   {
     super_type::load(dp);
-    dp >> mcs >> spins >> operators >> logf >> histogram
-       >> measurement_histograms;
+    dp >> mcs >> spins >> operators >> logf >> histogram >> obs;
   }
 
 protected:
@@ -89,7 +87,7 @@ protected:
 private:
   // parameters
   double energy_offset;
-  bool has_field, is_frustrated, is_signed, use_improved_estimator;
+  bool is_frustrated, is_signed, use_improved_estimator;
   std::vector<double> field;
   std::vector<int> bond_sign, site_sign;
   looper::virtual_lattice<lattice_graph_t> vlattice;
@@ -108,8 +106,10 @@ private:
   std::vector<local_operator_t> operators;
   // Wang-Landau configuration (checkpoint)
   double logf;
+
+  // observables
   looper::wl_histogram histogram;
-  looper::histogram_set<double> measurement_histograms;
+  looper::histogram_set<double> obs;
 
   // working vectors
   std::vector<int> spins_c;
@@ -129,19 +129,15 @@ loop_worker::loop_worker(alps::ProcessList const& w,
                          alps::Parameters const& p, int n)
   : super_type(w, p, n),
     exp_range(p.value_or_default("EXPANSION_RANGE", "[0:500]")),
-    chooser(*engine_ptr),
-    mcs(p, exp_range),
-    histogram(exp_range)
+    chooser(*engine_ptr), mcs(p, exp_range), obs(exp_range)
 {
   looper::model_parameter mp(p, *this);
   energy_offset = mp.energy_offset();
-  has_field = mp.has_field();
   is_frustrated = mp.is_frustrated();
   is_signed = mp.is_signed();
-  use_improved_estimator =
-    !has_field && !p.defined("DISABLE_IMPROVED_ESTIMATOR");
+  use_improved_estimator = !p.defined("DISABLE_IMPROVED_ESTIMATOR");
 
-  if (has_field)
+  if (mp.has_field())
     boost::throw_exception(std::logic_error("longitudinal field is currently "
       "not supported in SSE representation"));
   if (is_frustrated)
@@ -155,7 +151,7 @@ loop_worker::loop_worker(alps::ProcessList const& w,
   double fs = p.value_or_default("FORCE_SCATTER", is_frustrated ? 0.1 : 0);
   looper::weight_table wt(mp, graph(), vlattice, fs);
   energy_offset += wt.energy_offset();
-  chooser.init(wt, true);
+  chooser.init(wt, looper::is_path_integral<qmc_type>::type());
 
   if (is_signed) {
     bond_sign.resize(num_bonds(vlattice));
@@ -196,7 +192,6 @@ loop_worker::loop_worker(alps::ProcessList const& w,
 
   // measurements
   store_all_histograms =  parms.defined("STORE_ALL_HISTOGRAMS");
-  measurement_histograms.initialize(exp_range);
   measurements
     << alps::SimpleRealObservable("Energy Offset")
     << alps::SimpleRealVectorObservable("Partition Function Coefficient")
@@ -211,10 +206,10 @@ loop_worker::loop_worker(alps::ProcessList const& w,
         << alps::SimpleRealVectorObservable("Histogram " + suffix);
     }
   }
-  if (is_signed) measurement_histograms.add_histogram("Sign");
-  estimator_t::initialize(measurement_histograms, is_bipartite(), is_signed,
-                          use_improved_estimator);
   measurements.reset(true);
+  if (is_signed) obs.add_histogram("Sign");
+  estimator_t::initialize(obs, is_bipartite(), is_signed,
+                          use_improved_estimator);
 }
 
 void loop_worker::dostep()
@@ -354,7 +349,7 @@ void loop_worker::build()
     }
   }
 
-  // connect bottom and top cluster fragments after random permutation
+  // symmetrize spins
   alps::fixed_capacity_vector<int, loop_config::max_2s> r;
   site_iterator rsi, rsi_end;
   for (boost::tie(rsi, rsi_end) = sites(); rsi != rsi_end; ++rsi) {
@@ -384,7 +379,6 @@ template<typename BIPARTITE, typename FIELD, typename SIGN, typename IMPROVE>
 void loop_worker::flip()
 {
   if (!(is_bipartite() == BIPARTITE() &&
-        has_field == FIELD() &&
         is_signed == SIGN() &&
         use_improved_estimator == IMPROVE())) return;
 
@@ -455,16 +449,15 @@ void loop_worker::flip()
     typename looper::measurement::collector<estimator_t, qmc_type, BIPARTITE,
       IMPROVE>::type coll;
     coll = std::accumulate(estimates.begin(), estimates.end(), coll);
-    measurement_histograms.set_position(nop);
-    coll.commit(measurement_histograms, 1, num_sites(), nop,
-                improved_sign);
-    if (SIGN()) measurement_histograms["Sign"] << improved_sign;
+    obs.set_position(nop);
+    coll.commit(obs, 1, num_sites(), nop, improved_sign);
+    if (SIGN()) obs["Sign"] << improved_sign;
   }
 }
 
 
 //
-// measurements
+// measurement
 //
 
 template<typename BIPARTITE, typename IMPROVE>
@@ -474,8 +467,10 @@ void loop_worker::measure()
         use_improved_estimator == IMPROVE())) return;
 
   int nrs = num_sites();
+  int nop = operators.size();
   measurements["Number of Sites"] << (double)nrs;
   measurements["Energy Offset"] << energy_offset;
+  obs.set_position(nop);
 
   // sign
   double sign = 1;
@@ -485,13 +480,11 @@ void loop_worker::measure()
       if (oi->is_offdiagonal())
         n += (oi->is_bond()) ? bond_sign[oi->pos()] : site_sign[oi->pos()];
     if (n & 1 == 1) sign = -1;
-    if (!use_improved_estimator) measurements["Sign"] << sign;
+    if (!use_improved_estimator) obs["Sign"] << sign;
   }
 
-  int nop = operators.size();
-  measurement_histograms.set_position(nop);
   looper::measurement::normal_estimator<estimator_t, qmc_type, BIPARTITE,
-    IMPROVE>::type::measure(measurements, vlattice.graph(), 1, nrs, nop, sign,
+    IMPROVE>::type::measure(obs, vlattice.graph(), 1, nrs, nop, sign,
                             spins, operators, spins_c);
 }
 

@@ -107,7 +107,7 @@ struct normal_estimator
 
 struct base_estimator
 {
-  template<class T>
+  template<typename T>
   static void initialize(T& /* m */,
                          bool /* is_bipartite */,
                          bool /* is_signed */,
@@ -168,7 +168,7 @@ struct base_estimator
   template<typename QMC, typename BIPARTITE, typename IMPROVE>
   struct collector
   {
-    template<class EST>
+    template<typename EST>
     collector operator+(EST const&) const { return *this; }
     template<typename M>
     void commit(M&, double, int, int, double) const {}
@@ -179,8 +179,8 @@ struct base_estimator
   template<typename QMC, typename BIPARTITE, typename IMPROVE>
   struct normal_estimator
   {
-    template<class G, class OP>
-    static void measure(alps::ObservableSet const&, G const&,
+    template<typename M, typename G, typename OP>
+    static void measure(M const&, G const&,
                         double, int, int, double,
                         std::vector<int> const&, std::vector<OP> const&,
                         std::vector<int> const&) {}
@@ -198,7 +198,7 @@ struct estimator_adaptor : public base_estimator
   typedef ESTIMATOR1 estimator1;
   typedef ESTIMATOR2 estimator2;
 
-  template<class T>
+  template<typename T>
   static void initialize(T& m, bool is_bipartite, bool is_signed,
                          bool use_improved_estimator)
   {
@@ -276,8 +276,8 @@ struct estimator_adaptor : public base_estimator
   template<typename QMC, typename BIPARTITE, typename IMPROVE>
   struct normal_estimator
   {
-    template<typename G, class OP>
-    static void measure(alps::ObservableSet& m, G const& vg,
+    template<typename M, typename G, typename OP>
+    static void measure(M& m, G const& vg,
                         double beta, int nrs, int nop, double sign,
                         std::vector<int> const& spins,
                         std::vector<OP> const& operators,
@@ -298,7 +298,7 @@ struct estimator_adaptor : public base_estimator
 
 struct energy_estimator
 {
-  template<class T>
+  template<typename T>
   static void initialize(T& m, bool is_signed)
   {
     add_measurement(m, "Energy", is_signed);
@@ -339,7 +339,7 @@ struct energy_estimator
 
 struct susceptibility_estimator : public base_estimator
 {
-  template<class T>
+  template<typename T>
   static void initialize(T& m, bool is_bipartite, bool is_signed,
                          bool use_improved_estimator)
   {
@@ -524,8 +524,8 @@ struct susceptibility_estimator : public base_estimator
   template<typename QMC, typename BIPARTITE, typename IMPROVE>
   struct normal_estimator
   {
-    template<class G, class OP>
-    static void measure(alps::ObservableSet& m, G const& vg,
+    template<typename M, typename G, typename OP>
+    static void measure(M& m, G const& vg,
                         double beta, int nrs, int nop, double sign,
                         std::vector<int> const& spins,
                         std::vector<OP> const& operators,

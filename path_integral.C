@@ -95,6 +95,9 @@ private:
   std::vector<int> spins;
   std::vector<local_operator_t> operators;
 
+  // observables
+  alps::ObservableSet& obs;
+
   // working vectors
   std::vector<int> spins_c;
   std::vector<local_operator_t> operators_p;
@@ -111,10 +114,9 @@ private:
 
 loop_worker::loop_worker(alps::ProcessList const& w,
                          alps::Parameters const& p, int n)
-  : super_type(w, p, n),
-    chooser(*engine_ptr),
+  : super_type(w, p, n), chooser(*engine_ptr),
     r_time(*engine_ptr, boost::exponential_distribution<>()),
-    mcs(p)
+    mcs(p), obs(measurements)
 {
   beta = 1.0 / alps::evaluate("T", p);
   if (beta < 0)
@@ -173,18 +175,13 @@ loop_worker::loop_worker(alps::ProcessList const& w,
   spins_c.resize(nvs);
   current.resize(nvs);
 
-  // measurements
-  measurements <<
-    make_observable(alps::SimpleRealObservable("Temperature"));
-  measurements <<
-    make_observable(alps::SimpleRealObservable("Inverse Temperature"));
-  measurements <<
-    make_observable(alps::SimpleRealObservable("Number of Sites"));
-  measurements <<
-    make_observable(alps::SimpleRealObservable("Number of Clusters"));
-  if (is_signed) measurements << alps::RealObservable("Sign");
-  looper::energy_estimator::initialize(measurements, is_signed);
-  estimator_t::initialize(measurements, is_bipartite(), is_signed,
+  obs << make_observable(alps::SimpleRealObservable("Temperature"));
+  obs << make_observable(alps::SimpleRealObservable("Inverse Temperature"));
+  obs << make_observable(alps::SimpleRealObservable("Number of Sites"));
+  obs << make_observable(alps::SimpleRealObservable("Number of Clusters"));
+  if (is_signed) obs << alps::RealObservable("Sign");
+  looper::energy_estimator::initialize(obs, is_signed);
+  estimator_t::initialize(obs, is_bipartite(), is_signed,
                           use_improved_estimator);
 }
 
@@ -393,15 +390,15 @@ void loop_worker::flip()
     typename looper::measurement::collector<estimator_t, qmc_type, BIPARTITE,
       IMPROVE>::type coll;
     coll = std::accumulate(estimates.begin(), estimates.end(), coll);
-    coll.commit(measurements, beta, num_sites(), nop, improved_sign);
-    if (SIGN()) measurements["Sign"] << improved_sign;
+    coll.commit(obs, beta, num_sites(), nop, improved_sign);
+    if (SIGN()) obs["Sign"] << improved_sign;
   }
-  measurements["Number of Clusters"] << (double)clusters.size();
+  obs["Number of Clusters"] << (double)clusters.size();
 }
 
 
 //
-// measurements
+// measurement
 //
 
 template<typename BIPARTITE, typename IMPROVE>
@@ -411,9 +408,9 @@ void loop_worker::measure()
         use_improved_estimator == IMPROVE())) return;
 
   int nrs = num_sites();
-  measurements["Temperature"] << 1/beta;
-  measurements["Inverse Temperature"] << beta;
-  measurements["Number of Sites"] << (double)nrs;
+  obs["Temperature"] << 1/beta;
+  obs["Inverse Temperature"] << beta;
+  obs["Number of Sites"] << (double)nrs;
 
   // sign
   double sign = 1;
@@ -423,7 +420,7 @@ void loop_worker::measure()
       if (oi->is_offdiagonal())
         n += (oi->is_bond()) ? bond_sign[oi->pos()] : site_sign[oi->pos()];
     if (n & 1 == 1) sign = -1;
-    if (!use_improved_estimator) measurements["Sign"] << sign;
+    if (!use_improved_estimator) obs["Sign"] << sign;
   }
 
   // energy
@@ -435,12 +432,12 @@ void loop_worker::measure()
       if (ci->to_flip) ene -= ci->weight;
       else ene += ci->weight;
   }
-  looper::energy_estimator::measure(measurements, beta, nrs, nop, sign, ene);
+  looper::energy_estimator::measure(obs, beta, nrs, nop, sign, ene);
 
   // other quantities
   looper::measurement::normal_estimator<estimator_t, qmc_type, BIPARTITE,
-    IMPROVE>::type::measure(measurements, vlattice.graph(), beta, nrs, nop,
-                            sign, spins, operators, spins_c);
+    IMPROVE>::type::measure(obs, vlattice.graph(), beta, nrs, nop, sign, spins,
+                            operators, spins_c);
 }
 
 

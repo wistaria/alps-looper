@@ -33,7 +33,7 @@
 
 struct gap_estimator : public looper::base_estimator
 {
-  template<class T>
+  template<typename T>
   static void initialize(T& m, bool is_bipartite, bool is_signed,
                          bool use_improved_estimator)
   {
@@ -123,8 +123,8 @@ struct gap_estimator : public looper::base_estimator
   template<typename QMC, typename BIPARTITE, typename IMPROVE>
   struct normal_estimator
   {
-    template<class G, class OP>
-    static void measure(alps::ObservableSet& m, G const& vg,
+    template<typename M, typename G, typename OP>
+    static void measure(M& m, G const& vg,
                         double beta, int nrs, int, double sign,
                         std::vector<int> const& spins,
                         std::vector<OP> const& operators,
