@@ -46,7 +46,6 @@ struct loop_config
   typedef double time_t;
 
   // model, weights, and local_graph
-  BOOST_STATIC_CONSTANT(int, max_2s = 8);
   typedef looper::local_graph<looper::location> loop_graph_t;
 
   // measurements

@@ -182,8 +182,7 @@ public:
 
   virtual_mapping()
     : vertex_map_(1, vertex_iterator()), edge_map_(1, edge_iterator()),
-      v2e_map_(1, edge_iterator())
-  {}
+      v2e_map_(1, edge_iterator()), v2e_offset_(0), max_vv_(0) {}
 
   vertex_range_type
   virtual_vertices(const graph_type& rg, const vertex_descriptor& rv) const {
@@ -213,6 +212,7 @@ public:
       assert(first == vertex_map_.back());
     }
     vertex_map_.push_back(last);
+    max_vv_ = std::max(max_vv_, static_cast<int>(last - first));
   }
 
   void add_edges(const graph_type& rg, const edge_descriptor& re,
@@ -248,10 +248,13 @@ public:
     v2e_map_.clear();
     v2e_map_.push_back(edge_iterator());
     v2e_offset_ = 0;
+    max_vv_ = 0;
   }
 
   void set_v2edge_type_offset(int t) { v2e_offset_ = t; }
   int v2edge_type_offset() const { return v2e_offset_; }
+
+  unsigned int max_virtual_vertices() const { return max_vv_; }
 
   bool operator==(const virtual_mapping& rhs) const
   { return vertex_map_ == rhs.vertex_map_ && edge_map_ == rhs.edge_map_ &&
@@ -266,6 +269,7 @@ private:
   std::vector<edge_iterator> edge_map_;
   std::vector<edge_iterator> v2e_map_;
   int v2e_offset_;
+  int max_vv_;
 };
 
 
@@ -473,6 +477,14 @@ template<class G>
 int gauge(const virtual_lattice<G>& vl,
           const typename virtual_lattice<G>::vertex_descriptor& vd)
 { return gauge(vl.graph(), vd); }
+
+template<class G>
+unsigned int max_virtual_vertices(const virtual_lattice<G>& vl)
+{ return vl.mapping().max_virtual_vertices(); }
+
+template<class G>
+unsigned int max_virtual_sites(const virtual_lattice<G>& vl)
+{ return vl.mapping().max_virtual_vertices(); }
 
 template<class G>
 std::ostream& operator<<(std::ostream& os, const virtual_lattice<G>& vl)

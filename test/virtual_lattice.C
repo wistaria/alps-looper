@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2005 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -82,6 +82,8 @@ try {
             << num_sites(vl) << std::endl;
   std::cout << "number of virtual bonds = "
             << num_bonds(vl) << std::endl;
+  std::cout << "maximum number of virutal sites = "
+            << max_virtual_sites(vl) << std::endl;
   std::cout << vl;
   site_iterator vvi, vvi_end;
   for (boost::tie(vvi, vvi_end) = sites(vl); vvi != vvi_end; ++vvi)
@@ -99,11 +101,14 @@ try {
             << num_sites(vl) << std::endl;
   std::cout << "number of virtual bonds = "
             << num_bonds(vl) << std::endl;
+  std::cout << "maximum number of virutal sites = "
+            << max_virtual_sites(vl) << std::endl;
   std::cout << vl;
   for (boost::tie(vvi, vvi_end) = sites(vl); vvi != vvi_end; ++vvi)
     std::cout << gauge(vl, *vvi) << ' ';
   std::cout << std::endl;
   vl.mapping().output(std::cout, rg, vl.graph());
+
 
 #ifndef BOOST_NO_EXCEPTIONS
 }

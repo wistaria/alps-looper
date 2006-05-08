@@ -29,7 +29,6 @@
 #include <looper/model.h>
 #include <looper/montecarlo.h>
 #include <looper/permutation.h>
-#include <alps/fixed_capacity_vector.h>
 #include <boost/numeric/ublas/matrix.hpp>
 
 namespace {
@@ -216,7 +215,7 @@ void loop_worker::build()
   }
 
   // symmetrize spins
-  alps::fixed_capacity_vector<int, loop_config::max_2s> r;
+  std::vector<int> r(max_virtual_vertices(vlattice));
   site_iterator rsi, rsi_end;
   for (boost::tie(rsi, rsi_end) = sites(); rsi != rsi_end; ++rsi) {
     site_iterator vsi, vsi_end;
@@ -224,11 +223,10 @@ void loop_worker::build()
     int offset = *vsi;
     int s2 = *vsi_end - *vsi;
     if (s2 > 1) {
-      r.resize(s2);
       for (int i = 0; i < s2; ++i) r[i] = i;
-      looper::restricted_random_shuffle(r.begin(), r.end(),
+      looper::restricted_random_shuffle(r.begin(), r.begin() + s2,
         spins.begin() + offset, spins.begin() + offset, random);
-      for (int i = 0; i < s2; ++i) unify(fragments, i + offset, r[i] + offset);
+      for (int i = 0; i < s2; ++i) unify(fragments, offset+i, offset+r[i]);
     }
   }
 }

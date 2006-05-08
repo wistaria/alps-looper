@@ -32,7 +32,6 @@
 #include <looper/permutation.h>
 #include <looper/type.h>
 #include <looper/weight.h>
-#include <alps/fixed_capacity_vector.h>
 #include <alps/plot.h>
 #include <boost/regex.hpp>
 
@@ -350,7 +349,7 @@ void loop_worker::build()
   }
 
   // symmetrize spins
-  alps::fixed_capacity_vector<int, loop_config::max_2s> r;
+  std::vector<int> r(max_virtual_vertices(vlattice));
   site_iterator rsi, rsi_end;
   for (boost::tie(rsi, rsi_end) = sites(); rsi != rsi_end; ++rsi) {
     site_iterator vsi, vsi_end;
@@ -360,9 +359,8 @@ void loop_worker::build()
     if (s2 == 1) {
       unify(fragments, offset, current[offset]);
     } else if (s2 > 1) {
-      r.resize(s2);
       for (int i = 0; i < s2; ++i) r[i] = i;
-      looper::restricted_random_shuffle(r.begin(), r.end(),
+      looper::restricted_random_shuffle(r.begin(), r.begin() + s2,
         spins.begin() + offset, spins_c.begin() + offset, random);
       for (int i = 0; i < s2; ++i)
         unify(fragments, offset+i, current[offset+r[i]]);
