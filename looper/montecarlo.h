@@ -55,7 +55,11 @@ public:
   bool can_work() const
   { return mcs_ < therm_ || mcs_ - therm_ < sweep_.max(); }
   bool is_thermalized() const { return mcs_ >= therm_; }
-  double progress() const { return 1. * mcs_ / (therm_ + sweep_.min()); }
+  double progress() const
+  {
+    return is_thermalized() ?
+      static_cast<double>(mcs_ - therm_) / sweep_.min() : 0;
+  }
 
   int mcs_thermalization() const { return therm_; }
   looper::integer_range<int> mcs_sweeps() const { return sweep_; }
@@ -125,11 +129,9 @@ public:
   double progress() const
   {
     if (perform_multicanonical_measurement())
-      return doing_multicanonical() ?
-        (iteration_ + 1. * mcs_ / sweep_) / (iteration_ + 1) :
-        (stage_ + 1. * mcs_ / block_) / (iteration_ + 1);
+      return (doing_multicanonical() && mcs_ >= sweep_) ? 1 : 0;
     else
-      return (stage_ + 1. * mcs_ / block_) / iteration_;
+      return (stage_ + 1 >= iteration_ && mcs_ >= block_) ? 1 : 0;
   }
 
   bool perform_multicanonical_measurement() const { return multicanonical_; }
