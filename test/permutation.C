@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -59,7 +59,7 @@ int main() {
 
   std::cout << "\n[[random permutaion test 2 (with restrictions)]]\n";
 
-  std::cout << "generating " << trial2 << " restricted random permutations\n" ;
+  std::cout << "generating " << trial2 << " partitioned random permutations\n";
 
   for (unsigned int t = 0; t < trial2; t++) {
     vector_type config0(n);
@@ -80,10 +80,10 @@ int main() {
     vector_type result(n);
     for (unsigned int j = 0; j < n; ++j) result[j] = j;
 
-    // generate restricted permutation
-    looper::restricted_random_shuffle(result.begin(), result.end(),
-                                      config0.begin(), config1.begin(),
-                                      random);
+    // generate partitioned permutation
+    looper::partitioned_random_shuffle(result.begin(), result.end(),
+                                       config0.begin(), config1.begin(),
+                                       random);
 
     std::cout << "perm";
     for (unsigned int i = 0; i < n; i++) std::cout << '\t' << result[i];

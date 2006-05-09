@@ -286,7 +286,7 @@ void loop_worker::build()
       unify(fragments, offset, current[offset]);
     } else if (s2 > 1) {
       for (int i = 0; i < s2; ++i) r[i] = i;
-      looper::restricted_random_shuffle(r.begin(), r.begin() + s2,
+      looper::partitioned_random_shuffle(r.begin(), r.begin() + s2,
         spins.begin() + offset, spins_c.begin() + offset, random);
       for (int i = 0; i < s2; ++i)
         unify(fragments, offset+i, current[offset+r[i]]);

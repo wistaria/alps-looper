@@ -22,7 +22,7 @@ generating 20 random permutations of 10 integers [0...9]
 8	0	2	9	6	1	5	4	3	7	
 
 [[random permutaion test 2 (with restrictions)]]
-generating 5 restricted random permutations
+generating 5 partitioned random permutations
 conf0	1	0	1	0	1	1	1	1	1	1
 conf1	1	1	1	1	1	1	1	1	0	0
 perm	4	8	3	9	1	2	5	7	0	6

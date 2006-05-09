@@ -45,7 +45,7 @@ void random_shuffle(RandomAccessIter first, RandomAccessIter last,
 }
 
 
-// helper function : guided_sort_binary
+// helper function : guided_sort_01
 //
 // example
 //   input  perm  : 0 1 2 3 4 5 6 7
@@ -54,9 +54,9 @@ void random_shuffle(RandomAccessIter first, RandomAccessIter last,
 //          guide : does not change
 
 template<class RandomAccessIterator0, class RandomAccessIterator1>
-void guided_sort_binary(RandomAccessIterator0 first_perm,
-                        RandomAccessIterator0 last_perm,
-                        RandomAccessIterator1 first_guide)
+void guided_sort_01(RandomAccessIterator0 first_perm,
+                    RandomAccessIterator0 last_perm,
+                    RandomAccessIterator1 first_guide)
 {
   RandomAccessIterator1 last_guide = first_guide + (last_perm - first_perm);
   if (first_perm == last_perm) return;
@@ -83,7 +83,7 @@ void guided_sort_binary(RandomAccessIterator0 first_perm,
 }
 
 
-// function : restricted_random_shuffle
+// function : partitioned_random_shuffle
 //
 // This function generates a permutaion, which satisfies the
 // conservation law.  This is used for generating a boundary graph for
@@ -91,7 +91,7 @@ void guided_sort_binary(RandomAccessIterator0 first_perm,
 
 template<class RandomAccessIter0, class RandomAccessIter1,
          class RandomNumberGenerator>
-void restricted_random_shuffle(RandomAccessIter0 perm_first,
+void partitioned_random_shuffle(RandomAccessIter0 perm_first,
                                RandomAccessIter0 perm_last,
                                RandomAccessIter1 guide0_first,
                                RandomAccessIter1 guide1_first,
@@ -102,7 +102,7 @@ void restricted_random_shuffle(RandomAccessIter0 perm_first,
   diff_type n = perm_last - perm_first;
 
   // sort in two sectors (0 and 1) according to values in guide1
-  guided_sort_binary(perm_first, perm_last, guide1_first);
+  guided_sort_01(perm_first, perm_last, guide1_first);
   diff_type c = std::count(guide1_first, guide1_first + n, 0);
 
   // shuffle in each sector
@@ -110,7 +110,7 @@ void restricted_random_shuffle(RandomAccessIter0 perm_first,
   looper::random_shuffle(perm_first + c, perm_last, rng);
 
   // reorder permutation according to values in guide0
-  guided_sort_binary(perm_first, perm_last, guide0_first);
+  guided_sort_01(perm_first, perm_last, guide0_first);
 }
 
 } // end namespace looper
