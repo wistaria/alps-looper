@@ -1,5 +1,5 @@
 SEED    = 23125
-SWEEPS  = 1024
+SWEEPS  = 4096
 MODEL   = "spin"
 T = 0.25
 

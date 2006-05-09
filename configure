@@ -1036,8 +1036,8 @@ Optional Features:
   --enable-fast-install[=PKGS]
                           optimize for fast installation [default=yes]
   --disable-libtool-lock  avoid locking (might break parallel builds)
-  --enable-diag           enable exact diagonalization method
-  --enable-ising          enable Swendsen-Wang method for classical Ising
+  --disable-diag          disable exact diagonalization method
+  --disable-ising         disable Swendsen-Wang method for classical Ising
                           model
   --disable-path-integral disable path integral method
   --disable-sse           disable SSE method
@@ -18642,11 +18642,11 @@ LIBS_MPI="$ac_cv_alps_libs_mpi"
 # Check whether --enable-diag or --disable-diag was given.
 if test "${enable_diag+set}" = set; then
   enableval="$enable_diag"
-  test "x$enableval" != "xno" && enable_diag=yes
+  test "x$enableval" != "xyes" && enable_diag=no
 
 fi;
 test -f "$srcdir/diag.C" || enable_diag=no
-test -z "$enable_diag" && enable_diag=no
+test -z "$enable_diag" && enable_diag=yes
 
 
 if test "$enable_diag" = yes; then
@@ -18661,11 +18661,11 @@ fi
 # Check whether --enable-ising or --disable-ising was given.
 if test "${enable_ising+set}" = set; then
   enableval="$enable_ising"
-  test "x$enableval" != "xno" && enable_ising=yes
+  test "x$enableval" != "xyes" && enable_ising=no
 
 fi;
 test -f "$srcdir/ising.C" || enable_ising=no
-test -z "$enable_ising" && enable_ising=no
+test -z "$enable_ising" && enable_ising=yes
 
 
 if test "$enable_ising" = yes; then

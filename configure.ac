@@ -107,21 +107,21 @@ dnl methods
 dnl
 
 AC_ARG_ENABLE(diag,
-  AC_HELP_STRING([--enable-diag],
-    [enable exact diagonalization method]),
-  [test "x$enableval" != "xno" && enable_diag=yes]
+  AC_HELP_STRING([--disable-diag],
+    [disable exact diagonalization method]),
+  [test "x$enableval" != "xyes" && enable_diag=no]
 )
 test -f "$srcdir/diag.C" || enable_diag=no
-test -z "$enable_diag" && enable_diag=no
+test -z "$enable_diag" && enable_diag=yes
 AM_CONDITIONAL(ENABLE_DIAG, test "$enable_diag" = yes)
 
 AC_ARG_ENABLE(ising,
-  AC_HELP_STRING([--enable-ising],
-    [enable Swendsen-Wang method for classical Ising model]),
-  [test "x$enableval" != "xno" && enable_ising=yes]
+  AC_HELP_STRING([--disable-ising],
+    [disable Swendsen-Wang method for classical Ising model]),
+  [test "x$enableval" != "xyes" && enable_ising=no]
 )
 test -f "$srcdir/ising.C" || enable_ising=no
-test -z "$enable_ising" && enable_ising=no
+test -z "$enable_ising" && enable_ising=yes
 AM_CONDITIONAL(ENABLE_ISING, test "$enable_ising" = yes)
 
 AC_ARG_ENABLE(path-integral,
