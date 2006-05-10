@@ -36,7 +36,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@BUILD_EXTRAS_TRUE@am__append_1 = gap
+@BUILD_EXTRAS_TRUE@am__append_1 = gap transmag
 subdir = extras
 DIST_COMMON = $(dist_noinst_HEADERS) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
@@ -191,9 +191,10 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 SUBDIRS = $(am__append_1)
-DIST_SUBDIRS = gap
+DIST_SUBDIRS = gap transmag
 dist_noinst_HEADERS = \
-	looper/gap_measurement.h
+	looper/gap_measurement.h \
+	looper/transmag_measurement.h
 
 all: all-recursive
 

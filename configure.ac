@@ -189,7 +189,9 @@ if test "$exist_check" = yes; then
   AC_CONFIG_FILES(check/Makefile check/site.gp check/chain.gp check/triangle.gp)
 fi
 if test "$exist_extras" = yes; then
-  AC_CONFIG_FILES(extras/Makefile extras/gap/Makefile)
+  AC_CONFIG_FILES(extras/Makefile)
+  AC_CONFIG_FILES(extras/gap/Makefile)
+  AC_CONFIG_FILES(extras/transmag/Makefile extras/transmag/alternating_chain.xml)
 fi
 if test "$exist_test" = yes; then
   AC_CONFIG_FILES(test/Makefile)

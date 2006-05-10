@@ -108,6 +108,12 @@ struct gap_estimator : public looper::base_estimator
     void term2(G const& g, BIPARTITE,
       looper::imaginary_time<boost::mpl::true_> const& t, int s, int c)
     { term1(g, BIPARTITE(), t, s, c); }
+    template<typename G, typename BIPARTITE>
+    void at_bot(G const& g, BIPARTITE, double t, int s, int c)
+    { start1(g, BIPARTITE(), t, s, c); }
+    template<typename G, typename BIPARTITE>
+    void at_top(G const& g, BIPARTITE, double t, int s, int c)
+    { term1(g, BIPARTITE(), t, s, c); }
   };
 
   template<typename QMC, typename BIPARTITE, typename IMPROVE>
@@ -124,12 +130,9 @@ struct gap_estimator : public looper::base_estimator
     template<typename M>
     void commit(M& m, double beta, int nrs, int /* nop */, double sign) const
     {
-      using looper::power2;
-      if (IMPROVE()) {
-        if (BIPARTITE() && typename looper::is_path_integral<QMC>::type())
-          m["Generalized Susceptibility [w=2pi/beta]"] <<
-            sign * beta * p / power2(4*M_PI) / nrs;
-      }
+      if (BIPARTITE())
+        m["Generalized Susceptibility [w=2pi/beta]"] <<
+          sign * beta * p / looper::power2(4*M_PI) / nrs;
     }
   };
 

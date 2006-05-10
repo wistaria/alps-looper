@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 2006 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -22,19 +22,14 @@
 *
 *****************************************************************************/
 
-#ifdef LOOP_CONFIG_HEADER
-
-#include LOOP_CONFIG_HEADER
-
-#else
-
-#ifndef LOOP_CONFIG_H
-#define LOOP_CONFIG_H
+#ifndef TRANSMAG_CONFIG_H
+#define TRANSMAG_CONFIG_H
 
 #include <looper/lattice.h>
 #include <looper/location.h>
 #include <looper/graph.h>
-#include <looper/measurement.h>
+
+#include <looper/transmag_measurement.h>
 
 struct loop_config
 {
@@ -48,9 +43,9 @@ struct loop_config
   typedef looper::local_graph<looper::location> loop_graph_t;
 
   // measurements
-  typedef looper::susceptibility_estimator estimator_t;
+  typedef looper::composite_estimator<
+            looper::susceptibility_estimator,
+            transverse_magnetization_estimator> estimator_t;
 };
 
-#endif // LOOP_CONFIG_H
-
-#endif // LOOP_CONFIG_HEADER
+#endif // TRANSMAG_CONFIG_H

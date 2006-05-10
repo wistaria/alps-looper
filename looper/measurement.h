@@ -533,21 +533,19 @@ struct susceptibility_estimator : public base_estimator
     template<typename EST>
     collector operator+(EST const& cm)
     {
-      if (IMPROVE()) {
-        usize2 += power2(cm.usize0);
-        umag2  += power2(cm.umag0);
-        usize4 += power4(cm.usize0);
-        umag4  += power4(cm.umag0);
-        usize  += power2(cm.usize);
-        umag   += power2(cm.umag);
-        if (BIPARTITE()) {
-          ssize2 += power2(cm.ssize0);
-          smag2  += power2(cm.smag0);
-          ssize4 += power4(cm.ssize0);
-          smag4  += power4(cm.smag0);
-          ssize  += power2(cm.ssize);
-          smag   += power2(cm.smag);
-        }
+      usize2 += power2(cm.usize0);
+      umag2  += power2(cm.umag0);
+      usize4 += power4(cm.usize0);
+      umag4  += power4(cm.umag0);
+      usize  += power2(cm.usize);
+      umag   += power2(cm.umag);
+      if (BIPARTITE()) {
+        ssize2 += power2(cm.ssize0);
+        smag2  += power2(cm.smag0);
+        ssize4 += power4(cm.ssize0);
+        smag4  += power4(cm.smag0);
+        ssize  += power2(cm.ssize);
+        smag   += power2(cm.smag);
       }
       return *this;
     }
@@ -555,40 +553,38 @@ struct susceptibility_estimator : public base_estimator
     void commit(M& m, double beta, int nrs, int nop,
                 double sign) const
     {
-      if (IMPROVE()) {
-        m["Magnetization"] << 0.0;
-        m["Magnetization Density"] << 0.0;
-        m["Magnetization^2"] << sign * umag2;
-        m["Magnetization^4"] << sign * (3 * umag2 * umag2 - 2 * umag4);
-        m["Susceptibility"]
+      m["Magnetization"] << 0.0;
+      m["Magnetization Density"] << 0.0;
+      m["Magnetization^2"] << sign * umag2;
+      m["Magnetization^4"] << sign * (3 * umag2 * umag2 - 2 * umag4);
+      m["Susceptibility"]
+        << (typename is_sse<QMC>::type() ?
+            sign * beta * (dip(umag, nop) + umag2) / (nop + 1) / nrs :
+            sign * beta * umag / nrs);
+      m["Generalized Magnetization^2"] << sign * usize2;
+      m["Generalized Magnetization^4"]
+        << sign * (3 * usize2 * usize2 - 2 * usize4);
+      m["Generalized Susceptibility"]
+        << (typename is_sse<QMC>::type() ?
+            sign * beta * (dip(usize, nop) + usize2) / (nop + 1) / nrs :
+            sign * beta * usize / nrs);
+      if (BIPARTITE()) {
+        m["Staggered Magnetization"] << 0.0;
+        m["Staggered Magnetization Density"] << 0.0;
+        m["Staggered Magnetization^2"] << sign * smag2;
+        m["Staggered Magnetization^4"]
+          << sign * (3 * smag2 * smag2 - 2 * smag4);
+        m["Staggered Susceptibility"]
           << (typename is_sse<QMC>::type() ?
-              sign * beta * (dip(umag, nop) + umag2) / (nop + 1) / nrs :
-              sign * beta * umag / nrs);
-        m["Generalized Magnetization^2"] << sign * usize2;
-        m["Generalized Magnetization^4"]
-          << sign * (3 * usize2 * usize2 - 2 * usize4);
-        m["Generalized Susceptibility"]
+              sign * beta * (dip(smag, nop) + smag2) / (nop + 1) / nrs :
+              sign * beta * smag /nrs);
+        m["Generalized Staggered Magnetization^2"] << sign * ssize2;
+        m["Generalized Staggered Magnetization^4"]
+          << sign * (3 * ssize2 * ssize2 - 2 * ssize4);
+        m["Generalized Staggered Susceptibility"]
           << (typename is_sse<QMC>::type() ?
-              sign * beta * (dip(usize, nop) + usize2) / (nop + 1) / nrs :
-              sign * beta * usize / nrs);
-        if (BIPARTITE()) {
-          m["Staggered Magnetization"] << 0.0;
-          m["Staggered Magnetization Density"] << 0.0;
-          m["Staggered Magnetization^2"] << sign * smag2;
-          m["Staggered Magnetization^4"]
-            << sign * (3 * smag2 * smag2 - 2 * smag4);
-          m["Staggered Susceptibility"]
-            << (typename is_sse<QMC>::type() ?
-                sign * beta * (dip(smag, nop) + smag2) / (nop + 1) / nrs :
-                sign * beta * smag /nrs);
-          m["Generalized Staggered Magnetization^2"] << sign * ssize2;
-          m["Generalized Staggered Magnetization^4"]
-            << sign * (3 * ssize2 * ssize2 - 2 * ssize4);
-          m["Generalized Staggered Susceptibility"]
-            << (typename is_sse<QMC>::type() ?
-                sign * beta * (dip(ssize, nop) + ssize2) / (nop + 1) / nrs :
-                sign * beta * ssize / nrs);
-        }
+              sign * beta * (dip(ssize, nop) + ssize2) / (nop + 1) / nrs :
+              sign * beta * ssize / nrs);
       }
     }
   };

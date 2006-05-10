@@ -1,0 +1,29 @@
+<LATTICES>
+
+<LATTICE name="doubled chain lattice" dimension="1">
+  <PARAMETER name="a" default="2"/>
+  <BASIS><VECTOR>a</VECTOR></BASIS>
+  <RECIPROCALBASIS><VECTOR>2*pi/a</VECTOR></RECIPROCALBASIS>
+</LATTICE>
+
+<UNITCELL name="doubled1d" dimension="1">
+  <VERTEX id="1" type="0"><COORDINATE>0   0</COORDINATE></VERTEX>
+  <VERTEX id="2" type="1"><COORDINATE>0.5 0</COORDINATE></VERTEX>
+  <EDGE type="0">
+    <SOURCE vertex="1" offset="0"/><TARGET vertex="2" offset="0"/>
+  </EDGE>
+  <EDGE type="1">
+    <SOURCE vertex="2" offset="0"/><TARGET vertex="1" offset="1"/>
+  </EDGE>
+</UNITCELL>
+
+<LATTICEGRAPH name = "alternating chain lattice">
+  <FINITELATTICE>
+    <LATTICE ref="doubled chain lattice"/>
+    <EXTENT dimension="1" size ="L/2"/>
+    <BOUNDARY type="periodic"/>
+  </FINITELATTICE>
+  <UNITCELL ref="doubled1d"/>
+</LATTICEGRAPH>
+
+</LATTICES>

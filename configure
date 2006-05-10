@@ -18840,7 +18840,11 @@ if test "$exist_check" = yes; then
 
 fi
 if test "$exist_extras" = yes; then
-                      ac_config_files="$ac_config_files extras/Makefile extras/gap/Makefile"
+            ac_config_files="$ac_config_files extras/Makefile"
+
+            ac_config_files="$ac_config_files extras/gap/Makefile"
+
+                      ac_config_files="$ac_config_files extras/transmag/Makefile extras/transmag/alternating_chain.xml"
 
 fi
 if test "$exist_test" = yes; then
@@ -19494,6 +19498,8 @@ do
   "check/triangle.gp" ) CONFIG_FILES="$CONFIG_FILES check/triangle.gp" ;;
   "extras/Makefile" ) CONFIG_FILES="$CONFIG_FILES extras/Makefile" ;;
   "extras/gap/Makefile" ) CONFIG_FILES="$CONFIG_FILES extras/gap/Makefile" ;;
+  "extras/transmag/Makefile" ) CONFIG_FILES="$CONFIG_FILES extras/transmag/Makefile" ;;
+  "extras/transmag/alternating_chain.xml" ) CONFIG_FILES="$CONFIG_FILES extras/transmag/alternating_chain.xml" ;;
   "test/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
   "v3.1/Makefile" ) CONFIG_FILES="$CONFIG_FILES v3.1/Makefile" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
