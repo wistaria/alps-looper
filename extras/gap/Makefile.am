@@ -8,10 +8,7 @@ noinst_PROGRAMS += gap_mpi
 endif
 check_PROGRAMS += gap_ns
 
-SRC = \
-	$(top_srcdir)/loop_factory.C \
-	$(top_srcdir)/loop_worker.C \
-	$(top_srcdir)/path_integral.C
+SRC = $(top_srcdir)/loop_factory.C $(top_srcdir)/path_integral.C
 
 dist_noinst_DATA = gap_ns.ip gap_ns.op
 

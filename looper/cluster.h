@@ -44,6 +44,8 @@ struct cluster_info
     field_accumulator(D0 const&, D1 const&, D2 const&) {}
     void start(int, double, int, double) const {}
     void term(int, double, int, double) const {}
+    void at_bot(int, double, int, int) const {}
+    void at_top(int, double, int, int) const {}
   };
   template<typename F>
   struct field_accumulator<F, boost::mpl::true_>
@@ -57,6 +59,8 @@ struct cluster_info
     { clusters[fragments[p].id].weight -= - field[s] * (0.5-c) * t; }
     void term(int p, double t, int s, int c)
     { clusters[fragments[p].id].weight += - field[s] * (0.5-c) * t; }
+    void at_bot(int p, double t, int s, int c) { start(p, t, s, c); }
+    void at_top(int p, double t, int s, int c) { term(p, t, s, c); }
     std::vector<cluster_info>& clusters;
     std::vector<cluster_fragment_t> const& fragments;
     std::vector<double> const& field;

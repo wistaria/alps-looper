@@ -254,7 +254,7 @@ public:
   void set_v2edge_type_offset(int t) { v2e_offset_ = t; }
   int v2edge_type_offset() const { return v2e_offset_; }
 
-  unsigned int max_virtual_vertices() const { return max_vv_; }
+  int max_virtual_vertices() const { return max_vv_; }
 
   bool operator==(const virtual_mapping& rhs) const
   { return vertex_map_ == rhs.vertex_map_ && edge_map_ == rhs.edge_map_ &&
@@ -479,11 +479,11 @@ int gauge(const virtual_lattice<G>& vl,
 { return gauge(vl.graph(), vd); }
 
 template<class G>
-unsigned int max_virtual_vertices(const virtual_lattice<G>& vl)
+int max_virtual_vertices(const virtual_lattice<G>& vl)
 { return vl.mapping().max_virtual_vertices(); }
 
 template<class G>
-unsigned int max_virtual_sites(const virtual_lattice<G>& vl)
+int max_virtual_sites(const virtual_lattice<G>& vl)
 { return vl.mapping().max_virtual_vertices(); }
 
 template<class G>

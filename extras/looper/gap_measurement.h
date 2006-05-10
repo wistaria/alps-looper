@@ -81,19 +81,33 @@ struct gap_estimator : public looper::base_estimator
     std::complex<double> p;
     estimate() : p(0, 0) {}
     template<typename G, typename BIPARTITE>
-    void start(G const&, BIPARTITE, double t, int, int)
+    void start1(G const&, BIPARTITE, double t, int, int)
     { p -= looper::ctime(t); }
     template<typename G, typename BIPARTITE>
-    void start(G const&, BIPARTITE,
+    void start1(G const&, BIPARTITE,
       looper::imaginary_time<boost::mpl::true_> const& t, int, int)
     { p -= t.ctime_; }
     template<typename G, typename BIPARTITE>
-    void term(G const&, BIPARTITE, double t, int, int)
+    void start2(G const& g, BIPARTITE, double t, int s, int c)
+    { start1(g, BIPARTITE(), t, s, c); }
+    template<typename G, typename BIPARTITE>
+    void start2(G const& g, BIPARTITE,
+      looper::imaginary_time<boost::mpl::true_> const& t, int s , int c)
+    { start1(g, BIPARTITE(), t, s, c); }
+    template<typename G, typename BIPARTITE>
+    void term1(G const&, BIPARTITE, double t, int, int)
     { p += looper::ctime(t); }
     template<typename G, typename BIPARTITE>
-    void term(G const&, BIPARTITE,
+    void term1(G const&, BIPARTITE,
       looper::imaginary_time<boost::mpl::true_> const& t, int, int)
     { p += t.ctime_; }
+    template<typename G, typename BIPARTITE>
+    void term2(G const& g, BIPARTITE, double t, int s, int c)
+    { term1(g, BIPARTITE(), t, s, c); }
+    template<typename G, typename BIPARTITE>
+    void term2(G const& g, BIPARTITE,
+      looper::imaginary_time<boost::mpl::true_> const& t, int s, int c)
+    { term1(g, BIPARTITE(), t, s, c); }
   };
 
   template<typename QMC, typename BIPARTITE, typename IMPROVE>
@@ -108,8 +122,7 @@ struct gap_estimator : public looper::base_estimator
       return *this;
     }
     template<typename M>
-    void commit(M& m, double beta, int nrs, int nop,
-                double sign) const
+    void commit(M& m, double beta, int nrs, int /* nop */, double sign) const
     {
       using looper::power2;
       if (IMPROVE()) {

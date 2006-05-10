@@ -93,6 +93,7 @@ private:
   std::vector<cluster_fragment_t> fragments;
   std::vector<cluster_info_t> clusters;
   std::vector<estimate_t> estimates;
+  std::vector<int> perm;
 };
 
 
@@ -125,6 +126,7 @@ loop_worker::loop_worker(alps::ProcessList const& w,
     std::cerr << "WARNING: improved estimator is disabled\n";
 
   vlattice.generate(graph(), mp, mp.has_d_term());
+  perm.resize(max_virtual_vertices(vlattice));
 
   coupling.resize(num_bonds(vlattice));
   prob.resize(num_bonds(vlattice), 2);
@@ -215,18 +217,18 @@ void loop_worker::build()
   }
 
   // symmetrize spins
-  std::vector<int> r(max_virtual_vertices(vlattice));
-  site_iterator rsi, rsi_end;
-  for (boost::tie(rsi, rsi_end) = sites(); rsi != rsi_end; ++rsi) {
-    site_iterator vsi, vsi_end;
-    boost::tie(vsi, vsi_end) = virtual_sites(vlattice, graph(), *rsi);
-    int offset = *vsi;
-    int s2 = *vsi_end - *vsi;
-    if (s2 > 1) {
-      for (int i = 0; i < s2; ++i) r[i] = i;
-      looper::partitioned_random_shuffle(r.begin(), r.begin() + s2,
+  if (max_virtual_vertices(vlattice) > 1) {
+    site_iterator rsi, rsi_end;
+    for (boost::tie(rsi, rsi_end) = sites(); rsi != rsi_end; ++rsi) {
+      site_iterator vsi, vsi_end;
+      boost::tie(vsi, vsi_end) = virtual_sites(vlattice, graph(), *rsi);
+      int offset = *vsi;
+      int s2 = *vsi_end - *vsi;
+      for (int i = 0; i < s2; ++i) perm[i] = i;
+      looper::partitioned_random_shuffle(perm.begin(), perm.begin() + s2,
         spins.begin() + offset, spins.begin() + offset, random);
-      for (int i = 0; i < s2; ++i) unify(fragments, offset+i, offset+r[i]);
+      for (int i = 0; i < s2; ++i)
+        unify(fragments, offset+i, offset+perm[i]);
     }
   }
 }
@@ -262,9 +264,8 @@ void loop_worker::flip()
   for (unsigned int s = 0; s < nvs; ++s) {
     weight.start(s, time_t(0), s, spins[s]);
     weight.term(s, time_t(1), s, spins[s]);
-    accum.start(s, time_t(0), s, spins[s]);
-    accum.term(s, time_t(1), s, spins[s]);
-    accum.at_zero(s, s, spins[s]);
+    accum.at_bot(s, time_t(0), s, spins[s]);
+    accum.at_top(s, time_t(1), s, spins[s]);
   }
 
   // determine whether clusters are flipped or not

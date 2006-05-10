@@ -41,11 +41,10 @@ struct loop_config
   typedef looper::imaginary_time<boost::mpl::true_> time_t;
 
   // model, weights, and local_graph
-  BOOST_STATIC_CONSTANT(int, max_2s = 8);
   typedef looper::local_graph<looper::location> loop_graph_t;
 
   // measurements
-  typedef looper::estimator_adaptor<
+  typedef looper::composite_estimator<
             looper::susceptibility_estimator,
             gap_estimator> estimator_t;
 };

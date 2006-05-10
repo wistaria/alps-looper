@@ -102,6 +102,7 @@ private:
   std::vector<int> current;
   std::vector<cluster_info_t> clusters;
   std::vector<estimate_t> estimates;
+  std::vector<int> perm;
 };
 
 
@@ -133,6 +134,7 @@ loop_worker::loop_worker(alps::ProcessList const& w,
     std::cerr << "WARNING: improved estimator is disabled\n";
 
   vlattice.generate(graph(), mp, mp.has_d_term());
+  perm.resize(max_virtual_vertices(vlattice));
 
   double fs = p.value_or_default("FORCE_SCATTER", is_frustrated ? 0.1 : 0);
   looper::weight_table wt(mp, graph(), vlattice, fs);
@@ -275,21 +277,20 @@ void loop_worker::build()
   }
 
   // symmetrize spins
-  std::vector<int> r(max_virtual_vertices(vlattice));
-  site_iterator rsi, rsi_end;
-  for (boost::tie(rsi, rsi_end) = sites(); rsi != rsi_end; ++rsi) {
-    site_iterator vsi, vsi_end;
-    boost::tie(vsi, vsi_end) = virtual_sites(vlattice, graph(), *rsi);
-    int offset = *vsi;
-    int s2 = *vsi_end - *vsi;
-    if (s2 == 1) {
-      unify(fragments, offset, current[offset]);
-    } else if (s2 > 1) {
-      for (int i = 0; i < s2; ++i) r[i] = i;
-      looper::partitioned_random_shuffle(r.begin(), r.begin() + s2,
+  if (max_virtual_vertices(vlattice) == 1) {
+    for (int i = 0; i < nvs; ++i) unify(fragments, i, current[i]);
+  } else {
+    site_iterator rsi, rsi_end;
+    for (boost::tie(rsi, rsi_end) = sites(); rsi != rsi_end; ++rsi) {
+      site_iterator vsi, vsi_end;
+      boost::tie(vsi, vsi_end) = virtual_sites(vlattice, graph(), *rsi);
+      int offset = *vsi;
+      int s2 = *vsi_end - *vsi;
+      for (int i = 0; i < s2; ++i) perm[i] = i;
+      looper::partitioned_random_shuffle(perm.begin(), perm.begin() + s2,
         spins.begin() + offset, spins_c.begin() + offset, random);
       for (int i = 0; i < s2; ++i)
-        unify(fragments, offset+i, current[offset+r[i]]);
+        unify(fragments, offset+i, current[offset+perm[i]]);
     }
   }
 }
@@ -331,26 +332,25 @@ void loop_worker::flip()
       int s0 = vsource(oi->pos(), vlattice);
       int s1 = vtarget(oi->pos(), vlattice);
       weight.bond_sign(oi->loop_0(), oi->loop_1(), oi->pos());
-      accum.term(oi->loop_l0(), t, s0, spins_c[s0]);
-      accum.term(oi->loop_l1(), t, s1, spins_c[s1]);
+      accum.term2(oi->loop_l0(), oi->loop_l1(), t, s0, s1,
+                  spins_c[s0], spins_c[s1]);
       if (oi->is_offdiagonal()) {
         spins_c[s0] ^= 1;
         spins_c[s1] ^= 1;
       }
-      accum.start(oi->loop_u0(), t, s0, spins_c[s0]);
-      accum.start(oi->loop_u1(), t, s1, spins_c[s1]);
+      accum.start2(oi->loop_u0(), oi->loop_u1(), t, s0, s1,
+                   spins_c[s0], spins_c[s1]);
     } else {
       int s = oi->pos();
       weight.site_sign(oi->loop_0(), oi->loop_1(), oi->pos());
-      accum.term(oi->loop_l(), t, s, spins_c[s]);
+      accum.term1(oi->loop_l(), t, s, spins_c[s]);
       if (oi->is_offdiagonal()) spins_c[s] ^= 1;
-      accum.start(oi->loop_u(), t, s, spins_c[s]);
+      accum.start1(oi->loop_u(), t, s, spins_c[s]);
     }
   }
   for (unsigned int s = 0; s < nvs; ++s) {
-    accum.start(s, 0, s, spins[s]);
-    accum.term(current[s], nop, s, spins_c[s]);
-    accum.at_zero(s, s, spins[s]);
+    accum.at_bot(s,          0,   s, spins[s]);
+    accum.at_top(current[s], nop, s, spins_c[s]);
   }
 
   // determine whether clusters are flipped or not
