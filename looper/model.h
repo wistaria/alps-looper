@@ -692,23 +692,37 @@ void model_parameter::set_parameters_impl(alps::Parameters params, const G& g,
       energy_offset_ += 0.5 * site(*si, g).s.get_twice() * site(*si, g).d;
 }
 
+
 template<typename G>
 bool model_parameter::check_sign(const G& g) const
 {
-  std::vector<double> w(num_bonds(g));
+  std::vector<double> wb(num_bonds(g));
+  std::vector<double> ws(num_sites(g));
   typename alps::graph_traits<G>::bond_iterator ei, ei_end;
   for (boost::tie(ei, ei_end) = bonds(g); ei != ei_end; ++ei) {
     unsigned int i = get(bond_index_t(), g, *ei);
     if (alps::is_zero<1>(bond(*ei, g).jxy)) {
-      w[i] = 0;
+      wb[i] = 0;
     } else if (bond(*ei, g).jxy < 0) {
-      w[i] = 1;
+      wb[i] = 1;
     } else {
-      w[i] = -1;
+      wb[i] = -1;
     }
   }
-  return alps::is_frustrated(g, boost::make_iterator_property_map(w.begin(),
-    get(bond_index_t(), g)));
+  typename alps::graph_traits<G>::site_iterator vi, vi_end;
+  for (boost::tie(vi, vi_end) = sites(g); vi != vi_end; ++vi) {
+    unsigned int i = get(site_index_t(), g, *vi);
+    if (alps::is_zero<1>(site(*vi, g).hx)) {
+      ws[i] = 0;
+    } else if (site(*vi, g).hx > 0) {
+      ws[i] = 1;
+    } else {
+      ws[i] = -1;
+    }
+  }
+  return alps::is_frustrated(g,
+    boost::make_iterator_property_map(wb.begin(), get(bond_index_t(), g)),
+    boost::make_iterator_property_map(ws.begin(), get(site_index_t(), g)));
 }
 
 template<typename G>
