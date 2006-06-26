@@ -595,7 +595,7 @@ struct susceptibility_estimator : public base_estimator
   struct normal_estimator
   {
     template<typename M, typename G, typename OP>
-    static void measure(M& m, G const& rg, virtual_lattice<G> const& vl,
+    static void measure(M& m, G const& /* rg */, virtual_lattice<G> const& vl,
                         double beta, int nrs, int nop, double sign,
                         std::vector<int> const& spins,
                         std::vector<OP> const& operators,
