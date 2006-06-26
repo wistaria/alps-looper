@@ -260,7 +260,7 @@ void loop_worker::flip()
     boost::mpl::false_, IMPROVE> weight(clusters, fragments, field, 0, 0);
   typename looper::measurement::accumulator<estimator_t, lattice_graph_t,
     time_t, cluster_fragment_t, BIPARTITE, IMPROVE>::type
-    accum(estimates, fragments, vlattice.graph());
+    accum(estimates, fragments, vlattice);
   for (unsigned int s = 0; s < nvs; ++s) {
     weight.start(s, time_t(0), s, spins[s]);
     weight.term(s, time_t(1), s, spins[s]);
@@ -321,7 +321,7 @@ void loop_worker::measure()
   looper::energy_estimator::measure(measurements, beta, nrs, 0, 1, ene);
 
   looper::measurement::normal_estimator<estimator_t, mc_type, BIPARTITE,
-    IMPROVE>::type::measure(measurements, vlattice.graph(), beta, nrs, 0, 1,
+    IMPROVE>::type::measure(measurements, graph(), vlattice, beta, nrs, 0, 1,
                             spins, operator_string_t(), spins);
 }
 

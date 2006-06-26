@@ -185,9 +185,12 @@ public:
       v2e_map_(1, edge_iterator()), v2e_offset_(0), max_vv_(0) {}
 
   vertex_range_type
+  virtual_vertices(int s) const {
+    return std::make_pair(vertex_map_[s], vertex_map_[s+1]);
+  }
+  vertex_range_type
   virtual_vertices(const graph_type& rg, const vertex_descriptor& rv) const {
-    return std::make_pair(vertex_map_[get(vertex_index_t(), rg, rv)],
-      vertex_map_[get(vertex_index_t(), rg, rv) + 1]);
+    return virtual_vertices(get(vertex_index_t(), rg, rv));
   }
 
   edge_range_type
@@ -320,6 +323,9 @@ public:
 
   // real vertex -> virtual vertex
   std::pair<vertex_iterator, vertex_iterator>
+  virtual_vertices(int s) const
+  { return mapping_.virtual_vertices(s); }
+  std::pair<vertex_iterator, vertex_iterator>
   virtual_vertices(const graph_type& rg, const vertex_descriptor& rv) const
   { return mapping_.virtual_vertices(rg, rv); }
 
@@ -427,6 +433,12 @@ template<class G>
 typename graph_traits<virtual_lattice<G> >::bonds_size_type
 num_bonds(const virtual_lattice<G>& vl)
 { return num_edges(vl.graph()); }
+
+template<class G>
+std::pair<typename graph_traits<virtual_lattice<G> >::site_iterator,
+          typename graph_traits<virtual_lattice<G> >::site_iterator>
+virtual_sites(const virtual_lattice<G>& vl, int s)
+{ return vl.virtual_vertices(s); }
 
 template<class G>
 std::pair<typename graph_traits<virtual_lattice<G> >::site_iterator,

@@ -140,7 +140,8 @@ struct gap_estimator : public looper::base_estimator
   struct normal_estimator
   {
     template<typename M, typename G, typename OP>
-    static void measure(M& m, G const& vg,
+    static void measure(M& m, G const& /* rg */,
+                        looper::virtual_lattice<G> const& vl,
                         double beta, int nrs, int, double sign,
                         std::vector<int> const& spins,
                         std::vector<OP> const& operators,
@@ -156,8 +157,8 @@ struct gap_estimator : public looper::base_estimator
 
       double smag = 0;
       site_iterator si, si_end;
-      for (boost::tie(si, si_end) = sites(vg); si != si_end; ++si)
-        smag += (0.5-spins[*si]) * looper::gauge(vg, *si);
+      for (boost::tie(si, si_end) = sites(vl); si != si_end; ++si)
+        smag += (0.5-spins[*si]) * looper::gauge(vl, *si);
       std::complex<double> smag_a(0, 0);
       std::copy(spins.begin(), spins.end(), spins_c.begin());
       for (operator_iterator oi = operators.begin(); oi != operators.end();
@@ -168,14 +169,14 @@ struct gap_estimator : public looper::base_estimator
           if (oi->is_site()) {
             unsigned int s = oi->pos();
             spins_c[s] ^= 1;
-            smag += looper::gauge(vg, s) * (1-2*spins_c[s]);
+            smag += looper::gauge(vl, s) * (1-2*spins_c[s]);
           } else {
-            unsigned int s0 = source(bond(oi->pos(), vg), vg);
-            unsigned int s1 = target(bond(oi->pos(), vg), vg);
+            unsigned int s0 = vsource(oi->pos(), vl);
+            unsigned int s1 = vtarget(oi->pos(), vl);
             spins_c[s0] ^= 1;
             spins_c[s1] ^= 1;
-            smag += looper::gauge(vg, s0) * (1-2*spins_c[s0])
-              + looper::gauge(vg, s1) * (1-2*spins_c[s1]);
+            smag += looper::gauge(vl, s0) * (1-2*spins_c[s0])
+              + looper::gauge(vl, s1) * (1-2*spins_c[s1]);
           }
           smag_a -= p * smag;
         }

@@ -25,6 +25,7 @@
 #ifndef LOOPER_MEASUREMENT_H
 #define LOOPER_MEASUREMENT_H
 
+#include "lattice.h"
 #include "type.h"
 #include "util.h"
 
@@ -143,7 +144,7 @@ struct base_estimator
     typedef F cluster_fragment_t;
     accumulator(std::vector<estimate_t> const&,
                 std::vector<cluster_fragment_t> const&,
-                lattice_graph_t const&) {}
+                virtual_lattice<lattice_graph_t> const&) {}
     void start1(int, time_pt, int, int) const {}
     void start2(int, int, time_pt, int, int, int, int) const {}
     void term1(int, time_pt, int, int) const {}
@@ -162,8 +163,8 @@ struct base_estimator
     typedef F cluster_fragment_t;
     accumulator(std::vector<estimate_t>& es,
                 std::vector<cluster_fragment_t> const& fr,
-                lattice_graph_t const& vg)
-      : estimates(es), fragments(fr), vgraph(vg) {}
+                virtual_lattice<lattice_graph_t> const& vl)
+      : estimates(es), fragments(fr), vgraph(vl.graph()) {}
     void start1(int p, time_pt t, int s, int c)
     { estimates[fragments[p].id].start1(vgraph, BIPARTITE(), t, s, c); }
     void start2(int p0, int p1, time_pt t, int s0, int s1, int c0, int c1)
@@ -201,7 +202,8 @@ struct base_estimator
   struct normal_estimator
   {
     template<typename M, typename G, typename OP>
-    static void measure(M const&, G const&, double, int, int, double,
+    static void measure(M const&, G const&, virtual_lattice<G> const&,
+                        double, int, int, double,
                         std::vector<int> const&, std::vector<OP> const&,
                         std::vector<int> const&) {}
   };
@@ -339,16 +341,16 @@ struct composite_estimator : public base_estimator
   struct normal_estimator
   {
     template<typename M, typename G, typename OP>
-    static void measure(M& m, G const& vg,
+    static void measure(M& m, G const& rg, virtual_lattice<G> const& vl,
                         double beta, int nrs, int nop, double sign,
                         std::vector<int> const& spins,
                         std::vector<OP> const& operators,
                         std::vector<int>& spins_c)
     {
       estimator1::template normal_estimator<QMC, BIPARTITE, IMPROVE>::
-        measure(m, vg, beta, nrs, nop, sign, spins, operators, spins_c);
+        measure(m, rg, vl, beta, nrs, nop, sign, spins, operators, spins_c);
       estimator2::template normal_estimator<QMC, BIPARTITE, IMPROVE>::
-        measure(m, vg, beta, nrs, nop, sign, spins, operators, spins_c);
+        measure(m, rg, vl, beta, nrs, nop, sign, spins, operators, spins_c);
     }
   };
 };
@@ -593,7 +595,7 @@ struct susceptibility_estimator : public base_estimator
   struct normal_estimator
   {
     template<typename M, typename G, typename OP>
-    static void measure(M& m, G const& vg,
+    static void measure(M& m, G const& rg, virtual_lattice<G> const& vl,
                         double beta, int nrs, int nop, double sign,
                         std::vector<int> const& spins,
                         std::vector<OP> const& operators,
@@ -608,9 +610,9 @@ struct susceptibility_estimator : public base_estimator
       double umag = 0;
       double smag = 0;
       site_iterator si, si_end;
-      for (boost::tie(si, si_end) = sites(vg); si != si_end; ++si) {
+      for (boost::tie(si, si_end) = sites(vl); si != si_end; ++si) {
         umag += 0.5-spins[*si];
-        if (BIPARTITE()) smag += (0.5-spins[*si]) * gauge(vg, *si);
+        if (BIPARTITE()) smag += (0.5-spins[*si]) * gauge(vl, *si);
       }
       m["Magnetization"] << sign * umag;
       m["Magnetization Density"] << sign * umag / nrs;
@@ -636,15 +638,15 @@ struct susceptibility_estimator : public base_estimator
             unsigned int s = oi->pos();
             spins_c[s] ^= 1;
             umag += 1-2*spins_c[s];
-            if (BIPARTITE()) smag += gauge(vg, s) * (1-2*spins_c[s]);
+            if (BIPARTITE()) smag += gauge(vl, s) * (1-2*spins_c[s]);
           } else {
-            unsigned int s0 = source(bond(oi->pos(), vg), vg);
-            unsigned int s1 = target(bond(oi->pos(), vg), vg);
+            unsigned int s0 = vsource(oi->pos(), vl);
+            unsigned int s1 = vtarget(oi->pos(), vl);
             spins_c[s0] ^= 1;
             spins_c[s1] ^= 1;
             umag += 1-2*spins_c[s0] + 1-2*spins_c[s1];
-            if (BIPARTITE()) smag += gauge(vg, s0) * (1-2*spins_c[s0])
-                               + gauge(vg, s1) * (1-2*spins_c[s1]);
+            if (BIPARTITE()) smag += gauge(vl, s0) * (1-2*spins_c[s0])
+                               + gauge(vl, s1) * (1-2*spins_c[s1]);
           }
           umag_a -= t * umag;
           if (BIPARTITE()) smag_a -= t * smag;

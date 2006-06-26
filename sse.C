@@ -324,7 +324,7 @@ void loop_worker::flip()
     weight(clusters, fragments, field, bond_sign, site_sign);
   typename looper::measurement::accumulator<estimator_t, lattice_graph_t,
     time_t, cluster_fragment_t, BIPARTITE, IMPROVE>::type
-    accum(estimates, fragments, vlattice.graph());
+    accum(estimates, fragments, vlattice);
   double t = 0;
   for (std::vector<local_operator_t>::iterator oi = operators.begin();
        oi != operators.end(); ++oi, t += 1) {
@@ -413,8 +413,8 @@ void loop_worker::measure()
 
   // other quantities
   looper::measurement::normal_estimator<estimator_t, qmc_type, BIPARTITE,
-    IMPROVE>::type::measure(obs, vlattice.graph(), beta, nrs, nop, sign, spins,
-                            operators, spins_c);
+    IMPROVE>::type::measure(obs, graph(), vlattice, beta, nrs, nop, sign,
+                            spins, operators, spins_c);
 }
 
 
