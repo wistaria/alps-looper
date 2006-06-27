@@ -23,7 +23,7 @@
 *****************************************************************************/
 
 #include "looper/cluster.h"
-#include "looper/evalute.h"
+#include "looper/evaluator.h"
 #include "looper/find_bridge.h"
 #include "looper/graph.h"
 #include "looper/histogram.h"
