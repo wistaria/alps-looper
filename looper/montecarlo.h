@@ -25,6 +25,8 @@
 #ifndef LOOPER_MONTECARLO_H
 #define LOOPER_MONTECARLO_H
 
+#include "integer_range.h"
+
 #include <alps/osiris.h>
 #include <alps/scheduler.h>
 #include <boost/throw_exception.hpp>

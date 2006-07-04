@@ -26,6 +26,8 @@
 #ifndef LOOPER_HISTOGRAM_H
 #define LOOPER_HISTOGRAM_H
 
+#include "integer_range.h"
+
 #include <alps/osiris.h>
 #include <cmath>
 #include <map>

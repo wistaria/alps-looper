@@ -48,7 +48,6 @@ dist_noinst_HEADERS = \
 	looper/time.h \
 	looper/type.h \
 	looper/union_find.h \
-	looper/util.h \
 	looper/version.h \
 	looper/weight.h
 

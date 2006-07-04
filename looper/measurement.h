@@ -25,7 +25,9 @@
 #ifndef LOOPER_MEASUREMENT_H
 #define LOOPER_MEASUREMENT_H
 
+#include "divide_if_positive.h"
 #include "lattice.h"
+#include "power.h"
 #include "type.h"
 
 #include <alps/lattice/graph_traits.h>

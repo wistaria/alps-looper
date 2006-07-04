@@ -25,7 +25,7 @@
 #include "loop_config.h"
 #include "loop_factory.h"
 #include <looper/lapack.h>
-#include <looper/util.h>
+#include <looper/power.h>
 #include <alps/math.hpp>
 #include <alps/scheduler.h>
 #include <boost/numeric/ublas/matrix.hpp>
