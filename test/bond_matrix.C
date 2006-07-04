@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2005 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -22,10 +22,10 @@
 *
 *****************************************************************************/
 
+#include <looper/flatten_matrix.h>
 #include <looper/model.h>
-#include <looper/util.h>
-#include <iostream>
 #include <boost/numeric/ublas/io.hpp>
+#include <iostream>
 
 std::ostream& operator<<(std::ostream& os, const looper::bond_parameter& p)
 {

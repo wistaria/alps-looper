@@ -27,7 +27,7 @@
 
 #include "lapack.h"
 #include "lattice.h"
-#include "util.h"
+#include "power.h"
 
 #include <alps/math.hpp>
 #include <alps/model.h>

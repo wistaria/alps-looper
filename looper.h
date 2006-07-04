@@ -22,11 +22,16 @@
 *
 *****************************************************************************/
 
+#include "looper/alternating_tensor.h"
 #include "looper/cluster.h"
+#include "looper/crop.h"
+#include "looper/divide_if_positive.h"
 #include "looper/evaluator.h"
 #include "looper/find_bridge.h"
+#include "looper/generate_seed.h"
 #include "looper/graph.h"
 #include "looper/histogram.h"
+#include "looper/integer_range.h"
 #include "looper/lapack.h"
 #include "looper/lattice.h"
 #include "looper/location.h"
@@ -39,6 +44,5 @@
 #include "looper/time.h"
 #include "looper/type.h"
 #include "looper/union_find.h"
-#include "looper/util.h"
 #include "looper/version.h"
 #include "looper/weight.h"

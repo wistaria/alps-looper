@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2005-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -22,34 +22,23 @@
 *
 *****************************************************************************/
 
-#include <looper/integer_range.h>
-#include <cstdlib>
-#include <iostream>
-#include <string>
+#ifndef LOOPER_GENERATE_SEED_H
+#define LOOPER_GENERATE_SEED_H
 
-int main()
+#include <boost/date_time/posix_time/posix_time.hpp>
+
+namespace looper {
+
+inline unsigned int generate_seed(int seed = -1)
 {
-  std::string str;
-  while (std::getline(std::cin, str)) {
-    if (str[0] == 'q') break;
-    std::cout << "parse " << str << ": ";
-    try {
-      looper::integer_range<int> r(str);
-      std::cout << "result " << r << std::endl;
-    }
-    catch (std::exception& exp) {
-      std::cout << exp.what() << std::endl;
-    }
+  if (seed <= 0) {
+    seed = boost::posix_time::microsec_clock::local_time().time_of_day().
+      total_microseconds() << 24;
+    seed &= ((1<<30)|((1<<30)-1));
   }
-  while (std::getline(std::cin, str)) {
-    if (str[0] == 'q') break;
-    std::cout << "parse " << str << ": ";
-    try {
-      looper::integer_range<unsigned int> r(str);
-      std::cout << "result " << r << std::endl;
-    }
-    catch (std::exception& exp) {
-      std::cout << exp.what() << std::endl;
-    }
-  }
+  return seed;
 }
+
+} // end namespace looper
+
+#endif // LOOPER_GENERATE_SEED_H

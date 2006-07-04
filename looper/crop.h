@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2005-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -22,34 +22,38 @@
 *
 *****************************************************************************/
 
-#include <looper/integer_range.h>
-#include <cstdlib>
-#include <iostream>
-#include <string>
+#ifndef LOOPER_CROP_H
+#define LOOPER_CROP_H
 
-int main()
-{
-  std::string str;
-  while (std::getline(std::cin, str)) {
-    if (str[0] == 'q') break;
-    std::cout << "parse " << str << ": ";
-    try {
-      looper::integer_range<int> r(str);
-      std::cout << "result " << r << std::endl;
-    }
-    catch (std::exception& exp) {
-      std::cout << exp.what() << std::endl;
-    }
-  }
-  while (std::getline(std::cin, str)) {
-    if (str[0] == 'q') break;
-    std::cout << "parse " << str << ": ";
-    try {
-      looper::integer_range<unsigned int> r(str);
-      std::cout << "result " << r << std::endl;
-    }
-    catch (std::exception& exp) {
-      std::cout << exp.what() << std::endl;
-    }
-  }
-}
+#include <boost/type_traits/is_arithmetic.hpp>
+#include <boost/utility/enable_if.hpp>
+
+namespace looper {
+
+using boost::enable_if;
+using boost::disable_if;
+using boost::is_arithmetic;
+
+//
+// function crop_0, crop_01
+//
+
+template<typename T>
+T crop_0(T x, typename enable_if<is_arithmetic<T> >::type* = 0)
+{ return (x > T(0)) ? x : T(0); }
+
+template<typename T>
+T crop_0(T const& x, typename disable_if<is_arithmetic<T> >::type* = 0)
+{ return (x > T(0)) ? x : T(0); }
+
+template<typename T>
+T crop_01(T x, typename enable_if<is_arithmetic<T> >::type* = 0)
+{ return (x < T(1)) ? crop_0(x) : T(1); }
+
+template<typename T>
+T crop_01(T const& x, typename disable_if<is_arithmetic<T> >::type* = 0)
+{ return (x < T(1)) ? crop_0(x) : T(1); }
+
+} // end namespace looper
+
+#endif // LOOPER_CROP_H

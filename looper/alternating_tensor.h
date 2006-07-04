@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2005-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -22,34 +22,57 @@
 *
 *****************************************************************************/
 
-#include <looper/integer_range.h>
-#include <cstdlib>
-#include <iostream>
-#include <string>
+#ifndef LOOPER_ALTERNATING_TENSOR_H
+#define LOOPER_ALTERNATING_TENSOR_H
 
-int main()
+#include <boost/tuple/tuple.hpp>
+
+namespace looper {
+
+//
+// function alternating_tensor
+//
+
+inline int alternating_tensor(int i, int j, int k)
 {
-  std::string str;
-  while (std::getline(std::cin, str)) {
-    if (str[0] == 'q') break;
-    std::cout << "parse " << str << ": ";
-    try {
-      looper::integer_range<int> r(str);
-      std::cout << "result " << r << std::endl;
+  switch (i) {
+  case 0 :
+    switch (j) {
+    case 1:
+      return (k == 2) ? 1 : 0;
+    case 2:
+      return (k == 1) ? -1 : 0;
+    default:
+      return 0;
     }
-    catch (std::exception& exp) {
-      std::cout << exp.what() << std::endl;
+  case 1 :
+    switch (j) {
+    case 2:
+      return (k == 0) ? 1 : 0;
+    case 0:
+      return (k == 2) ? -1 : 0;
+    default:
+      return 0;
     }
+  case 2 :
+    switch (j) {
+    case 0:
+      return (k == 1) ? 1 : 0;
+    case 1:
+      return (k == 0) ? -1 : 0;
+    default:
+      return 0;
+    }
+  default :
+    break;
   }
-  while (std::getline(std::cin, str)) {
-    if (str[0] == 'q') break;
-    std::cout << "parse " << str << ": ";
-    try {
-      looper::integer_range<unsigned int> r(str);
-      std::cout << "result " << r << std::endl;
-    }
-    catch (std::exception& exp) {
-      std::cout << exp.what() << std::endl;
-    }
-  }
+  return 0;
 }
+
+inline
+int alternating_tensor(boost::tuple<int, int, int> const& x)
+{ return alternating_tensor(x.get<0>(), x.get<1>(), x.get<2>()); }
+
+} // end namespace looper
+
+#endif // LOOPER_ALTERNATING_TENSOR_H

@@ -27,7 +27,6 @@
 
 #include "lattice.h"
 #include "type.h"
-#include "util.h"
 
 #include <alps/lattice/graph_traits.h>
 #include <alps/alea.h>

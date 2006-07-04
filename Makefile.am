@@ -23,12 +23,18 @@ DIST_SUBDIRS = $(SUBDIRS)
 
 dist_noinst_HEADERS = \
 	looper.h \
+	looper/alternating_tensor.h \
 	looper/cluster.h \
+	looper/crop.h \
+	looper/divide_if_positive.h \
 	looper/evaluator.h \
 	looper/evaluator_impl.h \
 	looper/find_bridge.h \
+	looper/flatten_matrix.h \
+	looper/generate_seed.h \
 	looper/graph.h \
 	looper/histogram.h \
+	looper/integer_range.h \
 	looper/lapack.h \
 	looper/lattice.h \
 	looper/location.h \
@@ -37,6 +43,7 @@ dist_noinst_HEADERS = \
 	looper/montecarlo.h \
 	looper/operator.h \
 	looper/permutation.h \
+	looper/power.h \
 	looper/random_choice.h \
 	looper/time.h \
 	looper/type.h \
