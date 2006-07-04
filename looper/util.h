@@ -280,7 +280,7 @@ namespace looper {
 #endif
 
 template<class T>
-std::ostream& operator<<(std::ostream& os, integer_range<T> const& ir)
+std::ostream& operator<<(std::ostream& os, looper::integer_range<T> const& ir)
 { os << '[' << ir.min() << ':' << ir.max() << ']'; return os; }
 
 template<class T>
