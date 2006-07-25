@@ -70,9 +70,9 @@ public:
 
 protected:
   void build();
-  template<typename BIPARTITE, typename FIELD, typename IMPROVE>
+  template<typename FIELD, typename IMPROVE>
   void flip();
-  template<typename BIPARTITE, typename IMPROVE>
+  template<typename IMPROVE>
   void measure();
 
 private:
@@ -181,21 +181,15 @@ void loop_worker::dostep()
 
   build();
 
-  //   BIPARTITE    FIELD        IMPROVE
-  flip<mpl::true_,  mpl::true_,  mpl::true_ >();
-  flip<mpl::true_,  mpl::true_,  mpl::false_>();
-  flip<mpl::true_,  mpl::false_, mpl::true_ >();
-  flip<mpl::true_,  mpl::false_, mpl::false_>();
-  flip<mpl::false_, mpl::true_,  mpl::true_ >();
-  flip<mpl::false_, mpl::true_,  mpl::false_>();
-  flip<mpl::false_, mpl::false_, mpl::true_ >();
-  flip<mpl::false_, mpl::false_, mpl::false_>();
+  //   FIELD        IMPROVE
+  flip<mpl::true_,  mpl::true_ >();
+  flip<mpl::true_,  mpl::false_>();
+  flip<mpl::false_, mpl::true_ >();
+  flip<mpl::false_, mpl::false_>();
 
-  //      BIPARTITE    IMPROVE
-  measure<mpl::true_,  mpl::true_ >();
-  measure<mpl::true_,  mpl::false_>();
-  measure<mpl::false_, mpl::true_ >();
-  measure<mpl::false_, mpl::false_>();
+  //      IMPROVE
+  measure<mpl::true_ >();
+  measure<mpl::false_>();
 }
 
 
@@ -238,11 +232,10 @@ void loop_worker::build()
 // cluster flip
 //
 
-template<typename BIPARTITE, typename FIELD, typename IMPROVE>
+template<typename FIELD, typename IMPROVE>
 void loop_worker::flip()
 {
-  if (!(is_bipartite() == BIPARTITE() &&
-        false == FIELD() &&
+  if (!(false == FIELD() &&
         use_improved_estimator == IMPROVE())) return;
 
   int nvs = num_sites(vlattice);
@@ -259,7 +252,7 @@ void loop_worker::flip()
   cluster_info_t::accumulator<cluster_fragment_t, FIELD,
     boost::mpl::false_, IMPROVE> weight(clusters, fragments, field, 0, 0);
   typename looper::measurement::accumulator<estimator_t, lattice_graph_t,
-    time_t, cluster_fragment_t, BIPARTITE, IMPROVE>::type
+    time_t, cluster_fragment_t, IMPROVE>::type
     accum(estimates, fragments, vlattice);
   for (unsigned int s = 0; s < nvs; ++s) {
     weight.start(s, time_t(0), s, spins[s]);
@@ -280,10 +273,10 @@ void loop_worker::flip()
 
   // improved measurement
   if (IMPROVE()) {
-    typename looper::measurement::collector<estimator_t, mc_type, BIPARTITE,
+    typename looper::measurement::collector<estimator_t, mc_type,
       IMPROVE>::type coll;
     coll = std::accumulate(estimates.begin(), estimates.end(), coll);
-    coll.commit(measurements, beta, num_sites(), 0, 1);
+    coll.commit(measurements, is_bipartite(), beta, num_sites(), 0, 1);
   }
   measurements["Number of Clusters"] << (double)clusters.size();
 }
@@ -293,11 +286,10 @@ void loop_worker::flip()
 // measurements
 //
 
-template<typename BIPARTITE, typename IMPROVE>
+template<typename IMPROVE>
 void loop_worker::measure()
 {
-  if (!(is_bipartite() == BIPARTITE() &&
-        use_improved_estimator == IMPROVE())) return;
+  if (use_improved_estimator != IMPROVE()) return;
 
   int nrs = num_sites();
   measurements["Temperature"] << 1/beta;
@@ -320,8 +312,9 @@ void loop_worker::measure()
   }
   looper::energy_estimator::measure(measurements, beta, nrs, 0, 1, ene);
 
-  looper::measurement::normal_estimator<estimator_t, mc_type, BIPARTITE,
-    IMPROVE>::type::measure(measurements, graph(), vlattice, beta, nrs, 0, 1,
+  looper::measurement::normal_estimator<estimator_t, mc_type,
+    IMPROVE>::type::measure(measurements, is_bipartite(),
+                            graph(), vlattice, beta, nrs, 0, 1,
                             spins, operator_string_t(), spins);
 }
 

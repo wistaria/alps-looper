@@ -206,9 +206,12 @@ public:
   }
 
   void add_vertices(const graph_type& rg, const vertex_descriptor& rv,
-                    const vertex_iterator& first, const vertex_iterator& last)
+                    const vertex_iterator& first,
+                    const vertex_iterator& last)
   {
-    assert(get(vertex_index_t(), rg, rv) == vertex_map_.size() - 1);
+    if (get(vertex_index_t(), rg, rv) != vertex_map_.size() - 1)
+      boost::throw_exception(std::invalid_argument(
+        "virtual_mapping<G>::add_vertices()"));
     if (vertex_map_.size() == 1) {
       vertex_map_.back() = first;
     } else {
@@ -221,7 +224,9 @@ public:
   void add_edges(const graph_type& rg, const edge_descriptor& re,
                  const edge_iterator& first, const edge_iterator& last)
   {
-    assert(get(edge_index_t(), rg, re) == edge_map_.size() - 1);
+    if (get(edge_index_t(), rg, re) != edge_map_.size() - 1)
+      boost::throw_exception(std::invalid_argument(
+        "virtual_mapping<G>::add_edges()"));
     if (edge_map_.size() == 1) {
       edge_map_.back() = first;
     } else {
@@ -233,7 +238,9 @@ public:
   void add_v2edges(const graph_type& rg, const vertex_descriptor& rv,
                    const edge_iterator& first, const edge_iterator& last)
   {
-    assert(get(vertex_index_t(), rg, rv) == v2e_map_.size() - 1);
+    if (get(vertex_index_t(), rg, rv) != v2e_map_.size() - 1)
+      boost::throw_exception(std::invalid_argument(
+        "virtual_mapping<G>::add_v2edges()"));
     if (v2e_map_.size() == 1) {
       v2e_map_.back() = first;
     } else {

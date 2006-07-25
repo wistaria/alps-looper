@@ -80,43 +80,43 @@ struct gap_estimator : public looper::base_estimator
   {
     std::complex<double> p;
     estimate() : p(0, 0) {}
-    template<typename G, typename BIPARTITE>
-    void start1(G const&, BIPARTITE, double t, int, int)
+    template<typename G>
+    void start1(G const&, double t, int, int)
     { p -= looper::ctime(t); }
-    template<typename G, typename BIPARTITE>
-    void start1(G const&, BIPARTITE,
+    template<typename G>
+    void start1(G const&,
       looper::imaginary_time<boost::mpl::true_> const& t, int, int)
     { p -= t.ctime_; }
-    template<typename G, typename BIPARTITE>
-    void start2(G const& g, BIPARTITE, double t, int s, int c)
-    { start1(g, BIPARTITE(), t, s, c); }
-    template<typename G, typename BIPARTITE>
-    void start2(G const& g, BIPARTITE,
+    template<typename G>
+    void start2(G const& g, double t, int s, int c)
+    { start1(g, t, s, c); }
+    template<typename G>
+    void start2(G const& g,
       looper::imaginary_time<boost::mpl::true_> const& t, int s , int c)
-    { start1(g, BIPARTITE(), t, s, c); }
-    template<typename G, typename BIPARTITE>
-    void term1(G const&, BIPARTITE, double t, int, int)
+    { start1(g, t, s, c); }
+    template<typename G>
+    void term1(G const&, double t, int, int)
     { p += looper::ctime(t); }
-    template<typename G, typename BIPARTITE>
-    void term1(G const&, BIPARTITE,
+    template<typename G>
+    void term1(G const&,
       looper::imaginary_time<boost::mpl::true_> const& t, int, int)
     { p += t.ctime_; }
-    template<typename G, typename BIPARTITE>
-    void term2(G const& g, BIPARTITE, double t, int s, int c)
-    { term1(g, BIPARTITE(), t, s, c); }
-    template<typename G, typename BIPARTITE>
-    void term2(G const& g, BIPARTITE,
+    template<typename G>
+    void term2(G const& g, double t, int s, int c)
+    { term1(g, t, s, c); }
+    template<typename G>
+    void term2(G const& g,
       looper::imaginary_time<boost::mpl::true_> const& t, int s, int c)
-    { term1(g, BIPARTITE(), t, s, c); }
-    template<typename G, typename BIPARTITE>
-    void at_bot(G const& g, BIPARTITE, double t, int s, int c)
-    { start1(g, BIPARTITE(), t, s, c); }
-    template<typename G, typename BIPARTITE>
-    void at_top(G const& g, BIPARTITE, double t, int s, int c)
-    { term1(g, BIPARTITE(), t, s, c); }
+    { term1(g, t, s, c); }
+    template<typename G>
+    void at_bot(G const& g, double t, int s, int c)
+    { start1(g, t, s, c); }
+    template<typename G>
+    void at_top(G const& g, double t, int s, int c)
+    { term1(g, t, s, c); }
   };
 
-  template<typename QMC, typename BIPARTITE, typename IMPROVE>
+  template<typename QMC, typename IMPROVE>
   struct collector
   {
     double p;
@@ -128,19 +128,21 @@ struct gap_estimator : public looper::base_estimator
       return *this;
     }
     template<typename M>
-    void commit(M& m, double beta, int nrs, int /* nop */, double sign) const
+    void commit(M& m, bool is_bipartite, double beta, int nrs,
+                int, double sign) const
     {
-      if (BIPARTITE())
+      if (is_bipartite)
         m["Generalized Susceptibility [w=2pi/beta]"] <<
           sign * beta * p / looper::power2(4*M_PI) / nrs;
     }
   };
 
-  template<typename QMC, typename BIPARTITE, typename IMPROVE>
+  template<typename QMC, typename IMPROVE>
   struct normal_estimator
   {
     template<typename M, typename G, typename OP>
-    static void measure(M& m, G const& /* rg */,
+    static void measure(M& m, bool is_bipartite,
+                        G const&,
                         looper::virtual_lattice<G> const& vl,
                         double beta, int nrs, int, double sign,
                         std::vector<int> const& spins,
@@ -148,7 +150,7 @@ struct gap_estimator : public looper::base_estimator
                         std::vector<int>& spins_c)
     {
       if (!typename looper::is_path_integral<QMC>::type()) return;
-      if (!BIPARTITE()) return;
+      if (!is_bipartite) return;
 
       using looper::power2;
       typedef G graph_type;

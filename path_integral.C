@@ -70,9 +70,9 @@ public:
 
 protected:
   void build();
-  template<typename BIPARTITE, typename FIELD, typename SIGN, typename IMPROVE>
+  template<typename FIELD, typename SIGN, typename IMPROVE>
   void flip();
-  template<typename BIPARTITE, typename IMPROVE>
+  template<typename IMPROVE>
   void measure();
 
 private:
@@ -195,29 +195,19 @@ void loop_worker::dostep()
 
   build();
 
-  //   BIPARTITE    FIELD        SIGN         IMPROVE
-  flip<mpl::true_,  mpl::true_,  mpl::true_,  mpl::true_ >();
-  flip<mpl::true_,  mpl::true_,  mpl::true_,  mpl::false_>();
-  flip<mpl::true_,  mpl::true_,  mpl::false_, mpl::true_ >();
-  flip<mpl::true_,  mpl::true_,  mpl::false_, mpl::false_>();
-  flip<mpl::true_,  mpl::false_, mpl::true_,  mpl::true_ >();
-  flip<mpl::true_,  mpl::false_, mpl::true_,  mpl::false_>();
-  flip<mpl::true_,  mpl::false_, mpl::false_, mpl::true_ >();
-  flip<mpl::true_,  mpl::false_, mpl::false_, mpl::false_>();
-  flip<mpl::false_, mpl::true_,  mpl::true_,  mpl::true_ >();
-  flip<mpl::false_, mpl::true_,  mpl::true_,  mpl::false_>();
-  flip<mpl::false_, mpl::true_,  mpl::false_, mpl::true_ >();
-  flip<mpl::false_, mpl::true_,  mpl::false_, mpl::false_>();
-  flip<mpl::false_, mpl::false_, mpl::true_,  mpl::true_ >();
-  flip<mpl::false_, mpl::false_, mpl::true_,  mpl::false_>();
-  flip<mpl::false_, mpl::false_, mpl::false_, mpl::true_ >();
-  flip<mpl::false_, mpl::false_, mpl::false_, mpl::false_>();
+  //   FIELD        SIGN         IMPROVE
+  flip<mpl::true_,  mpl::true_,  mpl::true_ >();
+  flip<mpl::true_,  mpl::true_,  mpl::false_>();
+  flip<mpl::true_,  mpl::false_, mpl::true_ >();
+  flip<mpl::true_,  mpl::false_, mpl::false_>();
+  flip<mpl::false_, mpl::true_,  mpl::true_ >();
+  flip<mpl::false_, mpl::true_,  mpl::false_>();
+  flip<mpl::false_, mpl::false_, mpl::true_ >();
+  flip<mpl::false_, mpl::false_, mpl::false_>();
 
-  //      BIPARTITE    IMPROVE
-  measure<mpl::true_,  mpl::true_ >();
-  measure<mpl::true_,  mpl::false_>();
-  measure<mpl::false_, mpl::true_ >();
-  measure<mpl::false_, mpl::false_>();
+  //      IMPROVE
+  measure<mpl::true_ >();
+  measure<mpl::false_>();
 }
 
 
@@ -306,11 +296,10 @@ void loop_worker::build()
 // cluster flip
 //
 
-template<typename BIPARTITE, typename FIELD, typename SIGN, typename IMPROVE>
+template<typename FIELD, typename SIGN, typename IMPROVE>
 void loop_worker::flip()
 {
-  if (!(is_bipartite() == BIPARTITE() &&
-        has_field == FIELD() &&
+  if (!(has_field == FIELD() &&
         is_signed == SIGN() &&
         use_improved_estimator == IMPROVE())) return;
 
@@ -330,7 +319,7 @@ void loop_worker::flip()
   cluster_info_t::accumulator<cluster_fragment_t, FIELD, SIGN, IMPROVE>
     weight(clusters, fragments, field, bond_sign, site_sign);
   typename looper::measurement::accumulator<estimator_t, lattice_graph_t,
-    time_t, cluster_fragment_t, BIPARTITE, IMPROVE>::type
+    time_t, cluster_fragment_t, IMPROVE>::type
     accum(estimates, fragments, vlattice);
   for (std::vector<local_operator_t>::iterator oi = operators.begin();
        oi != operators.end(); ++oi) {
@@ -385,10 +374,10 @@ void loop_worker::flip()
 
   // improved measurement
   if (IMPROVE()) {
-    typename looper::measurement::collector<estimator_t, qmc_type, BIPARTITE,
+    typename looper::measurement::collector<estimator_t, qmc_type,
       IMPROVE>::type coll;
     coll = std::accumulate(estimates.begin(), estimates.end(), coll);
-    coll.commit(obs, beta, num_sites(), nop, improved_sign);
+    coll.commit(obs, is_bipartite(), beta, num_sites(), nop, improved_sign);
     if (SIGN()) obs["Sign"] << improved_sign;
   }
   obs["Number of Clusters"] << (double)clusters.size();
@@ -399,11 +388,10 @@ void loop_worker::flip()
 // measurement
 //
 
-template<typename BIPARTITE, typename IMPROVE>
+template<typename IMPROVE>
 void loop_worker::measure()
 {
-  if (!(is_bipartite() == BIPARTITE() &&
-        use_improved_estimator == IMPROVE())) return;
+  if (use_improved_estimator != IMPROVE()) return;
 
   int nrs = num_sites();
   obs["Temperature"] << 1/beta;
@@ -433,8 +421,9 @@ void loop_worker::measure()
   looper::energy_estimator::measure(obs, beta, nrs, nop, sign, ene);
 
   // other quantities
-  looper::measurement::normal_estimator<estimator_t, qmc_type, BIPARTITE,
-    IMPROVE>::type::measure(obs, graph(), vlattice, beta, nrs, nop, sign,
+  looper::measurement::normal_estimator<estimator_t, qmc_type,
+    IMPROVE>::type::measure(obs, is_bipartite(),
+                            graph(), vlattice, beta, nrs, nop, sign,
                             spins, operators, spins_c);
 }
 

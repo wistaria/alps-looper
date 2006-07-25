@@ -191,7 +191,7 @@ Susceptibility: 0.49643 +/- 0.0138; tau = 0.797 WARNING: ERRORS NOT CONVERGED!!!
     bin #2   : 512      entries: error = 0.0104155
     bin #3   : 256      entries: error = 0.0120517
     bin #4   : 128      entries: error = 0.0137968
-Temperature: 0.2 +/- 7.17983e-10
+Temperature: 0.2 +/- 7.17983e-10 Warning: potential error underflow. Errors might be smaller
 Transverse Magnetization: 0.492676 +/- 0.00204; tau = 0.0873
     bin #1   : 1024     entries: error = 0.00187904
     bin #2   : 512      entries: error = 0.00186593
@@ -531,7 +531,7 @@ Susceptibility: 0.0876983 +/- 0.00792; tau = 0.778 WARNING: ERRORS NOT CONVERGED
     bin #2   : 512      entries: error = 0.00608979
     bin #3   : 256      entries: error = 0.00739207
     bin #4   : 128      entries: error = 0.00791621
-Temperature: 0.2 +/- 7.17983e-10
+Temperature: 0.2 +/- 7.17983e-10 Warning: potential error underflow. Errors might be smaller
 Transverse Magnetization: 1.0197 +/- 0.0198; tau = 0.454 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0.0143404
     bin #2   : 512      entries: error = 0.0159138

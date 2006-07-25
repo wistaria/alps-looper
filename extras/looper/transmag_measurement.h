@@ -33,7 +33,7 @@
 struct transverse_magnetization_estimator : public looper::base_estimator
 {
   template<typename T>
-  static void initialize(T& m, bool is_bipartite, bool is_signed,
+  static void initialize(T& m, bool, bool is_signed,
                          bool use_improved_estimator)
   {
     if (use_improved_estimator) {
@@ -49,33 +49,33 @@ struct transverse_magnetization_estimator : public looper::base_estimator
     double length;
     bool closed;
     estimate() : length(0), closed(true) {}
-    template<typename G, typename BIPARTITE>
-    void start1(G const&, BIPARTITE, double t, int, int)
+    template<typename G>
+    void start1(G const&, double t, int, int)
     {
       length -= t;
       closed = false;
     }
-    template<typename G, typename BIPARTITE>
-    void start2(G const& g, BIPARTITE, double t, int, int)
+    template<typename G>
+    void start2(G const&, double t, int, int)
     { length -= t; }
-    template<typename G, typename BIPARTITE>
-    void term1(G const&, BIPARTITE, double t, int, int)
+    template<typename G>
+    void term1(G const&, double t, int, int)
     {
       length += t;
       closed = false;
     }
-    template<typename G, typename BIPARTITE>
-    void term2(G const& g, BIPARTITE, double t, int, int)
+    template<typename G>
+    void term2(G const&, double t, int, int)
     { length += t; }
-    template<typename G, typename BIPARTITE>
-    void at_bot(G const& g, BIPARTITE, double t, int s, int c)
+    template<typename G>
+    void at_bot(G const&, double t, int, int)
     { length -= t; }
-    template<typename G, typename BIPARTITE>
-    void at_top(G const& g, BIPARTITE, double t, int s, int c)
+    template<typename G>
+    void at_top(G const&, double t, int, int)
     { length += t; }
   };
 
-  template<typename QMC, typename BIPARTITE, typename IMPROVE>
+  template<typename QMC, typename IMPROVE>
   struct collector
   {
     double length;
@@ -87,8 +87,7 @@ struct transverse_magnetization_estimator : public looper::base_estimator
       return *this;
     }
     template<typename M>
-    void commit(M& m, double beta, int nrs, int nop,
-                double sign) const
+    void commit(M& m, bool, double, int nrs, int, double sign) const
     {
       m["Transverse Magnetization"] << 0.5 * sign * length;
       m["Transverse Magnetization Density"] << 0.5 * sign * length / nrs;

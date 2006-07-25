@@ -75,28 +75,26 @@ struct estimate
 };
 
 template<typename ESTIMATOR, typename G, typename T, typename F,
-  typename BIPARTITE, typename IMPROVE>
+  typename IMPROVE>
 struct accumulator
 {
   typedef typename estimate<ESTIMATOR>::type estimate_t;
   typedef typename
-  ESTIMATOR::template accumulator<estimate_t, G, T, F, BIPARTITE, IMPROVE>
+    ESTIMATOR::template accumulator<estimate_t, G, T, F, IMPROVE>
     type;
 };
 
-template<typename ESTIMATOR, typename QMC, typename BIPARTITE,
-         typename IMPROVE>
+template<typename ESTIMATOR, typename QMC, typename IMPROVE>
 struct collector
 {
-  typedef typename ESTIMATOR::template collector<QMC, BIPARTITE, IMPROVE> type;
+  typedef typename ESTIMATOR::template collector<QMC, IMPROVE> type;
 };
 
-template<typename ESTIMATOR, typename QMC, typename BIPARTITE,
-         typename IMPROVE>
+template<typename ESTIMATOR, typename QMC, typename IMPROVE>
 struct normal_estimator
 {
   typedef typename
-    ESTIMATOR::template normal_estimator<QMC, BIPARTITE, IMPROVE>
+    ESTIMATOR::template normal_estimator<QMC, IMPROVE>
     type;
 };
 
@@ -109,8 +107,8 @@ struct normal_estimator
 
 struct base_estimator
 {
-  template<typename T>
-  static void initialize(T& /* m */,
+  template<typename M>
+  static void initialize(M& /* m */,
                          bool /* is_bipartite */,
                          bool /* is_signed */,
                          bool /* use_improved_estimator */) {}
@@ -121,21 +119,21 @@ struct base_estimator
   struct estimate
   {
     estimate() {}
-    template<typename G, typename BIPARTITE>
-    void start1(G const&, BIPARTITE, double, int, int) const {}
-    template<typename G, typename BIPARTITE>
-    void start2(G const&, BIPARTITE, double, int, int) const {}
-    template<typename G, typename BIPARTITE>
-    void term1(G const&, BIPARTITE, double, int, int) const {}
-    template<typename G, typename BIPARTITE>
-    void term2(G const&, BIPARTITE, double, int, int) const {}
-    template<typename G, typename BIPARTITE>
-    void at_bot(G const&, BIPARTITE, double, int, int) const {}
-    template<typename G, typename BIPARTITE>
-    void at_top(G const&, BIPARTITE, double, int, int) const {}
+    template<typename G>
+    void start1(G const&, double, int, int) const {}
+    template<typename G>
+    void start2(G const&, double, int, int) const {}
+    template<typename G>
+    void term1(G const&, double, int, int) const {}
+    template<typename G>
+    void term2(G const&, double, int, int) const {}
+    template<typename G>
+    void at_bot(G const&, double, int, int) const {}
+    template<typename G>
+    void at_top(G const&, double, int, int) const {}
   };
   template<typename EST, typename G, typename T, typename F,
-           typename BIPARTITE, typename IMPROVE>
+           typename IMPROVE>
   struct accumulator
   {
     typedef EST estimate_t;
@@ -153,9 +151,8 @@ struct base_estimator
     void at_bot(int, time_pt, int, int) const {}
     void at_top(int, time_pt, int, int) const {}
   };
-  template<typename EST, typename G, typename T, typename F,
-           typename BIPARTITE>
-  struct accumulator<EST, G, T, F, BIPARTITE, boost::mpl::true_>
+  template<typename EST, typename G, typename T, typename F>
+  struct accumulator<EST, G, T, F, boost::mpl::true_>
   {
     typedef EST estimate_t;
     typedef G lattice_graph_t;
@@ -167,43 +164,43 @@ struct base_estimator
                 virtual_lattice<lattice_graph_t> const& vl)
       : estimates(es), fragments(fr), vgraph(vl.graph()) {}
     void start1(int p, time_pt t, int s, int c)
-    { estimates[fragments[p].id].start1(vgraph, BIPARTITE(), t, s, c); }
+    { estimates[fragments[p].id].start1(vgraph, t, s, c); }
     void start2(int p0, int p1, time_pt t, int s0, int s1, int c0, int c1)
     {
-      estimates[fragments[p0].id].start2(vgraph, BIPARTITE(), t, s0, c0);
-      estimates[fragments[p1].id].start2(vgraph, BIPARTITE(), t, s1, c1);
+      estimates[fragments[p0].id].start2(vgraph, t, s0, c0);
+      estimates[fragments[p1].id].start2(vgraph, t, s1, c1);
     }
     void term1(int p, time_pt t, int s, int c)
-    { estimates[fragments[p].id].term1(vgraph, BIPARTITE(), t, s, c); }
+    { estimates[fragments[p].id].term1(vgraph, t, s, c); }
     void term2(int p0, int p1, time_pt t, int s0, int s1, int c0, int c1)
     {
-      estimates[fragments[p0].id].term2(vgraph, BIPARTITE(), t, s0, c0);
-      estimates[fragments[p1].id].term2(vgraph, BIPARTITE(), t, s1, c1);
+      estimates[fragments[p0].id].term2(vgraph, t, s0, c0);
+      estimates[fragments[p1].id].term2(vgraph, t, s1, c1);
     }
     void at_bot(int p, time_pt t, int s, int c)
-    { estimates[fragments[p].id].at_bot(vgraph, BIPARTITE(), t, s, c); }
+    { estimates[fragments[p].id].at_bot(vgraph, t, s, c); }
     void at_top(int p, time_pt t, int s, int c)
-    { estimates[fragments[p].id].at_top(vgraph, BIPARTITE(), t, s, c); }
+    { estimates[fragments[p].id].at_top(vgraph, t, s, c); }
     std::vector<estimate_t>& estimates;
     std::vector<cluster_fragment_t> const& fragments;
     lattice_graph_t const& vgraph;
   };
-  template<typename QMC, typename BIPARTITE, typename IMPROVE>
+  template<typename QMC, typename IMPROVE>
   struct collector
   {
     template<typename EST>
     collector operator+(EST const&) const { return *this; }
     template<typename M>
-    void commit(M&, double, int, int, double) const {}
+    void commit(M&, bool, double, int, int, double) const {}
   };
 
   // normal estimator
 
-  template<typename QMC, typename BIPARTITE, typename IMPROVE>
+  template<typename QMC, typename IMPROVE>
   struct normal_estimator
   {
     template<typename M, typename G, typename OP>
-    static void measure(M const&, G const&, virtual_lattice<G> const&,
+    static void measure(M const&, bool, G const&, virtual_lattice<G> const&,
                         double, int, int, double,
                         std::vector<int> const&, std::vector<OP> const&,
                         std::vector<int> const&) {}
@@ -238,88 +235,88 @@ struct composite_estimator : public base_estimator
   struct estimate : public estimator1::estimate, public estimator2::estimate
   {
     estimate() : estimator1::estimate(), estimator2::estimate() {}
-    template<typename G, typename BIPARTITE>
-    void start1(G const& g, BIPARTITE, double t, int s, int c)
+    template<typename G>
+    void start1(G const& g, double t, int s, int c)
     {
-      estimator1::estimate::start1(g, BIPARTITE(), t, s, c);
-      estimator2::estimate::start1(g, BIPARTITE(), t, s, c);
+      estimator1::estimate::start1(g, t, s, c);
+      estimator2::estimate::start1(g, t, s, c);
     }
-    template<typename G, typename BIPARTITE, typename T>
-    void start1(G const& g, BIPARTITE, T const& t, int s, int c)
+    template<typename G, typename T>
+    void start1(G const& g, T const& t, int s, int c)
     {
-      estimator1::estimate::start1(g, BIPARTITE(), t, s, c);
-      estimator2::estimate::start1(g, BIPARTITE(), t, s, c);
+      estimator1::estimate::start1(g, t, s, c);
+      estimator2::estimate::start1(g, t, s, c);
     }
-    template<typename G, typename BIPARTITE>
-    void start2(G const& g, BIPARTITE, double t, int s, int c)
+    template<typename G>
+    void start2(G const& g, double t, int s, int c)
     {
-      estimator1::estimate::start2(g, BIPARTITE(), t, s, c);
-      estimator2::estimate::start2(g, BIPARTITE(), t, s, c);
+      estimator1::estimate::start2(g, t, s, c);
+      estimator2::estimate::start2(g, t, s, c);
     }
-    template<typename G, typename BIPARTITE, typename T>
-    void start2(G const& g, BIPARTITE, T const& t, int s, int c)
+    template<typename G, typename T>
+    void start2(G const& g, T const& t, int s, int c)
     {
-      estimator1::estimate::start2(g, BIPARTITE(), t, s, c);
-      estimator2::estimate::start2(g, BIPARTITE(), t, s, c);
+      estimator1::estimate::start2(g, t, s, c);
+      estimator2::estimate::start2(g, t, s, c);
     }
-    template<typename G, typename BIPARTITE>
-    void term1(G const& g, BIPARTITE, double t, int s, int c)
+    template<typename G>
+    void term1(G const& g, double t, int s, int c)
     {
-      estimator1::estimate::term1(g, BIPARTITE(), t, s, c);
-      estimator2::estimate::term1(g, BIPARTITE(), t, s, c);
+      estimator1::estimate::term1(g, t, s, c);
+      estimator2::estimate::term1(g, t, s, c);
     }
-    template<typename G, typename BIPARTITE, typename T>
-    void term1(G const& g, BIPARTITE, T const& t, int s, int c)
+    template<typename G, typename T>
+    void term1(G const& g, T const& t, int s, int c)
     {
-      estimator1::estimate::term1(g, BIPARTITE(), t, s, c);
-      estimator2::estimate::term1(g, BIPARTITE(), t, s, c);
+      estimator1::estimate::term1(g, t, s, c);
+      estimator2::estimate::term1(g, t, s, c);
     }
-    template<typename G, typename BIPARTITE>
-    void term2(G const& g, BIPARTITE, double t, int s, int c)
+    template<typename G>
+    void term2(G const& g, double t, int s, int c)
     {
-      estimator1::estimate::term2(g, BIPARTITE(), t, s, c);
-      estimator2::estimate::term2(g, BIPARTITE(), t, s, c);
+      estimator1::estimate::term2(g, t, s, c);
+      estimator2::estimate::term2(g, t, s, c);
     }
-    template<typename G, typename BIPARTITE, typename T>
-    void term2(G const& g, BIPARTITE, T const& t, int s, int c)
+    template<typename G, typename T>
+    void term2(G const& g, T const& t, int s, int c)
     {
-      estimator1::estimate::term2(g, BIPARTITE(), t, s, c);
-      estimator2::estimate::term2(g, BIPARTITE(), t, s, c);
+      estimator1::estimate::term2(g, t, s, c);
+      estimator2::estimate::term2(g, t, s, c);
     }
-    template<typename G, typename BIPARTITE>
-    void at_bot(G const& g, BIPARTITE, double t, int s, int c)
+    template<typename G>
+    void at_bot(G const& g, double t, int s, int c)
     {
-      estimator1::estimate::at_bot(g, BIPARTITE(), t, s, c);
-      estimator2::estimate::at_bot(g, BIPARTITE(), t, s, c);
+      estimator1::estimate::at_bot(g, t, s, c);
+      estimator2::estimate::at_bot(g, t, s, c);
     }
-    template<typename G, typename BIPARTITE, typename T>
-    void at_bot(G const& g, BIPARTITE, T const& t, int s, int c)
+    template<typename G, typename T>
+    void at_bot(G const& g, T const& t, int s, int c)
     {
-      estimator1::estimate::at_bot(g, BIPARTITE(), t, s, c);
-      estimator2::estimate::at_bot(g, BIPARTITE(), t, s, c);
+      estimator1::estimate::at_bot(g, t, s, c);
+      estimator2::estimate::at_bot(g, t, s, c);
     }
-    template<typename G, typename BIPARTITE>
-    void at_top(G const& g, BIPARTITE, double t, int s, int c)
+    template<typename G>
+    void at_top(G const& g, double t, int s, int c)
     {
-      estimator1::estimate::at_top(g, BIPARTITE(), t, s, c);
-      estimator2::estimate::at_top(g, BIPARTITE(), t, s, c);
+      estimator1::estimate::at_top(g, t, s, c);
+      estimator2::estimate::at_top(g, t, s, c);
     }
-    template<typename G, typename BIPARTITE, typename T>
-    void at_top(G const& g, BIPARTITE, T const& t, int s, int c)
+    template<typename G, typename T>
+    void at_top(G const& g, T const& t, int s, int c)
     {
-      estimator1::estimate::at_top(g, BIPARTITE(), t, s, c);
-      estimator2::estimate::at_top(g, BIPARTITE(), t, s, c);
+      estimator1::estimate::at_top(g, t, s, c);
+      estimator2::estimate::at_top(g, t, s, c);
     }
   };
 
-  template<typename QMC, typename BIPARTITE, typename IMPROVE>
+  template<typename QMC, typename IMPROVE>
   struct collector
-    : public estimator1::template collector<QMC, BIPARTITE, IMPROVE>,
-      public estimator2::template collector<QMC, BIPARTITE, IMPROVE>
+    : public estimator1::template collector<QMC, IMPROVE>,
+      public estimator2::template collector<QMC, IMPROVE>
   {
-    typedef typename estimator1::template collector<QMC, BIPARTITE, IMPROVE>
+    typedef typename estimator1::template collector<QMC, IMPROVE>
       base1;
-    typedef typename estimator2::template collector<QMC, BIPARTITE, IMPROVE>
+    typedef typename estimator2::template collector<QMC, IMPROVE>
       base2;
     collector() : base1(), base2() {}
     template<typename EST>
@@ -330,28 +327,31 @@ struct composite_estimator : public base_estimator
       return *this;
     }
     template<typename M>
-    void commit(M& m, double beta, int nrs, int nop,
+    void commit(M& m, bool is_bipartite, double beta, int nrs, int nop,
                 double sign) const
     {
-      base1::commit(m, beta, nrs, nop, sign);
-      base2::commit(m, beta, nrs, nop, sign);
+      base1::commit(m, is_bipartite, beta, nrs, nop, sign);
+      base2::commit(m, is_bipartite, beta, nrs, nop, sign);
     }
   };
 
-  template<typename QMC, typename BIPARTITE, typename IMPROVE>
+  template<typename QMC, typename IMPROVE>
   struct normal_estimator
   {
     template<typename M, typename G, typename OP>
-    static void measure(M& m, G const& rg, virtual_lattice<G> const& vl,
+    static void measure(M& m, bool is_bipartite,
+                        G const& rg, virtual_lattice<G> const& vl,
                         double beta, int nrs, int nop, double sign,
                         std::vector<int> const& spins,
                         std::vector<OP> const& operators,
                         std::vector<int>& spins_c)
     {
-      estimator1::template normal_estimator<QMC, BIPARTITE, IMPROVE>::
-        measure(m, rg, vl, beta, nrs, nop, sign, spins, operators, spins_c);
-      estimator2::template normal_estimator<QMC, BIPARTITE, IMPROVE>::
-        measure(m, rg, vl, beta, nrs, nop, sign, spins, operators, spins_c);
+      estimator1::template normal_estimator<QMC, IMPROVE>::
+        measure(m, is_bipartite, rg, vl, beta, nrs, nop, sign, spins,
+                operators, spins_c);
+      estimator2::template normal_estimator<QMC, IMPROVE>::
+        measure(m, is_bipartite, rg, vl, beta, nrs, nop, sign, spins,
+                operators, spins_c);
     }
   };
 };
@@ -479,52 +479,46 @@ struct susceptibility_estimator : public base_estimator
     double ssize0, smag0, ssize, smag;
     estimate() : usize0(0), umag0(0), usize(0), umag(0),
                  ssize0(0), smag0(0), ssize(0), smag(0) {}
-    template<typename G, typename BIPARTITE>
-    void start1(G const& g, BIPARTITE, double t, int s, int c)
+    template<typename G>
+    void start1(G const& g, double t, int s, int c)
     {
       usize -= t * 0.5;
       umag  -= t * (0.5-c);
-      if (BIPARTITE()) {
-        double gg = gauge(g, s);
-        ssize -= gg * t * 0.5;
-        smag  -= gg * t * (0.5-c);
-      }
+      double gg = gauge(g, s);
+      ssize -= gg * t * 0.5;
+      smag  -= gg * t * (0.5-c);
     }
-    template<typename G, typename BIPARTITE>
-    void start2(G const& g, BIPARTITE, double t, int s, int c)
-    { start1(g, BIPARTITE(), t, s, c); }
-    template<typename G, typename BIPARTITE>
-    void term1(G const& g, BIPARTITE, double t, int s, int c)
+    template<typename G>
+    void start2(G const& g, double t, int s, int c)
+    { start1(g, t, s, c); }
+    template<typename G>
+    void term1(G const& g, double t, int s, int c)
     {
       usize += t * 0.5;
       umag  += t * (0.5-c);
-      if (BIPARTITE()) {
-        double gg = gauge(g, s);
-        ssize += gg * t * 0.5;
-        smag  += gg * t * (0.5-c);
-      }
+      double gg = gauge(g, s);
+      ssize += gg * t * 0.5;
+      smag  += gg * t * (0.5-c);
     }
-    template<typename G, typename BIPARTITE>
-    void term2(G const& g, BIPARTITE, double t, int s, int c)
-    { term1(g, BIPARTITE(), t, s, c); }
-    template<typename G, typename BIPARTITE>
-    void at_bot(G const& g, BIPARTITE, double t, int s, int c)
+    template<typename G>
+    void term2(G const& g, double t, int s, int c)
+    { term1(g, t, s, c); }
+    template<typename G>
+    void at_bot(G const& g, double t, int s, int c)
     {
-      start1(g, BIPARTITE(), t, s, c);
+      start1(g, t, s, c);
       usize0 += 0.5;
       umag0  += (0.5-c);
-      if (BIPARTITE()) {
-        double gg = gauge(g, s);
-        ssize0 += gg * 0.5;
-        smag0  += gg * (0.5-c);
-      }
+      double gg = gauge(g, s);
+      ssize0 += gg * 0.5;
+      smag0  += gg * (0.5-c);
     }
-    template<typename G, typename BIPARTITE>
-    void at_top(G const& g, BIPARTITE, double t, int s, int c)
-    { term1(g, BIPARTITE(), t, s, c); }
+    template<typename G>
+    void at_top(G const& g, double t, int s, int c)
+    { term1(g, t, s, c); }
   };
 
-  template<typename QMC, typename BIPARTITE, typename IMPROVE>
+  template<typename QMC, typename IMPROVE>
   struct collector
   {
     double usize2, umag2, usize4, umag4, usize, umag;
@@ -542,18 +536,16 @@ struct susceptibility_estimator : public base_estimator
       umag4  += power4(cm.umag0);
       usize  += power2(cm.usize);
       umag   += power2(cm.umag);
-      if (BIPARTITE()) {
-        ssize2 += power2(cm.ssize0);
-        smag2  += power2(cm.smag0);
-        ssize4 += power4(cm.ssize0);
-        smag4  += power4(cm.smag0);
-        ssize  += power2(cm.ssize);
-        smag   += power2(cm.smag);
-      }
+      ssize2 += power2(cm.ssize0);
+      smag2  += power2(cm.smag0);
+      ssize4 += power4(cm.ssize0);
+      smag4  += power4(cm.smag0);
+      ssize  += power2(cm.ssize);
+      smag   += power2(cm.smag);
       return *this;
     }
     template<typename M>
-    void commit(M& m, double beta, int nrs, int nop,
+    void commit(M& m, bool is_bipartite, double beta, int nrs, int nop,
                 double sign) const
     {
       m["Magnetization"] << 0.0;
@@ -571,7 +563,7 @@ struct susceptibility_estimator : public base_estimator
         << (typename is_sse<QMC>::type() ?
             sign * beta * (dip(usize, nop) + usize2) / (nop + 1) / nrs :
             sign * beta * usize / nrs);
-      if (BIPARTITE()) {
+      if (is_bipartite) {
         m["Staggered Magnetization"] << 0.0;
         m["Staggered Magnetization Density"] << 0.0;
         m["Staggered Magnetization^2"] << sign * smag2;
@@ -592,11 +584,12 @@ struct susceptibility_estimator : public base_estimator
     }
   };
 
-  template<typename QMC, typename BIPARTITE, typename IMPROVE>
+  template<typename QMC, typename IMPROVE>
   struct normal_estimator
   {
     template<typename M, typename G, typename OP>
-    static void measure(M& m, G const& /* rg */, virtual_lattice<G> const& vl,
+    static void measure(M& m, bool is_bipartite,
+                        G const& /* rg */, virtual_lattice<G> const& vl,
                         double beta, int nrs, int nop, double sign,
                         std::vector<int> const& spins,
                         std::vector<OP> const& operators,
@@ -613,13 +606,13 @@ struct susceptibility_estimator : public base_estimator
       site_iterator si, si_end;
       for (boost::tie(si, si_end) = sites(vl); si != si_end; ++si) {
         umag += 0.5-spins[*si];
-        if (BIPARTITE()) smag += (0.5-spins[*si]) * gauge(vl, *si);
+        smag += (0.5-spins[*si]) * gauge(vl, *si);
       }
       m["Magnetization"] << sign * umag;
       m["Magnetization Density"] << sign * umag / nrs;
       m["Magnetization^2"] << sign * power2(umag);
       m["Magnetization^4"] << sign * power4(umag);
-      if (BIPARTITE()) {
+      if (is_bipartite) {
         m["Staggered Magnetization"] << sign * smag;
         m["Staggered Magnetization Density"] << sign * smag / nrs;
         m["Staggered Magnetization^2"] << sign * power2(smag);
@@ -634,44 +627,42 @@ struct susceptibility_estimator : public base_estimator
         if (oi->is_offdiagonal()) {
           measurement::proceed(typename is_path_integral<QMC>::type(), t, *oi);
           umag_a += t * umag;
-          if (BIPARTITE()) smag_a += t * smag;
+          smag_a += t * smag;
           if (oi->is_site()) {
             unsigned int s = oi->pos();
             spins_c[s] ^= 1;
             umag += 1-2*spins_c[s];
-            if (BIPARTITE()) smag += gauge(vl, s) * (1-2*spins_c[s]);
+            smag += gauge(vl, s) * (1-2*spins_c[s]);
           } else {
             unsigned int s0 = vsource(oi->pos(), vl);
             unsigned int s1 = vtarget(oi->pos(), vl);
             spins_c[s0] ^= 1;
             spins_c[s1] ^= 1;
             umag += 1-2*spins_c[s0] + 1-2*spins_c[s1];
-            if (BIPARTITE()) smag += gauge(vl, s0) * (1-2*spins_c[s0])
-                               + gauge(vl, s1) * (1-2*spins_c[s1]);
+            smag += gauge(vl, s0) * (1-2*spins_c[s0])
+              + gauge(vl, s1) * (1-2*spins_c[s1]);
           }
           umag_a -= t * umag;
-          if (BIPARTITE()) smag_a -= t * smag;
+          smag_a -= t * smag;
         }
         measurement::proceed(typename is_sse<QMC>::type(), t);
       }
       if (typename is_path_integral<QMC>::type()) {
         umag_a += umag;
         m["Susceptibility"] << sign * beta * power2(umag_a) / nrs;
-        if (BIPARTITE()) {
-          smag_a += smag;
+        smag_a += smag;
+        if (is_bipartite)
           m["Staggered Susceptibility"] << sign * beta * power2(smag_a) / nrs;
-        }
       } else {
         umag_a += nop * umag;
         m["Susceptibility"]
           << sign * beta * (dip(power2(umag_a), nop) + power2(umag))
           / (nop + 1) / nrs;
-        if (BIPARTITE()) {
-          smag_a += nop * smag;
+        smag_a += nop * smag;
+        if (is_bipartite)
           m["Staggered Susceptibility"]
             << sign * beta * (dip(power2(smag_a), nop) + power2(smag))
             / (nop + 1) / nrs;
-        }
       }
     }
   };
