@@ -134,18 +134,18 @@ struct base_estimator
     template<typename G>
     void at_top(G const&, double, int, int) const {}
   };
-  template<typename EST, typename G, typename T, typename F,
+  template<typename EST, typename VL, typename T, typename F,
            typename IMPROVE>
   struct accumulator
   {
     typedef EST estimate_t;
-    typedef G lattice_graph_t;
+    typedef VL virtual_lattice_t;
     typedef T time_t;
     typedef typename boost::call_traits<time_t>::param_type time_pt;
     typedef F cluster_fragment_t;
     accumulator(int, std::vector<estimate_t> const&,
                 std::vector<cluster_fragment_t> const&,
-                virtual_lattice<lattice_graph_t> const&) {}
+                virtual_lattice_t const&) {}
     void start_s(int, time_pt, int, int) const {}
     void start_b(int, int, time_pt, int, int, int, int, int) const {}
     void term_s(int, time_pt, int, int) const {}
@@ -153,54 +153,54 @@ struct base_estimator
     void at_bot(int, time_pt, int, int) const {}
     void at_top(int, time_pt, int, int) const {}
   };
-  template<typename EST, typename G, typename T, typename F>
-  struct accumulator<EST, G, T, F, boost::mpl::true_>
+  template<typename EST, typename VL, typename T, typename F>
+  struct accumulator<EST, VL, T, F, boost::mpl::true_>
   {
     typedef EST estimate_t;
-    typedef G lattice_graph_t;
+    typedef VL virtual_lattice_t;
     typedef T time_t;
     typedef typename boost::call_traits<time_t>::param_type time_pt;
     typedef F cluster_fragment_t;
     accumulator(int nc, std::vector<estimate_t>& es,
                 std::vector<cluster_fragment_t> const& fr,
-                virtual_lattice<lattice_graph_t> const& vl)
-      : estimates(es), fragments(fr), vgraph(vl.graph())
+                virtual_lattice_t const& vl)
+      : estimates(es), fragments(fr), vlat(vl)
     {
       estimate_t e;
-      e.init(vl);
+      e.init(vlat);
       estimates.resize(0); estimates.resize(nc, e);
     }
     void start_s(int p, time_pt t, int s, int c)
-    { estimates[fragments[p].id].start_s(vgraph, t, s, c); }
+    { estimates[fragments[p].id].start_s(vlat, t, s, c); }
     void start_b(int p0, int p1, time_pt t, int b, int s0, int s1,
                  int c0, int c1)
     {
-      estimates[fragments[p0].id].start_b(vgraph, t, b, s0, c0);
-      estimates[fragments[p1].id].start_b(vgraph, t, b, s1, c1);
+      estimates[fragments[p0].id].start_b(vlat, t, b, s0, c0);
+      estimates[fragments[p1].id].start_b(vlat, t, b, s1, c1);
     }
     void term_s(int p, time_pt t, int s, int c)
-    { estimates[fragments[p].id].term_s(vgraph, t, s, c); }
+    { estimates[fragments[p].id].term_s(vlat, t, s, c); }
     void term_b(int p0, int p1, time_pt t, int b, int s0, int s1,
                 int c0, int c1)
     {
-      estimates[fragments[p0].id].term_b(vgraph, t, b, s0, c0);
-      estimates[fragments[p1].id].term_b(vgraph, t, b, s1, c1);
+      estimates[fragments[p0].id].term_b(vlat, t, b, s0, c0);
+      estimates[fragments[p1].id].term_b(vlat, t, b, s1, c1);
     }
     void at_bot(int p, time_pt t, int s, int c)
-    { estimates[fragments[p].id].at_bot(vgraph, t, s, c); }
+    { estimates[fragments[p].id].at_bot(vlat, t, s, c); }
     void at_top(int p, time_pt t, int s, int c)
-    { estimates[fragments[p].id].at_top(vgraph, t, s, c); }
+    { estimates[fragments[p].id].at_top(vlat, t, s, c); }
     std::vector<estimate_t>& estimates;
     std::vector<cluster_fragment_t> const& fragments;
-    lattice_graph_t const& vgraph;
+    virtual_lattice_t const& vlat;
   };
   template<typename QMC, typename IMPROVE>
   struct collector
   {
     template<typename EST>
     collector operator+(EST const&) const { return *this; }
-    template<typename M>
-    void commit(M&, bool, double, int, int, double) const {}
+    template<typename M, typename VL>
+    void commit(M&, bool, VL const&, double, int, double) const {}
   };
 
   // normal estimator
@@ -208,9 +208,10 @@ struct base_estimator
   template<typename QMC, typename IMPROVE>
   struct normal_estimator
   {
-    template<typename M, typename G, typename OP>
-    static void measure(M const&, bool, G const&, virtual_lattice<G> const&,
-                        double, int, int, double,
+    template<typename M, typename RG, typename VG, typename OP>
+    static void measure(M const&, bool,
+                        virtual_lattice<RG, VG> const&,
+                        double, double,
                         std::vector<int> const&, std::vector<OP> const&,
                         std::vector<int> const&) {}
   };
@@ -340,31 +341,31 @@ struct composite_estimator : public base_estimator
       base2::operator+(cm);
       return *this;
     }
-    template<typename M>
-    void commit(M& m, bool is_bipartite, double beta, int nrs, int nop,
-                double sign) const
+    template<typename M, typename VL>
+    void commit(M& m, bool is_bipartite, VL const& vl,
+                double beta, int nop, double sign) const
     {
-      base1::commit(m, is_bipartite, beta, nrs, nop, sign);
-      base2::commit(m, is_bipartite, beta, nrs, nop, sign);
+      base1::commit(m, is_bipartite, vl, beta, nop, sign);
+      base2::commit(m, is_bipartite, vl, beta, nop, sign);
     }
   };
 
   template<typename QMC, typename IMPROVE>
   struct normal_estimator
   {
-    template<typename M, typename G, typename OP>
+    template<typename M, typename RG, typename VG, typename OP>
     static void measure(M& m, bool is_bipartite,
-                        G const& rg, virtual_lattice<G> const& vl,
-                        double beta, int nrs, int nop, double sign,
+                        virtual_lattice<RG, VG> const& vl,
+                        double beta, double sign,
                         std::vector<int> const& spins,
                         std::vector<OP> const& operators,
                         std::vector<int>& spins_c)
     {
       estimator1::template normal_estimator<QMC, IMPROVE>::
-        measure(m, is_bipartite, rg, vl, beta, nrs, nop, sign, spins,
+        measure(m, is_bipartite, vl, beta, sign, spins,
                 operators, spins_c);
       estimator2::template normal_estimator<QMC, IMPROVE>::
-        measure(m, is_bipartite, rg, vl, beta, nrs, nop, sign, spins,
+        measure(m, is_bipartite, vl, beta, sign, spins,
                 operators, spins_c);
     }
   };
@@ -403,11 +404,13 @@ struct energy_estimator
 
   // normal_estimator
 
-  static void measure(alps::ObservableSet& m, double beta, int nrs, int nop,
-                      double sign, double ene)
+  template<typename RG, typename VG>
+  static void measure(alps::ObservableSet& m,
+                      virtual_lattice<RG, VG> const& vl,
+                      double beta, int nop, double sign, double ene)
   {
     m["Energy"] << sign * ene;
-    m["Energy Density"] << sign * ene / nrs;
+    m["Energy Density"] << sign * ene / num_sites(vl.rgraph());
     m["Energy^2"] << sign * (power2(ene) - nop / power2(beta));
   }
 };
@@ -568,10 +571,11 @@ struct susceptibility_estimator : public base_estimator
       smag   += power2(cm.smag);
       return *this;
     }
-    template<typename M>
-    void commit(M& m, bool is_bipartite, double beta, int nrs, int nop,
-                double sign) const
+    template<typename M, typename VL>
+    void commit(M& m, bool is_bipartite, VL const& vl,
+                double beta, int nop, double sign) const
     {
+      int nrs = num_sites(vl.rgraph());
       m["Magnetization"] << 0.0;
       m["Magnetization Density"] << 0.0;
       m["Magnetization^2"] << sign * umag2;
@@ -611,24 +615,22 @@ struct susceptibility_estimator : public base_estimator
   template<typename QMC, typename IMPROVE>
   struct normal_estimator
   {
-    template<typename M, typename G, typename OP>
+    template<typename M, typename RG, typename VG, typename OP>
     static void measure(M& m, bool is_bipartite,
-                        G const& /* rg */, virtual_lattice<G> const& vl,
-                        double beta, int nrs, int nop, double sign,
+                        virtual_lattice<RG, VG> const& vl,
+                        double beta, double sign,
                         std::vector<int> const& spins,
                         std::vector<OP> const& operators,
                         std::vector<int>& spins_c)
     {
       if (IMPROVE()) return;
 
-      typedef G graph_type;
-      typedef typename alps::graph_traits<G>::site_iterator site_iterator;
-      typedef typename std::vector<OP>::const_iterator operator_iterator;
-
+      int nrs = num_sites(vl.rgraph());
+      int nop = operators.size();
       double umag = 0;
       double smag = 0;
-      site_iterator si, si_end;
-      for (boost::tie(si, si_end) = sites(vl); si != si_end; ++si) {
+      typename virtual_lattice<RG, VG>::virtual_site_iterator si, si_end;
+      for (boost::tie(si, si_end) = vsites(vl); si != si_end; ++si) {
         umag += 0.5-spins[*si];
         smag += (0.5-spins[*si]) * gauge(vl, *si);
       }
@@ -646,8 +648,8 @@ struct susceptibility_estimator : public base_estimator
       double smag_a = 0; /* 0 * smag; */
       std::copy(spins.begin(), spins.end(), spins_c.begin());
       double t = 0;
-      for (operator_iterator oi = operators.begin(); oi != operators.end();
-           ++oi) {
+      for (typename std::vector<OP>::const_iterator oi = operators.begin();
+           oi != operators.end(); ++oi) {
         if (oi->is_offdiagonal()) {
           measurement::proceed(typename is_path_integral<QMC>::type(), t, *oi);
           umag_a += t * umag;
@@ -718,7 +720,7 @@ struct stiffness_estimator : public base_estimator
     template<typename G>
     void init(G const& vl)
     {
-      int dim = boost::get_property(vl.graph(), dimension_t());
+      int dim = boost::get_property(vl.rgraph(), dimension_t());
       if (dim > MAX_DIM) {
         std::cerr << "Spatial dimension (=" << dim << ") is too large.  "
                   << "Stiffness will be measured only for the first "
@@ -744,28 +746,26 @@ struct stiffness_estimator : public base_estimator
   template<typename QMC, typename IMPROVE>
   struct normal_estimator
   {
-    template<typename M, typename G, typename OP>
-    static void measure(M& m, bool is_bipartite,
-                        G const& rg, virtual_lattice<G> const& vl,
-                        double beta, int nrs, int nop, double sign,
+    template<typename M, typename RG, typename VG, typename OP>
+    static void measure(M& m, bool /* is_bipartite */,
+                        virtual_lattice<RG, VG> const& vl,
+                        double beta, double sign,
                         std::vector<int> const& spins,
                         std::vector<OP> const& operators,
                         std::vector<int>& spins_c)
     {
       // if (IMPROVE()) return;
 
-      typedef typename std::vector<OP>::const_iterator operator_iterator;
-
-      int dim = boost::get_property(vl.graph(), dimension_t());
+      int dim = boost::get_property(vl.rgraph(), dimension_t());
       std::valarray<double> winding(0., dim);
       std::copy(spins.begin(), spins.end(), spins_c.begin());
-      for (operator_iterator oi = operators.begin(); oi != operators.end();
-           ++oi) {
+      for (typename std::vector<OP>::const_iterator oi = operators.begin();
+           oi != operators.end(); ++oi) {
         if (oi->is_offdiagonal()) {
           if (oi->is_bond()) {
             double s = 1-2*spins_c[vsource(oi->pos(), vl)];
             alps::coordinate_type vr =
-              get(bond_vector_relative_t(), vl.graph(), oi->pos());
+              get(bond_vector_relative_t(), vl.rgraph(), rbond(vl, oi->pos()));
             for (int i = 0; i < dim; ++i) winding[i] += s * vr[i];
             spins_c[vsource(oi->pos(), vl)] ^= 1;
             spins_c[vtarget(oi->pos(), vl)] ^= 1;

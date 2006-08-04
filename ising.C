@@ -38,6 +38,7 @@ struct dummy_operator
   static bool is_offdiagonal() { return false; }
   static int pos() { return 0; }
   static bool is_site() { return false; }
+  static bool is_bond() { return false; }
 };
 
 class loop_worker
@@ -48,7 +49,8 @@ public:
   typedef alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
                                                            super_type;
 
-  typedef loop_config::lattice_graph_t                     lattice_graph_t;
+  typedef looper::virtual_lattice<loop_config::lattice_graph_t>
+                                                           virtual_lattice_t;
   typedef std::vector<dummy_operator>                      operator_string_t;
 
   typedef looper::union_find::node                         cluster_fragment_t;
@@ -83,7 +85,7 @@ private:
   std::vector<double> field;
   std::vector<double> coupling;
   boost::numeric::ublas::matrix<double> prob;
-  looper::virtual_lattice<lattice_graph_t> vlattice;
+  virtual_lattice_t vlattice;
 
   // configuration (checkpoint)
   looper::mc_steps mcs;
@@ -103,8 +105,7 @@ private:
 
 loop_worker::loop_worker(alps::ProcessList const& w,
                          alps::Parameters const& p, int n)
-  : super_type(w, p, n),
-    mcs(p)
+  : super_type(w, p, n), vlattice(graph()), mcs(p)
 {
   beta = 1.0 / alps::evaluate("T", p);
   if (beta < 0)
@@ -125,17 +126,17 @@ loop_worker::loop_worker(alps::ProcessList const& w,
   if (!use_improved_estimator)
     std::cerr << "WARNING: improved estimator is disabled\n";
 
-  vlattice.generate(graph(), mp, mp.has_d_term());
+  vlattice.reinitialize(mp, mp.has_d_term());
   perm.resize(max_virtual_vertices(vlattice));
 
-  coupling.resize(num_bonds(vlattice));
-  prob.resize(num_bonds(vlattice), 2);
+  coupling.resize(num_vbonds(vlattice));
+  prob.resize(num_vbonds(vlattice), 2);
   int b = 0;
   bond_iterator rbi, rbi_end;
   for (boost::tie(rbi, rbi_end) = bonds(); rbi != rbi_end; ++rbi) {
     double jz = -mp.bond(*rbi, graph()).jz; // positive for ferromagnetic
-    bond_iterator vbi, vbi_end;
-    for (boost::tie(vbi, vbi_end) = virtual_bonds(vlattice, graph(), *rbi);
+    virtual_lattice_t::virtual_bond_iterator vbi, vbi_end;
+    for (boost::tie(vbi, vbi_end) = virtual_bonds(vlattice, *rbi);
          vbi != vbi_end; ++vbi, ++b) {
       coupling[b] = jz;
       prob(b, 0) = 1-std::exp(-0.5*beta*jz); // for parallel
@@ -143,19 +144,19 @@ loop_worker::loop_worker(alps::ProcessList const& w,
     }
   }
   if (has_field) {
-    field.resize(num_sites(vlattice));
+    field.resize(num_vsites(vlattice));
     int i = 0;
     site_iterator rsi, rsi_end;
     for (boost::tie(rsi, rsi_end) = sites(); rsi != rsi_end; ++rsi) {
       site_iterator vsi, vsi_end;
-      for (boost::tie(vsi, vsi_end) = virtual_sites(vlattice, graph(), *rsi);
+      for (boost::tie(vsi, vsi_end) = virtual_sites(vlattice, *rsi);
            vsi != vsi_end; ++vsi, ++i)
         field[i] = mp.site(*rsi, graph()).hz;
     }
   }
 
   // configuration
-  int nvs = num_sites(vlattice);
+  int nvs = num_vsites(vlattice);
   spins.resize(nvs); std::fill(spins.begin(), spins.end(), 0 /* all up */);
 
   // measurements
@@ -200,10 +201,10 @@ void loop_worker::dostep()
 void loop_worker::build()
 {
   // initialize cluster information (setup cluster fragments)
-  int nvs = num_sites(vlattice);
+  int nvs = num_vsites(vlattice);
   fragments.resize(0); fragments.resize(nvs);
 
-  int nvb = num_bonds(vlattice);
+  int nvb = num_vbonds(vlattice);
   for (int b = 0; b < nvb; ++b) {
     int s0 = vsource(b, vlattice);
     int s1 = vtarget(b, vlattice);
@@ -215,7 +216,7 @@ void loop_worker::build()
     site_iterator rsi, rsi_end;
     for (boost::tie(rsi, rsi_end) = sites(); rsi != rsi_end; ++rsi) {
       site_iterator vsi, vsi_end;
-      boost::tie(vsi, vsi_end) = virtual_sites(vlattice, graph(), *rsi);
+      boost::tie(vsi, vsi_end) = virtual_sites(vlattice, *rsi);
       int offset = *vsi;
       int s2 = *vsi_end - *vsi;
       for (int i = 0; i < s2; ++i) perm[i] = i;
@@ -238,7 +239,7 @@ void loop_worker::flip()
   if (!(false == FIELD() &&
         use_improved_estimator == IMPROVE())) return;
 
-  int nvs = num_sites(vlattice);
+  int nvs = num_vsites(vlattice);
 
   // assign cluster id
   int nc = 0;
@@ -250,7 +251,7 @@ void loop_worker::flip()
 
   cluster_info_t::accumulator<cluster_fragment_t, FIELD,
     boost::mpl::false_, IMPROVE> weight(clusters, fragments, field, 0, 0);
-  typename looper::measurement::accumulator<estimator_t, lattice_graph_t,
+  typename looper::measurement::accumulator<estimator_t, virtual_lattice_t,
     time_t, cluster_fragment_t, IMPROVE>::type
     accum(nc, estimates, fragments, vlattice);
   for (unsigned int s = 0; s < nvs; ++s) {
@@ -275,7 +276,7 @@ void loop_worker::flip()
     typename looper::measurement::collector<estimator_t, mc_type,
       IMPROVE>::type coll;
     coll = std::accumulate(estimates.begin(), estimates.end(), coll);
-    coll.commit(measurements, is_bipartite(), beta, num_sites(), 0, 1);
+    coll.commit(measurements, is_bipartite(), vlattice, beta, 0, 1);
   }
   measurements["Number of Clusters"] << (double)clusters.size();
 }
@@ -297,7 +298,7 @@ void loop_worker::measure()
 
   // energy
   double ene = energy_offset;
-  int nvb = num_bonds(vlattice);
+  int nvb = num_vbonds(vlattice);
   for (int b = 0; b < nvb; ++b) {
     int s0 = vsource(b, vlattice);
     int s1 = vtarget(b, vlattice);
@@ -309,11 +310,10 @@ void loop_worker::measure()
       if (ci->to_flip) ene -= ci->weight;
       else ene += ci->weight;
   }
-  looper::energy_estimator::measure(measurements, beta, nrs, 0, 1, ene);
+  looper::energy_estimator::measure(measurements, vlattice, beta, 0, 1, ene);
 
   looper::measurement::normal_estimator<estimator_t, mc_type,
-    IMPROVE>::type::measure(measurements, is_bipartite(),
-                            graph(), vlattice, beta, nrs, 0, 1,
+    IMPROVE>::type::measure(measurements, is_bipartite(), vlattice, beta, 1,
                             spins, operator_string_t(), spins);
 }
 

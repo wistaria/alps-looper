@@ -25,7 +25,7 @@
 #ifndef GAP_CONFIG_H
 #define GAP_CONFIG_H
 
-#include <looper/lattice.h>
+#include <alps/lattice.h>
 #include <looper/location.h>
 #include <looper/graph.h>
 #include <looper/time.h>
@@ -35,7 +35,7 @@
 struct loop_config
 {
   // lattice structure
-  typedef looper::graph_type lattice_graph_t;
+  typedef alps::coordinate_graph_type lattice_graph_t;
 
   // imaginary time
   typedef looper::imaginary_time<boost::mpl::true_> time_t;

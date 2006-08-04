@@ -93,11 +93,13 @@ struct transverse_magnetization_estimator : public looper::base_estimator
       if (!cm.closed) length += cm.length;
       return *this;
     }
-    template<typename M>
-    void commit(M& m, bool, double, int nrs, int, double sign) const
+    template<typename M, typename RG, typename VG>
+    void commit(M& m, bool, looper::virtual_lattice<RG, VG> const& vl, double,
+                int, double sign) const
     {
       m["Transverse Magnetization"] << 0.5 * sign * length;
-      m["Transverse Magnetization Density"] << 0.5 * sign * length / nrs;
+      m["Transverse Magnetization Density"] << 0.5 * sign * length /
+        num_sites(vl.rgraph());
     }
   };
 };

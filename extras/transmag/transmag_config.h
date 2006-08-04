@@ -25,7 +25,7 @@
 #ifndef TRANSMAG_CONFIG_H
 #define TRANSMAG_CONFIG_H
 
-#include <looper/lattice.h>
+#include <alps/lattice.h>
 #include <looper/location.h>
 #include <looper/graph.h>
 
@@ -34,7 +34,7 @@
 struct loop_config
 {
   // lattice structure
-  typedef looper::graph_type lattice_graph_t;
+  typedef alps::coordinate_graph_type lattice_graph_t;
 
   // imaginary time
   typedef double time_t;

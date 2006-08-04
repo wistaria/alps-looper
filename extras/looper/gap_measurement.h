@@ -136,24 +136,23 @@ struct gap_estimator : public looper::base_estimator
       p += looper::power2(cm.p);
       return *this;
     }
-    template<typename M>
-    void commit(M& m, bool is_bipartite, double beta, int nrs,
+    template<typename M, typename VL>
+    void commit(M& m, bool is_bipartite, VL const& vl, double beta,
                 int, double sign) const
     {
       if (is_bipartite)
         m["Generalized Susceptibility [w=2pi/beta]"] <<
-          sign * beta * p / looper::power2(4*M_PI) / nrs;
+          sign * beta * p / looper::power2(4*M_PI) / num_sites(vl.rgraph());
     }
   };
 
   template<typename QMC, typename IMPROVE>
   struct normal_estimator
   {
-    template<typename M, typename G, typename OP>
+    template<typename M, typename RG, typename VG, typename OP>
     static void measure(M& m, bool is_bipartite,
-                        G const&,
-                        looper::virtual_lattice<G> const& vl,
-                        double beta, int nrs, int, double sign,
+                        looper::virtual_lattice<RG, VG> const& vl,
+                        double beta, double sign,
                         std::vector<int> const& spins,
                         std::vector<OP> const& operators,
                         std::vector<int>& spins_c)
@@ -161,19 +160,18 @@ struct gap_estimator : public looper::base_estimator
       if (!typename looper::is_path_integral<QMC>::type()) return;
       if (!is_bipartite) return;
 
+      int nrs = num_sites(vl.rgraph());
       using looper::power2;
-      typedef G graph_type;
-      typedef typename alps::graph_traits<G>::site_iterator site_iterator;
-      typedef typename std::vector<OP>::const_iterator operator_iterator;
 
       double smag = 0;
-      site_iterator si, si_end;
+      typename looper::virtual_lattice<RG, VG>::virtual_site_iterator
+        si, si_end;
       for (boost::tie(si, si_end) = sites(vl); si != si_end; ++si)
         smag += (0.5-spins[*si]) * looper::gauge(vl, *si);
       std::complex<double> smag_a(0, 0);
       std::copy(spins.begin(), spins.end(), spins_c.begin());
-      for (operator_iterator oi = operators.begin(); oi != operators.end();
-           ++oi) {
+      for (typename std::vector<OP>::const_iterator oi = operators.begin();
+           oi != operators.end(); ++oi) {
         if (oi->is_offdiagonal()) {
           std::complex<double> p = looper::ctime(oi->time());
           smag_a += p * smag;

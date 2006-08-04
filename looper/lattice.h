@@ -325,6 +325,10 @@ public:
     real_vertex_iterator;
   typedef typename graph_traits<real_graph_type>::edge_iterator
     real_edge_iterator;
+  typedef real_vertex_descriptor real_site_descriptor;
+  typedef real_edge_descriptor   real_bond_descriptor;
+  typedef real_vertex_iterator   real_site_iterator;
+  typedef real_edge_iterator     real_bond_iterator;
 
   typedef VG virtual_graph_type;
   typedef typename graph_traits<virtual_graph_type>::vertex_iterator
@@ -335,14 +339,18 @@ public:
     virtual_vertex_descriptor;
   typedef typename graph_traits<virtual_graph_type>::edge_descriptor
     virtual_edge_descriptor;
+  typedef virtual_vertex_iterator   virtual_site_iterator;
+  typedef virtual_edge_iterator     virtual_bond_iterator;
+  typedef virtual_vertex_descriptor virtual_site_descriptor;
+  typedef virtual_edge_descriptor    virtual_bond_descriptor;
 
   typedef virtual_mapping<real_graph_type, virtual_graph_type> mapping_type;
   typedef typename mapping_type::virtual_vertex_range_type
     virtual_vertex_range_type;
-  typedef virtual_vertex_range_type virtual_site_range_type;
   typedef typename mapping_type::virtual_edge_range_type
     virtual_edge_range_type;
-  typedef virtual_edge_range_type virtual_bond_range_type;
+  typedef virtual_vertex_range_type virtual_site_range_type;
+  typedef virtual_edge_range_type   virtual_bond_range_type;
 
 //   typedef typename graph_traits<graph_type>::vertex_descriptor
 //     vertex_descriptor;
@@ -373,177 +381,207 @@ public:
 //   typedef typename graph_traits<graph_type>::degree_size_type
 //     degree_size_type;
 
-  virtual_lattice() {}
+  virtual_lattice(const real_graph_type& rg) : rgraph_(rg) {}
   template<class M>
   virtual_lattice(const real_graph_type& rg, const M& model,
-                  bool has_d_term = false)
-  { generate(rg, model, has_d_term); }
+                  bool has_d_term = false) :
+    rgraph_(rg)
+  { reinitialize(model, has_d_term); }
 
   // real vertex -> virtual vertex
   // virtual_vertex_range_type virtual_vertices(int s) const
   // { return mapping_.virtual_vertices(s); }
   virtual_vertex_range_type
-  virtual_vertices(const real_graph_type& rg,
-                   const real_vertex_descriptor& rv) const
-  { return mapping_.virtual_vertices(rg, rv); }
+  virtual_vertices(const real_vertex_descriptor& rv) const
+  { return mapping_.virtual_vertices(rgraph_, rv); }
 
   // real edge -> virtual edge
   virtual_edge_range_type
-  virtual_edges(const real_graph_type& rg,
-                const real_edge_descriptor& re) const
-  { return mapping_.virtual_edges(rg, re); }
+  virtual_edges(const real_edge_descriptor& re) const
+  { return mapping_.virtual_edges(rgraph_, re); }
 
   // real vertex -> virtual edge (for high spins with D term)
   virtual_edge_range_type
-  virtual_edges(const real_graph_type& rg,
-                const real_vertex_descriptor& rv) const
-  { return mapping_.virtual_edges(rg, rv); }
+  virtual_edges(const real_vertex_descriptor& rv) const
+  { return mapping_.virtual_edges(rgraph_, rv); }
 
-  void clear() { graph_.clear(); mapping_.clear(); }
+  void clear() { vgraph_.clear(); mapping_.clear(); }
 
   template<class M>
-  void generate(const real_graph_type& rg, const M& model,
-                bool has_d_term = false);
+  void reinitialize(const M& model, bool has_d_term = false);
 
-  const virtual_graph_type& graph() const { return graph_; }
+  const real_graph_type& rgraph() const { return rgraph_; }
+  const virtual_graph_type& vgraph() const { return vgraph_; }
   const mapping_type& mapping() const { return mapping_; }
 
-  void print_mapping(std::ostream& os, const real_graph_type& rg) const {
-    mapping_.output(os, rg, graph_);
+  void print_mapping(std::ostream& os) const {
+    mapping_.output(os, rgraph_, vgraph_);
   }
 
 private:
-  virtual_graph_type graph_;
+  real_graph_type const& rgraph_;
+  virtual_graph_type vgraph_;
   mapping_type mapping_;
 };
 
 template<typename RG, typename VG>
 typename graph_traits<VG>::vertices_size_type
-num_vertices(const virtual_lattice<RG, VG>& vl)
-{ return num_vertices(vl.graph()); }
+num_vvertices(const virtual_lattice<RG, VG>& vl)
+{ return num_vertices(vl.vgraph()); }
 
 template<typename RG, typename VG>
 typename graph_traits<VG>::edges_size_type
-num_edges(const virtual_lattice<RG, VG>& vl) { return num_edges(vl.graph()); }
+num_vedges(const virtual_lattice<RG, VG>& vl)
+{ return num_edges(vl.vgraph()); }
 
 template<typename RG, typename VG>
 std::pair<typename graph_traits<VG>::vertex_iterator,
           typename graph_traits<VG>::vertex_iterator>
-vertices(const virtual_lattice<RG, VG>& vl) { return vertices(vl.graph()); }
+vvertices(const virtual_lattice<RG, VG>& vl) { return vertices(vl.vgraph()); }
 
 template<typename RG, typename VG>
 std::pair<typename graph_traits<VG>::edge_iterator,
           typename graph_traits<VG>::edge_iterator>
-edges(const virtual_lattice<RG, VG>& vl) { return edges(vl.graph()); }
+vedges(const virtual_lattice<RG, VG>& vl) { return edges(vl.vgraph()); }
 
 template<typename RG, typename VG>
 typename virtual_lattice<RG, VG>::virtual_vertex_range_type
-virtual_vertices(const virtual_lattice<RG, VG>& vl, const RG& rg,
+virtual_vertices(const virtual_lattice<RG, VG>& vl,
                  const typename graph_traits<RG>::vertex_descriptor& rv)
-{ return vl.virtual_vertices(rg, rv); }
+{ return vl.virtual_vertices(rv); }
 
 template<typename RG, typename VG>
 typename virtual_lattice<RG, VG>::virtual_edge_range_type
-virtual_edges(const virtual_lattice<RG, VG>& vl, const RG& rg,
+virtual_edges(const virtual_lattice<RG, VG>& vl,
               const typename graph_traits<RG>::edge_descriptor& re)
-{ return vl.virtual_edges(rg, re); }
+{ return vl.virtual_edges(re); }
 
 template<typename RG, typename VG>
 typename virtual_lattice<RG, VG>::virtual_edge_range_type
-virtual_edges(const virtual_lattice<RG, VG>& vl, const RG& rg,
+virtual_edges(const virtual_lattice<RG, VG>& vl,
               const typename graph_traits<RG>::vertex_descriptor& rv)
-{ return vl.virtual_edges(rg, rv); }
+{ return vl.virtual_edges(rv); }
 
 
 template<typename RG, typename VG>
 typename graph_traits<VG>::sites_size_type
-num_sites(const virtual_lattice<RG, VG>& vl)
-{ return num_sites(vl.graph()); }
+num_vsites(const virtual_lattice<RG, VG>& vl)
+{ return num_sites(vl.vgraph()); }
 
 template<typename RG, typename VG>
 typename graph_traits<VG>::bonds_size_type
-num_bonds(const virtual_lattice<RG, VG>& vl) { return num_bonds(vl.graph()); }
+num_vbonds(const virtual_lattice<RG, VG>& vl)
+{ return num_bonds(vl.vgraph()); }
 
 template<typename RG, typename VG>
 std::pair<typename graph_traits<VG>::site_iterator,
           typename graph_traits<VG>::site_iterator>
-sites(const virtual_lattice<RG, VG>& vl) { return sites(vl.graph()); }
+vsites(const virtual_lattice<RG, VG>& vl) { return sites(vl.vgraph()); }
 
 template<typename RG, typename VG>
 std::pair<typename graph_traits<VG>::bond_iterator,
           typename graph_traits<VG>::bond_iterator>
-bonds(const virtual_lattice<RG, VG>& vl) { return bonds(vl.graph()); }
+vbonds(const virtual_lattice<RG, VG>& vl) { return bonds(vl.vgraph()); }
 
 template<typename RG, typename VG>
 typename virtual_lattice<RG, VG>::virtual_site_range_type
-virtual_sites(const virtual_lattice<RG, VG>& vl, const RG& rg,
-                 const typename graph_traits<RG>::site_descriptor& rv)
-{ return vl.virtual_sites(rg, rv); }
-
-template<typename RG, typename VG>
-typename virtual_lattice<RG, VG>::virtual_bond_range_type
-virtual_bonds(const virtual_lattice<RG, VG>& vl, const RG& rg,
-              const typename graph_traits<RG>::bond_descriptor& re)
-{ return vl.virtual_bonds(rg, re); }
-
-template<typename RG, typename VG>
-typename virtual_lattice<RG, VG>::virtual_bond_range_type
-virtual_bonds(const virtual_lattice<RG, VG>& vl, const RG& rg,
+virtual_sites(const virtual_lattice<RG, VG>& vl,
               const typename graph_traits<RG>::site_descriptor& rv)
-{ return vl.virtual_bonds(rg, rv); }
+{ return vl.virtual_vertices(rv); }
+
+template<typename RG, typename VG>
+typename virtual_lattice<RG, VG>::virtual_bond_range_type
+virtual_bonds(const virtual_lattice<RG, VG>& vl,
+              const typename graph_traits<RG>::bond_descriptor& re)
+{ return vl.virtual_edges(re); }
+
+template<typename RG, typename VG>
+typename virtual_lattice<RG, VG>::virtual_bond_range_type
+virtual_bonds(const virtual_lattice<RG, VG>& vl,
+              const typename graph_traits<RG>::site_descriptor& rv)
+{ return vl.virtual_edges(rv); }
 
 
 template<typename RG, typename VG>
 typename graph_traits<VG>::site_descriptor
 vsource(typename graph_traits<VG>::bond_descriptor b,
         const virtual_lattice<RG, VG>& vl)
-{ return source(b, vl.graph()); }
+{ return source(b, vl.vgraph()); }
 
 template<typename RG, typename VG>
 typename graph_traits<VG>::site_descriptor
 vsource(typename graph_traits<VG>::bonds_size_type i,
         const virtual_lattice<RG, VG>& vl)
-{ return source(bond(i, vl.graph()), vl.graph()); }
+{ return source(bond(i, vl.vgraph()), vl.vgraph()); }
 
 template<typename RG, typename VG>
 typename graph_traits<VG>::site_descriptor
 vtarget(typename graph_traits<VG>::bond_descriptor b,
         const virtual_lattice<RG, VG>& vl)
-{ return target(b, vl.graph()); }
+{ return target(b, vl.vgraph()); }
 
 template<typename RG, typename VG>
 typename graph_traits<VG>::site_descriptor
 vtarget(typename graph_traits<VG>::bonds_size_type i,
         const virtual_lattice<RG, VG>& vl)
-{ return target(bond(i, vl.graph()), vl.graph()); }
+{ return target(bond(i, vl.vgraph()), vl.vgraph()); }
 
 template<typename RG, typename VG>
-int
-real_index(const virtual_lattice<RG, VG>& vl,
-           typename graph_traits<VG>::site_descriptor s)
-{ return get(real_site_index_t(), vl.graph(), s); }
+inline bool
+is_real_edge(const virtual_lattice<RG, VG>& vl,
+             typename virtual_lattice<RG, VG>::virtual_edge_descriptor ved)
+{ return (get(real_edge_index_t(), vl.vgraph(), ved) >= 0); }
 
 template<typename RG, typename VG>
-int
-real_index(const virtual_lattice<RG, VG>& vl,
-           typename graph_traits<VG>::bond_descriptor b)
+inline bool
+is_real_bond(const virtual_lattice<RG, VG>& vl,
+             typename virtual_lattice<RG, VG>::virtual_edge_descriptor ved)
+{ return is_real_edge(vl, ved); }
+
+template<typename RG, typename VG>
+inline typename graph_traits<RG>::vertex_descriptor
+rvertex(virtual_lattice<RG, VG> const& vl, unsigned int s)
 {
-  int i = get(real_bond_index_t(), vl.graph(), b);
-  return (i >= 0) ? i : (-i - 1);
+  return *(vertices(vl.rgraph()).first +
+           get(real_vertex_index_t(), vl.vgraph(), s));
 }
 
 template<typename RG, typename VG>
-bool
-is_real_bond(const virtual_lattice<RG, VG>& vl,
-             typename graph_traits<VG>::bond_descriptor b)
-{ return (get(real_bond_index_t(), vl.graph(), b) >= 0); }
+inline typename graph_traits<RG>::site_descriptor
+rsite(virtual_lattice<RG, VG> const& vl, unsigned int s)
+{ return rvertex(vl, s); }
+
+template<typename RG, typename VG>
+inline typename graph_traits<RG>::edge_descriptor
+redge(virtual_lattice<RG, VG> const& vl,
+      typename virtual_lattice<RG, VG>::virtual_edge_descriptor ved)
+{
+  return *(edges(vl.rgraph()).first +
+           get(real_edge_index_t(), vl.vgraph(), ved));
+}
+
+template<typename RG, typename VG>
+inline typename graph_traits<RG>::edge_descriptor
+redge(virtual_lattice<RG, VG> const& vl, unsigned int b)
+{ return redge(vl, *(edges(vl.vgraph()).first + b)); }
+
+template<typename RG, typename VG>
+inline typename graph_traits<RG>::bond_descriptor
+rbond(virtual_lattice<RG, VG> const& vl,
+      typename virtual_lattice<RG, VG>::virtual_bond_descriptor ved)
+{ return redge(vl, ved); }
+
+template<typename RG, typename VG>
+inline typename graph_traits<RG>::bond_descriptor
+rbond(virtual_lattice<RG, VG> const& vl, unsigned int b)
+{ return redge(vl, b); }
 
 
 template<typename RG, typename VG>
 inline int
-gauge(RG const& rg, virtual_lattice<RG, VG> const& vl,
-      typename graph_traits<VG>::vertex_descriptor vd)
-{ return gauge(rg, real_index(vl, vd)); }
+gauge(virtual_lattice<RG, VG> const& vl,
+      typename virtual_lattice<RG, VG>::virtual_vertex_descriptor vvd)
+{ return 2 * get(parity_t(), vl.rgraph(), rvertex(vl, vvd)) - 1; }
 
 
 template<typename RG, typename VG>
@@ -557,37 +595,9 @@ int max_virtual_sites(const virtual_lattice<RG, VG>& vl)
 template<typename RG, typename VG>
 std::ostream& operator<<(std::ostream& os, const virtual_lattice<RG, VG>& vl)
 {
-  os << vl.graph();
+  os << vl.vgraph();
   return os;
 }
-
-//
-// virtual_lattice_adaptor
-//
-
-template<typename RG, typename VG = virtual_graph_type>
-class virtual_lattice_adaptor {
-public:
-  typedef RG real_graph_type;
-  typedef VG virtual_graph_type;
-  typedef virtual_lattice<RG, VG> virtual_lattice_type;
-
-  virtual_lattice_adaptor(real_graph_type& rg) : rgraph_(rg) {}
-  template<class MP>
-  virtual_lattice_adaptor(real_graph_type& rg, const MP& mp)
-    : rgraph_(rg), vlat_(rg, mp, mp.has_d_term()) {}
-
-  template<class MP>
-  void init(const MP& mp) { vlat_.generate(rgraph_, mp, mp.has_d_term()); }
-
-  const real_graph_type& rgraph() const { return rgraph_; }
-  const virtual_graph_type& vgraph() const { return vlat_.graph(); }
-  const virtual_lattice_type& vlattice() const { return vlat_; }
-
-private:
-  real_graph_type const& rgraph_;
-  virtual_lattice_type vlat_;
-};
 
 } // end namespace looper
 
@@ -666,85 +676,87 @@ void virtual_mapping<RG, VG>::output(std::ostream& os, RG const& rg,
 template<typename RG, typename VG>
 template<class M>
 void
-virtual_lattice<RG, VG>::generate(const RG& rg, const M& model,
-                                  bool has_d_term)
+virtual_lattice<RG, VG>::reinitialize(const M& model, bool has_d_term)
 {
-  graph_.clear();
+  vgraph_.clear();
   mapping_.clear();
 
   // setup v2edge_type_offset
   real_vertex_iterator rvi, rvi_end;
   int tmin = 0;
-  for (boost::tie(rvi, rvi_end) = vertices(rg); rvi != rvi_end; ++rvi)
-    tmin = std::min(tmin, int(get(vertex_type_t(), rg, *rvi)));
+  for (boost::tie(rvi, rvi_end) = vertices(rgraph_); rvi != rvi_end; ++rvi)
+    tmin = std::min(tmin, int(get(vertex_type_t(), rgraph_, *rvi)));
   real_edge_iterator rei, rei_end;
   int tmax = 0;
-  for (boost::tie(rei, rei_end) = edges(rg); rei != rei_end; ++rei)
-    tmax = std::max(tmax, int(get(edge_type_t(), rg, *rei)));
+  for (boost::tie(rei, rei_end) = edges(rgraph_); rei != rei_end; ++rei)
+    tmax = std::max(tmax, int(get(edge_type_t(), rgraph_, *rei)));
   mapping_.set_v2edge_type_offset(tmax-tmin+1);
 
   // add vertices to virtual graph
-  for (boost::tie(rvi, rvi_end) = vertices(rg); rvi != rvi_end; ++rvi)
-    for (int i = 0; i < model.site(*rvi, rg).s.get_twice(); ++i) {
-      virtual_vertex_descriptor vvd = add_vertex(graph_);
-      put(real_vertex_index_t(), graph_, vvd, get(vertex_index_t(), rg, *rvi));
+  for (boost::tie(rvi, rvi_end) = vertices(rgraph_); rvi != rvi_end; ++rvi)
+    for (int i = 0; i < model.site(*rvi, rgraph_).s.get_twice(); ++i) {
+      virtual_vertex_descriptor vvd = add_vertex(vgraph_);
+      put(real_vertex_index_t(), vgraph_, vvd,
+          get(vertex_index_t(), rgraph_, *rvi));
     }
 
   // setup vertex mapping
-  virtual_vertex_iterator vvi_first = vertices(graph_).first;
+  virtual_vertex_iterator vvi_first = vertices(vgraph_).first;
   virtual_vertex_iterator vvi_last = vvi_first;
-  for (boost::tie(rvi, rvi_end) = vertices(rg); rvi != rvi_end; ++rvi) {
-    vvi_last += model.site(*rvi, rg).s.get_twice();
-    mapping_.add_vertices(rg, *rvi, vvi_first, vvi_last);
+  for (boost::tie(rvi, rvi_end) = vertices(rgraph_); rvi != rvi_end; ++rvi) {
+    vvi_last += model.site(*rvi, rgraph_).s.get_twice();
+    mapping_.add_vertices(rgraph_, *rvi, vvi_first, vvi_last);
     vvi_first = vvi_last;
   }
 
   // add edges to virtual graph
-  for (boost::tie(rei, rei_end) = edges(rg); rei != rei_end; ++rei) {
-    real_vertex_descriptor rs = source(*rei, rg);
-    real_vertex_descriptor rt = target(*rei, rg);
+  for (boost::tie(rei, rei_end) = edges(rgraph_); rei != rei_end; ++rei) {
+    real_vertex_descriptor rs = source(*rei, rgraph_);
+    real_vertex_descriptor rt = target(*rei, rgraph_);
     virtual_vertex_iterator vvsi, vvsi_end;
-    for (boost::tie(vvsi, vvsi_end) = mapping_.virtual_vertices(rg, rs);
+    for (boost::tie(vvsi, vvsi_end) = mapping_.virtual_vertices(rgraph_, rs);
          vvsi != vvsi_end; ++vvsi) {
       virtual_vertex_iterator vvti, vvti_end;
-      for (boost::tie(vvti, vvti_end) = mapping_.virtual_vertices(rg, rt);
+      for (boost::tie(vvti, vvti_end) = mapping_.virtual_vertices(rgraph_, rt);
            vvti != vvti_end; ++vvti) {
-        virtual_edge_descriptor ved = add_edge(*vvsi, *vvti, graph_).first;
-        put(edge_index_t(), graph_, ved, num_edges(graph_) - 1);
-        put(real_edge_index_t(), graph_, ved, get(edge_index_t(), rg, *rei));
+        virtual_edge_descriptor ved = add_edge(*vvsi, *vvti, vgraph_).first;
+        put(edge_index_t(), vgraph_, ved, num_edges(vgraph_) - 1);
+        put(real_edge_index_t(), vgraph_, ved,
+            get(edge_index_t(), rgraph_, *rei));
       }
     }
   }
 
   // add `in-real-vertex' edges to virtual graph
   if (has_d_term)
-    for (boost::tie(rvi, rvi_end) = vertices(rg); rvi != rvi_end; ++rvi) {
+    for (boost::tie(rvi, rvi_end) = vertices(rgraph_); rvi != rvi_end; ++rvi) {
       virtual_vertex_iterator vvsi, vvsi_end;
-      for (boost::tie(vvsi, vvsi_end) = mapping_.virtual_vertices(rg, *rvi);
-           vvsi != vvsi_end; ++vvsi)
+      for (boost::tie(vvsi, vvsi_end) =
+             mapping_.virtual_vertices(rgraph_, *rvi); vvsi != vvsi_end;
+           ++vvsi)
         for (virtual_vertex_iterator vvti = boost::next(vvsi);
              vvti != vvsi_end; ++vvti) {
-          virtual_edge_descriptor ved = add_edge(*vvsi, *vvti, graph_).first;
-          put(edge_index_t(), graph_, ved, num_edges(graph_) - 1);
-          put(real_edge_index_t(), graph_, ved,
-              get(vertex_index_t(), rg, *rvi) - 1);
+          virtual_edge_descriptor ved = add_edge(*vvsi, *vvti, vgraph_).first;
+          put(edge_index_t(), vgraph_, ved, num_edges(vgraph_) - 1);
+          put(real_edge_index_t(), vgraph_, ved,
+              get(vertex_index_t(), rgraph_, *rvi) - 1);
         }
     }
 
   // setup edge and v2edge mapping
-  virtual_edge_iterator vei_first = edges(graph_).first;
+  virtual_edge_iterator vei_first = edges(vgraph_).first;
   virtual_edge_iterator vei_last = vei_first;
-  for (boost::tie(rei, rei_end) = edges(rg); rei != rei_end; ++rei) {
-    vei_last += model.site(source(*rei, rg), rg).s.get_twice() *
-      model.site(target(*rei, rg), rg).s.get_twice();
-    mapping_.add_edges(rg, *rei, vei_first, vei_last);
+  for (boost::tie(rei, rei_end) = edges(rgraph_); rei != rei_end; ++rei) {
+    vei_last += model.site(source(*rei, rgraph_), rgraph_).s.get_twice() *
+      model.site(target(*rei, rgraph_), rgraph_).s.get_twice();
+    mapping_.add_edges(rgraph_, *rei, vei_first, vei_last);
     vei_first = vei_last;
   }
-  for (boost::tie(rvi, rvi_end) = vertices(rg); rvi != rvi_end; ++rvi) {
+  for (boost::tie(rvi, rvi_end) = vertices(rgraph_); rvi != rvi_end; ++rvi) {
     if (has_d_term)
-      vei_last += model.site(*rvi, rg).s.get_twice() *
-        (model.site(*rvi, rg).s.get_twice() - 1) / 2;
-    mapping_.add_v2edges(rg, *rvi, vei_first, vei_last);
+      vei_last += model.site(*rvi, rgraph_).s.get_twice() *
+        (model.site(*rvi, rgraph_).s.get_twice() - 1) / 2;
+    mapping_.add_v2edges(rgraph_, *rvi, vei_first, vei_last);
     vei_first = vei_last;
   }
 }

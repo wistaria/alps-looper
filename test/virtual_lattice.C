@@ -88,47 +88,51 @@ try {
   std::cout << "number of real bonds = "
             << num_bonds(rg) << std::endl;
   std::cout << "number of virtual sites = "
-            << num_sites(vl) << std::endl;
+            << num_vsites(vl) << std::endl;
   std::cout << "number of virtual bonds = "
-            << num_bonds(vl) << std::endl;
+            << num_vbonds(vl) << std::endl;
   std::cout << "maximum number of virutal sites = "
             << max_virtual_sites(vl) << std::endl;
   std::cout << vl;
   virtual_site_iterator vvi, vvi_end;
-  for (boost::tie(vvi, vvi_end) = sites(vl); vvi != vvi_end; ++vvi)
-    std::cout << gauge(rg, vl, *vvi) << ' ';
+  for (boost::tie(vvi, vvi_end) = vsites(vl); vvi != vvi_end; ++vvi)
+    std::cout << gauge(vl, *vvi) << ' ';
   std::cout << std::endl;
-  vl.mapping().output(std::cout, rg, vl.graph());
-  for (boost::tie(vvi, vvi_end) = sites(vl); vvi != vvi_end; ++vvi)
-    std::cout << real_index(vl, *vvi) << ' ';
+  vl.mapping().output(std::cout, rg, vl.vgraph());
+  for (boost::tie(vvi, vvi_end) = vsites(vl); vvi != vvi_end; ++vvi)
+    std::cout << get(looper::site_index_t(), vl.rgraph(), rsite(vl, *vvi))
+              << ' ';
   std::cout << std::endl;
   virtual_bond_iterator vei, vei_end;
-  for (boost::tie(vei, vei_end) = bonds(vl); vei != vei_end; ++vei)
-    std::cout << real_index(vl, *vei) << ' ';
+  for (boost::tie(vei, vei_end) = vbonds(vl); vei != vei_end; ++vei)
+    std::cout << get(looper::bond_index_t(), vl.rgraph(), rbond(vl, *vei))
+              << ' ';
   std::cout << std::endl;
 
-  vl.generate(rg, vector_spin_wrapper<int>(spins), true);
+  vl.reinitialize(vector_spin_wrapper<int>(spins), true);
 
   std::cout << "number of real sites = "
             << num_sites(rg) << std::endl;
   std::cout << "number of real bonds = "
             << num_bonds(rg) << std::endl;
   std::cout << "number of virtual sites = "
-            << num_sites(vl) << std::endl;
+            << num_vsites(vl) << std::endl;
   std::cout << "number of virtual bonds = "
-            << num_bonds(vl) << std::endl;
+            << num_vbonds(vl) << std::endl;
   std::cout << "maximum number of virutal sites = "
             << max_virtual_sites(vl) << std::endl;
   std::cout << vl;
-  for (boost::tie(vvi, vvi_end) = sites(vl); vvi != vvi_end; ++vvi)
-    std::cout << gauge(rg, vl, *vvi) << ' ';
+  for (boost::tie(vvi, vvi_end) = vsites(vl); vvi != vvi_end; ++vvi)
+    std::cout << gauge(vl, *vvi) << ' ';
   std::cout << std::endl;
-  vl.mapping().output(std::cout, rg, vl.graph());
-  for (boost::tie(vvi, vvi_end) = sites(vl); vvi != vvi_end; ++vvi)
-    std::cout << real_index(vl, *vvi) << ' ';
+  vl.mapping().output(std::cout, rg, vl.vgraph());
+  for (boost::tie(vvi, vvi_end) = vsites(vl); vvi != vvi_end; ++vvi)
+    std::cout << get(looper::site_index_t(), vl.rgraph(), rsite(vl, *vvi))
+              << ' ';
   std::cout << std::endl;
-  for (boost::tie(vei, vei_end) = bonds(vl); vei != vei_end; ++vei)
-    std::cout << real_index(vl, *vei) << ' ';
+  for (boost::tie(vei, vei_end) = vbonds(vl); vei != vei_end; ++vei)
+    std::cout << get(looper::bond_index_t(), vl.rgraph(), rbond(vl, *vei))
+              << ' ';
   std::cout << std::endl;
 
 #ifndef BOOST_NO_EXCEPTIONS
