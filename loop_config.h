@@ -48,11 +48,10 @@ struct loop_config
   typedef looper::local_graph<looper::location> loop_graph_t;
 
   // measurements
-  // typedef looper::composite_estimator<
-  //   looper::susceptibility_estimator,
-  //   looper::stiffness_estimator<3> >
-  //   estimator_t;
-  typedef looper::susceptibility_estimator estimator_t;
+  typedef looper::composite_estimator<
+    looper::susceptibility_estimator,
+    looper::stiffness_estimator<3>
+  > estimator_t;
 };
 
 #endif // LOOP_CONFIG_H

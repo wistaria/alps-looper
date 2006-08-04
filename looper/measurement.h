@@ -745,10 +745,40 @@ struct stiffness_estimator : public base_estimator
   struct normal_estimator
   {
     template<typename M, typename G, typename OP>
-    static void measure(M const&, bool, G const&, virtual_lattice<G> const&,
-                        double, int, int, double,
-                        std::vector<int> const&, std::vector<OP> const&,
-                        std::vector<int> const&) {}
+    static void measure(M& m, bool is_bipartite,
+                        G const& rg, virtual_lattice<G> const& vl,
+                        double beta, int nrs, int nop, double sign,
+                        std::vector<int> const& spins,
+                        std::vector<OP> const& operators,
+                        std::vector<int>& spins_c)
+    {
+      // if (IMPROVE()) return;
+
+      typedef typename std::vector<OP>::const_iterator operator_iterator;
+
+      int dim = boost::get_property(vl.graph(), dimension_t());
+      std::valarray<double> winding(0., dim);
+      std::copy(spins.begin(), spins.end(), spins_c.begin());
+      for (operator_iterator oi = operators.begin(); oi != operators.end();
+           ++oi) {
+        if (oi->is_offdiagonal()) {
+          if (oi->is_bond()) {
+            double s = 1-2*spins_c[vsource(oi->pos(), vl)];
+            alps::coordinate_type vr =
+              get(bond_vector_relative_t(), vl.graph(), oi->pos());
+            for (int i = 0; i < dim; ++i) winding[i] += s * vr[i];
+            spins_c[vsource(oi->pos(), vl)] ^= 1;
+            spins_c[vtarget(oi->pos(), vl)] ^= 1;
+          } else {
+            spins_c[oi->pos()] ^= 1;
+          }
+        }
+      }
+
+      double w = 0;
+      for (int i = 0; i < dim; ++i) w += power2(winding[i]);
+      m["Stiffness"] << sign * w / (beta * dim);
+    }
   };
 };
 

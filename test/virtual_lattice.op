@@ -8,42 +8,42 @@
   <EDGE source="2" target="4" id="3" type="0" vector="1 0"/>
   <EDGE source="3" target="4" id="4" type="1" vector="0 1"/>
 </GRAPH>
-1 0 0 1 
+1 -1 -1 1 
 number of real sites = 4
 number of real bonds = 4
 number of virtual sites = 9
 number of virtual bonds = 20
 maximum number of virutal sites = 3
-<GRAPH name="virtual graph of simple hypercubic graph" dimension="2" vertices="9" edges="20">
-  <VERTEX id="1" type="1"><COORDINATE>0 0</COORDINATE></VERTEX>
-  <VERTEX id="2" type="1"><COORDINATE>0 0</COORDINATE></VERTEX>
-  <VERTEX id="3" type="1"><COORDINATE>0 0</COORDINATE></VERTEX>
-  <VERTEX id="4" type="0"><COORDINATE>0 1</COORDINATE></VERTEX>
-  <VERTEX id="5" type="0"><COORDINATE>0 1</COORDINATE></VERTEX>
-  <VERTEX id="6" type="0"><COORDINATE>1 0</COORDINATE></VERTEX>
-  <VERTEX id="7" type="0"><COORDINATE>1 0</COORDINATE></VERTEX>
-  <VERTEX id="8" type="0"><COORDINATE>1 1</COORDINATE></VERTEX>
-  <VERTEX id="9" type="0"><COORDINATE>1 1</COORDINATE></VERTEX>
-  <EDGE source="1" target="6" id="1" type="0" vector="1 0"/>
-  <EDGE source="1" target="7" id="2" type="0" vector="1 0"/>
-  <EDGE source="2" target="6" id="3" type="0" vector="1 0"/>
-  <EDGE source="2" target="7" id="4" type="0" vector="1 0"/>
-  <EDGE source="3" target="6" id="5" type="0" vector="1 0"/>
-  <EDGE source="3" target="7" id="6" type="0" vector="1 0"/>
-  <EDGE source="1" target="4" id="7" type="1" vector="0 1"/>
-  <EDGE source="1" target="5" id="8" type="1" vector="0 1"/>
-  <EDGE source="2" target="4" id="9" type="1" vector="0 1"/>
-  <EDGE source="2" target="5" id="10" type="1" vector="0 1"/>
-  <EDGE source="3" target="4" id="11" type="1" vector="0 1"/>
-  <EDGE source="3" target="5" id="12" type="1" vector="0 1"/>
-  <EDGE source="4" target="8" id="13" type="0" vector="1 0"/>
-  <EDGE source="4" target="9" id="14" type="0" vector="1 0"/>
-  <EDGE source="5" target="8" id="15" type="0" vector="1 0"/>
-  <EDGE source="5" target="9" id="16" type="0" vector="1 0"/>
-  <EDGE source="6" target="8" id="17" type="1" vector="0 1"/>
-  <EDGE source="6" target="9" id="18" type="1" vector="0 1"/>
-  <EDGE source="7" target="8" id="19" type="1" vector="0 1"/>
-  <EDGE source="7" target="9" id="20" type="1" vector="0 1"/>
+<GRAPH vertices="9" edges="20">
+  <VERTEX id="1"/>
+  <VERTEX id="2"/>
+  <VERTEX id="3"/>
+  <VERTEX id="4"/>
+  <VERTEX id="5"/>
+  <VERTEX id="6"/>
+  <VERTEX id="7"/>
+  <VERTEX id="8"/>
+  <VERTEX id="9"/>
+  <EDGE source="1" target="6" id="1"/>
+  <EDGE source="1" target="7" id="2"/>
+  <EDGE source="2" target="6" id="3"/>
+  <EDGE source="2" target="7" id="4"/>
+  <EDGE source="3" target="6" id="5"/>
+  <EDGE source="3" target="7" id="6"/>
+  <EDGE source="1" target="4" id="7"/>
+  <EDGE source="1" target="5" id="8"/>
+  <EDGE source="2" target="4" id="9"/>
+  <EDGE source="2" target="5" id="10"/>
+  <EDGE source="3" target="4" id="11"/>
+  <EDGE source="3" target="5" id="12"/>
+  <EDGE source="4" target="8" id="13"/>
+  <EDGE source="4" target="9" id="14"/>
+  <EDGE source="5" target="8" id="15"/>
+  <EDGE source="5" target="9" id="16"/>
+  <EDGE source="6" target="8" id="17"/>
+  <EDGE source="6" target="9" id="18"/>
+  <EDGE source="7" target="8" id="19"/>
+  <EDGE source="7" target="9" id="20"/>
 </GRAPH>
 1 1 1 -1 -1 -1 -1 1 1 
 [[vitual_mapping]]
@@ -64,47 +64,49 @@ maximum number of virutal sites = 3
     1 -> null
     2 -> null
     3 -> null
+0 0 0 1 1 2 2 3 3 
+0 0 0 0 0 0 1 1 1 1 1 1 2 2 2 2 3 3 3 3 
 number of real sites = 4
 number of real bonds = 4
 number of virtual sites = 9
 number of virtual bonds = 26
 maximum number of virutal sites = 3
-<GRAPH name="virtual graph of simple hypercubic graph" dimension="2" vertices="9" edges="26">
-  <VERTEX id="1" type="1"><COORDINATE>0 0</COORDINATE></VERTEX>
-  <VERTEX id="2" type="1"><COORDINATE>0 0</COORDINATE></VERTEX>
-  <VERTEX id="3" type="1"><COORDINATE>0 0</COORDINATE></VERTEX>
-  <VERTEX id="4" type="0"><COORDINATE>0 1</COORDINATE></VERTEX>
-  <VERTEX id="5" type="0"><COORDINATE>0 1</COORDINATE></VERTEX>
-  <VERTEX id="6" type="0"><COORDINATE>1 0</COORDINATE></VERTEX>
-  <VERTEX id="7" type="0"><COORDINATE>1 0</COORDINATE></VERTEX>
-  <VERTEX id="8" type="0"><COORDINATE>1 1</COORDINATE></VERTEX>
-  <VERTEX id="9" type="0"><COORDINATE>1 1</COORDINATE></VERTEX>
-  <EDGE source="1" target="6" id="1" type="0" vector="1 0"/>
-  <EDGE source="1" target="7" id="2" type="0" vector="1 0"/>
-  <EDGE source="2" target="6" id="3" type="0" vector="1 0"/>
-  <EDGE source="2" target="7" id="4" type="0" vector="1 0"/>
-  <EDGE source="3" target="6" id="5" type="0" vector="1 0"/>
-  <EDGE source="3" target="7" id="6" type="0" vector="1 0"/>
-  <EDGE source="1" target="4" id="7" type="1" vector="0 1"/>
-  <EDGE source="1" target="5" id="8" type="1" vector="0 1"/>
-  <EDGE source="2" target="4" id="9" type="1" vector="0 1"/>
-  <EDGE source="2" target="5" id="10" type="1" vector="0 1"/>
-  <EDGE source="3" target="4" id="11" type="1" vector="0 1"/>
-  <EDGE source="3" target="5" id="12" type="1" vector="0 1"/>
-  <EDGE source="4" target="8" id="13" type="0" vector="1 0"/>
-  <EDGE source="4" target="9" id="14" type="0" vector="1 0"/>
-  <EDGE source="5" target="8" id="15" type="0" vector="1 0"/>
-  <EDGE source="5" target="9" id="16" type="0" vector="1 0"/>
-  <EDGE source="6" target="8" id="17" type="1" vector="0 1"/>
-  <EDGE source="6" target="9" id="18" type="1" vector="0 1"/>
-  <EDGE source="7" target="8" id="19" type="1" vector="0 1"/>
-  <EDGE source="7" target="9" id="20" type="1" vector="0 1"/>
-  <EDGE source="1" target="2" id="21" type="3" vector="0 0"/>
-  <EDGE source="1" target="3" id="22" type="3" vector="0 0"/>
-  <EDGE source="2" target="3" id="23" type="3" vector="0 0"/>
-  <EDGE source="4" target="5" id="24" type="2" vector="0 0"/>
-  <EDGE source="6" target="7" id="25" type="2" vector="0 0"/>
-  <EDGE source="8" target="9" id="26" type="2" vector="0 0"/>
+<GRAPH vertices="9" edges="26">
+  <VERTEX id="1"/>
+  <VERTEX id="2"/>
+  <VERTEX id="3"/>
+  <VERTEX id="4"/>
+  <VERTEX id="5"/>
+  <VERTEX id="6"/>
+  <VERTEX id="7"/>
+  <VERTEX id="8"/>
+  <VERTEX id="9"/>
+  <EDGE source="1" target="6" id="1"/>
+  <EDGE source="1" target="7" id="2"/>
+  <EDGE source="2" target="6" id="3"/>
+  <EDGE source="2" target="7" id="4"/>
+  <EDGE source="3" target="6" id="5"/>
+  <EDGE source="3" target="7" id="6"/>
+  <EDGE source="1" target="4" id="7"/>
+  <EDGE source="1" target="5" id="8"/>
+  <EDGE source="2" target="4" id="9"/>
+  <EDGE source="2" target="5" id="10"/>
+  <EDGE source="3" target="4" id="11"/>
+  <EDGE source="3" target="5" id="12"/>
+  <EDGE source="4" target="8" id="13"/>
+  <EDGE source="4" target="9" id="14"/>
+  <EDGE source="5" target="8" id="15"/>
+  <EDGE source="5" target="9" id="16"/>
+  <EDGE source="6" target="8" id="17"/>
+  <EDGE source="6" target="9" id="18"/>
+  <EDGE source="7" target="8" id="19"/>
+  <EDGE source="7" target="9" id="20"/>
+  <EDGE source="1" target="2" id="21"/>
+  <EDGE source="1" target="3" id="22"/>
+  <EDGE source="2" target="3" id="23"/>
+  <EDGE source="4" target="5" id="24"/>
+  <EDGE source="6" target="7" id="25"/>
+  <EDGE source="8" target="9" id="26"/>
 </GRAPH>
 1 1 1 -1 -1 -1 -1 1 1 
 [[vitual_mapping]]
@@ -125,3 +127,5 @@ maximum number of virutal sites = 3
     1 -> 23
     2 -> 24
     3 -> 25
+0 0 0 1 1 2 2 3 3 
+0 0 0 0 0 0 1 1 1 1 1 1 2 2 2 2 3 3 3 3 0 0 0 0 1 2 

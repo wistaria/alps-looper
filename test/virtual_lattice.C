@@ -53,26 +53,35 @@ int main() {
 try {
 #endif
 
-  typedef looper::graph_type graph_type;
-  typedef alps::graph_traits<graph_type>::site_iterator site_iterator;
-  typedef alps::graph_traits<graph_type>::bond_iterator bond_iterator;
+  typedef looper::default_graph_type real_graph_type;
+  typedef alps::graph_traits<real_graph_type>::site_iterator
+    real_site_iterator;
+  typedef alps::graph_traits<real_graph_type>::bond_iterator
+    real_bond_iterator;
+
+  typedef looper::virtual_lattice<real_graph_type> virtual_lattice_type;
+  typedef virtual_lattice_type::virtual_graph_type virtual_graph_type;
+  typedef alps::graph_traits<virtual_graph_type>::site_iterator
+    virtual_site_iterator;
+  typedef alps::graph_traits<virtual_graph_type>::bond_iterator
+    virtual_bond_iterator;
 
   // real graph
-  graph_type rg;
+  real_graph_type rg;
   looper::hypercubic_graph_generator<> gen(2, 2);
   looper::generate_graph(rg, gen);
   put(looper::site_type_t(), rg, *(sites(rg).first), 1);
   set_parity(rg, looper::parity_t());
   std::cout << rg;
-  site_iterator rvi, rvi_end;
+  real_site_iterator rvi, rvi_end;
   for (boost::tie(rvi, rvi_end) = sites(rg); rvi != rvi_end; ++rvi)
-    std::cout << get(looper::parity_t(), rg, *rvi) << ' ';
+    std::cout << looper::gauge(rg, *rvi) << ' ';
   std::cout << std::endl;
 
   // virtual lattice
   std::vector<alps::half_integer<int> > spins(2);
   spins[0] = 1; spins[1] = 3./2;
-  looper::virtual_lattice<graph_type> vl(rg, vector_spin_wrapper<int>(spins));
+  virtual_lattice_type vl(rg, vector_spin_wrapper<int>(spins));
 
   std::cout << "number of real sites = "
             << num_sites(rg) << std::endl;
@@ -85,11 +94,18 @@ try {
   std::cout << "maximum number of virutal sites = "
             << max_virtual_sites(vl) << std::endl;
   std::cout << vl;
-  site_iterator vvi, vvi_end;
+  virtual_site_iterator vvi, vvi_end;
   for (boost::tie(vvi, vvi_end) = sites(vl); vvi != vvi_end; ++vvi)
-    std::cout << gauge(vl, *vvi) << ' ';
+    std::cout << gauge(rg, vl, *vvi) << ' ';
   std::cout << std::endl;
   vl.mapping().output(std::cout, rg, vl.graph());
+  for (boost::tie(vvi, vvi_end) = sites(vl); vvi != vvi_end; ++vvi)
+    std::cout << real_index(vl, *vvi) << ' ';
+  std::cout << std::endl;
+  virtual_bond_iterator vei, vei_end;
+  for (boost::tie(vei, vei_end) = bonds(vl); vei != vei_end; ++vei)
+    std::cout << real_index(vl, *vei) << ' ';
+  std::cout << std::endl;
 
   vl.generate(rg, vector_spin_wrapper<int>(spins), true);
 
@@ -105,10 +121,15 @@ try {
             << max_virtual_sites(vl) << std::endl;
   std::cout << vl;
   for (boost::tie(vvi, vvi_end) = sites(vl); vvi != vvi_end; ++vvi)
-    std::cout << gauge(vl, *vvi) << ' ';
+    std::cout << gauge(rg, vl, *vvi) << ' ';
   std::cout << std::endl;
   vl.mapping().output(std::cout, rg, vl.graph());
-
+  for (boost::tie(vvi, vvi_end) = sites(vl); vvi != vvi_end; ++vvi)
+    std::cout << real_index(vl, *vvi) << ' ';
+  std::cout << std::endl;
+  for (boost::tie(vei, vei_end) = bonds(vl); vei != vei_end; ++vei)
+    std::cout << real_index(vl, *vei) << ' ';
+  std::cout << std::endl;
 
 #ifndef BOOST_NO_EXCEPTIONS
 }

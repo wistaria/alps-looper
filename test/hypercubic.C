@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2005 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -30,7 +30,7 @@ using namespace alps;
 #endif
 
 int main() {
-  typedef looper::graph_type graph_type;
+  typedef alps::coordinate_graph_type graph_type;
   typedef looper::graph_traits<graph_type>::site_iterator site_iterator;
 
   std::vector<int> ext;
