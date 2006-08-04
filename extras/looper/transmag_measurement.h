@@ -50,22 +50,29 @@ struct transverse_magnetization_estimator : public looper::base_estimator
     bool closed;
     estimate() : length(0), closed(true) {}
     template<typename G>
-    void start1(G const&, double t, int, int)
+    void init(G const&)
+    {
+      length = 0;
+      closed = true;
+    }
+
+    template<typename G>
+    void start_s(G const&, double t, int, int)
     {
       length -= t;
       closed = false;
     }
     template<typename G>
-    void start2(G const&, double t, int, int)
+    void start_b(G const&, double t, int, int, int)
     { length -= t; }
     template<typename G>
-    void term1(G const&, double t, int, int)
+    void term_s(G const&, double t, int, int)
     {
       length += t;
       closed = false;
     }
     template<typename G>
-    void term2(G const&, double t, int, int)
+    void term_b(G const&, double t, int, int, int)
     { length += t; }
     template<typename G>
     void at_bot(G const&, double t, int, int)

@@ -386,12 +386,11 @@ void loop_worker::flip()
   clusters.resize(0); clusters.resize(nc);
 
   std::copy(spins.begin(), spins.end(), spins_c.begin());
-  if (IMPROVE()) estimates.resize(0); estimates.resize(nc);
   cluster_info_t::accumulator<cluster_fragment_t, FIELD, SIGN, IMPROVE>
     weight(clusters, fragments, field, bond_sign, site_sign);
   typename looper::measurement::accumulator<estimator_t, lattice_graph_t,
     time_t, cluster_fragment_t, IMPROVE>::type
-    accum(estimates, fragments, vlattice);
+    accum(nc, estimates, fragments, vlattice);
   double t = 0;
   for (std::vector<local_operator_t>::iterator oi = operators.begin();
        oi != operators.end(); ++oi, t += 1) {
@@ -399,20 +398,20 @@ void loop_worker::flip()
       int s0 = vsource(oi->pos(), vlattice);
       int s1 = vtarget(oi->pos(), vlattice);
       weight.bond_sign(oi->loop_0(), oi->loop_1(), oi->pos());
-      accum.term2(oi->loop_l0(), oi->loop_l1(), t, s0, s1,
-                  spins_c[s0], spins_c[s1]);
+      accum.term_b(oi->loop_l0(), oi->loop_l1(), t, oi->pos(), s0, s1,
+                   spins_c[s0], spins_c[s1]);
       if (oi->is_offdiagonal()) {
         spins_c[s0] ^= 1;
         spins_c[s1] ^= 1;
       }
-      accum.start2(oi->loop_u0(), oi->loop_u1(), t, s0, s1,
-                   spins_c[s0], spins_c[s1]);
+      accum.start_b(oi->loop_u0(), oi->loop_u1(), t, oi->pos(), s0, s1,
+                    spins_c[s0], spins_c[s1]);
     } else {
       int s = oi->pos();
-      weight.site_sign(oi->loop_0(), oi->loop_1(), oi->pos());
-      accum.term1(oi->loop_l(), t, s, spins_c[s]);
+      weight.site_sign(oi->loop_0(), oi->loop_1(), s);
+      accum.term_s(oi->loop_l(), t, s, spins_c[s]);
       if (oi->is_offdiagonal()) spins_c[s] ^= 1;
-      accum.start1(oi->loop_u(), t, s, spins_c[s]);
+      accum.start_s(oi->loop_u(), t, s, spins_c[s]);
     }
   }
   for (unsigned int s = 0; s < nvs; ++s) {

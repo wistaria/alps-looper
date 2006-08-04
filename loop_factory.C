@@ -44,12 +44,14 @@ loop_factory::make_worker(const alps::ProcessList& w,
     if (itr == creators_.end() || itr->second == 0)
       boost::throw_exception(std::runtime_error("unknown representation"));
     return itr->second->create(w, p, n);
+  } else if (creators_.size() == 1 && creators_.begin()->second) {
+    return creators_.begin()->second->create(w, p, n);
   } else {
-    if (creators_.size() == 1 && creators_.begin()->second)
-      return creators_.begin()->second->create(w, p, n);
-    else
+    map_type::const_iterator itr = creators_.find("path integral");
+    if (itr == creators_.end() || itr->second == 0)
       boost::throw_exception(std::runtime_error(
         "representation is not specified"));
+    return itr->second->create(w, p, n);
   }
   return 0;
 }

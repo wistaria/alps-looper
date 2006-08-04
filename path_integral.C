@@ -79,7 +79,8 @@ private:
   // parameters
   double beta;
   double energy_offset;
-  bool has_field, is_frustrated, is_signed, use_improved_estimator;
+  bool has_field;
+  bool is_frustrated, is_signed, use_improved_estimator;
   std::vector<double> field;
   std::vector<int> bond_sign, site_sign;
   looper::virtual_lattice<lattice_graph_t> vlattice;
@@ -315,12 +316,11 @@ void loop_worker::flip()
   clusters.resize(0); clusters.resize(nc);
 
   std::copy(spins.begin(), spins.end(), spins_c.begin());
-  if (IMPROVE()) estimates.resize(0); estimates.resize(nc);
   cluster_info_t::accumulator<cluster_fragment_t, FIELD, SIGN, IMPROVE>
     weight(clusters, fragments, field, bond_sign, site_sign);
   typename looper::measurement::accumulator<estimator_t, lattice_graph_t,
     time_t, cluster_fragment_t, IMPROVE>::type
-    accum(estimates, fragments, vlattice);
+    accum(nc, estimates, fragments, vlattice);
   for (std::vector<local_operator_t>::iterator oi = operators.begin();
        oi != operators.end(); ++oi) {
     time_t t = oi->time();
@@ -330,24 +330,24 @@ void loop_worker::flip()
       weight.bond_sign(oi->loop_0(), oi->loop_1(), oi->pos());
       weight.term(oi->loop_l0(), t, s0, spins_c[s0]);
       weight.term(oi->loop_l1(), t, s1, spins_c[s1]);
-      accum.term2(oi->loop_l0(), oi->loop_l1(), t, s0, s1,
-                  spins_c[s0], spins_c[s1]);
+      accum.term_b(oi->loop_l0(), oi->loop_l1(), t, oi->pos(), s0, s1,
+                   spins_c[s0], spins_c[s1]);
       if (oi->is_offdiagonal()) {
         spins_c[s0] ^= 1;
         spins_c[s1] ^= 1;
       }
       weight.start(oi->loop_u0(), t, s0, spins_c[s0]);
       weight.start(oi->loop_u1(), t, s1, spins_c[s1]);
-      accum.start2(oi->loop_u0(), oi->loop_u1(), t, s0, s1,
-                   spins_c[s0], spins_c[s1]);
+      accum.start_b(oi->loop_u0(), oi->loop_u1(), t, oi->pos(), s0, s1,
+                    spins_c[s0], spins_c[s1]);
     } else {
       int s = oi->pos();
-      weight.site_sign(oi->loop_0(), oi->loop_1(), oi->pos());
+      weight.site_sign(oi->loop_0(), oi->loop_1(), s);
       weight.term(oi->loop_l(), t, s, spins_c[s]);
-      accum.term1(oi->loop_l(), t, s, spins_c[s]);
+      accum.term_s(oi->loop_l(), t, s, spins_c[s]);
       if (oi->is_offdiagonal()) spins_c[s] ^= 1;
       weight.start(oi->loop_u(), t, s, spins_c[s]);
-      accum.start1(oi->loop_u(), t, s, spins_c[s]);
+      accum.start_s(oi->loop_u(), t, s, spins_c[s]);
     }
   }
   for (unsigned int s = 0; s < nvs; ++s) {

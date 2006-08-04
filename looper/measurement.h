@@ -30,6 +30,7 @@
 #include "power.h"
 #include "type.h"
 
+#include <alps/fixed_capacity_vector.h>
 #include <alps/lattice/graph_traits.h>
 #include <alps/alea.h>
 #include <boost/call_traits.hpp>
@@ -118,15 +119,16 @@ struct base_estimator
 
   struct estimate
   {
-    estimate() {}
     template<typename G>
-    void start1(G const&, double, int, int) const {}
+    void init(G const&) {}
     template<typename G>
-    void start2(G const&, double, int, int) const {}
+    void start_s(G const&, double, int, int) const {}
     template<typename G>
-    void term1(G const&, double, int, int) const {}
+    void start_b(G const&, double, int, int, int) const {}
     template<typename G>
-    void term2(G const&, double, int, int) const {}
+    void term_s(G const&, double, int, int) const {}
+    template<typename G>
+    void term_b(G const&, double, int, int, int) const {}
     template<typename G>
     void at_bot(G const&, double, int, int) const {}
     template<typename G>
@@ -141,13 +143,13 @@ struct base_estimator
     typedef T time_t;
     typedef typename boost::call_traits<time_t>::param_type time_pt;
     typedef F cluster_fragment_t;
-    accumulator(std::vector<estimate_t> const&,
+    accumulator(int, std::vector<estimate_t> const&,
                 std::vector<cluster_fragment_t> const&,
                 virtual_lattice<lattice_graph_t> const&) {}
-    void start1(int, time_pt, int, int) const {}
-    void start2(int, int, time_pt, int, int, int, int) const {}
-    void term1(int, time_pt, int, int) const {}
-    void term2(int, int, time_pt, int, int, int, int) const {}
+    void start_s(int, time_pt, int, int) const {}
+    void start_b(int, int, time_pt, int, int, int, int, int) const {}
+    void term_s(int, time_pt, int, int) const {}
+    void term_b(int, int, time_pt, int, int, int, int, int) const {}
     void at_bot(int, time_pt, int, int) const {}
     void at_top(int, time_pt, int, int) const {}
   };
@@ -159,23 +161,30 @@ struct base_estimator
     typedef T time_t;
     typedef typename boost::call_traits<time_t>::param_type time_pt;
     typedef F cluster_fragment_t;
-    accumulator(std::vector<estimate_t>& es,
+    accumulator(int nc, std::vector<estimate_t>& es,
                 std::vector<cluster_fragment_t> const& fr,
                 virtual_lattice<lattice_graph_t> const& vl)
-      : estimates(es), fragments(fr), vgraph(vl.graph()) {}
-    void start1(int p, time_pt t, int s, int c)
-    { estimates[fragments[p].id].start1(vgraph, t, s, c); }
-    void start2(int p0, int p1, time_pt t, int s0, int s1, int c0, int c1)
+      : estimates(es), fragments(fr), vgraph(vl.graph())
     {
-      estimates[fragments[p0].id].start2(vgraph, t, s0, c0);
-      estimates[fragments[p1].id].start2(vgraph, t, s1, c1);
+      estimate_t e;
+      e.init(vl);
+      estimates.resize(0); estimates.resize(nc, e);
     }
-    void term1(int p, time_pt t, int s, int c)
-    { estimates[fragments[p].id].term1(vgraph, t, s, c); }
-    void term2(int p0, int p1, time_pt t, int s0, int s1, int c0, int c1)
+    void start_s(int p, time_pt t, int s, int c)
+    { estimates[fragments[p].id].start_s(vgraph, t, s, c); }
+    void start_b(int p0, int p1, time_pt t, int b, int s0, int s1,
+                 int c0, int c1)
     {
-      estimates[fragments[p0].id].term2(vgraph, t, s0, c0);
-      estimates[fragments[p1].id].term2(vgraph, t, s1, c1);
+      estimates[fragments[p0].id].start_b(vgraph, t, b, s0, c0);
+      estimates[fragments[p1].id].start_b(vgraph, t, b, s1, c1);
+    }
+    void term_s(int p, time_pt t, int s, int c)
+    { estimates[fragments[p].id].term_s(vgraph, t, s, c); }
+    void term_b(int p0, int p1, time_pt t, int b, int s0, int s1,
+                int c0, int c1)
+    {
+      estimates[fragments[p0].id].term_b(vgraph, t, b, s0, c0);
+      estimates[fragments[p1].id].term_b(vgraph, t, b, s1, c1);
     }
     void at_bot(int p, time_pt t, int s, int c)
     { estimates[fragments[p].id].at_bot(vgraph, t, s, c); }
@@ -234,54 +243,59 @@ struct composite_estimator : public base_estimator
 
   struct estimate : public estimator1::estimate, public estimator2::estimate
   {
-    estimate() : estimator1::estimate(), estimator2::estimate() {}
     template<typename G>
-    void start1(G const& g, double t, int s, int c)
+    void init(G const& g)
     {
-      estimator1::estimate::start1(g, t, s, c);
-      estimator2::estimate::start1(g, t, s, c);
-    }
-    template<typename G, typename T>
-    void start1(G const& g, T const& t, int s, int c)
-    {
-      estimator1::estimate::start1(g, t, s, c);
-      estimator2::estimate::start1(g, t, s, c);
+      estimator1::estimate::init(g);
+      estimator2::estimate::init(g);
     }
     template<typename G>
-    void start2(G const& g, double t, int s, int c)
+    void start_s(G const& g, double t, int s, int c)
     {
-      estimator1::estimate::start2(g, t, s, c);
-      estimator2::estimate::start2(g, t, s, c);
+      estimator1::estimate::start_s(g, t, s, c);
+      estimator2::estimate::start_s(g, t, s, c);
     }
     template<typename G, typename T>
-    void start2(G const& g, T const& t, int s, int c)
+    void start_s(G const& g, T const& t, int s, int c)
     {
-      estimator1::estimate::start2(g, t, s, c);
-      estimator2::estimate::start2(g, t, s, c);
+      estimator1::estimate::start_s(g, t, s, c);
+      estimator2::estimate::start_s(g, t, s, c);
     }
     template<typename G>
-    void term1(G const& g, double t, int s, int c)
+    void start_b(G const& g, double t, int b, int s, int c)
     {
-      estimator1::estimate::term1(g, t, s, c);
-      estimator2::estimate::term1(g, t, s, c);
+      estimator1::estimate::start_b(g, t, b, s, c);
+      estimator2::estimate::start_b(g, t, b, s, c);
     }
     template<typename G, typename T>
-    void term1(G const& g, T const& t, int s, int c)
+    void start_b(G const& g, T const& t, int b, int s, int c)
     {
-      estimator1::estimate::term1(g, t, s, c);
-      estimator2::estimate::term1(g, t, s, c);
+      estimator1::estimate::start_b(g, t, b, s, c);
+      estimator2::estimate::start_b(g, t, b, s, c);
     }
     template<typename G>
-    void term2(G const& g, double t, int s, int c)
+    void term_s(G const& g, double t, int s, int c)
     {
-      estimator1::estimate::term2(g, t, s, c);
-      estimator2::estimate::term2(g, t, s, c);
+      estimator1::estimate::term_s(g, t, s, c);
+      estimator2::estimate::term_s(g, t, s, c);
     }
     template<typename G, typename T>
-    void term2(G const& g, T const& t, int s, int c)
+    void term_s(G const& g, T const& t, int s, int c)
     {
-      estimator1::estimate::term2(g, t, s, c);
-      estimator2::estimate::term2(g, t, s, c);
+      estimator1::estimate::term_s(g, t, s, c);
+      estimator2::estimate::term_s(g, t, s, c);
+    }
+    template<typename G>
+    void term_b(G const& g, double t, int b, int s, int c)
+    {
+      estimator1::estimate::term_b(g, t, b, s, c);
+      estimator2::estimate::term_b(g, t, b, s, c);
+    }
+    template<typename G, typename T>
+    void term_b(G const& g, T const& t, int b, int s, int c)
+    {
+      estimator1::estimate::term_b(g, t, b, s, c);
+      estimator2::estimate::term_b(g, t, b, s, c);
     }
     template<typename G>
     void at_bot(G const& g, double t, int s, int c)
@@ -477,10 +491,20 @@ struct susceptibility_estimator : public base_estimator
   {
     double usize0, umag0, usize, umag;
     double ssize0, smag0, ssize, smag;
-    estimate() : usize0(0), umag0(0), usize(0), umag(0),
-                 ssize0(0), smag0(0), ssize(0), smag(0) {}
     template<typename G>
-    void start1(G const& g, double t, int s, int c)
+    void init(G const&)
+    {
+      usize0 = 0;
+      umag0 = 0;
+      usize = 0;
+      umag = 0;
+      ssize0 = 0;
+      smag0 = 0;
+      ssize = 0;
+      smag = 0;
+    }
+    template<typename G>
+    void start_s(G const& g, double t, int s, int c)
     {
       usize -= t * 0.5;
       umag  -= t * (0.5-c);
@@ -489,10 +513,10 @@ struct susceptibility_estimator : public base_estimator
       smag  -= gg * t * (0.5-c);
     }
     template<typename G>
-    void start2(G const& g, double t, int s, int c)
-    { start1(g, t, s, c); }
+    void start_b(G const& g, double t, int, int s, int c)
+    { start_s(g, t, s, c); }
     template<typename G>
-    void term1(G const& g, double t, int s, int c)
+    void term_s(G const& g, double t, int s, int c)
     {
       usize += t * 0.5;
       umag  += t * (0.5-c);
@@ -501,12 +525,12 @@ struct susceptibility_estimator : public base_estimator
       smag  += gg * t * (0.5-c);
     }
     template<typename G>
-    void term2(G const& g, double t, int s, int c)
-    { term1(g, t, s, c); }
+    void term_b(G const& g, double t, int, int s, int c)
+    { term_s(g, t, s, c); }
     template<typename G>
     void at_bot(G const& g, double t, int s, int c)
     {
-      start1(g, t, s, c);
+      start_s(g, t, s, c);
       usize0 += 0.5;
       umag0  += (0.5-c);
       double gg = gauge(g, s);
@@ -515,7 +539,7 @@ struct susceptibility_estimator : public base_estimator
     }
     template<typename G>
     void at_top(G const& g, double t, int s, int c)
-    { term1(g, t, s, c); }
+    { term_s(g, t, s, c); }
   };
 
   template<typename QMC, typename IMPROVE>
@@ -665,6 +689,66 @@ struct susceptibility_estimator : public base_estimator
             / (nop + 1) / nrs;
       }
     }
+  };
+};
+
+
+//
+// stiffness_estimator
+//
+
+template<unsigned int MAX_DIM>
+struct stiffness_estimator : public base_estimator
+{
+  template<typename M>
+  static void initialize(M& m,
+                         bool /* is_bipartite */,
+                         bool is_signed,
+                         bool /* use_improved_estimator */)
+  {
+    add_measurement(m, "Stiffness", is_signed);
+  }
+  // static void evaluate(alps::ObservableSet&, alps::ObservableSet const&) {}
+
+  // improved estimator
+
+  struct estimate
+  {
+    alps::fixed_capacity_vector<double, MAX_DIM> winding;
+    template<typename G>
+    void init(G const& vl)
+    {
+      int dim = boost::get_property(vl.graph(), dimension_t());
+      if (dim > MAX_DIM) {
+        std::cerr << "Spatial dimension (=" << dim << ") is too large.  "
+                  << "Stiffness will be measured only for the first "
+                  << MAX_DIM << " dimensions\n";
+        dim = MAX_DIM;
+      }
+      winding.resize(dim);
+    }
+    template<typename G>
+    void start_s(G const&, double, int, int) const {}
+    template<typename G>
+    void start_b(G const&, double, int, int, int) const {}
+    template<typename G>
+    void term_s(G const&, double, int, int) const {}
+    template<typename G>
+    void term_b(G const&, double, int, int, int) const {}
+    template<typename G>
+    void at_bot(G const&, double, int, int) const {}
+    template<typename G>
+    void at_top(G const&, double, int, int) const {}
+  };
+
+  template<typename QMC, typename IMPROVE>
+  struct normal_estimator
+  {
+    template<typename M, typename G, typename OP>
+    static void measure(M const&, bool, G const&, virtual_lattice<G> const&,
+                        double, int, int, double,
+                        std::vector<int> const&, std::vector<OP> const&,
+                        std::vector<int> const&) {}
   };
 };
 

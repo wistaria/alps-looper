@@ -248,12 +248,11 @@ void loop_worker::flip()
        fi != fragments.end(); ++fi) fi->id = cluster_id(fragments, *fi);
   clusters.resize(0); clusters.resize(nc);
 
-  if (IMPROVE()) estimates.resize(0); estimates.resize(nc);
   cluster_info_t::accumulator<cluster_fragment_t, FIELD,
     boost::mpl::false_, IMPROVE> weight(clusters, fragments, field, 0, 0);
   typename looper::measurement::accumulator<estimator_t, lattice_graph_t,
     time_t, cluster_fragment_t, IMPROVE>::type
-    accum(estimates, fragments, vlattice);
+    accum(nc, estimates, fragments, vlattice);
   for (unsigned int s = 0; s < nvs; ++s) {
     weight.start(s, time_t(0), s, spins[s]);
     weight.term(s, time_t(1), s, spins[s]);

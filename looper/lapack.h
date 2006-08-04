@@ -113,7 +113,7 @@ inline double solve_llsp(
   int const min_mn = std::min(m, n);
 
   // temporary storage
-  matrix_type at(a);
+  matrix_type at; at = a;
   matrix_type u(m, min_mn);
   matrix_type vt(min_mn, n);
   vector_type s(min_mn);

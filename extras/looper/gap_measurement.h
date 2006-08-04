@@ -79,41 +79,50 @@ struct gap_estimator : public looper::base_estimator
   struct estimate : public looper::base_estimator::estimate
   {
     std::complex<double> p;
-    estimate() : p(0, 0) {}
     template<typename G>
-    void start1(G const&, double t, int, int)
+    void init(G const&) { p = std::complex<double>(0,0); }
+    template<typename G>
+    void start_s(G const&, double t, int, int)
     { p -= looper::ctime(t); }
     template<typename G>
-    void start1(G const&,
+    void start_s(G const&,
       looper::imaginary_time<boost::mpl::true_> const& t, int, int)
     { p -= t.ctime_; }
     template<typename G>
-    void start2(G const& g, double t, int s, int c)
-    { start1(g, t, s, c); }
+    void start_b(G const& g, double t, int, int s, int c)
+    { start_s(g, t, s, c); }
     template<typename G>
-    void start2(G const& g,
-      looper::imaginary_time<boost::mpl::true_> const& t, int s , int c)
-    { start1(g, t, s, c); }
+    void start_b(G const& g,
+      looper::imaginary_time<boost::mpl::true_> const& t, int, int s , int c)
+    { start_s(g, t, s, c); }
     template<typename G>
-    void term1(G const&, double t, int, int)
+    void term_s(G const&, double t, int, int)
     { p += looper::ctime(t); }
     template<typename G>
-    void term1(G const&,
+    void term_s(G const&,
       looper::imaginary_time<boost::mpl::true_> const& t, int, int)
     { p += t.ctime_; }
     template<typename G>
-    void term2(G const& g, double t, int s, int c)
-    { term1(g, t, s, c); }
+    void term_b(G const& g, double t, int, int s, int c)
+    { term_s(g, t, s, c); }
     template<typename G>
-    void term2(G const& g,
-      looper::imaginary_time<boost::mpl::true_> const& t, int s, int c)
-    { term1(g, t, s, c); }
+    void term_b(G const& g,
+      looper::imaginary_time<boost::mpl::true_> const& t, int, int s, int c)
+    { term_s(g, t, s, c); }
     template<typename G>
     void at_bot(G const& g, double t, int s, int c)
-    { start1(g, t, s, c); }
+    { start_s(g, t, s, c); }
+    template<typename G>
+    void at_bot(G const& g,
+      looper::imaginary_time<boost::mpl::true_> const& t, int s, int c)
+    { start_s(g, t, s, c); }
     template<typename G>
     void at_top(G const& g, double t, int s, int c)
-    { term1(g, t, s, c); }
+    { term_s(g, t, s, c); }
+    template<typename G>
+    void at_top(G const& g,
+      looper::imaginary_time<boost::mpl::true_> const& t, int s, int c)
+    { term_s(g, t, s, c); }
   };
 
   template<typename QMC, typename IMPROVE>
