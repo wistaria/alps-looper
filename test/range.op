@@ -11,3 +11,8 @@ parse [:3]: result [0:3]
 parse [1:]: result [1:4294967295]
 parse [-3:9]: parse error
 parse 6: result [6:6]
+initial: [0:5]
+7 is included? 0
+3 is assigned: [3:3]
+8 is included: [3:8]
+7 is included? 1

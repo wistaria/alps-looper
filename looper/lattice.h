@@ -25,6 +25,7 @@
 #ifndef LOOPER_LATTICE_H_
 #define LOOPER_LATTICE_H_
 
+#include "integer_range.h"
 #include <alps/lattice.h>
 #include <alps/math.hpp>
 #include <boost/throw_exception.hpp>
@@ -352,35 +353,6 @@ public:
   typedef virtual_vertex_range_type virtual_site_range_type;
   typedef virtual_edge_range_type   virtual_bond_range_type;
 
-//   typedef typename graph_traits<graph_type>::vertex_descriptor
-//     vertex_descriptor;
-//   typedef typename graph_traits<graph_type>::edge_descriptor
-//     edge_descriptor;
-//   typedef typename graph_traits<graph_type>::adjacency_iterator
-//      adjacency_iterator;
-//   typedef typename graph_traits<graph_type>::out_edge_iterator
-//      out_edge_iterator;
-//   typedef typename graph_traits<graph_type>::in_edge_iterator
-//      in_edge_iterator;
-//   typedef typename graph_traits<graph_type>::vertex_iterator
-//     vertex_iterator;
-//   typedef typename graph_traits<graph_type>::edge_iterator
-//     edge_iterator;
-
-//   typedef typename graph_traits<graph_type>::directed_category
-//     directed_category;
-//   typedef typename graph_traits<graph_type>::edge_parallel_category
-//     edge_parallel_category;
-//   typedef typename graph_traits<graph_type>::traversal_category
-//     traversal_category;
-
-//   typedef typename graph_traits<graph_type>::vertices_size_type
-//     vertices_size_type;
-//   typedef typename graph_traits<graph_type>::edges_size_type
-//     edges_size_type;
-//   typedef typename graph_traits<graph_type>::degree_size_type
-//     degree_size_type;
-
   virtual_lattice(const real_graph_type& rg) : rgraph_(rg) {}
   template<class M>
   virtual_lattice(const real_graph_type& rg, const M& model,
@@ -389,8 +361,6 @@ public:
   { reinitialize(model, has_d_term); }
 
   // real vertex -> virtual vertex
-  // virtual_vertex_range_type virtual_vertices(int s) const
-  // { return mapping_.virtual_vertices(s); }
   virtual_vertex_range_type
   virtual_vertices(const real_vertex_descriptor& rv) const
   { return mapping_.virtual_vertices(rgraph_, rv); }
@@ -422,6 +392,7 @@ private:
   real_graph_type const& rgraph_;
   virtual_graph_type vgraph_;
   mapping_type mapping_;
+  integer_range<int> vtype_range_, etype_range_;
 };
 
 template<typename RG, typename VG>
@@ -759,6 +730,14 @@ virtual_lattice<RG, VG>::reinitialize(const M& model, bool has_d_term)
     mapping_.add_v2edges(rgraph_, *rvi, vei_first, vei_last);
     vei_first = vei_last;
   }
+
+  // set range of types
+  vtype_range_ = 0;
+  for (boost::tie(rvi, rvi_end) = vertices(rgraph_); rvi != rvi_end; ++rvi)
+    vtype_range_.include(get(vertex_index_t(), rgraph_, *rvi));
+  etype_range_ = 0;
+  for (boost::tie(rei, rei_end) = edges(rgraph_); rei != rei_end; ++rei)
+    etype_range_.include(get(edge_index_t(), rgraph_, *rei));
 }
 
 } // end namespace looper

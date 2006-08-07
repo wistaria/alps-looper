@@ -166,7 +166,7 @@ struct gap_estimator : public looper::base_estimator
       double smag = 0;
       typename looper::virtual_lattice<RG, VG>::virtual_site_iterator
         si, si_end;
-      for (boost::tie(si, si_end) = sites(vl); si != si_end; ++si)
+      for (boost::tie(si, si_end) = vsites(vl); si != si_end; ++si)
         smag += (0.5-spins[*si]) * looper::gauge(vl, *si);
       std::complex<double> smag_a(0, 0);
       std::copy(spins.begin(), spins.end(), spins_c.begin());

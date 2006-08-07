@@ -26,6 +26,7 @@
 #define LOOPER_INTEGER_RANGE_H
 
 #include <alps/osiris.h>
+#include <boost/call_traits.hpp>
 #include <boost/spirit/core.hpp>
 #include <boost/throw_exception.hpp>
 #include <complex>
@@ -45,15 +46,16 @@ class integer_range
 {
 public:
   typedef T value_type;
+  typedef typename boost::call_traits<value_type>::param_type param_type;
 
   integer_range() {}
-  explicit integer_range(value_type v) : mi_(v), ma_(v) {}
-  explicit integer_range(value_type vmin, value_type vmax)
+  explicit integer_range(param_type v) : mi_(v), ma_(v) {}
+  explicit integer_range(param_type vmin, param_type vmax)
     : mi_(vmin), ma_(vmax) {}
   integer_range(integer_range const& r) : mi_(r.mi_), ma_(r.ma_) {}
   integer_range(std::string const& str,
-                value_type def_mi = std::numeric_limits<value_type>::min(),
-                value_type def_ma = std::numeric_limits<value_type>::max())
+                param_type def_mi = std::numeric_limits<value_type>::min(),
+                param_type def_ma = std::numeric_limits<value_type>::max())
     : mi_(def_mi), ma_(def_ma)
   {
     using namespace boost::spirit;
@@ -71,10 +73,22 @@ public:
     }
     if (!success) boost::throw_exception(std::runtime_error("parse error"));
   }
+  integer_range& operator=(param_type v)
+  {
+    mi_ = ma_ = v;
+    return *this;
+  }
+
+  void include(param_type v)
+  {
+    if (v < mi_) mi_ = v;
+    if (v > ma_) ma_ = v;
+  }
 
   value_type min() const { return mi_; }
   value_type max() const { return ma_; }
   value_type size() const { return ma_ - mi_ + 1; }
+  bool is_included(param_type v) const { return (v >= min()) && (v <= max()); }
 
   void save(alps::ODump& dp) const { dp << mi_ << ma_; }
   void load(alps::IDump& dp) { dp >> mi_ >> ma_; }

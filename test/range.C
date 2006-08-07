@@ -52,4 +52,13 @@ int main()
       std::cout << exp.what() << std::endl;
     }
   }
+
+  looper::integer_range<int> r(0, 5);
+  std::cout << "initial: " << r << std::endl;
+  std::cout << "7 is included? " << r.is_included(7) << std::endl;
+  r = 3;
+  std::cout << "3 is assigned: " << r << std::endl;
+  r.include(8);
+  std::cout << "8 is included: " << r << std::endl;
+  std::cout << "7 is included? " << r.is_included(7) << std::endl;
 }
