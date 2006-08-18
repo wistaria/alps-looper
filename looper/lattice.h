@@ -710,7 +710,7 @@ virtual_lattice<RG, VG>::reinitialize(const M& model, bool has_d_term)
           virtual_edge_descriptor ved = add_edge(*vvsi, *vvti, vgraph_).first;
           put(edge_index_t(), vgraph_, ved, num_edges(vgraph_) - 1);
           put(real_edge_index_t(), vgraph_, ved,
-              get(vertex_index_t(), rgraph_, *rvi) - 1);
+              -1 - get(vertex_index_t(), rgraph_, *rvi));
         }
     }
 

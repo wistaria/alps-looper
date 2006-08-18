@@ -131,8 +131,9 @@ try {
               << ' ';
   std::cout << std::endl;
   for (boost::tie(vei, vei_end) = vbonds(vl); vei != vei_end; ++vei)
-    std::cout << get(looper::bond_index_t(), vl.rgraph(), rbond(vl, *vei))
-              << ' ';
+    if (is_real_bond(vl, *vei))
+      std::cout << get(looper::bond_index_t(), vl.rgraph(), rbond(vl, *vei))
+                << ' ';
   std::cout << std::endl;
 
 #ifndef BOOST_NO_EXCEPTIONS
