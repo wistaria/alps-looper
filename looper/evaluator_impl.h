@@ -35,19 +35,20 @@ class evaluator : public abstract_evaluator
 {
 public:
   typedef ESTIMATOR estimator_t;
-  void evaluate(alps::scheduler::MCSimulation& sim, alps::Parameters const&,
+  void evaluate(alps::scheduler::MCSimulation& sim, alps::Parameters const& p,
                 boost::filesystem::path const&) const
   {
     alps::ObservableSet m;
-    evaluate(m, sim.get_measurements());
+    evaluate(m, p, sim.get_measurements());
     for (alps::ObservableSet::const_iterator itr = m.begin(); itr != m.end();
          ++itr) sim.addObservable(*(itr->second));
   }
 
-  void evaluate(alps::ObservableSet& m, alps::ObservableSet const& m_in) const
+  void evaluate(alps::ObservableSet& m, alps::Parameters const& p,
+                alps::ObservableSet const& m_in) const
   {
     looper::energy_estimator::evaluate(m, m_in);
-    estimator_t::evaluate(m, m_in);
+    estimator_t::evaluate(m, p, m_in);
   }
 };
 

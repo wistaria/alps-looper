@@ -119,6 +119,11 @@ Staggered Susceptibility [w=2pi/beta]: 0.378682 +/- 0.0139; tau = 0.189 WARNING:
     bin #2   : 512      entries: error = 0.0129805
     bin #3   : 256      entries: error = 0.0136386
     bin #4   : 128      entries: error = 0.0138859
+Stiffness: 0.0825195 +/- 0.00588; tau = 0.366
+    bin #1   : 1024     entries: error = 0.00446909
+    bin #2   : 512      entries: error = 0.00511036
+    bin #3   : 256      entries: error = 0.00590289
+    bin #4   : 128      entries: error = 0.00588256
 Susceptibility: 0.027832 +/- 0.00558; tau = 0.712 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0.00358587
     bin #2   : 512      entries: error = 0.00433679
@@ -247,6 +252,11 @@ Staggered Susceptibility [w=2pi/beta]: 1.14422 +/- 0.0467; tau = 0.375 WARNING: 
     bin #2   : 512      entries: error = 0.039451
     bin #3   : 256      entries: error = 0.0437985
     bin #4   : 128      entries: error = 0.0467008
+Stiffness: 0.232178 +/- 0.0145; tau = 0.326 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0112833
+    bin #2   : 512      entries: error = 0.0127669
+    bin #3   : 256      entries: error = 0.0130015
+    bin #4   : 128      entries: error = 0.0145061
 Susceptibility: 0.0371094 +/- 0.00652; tau = 0.766 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0.00409973
     bin #2   : 512      entries: error = 0.00505158
@@ -374,6 +384,11 @@ Staggered Susceptibility [w=2pi/beta]: 0.137971 +/- 0.00594; tau = 0.397 WARNING
     bin #2   : 512      entries: error = 0.00493108
     bin #3   : 256      entries: error = 0.00541093
     bin #4   : 128      entries: error = 0.00594435
+Stiffness: 0 +/- 0; tau = nan
+    bin #1   : 1024     entries: error = 0
+    bin #2   : 512      entries: error = 0
+    bin #3   : 256      entries: error = 0
+    bin #4   : 128      entries: error = 0
 Susceptibility: 0.479062 +/- 0.0123; tau = 0.778 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0.00766623
     bin #2   : 512      entries: error = 0.00929861

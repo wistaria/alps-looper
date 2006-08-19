@@ -464,7 +464,8 @@ class dummy_evaluator : public looper::abstract_evaluator
 public:
   void evaluate(alps::scheduler::MCSimulation&, alps::Parameters const&,
                 boost::filesystem::path const&) const {}
-  void evaluate(alps::ObservableSet&, alps::ObservableSet const&) const {}
+  void evaluate(alps::ObservableSet&, alps::Parameters const&,
+                alps::ObservableSet const&) const {}
 };
 
 

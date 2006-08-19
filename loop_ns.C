@@ -70,7 +70,7 @@ int main(int argc, char** argv)
 
     looper::abstract_evaluator* evaluator =
       evaluator_factory::instance()->make_evaluator(*p);
-    evaluator->evaluate(m, m);
+    evaluator->evaluate(m, *p, m);
     delete evaluator;
 
     std::cerr << "[speed]\nelapsed time = " << tm.elapsed() << " sec\n";

@@ -74,7 +74,6 @@ protected:
   void build();
   template<typename FIELD, typename IMPROVE>
   void flip();
-  template<typename IMPROVE>
   void measure();
 
 private:
@@ -91,6 +90,10 @@ private:
   looper::mc_steps mcs;
   std::vector<int> spins;
 
+  // observables
+  alps::ObservableSet& obs;
+  estimator_t estimator;
+
   // working vectors
   std::vector<cluster_fragment_t> fragments;
   std::vector<cluster_info_t> clusters;
@@ -105,7 +108,7 @@ private:
 
 loop_worker::loop_worker(alps::ProcessList const& w,
                          alps::Parameters const& p, int n)
-  : super_type(w, p, n), vlattice(graph()), mcs(p)
+  : super_type(w, p, n), vlattice(graph()), mcs(p), obs(measurements)
 {
   beta = 1.0 / alps::evaluate("T", p);
   if (beta < 0)
@@ -160,37 +163,29 @@ loop_worker::loop_worker(alps::ProcessList const& w,
   spins.resize(nvs); std::fill(spins.begin(), spins.end(), 0 /* all up */);
 
   // measurements
-  measurements <<
-    make_observable(alps::SimpleRealObservable("Temperature"));
-  measurements <<
-    make_observable(alps::SimpleRealObservable("Inverse Temperature"));
-  measurements <<
-    make_observable(alps::SimpleRealObservable("Number of Sites"));
-  measurements <<
-    make_observable(alps::SimpleRealObservable("Number of Clusters"));
-  looper::energy_estimator::initialize(measurements, false);
-  estimator_t::initialize(measurements, is_bipartite(), false,
-                          use_improved_estimator);
+  obs << make_observable(alps::SimpleRealObservable("Temperature"));
+  obs << make_observable(alps::SimpleRealObservable("Inverse Temperature"));
+  obs << make_observable(alps::SimpleRealObservable("Number of Sites"));
+  obs << make_observable(alps::SimpleRealObservable("Number of Clusters"));
+  looper::energy_estimator::initialize(obs, false);
+  estimator.initialize(obs, p, vlattice, is_bipartite(), false,
+                       use_improved_estimator);
 }
 
 void loop_worker::dostep()
 {
-  namespace mpl = boost::mpl;
-
   if (!mcs.can_work()) return;
   ++mcs;
 
   build();
 
-  //   FIELD        IMPROVE
-  flip<mpl::true_,  mpl::true_ >();
-  flip<mpl::true_,  mpl::false_>();
-  flip<mpl::false_, mpl::true_ >();
-  flip<mpl::false_, mpl::false_>();
+  //   FIELD               IMPROVE
+  flip<boost::mpl::true_,  boost::mpl::true_ >();
+  flip<boost::mpl::true_,  boost::mpl::false_>();
+  flip<boost::mpl::false_, boost::mpl::true_ >();
+  flip<boost::mpl::false_, boost::mpl::false_>();
 
-  //      IMPROVE
-  measure<mpl::true_ >();
-  measure<mpl::false_>();
+  measure();
 }
 
 
@@ -251,9 +246,8 @@ void loop_worker::flip()
 
   cluster_info_t::accumulator<cluster_fragment_t, FIELD,
     boost::mpl::false_, IMPROVE> weight(clusters, fragments, field, 0, 0);
-  typename looper::measurement::accumulator<estimator_t, virtual_lattice_t,
-    time_t, cluster_fragment_t, IMPROVE>::type
-    accum(nc, estimates, fragments, vlattice);
+  looper::accumulator<estimator_t, time_t, cluster_fragment_t, IMPROVE>
+    accum(estimates, nc, vlattice, estimator, fragments);
   for (unsigned int s = 0; s < nvs; ++s) {
     weight.start(s, time_t(0), s, spins[s]);
     weight.term(s, time_t(1), s, spins[s]);
@@ -276,9 +270,9 @@ void loop_worker::flip()
     typename looper::measurement::collector<estimator_t, mc_type,
       IMPROVE>::type coll;
     coll = std::accumulate(estimates.begin(), estimates.end(), coll);
-    coll.commit(measurements, is_bipartite(), vlattice, beta, 0, 1);
+    coll.commit(obs, vlattice, is_bipartite(), beta, 0, 1);
   }
-  measurements["Number of Clusters"] << (double)clusters.size();
+  obs["Number of Clusters"] << (double)clusters.size();
 }
 
 
@@ -286,15 +280,12 @@ void loop_worker::flip()
 // measurements
 //
 
-template<typename IMPROVE>
 void loop_worker::measure()
 {
-  if (use_improved_estimator != IMPROVE()) return;
-
   int nrs = num_sites();
-  measurements["Temperature"] << 1/beta;
-  measurements["Inverse Temperature"] << beta;
-  measurements["Number of Sites"] << (double)nrs;
+  obs["Temperature"] << 1/beta;
+  obs["Inverse Temperature"] << beta;
+  obs["Number of Sites"] << (double)nrs;
 
   // energy
   double ene = energy_offset;
@@ -310,11 +301,11 @@ void loop_worker::measure()
       if (ci->to_flip) ene -= ci->weight;
       else ene += ci->weight;
   }
-  looper::energy_estimator::measure(measurements, vlattice, beta, 0, 1, ene);
+  looper::energy_estimator::measure(obs, vlattice, beta, 0, 1, ene);
 
-  looper::measurement::normal_estimator<estimator_t, mc_type,
-    IMPROVE>::type::measure(measurements, is_bipartite(), vlattice, beta, 1,
-                            spins, operator_string_t(), spins);
+  estimator.measure<mc_type>(obs, vlattice,
+                             is_bipartite(), use_improved_estimator,
+                             beta, 1, spins, operator_string_t(), spins);
 }
 
 

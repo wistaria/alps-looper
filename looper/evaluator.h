@@ -38,6 +38,7 @@ public:
                         alps::Parameters const&,
                         boost::filesystem::path const&) const = 0;
   virtual void evaluate(alps::ObservableSet& m,
+                        alps::Parameters const&,
                         alps::ObservableSet const& m_in) const = 0;
 };
 

@@ -73,7 +73,6 @@ protected:
   void build();
   template<typename FIELD, typename SIGN, typename IMPROVE>
   void flip();
-  template<typename IMPROVE>
   void measure();
 
 private:
@@ -95,6 +94,7 @@ private:
 
   // observables
   alps::ObservableSet& obs;
+  estimator_t estimator;
 
   // working vectors
   std::vector<int> spins_c;
@@ -166,28 +166,24 @@ loop_worker::loop_worker(alps::ProcessList const& w,
   obs << make_observable(alps::SimpleRealObservable("Number of Clusters"));
   if (is_signed) obs << alps::RealObservable("Sign");
   looper::energy_estimator::initialize(obs, is_signed);
-  estimator_t::initialize(obs, is_bipartite(), is_signed,
-                          use_improved_estimator);
+  estimator.initialize(obs, p, vlattice, is_bipartite(), is_signed,
+                       use_improved_estimator);
 }
 
 void loop_worker::dostep()
 {
-  namespace mpl = boost::mpl;
-
   if (!mcs.can_work()) return;
   ++mcs;
 
   build();
 
-  //   FIELD        SIGN         IMPROVE
-  flip<mpl::false_, mpl::true_,  mpl::true_ >();
-  flip<mpl::false_, mpl::true_,  mpl::false_>();
-  flip<mpl::false_, mpl::false_, mpl::true_ >();
-  flip<mpl::false_, mpl::false_, mpl::false_>();
+  //   FIELD               SIGN                IMPROVE
+  flip<boost::mpl::false_, boost::mpl::true_,  boost::mpl::true_ >();
+  flip<boost::mpl::false_, boost::mpl::true_,  boost::mpl::false_>();
+  flip<boost::mpl::false_, boost::mpl::false_, boost::mpl::true_ >();
+  flip<boost::mpl::false_, boost::mpl::false_, boost::mpl::false_>();
 
-  //      IMPROVE
-  measure<mpl::true_ >();
-  measure<mpl::false_>();
+  measure();
 }
 
 
@@ -316,9 +312,8 @@ void loop_worker::flip()
   std::copy(spins.begin(), spins.end(), spins_c.begin());
   cluster_info_t::accumulator<cluster_fragment_t, FIELD, SIGN, IMPROVE>
     weight(clusters, fragments, field, bond_sign, site_sign);
-  typename looper::measurement::accumulator<estimator_t, virtual_lattice_t,
-    time_t, cluster_fragment_t, IMPROVE>::type
-    accum(nc, estimates, fragments, vlattice);
+  looper::accumulator<estimator_t, time_t, cluster_fragment_t, IMPROVE>
+    accum(estimates, nc, vlattice, estimator, fragments);
   double t = 0;
   for (std::vector<local_operator_t>::iterator oi = operators.begin();
        oi != operators.end(); ++oi, t += 1) {
@@ -367,7 +362,7 @@ void loop_worker::flip()
     typename looper::measurement::collector<estimator_t, qmc_type,
       IMPROVE>::type coll;
     coll = std::accumulate(estimates.begin(), estimates.end(), coll);
-    coll.commit(obs, is_bipartite(), vlattice, beta, nop, improved_sign);
+    coll.commit(obs, vlattice, is_bipartite(), beta, nop, improved_sign);
     if (SIGN()) obs["Sign"] << improved_sign;
   }
   obs["Number of Clusters"] << (double)clusters.size();
@@ -378,11 +373,8 @@ void loop_worker::flip()
 // measurement
 //
 
-template<typename IMPROVE>
 void loop_worker::measure()
 {
-  if (use_improved_estimator != IMPROVE()) return;
-
   int nrs = num_sites();
   obs["Temperature"] << 1/beta;
   obs["Inverse Temperature"] << beta;
@@ -405,9 +397,9 @@ void loop_worker::measure()
   looper::energy_estimator::measure(obs, vlattice, beta, nop, sign, ene);
 
   // other quantities
-  looper::measurement::normal_estimator<estimator_t, qmc_type,
-    IMPROVE>::type::measure(obs, is_bipartite(), vlattice, beta, sign,
-                            spins, operators, spins_c);
+  estimator.measure<qmc_type>(obs, vlattice,
+                              is_bipartite(), use_improved_estimator,
+                              beta, sign, spins, operators, spins_c);
 }
 
 

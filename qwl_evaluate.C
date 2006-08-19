@@ -37,7 +37,8 @@ public:
   typedef loop_config::estimator_t estimator_t;
   void evaluate(alps::scheduler::MCSimulation& sim, alps::Parameters const&,
                 boost::filesystem::path const&) const;
-  void evaluate(alps::ObservableSet&, alps::ObservableSet const&) const {}
+  void evaluate(alps::ObservableSet&, alps::Parameters const&,
+                alps::ObservableSet const&) const {}
 };
 
 void evaluator::evaluate(alps::scheduler::MCSimulation& sim,
