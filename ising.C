@@ -269,6 +269,7 @@ void loop_worker::flip()
   if (IMPROVE()) {
     typename looper::measurement::collector<estimator_t, mc_type,
       IMPROVE>::type coll;
+    estimator.init_collector(coll);
     coll = std::accumulate(estimates.begin(), estimates.end(), coll);
     coll.commit(obs, vlattice, is_bipartite(), beta, 0, 1);
   }

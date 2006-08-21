@@ -95,9 +95,14 @@ struct gap_estimator
     void start_s(virtual_lattice_t const&,
       looper::imaginary_time<boost::mpl::true_> const& t, int, int)
     { p -= t.ctime_; }
-    void start_b(virtual_lattice_t const& vlat, double t, int, int s, int c)
+    void start_bs(virtual_lattice_t const& vlat, double t, int, int s, int c)
     { start_s(vlat, t, s, c); }
-    void start_b(virtual_lattice_t const& vlat,
+    void start_bt(virtual_lattice_t const& vlat, double t, int, int s, int c)
+    { start_s(vlat, t, s, c); }
+    void start_bs(virtual_lattice_t const& vlat,
+      looper::imaginary_time<boost::mpl::true_> const& t, int, int s , int c)
+    { start_s(vlat, t, s, c); }
+    void start_bt(virtual_lattice_t const& vlat,
       looper::imaginary_time<boost::mpl::true_> const& t, int, int s , int c)
     { start_s(vlat, t, s, c); }
     void term_s(virtual_lattice_t const&, double t, int, int)
@@ -105,9 +110,14 @@ struct gap_estimator
     void term_s(virtual_lattice_t const&,
       looper::imaginary_time<boost::mpl::true_> const& t, int, int)
     { p += t.ctime_; }
-    void term_b(virtual_lattice_t const& vlat, double t, int, int s, int c)
+    void term_bs(virtual_lattice_t const& vlat, double t, int, int s, int c)
     { term_s(vlat, t, s, c); }
-    void term_b(virtual_lattice_t const& vlat,
+    void term_bt(virtual_lattice_t const& vlat, double t, int, int s, int c)
+    { term_s(vlat, t, s, c); }
+    void term_bs(virtual_lattice_t const& vlat,
+      looper::imaginary_time<boost::mpl::true_> const& t, int, int s, int c)
+    { term_s(vlat, t, s, c); }
+    void term_bt(virtual_lattice_t const& vlat,
       looper::imaginary_time<boost::mpl::true_> const& t, int, int s, int c)
     { term_s(vlat, t, s, c); }
     void at_bot(virtual_lattice_t const& vlat, double t, int s, int c)
@@ -127,7 +137,7 @@ struct gap_estimator
   struct collector
   {
     double p;
-    collector() : p(0) {}
+    void init() { p = 0; }
     template<typename EST>
     collector operator+(EST const& cm)
     {
@@ -143,6 +153,8 @@ struct gap_estimator
           sign * beta * p / looper::power2(4*M_PI) / num_sites(vlat.rgraph());
     }
   };
+  template<typename QMC, typename IMPROVE>
+  void init_collector(collector<QMC, IMPROVE>& coll) const { coll.init(); }
 
   // normal estimator
 

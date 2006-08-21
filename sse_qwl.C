@@ -432,6 +432,7 @@ void loop_worker::flip()
   if (IMPROVE()) {
     typename looper::measurement::collector<estimator_t, qmc_type,
       IMPROVE>::type coll;
+    estimator.init_collector(coll);
     coll = std::accumulate(estimates.begin(), estimates.end(), coll);
     obs.set_position(nop);
     coll.commit(obs, vlattice, is_bipartite(), 1, nop, improved_sign);

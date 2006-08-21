@@ -70,14 +70,18 @@ struct transverse_magnetization_estimator
       length -= t;
       closed = false;
     }
-    void start_b(virtual_lattice_t const&, double t, int, int, int)
+    void start_bs(virtual_lattice_t const&, double t, int, int, int)
+    { length -= t; }
+    void start_bt(virtual_lattice_t const&, double t, int, int, int)
     { length -= t; }
     void term_s(virtual_lattice_t const&, double t, int, int)
     {
       length += t;
       closed = false;
     }
-    void term_b(virtual_lattice_t const&, double t, int, int, int)
+    void term_bs(virtual_lattice_t const&, double t, int, int, int)
+    { length += t; }
+    void term_bt(virtual_lattice_t const&, double t, int, int, int)
     { length += t; }
     void at_bot(virtual_lattice_t const&, double t, int, int)
     { length -= t; }
@@ -90,7 +94,7 @@ struct transverse_magnetization_estimator
   struct collector
   {
     double length;
-    collector() : length(0) {}
+    void init() { length = 0; }
     template<typename EST>
     collector operator+(EST const& cm)
     {
@@ -106,6 +110,8 @@ struct transverse_magnetization_estimator
         num_sites(vlat.rgraph());
     }
   };
+  template<typename QMC, typename IMPROVE>
+  void init_collector(collector<QMC, IMPROVE>& coll) const { coll.init(); }
 
   // normal estimator
 
