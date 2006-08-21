@@ -43,8 +43,8 @@ check_PROGRAMS = alternating_tensor$(EXEEXT) bond_matrix$(EXEEXT) \
 	llsp$(EXEEXT) model_parameter$(EXEEXT) parse_vector$(EXEEXT) \
 	permutation$(EXEEXT) postorder$(EXEEXT) random_choice$(EXEEXT) \
 	range$(EXEEXT) sign$(EXEEXT) site_matrix$(EXEEXT) \
-	syev$(EXEEXT) union_find$(EXEEXT) virtual_lattice$(EXEEXT) \
-	weight$(EXEEXT)
+	syev$(EXEEXT) temperature$(EXEEXT) union_find$(EXEEXT) \
+	virtual_lattice$(EXEEXT) weight$(EXEEXT)
 subdir = test
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
@@ -130,6 +130,10 @@ am_syev_OBJECTS = syev.$(OBJEXT)
 syev_OBJECTS = $(am_syev_OBJECTS)
 syev_LDADD = $(LDADD)
 syev_DEPENDENCIES =
+am_temperature_OBJECTS = temperature.$(OBJEXT)
+temperature_OBJECTS = $(am_temperature_OBJECTS)
+temperature_LDADD = $(LDADD)
+temperature_DEPENDENCIES =
 am_union_find_OBJECTS = union_find.$(OBJEXT)
 union_find_OBJECTS = $(am_union_find_OBJECTS)
 union_find_LDADD = $(LDADD)
@@ -160,8 +164,8 @@ SOURCES = $(alternating_tensor_SOURCES) $(bond_matrix_SOURCES) \
 	$(parse_vector_SOURCES) $(permutation_SOURCES) \
 	$(postorder_SOURCES) $(random_choice_SOURCES) $(range_SOURCES) \
 	$(sign_SOURCES) $(site_matrix_SOURCES) $(syev_SOURCES) \
-	$(union_find_SOURCES) $(virtual_lattice_SOURCES) \
-	$(weight_SOURCES)
+	$(temperature_SOURCES) $(union_find_SOURCES) \
+	$(virtual_lattice_SOURCES) $(weight_SOURCES)
 DIST_SOURCES = $(alternating_tensor_SOURCES) $(bond_matrix_SOURCES) \
 	$(compatibility_SOURCES) $(edge_type_SOURCES) \
 	$(filtered_graph_SOURCES) $(find_bridge_SOURCES) \
@@ -170,8 +174,8 @@ DIST_SOURCES = $(alternating_tensor_SOURCES) $(bond_matrix_SOURCES) \
 	$(parse_vector_SOURCES) $(permutation_SOURCES) \
 	$(postorder_SOURCES) $(random_choice_SOURCES) $(range_SOURCES) \
 	$(sign_SOURCES) $(site_matrix_SOURCES) $(syev_SOURCES) \
-	$(union_find_SOURCES) $(virtual_lattice_SOURCES) \
-	$(weight_SOURCES)
+	$(temperature_SOURCES) $(union_find_SOURCES) \
+	$(virtual_lattice_SOURCES) $(weight_SOURCES)
 DATA = $(dist_noinst_DATA)
 ETAGS = etags
 CTAGS = ctags
@@ -327,6 +331,7 @@ dist_noinst_DATA = \
 	sign.ip sign.op \
 	site_matrix.ip site_matrix.op \
 	syev.op \
+	temperature.ip temperature.op \
 	union_find.op \
 	virtual_lattice.op \
 	weight.ip weight.op
@@ -352,6 +357,7 @@ range_SOURCES = range.C
 sign_SOURCES = sign.C
 site_matrix_SOURCES = site_matrix.C
 syev_SOURCES = syev.C
+temperature_SOURCES = temperature.C
 union_find_SOURCES = union_find.C
 virtual_lattice_SOURCES = virtual_lattice.C
 weight_SOURCES = weight.C
@@ -452,6 +458,9 @@ site_matrix$(EXEEXT): $(site_matrix_OBJECTS) $(site_matrix_DEPENDENCIES)
 syev$(EXEEXT): $(syev_OBJECTS) $(syev_DEPENDENCIES) 
 	@rm -f syev$(EXEEXT)
 	$(CXXLINK) $(syev_LDFLAGS) $(syev_OBJECTS) $(syev_LDADD) $(LIBS)
+temperature$(EXEEXT): $(temperature_OBJECTS) $(temperature_DEPENDENCIES) 
+	@rm -f temperature$(EXEEXT)
+	$(CXXLINK) $(temperature_LDFLAGS) $(temperature_OBJECTS) $(temperature_LDADD) $(LIBS)
 union_find$(EXEEXT): $(union_find_OBJECTS) $(union_find_DEPENDENCIES) 
 	@rm -f union_find$(EXEEXT)
 	$(CXXLINK) $(union_find_LDFLAGS) $(union_find_OBJECTS) $(union_find_LDADD) $(LIBS)
@@ -487,6 +496,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sign.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/site_matrix.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/syev.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/temperature.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/union_find.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/virtual_lattice.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/weight.Po@am__quote@

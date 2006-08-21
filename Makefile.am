@@ -45,6 +45,7 @@ dist_noinst_HEADERS = \
 	looper/permutation.h \
 	looper/power.h \
 	looper/random_choice.h \
+	looper/temperature.h \
 	looper/time.h \
 	looper/type.h \
 	looper/union_find.h \

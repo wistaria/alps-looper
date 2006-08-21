@@ -18,6 +18,7 @@ check_PROGRAMS = \
 	sign \
 	site_matrix \
 	syev \
+	temperature \
 	union_find \
 	virtual_lattice \
 	weight
@@ -41,6 +42,7 @@ dist_noinst_DATA = \
 	sign.ip sign.op \
 	site_matrix.ip site_matrix.op \
 	syev.op \
+	temperature.ip temperature.op \
 	union_find.op \
 	virtual_lattice.op \
 	weight.ip weight.op
@@ -67,6 +69,7 @@ range_SOURCES = range.C
 sign_SOURCES = sign.C
 site_matrix_SOURCES = site_matrix.C
 syev_SOURCES = syev.C
+temperature_SOURCES = temperature.C
 union_find_SOURCES = union_find.C
 virtual_lattice_SOURCES = virtual_lattice.C
 weight_SOURCES = weight.C

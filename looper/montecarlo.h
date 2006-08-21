@@ -28,7 +28,6 @@
 #include "integer_range.h"
 
 #include <alps/osiris.h>
-#include <alps/scheduler.h>
 #include <boost/throw_exception.hpp>
 #include <stdexcept>
 
