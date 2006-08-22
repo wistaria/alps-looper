@@ -61,8 +61,8 @@ public:
       static_cast<double>(mcs_ - therm_) / sweep_.min() : 0;
   }
 
-  int mcs_thermalization() const { return therm_; }
-  looper::integer_range<int> mcs_sweeps() const { return sweep_; }
+  int thermalization() const { return therm_; }
+  looper::integer_range<int> sweeps() const { return sweep_; }
 
   void save(alps::ODump& dp) const { dp << mcs_ << sweep_ << therm_; }
   void load(alps::IDump& dp) { dp >> mcs_ >> sweep_ >> therm_; }
@@ -136,9 +136,9 @@ public:
 
   bool perform_multicanonical_measurement() const { return multicanonical_; }
   bool use_zhou_bhatt() const { return zhou_bhatt_; }
-  int mcs_block() const { return block_; }
-  int mcs_sweeps() const { return sweep_; }
-  int num_iterations() const { return iteration_; }
+  int block() const { return block_; }
+  int sweeps() const { return sweep_; }
+  int iterations() const { return iteration_; }
 
   void save(alps::ODump& dp) const
   {

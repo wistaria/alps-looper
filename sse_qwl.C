@@ -41,7 +41,7 @@ class loop_worker
   : public alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
 {
 public:
-  typedef looper::sse                                      qmc_type;
+  typedef looper::sse                                      mc_type;
   typedef alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
                                                            super_type;
 
@@ -49,7 +49,7 @@ public:
                                                            virtual_lattice_t;
   typedef loop_config::time_t                              time_t;
   typedef loop_config::loop_graph_t                        loop_graph_t;
-  typedef looper::local_operator<qmc_type, loop_graph_t, time_t>
+  typedef looper::local_operator<mc_type, loop_graph_t, time_t>
                                                            local_operator_t;
   typedef std::vector<local_operator_t>                    operator_string_t;
   typedef operator_string_t::iterator                      operator_iterator;
@@ -153,7 +153,7 @@ loop_worker::loop_worker(alps::ProcessList const& w,
   double fs = p.value_or_default("FORCE_SCATTER", is_frustrated ? 0.1 : 0);
   looper::weight_table wt(mp, vlattice, fs);
   energy_offset += wt.energy_offset();
-  chooser.init(wt, looper::is_path_integral<qmc_type>::type());
+  chooser.init(wt, looper::is_path_integral<mc_type>::type());
 
   if (is_signed) {
     bond_sign.resize(num_vbonds(vlattice));
@@ -173,7 +173,7 @@ loop_worker::loop_worker(alps::ProcessList const& w,
   double f = p.value_or_default("INITIAL_MODIFICATION_FACTOR",
     mcs.use_zhou_bhatt() ? std::exp(1.) :
     std::exp(exp_range.max() * std::log(1.*num_vsites(vlattice)) /
-      mcs.mcs_block()));
+      mcs.block()));
   if (f <= 1)
     boost::throw_exception(std::invalid_argument("initial modification factor "
                                                  "must be larger than 1"));
@@ -199,7 +199,7 @@ loop_worker::loop_worker(alps::ProcessList const& w,
     << alps::SimpleRealVectorObservable("Partition Function Coefficient")
     << alps::SimpleRealVectorObservable("Histogram");
   if (store_all_histograms) {
-    for (int p = 0; p < mcs.num_iterations(); ++p) {
+    for (int p = 0; p < mcs.iterations(); ++p) {
       std::string suffix =
         "(iteration #" + boost::lexical_cast<std::string>(p) + ")";
       measurements
@@ -229,7 +229,7 @@ void loop_worker::dostep()
 
   if (mcs.doing_multicanonical()) measure();
 
-  if (!mcs.doing_multicanonical() && mcs() == mcs.mcs_block()) {
+  if (!mcs.doing_multicanonical() && mcs() == mcs.block()) {
     if (histogram.check_flatness(flatness) &&
         histogram.check_visit(min_visit)) {
       std::cerr << "stage " << mcs.stage() << ": histogram becomes flat\n";
@@ -248,7 +248,7 @@ void loop_worker::dostep()
       mcs.reset_stage();
     }
   }
-  if (mcs.doing_multicanonical() && mcs() == mcs.mcs_sweeps())
+  if (mcs.doing_multicanonical() && mcs() == mcs.sweeps())
     histogram.store(measurements, "Partition Function Coefficient", "Histogram",
                     mcs.doing_multicanonical());
 }
@@ -391,24 +391,30 @@ void loop_worker::flip()
     if (oi->is_bond()) {
       int s0 = vsource(oi->pos(), vlattice);
       int s1 = vtarget(oi->pos(), vlattice);
-      weight.bond_sign(oi->loop_0(), oi->loop_1(), oi->pos());
+      weight.term_b(oi->loop_l0(), oi->loop_l1(), t, oi->pos(), s0, s1,
+                    spins_c[s0], spins_c[s1]);
       accum.term_b(oi->loop_l0(), oi->loop_l1(), t, oi->pos(), s0, s1,
                    spins_c[s0], spins_c[s1]);
       if (oi->is_offdiagonal()) {
         spins_c[s0] ^= 1;
         spins_c[s1] ^= 1;
       }
+      weight.start_b(oi->loop_u0(), oi->loop_u1(), t, oi->pos(), s0, s1,
+                     spins_c[s0], spins_c[s1]);
       accum.start_b(oi->loop_u0(), oi->loop_u1(), t, oi->pos(), s0, s1,
                     spins_c[s0], spins_c[s1]);
     } else {
       int s = oi->pos();
-      weight.site_sign(oi->loop_0(), oi->loop_1(), s);
+      weight.term_s(oi->loop_l(), t, s, spins_c[s]);
       accum.term_s(oi->loop_l(), t, s, spins_c[s]);
       if (oi->is_offdiagonal()) spins_c[s] ^= 1;
+      weight.start_s(oi->loop_u(), t, s, spins_c[s]);
       accum.start_s(oi->loop_u(), t, s, spins_c[s]);
     }
   }
   for (unsigned int s = 0; s < nvs; ++s) {
+    weight.at_bot(s,          0,   s, spins[s]);
+    weight.at_top(current[s], nop, s, spins_c[s]);
     accum.at_bot(s,          0,   s, spins[s]);
     accum.at_top(current[s], nop, s, spins_c[s]);
   }
@@ -430,7 +436,7 @@ void loop_worker::flip()
 
   // improved measurement
   if (IMPROVE()) {
-    typename looper::measurement::collector<estimator_t, qmc_type,
+    typename looper::measurement::collector<estimator_t, mc_type,
       IMPROVE>::type coll;
     estimator.init_collector(coll);
     coll = std::accumulate(estimates.begin(), estimates.end(), coll);
@@ -464,9 +470,9 @@ void loop_worker::measure()
     if (!use_improved_estimator) obs["Sign"] << sign;
   }
 
-  estimator.measure<qmc_type>(obs, vlattice,
-                              is_bipartite(), use_improved_estimator,
-                              1, sign, spins, operators, spins_c);
+  // other quantities
+  estimator.normal_measurement<mc_type>(obs, vlattice, is_bipartite(),
+    use_improved_estimator, 1, sign, spins, operators, spins_c);
 }
 
 

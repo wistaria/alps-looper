@@ -185,12 +185,12 @@ struct energy_estimator
     }
   }
 
-  // normal_estimator
+  // normal estimator
 
   template<typename RG, typename VG>
-  static void measure(alps::ObservableSet& m,
-                      virtual_lattice<RG, VG> const& vlat,
-                      double beta, int nop, double sign, double ene)
+  static void measurement(alps::ObservableSet& m,
+                          virtual_lattice<RG, VG> const& vlat,
+                          double beta, int nop, double sign, double ene)
   {
     m["Energy"] << sign * ene;
     m["Energy Density"] << sign * ene / num_sites(vlat.rgraph());
@@ -250,15 +250,15 @@ struct dumb_estimator
   // normal estimator
 
   template<typename QMC, typename M, typename OP>
-  void measure(M& /* m */,
-               virtual_lattice_t const& /* vlat */,
-               bool /* is_bipartite */,
-               bool /* use_imporved_estimator */,
-               double /* beta */,
-               double /* sign */,
-               std::vector<int> const& /* spins */,
-               std::vector<OP> const& /* operators */,
-               std::vector<int> const& /* spins_c */) {}
+  void normal_measurement(M& /* m */,
+                          virtual_lattice_t const& /* vlat */,
+                          bool /* is_bipartite */,
+                          bool /* use_imporved_estimator */,
+                          double /* beta */,
+                          double /* sign */,
+                          std::vector<int> const& /* spins */,
+                          std::vector<OP> const& /* operators */,
+                          std::vector<int> const& /* spins_c */) {}
 };
 
 
@@ -381,17 +381,17 @@ struct composite_estimator
   }
 
   template<typename QMC, typename M, typename OP>
-  void measure(M& m, virtual_lattice_t const& vlat,
-               bool is_bipartite, bool use_improved_estimator,
-               double beta, double sign,
-               std::vector<int> const& spins,
-               std::vector<OP> const& operators,
-               std::vector<int>& spins_c)
+  void normal_measurement(M& m, virtual_lattice_t const& vlat,
+                          bool is_bipartite, bool use_improved_estimator,
+                          double beta, double sign,
+                          std::vector<int> const& spins,
+                          std::vector<OP> const& operators,
+                          std::vector<int>& spins_c)
   {
-    emt1.measure<QMC>(m, vlat, is_bipartite, use_improved_estimator,
-                      beta, sign, spins, operators, spins_c);
-    emt2.measure<QMC>(m, vlat, is_bipartite, use_improved_estimator,
-                      beta, sign, spins, operators, spins_c);
+    emt1.normal_measurement<QMC>(m, vlat, is_bipartite, use_improved_estimator,
+                                 beta, sign, spins, operators, spins_c);
+    emt2.normal_measurement<QMC>(m, vlat, is_bipartite, use_improved_estimator,
+                                 beta, sign, spins, operators, spins_c);
   }
 };
 
@@ -607,12 +607,12 @@ struct susceptibility_estimator
   void init_collector(collector<QMC, IMPROVE>& coll) const { coll.init(); }
 
   template<typename QMC, typename M, typename OP>
-  void measure(M& m, virtual_lattice_t const& vlat,
-               bool is_bipartite, bool use_improved_estimator,
-               double beta, double sign,
-               std::vector<int> const& spins,
-               std::vector<OP> const& operators,
-               std::vector<int>& spins_c)
+  void normal_measurement(M& m, virtual_lattice_t const& vlat,
+                          bool is_bipartite, bool use_improved_estimator,
+                          double beta, double sign,
+                          std::vector<int> const& spins,
+                          std::vector<OP> const& operators,
+                          std::vector<int>& spins_c)
   {
     if (use_improved_estimator) return;
 
@@ -730,16 +730,17 @@ struct stiffness_estimator
       alps::coordinate_type vr =
         get(bond_vector_relative_t(), vlat.rgraph(), rbond(vlat, b));
       for (int i = 0; i < winding.size(); ++i)
-        winding[i] += 0.25 * (1-2*c) * vr[i];
+        winding[i] -= (1-2*c) * vr[i];
     }
-    void start_bt(virtual_lattice_t const& vlat, double, int b, int,
-                  int c)
-    {
-      alps::coordinate_type vr =
-        get(bond_vector_relative_t(), vlat.rgraph(), rbond(vlat, b));
-      for (int i = 0; i < winding.size(); ++i)
-        winding[i] -= 0.25 * (1-2*c) * vr[i];
-    }
+    void start_bt(virtual_lattice_t const&, double, int, int, int) {}
+//     void start_bt(virtual_lattice_t const& vlat, double, int b, int,
+//                   int c)
+//     {
+//       alps::coordinate_type vr =
+//         get(bond_vector_relative_t(), vlat.rgraph(), rbond(vlat, b));
+//       for (int i = 0; i < winding.size(); ++i)
+//         winding[i] -= 0.25 * (1-2*c) * vr[i];
+//     }
     void term_s(virtual_lattice_t const&, double, int, int) const {}
     void term_bs(virtual_lattice_t const& vlat, double, int b, int,
                  int c)
@@ -747,16 +748,17 @@ struct stiffness_estimator
       alps::coordinate_type vr =
         get(bond_vector_relative_t(), vlat.rgraph(), rbond(vlat, b));
       for (int i = 0; i < winding.size(); ++i)
-        winding[i] -= 0.25* (1-2*c) * vr[i];
+        winding[i] += (1-2*c) * vr[i];
     }
-    void term_bt(virtual_lattice_t const& vlat, double, int b, int,
-                 int c)
-    {
-      alps::coordinate_type vr =
-        get(bond_vector_relative_t(), vlat.rgraph(), rbond(vlat, b));
-      for (int i = 0; i < winding.size(); ++i)
-        winding[i] += 0.25 * (1-2*c) * vr[i];
-    }
+    void term_bt(virtual_lattice_t const&, double, int, int, int) {}
+//     void term_bt(virtual_lattice_t const& vlat, double, int b, int,
+//                  int c)
+//     {
+//       alps::coordinate_type vr =
+//         get(bond_vector_relative_t(), vlat.rgraph(), rbond(vlat, b));
+//       for (int i = 0; i < winding.size(); ++i)
+//         winding[i] += 0.25 * (1-2*c) * vr[i];
+//     }
     void at_bot(virtual_lattice_t const&, double, int, int) const {}
     void at_top(virtual_lattice_t const&, double, int, int) const {}
   };
@@ -771,7 +773,7 @@ struct stiffness_estimator
     template<typename EST>
     collector operator+(EST const& est)
     {
-      for (int i = 0; i < dim; ++i) w2 += power2(est.winding[i]);
+      for (int i = 0; i < dim; ++i) w2 += power2(0.5 * est.winding[i]);
       return *this;
     }
     template<typename M>
@@ -785,12 +787,12 @@ struct stiffness_estimator
   // normal estimator
 
   template<typename QMC, typename M, typename OP>
-  void measure(M& m, virtual_lattice_t const& vlat,
-               bool /* is_bipartite */, bool use_improved_estimator,
-               double beta, double sign,
-               std::vector<int> const& spins,
-               std::vector<OP> const& operators,
-               std::vector<int>& spins_c)
+  void normal_measurement(M& m, virtual_lattice_t const& vlat,
+                          bool /* is_bipartite */, bool use_improved_estimator,
+                          double beta, double sign,
+                          std::vector<int> const& spins,
+                          std::vector<OP> const& operators,
+                          std::vector<int>& spins_c)
   {
     if (use_improved_estimator) return;
 

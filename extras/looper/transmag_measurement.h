@@ -116,15 +116,15 @@ struct transverse_magnetization_estimator
   // normal estimator
 
   template<typename QMC, typename M, typename OP>
-  void measure(M& /* m */,
-               virtual_lattice_t const& /* vlat */,
-               bool /* is_bipartite */,
-               bool /* use_imporved_estimator */,
-               double /* beta */,
-               double /* sign */,
-               std::vector<int> const& /* spins */,
-               std::vector<OP> const& /* operators */,
-               std::vector<int> const& /* spins_c */) {}
+  void normal_measurement(M& /* m */,
+                          virtual_lattice_t const& /* vlat */,
+                          bool /* is_bipartite */,
+                          bool /* use_imporved_estimator */,
+                          double /* beta */,
+                          double /* sign */,
+                          std::vector<int> const& /* spins */,
+                          std::vector<OP> const& /* operators */,
+                          std::vector<int> const& /* spins_c */) {}
 };
 
 #endif // TRANSMAG_MEASUREMENT_H

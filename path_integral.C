@@ -30,6 +30,7 @@
 #include <looper/montecarlo.h>
 #include <looper/operator.h>
 #include <looper/permutation.h>
+#include <looper/temperature.h>
 #include <looper/type.h>
 #include <looper/weight.h>
 
@@ -39,7 +40,7 @@ class loop_worker
   : public alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
 {
 public:
-  typedef looper::path_integral                            qmc_type;
+  typedef looper::path_integral                            mc_type;
   typedef alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
                                                            super_type;
 
@@ -47,7 +48,7 @@ public:
                                                            virtual_lattice_t;
   typedef loop_config::time_t                              time_t;
   typedef loop_config::loop_graph_t                        loop_graph_t;
-  typedef looper::local_operator<qmc_type, loop_graph_t, time_t>
+  typedef looper::local_operator<mc_type, loop_graph_t, time_t>
                                                            local_operator_t;
   typedef std::vector<local_operator_t>                    operator_string_t;
   typedef operator_string_t::iterator                      operator_iterator;
@@ -77,6 +78,7 @@ protected:
 
 private:
   // parameters
+  looper::temperature temperature;
   double beta;
   double energy_offset;
   bool has_field;
@@ -116,13 +118,14 @@ private:
 
 loop_worker::loop_worker(alps::ProcessList const& w,
                          alps::Parameters const& p, int n)
-  : super_type(w, p, n), vlattice(graph()), chooser(*engine_ptr),
+  : super_type(w, p, n), temperature(p), vlattice(graph()),
+    chooser(*engine_ptr),
     r_time(*engine_ptr, boost::exponential_distribution<>()),
     mcs(p), obs(measurements)
 {
-  beta = 1.0 / alps::evaluate("T", p);
-  if (beta < 0)
-    boost::throw_exception(std::invalid_argument("negative temperature"));
+  if (temperature.annealing_steps() > mcs.thermalization())
+    boost::throw_exception(std::invalid_argument(
+      "annealing steps are longer than thermalization steps"));
 
   looper::model_parameter mp(p, *this);
   energy_offset = mp.energy_offset();
@@ -145,9 +148,7 @@ loop_worker::loop_worker(alps::ProcessList const& w,
   double fs = p.value_or_default("FORCE_SCATTER", is_frustrated ? 0.1 : 0);
   looper::weight_table wt(mp, vlattice, fs);
   energy_offset += wt.energy_offset();
-  chooser.init(wt, looper::is_path_integral<qmc_type>::type());
-  r_time.distribution() =
-    boost::exponential_distribution<>(beta * chooser.weight());
+  chooser.init(wt, looper::is_path_integral<mc_type>::type());
 
   if (is_signed) {
     bond_sign.resize(num_vbonds(vlattice));
@@ -192,6 +193,7 @@ void loop_worker::dostep()
 {
   if (!mcs.can_work()) return;
   ++mcs;
+  beta = 1.0 / temperature(mcs());
 
   build();
 
@@ -224,6 +226,8 @@ void loop_worker::build()
   fragments.resize(0); fragments.resize(nvs);
   for (int s = 0; s < nvs; ++s) current[s] = s;
 
+  r_time.distribution() =
+    boost::exponential_distribution<>(beta * chooser.weight());
   double t = r_time();
   for (operator_iterator opi = operators_p.begin();
        t < 1 || opi != operators_p.end();) {
@@ -297,8 +301,7 @@ void loop_worker::build()
 template<typename FIELD, typename SIGN, typename IMPROVE>
 void loop_worker::flip()
 {
-  if (!(has_field == FIELD() &&
-        is_signed == SIGN() &&
+  if (!(has_field == FIELD() && is_signed == SIGN() &&
         use_improved_estimator == IMPROVE())) return;
 
   int nvs = num_vsites(vlattice);
@@ -323,26 +326,24 @@ void loop_worker::flip()
     if (oi->is_bond()) {
       int s0 = vsource(oi->pos(), vlattice);
       int s1 = vtarget(oi->pos(), vlattice);
-      weight.bond_sign(oi->loop_0(), oi->loop_1(), oi->pos());
-      weight.term(oi->loop_l0(), t, s0, spins_c[s0]);
-      weight.term(oi->loop_l1(), t, s1, spins_c[s1]);
+      weight.term_b(oi->loop_l0(), oi->loop_l1(), t, oi->pos(), s0, s1,
+                    spins_c[s0], spins_c[s1]);
       accum.term_b(oi->loop_l0(), oi->loop_l1(), t, oi->pos(), s0, s1,
                    spins_c[s0], spins_c[s1]);
       if (oi->is_offdiagonal()) {
         spins_c[s0] ^= 1;
         spins_c[s1] ^= 1;
       }
-      weight.start(oi->loop_u0(), t, s0, spins_c[s0]);
-      weight.start(oi->loop_u1(), t, s1, spins_c[s1]);
+      weight.start_b(oi->loop_u0(), oi->loop_u1(), t, oi->pos(), s0, s1,
+                     spins_c[s0], spins_c[s1]);
       accum.start_b(oi->loop_u0(), oi->loop_u1(), t, oi->pos(), s0, s1,
                     spins_c[s0], spins_c[s1]);
     } else {
       int s = oi->pos();
-      weight.site_sign(oi->loop_0(), oi->loop_1(), s);
-      weight.term(oi->loop_l(), t, s, spins_c[s]);
+      weight.term_s(oi->loop_l(), t, s, spins_c[s]);
       accum.term_s(oi->loop_l(), t, s, spins_c[s]);
       if (oi->is_offdiagonal()) spins_c[s] ^= 1;
-      weight.start(oi->loop_u(), t, s, spins_c[s]);
+      weight.start_s(oi->loop_u(), t, s, spins_c[s]);
       accum.start_s(oi->loop_u(), t, s, spins_c[s]);
     }
   }
@@ -370,7 +371,7 @@ void loop_worker::flip()
 
   // improved measurement
   if (IMPROVE()) {
-    typename looper::measurement::collector<estimator_t, qmc_type,
+    typename looper::measurement::collector<estimator_t, mc_type,
       IMPROVE>::type coll;
     estimator.init_collector(coll);
     coll = std::accumulate(estimates.begin(), estimates.end(), coll);
@@ -412,12 +413,11 @@ void loop_worker::measure()
       if (ci->to_flip) ene -= ci->weight;
       else ene += ci->weight;
   }
-  looper::energy_estimator::measure(obs, vlattice, beta, nop, sign, ene);
+  looper::energy_estimator::measurement(obs, vlattice, beta, nop, sign, ene);
 
   // other quantities
-  estimator.measure<qmc_type>(obs, vlattice,
-                              is_bipartite(), use_improved_estimator,
-                              beta, sign, spins, operators, spins_c);
+  estimator.normal_measurement<mc_type>(obs, vlattice, is_bipartite(),
+    use_improved_estimator, beta, sign, spins, operators, spins_c);
 }
 
 

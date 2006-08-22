@@ -29,6 +29,7 @@
 #include <looper/model.h>
 #include <looper/montecarlo.h>
 #include <looper/permutation.h>
+#include <looper/temperature.h>
 #include <boost/numeric/ublas/matrix.hpp>
 
 namespace {
@@ -78,6 +79,7 @@ protected:
 
 private:
   // parameters
+  looper::temperature temperature;
   double beta;
   double energy_offset;
   bool has_field, is_frustrated, use_improved_estimator;
@@ -108,11 +110,12 @@ private:
 
 loop_worker::loop_worker(alps::ProcessList const& w,
                          alps::Parameters const& p, int n)
-  : super_type(w, p, n), vlattice(graph()), mcs(p), obs(measurements)
+  : super_type(w, p, n), temperature(p), vlattice(graph()),
+    mcs(p), obs(measurements)
 {
-  beta = 1.0 / alps::evaluate("T", p);
-  if (beta < 0)
-    boost::throw_exception(std::invalid_argument("negative temperature"));
+  if (temperature.annealing_steps() > mcs.thermalization())
+    boost::throw_exception(std::invalid_argument(
+      "annealing steps are longer than thermalization steps"));
 
   looper::model_parameter mp(p, *this);
   energy_offset = mp.energy_offset();
@@ -140,11 +143,7 @@ loop_worker::loop_worker(alps::ProcessList const& w,
     double jz = -mp.bond(*rbi, graph()).jz; // positive for ferromagnetic
     virtual_lattice_t::virtual_bond_iterator vbi, vbi_end;
     for (boost::tie(vbi, vbi_end) = virtual_bonds(vlattice, *rbi);
-         vbi != vbi_end; ++vbi, ++b) {
-      coupling[b] = jz;
-      prob(b, 0) = 1-std::exp(-0.5*beta*jz); // for parallel
-      prob(b, 1) = 1-std::exp( 0.5*beta*jz); // for antiparallel
-    }
+         vbi != vbi_end; ++vbi, ++b) coupling[b] = jz;
   }
   if (has_field) {
     field.resize(num_vsites(vlattice));
@@ -176,6 +175,7 @@ void loop_worker::dostep()
 {
   if (!mcs.can_work()) return;
   ++mcs;
+  beta = 1.0 / temperature(mcs());
 
   build();
 
@@ -199,7 +199,15 @@ void loop_worker::build()
   int nvs = num_vsites(vlattice);
   fragments.resize(0); fragments.resize(nvs);
 
+  // build table of probabilities
   int nvb = num_vbonds(vlattice);
+  if (mcs() <= temperature.annealing_steps()+1)
+    for (int b = 0; b < nvb; ++b) {
+      prob(b, 0) = 1-std::exp(-0.5*beta*coupling[b]); // for parallel
+      prob(b, 1) = 1-std::exp( 0.5*beta*coupling[b]); // for antiparallel
+    }
+
+  // building up clusters
   for (int b = 0; b < nvb; ++b) {
     int s0 = vsource(b, vlattice);
     int s1 = vtarget(b, vlattice);
@@ -249,8 +257,8 @@ void loop_worker::flip()
   looper::accumulator<estimator_t, time_t, cluster_fragment_t, IMPROVE>
     accum(estimates, nc, vlattice, estimator, fragments);
   for (unsigned int s = 0; s < nvs; ++s) {
-    weight.start(s, time_t(0), s, spins[s]);
-    weight.term(s, time_t(1), s, spins[s]);
+    weight.at_bot(s, time_t(0), s, spins[s]);
+    weight.at_top(s, time_t(1), s, spins[s]);
     accum.at_bot(s, time_t(0), s, spins[s]);
     accum.at_top(s, time_t(1), s, spins[s]);
   }
@@ -278,7 +286,7 @@ void loop_worker::flip()
 
 
 //
-// measurements
+// measurement
 //
 
 void loop_worker::measure()
@@ -302,11 +310,10 @@ void loop_worker::measure()
       if (ci->to_flip) ene -= ci->weight;
       else ene += ci->weight;
   }
-  looper::energy_estimator::measure(obs, vlattice, beta, 0, 1, ene);
+  looper::energy_estimator::measurement(obs, vlattice, beta, 0, 1, ene);
 
-  estimator.measure<mc_type>(obs, vlattice,
-                             is_bipartite(), use_improved_estimator,
-                             beta, 1, spins, operator_string_t(), spins);
+  estimator.normal_measurement<mc_type>(obs, vlattice, is_bipartite(),
+    use_improved_estimator, beta, 1, spins, operator_string_t(), spins);
 }
 
 
