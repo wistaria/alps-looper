@@ -711,7 +711,7 @@ struct stiffness_estimator
                 << MAX_DIM << " dimensions\n";
       dim = MAX_DIM;
     }
-    add_measurement(m, "Stiffness", is_signed);
+    if (dim > 0) add_measurement(m, "Stiffness", is_signed);
   }
   static void evaluate(alps::ObservableSet& /* m */,
                        alps::Parameters const& /* params */,
@@ -733,14 +733,6 @@ struct stiffness_estimator
         winding[i] -= (1-2*c) * vr[i];
     }
     void start_bt(virtual_lattice_t const&, double, int, int, int) {}
-//     void start_bt(virtual_lattice_t const& vlat, double, int b, int,
-//                   int c)
-//     {
-//       alps::coordinate_type vr =
-//         get(bond_vector_relative_t(), vlat.rgraph(), rbond(vlat, b));
-//       for (int i = 0; i < winding.size(); ++i)
-//         winding[i] -= 0.25 * (1-2*c) * vr[i];
-//     }
     void term_s(virtual_lattice_t const&, double, int, int) const {}
     void term_bs(virtual_lattice_t const& vlat, double, int b, int,
                  int c)
@@ -751,14 +743,6 @@ struct stiffness_estimator
         winding[i] += (1-2*c) * vr[i];
     }
     void term_bt(virtual_lattice_t const&, double, int, int, int) {}
-//     void term_bt(virtual_lattice_t const& vlat, double, int b, int,
-//                  int c)
-//     {
-//       alps::coordinate_type vr =
-//         get(bond_vector_relative_t(), vlat.rgraph(), rbond(vlat, b));
-//       for (int i = 0; i < winding.size(); ++i)
-//         winding[i] += 0.25 * (1-2*c) * vr[i];
-//     }
     void at_bot(virtual_lattice_t const&, double, int, int) const {}
     void at_top(virtual_lattice_t const&, double, int, int) const {}
   };
@@ -779,7 +763,7 @@ struct stiffness_estimator
     template<typename M>
     void commit(M& m, virtual_lattice_t const&, bool, double beta, int,
                 double sign) const
-    { m["Stiffness"] << sign * w2 / (beta * dim); }
+    { if (dim > 0) m["Stiffness"] << sign * w2 / (beta * dim); }
   };
   template<typename QMC, typename IMPROVE>
   void init_collector(collector<QMC, IMPROVE>& coll) const { coll.init(dim); }
@@ -794,7 +778,7 @@ struct stiffness_estimator
                           std::vector<OP> const& operators,
                           std::vector<int>& spins_c)
   {
-    if (use_improved_estimator) return;
+    if (use_improved_estimator || dim == 0) return;
 
     std::valarray<double> winding(0., dim);
     std::copy(spins.begin(), spins.end(), spins_c.begin());

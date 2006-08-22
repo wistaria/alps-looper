@@ -48,7 +48,7 @@ T = 2
 
 LATTICE = "triangle"
 Jxy  = 1; Jz = 1
-T = 0.3
+T = 0.5
 local_S = 1/2
 { REPRESENTATION = "diagonalization" }
 { REPRESENTATION = "path integral" }
