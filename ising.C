@@ -57,8 +57,8 @@ public:
   typedef looper::union_find::node                         cluster_fragment_t;
   typedef looper::cluster_info                             cluster_info_t;
 
-  typedef loop_config::estimator_t                         estimator_t;
-  typedef looper::measurement::estimate<estimator_t>::type estimate_t;
+  typedef looper::estimator<loop_config::measurement_set, mc_type,
+    virtual_lattice_t, time_t>::type                       estimator_t;
 
   loop_worker(alps::ProcessList const& w, alps::Parameters const& p, int n);
   void dostep();
@@ -99,7 +99,7 @@ private:
   // working vectors
   std::vector<cluster_fragment_t> fragments;
   std::vector<cluster_info_t> clusters;
-  std::vector<estimate_t> estimates;
+  std::vector<looper::estimate<estimator_t>::type> estimates;
   std::vector<int> perm;
 };
 
@@ -167,8 +167,7 @@ loop_worker::loop_worker(alps::ProcessList const& w,
   obs << make_observable(alps::SimpleRealObservable("Number of Sites"));
   obs << make_observable(alps::SimpleRealObservable("Number of Clusters"));
   looper::energy_estimator::initialize(obs, false);
-  estimator.initialize(obs, p, vlattice, is_bipartite(), false,
-                       use_improved_estimator);
+  estimator.initialize(obs, p, vlattice, false, use_improved_estimator);
 }
 
 void loop_worker::dostep()
@@ -239,8 +238,7 @@ void loop_worker::build()
 template<typename FIELD, typename IMPROVE>
 void loop_worker::flip()
 {
-  if (!(false == FIELD() &&
-        use_improved_estimator == IMPROVE())) return;
+  if (!(false == FIELD() && use_improved_estimator == IMPROVE())) return;
 
   int nvs = num_vsites(vlattice);
 
@@ -254,7 +252,7 @@ void loop_worker::flip()
 
   cluster_info_t::accumulator<cluster_fragment_t, FIELD,
     boost::mpl::false_, IMPROVE> weight(clusters, fragments, field, 0, 0);
-  looper::accumulator<estimator_t, time_t, cluster_fragment_t, IMPROVE>
+  looper::accumulator<estimator_t, cluster_fragment_t, IMPROVE>
     accum(estimates, nc, vlattice, estimator, fragments);
   for (unsigned int s = 0; s < nvs; ++s) {
     weight.at_bot(s, time_t(0), s, spins[s]);
@@ -269,19 +267,18 @@ void loop_worker::flip()
     ci->to_flip = ((2*random()-1) < (FIELD() ? std::tanh(ci->weight) : 0));
   }
 
+  // improved measurement
+  if (IMPROVE()) {
+    typename looper::collector<estimator_t>::type
+      coll = get_collector(estimator);
+    coll = std::accumulate(estimates.begin(), estimates.end(), coll);
+    coll.commit(obs, vlattice, beta, 0, 1);
+  }
+  obs["Number of Clusters"] << (double)clusters.size();
+
   // flip spins
   for (int s = 0; s < nvs; ++s)
     if (clusters[fragments[s].id].to_flip) spins[s] ^= 1;
-
-  // improved measurement
-  if (IMPROVE()) {
-    typename looper::measurement::collector<estimator_t, mc_type,
-      IMPROVE>::type coll;
-    estimator.init_collector(coll);
-    coll = std::accumulate(estimates.begin(), estimates.end(), coll);
-    coll.commit(obs, vlattice, is_bipartite(), beta, 0, 1);
-  }
-  obs["Number of Clusters"] << (double)clusters.size();
 }
 
 
@@ -312,7 +309,7 @@ void loop_worker::measure()
   }
   looper::energy_estimator::measurement(obs, vlattice, beta, 0, 1, ene);
 
-  estimator.normal_measurement<mc_type>(obs, vlattice, is_bipartite(),
+  estimator.normal_measurement(obs, vlattice,
     use_improved_estimator, beta, 1, spins, operator_string_t(), spins);
 }
 
@@ -324,6 +321,6 @@ void loop_worker::measure()
 const bool loop_registered =
   loop_factory::instance()->register_worker<loop_worker>("Ising");
 const bool evaluator_registered = evaluator_factory::instance()->
-  register_evaluator<looper::evaluator<loop_config::estimator_t> >("Ising");
+  register_evaluator<looper::evaluator<loop_config::measurement_set> >("Ising");
 
 } // end namespace

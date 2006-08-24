@@ -30,11 +30,12 @@
 
 namespace looper {
 
-template<typename ESTIMATOR>
+template<typename MEASUREMENT_SET>
 class evaluator : public abstract_evaluator
 {
 public:
-  typedef ESTIMATOR estimator_t;
+  typedef typename measurement<MEASUREMENT_SET>::type measurement_t;
+  typedef typename measurement_t::evaluator evaluator_t;
   void evaluate(alps::scheduler::MCSimulation& sim, alps::Parameters const& p,
                 boost::filesystem::path const&) const
   {
@@ -47,8 +48,8 @@ public:
   void evaluate(alps::ObservableSet& m, alps::Parameters const& p,
                 alps::ObservableSet const& m_in) const
   {
-    looper::energy_estimator::evaluate(m, m_in);
-    estimator_t::evaluate(m, p, m_in);
+    energy_evaluator::evaluate(m, m_in);
+    evaluator_t::evaluate(m, p, m_in);
   }
 };
 

@@ -34,7 +34,8 @@ namespace {
 class evaluator : public looper::abstract_evaluator
 {
 public:
-  typedef loop_config::estimator_t estimator_t;
+  typedef looper::measurement<loop_config::measurement_set>::type measurement_t;
+  typedef measurement_t::evaluator evaluator_t;
   void evaluate(alps::scheduler::MCSimulation& sim, alps::Parameters const&,
                 boost::filesystem::path const&) const;
   void evaluate(alps::ObservableSet&, alps::Parameters const&,

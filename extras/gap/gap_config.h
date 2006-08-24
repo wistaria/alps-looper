@@ -36,7 +36,6 @@ struct loop_config
 {
   // lattice structure
   typedef alps::coordinate_graph_type lattice_graph_t;
-  typedef looper::virtual_lattice<lattice_graph_t> virtual_lattice_t;
 
   // imaginary time
   typedef looper::imaginary_time<boost::mpl::true_> time_t;
@@ -45,12 +44,11 @@ struct loop_config
   typedef looper::local_graph<looper::location> loop_graph_t;
 
   // measurements
-  typedef looper::composite_estimator<
-          looper::composite_estimator<
-            looper::susceptibility_estimator<virtual_lattice_t, time_t>,
-            looper::stiffness_estimator<virtual_lattice_t, time_t, 3> >,
-            gap_estimator<virtual_lattice_t, time_t>
-  > estimator_t;
+  typedef looper::measurement_set<
+    looper::susceptibility,
+    looper::stiffness<3>,
+    gap
+  > measurement_set;
 };
 
 #endif // GAP_CONFIG_H

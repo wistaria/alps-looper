@@ -57,8 +57,8 @@ public:
   typedef looper::union_find::node                         cluster_fragment_t;
   typedef looper::cluster_info                             cluster_info_t;
 
-  typedef loop_config::estimator_t                         estimator_t;
-  typedef looper::measurement::estimate<estimator_t>::type estimate_t;
+  typedef looper::estimator<loop_config::measurement_set, mc_type,
+    virtual_lattice_t, time_t>::type                       estimator_t;
 
   loop_worker(alps::ProcessList const& w, alps::Parameters const& p, int n);
   void dostep();
@@ -117,7 +117,7 @@ private:
   std::vector<cluster_fragment_t> fragments;
   std::vector<int> current;
   std::vector<cluster_info_t> clusters;
-  std::vector<estimate_t> estimates;
+  std::vector<looper::estimate<estimator_t>::type> estimates;
   std::vector<int> perm;
 };
 
@@ -210,8 +210,7 @@ loop_worker::loop_worker(alps::ProcessList const& w,
   }
   measurements.reset(true);
   if (is_signed) obs.add_histogram("Sign");
-  estimator.initialize(obs, p, vlattice, is_bipartite(), is_signed,
-                       use_improved_estimator);
+  estimator.initialize(obs, p, vlattice, is_signed, use_improved_estimator);
 }
 
 void loop_worker::dostep()
@@ -383,7 +382,7 @@ void loop_worker::flip()
   std::copy(spins.begin(), spins.end(), spins_c.begin());
   cluster_info_t::accumulator<cluster_fragment_t, FIELD, SIGN, IMPROVE>
     weight(clusters, fragments, field, bond_sign, site_sign);
-  looper::accumulator<estimator_t, time_t, cluster_fragment_t, IMPROVE>
+  looper::accumulator<estimator_t, cluster_fragment_t, IMPROVE>
     accum(estimates, nc, vlattice, estimator, fragments);
   double t = 0;
   for (std::vector<local_operator_t>::iterator oi = operators.begin();
@@ -427,23 +426,22 @@ void loop_worker::flip()
     if (SIGN() && IMPROVE()) if (ci->sign & 1 == 1) improved_sign = 0;
   }
 
+  // improved measurement
+  if (IMPROVE()) {
+    typename looper::collector<estimator_t>::type
+      coll = get_collector(estimator);
+    coll = std::accumulate(estimates.begin(), estimates.end(), coll);
+    obs.set_position(nop);
+    coll.commit(obs, vlattice, 1, nop, improved_sign);
+    if (SIGN()) obs["Sign"] << improved_sign;
+  }
+
   // flip operators & spins
   for (operator_iterator oi = operators.begin(); oi != operators.end(); ++oi)
     if (clusters[fragments[oi->loop_0()].id].to_flip ^
         clusters[fragments[oi->loop_1()].id].to_flip) oi->flip();
   for (int s = 0; s < nvs; ++s)
     if (clusters[fragments[s].id].to_flip) spins[s] ^= 1;
-
-  // improved measurement
-  if (IMPROVE()) {
-    typename looper::measurement::collector<estimator_t, mc_type,
-      IMPROVE>::type coll;
-    estimator.init_collector(coll);
-    coll = std::accumulate(estimates.begin(), estimates.end(), coll);
-    obs.set_position(nop);
-    coll.commit(obs, vlattice, is_bipartite(), 1, nop, improved_sign);
-    if (SIGN()) obs["Sign"] << improved_sign;
-  }
 }
 
 
@@ -471,7 +469,7 @@ void loop_worker::measure()
   }
 
   // other quantities
-  estimator.normal_measurement<mc_type>(obs, vlattice, is_bipartite(),
+  estimator.normal_measurement(obs, vlattice,
     use_improved_estimator, 1, sign, spins, operators, spins_c);
 }
 

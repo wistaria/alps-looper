@@ -31,7 +31,7 @@
 #ifndef LOOP_CONFIG_H
 #define LOOP_CONFIG_H
 
-#include <looper/lattice.h>
+#include <alps/lattice.h>
 #include <looper/location.h>
 #include <looper/graph.h>
 #include <looper/measurement.h>
@@ -40,7 +40,6 @@ struct loop_config
 {
   // lattice structure
   typedef alps::coordinate_graph_type lattice_graph_t;
-  typedef looper::virtual_lattice<lattice_graph_t> virtual_lattice_t;
 
   // imaginary time
   typedef double time_t;
@@ -49,10 +48,10 @@ struct loop_config
   typedef looper::local_graph<looper::location> loop_graph_t;
 
   // measurements
-  typedef looper::composite_estimator<
-    looper::susceptibility_estimator<virtual_lattice_t, time_t>,
-    looper::stiffness_estimator<virtual_lattice_t, time_t, 3>
-  > estimator_t;
+  typedef looper::measurement_set<
+    looper::susceptibility,
+    looper::stiffness<3>
+  > measurement_set;
 };
 
 #endif // LOOP_CONFIG_H
