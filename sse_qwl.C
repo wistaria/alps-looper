@@ -210,7 +210,8 @@ loop_worker::loop_worker(alps::ProcessList const& w,
   }
   measurements.reset(true);
   if (is_signed) obs.add_histogram("Sign");
-  estimator.initialize(obs, p, vlattice, is_signed, use_improved_estimator);
+  estimator.initialize(obs, p, vlattice, is_bipartite(), is_signed,
+                       use_improved_estimator);
 }
 
 void loop_worker::dostep()

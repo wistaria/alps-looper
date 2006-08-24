@@ -41,6 +41,8 @@ using alps::vertex_type_t;
 using alps::site_type_t;
 using alps::coordinate_t;
 using alps::parity_t;
+struct gauge_t { typedef boost::vertex_property_tag kind; };
+
 
 using alps::edge_index_t;
 using alps::bond_index_t;
@@ -78,7 +80,8 @@ typedef real_edge_index_t real_bond_index_t;
 
 typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS,
   // vertex property
-  boost::property<real_vertex_index_t, int>,
+  boost::property<real_vertex_index_t, int,
+  boost::property<gauge_t, double> >,
   // edge property
   boost::property<edge_index_t, unsigned int,
   boost::property<real_edge_index_t, int> >,
@@ -548,11 +551,17 @@ rbond(virtual_lattice<RG, VG> const& vl, unsigned int b)
 { return redge(vl, b); }
 
 
+// template<typename RG, typename VG>
+// inline int
+// gauge(virtual_lattice<RG, VG> const& vl,
+//       typename virtual_lattice<RG, VG>::virtual_vertex_descriptor vvd)
+// { return 2 * get(parity_t(), vl.rgraph(), rvertex(vl, vvd)) - 1; }
+
 template<typename RG, typename VG>
-inline int
+inline double
 gauge(virtual_lattice<RG, VG> const& vl,
       typename virtual_lattice<RG, VG>::virtual_vertex_descriptor vvd)
-{ return 2 * get(parity_t(), vl.rgraph(), rvertex(vl, vvd)) - 1; }
+{ return get(gauge_t(), vl.vgraph(), vvd); }
 
 
 template<typename RG, typename VG>
@@ -669,6 +678,7 @@ virtual_lattice<RG, VG>::reinitialize(const M& model, bool has_d_term)
       virtual_vertex_descriptor vvd = add_vertex(vgraph_);
       put(real_vertex_index_t(), vgraph_, vvd,
           get(vertex_index_t(), rgraph_, *rvi));
+      put(gauge_t(), vgraph_, vvd, 2. * get(parity_t(), rgraph_, *rvi) - 1);
     }
 
   // setup vertex mapping

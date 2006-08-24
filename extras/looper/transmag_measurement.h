@@ -42,7 +42,8 @@ struct transverse_magnetization
     template<typename M>
     void initialize(M& m, alps::Parameters const& /* params */,
                     virtual_lattice_t const& /* vlat */,
-                    bool is_signed, bool use_improved_estimator)
+                    bool /* is_bipartite */, bool is_signed,
+                    bool use_improved_estimator)
     {
       if (use_improved_estimator) {
         looper::add_measurement(m, "Transverse Magnetization",

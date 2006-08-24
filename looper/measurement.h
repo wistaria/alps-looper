@@ -303,7 +303,8 @@ struct dumb_measurement
     template<typename M>
     void initialize(M& /* m */, alps::Parameters const& /* params */,
                     virtual_lattice_t const& /* vlat */,
-                    bool /* is_signed */, bool /* use_improved_estimator */) {}
+                    bool /* is_bipartite */, bool /* is_signed */,
+                    bool /* use_improved_estimator */) {}
 
     // improved estimator
 
@@ -380,10 +381,13 @@ struct composite_measurement
     template<typename M>
     void initialize(M& m, alps::Parameters const& params,
                     virtual_lattice_t const& vlat,
-                    bool is_signed, bool use_improved_estimator)
+                    bool is_bipartite, bool is_signed,
+                    bool use_improved_estimator)
     {
-      emt1.initialize(m, params, vlat, is_signed, use_improved_estimator);
-      emt2.initialize(m, params, vlat, is_signed, use_improved_estimator);
+      emt1.initialize(m, params, vlat, is_bipartite, is_signed,
+                      use_improved_estimator);
+      emt2.initialize(m, params, vlat, is_bipartite, is_signed,
+                      use_improved_estimator);
     };
 
     // improved estimator
@@ -513,12 +517,22 @@ struct susceptibility
     typedef MC   mc_type;
     typedef VLAT virtual_lattice_t;
     typedef TIME time_t;
+    typedef typename alps::property_map<gauge_t,
+              const typename virtual_lattice_t::virtual_graph_type,
+              double>::type gauge_map_t;
+
+    bool bipartite;
+    gauge_map_t gauge;
 
     template<typename M>
     void initialize(M& m, alps::Parameters const& /* params */,
-                    virtual_lattice_t const& /* vlat */,
-                    bool is_signed, bool use_improved_estimator)
+                    virtual_lattice_t const& vlat,
+                    bool is_bipartite, bool is_signed,
+                    bool use_improved_estimator)
     {
+      bipartite = is_bipartite;
+      gauge = alps::get_or_default(gauge_t(), vlat.vgraph(), 0);
+
       add_measurement(m, "Magnetization", is_signed);
       add_measurement(m, "Magnetization Density", is_signed);
       add_measurement(m, "Magnetization^2", is_signed);
@@ -529,18 +543,20 @@ struct susceptibility
         add_measurement(m, "Generalized Magnetization^4", is_signed);
         add_measurement(m, "Generalized Susceptibility", is_signed);
       }
-      add_measurement(m, "Staggered Magnetization", is_signed);
-      add_measurement(m, "Staggered Magnetization Density", is_signed);
-      add_measurement(m, "Staggered Magnetization^2", is_signed);
-      add_measurement(m, "Staggered Magnetization^4", is_signed);
-      add_measurement(m, "Staggered Susceptibility", is_signed);
-      if (use_improved_estimator) {
-        add_measurement(m, "Generalized Staggered Magnetization^2",
-                        is_signed);
-        add_measurement(m, "Generalized Staggered Magnetization^4",
-                        is_signed);
-        add_measurement(m, "Generalized Staggered Susceptibility",
-                        is_signed);
+      if (is_bipartite) {
+        add_measurement(m, "Staggered Magnetization", is_signed);
+        add_measurement(m, "Staggered Magnetization Density", is_signed);
+        add_measurement(m, "Staggered Magnetization^2", is_signed);
+        add_measurement(m, "Staggered Magnetization^4", is_signed);
+        add_measurement(m, "Staggered Susceptibility", is_signed);
+        if (use_improved_estimator) {
+          add_measurement(m, "Generalized Staggered Magnetization^2",
+                          is_signed);
+          add_measurement(m, "Generalized Staggered Magnetization^4",
+                          is_signed);
+          add_measurement(m, "Generalized Staggered Susceptibility",
+                          is_signed);
+        }
       }
     }
 
@@ -549,10 +565,12 @@ struct susceptibility
 
     struct estimate
     {
+      gauge_map_t gauge;
       double usize0, umag0, usize, umag;
       double ssize0, smag0, ssize, smag;
-      void init()
+      void init(gauge_map_t map)
       {
+        gauge = map;
         usize0 = 0;
         umag0 = 0;
         usize = 0;
@@ -563,22 +581,16 @@ struct susceptibility
         smag = 0;
       }
       void start_s(virtual_lattice_t const& vlat, double t, int s, int c)
-      {
-        usize -= t * 0.5;
-        umag  -= t * (0.5-c);
-        double gg = gauge(vlat, s);
-        ssize -= gg * t * 0.5;
-        smag  -= gg * t * (0.5-c);
-      }
+      { term_s(vlat, -t, s, c); }
       void start_bs(virtual_lattice_t const& vlat, double t, int, int s, int c)
       { start_s(vlat, t, s, c); }
       void start_bt(virtual_lattice_t const& vlat, double t, int, int s, int c)
       { start_s(vlat, t, s, c); }
-      void term_s(virtual_lattice_t const& vlat, double t, int s, int c)
+      void term_s(virtual_lattice_t const&, double t, int s, int c)
       {
         usize += t * 0.5;
         umag  += t * (0.5-c);
-        double gg = gauge(vlat, s);
+        double gg = gauge[s];
         ssize += gg * t * 0.5;
         smag  += gg * t * (0.5-c);
       }
@@ -591,21 +603,23 @@ struct susceptibility
         start_s(vlat, t, s, c);
         usize0 += 0.5;
         umag0  += (0.5-c);
-        double gg = gauge(vlat, s);
+        double gg = gauge[s];
         ssize0 += gg * 0.5;
         smag0  += gg * (0.5-c);
       }
       void at_top(virtual_lattice_t const& vlat, double t, int s, int c)
       { term_s(vlat, t, s, c); }
     };
-    void init_estimate(estimate& est) const { est.init(); }
+    void init_estimate(estimate& est) const { est.init(gauge); }
 
     struct collector
     {
+      bool bipartite;
       double usize2, umag2, usize4, umag4, usize, umag;
       double ssize2, smag2, ssize4, smag4, ssize, smag;
-      void init()
+      void init(bool is_bipartite)
       {
+        bipartite = is_bipartite;
         usize2 = 0; umag2 = 0; usize4 = 0; umag4 = 0;
         usize = 0; umag = 0;
         ssize2 = 0; smag2 = 0; ssize4 = 0; smag4 = 0;
@@ -648,25 +662,27 @@ struct susceptibility
           << (typename is_sse<mc_type>::type() ?
               sign * beta * (dip(usize, nop) + usize2) / (nop + 1) / nrs :
               sign * beta * usize / nrs);
-        m["Staggered Magnetization"] << 0.0;
-        m["Staggered Magnetization Density"] << 0.0;
-        m["Staggered Magnetization^2"] << sign * smag2;
-        m["Staggered Magnetization^4"]
-          << sign * (3 * smag2 * smag2 - 2 * smag4);
-        m["Staggered Susceptibility"]
-          << (typename is_sse<mc_type>::type() ?
-              sign * beta * (dip(smag, nop) + smag2) / (nop + 1) / nrs :
-              sign * beta * smag /nrs);
-        m["Generalized Staggered Magnetization^2"] << sign * ssize2;
-        m["Generalized Staggered Magnetization^4"]
-          << sign * (3 * ssize2 * ssize2 - 2 * ssize4);
-        m["Generalized Staggered Susceptibility"]
-          << (typename is_sse<mc_type>::type() ?
-              sign * beta * (dip(ssize, nop) + ssize2) / (nop + 1) / nrs :
-              sign * beta * ssize / nrs);
+        if (bipartite) {
+          m["Staggered Magnetization"] << 0.0;
+          m["Staggered Magnetization Density"] << 0.0;
+          m["Staggered Magnetization^2"] << sign * smag2;
+          m["Staggered Magnetization^4"]
+            << sign * (3 * smag2 * smag2 - 2 * smag4);
+          m["Staggered Susceptibility"]
+            << (typename is_sse<mc_type>::type() ?
+                sign * beta * (dip(smag, nop) + smag2) / (nop + 1) / nrs :
+                sign * beta * smag /nrs);
+          m["Generalized Staggered Magnetization^2"] << sign * ssize2;
+          m["Generalized Staggered Magnetization^4"]
+            << sign * (3 * ssize2 * ssize2 - 2 * ssize4);
+          m["Generalized Staggered Susceptibility"]
+            << (typename is_sse<mc_type>::type() ?
+                sign * beta * (dip(ssize, nop) + ssize2) / (nop + 1) / nrs :
+                sign * beta * ssize / nrs);
+        }
       }
     };
-    void init_collector(collector& coll) const { coll.init(); }
+    void init_collector(collector& coll) const { coll.init(bipartite); }
 
     template<typename M, typename OP>
     void normal_measurement(M& m, virtual_lattice_t const& vlat,
@@ -685,16 +701,18 @@ struct susceptibility
       typename virtual_lattice_t::virtual_site_iterator si, si_end;
       for (boost::tie(si, si_end) = vsites(vlat); si != si_end; ++si) {
         umag += 0.5-spins[*si];
-        smag += (0.5-spins[*si]) * gauge(vlat, *si);
+        smag += (0.5-spins[*si]) * gauge[*si];
       }
       m["Magnetization"] << sign * umag;
       m["Magnetization Density"] << sign * umag / nrs;
       m["Magnetization^2"] << sign * power2(umag);
       m["Magnetization^4"] << sign * power4(umag);
-      m["Staggered Magnetization"] << sign * smag;
-      m["Staggered Magnetization Density"] << sign * smag / nrs;
-      m["Staggered Magnetization^2"] << sign * power2(smag);
-      m["Staggered Magnetization^4"] << sign * power4(smag);
+      if (bipartite) {
+        m["Staggered Magnetization"] << sign * smag;
+        m["Staggered Magnetization Density"] << sign * smag / nrs;
+        m["Staggered Magnetization^2"] << sign * power2(smag);
+        m["Staggered Magnetization^4"] << sign * power4(smag);
+      }
       double umag_a = 0; /* 0 * umag; */
       double smag_a = 0; /* 0 * smag; */
       std::copy(spins.begin(), spins.end(), spins_c.begin());
@@ -709,15 +727,15 @@ struct susceptibility
             unsigned int s = oi->pos();
             spins_c[s] ^= 1;
             umag += 1-2*spins_c[s];
-            smag += gauge(vlat, s) * (1-2*spins_c[s]);
+            smag += gauge[s] * (1-2*spins_c[s]);
           } else {
             unsigned int s0 = vsource(oi->pos(), vlat);
             unsigned int s1 = vtarget(oi->pos(), vlat);
             spins_c[s0] ^= 1;
             spins_c[s1] ^= 1;
             umag += 1-2*spins_c[s0] + 1-2*spins_c[s1];
-            smag += gauge(vlat, s0) * (1-2*spins_c[s0])
-              + gauge(vlat, s1) * (1-2*spins_c[s1]);
+            smag += gauge[s0] * (1-2*spins_c[s0])
+              + gauge[s1] * (1-2*spins_c[s1]);
           }
           umag_a -= t * umag;
           smag_a -= t * smag;
@@ -728,16 +746,18 @@ struct susceptibility
         umag_a += umag;
         m["Susceptibility"] << sign * beta * power2(umag_a) / nrs;
         smag_a += smag;
-        m["Staggered Susceptibility"] << sign * beta * power2(smag_a) / nrs;
+        if (bipartite)
+          m["Staggered Susceptibility"] << sign * beta * power2(smag_a) / nrs;
       } else {
         umag_a += nop * umag;
         m["Susceptibility"]
           << sign * beta * (dip(power2(umag_a), nop) + power2(umag))
           / (nop + 1) / nrs;
         smag_a += nop * smag;
-        m["Staggered Susceptibility"]
-          << sign * beta * (dip(power2(smag_a), nop) + power2(smag))
-          / (nop + 1) / nrs;
+        if (bipartite)
+          m["Staggered Susceptibility"]
+            << sign * beta * (dip(power2(smag_a), nop) + power2(smag))
+            / (nop + 1) / nrs;
       }
     }
   };
@@ -801,14 +821,22 @@ struct stiffness
     typedef MC   mc_type;
     typedef VLAT virtual_lattice_t;
     typedef TIME time_t;
+    typedef typename alps::property_map<alps::bond_vector_relative_t,
+              const typename virtual_lattice_t::real_graph_type,
+              alps::coordinate_type>::type bond_vector_relative_map_t;
 
+    bond_vector_relative_map_t bond_vector_relative;
     unsigned int dim;
 
     template<typename M>
     void initialize(M& m, alps::Parameters const& /* params */,
                     virtual_lattice_t const& vlat,
-                    bool is_signed, bool /* use_improved_estimator */)
+                    bool /* is_bipartite */, bool is_signed,
+                    bool /* use_improved_estimator */)
     {
+      bond_vector_relative =
+        get_or_default(alps::bond_vector_relative_t(), vlat.rgraph(),
+                       alps::coordinate_type());
       dim = boost::get_property(vlat.rgraph(), dimension_t());
       if (dim > MAX_DIM) {
         std::cerr << "Spatial dimension (=" << dim << ") is too large.  "
@@ -823,32 +851,33 @@ struct stiffness
 
     struct estimate
     {
+      bond_vector_relative_map_t bond_vector_relative;
       alps::fixed_capacity_vector<double, MAX_DIM> winding;
-      void init(int dim) { winding.resize(dim); }
-      void start_s(virtual_lattice_t const&, double, int, int) const {}
-      void start_bs(virtual_lattice_t const& vlat, double, int b, int,
-                    int c)
+      void init(bond_vector_relative_map_t map, int dim)
       {
-        alps::coordinate_type vr =
-          get(bond_vector_relative_t(), vlat.rgraph(), rbond(vlat, b));
-        for (int i = 0; i < winding.size(); ++i)
-          winding[i] -= (1-2*c) * vr[i];
+        bond_vector_relative = map;
+        winding.resize(dim);
+      }
+      void start_s(virtual_lattice_t const&, double, int, int) const {}
+      void start_bs(virtual_lattice_t const& vlat, double, int b, int, int c)
+      {
+        alps::coordinate_type const& vr = bond_vector_relative[rbond(vlat, b)];
+        for (int i = 0; i < winding.size(); ++i) winding[i] -= (1-2*c) * vr[i];
       }
       void start_bt(virtual_lattice_t const&, double, int, int, int) {}
       void term_s(virtual_lattice_t const&, double, int, int) const {}
       void term_bs(virtual_lattice_t const& vlat, double, int b, int,
                    int c)
       {
-        alps::coordinate_type vr =
-          get(bond_vector_relative_t(), vlat.rgraph(), rbond(vlat, b));
-        for (int i = 0; i < winding.size(); ++i)
-          winding[i] += (1-2*c) * vr[i];
+        alps::coordinate_type const& vr = bond_vector_relative[rbond(vlat, b)];
+        for (int i = 0; i < winding.size(); ++i) winding[i] += (1-2*c) * vr[i];
       }
       void term_bt(virtual_lattice_t const&, double, int, int, int) {}
       void at_bot(virtual_lattice_t const&, double, int, int) const {}
       void at_top(virtual_lattice_t const&, double, int, int) const {}
     };
-    void init_estimate(estimate& est) const { est.init(dim); }
+    void init_estimate(estimate& est) const
+    { est.init(bond_vector_relative, dim); }
 
     struct collector
     {
@@ -887,9 +916,8 @@ struct stiffness
         if (oi->is_offdiagonal()) {
           if (oi->is_bond()) {
             double s = 1-2*spins_c[vsource(oi->pos(), vlat)];
-            alps::coordinate_type vr =
-              get(bond_vector_relative_t(), vlat.rgraph(),
-                  rbond(vlat, oi->pos()));
+            alps::coordinate_type const& vr =
+              bond_vector_relative[rbond(vlat, oi->pos())];
             for (int i = 0; i < dim; ++i) winding[i] += s * vr[i];
             spins_c[vsource(oi->pos(), vlat)] ^= 1;
             spins_c[vtarget(oi->pos(), vlat)] ^= 1;

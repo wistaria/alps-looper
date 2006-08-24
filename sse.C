@@ -169,7 +169,8 @@ loop_worker::loop_worker(alps::ProcessList const& w,
   obs << make_observable(alps::SimpleRealObservable("Number of Clusters"));
   if (is_signed) obs << alps::RealObservable("Sign");
   looper::energy_estimator::initialize(obs, is_signed);
-  estimator.initialize(obs, p, vlattice, is_signed, use_improved_estimator);
+  estimator.initialize(obs, p, vlattice, is_bipartite(), is_signed,
+                       use_improved_estimator);
 }
 
 void loop_worker::dostep()

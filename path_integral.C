@@ -185,7 +185,8 @@ loop_worker::loop_worker(alps::ProcessList const& w,
   obs << make_observable(alps::SimpleRealObservable("Number of Clusters"));
   if (is_signed) obs << alps::RealObservable("Sign");
   looper::energy_estimator::initialize(obs, is_signed);
-  estimator.initialize(obs, p, vlattice, is_signed, use_improved_estimator);
+  estimator.initialize(obs, p, vlattice, is_bipartite(), is_signed,
+                       use_improved_estimator);
 }
 
 void loop_worker::dostep()
@@ -234,10 +235,10 @@ void loop_worker::build()
     // diagonal update & labeling
     if (opi == operators_p.end() || t < opi->time()) {
       loop_graph_t g = chooser.graph();
-      if (((is_bond(g) &&
-            is_compatible(g, spins_c[vsource(pos(g), vlattice)],
+      if ((is_bond(g) &&
+           is_compatible(g, spins_c[vsource(pos(g), vlattice)],
                           spins_c[vtarget(pos(g), vlattice)])) ||
-          (is_site(g) && is_compatible(g, spins_c[pos(g)])))) {
+          (is_site(g) && is_compatible(g, spins_c[pos(g)]))) {
         operators.push_back(local_operator_t(g, t));
         t += r_time();
       } else {

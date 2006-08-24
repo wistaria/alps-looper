@@ -167,7 +167,8 @@ loop_worker::loop_worker(alps::ProcessList const& w,
   obs << make_observable(alps::SimpleRealObservable("Number of Sites"));
   obs << make_observable(alps::SimpleRealObservable("Number of Clusters"));
   looper::energy_estimator::initialize(obs, false);
-  estimator.initialize(obs, p, vlattice, false, use_improved_estimator);
+  estimator.initialize(obs, p, vlattice, is_bipartite(),
+                       false, use_improved_estimator);
 }
 
 void loop_worker::dostep()
