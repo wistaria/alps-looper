@@ -22,13 +22,15 @@
 *
 *****************************************************************************/
 
-#ifndef TRANSMAG_MEASUREMENT_H
-#define TRANSMAG_MEASUREMENT_H
+#ifndef LOOPER_TRANSMAG_MEASUREMENT_H
+#define LOOPER_TRANSMAG_MEASUREMENT_H
 
 #include <looper/measurement.h>
 #include <alps/alea.h>
 #include <cmath>
 #include <string>
+
+namespace looper {
 
 struct transverse_magnetization
 {
@@ -46,10 +48,10 @@ struct transverse_magnetization
                     bool use_improved_estimator)
     {
       if (use_improved_estimator) {
-        looper::add_measurement(m, "Transverse Magnetization",
-                                is_signed);
-        looper::add_measurement(m, "Transverse Magnetization Density",
-                                is_signed);
+        add_scalar_obs(m, "Transverse Magnetization",
+                       is_signed);
+        add_scalar_obs(m, "Transverse Magnetization Density",
+                       is_signed);
       }
     }
 
@@ -130,5 +132,7 @@ struct transverse_magnetization
                          alps::ObservableSet const& /* m_in */) {}
   };
 };
+
+} // end namespace looper
 
 #endif // TRANSMAG_MEASUREMENT_H

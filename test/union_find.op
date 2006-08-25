@@ -102,7 +102,7 @@ connecting node 34 to node 99
 connecting node 17 to node 21
 connecting node 95 to node 69
 
-[results (index based)]
+[results]
 node 0's parent is 84 and its root is 84
 node 1's parent is 84 and its root is 84
 node 2 is root and tree size is 1

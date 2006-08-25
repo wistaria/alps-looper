@@ -44,11 +44,26 @@ namespace looper {
 // helper functions
 //
 
-inline void add_measurement(alps::ObservableSet& m, std::string const& name,
-                            bool is_signed = false)
+inline void add_scalar_obs(alps::ObservableSet& m, std::string const& name,
+                           bool is_signed = false)
 {
   if (!m.has(name))
     m << make_observable(alps::RealObservable(name), is_signed);
+}
+
+inline void add_vector_obs(alps::ObservableSet& m, std::string const& name,
+                           bool is_signed = false)
+{
+  if (!m.has(name))
+    m << make_observable(alps::RealVectorObservable(name), is_signed);
+}
+
+inline void add_vector_obs(alps::ObservableSet& m, std::string const& name,
+                           alps::RealVectorObservable::label_type const& label,
+                           bool is_signed = false)
+{
+  if (!m.has(name))
+    m << make_observable(alps::RealVectorObservable(name, label), is_signed);
 }
 
 namespace {
@@ -76,7 +91,11 @@ namespace { struct null_measurement; }
 template<typename M1,
          typename M2 = null_measurement,
          typename M3 = null_measurement,
-         typename M4 = null_measurement>
+         typename M4 = null_measurement,
+         typename M5 = null_measurement,
+         typename M6 = null_measurement,
+         typename M7 = null_measurement,
+         typename M8 = null_measurement>
 struct measurement_set {};
 
 
@@ -97,21 +116,24 @@ struct measurement;
 
 template<typename M1>
 struct measurement<
-  measurement_set<M1, null_measurement, null_measurement, null_measurement> >
+  measurement_set<M1, null_measurement, null_measurement, null_measurement,
+    null_measurement, null_measurement, null_measurement, null_measurement> >
 {
   typedef M1 type;
 };
 
 template<typename M1, typename M2>
 struct measurement<
-  measurement_set<M1, M2, null_measurement, null_measurement> >
+  measurement_set<M1, M2, null_measurement, null_measurement, null_measurement,
+    null_measurement, null_measurement, null_measurement> >
 {
   typedef composite_measurement<M1, M2> type;
 };
 
 template<typename M1, typename M2, typename M3>
 struct measurement<
-  measurement_set<M1, M2, M3, null_measurement> >
+  measurement_set<M1, M2, M3, null_measurement, null_measurement,
+    null_measurement, null_measurement, null_measurement> >
 {
   typedef composite_measurement<
           composite_measurement<M1, M2>, M3> type;
@@ -119,11 +141,63 @@ struct measurement<
 
 template<typename M1, typename M2, typename M3, typename M4>
 struct measurement<
-  measurement_set<M1, M2, M3, M4> >
+  measurement_set<M1, M2, M3, M4, null_measurement, null_measurement,
+    null_measurement, null_measurement> >
 {
   typedef composite_measurement<
           composite_measurement<
           composite_measurement<M1, M2>, M3>, M4> type;
+};
+
+template<typename M1, typename M2, typename M3, typename M4,
+         typename M5>
+struct measurement<
+  measurement_set<M1, M2, M3, M4, M5, null_measurement, null_measurement,
+    null_measurement> >
+{
+  typedef composite_measurement<
+          composite_measurement<
+          composite_measurement<
+          composite_measurement<M1, M2>, M3>, M4>, M5> type;
+};
+
+template<typename M1, typename M2, typename M3, typename M4,
+         typename M5, typename M6>
+struct measurement<
+  measurement_set<M1, M2, M3, M4, M5, M6, null_measurement, null_measurement> >
+{
+  typedef composite_measurement<
+          composite_measurement<
+          composite_measurement<
+          composite_measurement<
+          composite_measurement<M1, M2>, M3>, M4>, M5>, M6> type;
+};
+
+template<typename M1, typename M2, typename M3, typename M4,
+         typename M5, typename M6, typename M7>
+struct measurement<
+  measurement_set<M1, M2, M3, M4, M5, M6, M7, null_measurement> >
+{
+  typedef composite_measurement<
+          composite_measurement<
+          composite_measurement<
+          composite_measurement<
+          composite_measurement<
+          composite_measurement<M1, M2>, M3>, M4>, M5>, M6>, M7> type;
+};
+
+template<typename M1, typename M2, typename M3, typename M4,
+         typename M5, typename M6, typename M7, typename M8>
+struct measurement<
+  measurement_set<M1, M2, M3, M4, M5, M6, M7, M8> >
+{
+  typedef composite_measurement<
+          composite_measurement<
+          composite_measurement<
+          composite_measurement<
+          composite_measurement<
+          composite_measurement<
+          composite_measurement<M1, M2>, M3>, M4>, M5>, M6>, M7>, M8> type;
 };
 
 
@@ -250,9 +324,9 @@ struct energy_estimator
   template<typename M>
   static void initialize(M& m, bool is_signed)
   {
-    add_measurement(m, "Energy", is_signed);
-    add_measurement(m, "Energy Density", is_signed);
-    add_measurement(m, "Energy^2", is_signed);
+    add_scalar_obs(m, "Energy", is_signed);
+    add_scalar_obs(m, "Energy Density", is_signed);
+    add_scalar_obs(m, "Energy^2", is_signed);
   }
 
   // normal estimator
@@ -291,6 +365,7 @@ struct energy_evaluator
 // dumb measurement
 //
 
+template<class DUMMY>
 struct dumb_measurement
 {
   template<typename MC, typename VLAT, typename TIME>
@@ -533,28 +608,28 @@ struct susceptibility
       bipartite = is_bipartite;
       gauge = alps::get_or_default(gauge_t(), vlat.vgraph(), 0);
 
-      add_measurement(m, "Magnetization", is_signed);
-      add_measurement(m, "Magnetization Density", is_signed);
-      add_measurement(m, "Magnetization^2", is_signed);
-      add_measurement(m, "Magnetization^4", is_signed);
-      add_measurement(m, "Susceptibility", is_signed);
+      add_scalar_obs(m, "Magnetization", is_signed);
+      add_scalar_obs(m, "Magnetization Density", is_signed);
+      add_scalar_obs(m, "Magnetization^2", is_signed);
+      add_scalar_obs(m, "Magnetization^4", is_signed);
+      add_scalar_obs(m, "Susceptibility", is_signed);
       if (use_improved_estimator) {
-        add_measurement(m, "Generalized Magnetization^2", is_signed);
-        add_measurement(m, "Generalized Magnetization^4", is_signed);
-        add_measurement(m, "Generalized Susceptibility", is_signed);
+        add_scalar_obs(m, "Generalized Magnetization^2", is_signed);
+        add_scalar_obs(m, "Generalized Magnetization^4", is_signed);
+        add_scalar_obs(m, "Generalized Susceptibility", is_signed);
       }
-      if (is_bipartite) {
-        add_measurement(m, "Staggered Magnetization", is_signed);
-        add_measurement(m, "Staggered Magnetization Density", is_signed);
-        add_measurement(m, "Staggered Magnetization^2", is_signed);
-        add_measurement(m, "Staggered Magnetization^4", is_signed);
-        add_measurement(m, "Staggered Susceptibility", is_signed);
+      if (bipartite) {
+        add_scalar_obs(m, "Staggered Magnetization", is_signed);
+        add_scalar_obs(m, "Staggered Magnetization Density", is_signed);
+        add_scalar_obs(m, "Staggered Magnetization^2", is_signed);
+        add_scalar_obs(m, "Staggered Magnetization^4", is_signed);
+        add_scalar_obs(m, "Staggered Susceptibility", is_signed);
         if (use_improved_estimator) {
-          add_measurement(m, "Generalized Staggered Magnetization^2",
+          add_scalar_obs(m, "Generalized Staggered Magnetization^2",
                           is_signed);
-          add_measurement(m, "Generalized Staggered Magnetization^4",
+          add_scalar_obs(m, "Generalized Staggered Magnetization^4",
                           is_signed);
-          add_measurement(m, "Generalized Staggered Susceptibility",
+          add_scalar_obs(m, "Generalized Staggered Susceptibility",
                           is_signed);
         }
       }
@@ -844,7 +919,7 @@ struct stiffness
                   << MAX_DIM << " dimensions\n";
         dim = MAX_DIM;
       }
-      if (dim > 0) add_measurement(m, "Stiffness", is_signed);
+      if (dim > 0) add_scalar_obs(m, "Stiffness", is_signed);
     }
 
     // improved estimator

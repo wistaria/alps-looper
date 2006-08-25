@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2005 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -33,11 +33,6 @@ using namespace looper::union_find;
 
 const int n = 100;
 
-template<class Itr0, class Itr1>
-int index(const Itr0& itr, const Itr1& base) {
-  return &(*itr) - &(*base);
-}
-
 int main()
 {
   // random number generator
@@ -47,7 +42,7 @@ int main()
 
   std::cout << "[[union find test]]\n";
 
-  std::vector<looper::union_find::node> nodes(n);
+  std::vector<union_find::node> nodes(n);
 
   std::cout << "\n[making tree]\n";
 
@@ -55,23 +50,17 @@ int main()
     int i0 = rng();
     int i1 = rng();
     std::cout << "connecting node " << i0 << " to node " << i1 << std::endl;
-    looper::union_find::unify(nodes, i0, i1);
+    union_find::unify(nodes, i0, i1);
   }
 
-  std::cout << "\n[results (index based)]\n";
+  std::cout << "\n[results]\n";
 
-  for (std::vector<looper::union_find::node>::iterator
-         itr = nodes.begin(); itr != nodes.end(); ++itr) {
-    int g = index(itr, nodes.begin());
-    if (itr->is_root()) {
-      std::cout << "node " << g
-                << " is root and tree size is "
-                << itr->weight() << std::endl;
+  for (int i = 0; i < n; i++)
+    if (nodes[i].is_root()) {
+      std::cout << "node " << i << " is root and tree size is "
+                << nodes[i].weight() << std::endl;
     } else {
-      std::cout << "node " << g
-                << "'s parent is " << itr->parent
-                << " and its root is " << root_index(nodes, g)
-                << std::endl;
+      std::cout << "node " << i << "'s parent is " << nodes[i].parent
+                << " and its root is " << root_index(nodes, i) << std::endl;
     }
-  }
 }

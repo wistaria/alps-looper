@@ -36,7 +36,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@BUILD_EXTRAS_TRUE@am__append_1 = gap transmag
+@BUILD_EXTRAS_TRUE@am__append_1 = gap localsus transmag
 subdir = extras
 DIST_COMMON = $(dist_noinst_HEADERS) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
@@ -191,9 +191,10 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 SUBDIRS = $(am__append_1)
-DIST_SUBDIRS = gap transmag
+DIST_SUBDIRS = gap localsus transmag
 dist_noinst_HEADERS = \
 	looper/gap_measurement.h \
+	looper/localsus_measurement.h \
 	looper/transmag_measurement.h
 
 all: all-recursive
@@ -505,6 +506,13 @@ uninstall-info: uninstall-info-recursive
 	mostlyclean-recursive pdf pdf-am ps ps-am tags tags-recursive \
 	uninstall uninstall-am uninstall-info-am
 
+
+check-extras :
+	for d in $(DIST_SUBDIRS); do \
+	  if test -d $$d; then \
+	    make -C $$d check; \
+	  fi; \
+	done
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

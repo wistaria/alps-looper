@@ -47,7 +47,7 @@ struct loop_config
   typedef looper::measurement_set<
     looper::susceptibility,
     looper::stiffness<3>,
-    gap
+    looper::gap
   > measurement_set;
 };
 

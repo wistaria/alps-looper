@@ -22,14 +22,15 @@
 *
 *****************************************************************************/
 
-#ifndef TRANSMAG_CONFIG_H
-#define TRANSMAG_CONFIG_H
+#ifndef LOCALSUS_CONFIG_H
+#define LOCALSUS_CONFIG_H
 
 #include <alps/lattice.h>
 #include <looper/location.h>
 #include <looper/graph.h>
+#include <looper/time.h>
 
-#include <looper/transmag_measurement.h>
+#include <looper/localsus_measurement.h>
 
 struct loop_config
 {
@@ -37,7 +38,7 @@ struct loop_config
   typedef alps::coordinate_graph_type lattice_graph_t;
 
   // imaginary time
-  typedef double time_t;
+  typedef looper::imaginary_time<boost::mpl::true_> time_t;
 
   // model, weights, and local_graph
   typedef looper::local_graph<looper::location> loop_graph_t;
@@ -46,8 +47,9 @@ struct loop_config
   typedef looper::measurement_set<
     looper::susceptibility,
     looper::stiffness<3>,
-    looper::transverse_magnetization
+    looper::local_susceptibility,
+    looper::site_type_susceptibility
   > measurement_set;
 };
 
-#endif // TRANSMAG_CONFIG_H
+#endif // LOCALSUS_CONFIG_H

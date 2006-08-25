@@ -22,14 +22,16 @@
 *
 *****************************************************************************/
 
-#ifndef GAP_MEASUREMENT_H
-#define GAP_MEASUREMENT_H
+#ifndef LOOPER_GAP_MEASUREMENT_H
+#define LOOPER_GAP_MEASUREMENT_H
 
 #include <looper/measurement.h>
 #include <alps/alea.h>
 #include <cmath>
 #include <complex>
 #include <string>
+
+namespace looper {
 
 struct gap
 {
@@ -50,11 +52,11 @@ struct gap
     {
       bipartite = is_bipartite;
       if (bipartite)
-        looper::add_measurement(m, "Staggered Susceptibility [w=2pi/beta]",
-                                is_signed);
+        add_scalar_obs(m, "Staggered Susceptibility [w=2pi/beta]",
+                       is_signed);
       if (use_improved_estimator)
-        looper::add_measurement(m, "Generalized Susceptibility [w=2pi/beta]",
-                                is_signed);
+        add_scalar_obs(m, "Generalized Susceptibility [w=2pi/beta]",
+                       is_signed);
     }
 
     // improved estimator
@@ -64,44 +66,44 @@ struct gap
       std::complex<double> p;
       void init() { p = std::complex<double>(0,0); }
       void start_s(virtual_lattice_t const&, double t, int, int)
-      { p -= looper::ctime(t); }
+      { p -= ctime(t); }
       void start_s(virtual_lattice_t const&,
-        looper::imaginary_time<boost::mpl::true_> const& t, int, int)
+        imaginary_time<boost::mpl::true_> const& t, int, int)
       { p -= t.ctime_; }
       void start_bs(virtual_lattice_t const& vlat, double t, int, int s, int c)
       { start_s(vlat, t, s, c); }
       void start_bt(virtual_lattice_t const& vlat, double t, int, int s, int c)
       { start_s(vlat, t, s, c); }
       void start_bs(virtual_lattice_t const& vlat,
-        looper::imaginary_time<boost::mpl::true_> const& t, int, int s , int c)
+        imaginary_time<boost::mpl::true_> const& t, int, int s , int c)
       { start_s(vlat, t, s, c); }
       void start_bt(virtual_lattice_t const& vlat,
-        looper::imaginary_time<boost::mpl::true_> const& t, int, int s , int c)
+        imaginary_time<boost::mpl::true_> const& t, int, int s , int c)
       { start_s(vlat, t, s, c); }
       void term_s(virtual_lattice_t const&, double t, int, int)
-      { p += looper::ctime(t); }
+      { p += ctime(t); }
       void term_s(virtual_lattice_t const&,
-        looper::imaginary_time<boost::mpl::true_> const& t, int, int)
+        imaginary_time<boost::mpl::true_> const& t, int, int)
       { p += t.ctime_; }
       void term_bs(virtual_lattice_t const& vlat, double t, int, int s, int c)
       { term_s(vlat, t, s, c); }
       void term_bt(virtual_lattice_t const& vlat, double t, int, int s, int c)
       { term_s(vlat, t, s, c); }
       void term_bs(virtual_lattice_t const& vlat,
-        looper::imaginary_time<boost::mpl::true_> const& t, int, int s, int c)
+        imaginary_time<boost::mpl::true_> const& t, int, int s, int c)
       { term_s(vlat, t, s, c); }
       void term_bt(virtual_lattice_t const& vlat,
-        looper::imaginary_time<boost::mpl::true_> const& t, int, int s, int c)
+        imaginary_time<boost::mpl::true_> const& t, int, int s, int c)
       { term_s(vlat, t, s, c); }
       void at_bot(virtual_lattice_t const& vlat, double t, int s, int c)
       { start_s(vlat, t, s, c); }
       void at_bot(virtual_lattice_t const& vlat,
-        looper::imaginary_time<boost::mpl::true_> const& t, int s, int c)
+        imaginary_time<boost::mpl::true_> const& t, int s, int c)
         { start_s(vlat, t, s, c); }
       void at_top(virtual_lattice_t const& vlat, double t, int s, int c)
       { term_s(vlat, t, s, c); }
       void at_top(virtual_lattice_t const& vlat,
-        looper::imaginary_time<boost::mpl::true_> const& t, int s, int c)
+        imaginary_time<boost::mpl::true_> const& t, int s, int c)
       { term_s(vlat, t, s, c); }
     };
     void init_estimate(estimate& est) const { est.init(); }
@@ -113,7 +115,7 @@ struct gap
       template<typename EST>
       collector operator+(EST const& cm)
       {
-        p += looper::power2(cm.p);
+        p += power2(cm.p);
         return *this;
       }
       template<typename M>
@@ -121,7 +123,7 @@ struct gap
                   double beta, int, double sign) const
       {
         m["Generalized Susceptibility [w=2pi/beta]"] <<
-          sign * beta * p / looper::power2(4*M_PI) / num_sites(vlat.rgraph());
+          sign * beta * p / power2(4*M_PI) / num_sites(vlat.rgraph());
       }
     };
     void init_collector(collector& coll) const { coll.init(); }
@@ -136,7 +138,7 @@ struct gap
                             std::vector<OP> const& operators,
                             std::vector<int>& spins_c)
     {
-      if (!typename looper::is_path_integral<mc_type>::type()) return;
+      if (!typename is_path_integral<mc_type>::type()) return;
       if (!bipartite) return;
 
       int nrs = num_sites(vlat.rgraph());
@@ -144,31 +146,31 @@ struct gap
       double smag = 0;
       typename virtual_lattice_t::virtual_site_iterator si, si_end;
       for (boost::tie(si, si_end) = vsites(vlat); si != si_end; ++si)
-        smag += (0.5-spins[*si]) * looper::gauge(vlat, *si);
+        smag += (0.5-spins[*si]) * gauge(vlat, *si);
       std::complex<double> smag_a(0, 0);
       std::copy(spins.begin(), spins.end(), spins_c.begin());
       for (typename std::vector<OP>::const_iterator oi = operators.begin();
            oi != operators.end(); ++oi) {
         if (oi->is_offdiagonal()) {
-          std::complex<double> p = looper::ctime(oi->time());
+          std::complex<double> p = ctime(oi->time());
           smag_a += p * smag;
           if (oi->is_site()) {
             unsigned int s = oi->pos();
             spins_c[s] ^= 1;
-            smag += looper::gauge(vlat, s) * (1-2*spins_c[s]);
+            smag += gauge(vlat, s) * (1-2*spins_c[s]);
           } else {
             unsigned int s0 = vsource(oi->pos(), vlat);
             unsigned int s1 = vtarget(oi->pos(), vlat);
             spins_c[s0] ^= 1;
             spins_c[s1] ^= 1;
-            smag += looper::gauge(vlat, s0) * (1-2*spins_c[s0])
-              + looper::gauge(vlat, s1) * (1-2*spins_c[s1]);
+            smag += gauge(vlat, s0) * (1-2*spins_c[s0])
+              + gauge(vlat, s1) * (1-2*spins_c[s1]);
           }
           smag_a -= p * smag;
         }
       }
       m["Staggered Susceptibility [w=2pi/beta]"] <<
-        sign * beta * looper::power2(smag_a) / looper::power2(2*M_PI) / nrs;
+        sign * beta * power2(smag_a) / power2(2*M_PI) / nrs;
     }
   };
 
@@ -210,4 +212,6 @@ struct gap
   };
 };
 
-#endif // GAP_MEASUREMENT_H
+} // end namespace looper
+
+#endif // LOOPER_GAP_MEASUREMENT_H
