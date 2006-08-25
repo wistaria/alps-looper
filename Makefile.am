@@ -53,7 +53,7 @@ dist_noinst_HEADERS = \
 	looper/weight.h
 
 dist_noinst_SCRIPTS = config/run-test config/update_preamble
-dist_noinst_DATA = CITATIONS.txt LICENSE.txt loop_ns.ip loop_ns.op
+dist_noinst_DATA = CITATIONS.txt LICENSE.txt
 
 #
 # programs
@@ -64,22 +64,7 @@ if HAVE_MPI
 noinst_PROGRAMS += loop_mpi
 endif
 
-check_PROGRAMS =
-if ENABLE_DIAG
-if ENABLE_ISING
-if ENABLE_PI
-if ENABLE_SSE
-check_PROGRAMS += loop_ns
-endif
-endif
-endif
-endif
-
-TESTS = $(check_PROGRAMS)
-TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
-
 SRC = loop_config.h loop_factory.h loop_factory.C
-
 if ENABLE_DIAG
 SRC += diag.C
 endif
@@ -97,16 +82,40 @@ SRC += sse_qwl.C
 endif
 
 loop_SOURCES = loop.C $(SRC)
-loop_evaluate_SOURCES = loop_evaluate.C qwl_evaluate.C $(SRC)
 loop_mpi_SOURCES = loop.C $(SRC)
-loop_mpi_CPPFLAGS = @CPPFLAGS_MPI@
 loop_mpi_LDFLAGS = @LDFLAGS_MPI@
 loop_mpi_LDADD = @LIBS_MPI@
 
+loop_evaluate_SOURCES = loop_evaluate.C qwl_evaluate.C $(SRC)
+
+#
+# tests
+#
+
+dist_noinst_DATA += loop_ns.ip loop_ns.op
+
+check_PROGRAMS =
+if ENABLE_DIAG
+if ENABLE_ISING
+if ENABLE_PI
+if ENABLE_SSE
+check_PROGRAMS += loop_ns
+endif
+endif
+endif
+endif
+
 loop_ns_SOURCES = loop_ns.C $(SRC)
+
+TESTS = $(check_PROGRAMS)
+TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
 
 .PHONY : test tests
 test tests : check
+
+#
+# maintenance
+#
 
 .PHONY : update-preamble
 update-preamble:

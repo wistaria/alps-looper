@@ -1,3 +1,27 @@
+dist_noinst_DATA = \
+	alternating_tensor.op \
+	bond_matrix.ip bond_matrix.op \
+	compatibility.op \
+	edge_type.ip edge_type.op \
+	filtered_graph.ip filtered_graph.op \
+	find_bridge.ip find_bridge.op \
+	gesvd.ip gesvd.op \
+	hypercubic.ip hypercubic.op \
+	llsp.ip llsp.op \
+	model_parameter.ip model_parameter.op \
+	parse_vector.ip parse_vector.op \
+	permutation.op \
+	postorder.ip postorder.op \
+	random_choice.op \
+	range.ip range.op \
+	sign.ip sign.op \
+	site_matrix.ip site_matrix.op \
+	syev.op \
+	temperature.ip temperature.op \
+	union_find.op \
+	virtual_lattice.op \
+	weight.ip weight.op
+
 check_PROGRAMS = \
 	alternating_tensor \
 	bond_matrix \
@@ -23,33 +47,6 @@ check_PROGRAMS = \
 	virtual_lattice \
 	weight
 
-dist_noinst_DATA = \
-	alternating_tensor.op \
-	bond_matrix.ip bond_matrix.op \
-	compatibility.op \
-	edge_type.ip edge_type.op \
-	filtered_graph.ip filtered_graph.op \
-	find_bridge.ip find_bridge.op \
-	gesvd.ip gesvd.op \
-	hypercubic.ip hypercubic.op \
-	llsp.ip llsp.op \
-	model_parameter.ip model_parameter.op \
-	parse_vector.ip parse_vector.op \
-	permutation.op \
-	postorder.ip postorder.op \
-	random_choice.op \
-	range.ip range.op \
-	sign.ip sign.op \
-	site_matrix.ip site_matrix.op \
-	syev.op \
-	temperature.ip temperature.op \
-	union_find.op \
-	virtual_lattice.op \
-	weight.ip weight.op
-
-TESTS = $(check_PROGRAMS)
-TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
-
 alternating_tensor_SOURCES = alternating_tensor.C
 bond_matrix_SOURCES = bond_matrix.C
 compatibility_SOURCES = compatibility.C
@@ -74,4 +71,8 @@ union_find_SOURCES = union_find.C
 virtual_lattice_SOURCES = virtual_lattice.C
 weight_SOURCES = weight.C
 
-test tests : $(check_PROGRAMS)
+TESTS = $(check_PROGRAMS)
+TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
+
+.PHONY : test tests
+test tests : check

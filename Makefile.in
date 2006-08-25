@@ -49,13 +49,13 @@ host_triplet = @host@
 @EXIST_V31_TRUE@am__append_4 = v3.1
 noinst_PROGRAMS = loop$(EXEEXT) loop_evaluate$(EXEEXT) $(am__EXEEXT_2)
 @HAVE_MPI_TRUE@am__append_5 = loop_mpi
+@ENABLE_DIAG_TRUE@am__append_6 = diag.C
+@ENABLE_ISING_TRUE@am__append_7 = ising.C
+@ENABLE_PI_TRUE@am__append_8 = path_integral.C
+@ENABLE_SSE_TRUE@am__append_9 = sse.C
+@ENABLE_SSE_QWL_TRUE@am__append_10 = sse_qwl.C
 check_PROGRAMS = $(am__EXEEXT_1)
-@ENABLE_DIAG_TRUE@@ENABLE_ISING_TRUE@@ENABLE_PI_TRUE@@ENABLE_SSE_TRUE@am__append_6 = loop_ns
-@ENABLE_DIAG_TRUE@am__append_7 = diag.C
-@ENABLE_ISING_TRUE@am__append_8 = ising.C
-@ENABLE_PI_TRUE@am__append_9 = path_integral.C
-@ENABLE_SSE_TRUE@am__append_10 = sse.C
-@ENABLE_SSE_QWL_TRUE@am__append_11 = sse_qwl.C
+@ENABLE_DIAG_TRUE@@ENABLE_ISING_TRUE@@ENABLE_PI_TRUE@@ENABLE_SSE_TRUE@am__append_11 = loop_ns
 DIST_COMMON = README $(am__configure_deps) $(dist_noinst_DATA) \
 	$(dist_noinst_HEADERS) $(dist_noinst_SCRIPTS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
@@ -98,15 +98,7 @@ loop_evaluate_LDADD = $(LDADD)
 loop_evaluate_DEPENDENCIES =
 am__loop_mpi_SOURCES_DIST = loop.C loop_config.h loop_factory.h \
 	loop_factory.C diag.C ising.C path_integral.C sse.C sse_qwl.C
-@ENABLE_DIAG_TRUE@am__objects_7 = loop_mpi-diag.$(OBJEXT)
-@ENABLE_ISING_TRUE@am__objects_8 = loop_mpi-ising.$(OBJEXT)
-@ENABLE_PI_TRUE@am__objects_9 = loop_mpi-path_integral.$(OBJEXT)
-@ENABLE_SSE_TRUE@am__objects_10 = loop_mpi-sse.$(OBJEXT)
-@ENABLE_SSE_QWL_TRUE@am__objects_11 = loop_mpi-sse_qwl.$(OBJEXT)
-am__objects_12 = loop_mpi-loop_factory.$(OBJEXT) $(am__objects_7) \
-	$(am__objects_8) $(am__objects_9) $(am__objects_10) \
-	$(am__objects_11)
-am_loop_mpi_OBJECTS = loop_mpi-loop.$(OBJEXT) $(am__objects_12)
+am_loop_mpi_OBJECTS = loop.$(OBJEXT) $(am__objects_6)
 loop_mpi_OBJECTS = $(am_loop_mpi_OBJECTS)
 loop_mpi_DEPENDENCIES =
 am__loop_ns_SOURCES_DIST = loop_ns.C loop_config.h loop_factory.h \
@@ -330,19 +322,22 @@ dist_noinst_HEADERS = \
 	looper/weight.h
 
 dist_noinst_SCRIPTS = config/run-test config/update_preamble
+
+#
+# tests
+#
 dist_noinst_DATA = CITATIONS.txt LICENSE.txt loop_ns.ip loop_ns.op
-TESTS = $(check_PROGRAMS)
-TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
-SRC = loop_config.h loop_factory.h loop_factory.C $(am__append_7) \
-	$(am__append_8) $(am__append_9) $(am__append_10) \
-	$(am__append_11)
+SRC = loop_config.h loop_factory.h loop_factory.C $(am__append_6) \
+	$(am__append_7) $(am__append_8) $(am__append_9) \
+	$(am__append_10)
 loop_SOURCES = loop.C $(SRC)
-loop_evaluate_SOURCES = loop_evaluate.C qwl_evaluate.C $(SRC)
 loop_mpi_SOURCES = loop.C $(SRC)
-loop_mpi_CPPFLAGS = @CPPFLAGS_MPI@
 loop_mpi_LDFLAGS = @LDFLAGS_MPI@
 loop_mpi_LDADD = @LIBS_MPI@
+loop_evaluate_SOURCES = loop_evaluate.C qwl_evaluate.C $(SRC)
 loop_ns_SOURCES = loop_ns.C $(SRC)
+TESTS = $(check_PROGRAMS)
+TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
 
 #
 # release and snapshot
@@ -426,13 +421,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_evaluate.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_factory.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_mpi-diag.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_mpi-ising.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_mpi-loop.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_mpi-loop_factory.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_mpi-path_integral.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_mpi-sse.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_mpi-sse_qwl.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_ns.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/path_integral.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qwl_evaluate.Po@am__quote@
@@ -459,104 +447,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
-
-loop_mpi-loop.o: loop.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_mpi-loop.o -MD -MP -MF "$(DEPDIR)/loop_mpi-loop.Tpo" -c -o loop_mpi-loop.o `test -f 'loop.C' || echo '$(srcdir)/'`loop.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_mpi-loop.Tpo" "$(DEPDIR)/loop_mpi-loop.Po"; else rm -f "$(DEPDIR)/loop_mpi-loop.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop.C' object='loop_mpi-loop.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_mpi-loop.o `test -f 'loop.C' || echo '$(srcdir)/'`loop.C
-
-loop_mpi-loop.obj: loop.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_mpi-loop.obj -MD -MP -MF "$(DEPDIR)/loop_mpi-loop.Tpo" -c -o loop_mpi-loop.obj `if test -f 'loop.C'; then $(CYGPATH_W) 'loop.C'; else $(CYGPATH_W) '$(srcdir)/loop.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_mpi-loop.Tpo" "$(DEPDIR)/loop_mpi-loop.Po"; else rm -f "$(DEPDIR)/loop_mpi-loop.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop.C' object='loop_mpi-loop.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_mpi-loop.obj `if test -f 'loop.C'; then $(CYGPATH_W) 'loop.C'; else $(CYGPATH_W) '$(srcdir)/loop.C'; fi`
-
-loop_mpi-loop_factory.o: loop_factory.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_mpi-loop_factory.o -MD -MP -MF "$(DEPDIR)/loop_mpi-loop_factory.Tpo" -c -o loop_mpi-loop_factory.o `test -f 'loop_factory.C' || echo '$(srcdir)/'`loop_factory.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_mpi-loop_factory.Tpo" "$(DEPDIR)/loop_mpi-loop_factory.Po"; else rm -f "$(DEPDIR)/loop_mpi-loop_factory.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_factory.C' object='loop_mpi-loop_factory.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_mpi-loop_factory.o `test -f 'loop_factory.C' || echo '$(srcdir)/'`loop_factory.C
-
-loop_mpi-loop_factory.obj: loop_factory.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_mpi-loop_factory.obj -MD -MP -MF "$(DEPDIR)/loop_mpi-loop_factory.Tpo" -c -o loop_mpi-loop_factory.obj `if test -f 'loop_factory.C'; then $(CYGPATH_W) 'loop_factory.C'; else $(CYGPATH_W) '$(srcdir)/loop_factory.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_mpi-loop_factory.Tpo" "$(DEPDIR)/loop_mpi-loop_factory.Po"; else rm -f "$(DEPDIR)/loop_mpi-loop_factory.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='loop_factory.C' object='loop_mpi-loop_factory.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_mpi-loop_factory.obj `if test -f 'loop_factory.C'; then $(CYGPATH_W) 'loop_factory.C'; else $(CYGPATH_W) '$(srcdir)/loop_factory.C'; fi`
-
-loop_mpi-diag.o: diag.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_mpi-diag.o -MD -MP -MF "$(DEPDIR)/loop_mpi-diag.Tpo" -c -o loop_mpi-diag.o `test -f 'diag.C' || echo '$(srcdir)/'`diag.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_mpi-diag.Tpo" "$(DEPDIR)/loop_mpi-diag.Po"; else rm -f "$(DEPDIR)/loop_mpi-diag.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='diag.C' object='loop_mpi-diag.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_mpi-diag.o `test -f 'diag.C' || echo '$(srcdir)/'`diag.C
-
-loop_mpi-diag.obj: diag.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_mpi-diag.obj -MD -MP -MF "$(DEPDIR)/loop_mpi-diag.Tpo" -c -o loop_mpi-diag.obj `if test -f 'diag.C'; then $(CYGPATH_W) 'diag.C'; else $(CYGPATH_W) '$(srcdir)/diag.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_mpi-diag.Tpo" "$(DEPDIR)/loop_mpi-diag.Po"; else rm -f "$(DEPDIR)/loop_mpi-diag.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='diag.C' object='loop_mpi-diag.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_mpi-diag.obj `if test -f 'diag.C'; then $(CYGPATH_W) 'diag.C'; else $(CYGPATH_W) '$(srcdir)/diag.C'; fi`
-
-loop_mpi-ising.o: ising.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_mpi-ising.o -MD -MP -MF "$(DEPDIR)/loop_mpi-ising.Tpo" -c -o loop_mpi-ising.o `test -f 'ising.C' || echo '$(srcdir)/'`ising.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_mpi-ising.Tpo" "$(DEPDIR)/loop_mpi-ising.Po"; else rm -f "$(DEPDIR)/loop_mpi-ising.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ising.C' object='loop_mpi-ising.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_mpi-ising.o `test -f 'ising.C' || echo '$(srcdir)/'`ising.C
-
-loop_mpi-ising.obj: ising.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_mpi-ising.obj -MD -MP -MF "$(DEPDIR)/loop_mpi-ising.Tpo" -c -o loop_mpi-ising.obj `if test -f 'ising.C'; then $(CYGPATH_W) 'ising.C'; else $(CYGPATH_W) '$(srcdir)/ising.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_mpi-ising.Tpo" "$(DEPDIR)/loop_mpi-ising.Po"; else rm -f "$(DEPDIR)/loop_mpi-ising.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ising.C' object='loop_mpi-ising.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_mpi-ising.obj `if test -f 'ising.C'; then $(CYGPATH_W) 'ising.C'; else $(CYGPATH_W) '$(srcdir)/ising.C'; fi`
-
-loop_mpi-path_integral.o: path_integral.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_mpi-path_integral.o -MD -MP -MF "$(DEPDIR)/loop_mpi-path_integral.Tpo" -c -o loop_mpi-path_integral.o `test -f 'path_integral.C' || echo '$(srcdir)/'`path_integral.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_mpi-path_integral.Tpo" "$(DEPDIR)/loop_mpi-path_integral.Po"; else rm -f "$(DEPDIR)/loop_mpi-path_integral.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='path_integral.C' object='loop_mpi-path_integral.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_mpi-path_integral.o `test -f 'path_integral.C' || echo '$(srcdir)/'`path_integral.C
-
-loop_mpi-path_integral.obj: path_integral.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_mpi-path_integral.obj -MD -MP -MF "$(DEPDIR)/loop_mpi-path_integral.Tpo" -c -o loop_mpi-path_integral.obj `if test -f 'path_integral.C'; then $(CYGPATH_W) 'path_integral.C'; else $(CYGPATH_W) '$(srcdir)/path_integral.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_mpi-path_integral.Tpo" "$(DEPDIR)/loop_mpi-path_integral.Po"; else rm -f "$(DEPDIR)/loop_mpi-path_integral.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='path_integral.C' object='loop_mpi-path_integral.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_mpi-path_integral.obj `if test -f 'path_integral.C'; then $(CYGPATH_W) 'path_integral.C'; else $(CYGPATH_W) '$(srcdir)/path_integral.C'; fi`
-
-loop_mpi-sse.o: sse.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_mpi-sse.o -MD -MP -MF "$(DEPDIR)/loop_mpi-sse.Tpo" -c -o loop_mpi-sse.o `test -f 'sse.C' || echo '$(srcdir)/'`sse.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_mpi-sse.Tpo" "$(DEPDIR)/loop_mpi-sse.Po"; else rm -f "$(DEPDIR)/loop_mpi-sse.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='sse.C' object='loop_mpi-sse.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_mpi-sse.o `test -f 'sse.C' || echo '$(srcdir)/'`sse.C
-
-loop_mpi-sse.obj: sse.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_mpi-sse.obj -MD -MP -MF "$(DEPDIR)/loop_mpi-sse.Tpo" -c -o loop_mpi-sse.obj `if test -f 'sse.C'; then $(CYGPATH_W) 'sse.C'; else $(CYGPATH_W) '$(srcdir)/sse.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_mpi-sse.Tpo" "$(DEPDIR)/loop_mpi-sse.Po"; else rm -f "$(DEPDIR)/loop_mpi-sse.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='sse.C' object='loop_mpi-sse.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_mpi-sse.obj `if test -f 'sse.C'; then $(CYGPATH_W) 'sse.C'; else $(CYGPATH_W) '$(srcdir)/sse.C'; fi`
-
-loop_mpi-sse_qwl.o: sse_qwl.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_mpi-sse_qwl.o -MD -MP -MF "$(DEPDIR)/loop_mpi-sse_qwl.Tpo" -c -o loop_mpi-sse_qwl.o `test -f 'sse_qwl.C' || echo '$(srcdir)/'`sse_qwl.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_mpi-sse_qwl.Tpo" "$(DEPDIR)/loop_mpi-sse_qwl.Po"; else rm -f "$(DEPDIR)/loop_mpi-sse_qwl.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='sse_qwl.C' object='loop_mpi-sse_qwl.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_mpi-sse_qwl.o `test -f 'sse_qwl.C' || echo '$(srcdir)/'`sse_qwl.C
-
-loop_mpi-sse_qwl.obj: sse_qwl.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_mpi-sse_qwl.obj -MD -MP -MF "$(DEPDIR)/loop_mpi-sse_qwl.Tpo" -c -o loop_mpi-sse_qwl.obj `if test -f 'sse_qwl.C'; then $(CYGPATH_W) 'sse_qwl.C'; else $(CYGPATH_W) '$(srcdir)/sse_qwl.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_mpi-sse_qwl.Tpo" "$(DEPDIR)/loop_mpi-sse_qwl.Po"; else rm -f "$(DEPDIR)/loop_mpi-sse_qwl.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='sse_qwl.C' object='loop_mpi-sse_qwl.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(loop_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_mpi-sse_qwl.obj `if test -f 'sse_qwl.C'; then $(CYGPATH_W) 'sse_qwl.C'; else $(CYGPATH_W) '$(srcdir)/sse_qwl.C'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -1022,6 +912,10 @@ uninstall-info: uninstall-info-recursive
 
 .PHONY : test tests
 test tests : check
+
+#
+# maintenance
+#
 
 .PHONY : update-preamble
 update-preamble:

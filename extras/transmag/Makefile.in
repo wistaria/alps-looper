@@ -14,6 +14,10 @@
 
 @SET_MAKE@
 
+#
+# compiler options
+#
+
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -39,8 +43,8 @@ build_triplet = @build@
 host_triplet = @host@
 noinst_PROGRAMS = transmag$(EXEEXT) transmag_evaluate$(EXEEXT) \
 	$(am__EXEEXT_1)
-check_PROGRAMS = transmag_ns$(EXEEXT)
 @HAVE_MPI_TRUE@am__append_1 = transmag_mpi
+check_PROGRAMS = transmag_ns$(EXEEXT)
 subdir = extras/transmag
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/alternating_chain.xml.in
@@ -64,11 +68,7 @@ nodist_transmag_evaluate_OBJECTS = loop_evaluate.$(OBJEXT) \
 transmag_evaluate_OBJECTS = $(nodist_transmag_evaluate_OBJECTS)
 transmag_evaluate_LDADD = $(LDADD)
 transmag_evaluate_DEPENDENCIES =
-am__objects_2 = transmag_mpi-loop_factory.$(OBJEXT) \
-	transmag_mpi-diag.$(OBJEXT) \
-	transmag_mpi-path_integral.$(OBJEXT)
-nodist_transmag_mpi_OBJECTS = transmag_mpi-loop.$(OBJEXT) \
-	$(am__objects_2)
+nodist_transmag_mpi_OBJECTS = loop.$(OBJEXT) $(am__objects_1)
 transmag_mpi_OBJECTS = $(nodist_transmag_mpi_OBJECTS)
 transmag_mpi_DEPENDENCIES =
 nodist_transmag_ns_OBJECTS = loop_ns.$(OBJEXT) $(am__objects_1)
@@ -234,17 +234,20 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 SRC = $(top_srcdir)/loop_factory.C $(top_srcdir)/diag.C $(top_srcdir)/path_integral.C
-dist_noinst_DATA = transmag_ns.ip transmag_ns.op
-TESTS = $(check_PROGRAMS)
-TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
 dist_transmag_SOURCES = transmag_config.h
 nodist_transmag_SOURCES = $(top_srcdir)/loop.C $(SRC)
 nodist_transmag_mpi_SOURCES = $(top_srcdir)/loop.C $(SRC)
-transmag_mpi_CPPFLAGS = @CPPFLAGS_MPI@
 transmag_mpi_LDFLAGS = @LDFLAGS_MPI@
 transmag_mpi_LDADD = @LIBS_MPI@
 nodist_transmag_evaluate_SOURCES = $(top_srcdir)/loop_evaluate.C $(SRC)
+
+#
+# tests
+#
+dist_noinst_DATA = transmag_ns.ip transmag_ns.op
 nodist_transmag_ns_SOURCES = $(top_srcdir)/loop_ns.C $(SRC)
+TESTS = $(check_PROGRAMS)
+TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
 all: all-am
 
 .SUFFIXES:
@@ -319,10 +322,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_factory.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_ns.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/path_integral.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/transmag_mpi-diag.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/transmag_mpi-loop.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/transmag_mpi-loop_factory.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/transmag_mpi-path_integral.Po@am__quote@
 
 .C.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
@@ -414,62 +413,6 @@ loop_evaluate.obj: $(top_srcdir)/loop_evaluate.C
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/loop_evaluate.C' object='loop_evaluate.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_evaluate.obj `if test -f '$(top_srcdir)/loop_evaluate.C'; then $(CYGPATH_W) '$(top_srcdir)/loop_evaluate.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/loop_evaluate.C'; fi`
-
-transmag_mpi-loop.o: $(top_srcdir)/loop.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(transmag_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT transmag_mpi-loop.o -MD -MP -MF "$(DEPDIR)/transmag_mpi-loop.Tpo" -c -o transmag_mpi-loop.o `test -f '$(top_srcdir)/loop.C' || echo '$(srcdir)/'`$(top_srcdir)/loop.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/transmag_mpi-loop.Tpo" "$(DEPDIR)/transmag_mpi-loop.Po"; else rm -f "$(DEPDIR)/transmag_mpi-loop.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/loop.C' object='transmag_mpi-loop.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(transmag_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o transmag_mpi-loop.o `test -f '$(top_srcdir)/loop.C' || echo '$(srcdir)/'`$(top_srcdir)/loop.C
-
-transmag_mpi-loop.obj: $(top_srcdir)/loop.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(transmag_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT transmag_mpi-loop.obj -MD -MP -MF "$(DEPDIR)/transmag_mpi-loop.Tpo" -c -o transmag_mpi-loop.obj `if test -f '$(top_srcdir)/loop.C'; then $(CYGPATH_W) '$(top_srcdir)/loop.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/loop.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/transmag_mpi-loop.Tpo" "$(DEPDIR)/transmag_mpi-loop.Po"; else rm -f "$(DEPDIR)/transmag_mpi-loop.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/loop.C' object='transmag_mpi-loop.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(transmag_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o transmag_mpi-loop.obj `if test -f '$(top_srcdir)/loop.C'; then $(CYGPATH_W) '$(top_srcdir)/loop.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/loop.C'; fi`
-
-transmag_mpi-loop_factory.o: $(top_srcdir)/loop_factory.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(transmag_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT transmag_mpi-loop_factory.o -MD -MP -MF "$(DEPDIR)/transmag_mpi-loop_factory.Tpo" -c -o transmag_mpi-loop_factory.o `test -f '$(top_srcdir)/loop_factory.C' || echo '$(srcdir)/'`$(top_srcdir)/loop_factory.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/transmag_mpi-loop_factory.Tpo" "$(DEPDIR)/transmag_mpi-loop_factory.Po"; else rm -f "$(DEPDIR)/transmag_mpi-loop_factory.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/loop_factory.C' object='transmag_mpi-loop_factory.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(transmag_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o transmag_mpi-loop_factory.o `test -f '$(top_srcdir)/loop_factory.C' || echo '$(srcdir)/'`$(top_srcdir)/loop_factory.C
-
-transmag_mpi-loop_factory.obj: $(top_srcdir)/loop_factory.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(transmag_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT transmag_mpi-loop_factory.obj -MD -MP -MF "$(DEPDIR)/transmag_mpi-loop_factory.Tpo" -c -o transmag_mpi-loop_factory.obj `if test -f '$(top_srcdir)/loop_factory.C'; then $(CYGPATH_W) '$(top_srcdir)/loop_factory.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/loop_factory.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/transmag_mpi-loop_factory.Tpo" "$(DEPDIR)/transmag_mpi-loop_factory.Po"; else rm -f "$(DEPDIR)/transmag_mpi-loop_factory.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/loop_factory.C' object='transmag_mpi-loop_factory.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(transmag_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o transmag_mpi-loop_factory.obj `if test -f '$(top_srcdir)/loop_factory.C'; then $(CYGPATH_W) '$(top_srcdir)/loop_factory.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/loop_factory.C'; fi`
-
-transmag_mpi-diag.o: $(top_srcdir)/diag.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(transmag_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT transmag_mpi-diag.o -MD -MP -MF "$(DEPDIR)/transmag_mpi-diag.Tpo" -c -o transmag_mpi-diag.o `test -f '$(top_srcdir)/diag.C' || echo '$(srcdir)/'`$(top_srcdir)/diag.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/transmag_mpi-diag.Tpo" "$(DEPDIR)/transmag_mpi-diag.Po"; else rm -f "$(DEPDIR)/transmag_mpi-diag.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/diag.C' object='transmag_mpi-diag.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(transmag_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o transmag_mpi-diag.o `test -f '$(top_srcdir)/diag.C' || echo '$(srcdir)/'`$(top_srcdir)/diag.C
-
-transmag_mpi-diag.obj: $(top_srcdir)/diag.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(transmag_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT transmag_mpi-diag.obj -MD -MP -MF "$(DEPDIR)/transmag_mpi-diag.Tpo" -c -o transmag_mpi-diag.obj `if test -f '$(top_srcdir)/diag.C'; then $(CYGPATH_W) '$(top_srcdir)/diag.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/diag.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/transmag_mpi-diag.Tpo" "$(DEPDIR)/transmag_mpi-diag.Po"; else rm -f "$(DEPDIR)/transmag_mpi-diag.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/diag.C' object='transmag_mpi-diag.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(transmag_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o transmag_mpi-diag.obj `if test -f '$(top_srcdir)/diag.C'; then $(CYGPATH_W) '$(top_srcdir)/diag.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/diag.C'; fi`
-
-transmag_mpi-path_integral.o: $(top_srcdir)/path_integral.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(transmag_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT transmag_mpi-path_integral.o -MD -MP -MF "$(DEPDIR)/transmag_mpi-path_integral.Tpo" -c -o transmag_mpi-path_integral.o `test -f '$(top_srcdir)/path_integral.C' || echo '$(srcdir)/'`$(top_srcdir)/path_integral.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/transmag_mpi-path_integral.Tpo" "$(DEPDIR)/transmag_mpi-path_integral.Po"; else rm -f "$(DEPDIR)/transmag_mpi-path_integral.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/path_integral.C' object='transmag_mpi-path_integral.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(transmag_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o transmag_mpi-path_integral.o `test -f '$(top_srcdir)/path_integral.C' || echo '$(srcdir)/'`$(top_srcdir)/path_integral.C
-
-transmag_mpi-path_integral.obj: $(top_srcdir)/path_integral.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(transmag_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT transmag_mpi-path_integral.obj -MD -MP -MF "$(DEPDIR)/transmag_mpi-path_integral.Tpo" -c -o transmag_mpi-path_integral.obj `if test -f '$(top_srcdir)/path_integral.C'; then $(CYGPATH_W) '$(top_srcdir)/path_integral.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/path_integral.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/transmag_mpi-path_integral.Tpo" "$(DEPDIR)/transmag_mpi-path_integral.Po"; else rm -f "$(DEPDIR)/transmag_mpi-path_integral.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/path_integral.C' object='transmag_mpi-path_integral.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(transmag_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o transmag_mpi-path_integral.obj `if test -f '$(top_srcdir)/path_integral.C'; then $(CYGPATH_W) '$(top_srcdir)/path_integral.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/path_integral.C'; fi`
 
 loop_ns.o: $(top_srcdir)/loop_ns.C
 @am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_ns.o -MD -MP -MF "$(DEPDIR)/loop_ns.Tpo" -c -o loop_ns.o `test -f '$(top_srcdir)/loop_ns.C' || echo '$(srcdir)/'`$(top_srcdir)/loop_ns.C; \
@@ -736,6 +679,9 @@ uninstall-am: uninstall-info-am
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags uninstall uninstall-am uninstall-info-am
 
+
+.PHONY : test tests
+test tests : check
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

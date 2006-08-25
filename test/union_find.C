@@ -42,7 +42,7 @@ int main()
 
   std::cout << "[[union find test]]\n";
 
-  std::vector<union_find::node> nodes(n);
+  std::vector<looper::union_find::node> nodes(n);
 
   std::cout << "\n[making tree]\n";
 
@@ -50,7 +50,7 @@ int main()
     int i0 = rng();
     int i1 = rng();
     std::cout << "connecting node " << i0 << " to node " << i1 << std::endl;
-    union_find::unify(nodes, i0, i1);
+    looper::union_find::unify(nodes, i0, i1);
   }
 
   std::cout << "\n[results]\n";

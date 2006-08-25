@@ -14,6 +14,10 @@
 
 @SET_MAKE@
 
+#
+# compiler options
+#
+
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -38,8 +42,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 noinst_PROGRAMS = gap$(EXEEXT) gap_evaluate$(EXEEXT) $(am__EXEEXT_1)
-check_PROGRAMS = gap_ns$(EXEEXT)
 @HAVE_MPI_TRUE@am__append_1 = gap_mpi
+check_PROGRAMS = gap_ns$(EXEEXT)
 subdir = extras/gap
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
@@ -61,9 +65,7 @@ nodist_gap_evaluate_OBJECTS = loop_evaluate.$(OBJEXT) $(am__objects_1)
 gap_evaluate_OBJECTS = $(nodist_gap_evaluate_OBJECTS)
 gap_evaluate_LDADD = $(LDADD)
 gap_evaluate_DEPENDENCIES =
-am__objects_2 = gap_mpi-loop_factory.$(OBJEXT) \
-	gap_mpi-path_integral.$(OBJEXT)
-nodist_gap_mpi_OBJECTS = gap_mpi-loop.$(OBJEXT) $(am__objects_2)
+nodist_gap_mpi_OBJECTS = loop.$(OBJEXT) $(am__objects_1)
 gap_mpi_OBJECTS = $(nodist_gap_mpi_OBJECTS)
 gap_mpi_DEPENDENCIES =
 nodist_gap_ns_OBJECTS = loop_ns.$(OBJEXT) $(am__objects_1)
@@ -229,17 +231,20 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 SRC = $(top_srcdir)/loop_factory.C $(top_srcdir)/path_integral.C
-dist_noinst_DATA = gap_ns.ip gap_ns.op
-TESTS = $(check_PROGRAMS)
-TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
 dist_gap_SOURCES = gap_config.h
 nodist_gap_SOURCES = $(top_srcdir)/loop.C $(SRC)
 nodist_gap_mpi_SOURCES = $(top_srcdir)/loop.C $(SRC)
-gap_mpi_CPPFLAGS = @CPPFLAGS_MPI@
 gap_mpi_LDFLAGS = @LDFLAGS_MPI@
 gap_mpi_LDADD = @LIBS_MPI@
 nodist_gap_evaluate_SOURCES = $(top_srcdir)/loop_evaluate.C $(SRC)
+
+#
+# tests
+#
+dist_noinst_DATA = gap_ns.ip gap_ns.op
 nodist_gap_ns_SOURCES = $(top_srcdir)/loop_ns.C $(SRC)
+TESTS = $(check_PROGRAMS)
+TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
 all: all-am
 
 .SUFFIXES:
@@ -306,9 +311,6 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gap_mpi-loop.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gap_mpi-loop_factory.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gap_mpi-path_integral.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_evaluate.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_factory.Po@am__quote@
@@ -391,48 +393,6 @@ loop_evaluate.obj: $(top_srcdir)/loop_evaluate.C
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/loop_evaluate.C' object='loop_evaluate.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_evaluate.obj `if test -f '$(top_srcdir)/loop_evaluate.C'; then $(CYGPATH_W) '$(top_srcdir)/loop_evaluate.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/loop_evaluate.C'; fi`
-
-gap_mpi-loop.o: $(top_srcdir)/loop.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(gap_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT gap_mpi-loop.o -MD -MP -MF "$(DEPDIR)/gap_mpi-loop.Tpo" -c -o gap_mpi-loop.o `test -f '$(top_srcdir)/loop.C' || echo '$(srcdir)/'`$(top_srcdir)/loop.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/gap_mpi-loop.Tpo" "$(DEPDIR)/gap_mpi-loop.Po"; else rm -f "$(DEPDIR)/gap_mpi-loop.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/loop.C' object='gap_mpi-loop.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(gap_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o gap_mpi-loop.o `test -f '$(top_srcdir)/loop.C' || echo '$(srcdir)/'`$(top_srcdir)/loop.C
-
-gap_mpi-loop.obj: $(top_srcdir)/loop.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(gap_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT gap_mpi-loop.obj -MD -MP -MF "$(DEPDIR)/gap_mpi-loop.Tpo" -c -o gap_mpi-loop.obj `if test -f '$(top_srcdir)/loop.C'; then $(CYGPATH_W) '$(top_srcdir)/loop.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/loop.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/gap_mpi-loop.Tpo" "$(DEPDIR)/gap_mpi-loop.Po"; else rm -f "$(DEPDIR)/gap_mpi-loop.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/loop.C' object='gap_mpi-loop.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(gap_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o gap_mpi-loop.obj `if test -f '$(top_srcdir)/loop.C'; then $(CYGPATH_W) '$(top_srcdir)/loop.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/loop.C'; fi`
-
-gap_mpi-loop_factory.o: $(top_srcdir)/loop_factory.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(gap_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT gap_mpi-loop_factory.o -MD -MP -MF "$(DEPDIR)/gap_mpi-loop_factory.Tpo" -c -o gap_mpi-loop_factory.o `test -f '$(top_srcdir)/loop_factory.C' || echo '$(srcdir)/'`$(top_srcdir)/loop_factory.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/gap_mpi-loop_factory.Tpo" "$(DEPDIR)/gap_mpi-loop_factory.Po"; else rm -f "$(DEPDIR)/gap_mpi-loop_factory.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/loop_factory.C' object='gap_mpi-loop_factory.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(gap_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o gap_mpi-loop_factory.o `test -f '$(top_srcdir)/loop_factory.C' || echo '$(srcdir)/'`$(top_srcdir)/loop_factory.C
-
-gap_mpi-loop_factory.obj: $(top_srcdir)/loop_factory.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(gap_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT gap_mpi-loop_factory.obj -MD -MP -MF "$(DEPDIR)/gap_mpi-loop_factory.Tpo" -c -o gap_mpi-loop_factory.obj `if test -f '$(top_srcdir)/loop_factory.C'; then $(CYGPATH_W) '$(top_srcdir)/loop_factory.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/loop_factory.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/gap_mpi-loop_factory.Tpo" "$(DEPDIR)/gap_mpi-loop_factory.Po"; else rm -f "$(DEPDIR)/gap_mpi-loop_factory.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/loop_factory.C' object='gap_mpi-loop_factory.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(gap_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o gap_mpi-loop_factory.obj `if test -f '$(top_srcdir)/loop_factory.C'; then $(CYGPATH_W) '$(top_srcdir)/loop_factory.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/loop_factory.C'; fi`
-
-gap_mpi-path_integral.o: $(top_srcdir)/path_integral.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(gap_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT gap_mpi-path_integral.o -MD -MP -MF "$(DEPDIR)/gap_mpi-path_integral.Tpo" -c -o gap_mpi-path_integral.o `test -f '$(top_srcdir)/path_integral.C' || echo '$(srcdir)/'`$(top_srcdir)/path_integral.C; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/gap_mpi-path_integral.Tpo" "$(DEPDIR)/gap_mpi-path_integral.Po"; else rm -f "$(DEPDIR)/gap_mpi-path_integral.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/path_integral.C' object='gap_mpi-path_integral.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(gap_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o gap_mpi-path_integral.o `test -f '$(top_srcdir)/path_integral.C' || echo '$(srcdir)/'`$(top_srcdir)/path_integral.C
-
-gap_mpi-path_integral.obj: $(top_srcdir)/path_integral.C
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(gap_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT gap_mpi-path_integral.obj -MD -MP -MF "$(DEPDIR)/gap_mpi-path_integral.Tpo" -c -o gap_mpi-path_integral.obj `if test -f '$(top_srcdir)/path_integral.C'; then $(CYGPATH_W) '$(top_srcdir)/path_integral.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/path_integral.C'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/gap_mpi-path_integral.Tpo" "$(DEPDIR)/gap_mpi-path_integral.Po"; else rm -f "$(DEPDIR)/gap_mpi-path_integral.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/path_integral.C' object='gap_mpi-path_integral.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(gap_mpi_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o gap_mpi-path_integral.obj `if test -f '$(top_srcdir)/path_integral.C'; then $(CYGPATH_W) '$(top_srcdir)/path_integral.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/path_integral.C'; fi`
 
 loop_ns.o: $(top_srcdir)/loop_ns.C
 @am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_ns.o -MD -MP -MF "$(DEPDIR)/loop_ns.Tpo" -c -o loop_ns.o `test -f '$(top_srcdir)/loop_ns.C' || echo '$(srcdir)/'`$(top_srcdir)/loop_ns.C; \
@@ -699,6 +659,9 @@ uninstall-am: uninstall-info-am
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags uninstall uninstall-am uninstall-info-am
 
+
+.PHONY : test tests
+test tests : check
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

@@ -336,8 +336,6 @@ dist_noinst_DATA = \
 	virtual_lattice.op \
 	weight.ip weight.op
 
-TESTS = $(check_PROGRAMS)
-TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
 alternating_tensor_SOURCES = alternating_tensor.C
 bond_matrix_SOURCES = bond_matrix.C
 compatibility_SOURCES = compatibility.C
@@ -361,6 +359,8 @@ temperature_SOURCES = temperature.C
 union_find_SOURCES = union_find.C
 virtual_lattice_SOURCES = virtual_lattice.C
 weight_SOURCES = weight.C
+TESTS = $(check_PROGRAMS)
+TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
 all: all-am
 
 .SUFFIXES:
@@ -774,7 +774,8 @@ uninstall-am: uninstall-info-am
 	tags uninstall uninstall-am uninstall-info-am
 
 
-test tests : $(check_PROGRAMS)
+.PHONY : test tests
+test tests : check
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

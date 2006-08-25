@@ -127,9 +127,9 @@ template<typename T>
 class histogram_set
 {
 public:
-  typedef std::valarray<T>                       histogram_type;
-  typedef std::map<std::string, histogram_type > map_type;
-  typedef histogram_descriptor<histogram_type>   descriptor_type;
+  typedef std::valarray<T>                      histogram_type;
+  typedef std::map<std::string, histogram_type> map_type;
+  typedef histogram_descriptor<histogram_type>  descriptor_type;
 
   histogram_set() {}
   template<typename U>
@@ -165,8 +165,8 @@ private:
 };
 
 template<typename T>
-void add_measurement(histogram_set<T>& h, std::string const& name,
-                     bool /* is_signed */ = false)
+void add_scalar_obs(histogram_set<T>& h, std::string const& name,
+                    bool /* is_signed */ = false)
 { if (!h.has(name)) h.add_histogram(name); }
 
 } // end namespace looper
