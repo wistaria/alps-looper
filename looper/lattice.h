@@ -662,14 +662,18 @@ virtual_lattice<RG, VG>::reinitialize(const M& model, bool has_d_term)
   mapping_.clear();
 
   // setup v2edge_type_offset
+  typename alps::property_map<vertex_type_t, const real_graph_type, int>::type
+    vertex_type = alps::get_or_default(vertex_type_t(), rgraph_, 0);
   real_vertex_iterator rvi, rvi_end;
   int tmin = 0;
   for (boost::tie(rvi, rvi_end) = vertices(rgraph_); rvi != rvi_end; ++rvi)
-    tmin = std::min(tmin, int(get(vertex_type_t(), rgraph_, *rvi)));
+    tmin = std::min(tmin, int(vertex_type[*rvi]));
   real_edge_iterator rei, rei_end;
+  typename alps::property_map<edge_type_t, const real_graph_type, int>::type
+    edge_type = alps::get_or_default(edge_type_t(), rgraph_, 0);
   int tmax = 0;
   for (boost::tie(rei, rei_end) = edges(rgraph_); rei != rei_end; ++rei)
-    tmax = std::max(tmax, int(get(edge_type_t(), rgraph_, *rei)));
+    tmax = std::max(tmax, int(edge_type[*rei]));
   mapping_.set_v2edge_type_offset(tmax-tmin+1);
 
   // add vertices to virtual graph

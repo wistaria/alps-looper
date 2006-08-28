@@ -92,7 +92,7 @@ struct local_susceptibility
     // normal estimator
 
     template<typename M, typename OP>
-    void normal_measurement(M& m, virtual_lattice_t const vlat,
+    void normal_measurement(M& m, virtual_lattice_t const& vlat,
                             bool /* use_improved_estimator */,
                             double beta, double sign,
                             std::vector<int> const& spins,
@@ -260,7 +260,7 @@ struct site_type_susceptibility
     // normal estimator
 
     template<typename M, typename OP>
-    void normal_measurement(M& m, virtual_lattice_t const vlat,
+    void normal_measurement(M& m, virtual_lattice_t const& vlat,
                             bool /* use_improved_estimator */,
                             double beta, double sign,
                             std::vector<int> const& spins,
