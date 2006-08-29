@@ -112,12 +112,22 @@ struct transverse_magnetization
     };
     void init_collector(collector& coll) const { coll.init(); }
 
+    template<typename M, typename OP, typename FRAGMENT>
+    void improved_measurement(M& m,
+                              virtual_lattice_t const& vlat,
+                              double beta, double sign,
+                              std::vector<int> const& /* spins */,
+                              std::vector<OP> const& operators,
+                              std::vector<int> const& /* spins_c */,
+                              std::vector<FRAGMENT> const& /* fragments */,
+                              collector const& coll)
+    { coll.commit(m, vlat, beta, operators.size(), sign); }
+
     // normal estimator
 
     template<typename M, typename OP>
     void normal_measurement(M& /* m */,
                             virtual_lattice_t const& /* vlat */,
-                            bool /* use_imporved_estimator */,
                             double /* beta */,
                             double /* sign */,
                             std::vector<int> const& /* spins */,

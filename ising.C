@@ -273,7 +273,8 @@ void loop_worker::flip()
     typename looper::collector<estimator_t>::type
       coll = get_collector(estimator);
     coll = std::accumulate(estimates.begin(), estimates.end(), coll);
-    coll.commit(obs, vlattice, beta, 0, 1);
+    estimator.improved_measurement(obs, vlattice, beta, 1,
+      spins, operator_string_t(), spins, fragments, coll);
   }
   obs["Number of Clusters"] << (double)clusters.size();
 
@@ -310,8 +311,8 @@ void loop_worker::measure()
   }
   looper::energy_estimator::measurement(obs, vlattice, beta, 0, 1, ene);
 
-  estimator.normal_measurement(obs, vlattice,
-    use_improved_estimator, beta, 1, spins, operator_string_t(), spins);
+  estimator.normal_measurement(obs, vlattice, beta, 1, spins,
+                               operator_string_t(), spins);
 }
 
 

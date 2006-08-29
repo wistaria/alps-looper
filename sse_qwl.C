@@ -433,7 +433,8 @@ void loop_worker::flip()
       coll = get_collector(estimator);
     coll = std::accumulate(estimates.begin(), estimates.end(), coll);
     obs.set_position(nop);
-    coll.commit(obs, vlattice, 1, nop, improved_sign);
+    estimator.improved_measurement(obs, vlattice, 1, improved_sign,
+      spins, operators, spins_c, fragments, coll);
     if (SIGN()) obs["Sign"] << improved_sign;
   }
 
@@ -470,8 +471,8 @@ void loop_worker::measure()
   }
 
   // other quantities
-  estimator.normal_measurement(obs, vlattice,
-    use_improved_estimator, 1, sign, spins, operators, spins_c);
+  estimator.normal_measurement(obs, vlattice, 1, sign, spins, operators,
+                               spins_c);
 }
 
 

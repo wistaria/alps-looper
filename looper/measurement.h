@@ -408,12 +408,22 @@ struct dumb_measurement
     };
     void init_collector(collector& /* coll */) const {}
 
+    template<typename M, typename OP, typename FRAGMENT>
+    void improved_measurement(M& /* m */,
+                              virtual_lattice_t const& /* vlat */,
+                              double /* beta */,
+                              double /* sign */,
+                              std::vector<int> const& /* spins */,
+                              std::vector<OP> const& /* operators */,
+                              std::vector<int> const& /* spins_c */,
+                              std::vector<FRAGMENT> const& /* fragments */,
+                              collector const& /* coll */) {}
+
     // normal estimator
 
     template<typename M, typename OP>
     void normal_measurement(M& /* m */,
                             virtual_lattice_t const& /* vlat */,
-                            bool /* use_imporved_estimator */,
                             double /* beta */,
                             double /* sign */,
                             std::vector<int> const& /* spins */,
@@ -547,20 +557,32 @@ struct composite_measurement
       emt2.init_collector(coll);
     }
 
+    template<typename M, typename OP, typename FRAGMENT>
+    void improved_measurement(M& m, virtual_lattice_t const& vlat,
+                              double beta, double sign,
+                              std::vector<int> const& spins,
+                              std::vector<OP> const& operators,
+                              std::vector<int> const& spins_c,
+                              std::vector<FRAGMENT> const& fragments,
+                              collector const& coll)
+    {
+      emt1.improved_measurement(m, vlat, beta, sign, spins, operators, spins_c,
+                                fragments, coll);
+      emt2.improved_measurement(m, vlat, beta, sign, spins, operators, spins_c,
+                                fragments, coll);
+    }
+
     // normal estimator
 
     template<typename M, typename OP>
     void normal_measurement(M& m, virtual_lattice_t const& vlat,
-                            bool use_improved_estimator,
                             double beta, double sign,
                             std::vector<int> const& spins,
                             std::vector<OP> const& operators,
                             std::vector<int>& spins_c)
     {
-      emt1.normal_measurement(m, vlat, use_improved_estimator,
-                              beta, sign, spins, operators, spins_c);
-      emt2.normal_measurement(m, vlat, use_improved_estimator,
-                              beta, sign, spins, operators, spins_c);
+      emt1.normal_measurement(m, vlat, beta, sign, spins, operators, spins_c);
+      emt2.normal_measurement(m, vlat, beta, sign, spins, operators, spins_c);
     }
   };
 
@@ -597,6 +619,7 @@ struct susceptibility
               double>::type gauge_map_t;
 
     bool bipartite;
+    bool improved;
     gauge_map_t gauge;
 
     template<typename M>
@@ -606,6 +629,7 @@ struct susceptibility
                     bool use_improved_estimator)
     {
       bipartite = is_bipartite;
+      improved = use_improved_estimator;
       gauge = alps::get_or_default(gauge_t(), vlat.vgraph(), 0);
 
       add_scalar_obs(m, "Magnetization", is_signed);
@@ -634,7 +658,6 @@ struct susceptibility
         }
       }
     }
-
 
     // improved estimator
 
@@ -759,15 +782,25 @@ struct susceptibility
     };
     void init_collector(collector& coll) const { coll.init(bipartite); }
 
+    template<typename M, typename OP, typename FRAGMENT>
+    void improved_measurement(M& m,
+                              virtual_lattice_t const& vlat,
+                              double beta, double sign,
+                              std::vector<int> const& /* spins */,
+                              std::vector<OP> const& operators,
+                              std::vector<int> const& /* spins_c */,
+                              std::vector<FRAGMENT> const& /* fragments */,
+                              collector const& coll)
+    { coll.commit(m, vlat, beta, operators.size(), sign); }
+
     template<typename M, typename OP>
     void normal_measurement(M& m, virtual_lattice_t const& vlat,
-                            bool use_improved_estimator,
                             double beta, double sign,
                             std::vector<int> const& spins,
                             std::vector<OP> const& operators,
                             std::vector<int>& spins_c)
     {
-      if (use_improved_estimator) return;
+      if (improved) return;
 
       int nrs = num_sites(vlat.rgraph());
       int nop = operators.size();
@@ -900,6 +933,7 @@ struct stiffness
               const typename virtual_lattice_t::real_graph_type,
               alps::coordinate_type>::type bond_vector_relative_map_t;
 
+    bool improved;
     bond_vector_relative_map_t bond_vector_relative;
     unsigned int dim;
 
@@ -907,8 +941,9 @@ struct stiffness
     void initialize(M& m, alps::Parameters const& /* params */,
                     virtual_lattice_t const& vlat,
                     bool /* is_bipartite */, bool is_signed,
-                    bool /* use_improved_estimator */)
+                    bool use_improved_estimator)
     {
+      improved = use_improved_estimator;
       bond_vector_relative =
         get_or_default(alps::bond_vector_relative_t(), vlat.rgraph(),
                        alps::coordinate_type());
@@ -972,17 +1007,27 @@ struct stiffness
     };
     void init_collector(collector& coll) const { coll.init(dim); }
 
+    template<typename M, typename OP, typename FRAGMENT>
+    void improved_measurement(M& m,
+                              virtual_lattice_t const& vlat,
+                              double beta, double sign,
+                              std::vector<int> const& /* spins */,
+                              std::vector<OP> const& operators,
+                              std::vector<int> const& /* spins_c */,
+                              std::vector<FRAGMENT> const& /* fragments */,
+                              collector const& coll)
+    { coll.commit(m, vlat, beta, operators.size(), sign); }
+
     // normal estimator
 
     template<typename M, typename OP>
     void normal_measurement(M& m, virtual_lattice_t const& vlat,
-                            bool use_improved_estimator,
                             double beta, double sign,
                             std::vector<int> const& spins,
                             std::vector<OP> const& operators,
                             std::vector<int>& spins_c)
     {
-      if (use_improved_estimator || dim == 0) return;
+      if (improved || dim == 0) return;
 
       std::valarray<double> winding(0., dim);
       std::copy(spins.begin(), spins.end(), spins_c.begin());

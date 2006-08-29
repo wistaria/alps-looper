@@ -89,11 +89,21 @@ struct local_susceptibility
       collector;
     void init_collector(collector const&) const {}
 
+    template<typename M, typename OP, typename FRAGMENT>
+    void improved_measurement(M& /* m */,
+                              virtual_lattice_t const& /* vlat */,
+                              double /* beta */,
+                              double /* sign */,
+                              std::vector<int> const& /* spins */,
+                              std::vector<OP> const& /* operators */,
+                              std::vector<int> const& /* spins_c */,
+                              std::vector<FRAGMENT> const& /* fragments */,
+                              collector const& /* coll */) {}
+
     // normal estimator
 
     template<typename M, typename OP>
     void normal_measurement(M& m, virtual_lattice_t const& vlat,
-                            bool /* use_improved_estimator */,
                             double beta, double sign,
                             std::vector<int> const& spins,
                             std::vector<OP> const& operators,
@@ -256,6 +266,17 @@ struct site_type_susceptibility
     typedef typename dumb::template estimator<MC, VLAT, TIME>::collector
       collector;
     void init_collector(collector const&) const {}
+
+    template<typename M, typename OP, typename FRAGMENT>
+    void improved_measurement(M& /* m */,
+                              virtual_lattice_t const& /* vlat */,
+                              double /* beta */,
+                              double /* sign */,
+                              std::vector<int> const& /* spins */,
+                              std::vector<OP> const& /* operators */,
+                              std::vector<int> const& /* spins_c */,
+                              std::vector<FRAGMENT> const& /* fragments */,
+                              collector const& /* coll */) {}
 
     // normal estimator
 
