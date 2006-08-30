@@ -284,7 +284,7 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 SUBDIRS = doc $(am__append_1) $(am__append_2) $(am__append_3) \
-	$(am__append_4)
+	$(am__append_4) .
 DIST_SUBDIRS = $(SUBDIRS)
 
 #
