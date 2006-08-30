@@ -56,8 +56,6 @@ try {
   typedef looper::default_graph_type real_graph_type;
   typedef alps::graph_traits<real_graph_type>::site_iterator
     real_site_iterator;
-  typedef alps::graph_traits<real_graph_type>::bond_iterator
-    real_bond_iterator;
 
   typedef looper::virtual_lattice<real_graph_type> virtual_lattice_type;
   typedef virtual_lattice_type::virtual_graph_type virtual_graph_type;
@@ -67,26 +65,27 @@ try {
     virtual_bond_iterator;
 
   // real graph
-  real_graph_type rg;
-  looper::hypercubic_graph_generator<> gen(2, 2);
-  looper::generate_graph(rg, gen);
-  put(looper::site_type_t(), rg, *(sites(rg).first), 1);
-  set_parity(rg, looper::parity_t());
-  std::cout << rg;
+  alps::Parameters param;
+  param["LATTICE"] = "square lattice";
+  param["L"] = 2;
+  alps::graph_helper<real_graph_type> gh(param);
+  real_graph_type& g = gh.graph();
+  put(looper::site_type_t(), g, *(sites(g).first), 1);
+  std::cout << g;
   real_site_iterator rvi, rvi_end;
-  for (boost::tie(rvi, rvi_end) = sites(rg); rvi != rvi_end; ++rvi)
-    std::cout << looper::gauge(rg, *rvi) << ' ';
+  for (boost::tie(rvi, rvi_end) = sites(g); rvi != rvi_end; ++rvi)
+    std::cout << looper::gauge(gh, *rvi) << ' ';
   std::cout << std::endl;
 
   // virtual lattice
   std::vector<alps::half_integer<int> > spins(2);
   spins[0] = 1; spins[1] = 3./2;
-  virtual_lattice_type vl(rg, vector_spin_wrapper<int>(spins));
+  virtual_lattice_type vl(gh, vector_spin_wrapper<int>(spins));
 
   std::cout << "number of real sites = "
-            << num_sites(rg) << std::endl;
+            << num_sites(vl.rgraph()) << std::endl;
   std::cout << "number of real bonds = "
-            << num_bonds(rg) << std::endl;
+            << num_bonds(vl.rgraph()) << std::endl;
   std::cout << "number of virtual sites = "
             << num_vsites(vl) << std::endl;
   std::cout << "number of virtual bonds = "
@@ -98,7 +97,7 @@ try {
   for (boost::tie(vvi, vvi_end) = vsites(vl); vvi != vvi_end; ++vvi)
     std::cout << gauge(vl, *vvi) << ' ';
   std::cout << std::endl;
-  vl.mapping().output(std::cout, rg, vl.vgraph());
+  vl.print_mapping(std::cout);
   for (boost::tie(vvi, vvi_end) = vsites(vl); vvi != vvi_end; ++vvi)
     std::cout << get(looper::site_index_t(), vl.rgraph(), rsite(vl, *vvi))
               << ' ';
@@ -112,9 +111,9 @@ try {
   vl.reinitialize(vector_spin_wrapper<int>(spins), true);
 
   std::cout << "number of real sites = "
-            << num_sites(rg) << std::endl;
+            << num_sites(vl.rgraph()) << std::endl;
   std::cout << "number of real bonds = "
-            << num_bonds(rg) << std::endl;
+            << num_bonds(vl.rgraph()) << std::endl;
   std::cout << "number of virtual sites = "
             << num_vsites(vl) << std::endl;
   std::cout << "number of virtual bonds = "
@@ -125,7 +124,7 @@ try {
   for (boost::tie(vvi, vvi_end) = vsites(vl); vvi != vvi_end; ++vvi)
     std::cout << gauge(vl, *vvi) << ' ';
   std::cout << std::endl;
-  vl.mapping().output(std::cout, rg, vl.vgraph());
+  vl.print_mapping(std::cout);
   for (boost::tie(vvi, vvi_end) = vsites(vl); vvi != vvi_end; ++vvi)
     std::cout << get(looper::site_index_t(), vl.rgraph(), rsite(vl, *vvi))
               << ' ';

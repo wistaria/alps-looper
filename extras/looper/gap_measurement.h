@@ -42,16 +42,12 @@ struct gap
     typedef VLAT virtual_lattice_t;
     typedef TIME time_t;
 
-    bool bipartite;
-
     template<typename M>
     void initialize(M& m, alps::Parameters const& /* params */,
-                    virtual_lattice_t const& /* vlat */,
-                    bool is_bipartite, bool is_signed,
-                    bool use_improved_estimator)
+                    virtual_lattice_t const& vlat,
+                    bool is_signed, bool use_improved_estimator)
     {
-      bipartite = is_bipartite;
-      if (bipartite)
+      if (is_bipartite(vlat))
         add_scalar_obs(m, "Staggered Susceptibility [w=2pi/beta]",
                        is_signed);
       if (use_improved_estimator)
@@ -149,7 +145,7 @@ struct gap
                             std::vector<int>& spins_c)
     {
       if (!typename is_path_integral<mc_type>::type()) return;
-      if (!bipartite) return;
+      if (!is_bipartite(vlat)) return;
 
       int nrs = num_sites(vlat.rgraph());
 

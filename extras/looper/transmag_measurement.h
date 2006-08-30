@@ -44,8 +44,7 @@ struct transverse_magnetization
     template<typename M>
     void initialize(M& m, alps::Parameters const& /* params */,
                     virtual_lattice_t const& /* vlat */,
-                    bool /* is_bipartite */, bool is_signed,
-                    bool use_improved_estimator)
+                    bool is_signed, bool use_improved_estimator)
     {
       if (use_improved_estimator) {
         add_scalar_obs(m, "Transverse Magnetization",

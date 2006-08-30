@@ -49,14 +49,12 @@ struct local_susceptibility
               double>::type gauge_map_t;
 
     bool measure;
-    bool bipartite;
     gauge_map_t gauge;
 
     template<typename M>
     void initialize(M& m, alps::Parameters const& params,
                     virtual_lattice_t const& vlat,
-                    bool is_bipartite, bool is_signed,
-                    bool /* use_improved_estimator */)
+                    bool is_signed, bool /* use_improved_estimator */)
     {
       measure =
         params.value_or_default("MEASURE[Local Susceptibility]", false);
@@ -65,7 +63,6 @@ struct local_susceptibility
         return;
       }
 
-      bipartite = is_bipartite;
       gauge = alps::get_or_default(gauge_t(), vlat.vgraph(), 0);
 
       add_vector_obs(m, "Local Magnetization",
@@ -74,7 +71,7 @@ struct local_susceptibility
                      alps::site_labels(vlat.rgraph()), is_signed);
       add_vector_obs(m, "Local Field Susceptibility",
                      alps::site_labels(vlat.rgraph()), is_signed);
-      if (bipartite)
+      if (is_bipartite(vlat))
         add_vector_obs(m, "Staggered Local Susceptibility",
                        alps::site_labels(vlat.rgraph()), is_signed);
     }
@@ -182,7 +179,7 @@ struct local_susceptibility
         << std::valarray<double>(sign * beta * umag_a * lmag_a);
       m["Local Field Susceptibility"]
         << std::valarray<double>(sign * beta * power2(lmag_a));
-      if (bipartite)
+      if (is_bipartite(vlat))
         m["Staggered Local Susceptibility"]
           << std::valarray<double>(sign * beta * smag_a * lmag_a);
     }
@@ -209,7 +206,6 @@ struct site_type_susceptibility
               double>::type gauge_map_t;
 
     bool measure;
-    bool bipartite;
     gauge_map_t gauge;
     unsigned int types;
     std::valarray<double> type_nrs;
@@ -217,8 +213,7 @@ struct site_type_susceptibility
     template<typename M>
     void initialize(M& m, alps::Parameters const& params,
                     virtual_lattice_t const& vlat,
-                    bool is_bipartite, bool is_signed,
-                    bool /* use_improved_estimator */)
+                    bool is_signed, bool /* use_improved_estimator */)
     {
       measure =
         params.value_or_default("MEASURE[Site Type Susceptibility]", false);
@@ -227,7 +222,6 @@ struct site_type_susceptibility
         return;
       }
 
-      bipartite = is_bipartite;
       gauge = alps::get_or_default(gauge_t(), vlat.vgraph(), 0);
 
       types = 0;
@@ -247,7 +241,7 @@ struct site_type_susceptibility
       add_vector_obs(m, "Site Type Magnetization Density", is_signed);
       add_vector_obs(m, "Site Type Susceptibility", is_signed);
       add_vector_obs(m, "Site Type Field Susceptibility", is_signed);
-      if (bipartite) {
+      if (is_bipartite(vlat)) {
         add_vector_obs(m, "Staggered Site Type Magnetization", is_signed);
         add_vector_obs(m, "Staggered Site Type Magnetization Density",
                        is_signed);
@@ -385,7 +379,7 @@ struct site_type_susceptibility
         << std::valarray<double>(sign * beta * umag_a * tumag_a / type_nrs);
       m["Site Type Field Susceptibility"]
         << std::valarray<double>(sign * beta * power2(tumag_a) / type_nrs);
-      if (bipartite) {
+      if (is_bipartite(vlat)) {
         m["Staggered Site Type Magnetization"]
           << std::valarray<double>(sign * tsmag_a);
         m["Staggered Site Type Magnetization Density"]

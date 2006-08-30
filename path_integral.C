@@ -118,7 +118,7 @@ private:
 
 loop_worker::loop_worker(alps::ProcessList const& w,
                          alps::Parameters const& p, int n)
-  : super_type(w, p, n), temperature(p), vlattice(graph()),
+  : super_type(w, p, n), temperature(p), vlattice(*this),
     chooser(*engine_ptr),
     r_time(*engine_ptr, boost::exponential_distribution<>()),
     mcs(p), obs(measurements)
@@ -169,7 +169,7 @@ loop_worker::loop_worker(alps::ProcessList const& w,
       site_iterator vsi, vsi_end;
       for (boost::tie(vsi, vsi_end) = virtual_sites(vlattice, *rsi);
            vsi != vsi_end; ++vsi, ++i)
-        field[i] = mp.site(*rsi, graph()).hz;
+        field[i] = mp.site(*rsi, vlattice.rgraph()).hz;
     }
   }
 
@@ -185,8 +185,7 @@ loop_worker::loop_worker(alps::ProcessList const& w,
   obs << make_observable(alps::SimpleRealObservable("Number of Clusters"));
   if (is_signed) obs << alps::RealObservable("Sign");
   looper::energy_estimator::initialize(obs, is_signed);
-  estimator.initialize(obs, p, vlattice, is_bipartite(), is_signed,
-                       use_improved_estimator);
+  estimator.initialize(obs, p, vlattice, is_signed, use_improved_estimator);
 }
 
 void loop_worker::dostep()
@@ -237,7 +236,7 @@ void loop_worker::build()
       loop_graph_t g = chooser.graph();
       if ((is_bond(g) &&
            is_compatible(g, spins_c[vsource(pos(g), vlattice)],
-                          spins_c[vtarget(pos(g), vlattice)])) ||
+                         spins_c[vtarget(pos(g), vlattice)])) ||
           (is_site(g) && is_compatible(g, spins_c[pos(g)]))) {
         operators.push_back(local_operator_t(g, t));
         t += r_time();

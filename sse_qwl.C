@@ -128,7 +128,7 @@ private:
 
 loop_worker::loop_worker(alps::ProcessList const& w,
                          alps::Parameters const& p, int n)
-  : super_type(w, p, n), vlattice(graph()),
+  : super_type(w, p, n), vlattice(*this),
     exp_range(p.value_or_default("EXPANSION_RANGE", "[0:500]")),
     chooser(*engine_ptr), mcs(p, exp_range), obs(exp_range)
 {
@@ -210,8 +210,7 @@ loop_worker::loop_worker(alps::ProcessList const& w,
   }
   measurements.reset(true);
   if (is_signed) obs.add_histogram("Sign");
-  estimator.initialize(obs, p, vlattice, is_bipartite(), is_signed,
-                       use_improved_estimator);
+  estimator.initialize(obs, p, vlattice, is_signed, use_improved_estimator);
 }
 
 void loop_worker::dostep()

@@ -378,8 +378,7 @@ struct dumb_measurement
     template<typename M>
     void initialize(M& /* m */, alps::Parameters const& /* params */,
                     virtual_lattice_t const& /* vlat */,
-                    bool /* is_bipartite */, bool /* is_signed */,
-                    bool /* use_improved_estimator */) {}
+                    bool /* is_signed */, bool /* use_improved_estimator */) {}
 
     // improved estimator
 
@@ -466,13 +465,10 @@ struct composite_measurement
     template<typename M>
     void initialize(M& m, alps::Parameters const& params,
                     virtual_lattice_t const& vlat,
-                    bool is_bipartite, bool is_signed,
-                    bool use_improved_estimator)
+                    bool is_signed, bool use_improved_estimator)
     {
-      emt1.initialize(m, params, vlat, is_bipartite, is_signed,
-                      use_improved_estimator);
-      emt2.initialize(m, params, vlat, is_bipartite, is_signed,
-                      use_improved_estimator);
+      emt1.initialize(m, params, vlat, is_signed, use_improved_estimator);
+      emt2.initialize(m, params, vlat, is_signed, use_improved_estimator);
     };
 
     // improved estimator
@@ -618,17 +614,14 @@ struct susceptibility
               const typename virtual_lattice_t::virtual_graph_type,
               double>::type gauge_map_t;
 
-    bool bipartite;
     bool improved;
     gauge_map_t gauge;
 
     template<typename M>
     void initialize(M& m, alps::Parameters const& /* params */,
                     virtual_lattice_t const& vlat,
-                    bool is_bipartite, bool is_signed,
-                    bool use_improved_estimator)
+                    bool is_signed, bool use_improved_estimator)
     {
-      bipartite = is_bipartite;
       improved = use_improved_estimator;
       gauge = alps::get_or_default(gauge_t(), vlat.vgraph(), 0);
 
@@ -642,7 +635,7 @@ struct susceptibility
         add_scalar_obs(m, "Generalized Magnetization^4", is_signed);
         add_scalar_obs(m, "Generalized Susceptibility", is_signed);
       }
-      if (bipartite) {
+      if (is_bipartite(vlat)) {
         add_scalar_obs(m, "Staggered Magnetization", is_signed);
         add_scalar_obs(m, "Staggered Magnetization Density", is_signed);
         add_scalar_obs(m, "Staggered Magnetization^2", is_signed);
@@ -712,12 +705,10 @@ struct susceptibility
 
     struct collector
     {
-      bool bipartite;
       double usize2, umag2, usize4, umag4, usize, umag;
       double ssize2, smag2, ssize4, smag4, ssize, smag;
-      void init(bool is_bipartite)
+      void init()
       {
-        bipartite = is_bipartite;
         usize2 = 0; umag2 = 0; usize4 = 0; umag4 = 0;
         usize = 0; umag = 0;
         ssize2 = 0; smag2 = 0; ssize4 = 0; smag4 = 0;
@@ -760,7 +751,7 @@ struct susceptibility
           << (typename is_sse<mc_type>::type() ?
               sign * beta * (dip(usize, nop) + usize2) / (nop + 1) / nrs :
               sign * beta * usize / nrs);
-        if (bipartite) {
+        if (is_bipartite(vlat)) {
           m["Staggered Magnetization"] << 0.0;
           m["Staggered Magnetization Density"] << 0.0;
           m["Staggered Magnetization^2"] << sign * smag2;
@@ -780,7 +771,7 @@ struct susceptibility
         }
       }
     };
-    void init_collector(collector& coll) const { coll.init(bipartite); }
+    void init_collector(collector& coll) const { coll.init(); }
 
     template<typename M, typename OP, typename FRAGMENT>
     void improved_measurement(M& m,
@@ -815,7 +806,7 @@ struct susceptibility
       m["Magnetization Density"] << sign * umag / nrs;
       m["Magnetization^2"] << sign * power2(umag);
       m["Magnetization^4"] << sign * power4(umag);
-      if (bipartite) {
+      if (is_bipartite(vlat)) {
         m["Staggered Magnetization"] << sign * smag;
         m["Staggered Magnetization Density"] << sign * smag / nrs;
         m["Staggered Magnetization^2"] << sign * power2(smag);
@@ -854,7 +845,7 @@ struct susceptibility
         umag_a += umag;
         m["Susceptibility"] << sign * beta * power2(umag_a) / nrs;
         smag_a += smag;
-        if (bipartite)
+        if (is_bipartite(vlat))
           m["Staggered Susceptibility"] << sign * beta * power2(smag_a) / nrs;
       } else {
         umag_a += nop * umag;
@@ -862,7 +853,7 @@ struct susceptibility
           << sign * beta * (dip(power2(umag_a), nop) + power2(umag))
           / (nop + 1) / nrs;
         smag_a += nop * smag;
-        if (bipartite)
+        if (is_bipartite(vlat))
           m["Staggered Susceptibility"]
             << sign * beta * (dip(power2(smag_a), nop) + power2(smag))
             / (nop + 1) / nrs;
@@ -940,8 +931,7 @@ struct stiffness
     template<typename M>
     void initialize(M& m, alps::Parameters const& /* params */,
                     virtual_lattice_t const& vlat,
-                    bool /* is_bipartite */, bool is_signed,
-                    bool use_improved_estimator)
+                    bool is_signed, bool use_improved_estimator)
     {
       improved = use_improved_estimator;
       bond_vector_relative =

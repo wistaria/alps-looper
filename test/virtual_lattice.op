@@ -1,20 +1,24 @@
-<GRAPH name="simple hypercubic graph" dimension="2" vertices="4" edges="4">
+<GRAPH dimension="2" vertices="4" edges="8">
   <VERTEX id="1" type="1"><COORDINATE>0 0</COORDINATE></VERTEX>
   <VERTEX id="2" type="0"><COORDINATE>0 1</COORDINATE></VERTEX>
   <VERTEX id="3" type="0"><COORDINATE>1 0</COORDINATE></VERTEX>
   <VERTEX id="4" type="0"><COORDINATE>1 1</COORDINATE></VERTEX>
-  <EDGE source="1" target="3" id="1" type="0" vector="1 0"/>
-  <EDGE source="1" target="2" id="2" type="1" vector="0 1"/>
-  <EDGE source="2" target="4" id="3" type="0" vector="1 0"/>
-  <EDGE source="3" target="4" id="4" type="1" vector="0 1"/>
+  <EDGE source="1" target="2" id="1" type="0" vector="0 1"/>
+  <EDGE source="1" target="3" id="2" type="0" vector="1 0"/>
+  <EDGE source="2" target="1" id="3" type="0" vector="0 1"/>
+  <EDGE source="2" target="4" id="4" type="0" vector="1 0"/>
+  <EDGE source="3" target="4" id="5" type="0" vector="0 1"/>
+  <EDGE source="3" target="1" id="6" type="0" vector="1 0"/>
+  <EDGE source="4" target="3" id="7" type="0" vector="0 1"/>
+  <EDGE source="4" target="2" id="8" type="0" vector="1 0"/>
 </GRAPH>
 1 -1 -1 1 
 number of real sites = 4
-number of real bonds = 4
+number of real bonds = 8
 number of virtual sites = 9
-number of virtual bonds = 20
+number of virtual bonds = 40
 maximum number of virutal sites = 3
-<GRAPH vertices="9" edges="20">
+<GRAPH vertices="9" edges="40">
   <VERTEX id="1"/>
   <VERTEX id="2"/>
   <VERTEX id="3"/>
@@ -24,26 +28,46 @@ maximum number of virutal sites = 3
   <VERTEX id="7"/>
   <VERTEX id="8"/>
   <VERTEX id="9"/>
-  <EDGE source="1" target="6" id="1"/>
-  <EDGE source="1" target="7" id="2"/>
-  <EDGE source="2" target="6" id="3"/>
-  <EDGE source="2" target="7" id="4"/>
-  <EDGE source="3" target="6" id="5"/>
-  <EDGE source="3" target="7" id="6"/>
-  <EDGE source="1" target="4" id="7"/>
-  <EDGE source="1" target="5" id="8"/>
-  <EDGE source="2" target="4" id="9"/>
-  <EDGE source="2" target="5" id="10"/>
-  <EDGE source="3" target="4" id="11"/>
-  <EDGE source="3" target="5" id="12"/>
-  <EDGE source="4" target="8" id="13"/>
-  <EDGE source="4" target="9" id="14"/>
-  <EDGE source="5" target="8" id="15"/>
-  <EDGE source="5" target="9" id="16"/>
-  <EDGE source="6" target="8" id="17"/>
-  <EDGE source="6" target="9" id="18"/>
-  <EDGE source="7" target="8" id="19"/>
-  <EDGE source="7" target="9" id="20"/>
+  <EDGE source="1" target="4" id="1"/>
+  <EDGE source="1" target="5" id="2"/>
+  <EDGE source="2" target="4" id="3"/>
+  <EDGE source="2" target="5" id="4"/>
+  <EDGE source="3" target="4" id="5"/>
+  <EDGE source="3" target="5" id="6"/>
+  <EDGE source="1" target="6" id="7"/>
+  <EDGE source="1" target="7" id="8"/>
+  <EDGE source="2" target="6" id="9"/>
+  <EDGE source="2" target="7" id="10"/>
+  <EDGE source="3" target="6" id="11"/>
+  <EDGE source="3" target="7" id="12"/>
+  <EDGE source="4" target="1" id="13"/>
+  <EDGE source="4" target="2" id="14"/>
+  <EDGE source="4" target="3" id="15"/>
+  <EDGE source="5" target="1" id="16"/>
+  <EDGE source="5" target="2" id="17"/>
+  <EDGE source="5" target="3" id="18"/>
+  <EDGE source="4" target="8" id="19"/>
+  <EDGE source="4" target="9" id="20"/>
+  <EDGE source="5" target="8" id="21"/>
+  <EDGE source="5" target="9" id="22"/>
+  <EDGE source="6" target="8" id="23"/>
+  <EDGE source="6" target="9" id="24"/>
+  <EDGE source="7" target="8" id="25"/>
+  <EDGE source="7" target="9" id="26"/>
+  <EDGE source="6" target="1" id="27"/>
+  <EDGE source="6" target="2" id="28"/>
+  <EDGE source="6" target="3" id="29"/>
+  <EDGE source="7" target="1" id="30"/>
+  <EDGE source="7" target="2" id="31"/>
+  <EDGE source="7" target="3" id="32"/>
+  <EDGE source="8" target="6" id="33"/>
+  <EDGE source="8" target="7" id="34"/>
+  <EDGE source="9" target="6" id="35"/>
+  <EDGE source="9" target="7" id="36"/>
+  <EDGE source="8" target="4" id="37"/>
+  <EDGE source="8" target="5" id="38"/>
+  <EDGE source="9" target="4" id="39"/>
+  <EDGE source="9" target="5" id="40"/>
 </GRAPH>
 1 1 1 -1 -1 -1 -1 1 1 
 [[vitual_mapping]]
@@ -53,25 +77,29 @@ maximum number of virutal sites = 3
     1 -> [3,4]
     2 -> [5,6]
     3 -> [7,8]
-  number of edge groups = 4
+  number of edge groups = 8
   edge mapping:
     0 -> [0,5]
     1 -> [6,11]
-    2 -> [12,15]
-    3 -> [16,19]
+    2 -> [12,17]
+    3 -> [18,21]
+    4 -> [22,25]
+    5 -> [26,31]
+    6 -> [32,35]
+    7 -> [36,39]
   vertex2edge mapping:
     0 -> null
     1 -> null
     2 -> null
     3 -> null
 0 0 0 1 1 2 2 3 3 
-0 0 0 0 0 0 1 1 1 1 1 1 2 2 2 2 3 3 3 3 
+0 0 0 0 0 0 1 1 1 1 1 1 2 2 2 2 2 2 3 3 3 3 4 4 4 4 5 5 5 5 5 5 6 6 6 6 7 7 7 7 
 number of real sites = 4
-number of real bonds = 4
+number of real bonds = 8
 number of virtual sites = 9
-number of virtual bonds = 26
+number of virtual bonds = 46
 maximum number of virutal sites = 3
-<GRAPH vertices="9" edges="26">
+<GRAPH vertices="9" edges="46">
   <VERTEX id="1"/>
   <VERTEX id="2"/>
   <VERTEX id="3"/>
@@ -81,32 +109,52 @@ maximum number of virutal sites = 3
   <VERTEX id="7"/>
   <VERTEX id="8"/>
   <VERTEX id="9"/>
-  <EDGE source="1" target="6" id="1"/>
-  <EDGE source="1" target="7" id="2"/>
-  <EDGE source="2" target="6" id="3"/>
-  <EDGE source="2" target="7" id="4"/>
-  <EDGE source="3" target="6" id="5"/>
-  <EDGE source="3" target="7" id="6"/>
-  <EDGE source="1" target="4" id="7"/>
-  <EDGE source="1" target="5" id="8"/>
-  <EDGE source="2" target="4" id="9"/>
-  <EDGE source="2" target="5" id="10"/>
-  <EDGE source="3" target="4" id="11"/>
-  <EDGE source="3" target="5" id="12"/>
-  <EDGE source="4" target="8" id="13"/>
-  <EDGE source="4" target="9" id="14"/>
-  <EDGE source="5" target="8" id="15"/>
-  <EDGE source="5" target="9" id="16"/>
-  <EDGE source="6" target="8" id="17"/>
-  <EDGE source="6" target="9" id="18"/>
-  <EDGE source="7" target="8" id="19"/>
-  <EDGE source="7" target="9" id="20"/>
-  <EDGE source="1" target="2" id="21"/>
-  <EDGE source="1" target="3" id="22"/>
-  <EDGE source="2" target="3" id="23"/>
-  <EDGE source="4" target="5" id="24"/>
-  <EDGE source="6" target="7" id="25"/>
-  <EDGE source="8" target="9" id="26"/>
+  <EDGE source="1" target="4" id="1"/>
+  <EDGE source="1" target="5" id="2"/>
+  <EDGE source="2" target="4" id="3"/>
+  <EDGE source="2" target="5" id="4"/>
+  <EDGE source="3" target="4" id="5"/>
+  <EDGE source="3" target="5" id="6"/>
+  <EDGE source="1" target="6" id="7"/>
+  <EDGE source="1" target="7" id="8"/>
+  <EDGE source="2" target="6" id="9"/>
+  <EDGE source="2" target="7" id="10"/>
+  <EDGE source="3" target="6" id="11"/>
+  <EDGE source="3" target="7" id="12"/>
+  <EDGE source="4" target="1" id="13"/>
+  <EDGE source="4" target="2" id="14"/>
+  <EDGE source="4" target="3" id="15"/>
+  <EDGE source="5" target="1" id="16"/>
+  <EDGE source="5" target="2" id="17"/>
+  <EDGE source="5" target="3" id="18"/>
+  <EDGE source="4" target="8" id="19"/>
+  <EDGE source="4" target="9" id="20"/>
+  <EDGE source="5" target="8" id="21"/>
+  <EDGE source="5" target="9" id="22"/>
+  <EDGE source="6" target="8" id="23"/>
+  <EDGE source="6" target="9" id="24"/>
+  <EDGE source="7" target="8" id="25"/>
+  <EDGE source="7" target="9" id="26"/>
+  <EDGE source="6" target="1" id="27"/>
+  <EDGE source="6" target="2" id="28"/>
+  <EDGE source="6" target="3" id="29"/>
+  <EDGE source="7" target="1" id="30"/>
+  <EDGE source="7" target="2" id="31"/>
+  <EDGE source="7" target="3" id="32"/>
+  <EDGE source="8" target="6" id="33"/>
+  <EDGE source="8" target="7" id="34"/>
+  <EDGE source="9" target="6" id="35"/>
+  <EDGE source="9" target="7" id="36"/>
+  <EDGE source="8" target="4" id="37"/>
+  <EDGE source="8" target="5" id="38"/>
+  <EDGE source="9" target="4" id="39"/>
+  <EDGE source="9" target="5" id="40"/>
+  <EDGE source="1" target="2" id="41"/>
+  <EDGE source="1" target="3" id="42"/>
+  <EDGE source="2" target="3" id="43"/>
+  <EDGE source="4" target="5" id="44"/>
+  <EDGE source="6" target="7" id="45"/>
+  <EDGE source="8" target="9" id="46"/>
 </GRAPH>
 1 1 1 -1 -1 -1 -1 1 1 
 [[vitual_mapping]]
@@ -116,16 +164,20 @@ maximum number of virutal sites = 3
     1 -> [3,4]
     2 -> [5,6]
     3 -> [7,8]
-  number of edge groups = 4
+  number of edge groups = 8
   edge mapping:
     0 -> [0,5]
     1 -> [6,11]
-    2 -> [12,15]
-    3 -> [16,19]
+    2 -> [12,17]
+    3 -> [18,21]
+    4 -> [22,25]
+    5 -> [26,31]
+    6 -> [32,35]
+    7 -> [36,39]
   vertex2edge mapping:
-    0 -> [20,22]
-    1 -> 23
-    2 -> 24
-    3 -> 25
+    0 -> [40,42]
+    1 -> 43
+    2 -> 44
+    3 -> 45
 0 0 0 1 1 2 2 3 3 
-0 0 0 0 0 0 1 1 1 1 1 1 2 2 2 2 3 3 3 3 
+0 0 0 0 0 0 1 1 1 1 1 1 2 2 2 2 2 2 3 3 3 3 4 4 4 4 5 5 5 5 5 5 6 6 6 6 7 7 7 7 

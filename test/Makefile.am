@@ -6,7 +6,6 @@ dist_noinst_DATA = \
 	filtered_graph.ip filtered_graph.op \
 	find_bridge.ip find_bridge.op \
 	gesvd.ip gesvd.op \
-	hypercubic.ip hypercubic.op \
 	llsp.ip llsp.op \
 	model_parameter.ip model_parameter.op \
 	parse_vector.ip parse_vector.op \
@@ -31,7 +30,6 @@ check_PROGRAMS = \
 	find_bridge \
 	generate_01 \
 	gesvd \
-	hypercubic \
 	llsp \
 	model_parameter \
 	parse_vector \
@@ -55,7 +53,6 @@ filtered_graph_SOURCES = filtered_graph.C
 find_bridge_SOURCES = find_bridge.C
 generate_01_SOURCES = generate_01.C
 gesvd_SOURCES = gesvd.C
-hypercubic_SOURCES = hypercubic.C
 llsp_SOURCES = llsp.C
 model_parameter_SOURCES = model_parameter.C
 parse_vector_SOURCES = parse_vector.C

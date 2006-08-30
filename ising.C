@@ -110,7 +110,7 @@ private:
 
 loop_worker::loop_worker(alps::ProcessList const& w,
                          alps::Parameters const& p, int n)
-  : super_type(w, p, n), temperature(p), vlattice(graph()),
+  : super_type(w, p, n), temperature(p), vlattice(*this),
     mcs(p), obs(measurements)
 {
   if (temperature.annealing_steps() > mcs.thermalization())
@@ -140,7 +140,8 @@ loop_worker::loop_worker(alps::ProcessList const& w,
   int b = 0;
   bond_iterator rbi, rbi_end;
   for (boost::tie(rbi, rbi_end) = bonds(); rbi != rbi_end; ++rbi) {
-    double jz = -mp.bond(*rbi, graph()).jz; // positive for ferromagnetic
+    double jz = -mp.bond(*rbi, vlattice.rgraph()).jz;
+      // positive for ferromagnetic
     virtual_lattice_t::virtual_bond_iterator vbi, vbi_end;
     for (boost::tie(vbi, vbi_end) = virtual_bonds(vlattice, *rbi);
          vbi != vbi_end; ++vbi, ++b) coupling[b] = jz;
@@ -153,7 +154,7 @@ loop_worker::loop_worker(alps::ProcessList const& w,
       site_iterator vsi, vsi_end;
       for (boost::tie(vsi, vsi_end) = virtual_sites(vlattice, *rsi);
            vsi != vsi_end; ++vsi, ++i)
-        field[i] = mp.site(*rsi, graph()).hz;
+        field[i] = mp.site(*rsi, vlattice.rgraph()).hz;
     }
   }
 
@@ -167,8 +168,7 @@ loop_worker::loop_worker(alps::ProcessList const& w,
   obs << make_observable(alps::SimpleRealObservable("Number of Sites"));
   obs << make_observable(alps::SimpleRealObservable("Number of Clusters"));
   looper::energy_estimator::initialize(obs, false);
-  estimator.initialize(obs, p, vlattice, is_bipartite(),
-                       false, use_improved_estimator);
+  estimator.initialize(obs, p, vlattice, false, use_improved_estimator);
 }
 
 void loop_worker::dostep()

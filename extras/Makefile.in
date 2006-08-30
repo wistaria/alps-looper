@@ -508,11 +508,7 @@ uninstall-info: uninstall-info-recursive
 
 
 check-extras :
-	for d in $(DIST_SUBDIRS); do \
-	  if test -d $$d; then \
-	    make -C $$d check; \
-	  fi; \
-	done
+	for d in $(DIST_SUBDIRS); do test -d $$d && make -C $$d check; done
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

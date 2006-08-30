@@ -10,8 +10,4 @@ dist_noinst_HEADERS = \
 	looper/transmag_measurement.h
 
 check-extras :
-	for d in $(DIST_SUBDIRS); do \
-	  if test -d $$d; then \
-	    make -C $$d check; \
-	  fi; \
-	done
+	for d in $(DIST_SUBDIRS); do test -d $$d && make -C $$d check; done
