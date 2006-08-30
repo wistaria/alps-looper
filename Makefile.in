@@ -913,6 +913,9 @@ uninstall-info: uninstall-info-recursive
 .PHONY : test tests
 test tests : check
 
+check-extras :
+	test -f extras/Makefile && make -C extras check-extras
+
 #
 # maintenance
 #

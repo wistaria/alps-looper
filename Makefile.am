@@ -114,6 +114,9 @@ TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
 .PHONY : test tests
 test tests : check
 
+check-extras :
+	test -f extras/Makefile && make -C extras check-extras
+
 #
 # maintenance
 #
