@@ -26,6 +26,7 @@ dist_noinst_HEADERS = \
 	looper.h \
 	looper/alternating_tensor.h \
 	looper/cluster.h \
+	looper/correlation.h \
 	looper/crop.h \
 	looper/divide_if_positive.h \
 	looper/evaluator.h \
@@ -48,7 +49,7 @@ dist_noinst_HEADERS = \
 	looper/permutation.h \
 	looper/power.h \
 	looper/random_choice.h \
-	looper/sitffness.h \
+	looper/stiffness.h \
 	looper/susceptibility.h \
 	looper/temperature.h \
 	looper/time.h \
