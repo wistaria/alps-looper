@@ -119,6 +119,12 @@ public:
   histogram_descriptor(value_type *p) : ptr_(p) {}
   histogram_descriptor& operator<<(value_type const& x)
   { *ptr_ += x; return *this; }
+  template<typename U>
+  histogram_descriptor& operator<<(std::valarray<U> const&)
+  {
+    // ignore vector observable
+    return *this;
+  }
 private:
   value_type *ptr_;
 };
@@ -166,8 +172,23 @@ private:
 
 template<typename T>
 void add_scalar_obs(histogram_set<T>& h, std::string const& name,
-                    bool /* is_signed */ = false)
+                    bool = false)
 { if (!h.has(name)) h.add_histogram(name); }
+
+template<typename T>
+void add_vector_obs(histogram_set<T>&, std::string const&,
+                    bool = false)
+{
+  std::cerr << "Warning: vector observable is not supported in quantum Wang Langau\n";
+}
+
+template<typename T>
+void add_vector_obs(histogram_set<T>&, std::string const&,
+                    alps::RealVectorObservable::label_type const&,
+                    bool = false)
+{
+  std::cerr << "Warning: vector observable is not supported in quantum Wang Langau\n";
+}
 
 } // end namespace looper
 
