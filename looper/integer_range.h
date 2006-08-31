@@ -25,6 +25,7 @@
 #ifndef LOOPER_INTEGER_RANGE_H
 #define LOOPER_INTEGER_RANGE_H
 
+#include <alps/expression.h>
 #include <alps/osiris.h>
 #include <boost/call_traits.hpp>
 #include <boost/spirit/core.hpp>
@@ -54,24 +55,45 @@ public:
     : mi_(vmin), ma_(vmax) {}
   integer_range(integer_range const& r) : mi_(r.mi_), ma_(r.ma_) {}
   integer_range(std::string const& str,
+                alps::Parameters const& p = alps::Parameters(),
                 param_type def_mi = std::numeric_limits<value_type>::min(),
                 param_type def_ma = std::numeric_limits<value_type>::max())
     : mi_(def_mi), ma_(def_ma)
   {
     using namespace boost::spirit;
+    std::string mi_str, ma_str;
     bool success;
-    if (std::numeric_limits<value_type>::is_signed) {
-      success = parse(str.c_str(),
-        int_p[assign_a(mi_)][assign_a(ma_)] |
-        ('[' >> !int_p[assign_a(mi_)] >> ':' >> !int_p[assign_a(ma_)] >> ']'),
-        space_p).full;
-    } else {
-      success = parse(str.c_str(),
-        uint_p[assign_a(mi_)][assign_a(ma_)] |
-        ('[' >> !uint_p[assign_a(mi_)] >> ':' >> !uint_p[assign_a(ma_)] >> ']'),
-        space_p).full;
+    success = parse(str.c_str(),
+        ( ch_p('[')
+          >> (*(anychar_p-'['-':'-']'))[assign_a(mi_str)]
+          >> ':'
+          >> (*(anychar_p-'['-':'-']'))[assign_a(ma_str)]
+          >> ']'
+        )
+      | ( ch_p('[')
+          >> (*(anychar_p-'['-':'-']'))[assign_a(mi_str)][assign_a(ma_str)]
+          >> ']'
+        )
+      | (+(anychar_p-'['-':'-']'))[assign_a(mi_str)][assign_a(ma_str)]
+      , space_p).full;
+    if (!success)
+      boost::throw_exception(std::runtime_error("integer_range: parse error"));
+    if (!mi_str.empty()) {
+      int m = alps::evaluate(mi_str, p);
+      if (!std::numeric_limits<value_type>::is_signed && m < 0)
+        boost::throw_exception(std::runtime_error(
+          "integer_range: negative minimum value not allowed"));
+      mi_ = m;
     }
-    if (!success) boost::throw_exception(std::runtime_error("parse error"));
+    if (!ma_str.empty()) {
+      int m = alps::evaluate(ma_str, p);
+      if (!std::numeric_limits<value_type>::is_signed && m < 0)
+        boost::throw_exception(std::runtime_error(
+          "integer_range: negative maximum value not allowed"));
+      ma_ = m;
+    }
+    if (mi_ > ma_)
+      boost::throw_exception(std::runtime_error("integer_range: range error"));
   }
   integer_range& operator=(param_type v)
   {

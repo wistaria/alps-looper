@@ -39,19 +39,16 @@ public:
   mc_steps() : mcs_(0), sweep_("[0:]"), therm_(0) {}
   mc_steps(alps::Parameters const& p)
     : mcs_(0),
-      sweep_(p.value_or_default("SWEEPS", "[65536:]")),
-      therm_(p.value_or_default("THERMALIZATION", sweep_.min() >> 3))
-  {
-    if (sweep_.min() < 1 || sweep_.min() > sweep_.max())
-      boost::throw_exception(std::invalid_argument("mc_steps::mc_steps() "
-        "inconsistent MC steps"));
-  }
+      sweep_(p.value_or_default("SWEEPS", "[65536:]"), p),
+      therm_(p.defined("THERMALIZATION") ?
+             alps::evaluate("THERMALIZATION", p) : (sweep_.min() >> 3))
+  {}
 
   mc_steps& operator++() { ++mcs_; return *this; }
   mc_steps operator++(int)
   { mc_steps tmp = *this; this->operator++(); return tmp; }
 
-  int operator()() const { return mcs_; }
+  unsigned int operator()() const { return mcs_; }
   bool can_work() const
   { return mcs_ < therm_ || mcs_ - therm_ < sweep_.max(); }
   bool is_thermalized() const { return mcs_ >= therm_; }
@@ -62,15 +59,15 @@ public:
   }
 
   int thermalization() const { return therm_; }
-  looper::integer_range<int> sweeps() const { return sweep_; }
+  looper::integer_range<unsigned int> sweeps() const { return sweep_; }
 
   void save(alps::ODump& dp) const { dp << mcs_ << sweep_ << therm_; }
   void load(alps::IDump& dp) { dp >> mcs_ >> sweep_ >> therm_; }
 
 private:
-  int mcs_;
-  looper::integer_range<int> sweep_;
-  int therm_;
+  unsigned int mcs_;
+  looper::integer_range<unsigned int> sweep_;
+  unsigned int therm_;
 };
 
 } // end namespace looper

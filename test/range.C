@@ -29,23 +29,29 @@
 
 int main()
 {
+  alps::Parameters params;
+  std::cin >> params;
+  std::cout << "Parameters:\n" << params;
+
   std::string str;
+  std::cout << "Test for integer_range<int>:\n";
   while (std::getline(std::cin, str)) {
-    if (str[0] == 'q') break;
+    if (str[0] == '\0') break;
     std::cout << "parse " << str << ": ";
     try {
-      looper::integer_range<int> r(str);
+      looper::integer_range<int> r(str, params);
       std::cout << "result " << r << std::endl;
     }
     catch (std::exception& exp) {
       std::cout << exp.what() << std::endl;
     }
   }
+  std::cout << "Test for integer_range<unsigned int>:\n";
   while (std::getline(std::cin, str)) {
-    if (str[0] == 'q') break;
+    if (!std::cin || str[0] == '\0') break;
     std::cout << "parse " << str << ": ";
     try {
-      looper::integer_range<unsigned int> r(str);
+      looper::integer_range<unsigned int> r(str, params);
       std::cout << "result " << r << std::endl;
     }
     catch (std::exception& exp) {
