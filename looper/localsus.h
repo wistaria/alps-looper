@@ -59,7 +59,7 @@ struct local_susceptibility
       measure =
         params.value_or_default("MEASURE[Local Susceptibility]", false);
       if (!measure) {
-        std::cerr << "Local Suscepbility will not be measured\n";
+        std::cerr << "Warning: local Suscepbility will not be measured\n";
         return;
       }
 

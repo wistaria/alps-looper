@@ -29,7 +29,7 @@
 #include <looper/location.h>
 #include <looper/graph.h>
 
-#include <looper/transmag_measurement.h>
+#include <looper/transmag.h>
 
 struct loop_config
 {

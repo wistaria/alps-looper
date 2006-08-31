@@ -34,7 +34,9 @@
 #include <alps/lattice.h>
 #include <looper/location.h>
 #include <looper/graph.h>
-#include <looper/measurement.h>
+#include <looper/correlation.h>
+#include <looper/susceptibility.h>
+#include <looper/stiffness.h>
 
 struct loop_config
 {
@@ -49,6 +51,7 @@ struct loop_config
 
   // measurements
   typedef looper::measurement_set<
+    looper::correlation,
     looper::susceptibility,
     looper::stiffness<3>
   > measurement_set;

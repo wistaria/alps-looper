@@ -2,7 +2,7 @@
 # compiler options
 #
 
-DEFAULT_INCLUDES = -I$(srcdir) -I$(top_srcdir) -I$(top_srcdir)/extras -DLOOP_CONFIG_HEADER=\"localsus_config.h\"
+DEFAULT_INCLUDES = -I$(srcdir) -I$(top_srcdir) -DLOOP_CONFIG_HEADER=\"localsus_config.h\"
 
 #
 # programs

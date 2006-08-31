@@ -30,7 +30,7 @@
 #include <looper/graph.h>
 #include <looper/time.h>
 
-#include <looper/gap_measurement.h>
+#include <looper/gap.h>
 
 struct loop_config
 {

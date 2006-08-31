@@ -32,6 +32,7 @@ dist_noinst_HEADERS = \
 	looper/evaluator_impl.h \
 	looper/find_bridge.h \
 	looper/flatten_matrix.h \
+	looper/gap.h \
 	looper/generate_seed.h \
 	looper/graph.h \
 	looper/histogram.h \
@@ -39,6 +40,7 @@ dist_noinst_HEADERS = \
 	looper/lapack.h \
 	looper/lattice.h \
 	looper/location.h \
+	looper/localsus.h \
 	looper/measurement.h \
 	looper/model.h \
 	looper/montecarlo.h \
@@ -46,8 +48,11 @@ dist_noinst_HEADERS = \
 	looper/permutation.h \
 	looper/power.h \
 	looper/random_choice.h \
+	looper/sitffness.h \
+	looper/susceptibility.h \
 	looper/temperature.h \
 	looper/time.h \
+	looper/transmag.h \
 	looper/type.h \
 	looper/union_find.h \
 	looper/version.h \

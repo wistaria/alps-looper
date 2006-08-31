@@ -2,7 +2,7 @@
 # compiler options
 #
 
-DEFAULT_INCLUDES = -I$(srcdir) -I$(top_srcdir) -I$(top_srcdir)/extras -DLOOP_CONFIG_HEADER=\"transmag_config.h\"
+DEFAULT_INCLUDES = -I$(srcdir) -I$(top_srcdir) -DLOOP_CONFIG_HEADER=\"transmag_config.h\"
 
 #
 # programs

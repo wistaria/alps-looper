@@ -30,7 +30,7 @@
 #include <looper/graph.h>
 #include <looper/time.h>
 
-#include <looper/localsus_measurement.h>
+#include <looper/localsus.h>
 
 struct loop_config
 {
