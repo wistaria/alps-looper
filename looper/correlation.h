@@ -51,7 +51,7 @@ struct correlation
     std::valarray<double> mltplcty;
 
     // working vector
-    std::valarray<double> ucorr, scorr;
+    std::valarray<double> ucorr, scorr, gucorr, gscorr;
 
     template<typename M>
     void initialize(M& m, alps::Parameters const& params,
@@ -73,6 +73,10 @@ struct correlation
                           " -- " + vlat.helper().coordinate_string(s));
         ucorr.resize(vlat.helper().num_sites());
         scorr.resize(vlat.helper().num_sites());
+        if (improved) {
+          gucorr.resize(vlat.helper().num_sites());
+          gscorr.resize(vlat.helper().num_sites());
+        }
       } else {
         label = vlat.helper().distance_labels();
         std::vector<unsigned int> m = vlat.helper().distance_multiplicities();
@@ -80,16 +84,20 @@ struct correlation
         for (int i = 0; i < mltplcty.size(); ++i) mltplcty[i] = 1.0 / m[i];
         ucorr.resize(vlat.helper().num_distances());
         scorr.resize(vlat.helper().num_distances());
+        if (improved) {
+          gucorr.resize(vlat.helper().num_distances());
+          gscorr.resize(vlat.helper().num_distances());
+        }
       }
 
-      add_scalar_obs(m, "Spin Correlations", is_signed);
-      if (use_improved_estimator)
-        add_scalar_obs(m, "Generalized Spin Correlations", is_signed);
+      add_vector_obs(m, "Spin Correlations", label, is_signed);
+      if (improved)
+        add_vector_obs(m, "Generalized Spin Correlations", label, is_signed);
       if (is_bipartite(vlat)) {
-        add_scalar_obs(m, "Staggered Spin Correlations", is_signed);
-        if (use_improved_estimator)
-          add_scalar_obs(m, "Generalized Staggered Spin Correlations",
-                         is_signed);
+        add_vector_obs(m, "Staggered Spin Correlations", label, is_signed);
+        if (improved)
+          add_vector_obs(m, "Generalized Staggered Spin Correlations",
+                         label, is_signed);
       }
     }
 
@@ -117,42 +125,59 @@ struct correlation
 
       ucorr = 0;
       scorr = 0;
+      gucorr = 0;
+      gscorr = 0;
       if (origin) {
         typename virtual_lattice_t::virtual_site_iterator si0, si0_end;
         for (boost::tie(si0, si0_end) = virtual_sites(vlat, origin.get());
              si0 != si0_end; ++si0) {
           double us = 0.25 * (1-2*spins[*si0]);
           double ss = 0.25 * gauge[*si0] * (1-2*spins[*si0]);
+          double gss = 0.25 * gauge[*si0];
           typename virtual_lattice_t::virtual_site_iterator si1, si1_end;
           for (boost::tie(si1, si1_end) = vsites(vlat); si1 != si1_end; ++si1) {
             if (fragments[*si0].id == fragments[*si1].id) {
               int r1 = rsite(vlat, *si1);
               ucorr[r1] += us * (1-2*spins[*si1]);
               scorr[r1] += ss * gauge[*si1] * (1-2*spins[*si1]);
+              gucorr[r1] += 0.25;
+              gscorr[r1] += gss * gauge[*si1];
             }
           }
         }
         m["Spin Correlations"] << std::valarray<double>(sign * ucorr);
-        m["Staggered Correlations"] << std::valarray<double>(sign * scorr);
+        m["Staggered Spin Correlations"]
+          << std::valarray<double>(sign * scorr);
+        m["Generalized Spin Correlations"]
+          << std::valarray<double>(sign * gucorr);
+        m["Generalized Staggered Spin Correlations"]
+          << std::valarray<double>(sign * gscorr);
       } else {
         typename virtual_lattice_t::virtual_site_iterator si0, si0_end;
         for (boost::tie(si0, si0_end) = vsites(vlat); si0 != si0_end; ++si0) {
           int r0 = rsite(vlat, *si0);
           double us = 0.25 * (1-2*spins[*si0]);
           double ss = 0.25 * gauge[*si0] * (1-2*spins[*si0]);
+          double gss = 0.25 * gauge[*si0];
           typename virtual_lattice_t::virtual_site_iterator si1, si1_end;
           for (boost::tie(si1, si1_end) = vsites(vlat); si1 != si1_end; ++si1) {
             if (fragments[*si0].id == fragments[*si1].id) {
               int d = vlat.helper().distance(r0, rsite(vlat, *si1));
               ucorr[d] += us * (1-2*spins[*si1]);
               scorr[d] += ss * gauge[*si1] * (1-2*spins[*si1]);
+              gucorr[d] += 0.25;
+              gscorr[d] += gss * gauge[*si1];
             }
           }
         }
         m["Spin Correlations"]
           << std::valarray<double>(sign * mltplcty * ucorr);
-        m["Staggered Correlations"]
+        m["Staggered Spin Correlations"]
           << std::valarray<double>(sign * mltplcty * scorr);
+        m["Generalized Spin Correlations"]
+          << std::valarray<double>(sign * mltplcty * gucorr);
+        m["Generalized Staggered Spin Correlations"]
+          << std::valarray<double>(sign * mltplcty * gscorr);
       }
     }
 
