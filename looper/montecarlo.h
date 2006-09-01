@@ -41,7 +41,8 @@ public:
     : mcs_(0),
       sweep_(p.value_or_default("SWEEPS", "[65536:]"), p),
       therm_(p.defined("THERMALIZATION") ?
-             alps::evaluate("THERMALIZATION", p) : (sweep_.min() >> 3))
+             static_cast<int>(alps::evaluate("THERMALIZATION", p)) :
+             (sweep_.min() >> 3))
   {}
 
   mc_steps& operator++() { ++mcs_; return *this; }

@@ -79,14 +79,14 @@ public:
     if (!success)
       boost::throw_exception(std::runtime_error("integer_range: parse error"));
     if (!mi_str.empty()) {
-      int m = alps::evaluate(mi_str, p);
+      int m = static_cast<int>(alps::evaluate(mi_str, p));
       if (!std::numeric_limits<value_type>::is_signed && m < 0)
         boost::throw_exception(std::runtime_error(
           "integer_range: negative minimum value not allowed"));
       mi_ = m;
     }
     if (!ma_str.empty()) {
-      int m = alps::evaluate(ma_str, p);
+      int m = static_cast<int>(alps::evaluate(ma_str, p));
       if (!std::numeric_limits<value_type>::is_signed && m < 0)
         boost::throw_exception(std::runtime_error(
           "integer_range: negative maximum value not allowed"));
