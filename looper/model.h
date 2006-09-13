@@ -548,7 +548,6 @@ void model_parameter::set_parameters_impl(alps::Parameters params, const G& g,
   signed_ = false;
   frustrated_ = false;
 
-  params.copy_undefined(hd.default_parameters());
   alps::basis_states_descriptor<I> basis(hd.basis(), g);
   alps::Disorder::seed(params.value_or_default("DISORDER_SEED",0));
 

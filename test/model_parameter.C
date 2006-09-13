@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2005 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -73,7 +73,7 @@ try {
   alps::graph_helper<> gh(params);
 
   // get model
-  alps::model_helper<> mh(params);
+  alps::model_helper<> mh(gh, params);
 
   // construct from model library
   looper::model_parameter m0(params, gh, mh);

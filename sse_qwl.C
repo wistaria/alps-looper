@@ -130,8 +130,8 @@ loop_worker::loop_worker(alps::ProcessList const& w,
                          alps::Parameters const& p, int n)
   : super_type(w, p, n), vlattice(*this),
     exp_range(p.value_or_default("EXPANSION_RANGE", "[0:500]")),
-    chooser(*engine_ptr), mcs(p, exp_range), obs(exp_range),
-    histogram(exp_range)
+    chooser(*engine_ptr), mcs(p, exp_range), histogram(exp_range),
+    obs(exp_range)
 {
   looper::model_parameter mp(p, *this);
   energy_offset = mp.energy_offset();
