@@ -25,10 +25,8 @@
 #ifndef LOOPER_LOCALSUS_MEASUREMENT_H
 #define LOOPER_LOCALSUS_MEASUREMENT_H
 
-#include <looper/measurement.h>
-#include <alps/alea.h>
-#include <cmath>
-#include <string>
+#include "measurement.h"
+#include "type.h"
 
 namespace looper {
 
@@ -58,10 +56,7 @@ struct local_susceptibility
     {
       measure =
         params.value_or_default("MEASURE[Local Susceptibility]", false);
-      if (!measure) {
-        std::cerr << "Warning: local Suscepbility will not be measured\n";
-        return;
-      }
+      if (!measure) return;
 
       gauge = alps::get_or_default(gauge_t(), vlat.vgraph(), 0);
 
@@ -217,10 +212,7 @@ struct site_type_susceptibility
     {
       measure =
         params.value_or_default("MEASURE[Site Type Susceptibility]", false);
-      if (!measure) {
-        std::cerr << "Site Type Suscepbility will not be measured\n";
-        return;
-      }
+      if (!measure) return;
 
       gauge = alps::get_or_default(gauge_t(), vlat.vgraph(), 0);
 

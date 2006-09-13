@@ -28,7 +28,6 @@
 #include <alps/lattice.h>
 #include <looper/location.h>
 #include <looper/graph.h>
-#include <looper/time.h>
 
 #include <looper/localsus.h>
 
@@ -38,15 +37,13 @@ struct loop_config
   typedef alps::coordinate_graph_type lattice_graph_t;
 
   // imaginary time
-  typedef looper::imaginary_time<boost::mpl::true_> time_t;
+  typedef double time_t;
 
-  // model, weights, and local_graph
+  // graph for loops
   typedef looper::local_graph<looper::location> loop_graph_t;
 
   // measurements
   typedef looper::measurement_set<
-    looper::susceptibility,
-    looper::stiffness<3>,
     looper::local_susceptibility,
     looper::site_type_susceptibility
   > measurement_set;

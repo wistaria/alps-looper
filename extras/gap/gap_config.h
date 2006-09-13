@@ -31,6 +31,7 @@
 #include <looper/time.h>
 
 #include <looper/gap.h>
+#include <looper/susceptibility.h>
 
 struct loop_config
 {
@@ -40,14 +41,13 @@ struct loop_config
   // imaginary time
   typedef looper::imaginary_time<boost::mpl::true_> time_t;
 
-  // model, weights, and local_graph
+  // graph for loops
   typedef looper::local_graph<looper::location> loop_graph_t;
 
   // measurements
   typedef looper::measurement_set<
-    looper::susceptibility,
-    looper::stiffness<3>,
-    looper::gap
+    looper::gap,
+    looper::susceptibility
   > measurement_set;
 };
 

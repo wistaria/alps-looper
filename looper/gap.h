@@ -25,11 +25,9 @@
 #ifndef LOOPER_GAP_MEASUREMENT_H
 #define LOOPER_GAP_MEASUREMENT_H
 
-#include <looper/measurement.h>
-#include <alps/alea.h>
-#include <cmath>
+#include "measurement.h"
+#include "type.h"
 #include <complex>
-#include <string>
 
 namespace looper {
 
@@ -95,7 +93,7 @@ struct gap
       { start_s(vlat, t, s, c); }
       void at_bot(virtual_lattice_t const& vlat,
         imaginary_time<boost::mpl::true_> const& t, int s, int c)
-        { start_s(vlat, t, s, c); }
+      { start_s(vlat, t, s, c); }
       void at_top(virtual_lattice_t const& vlat, double t, int s, int c)
       { term_s(vlat, t, s, c); }
       void at_top(virtual_lattice_t const& vlat,
@@ -109,20 +107,20 @@ struct gap
       double p;
       void init() { p = 0; }
       template<typename EST>
-      collector operator+(EST const& cm)
-      {
+      collector operator+(EST const& cm) {
         p += power2(cm.p);
         return *this;
       }
       template<typename M>
-      void commit(M& m, virtual_lattice_t const& vlat,
-                  double beta, int, double sign) const
-      {
-        m["Generalized Susceptibility [w=2pi/beta]"] <<
-          sign * beta * p / power2(4*M_PI) / num_sites(vlat.rgraph());
+      void commit(M& m, virtual_lattice_t const& vlat, double beta, int,
+                  double sign) const {
+        m["Generalized Susceptibility [w=2pi/beta]"]
+          << sign * beta * p / power2(4*M_PI) / num_sites(vlat.rgraph());
       }
     };
-    void init_collector(collector& coll) const { coll.init(); }
+    void init_collector(collector& coll) const {
+      coll.init();
+    }
 
     template<typename M, typename OP, typename FRAGMENT>
     void improved_measurement(M& m,
@@ -132,8 +130,9 @@ struct gap
                               std::vector<OP> const& operators,
                               std::vector<int> const& /* spins_c */,
                               std::vector<FRAGMENT> const& /* fragments */,
-                              collector const& coll)
-    { coll.commit(m, vlat, beta, operators.size(), sign); }
+                              collector const& coll) {
+      coll.commit(m, vlat, beta, operators.size(), sign);
+    }
 
     // normal estimator
 
@@ -142,8 +141,7 @@ struct gap
                             double beta, double sign,
                             std::vector<int> const& spins,
                             std::vector<OP> const& operators,
-                            std::vector<int>& spins_c)
-    {
+                            std::vector<int>& spins_c) {
       if (!typename is_path_integral<mc_type>::type()) return;
       if (!is_bipartite(vlat)) return;
 

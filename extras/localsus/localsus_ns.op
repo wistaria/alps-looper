@@ -8,8 +8,6 @@ LATTICE = "4-site mixed";
 MEASURE[Local Susceptibility] = 1;
 MEASURE[Site Type Susceptibility] = 1;
 [results]
-Binder Ratio of Generalized Magnetization: 0.666269 +/- 0.0094 WARNING: ERRORS NOT CONVERGED!!!
-Binder Ratio of Magnetization: 0.027832 +/- 0.00558 WARNING: ERRORS NOT CONVERGED!!!
 Energy: -1.93481 +/- 0.0411; tau = 0.703 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0.0265164
     bin #2   : 512      entries: error = 0.031288
@@ -25,21 +23,6 @@ Energy^2: 3.72839 +/- 0.161; tau = 0.632 WARNING: ERRORS NOT CONVERGED!!!
     bin #2   : 512      entries: error = 0.124829
     bin #3   : 256      entries: error = 0.14127
     bin #4   : 128      entries: error = 0.160936
-Generalized Magnetization^2: 2.64404 +/- 0.0385; tau = 0.341 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0296738
-    bin #2   : 512      entries: error = 0.0338894
-    bin #3   : 256      entries: error = 0.0359859
-    bin #4   : 128      entries: error = 0.0384772
-Generalized Magnetization^4: 10.4927 +/- 0.159; tau = 0.361 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.121242
-    bin #2   : 512      entries: error = 0.139055
-    bin #3   : 256      entries: error = 0.148569
-    bin #4   : 128      entries: error = 0.159055
-Generalized Susceptibility: 1.25919 +/- 0.0263; tau = 0.461 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0189819
-    bin #2   : 512      entries: error = 0.0220714
-    bin #3   : 256      entries: error = 0.0248066
-    bin #4   : 128      entries: error = 0.0263148
 Inverse Temperature: 4 +/- 0
 Local Field Susceptibility
 Entry[(  )]: 0.404115 +/- 0.0176278; tau = 0.720702 WARNING: ERRORS NOT CONVERGED!!!
@@ -108,26 +91,6 @@ Entry[(  )]: 0.0270595 +/- 0.0111893; tau = 1.86147
     bin #3   : 512      entries: error = 0.00874202
     bin #4   : 256      entries: error = 0.0112373
     bin #5   : 128      entries: error = 0.0111893
-Magnetization: 0 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Magnetization Density: 0 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Magnetization^2: 0.027832 +/- 0.00558; tau = 0.712 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00358587
-    bin #2   : 512      entries: error = 0.00433679
-    bin #3   : 256      entries: error = 0.00509405
-    bin #4   : 128      entries: error = 0.00558363
-Magnetization^4: 0.027832 +/- 0.00558; tau = 0.712 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00358587
-    bin #2   : 512      entries: error = 0.00433679
-    bin #3   : 256      entries: error = 0.00509405
-    bin #4   : 128      entries: error = 0.00558363
 Number of Clusters: 7.97363 +/- 0.0853683
 Number of Sites: 4 +/- 0
 Number of Sites of Each Type
@@ -186,11 +149,6 @@ Entry[1]: 0.0351003 +/- 0.0111493; tau = 0.725506 WARNING: ERRORS NOT CONVERGED!
     bin #3   : 256      entries: error = 0.0110042
     bin #4   : 128      entries: error = 0.0111493
 Specific Heat: -0.053696 +/- 0.154 WARNING: ERRORS NOT CONVERGED!!!
-Susceptibility: 0.027832 +/- 0.00558; tau = 0.712 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00358587
-    bin #2   : 512      entries: error = 0.00433679
-    bin #3   : 256      entries: error = 0.00509405
-    bin #4   : 128      entries: error = 0.00558363
 Temperature: 0.25 +/- 0
 [input parameters]
 SEED = 23125;
@@ -203,8 +161,6 @@ MEASURE[Local Susceptibility] = 1;
 MEASURE[Site Type Susceptibility] = 1;
 local_S = "1 ";
 [results]
-Binder Ratio of Generalized Magnetization: 0.591759 +/- 0.00723 WARNING: ERRORS NOT CONVERGED!!!
-Binder Ratio of Magnetization: 0.0371094 +/- 0.00652 WARNING: ERRORS NOT CONVERGED!!!
 Energy: -6.04272 +/- 0.072; tau = 0.603 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0.0484938
     bin #2   : 512      entries: error = 0.0573865
@@ -220,21 +176,6 @@ Energy^2: 36.4072 +/- 0.865; tau = 0.574 WARNING: ERRORS NOT CONVERGED!!!
     bin #2   : 512      entries: error = 0.697177
     bin #3   : 256      entries: error = 0.787433
     bin #4   : 128      entries: error = 0.864989
-Generalized Magnetization^2: 8.06934 +/- 0.139; tau = 0.325 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.1085
-    bin #2   : 512      entries: error = 0.120946
-    bin #3   : 256      entries: error = 0.13208
-    bin #4   : 128      entries: error = 0.139389
-Generalized Magnetization^4: 110.031 +/- 2.5; tau = 0.324 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 1.94638
-    bin #2   : 512      entries: error = 2.16867
-    bin #3   : 256      entries: error = 2.35312
-    bin #4   : 128      entries: error = 2.49933
-Generalized Susceptibility: 3.69824 +/- 0.0721; tau = 0.296 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0571249
-    bin #2   : 512      entries: error = 0.0646283
-    bin #3   : 256      entries: error = 0.0665965
-    bin #4   : 128      entries: error = 0.0720927
 Inverse Temperature: 4 +/- 0
 Local Field Susceptibility
 Entry[(  )]: 0.993191 +/- 0.0394363; tau = 0.286487 WARNING: ERRORS NOT CONVERGED!!!
@@ -303,26 +244,6 @@ Entry[(  )]: 0.0422802 +/- 0.016554; tau = 1.6655 WARNING: ERRORS NOT CONVERGED!
     bin #3   : 512      entries: error = 0.0134269
     bin #4   : 256      entries: error = 0.0153617
     bin #5   : 128      entries: error = 0.016554
-Magnetization: 0 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Magnetization Density: 0 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Magnetization^2: 0.0371094 +/- 0.00652; tau = 0.766 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00409973
-    bin #2   : 512      entries: error = 0.00505158
-    bin #3   : 256      entries: error = 0.00582123
-    bin #4   : 128      entries: error = 0.00652257
-Magnetization^4: 0.0371094 +/- 0.00652; tau = 0.766 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00409973
-    bin #2   : 512      entries: error = 0.00505158
-    bin #3   : 256      entries: error = 0.00582123
-    bin #4   : 128      entries: error = 0.00652257
 Number of Clusters: 15.9512 +/- 0.122132
 Number of Sites: 4 +/- 0
 Number of Sites of Each Type
@@ -381,9 +302,4 @@ Entry[1]: 0.0466997 +/- 0.0169459; tau = 0.768866 WARNING: ERRORS NOT CONVERGED!
     bin #3   : 256      entries: error = 0.0157063
     bin #4   : 128      entries: error = 0.0169459
 Specific Heat: -0.408442 +/- 0.48 WARNING: ERRORS NOT CONVERGED!!!
-Susceptibility: 0.0371094 +/- 0.00652; tau = 0.766 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00409973
-    bin #2   : 512      entries: error = 0.00505158
-    bin #3   : 256      entries: error = 0.00582123
-    bin #4   : 128      entries: error = 0.00652257
 Temperature: 0.25 +/- 0

@@ -45,3 +45,17 @@ T = 2
 { REPRESENTATION = "path integral" }
 { REPRESENTATION = "SSE" }
 { REPRESENTATION = "Ising" }
+
+LATTICE = "chain lattice"
+Jz = 1
+Jxy = 1
+local_S = 1/2
+L = 4
+T = 0.5
+{
+REPRESENTATION = "path integral"
+MEASURE[Correlations] = true
+MEASURE[Green Function] = true
+MEASURE[Structure Factor] = true
+MEASURE[Local Susceptibility] = true
+}

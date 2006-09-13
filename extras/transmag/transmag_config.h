@@ -39,13 +39,11 @@ struct loop_config
   // imaginary time
   typedef double time_t;
 
-  // model, weights, and local_graph
+  // graph for loops
   typedef looper::local_graph<looper::location> loop_graph_t;
 
   // measurements
   typedef looper::measurement_set<
-    looper::susceptibility,
-    looper::stiffness<3>,
     looper::transverse_magnetization
   > measurement_set;
 };

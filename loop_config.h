@@ -34,9 +34,12 @@
 #include <alps/lattice.h>
 #include <looper/location.h>
 #include <looper/graph.h>
+
 #include <looper/correlation.h>
-#include <looper/susceptibility.h>
+#include <looper/localsus.h>
 #include <looper/stiffness.h>
+#include <looper/susceptibility.h>
+// #include <looper/custom_measurement.h>
 
 struct loop_config
 {
@@ -46,14 +49,15 @@ struct loop_config
   // imaginary time
   typedef double time_t;
 
-  // model, weights, and local_graph
+  // graph for loops
   typedef looper::local_graph<looper::location> loop_graph_t;
 
   // measurements
   typedef looper::measurement_set<
     looper::correlation,
-    looper::susceptibility,
-    looper::stiffness<3>
+    looper::local_susceptibility,
+    looper::stiffness<3>,
+    looper::susceptibility /* , looper::custom_measurement */
   > measurement_set;
 };
 

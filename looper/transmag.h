@@ -25,10 +25,7 @@
 #ifndef LOOPER_TRANSMAG_MEASUREMENT_H
 #define LOOPER_TRANSMAG_MEASUREMENT_H
 
-#include <looper/measurement.h>
-#include <alps/alea.h>
-#include <cmath>
-#include <string>
+#include "measurement.h"
 
 namespace looper {
 

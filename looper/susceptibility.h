@@ -56,27 +56,41 @@ struct susceptibility
 
       add_scalar_obs(m, "Magnetization", is_signed);
       add_scalar_obs(m, "Magnetization Density", is_signed);
+      add_scalar_obs(m, "|Magnetization|", is_signed);
+      add_scalar_obs(m, "|Magnetization Density|", is_signed);
       add_scalar_obs(m, "Magnetization^2", is_signed);
+      add_scalar_obs(m, "Magnetization Density^2", is_signed);
       add_scalar_obs(m, "Magnetization^4", is_signed);
+      add_scalar_obs(m, "Magnetization Density^4", is_signed);
       add_scalar_obs(m, "Susceptibility", is_signed);
       if (use_improved_estimator) {
         add_scalar_obs(m, "Generalized Magnetization^2", is_signed);
+        add_scalar_obs(m, "Generalized Magnetization Density^2", is_signed);
         add_scalar_obs(m, "Generalized Magnetization^4", is_signed);
+        add_scalar_obs(m, "Generalized Magnetization Density^4", is_signed);
         add_scalar_obs(m, "Generalized Susceptibility", is_signed);
       }
       if (is_bipartite(vlat)) {
         add_scalar_obs(m, "Staggered Magnetization", is_signed);
         add_scalar_obs(m, "Staggered Magnetization Density", is_signed);
+        add_scalar_obs(m, "|Staggered Magnetization|", is_signed);
+        add_scalar_obs(m, "|Staggered Magnetization Density|", is_signed);
         add_scalar_obs(m, "Staggered Magnetization^2", is_signed);
+        add_scalar_obs(m, "Staggered Magnetization Density^2", is_signed);
         add_scalar_obs(m, "Staggered Magnetization^4", is_signed);
+        add_scalar_obs(m, "Staggered Magnetization Density^4", is_signed);
         add_scalar_obs(m, "Staggered Susceptibility", is_signed);
         if (use_improved_estimator) {
           add_scalar_obs(m, "Generalized Staggered Magnetization^2",
-                          is_signed);
+                         is_signed);
+          add_scalar_obs(m, "Generalized Staggered Magnetization Density^2",
+                         is_signed);
           add_scalar_obs(m, "Generalized Staggered Magnetization^4",
-                          is_signed);
+                         is_signed);
+          add_scalar_obs(m, "Generalized Staggered Magnetization Density^4",
+                         is_signed);
           add_scalar_obs(m, "Generalized Staggered Susceptibility",
-                          is_signed);
+                         is_signed);
         }
       }
     }
@@ -167,15 +181,24 @@ struct susceptibility
         int nrs = num_sites(vlat.rgraph());
         m["Magnetization"] << 0.0;
         m["Magnetization Density"] << 0.0;
+        m["|Magnetization|"] << 0.0;
+        m["|Magnetization Density|"] << 0.0;
         m["Magnetization^2"] << sign * umag2;
-        m["Magnetization^4"] << sign * (3 * umag2 * umag2 - 2 * umag4);
+        m["Magnetization Density^2"] << sign * umag2 / power2(nrs);
+        m["Magnetization^4"] << sign * (3 * power2(umag2) - 2 * umag4);
+        m["Magnetization Density^4"]
+          << sign * (3 * power2(umag2) - 2 * umag4) / power4(nrs);
         m["Susceptibility"]
           << (typename is_sse<mc_type>::type() ?
               sign * beta * (dip(umag, nop) + umag2) / (nop + 1) / nrs :
               sign * beta * umag / nrs);
         m["Generalized Magnetization^2"] << sign * usize2;
+        m["Generalized Magnetization Density^2"]
+          << sign * usize2 / power2(nrs);
         m["Generalized Magnetization^4"]
-          << sign * (3 * usize2 * usize2 - 2 * usize4);
+          << sign * (3 * power2(usize2) - 2 * usize4);
+        m["Generalized Magnetization Density^4"]
+          << sign * (3 * power2(usize2) - 2 * usize4) / power4(nrs);
         m["Generalized Susceptibility"]
           << (typename is_sse<mc_type>::type() ?
               sign * beta * (dip(usize, nop) + usize2) / (nop + 1) / nrs :
@@ -183,16 +206,25 @@ struct susceptibility
         if (is_bipartite(vlat)) {
           m["Staggered Magnetization"] << 0.0;
           m["Staggered Magnetization Density"] << 0.0;
+          m["|Staggered Magnetization|"] << 0.0;
+          m["|Staggered Magnetization Density|"] << 0.0;
           m["Staggered Magnetization^2"] << sign * smag2;
+          m["Staggered Magnetization Density^2"] << sign * smag2 / power2(nrs);
           m["Staggered Magnetization^4"]
-            << sign * (3 * smag2 * smag2 - 2 * smag4);
+            << sign * (3 * power2(smag2) - 2 * smag4);
+          m["Staggered Magnetization Density^4"]
+            << sign * (3 * power2(smag2) - 2 * smag4) / power4(nrs);
           m["Staggered Susceptibility"]
             << (typename is_sse<mc_type>::type() ?
                 sign * beta * (dip(smag, nop) + smag2) / (nop + 1) / nrs :
                 sign * beta * smag /nrs);
           m["Generalized Staggered Magnetization^2"] << sign * ssize2;
+          m["Generalized Staggered Magnetization Density^2"]
+            << sign * ssize2 / power2(nrs);
           m["Generalized Staggered Magnetization^4"]
-            << sign * (3 * ssize2 * ssize2 - 2 * ssize4);
+            << sign * (3 * power2(ssize2) - 2 * ssize4);
+          m["Generalized Staggered Magnetization Density^4"]
+            << sign * (3 * power2(ssize2) - 2 * ssize4) / power4(nrs);
           m["Generalized Staggered Susceptibility"]
             << (typename is_sse<mc_type>::type() ?
                 sign * beta * (dip(ssize, nop) + ssize2) / (nop + 1) / nrs :
@@ -233,13 +265,21 @@ struct susceptibility
       }
       m["Magnetization"] << sign * umag;
       m["Magnetization Density"] << sign * umag / nrs;
+      m["|Magnetization|"] << sign * std::abs(umag);
+      m["|Magnetization Density|"] << sign * std::abs(umag) / nrs;
       m["Magnetization^2"] << sign * power2(umag);
+      m["Magnetization Density^2"] << sign * power2(umag / nrs);
       m["Magnetization^4"] << sign * power4(umag);
+      m["Magnetization Density^4"] << sign * power4(umag / nrs);
       if (is_bipartite(vlat)) {
         m["Staggered Magnetization"] << sign * smag;
         m["Staggered Magnetization Density"] << sign * smag / nrs;
+        m["|Staggered Magnetization|"] << sign * std::abs(smag);
+        m["|Staggered Magnetization Density|"] << sign * std::abs(smag) / nrs;
         m["Staggered Magnetization^2"] << sign * power2(smag);
+        m["Staggered Magnetization Density^2"] << sign * power2(smag / nrs);
         m["Staggered Magnetization^4"] << sign * power4(smag);
+        m["Staggered Magnetization Density^4"] << sign * power4(smag / nrs);
       }
       double umag_a = 0; /* 0 * umag; */
       double smag_a = 0; /* 0 * smag; */

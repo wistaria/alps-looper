@@ -410,7 +410,9 @@ void diag_worker::dostep()
   m["Magnetization"] = umag / part;
   m["Magnetization Density"] = umag / part / nsite;
   m["Magnetization^2"] = umag2 / part;
+  m["Magnetization Density^2"] = umag2 / part / looper::power2(nsite);
   m["Magnetization^4"] = umag4 / part;
+  m["Magnetization Density^4"] = umag4 / part / looper::power4(nsite);
   m["Susceptibility"] =
     dynamic_average2(beta, gs_ene, evals, hamiltonian, uniform_sz) / part
     / nsite;
@@ -440,7 +442,11 @@ void diag_worker::dostep()
     m["Staggered Magnetization"] = smag / part;
     m["Staggered Magnetization Density"] = smag / part / nsite;
     m["Staggered Magnetization^2"] = smag2 / part;
+    m["Staggered Magnetization Density^2"] =
+      smag2 / part / looper::power2(nsite);
     m["Staggered Magnetization^4"] = smag4 / part;
+    m["Staggered Magnetization Density^4"] =
+      smag4 / part / looper::power4(nsite);
     m["Staggered Susceptibility"] =
       dynamic_average2(beta, gs_ene, evals, hamiltonian, staggered_sz) / part
       / nsite;

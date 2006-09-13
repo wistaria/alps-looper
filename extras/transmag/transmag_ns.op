@@ -22,6 +22,8 @@ Ground State Energy Density: -0.5 +/- inf
 Inverse Temperature: 5 +/- inf
 Magnetization: 0.493307 +/- inf
 Magnetization Density: 0.493307 +/- inf
+Magnetization Density^2: 0.25 +/- inf
+Magnetization Density^4: 0.0625 +/- inf
 Magnetization^2: 0.25 +/- inf
 Magnetization^4: 0.0625 +/- inf
 Number of Sites: 1 +/- inf
@@ -33,6 +35,8 @@ Partition Function Coefficient #4: 0.00520833 +/- inf
 Specific Heat: 0.166201 +/- inf
 Staggered Magnetization: 0.493307 +/- inf
 Staggered Magnetization Density: 0.493307 +/- inf
+Staggered Magnetization Density^2: 0.25 +/- inf
+Staggered Magnetization Density^4: 0.0625 +/- inf
 Staggered Magnetization^2: 0.25 +/- inf
 Staggered Magnetization^4: 0.0625 +/- inf
 Staggered Susceptibility: 1.25 +/- inf
@@ -62,6 +66,8 @@ Ground State Energy Density: -0.5 +/- inf
 Inverse Temperature: 2 +/- inf
 Magnetization: 0.380797 +/- inf
 Magnetization Density: 0.380797 +/- inf
+Magnetization Density^2: 0.25 +/- inf
+Magnetization Density^4: 0.0625 +/- inf
 Magnetization^2: 0.25 +/- inf
 Magnetization^4: 0.0625 +/- inf
 Number of Sites: 1 +/- inf
@@ -73,6 +79,8 @@ Partition Function Coefficient #4: 0.00520833 +/- inf
 Specific Heat: 0.419974 +/- inf
 Staggered Magnetization: 0.380797 +/- inf
 Staggered Magnetization Density: 0.380797 +/- inf
+Staggered Magnetization Density^2: 0.25 +/- inf
+Staggered Magnetization Density^4: 0.0625 +/- inf
 Staggered Magnetization^2: 0.25 +/- inf
 Staggered Magnetization^4: 0.0625 +/- inf
 Staggered Susceptibility: 0.5 +/- inf
@@ -88,10 +96,6 @@ h = 0;
 Gamma = 1;
 T = 0.2;
 [results]
-Binder Ratio of Generalized Magnetization: 1 +/- 0
-Binder Ratio of Generalized Staggered Magnetization: 1 +/- 0
-Binder Ratio of Magnetization: 1 +/- 0
-Binder Ratio of Staggered Magnetization: 1 +/- 0
 Energy: -0.498633 +/- 0.026; tau = 1.02 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0.0149492
     bin #2   : 512      entries: error = 0.0185199
@@ -107,95 +111,10 @@ Energy^2: 0.277305 +/- 0.0284; tau = 0.707 WARNING: ERRORS NOT CONVERGED!!!
     bin #2   : 512      entries: error = 0.0214697
     bin #3   : 256      entries: error = 0.0253182
     bin #4   : 128      entries: error = 0.028421
-Generalized Magnetization^2: 0.25 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Generalized Magnetization^4: 0.0625 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Generalized Staggered Magnetization^2: 0.25 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Generalized Staggered Magnetization^4: 0.0625 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Generalized Staggered Susceptibility: 0.49643 +/- 0.0138; tau = 0.797 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00856695
-    bin #2   : 512      entries: error = 0.0104155
-    bin #3   : 256      entries: error = 0.0120517
-    bin #4   : 128      entries: error = 0.0137968
-Generalized Susceptibility: 0.49643 +/- 0.0138; tau = 0.797 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00856695
-    bin #2   : 512      entries: error = 0.0104155
-    bin #3   : 256      entries: error = 0.0120517
-    bin #4   : 128      entries: error = 0.0137968
 Inverse Temperature: 5 +/- 0
-Magnetization: 0 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Magnetization Density: 0 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Magnetization^2: 0.25 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Magnetization^4: 0.0625 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
 Number of Clusters: 5.00781 +/- 0.0738421
 Number of Sites: 1 +/- 0
 Specific Heat: 0.733691 +/- 0.342 WARNING: ERRORS NOT CONVERGED!!!
-Staggered Magnetization: 0 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Staggered Magnetization Density: 0 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Staggered Magnetization^2: 0.25 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Staggered Magnetization^4: 0.0625 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Staggered Susceptibility: 0.49643 +/- 0.0138; tau = 0.797 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00856695
-    bin #2   : 512      entries: error = 0.0104155
-    bin #3   : 256      entries: error = 0.0120517
-    bin #4   : 128      entries: error = 0.0137968
-Stiffness: 0 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Susceptibility: 0.49643 +/- 0.0138; tau = 0.797 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00856695
-    bin #2   : 512      entries: error = 0.0104155
-    bin #3   : 256      entries: error = 0.0120517
-    bin #4   : 128      entries: error = 0.0137968
 Temperature: 0.2 +/- 7.17983e-10 Warning: potential error underflow. Errors might be smaller
 Transverse Magnetization: 0.492676 +/- 0.00204; tau = 0.0873
     bin #1   : 1024     entries: error = 0.00187904
@@ -217,10 +136,6 @@ h = 0;
 Gamma = 1;
 T = 0.5;
 [results]
-Binder Ratio of Generalized Magnetization: 1 +/- 0
-Binder Ratio of Generalized Staggered Magnetization: 1 +/- 0
-Binder Ratio of Magnetization: 1 +/- 0
-Binder Ratio of Staggered Magnetization: 1 +/- 0
 Energy: -0.357422 +/- 0.0425; tau = 1.08 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0.0239578
     bin #2   : 512      entries: error = 0.0298628
@@ -236,95 +151,10 @@ Energy^2: 0.285645 +/- 0.0488; tau = 0.639 WARNING: ERRORS NOT CONVERGED!!!
     bin #2   : 512      entries: error = 0.0386357
     bin #3   : 256      entries: error = 0.0456926
     bin #4   : 128      entries: error = 0.0487867
-Generalized Magnetization^2: 0.25 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Generalized Magnetization^4: 0.0625 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Generalized Staggered Magnetization^2: 0.25 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Generalized Staggered Magnetization^4: 0.0625 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Generalized Staggered Susceptibility: 0.388412 +/- 0.00709; tau = 1 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00409352
-    bin #2   : 512      entries: error = 0.00509152
-    bin #3   : 256      entries: error = 0.00626793
-    bin #4   : 128      entries: error = 0.00709319
-Generalized Susceptibility: 0.388412 +/- 0.00709; tau = 1 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00409352
-    bin #2   : 512      entries: error = 0.00509152
-    bin #3   : 256      entries: error = 0.00626793
-    bin #4   : 128      entries: error = 0.00709319
 Inverse Temperature: 2 +/- 0
-Magnetization: 0 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Magnetization Density: 0 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Magnetization^2: 0.25 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Magnetization^4: 0.0625 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
 Number of Clusters: 1.97266 +/- 0.0402041
 Number of Sites: 1 +/- 0
 Specific Heat: 0.638805 +/- 0.126 WARNING: ERRORS NOT CONVERGED!!!
-Staggered Magnetization: 0 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Staggered Magnetization Density: 0 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Staggered Magnetization^2: 0.25 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Staggered Magnetization^4: 0.0625 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Staggered Susceptibility: 0.388412 +/- 0.00709; tau = 1 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00409352
-    bin #2   : 512      entries: error = 0.00509152
-    bin #3   : 256      entries: error = 0.00626793
-    bin #4   : 128      entries: error = 0.00709319
-Stiffness: 0 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Susceptibility: 0.388412 +/- 0.00709; tau = 1 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00409352
-    bin #2   : 512      entries: error = 0.00509152
-    bin #3   : 256      entries: error = 0.00626793
-    bin #4   : 128      entries: error = 0.00709319
 Temperature: 0.5 +/- 0
 Transverse Magnetization: 0.371094 +/- 0.00849; tau = 0.27 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0.00684153
@@ -350,35 +180,39 @@ h' = -h;
 Gamma' = -Gamma;
 T = 0.2;
 [results]
-Binder Ratio of Magnetization: 0.0171292 +/- inf
-Binder Ratio of Staggered Magnetization: 0.627408 +/- inf
+Binder Ratio of Magnetization: 0.0538315 +/- inf
+Binder Ratio of Staggered Magnetization: 0.496095 +/- inf
 Dimension of Matrix: 16 +/- inf
-Energy: -1.64038 +/- inf
-Energy Density: -0.410096 +/- inf
-Entropy: 0.15256 +/- inf
-Entropy Density: 0.0381401 +/- inf
-Free Energy: -1.67089 +/- inf
-Free Energy Density: -0.417724 +/- inf
-Ground State Energy: -1.66619 +/- inf
-Ground State Energy Density: -0.416548 +/- inf
+Energy: -1.44255 +/- inf
+Energy Density: -0.360637 +/- inf
+Entropy: 0.362701 +/- inf
+Entropy Density: 0.0906752 +/- inf
+Free Energy: -1.51509 +/- inf
+Free Energy Density: -0.378772 +/- inf
+Ground State Energy: -1.5 +/- inf
+Ground State Energy Density: -0.375 +/- inf
 Inverse Temperature: 5 +/- inf
-Magnetization: 0 +/- inf
-Magnetization Density: 0 +/- inf
-Magnetization^2: 0.0175809 +/- inf
-Magnetization^4: 0.0180445 +/- inf
+Magnetization: 0.0552636 +/- inf
+Magnetization Density: 0.0138159 +/- inf
+Magnetization Density^2: 0.00391136 +/- inf
+Magnetization Density^4: 0.000284197 +/- inf
+Magnetization^2: 0.0625818 +/- inf
+Magnetization^4: 0.0727544 +/- inf
 Number of Sites: 4 +/- inf
 Partition Function Coefficient #0: 16 +/- inf
 Partition Function Coefficient #1: -5.55112e-17 +/- inf
 Partition Function Coefficient #2: 3.72 +/- inf
-Partition Function Coefficient #3: 0.68 +/- inf
-Partition Function Coefficient #4: 0.3835 +/- inf
-Specific Heat: 0.176135 +/- inf
-Staggered Magnetization: 1.01398 +/- inf
-Staggered Magnetization Density: 0.253494 +/- inf
-Staggered Magnetization^2: 2.49649 +/- inf
-Staggered Magnetization^4: 9.93369 +/- inf
-Staggered Susceptibility: 1.91985 +/- inf
-Susceptibility: 0.0219761 +/- inf
+Partition Function Coefficient #3: 0.32 +/- inf
+Partition Function Coefficient #4: 0.3535 +/- inf
+Specific Heat: 0.279489 +/- inf
+Staggered Magnetization: 0 +/- inf
+Staggered Magnetization Density: 0 +/- inf
+Staggered Magnetization Density^2: 0.121184 +/- inf
+Staggered Magnetization Density^4: 0.0296024 +/- inf
+Staggered Magnetization^2: 1.93895 +/- inf
+Staggered Magnetization^4: 7.57821 +/- inf
+Staggered Susceptibility: 0.956496 +/- inf
+Susceptibility: 0.0782273 +/- inf
 Temperature: 0.2 +/- inf
 [input parameters]
 SEED = 23125;
@@ -394,35 +228,39 @@ h' = -h;
 Gamma' = -Gamma;
 T = 0.5;
 [results]
-Binder Ratio of Magnetization: 0.227637 +/- inf
-Binder Ratio of Staggered Magnetization: 0.535359 +/- inf
+Binder Ratio of Magnetization: 0.260273 +/- inf
+Binder Ratio of Staggered Magnetization: 0.467004 +/- inf
 Dimension of Matrix: 16 +/- inf
-Energy: -1.12111 +/- inf
-Energy Density: -0.280277 +/- inf
-Entropy: 1.65494 +/- inf
-Entropy Density: 0.413735 +/- inf
-Free Energy: -1.94858 +/- inf
-Free Energy Density: -0.487144 +/- inf
-Ground State Energy: -1.66619 +/- inf
-Ground State Energy Density: -0.416548 +/- inf
+Energy: -0.944435 +/- inf
+Energy Density: -0.236109 +/- inf
+Entropy: 1.8628 +/- inf
+Entropy Density: 0.4657 +/- inf
+Free Energy: -1.87583 +/- inf
+Free Energy Density: -0.468959 +/- inf
+Ground State Energy: -1.5 +/- inf
+Ground State Energy Density: -0.375 +/- inf
 Inverse Temperature: 2 +/- inf
-Magnetization: 0 +/- inf
-Magnetization Density: 0 +/- inf
-Magnetization^2: 0.345666 +/- inf
-Magnetization^4: 0.524893 +/- inf
+Magnetization: 0.236674 +/- inf
+Magnetization Density: 0.0591686 +/- inf
+Magnetization Density^2: 0.0292938 +/- inf
+Magnetization Density^4: 0.00329703 +/- inf
+Magnetization^2: 0.468701 +/- inf
+Magnetization^4: 0.84404 +/- inf
 Number of Sites: 4 +/- inf
 Partition Function Coefficient #0: 16 +/- inf
 Partition Function Coefficient #1: -5.55112e-17 +/- inf
 Partition Function Coefficient #2: 3.72 +/- inf
-Partition Function Coefficient #3: 0.68 +/- inf
-Partition Function Coefficient #4: 0.3835 +/- inf
-Specific Heat: 0.456003 +/- inf
-Staggered Magnetization: 0.700535 +/- inf
-Staggered Magnetization Density: 0.175134 +/- inf
-Staggered Magnetization^2: 1.89971 +/- inf
-Staggered Magnetization^4: 6.74106 +/- inf
-Staggered Susceptibility: 0.770892 +/- inf
-Susceptibility: 0.172833 +/- inf
+Partition Function Coefficient #3: 0.32 +/- inf
+Partition Function Coefficient #4: 0.3535 +/- inf
+Specific Heat: 0.369899 +/- inf
+Staggered Magnetization: 0 +/- inf
+Staggered Magnetization Density: 0 +/- inf
+Staggered Magnetization Density^2: 0.0974566 +/- inf
+Staggered Magnetization Density^4: 0.0203377 +/- inf
+Staggered Magnetization^2: 1.55931 +/- inf
+Staggered Magnetization^4: 5.20646 +/- inf
+Staggered Susceptibility: 0.593779 +/- inf
+Susceptibility: 0.234351 +/- inf
 Temperature: 0.5 +/- inf
 [input parameters]
 SEED = 23125;
@@ -438,125 +276,46 @@ h' = -h;
 Gamma' = -Gamma;
 T = 0.2;
 [results]
-Binder Ratio of Generalized Magnetization: 0.488935 +/- 0.00125 WARNING: ERRORS NOT CONVERGED!!!
-Binder Ratio of Generalized Staggered Magnetization: 0.125792 +/- 0.00873 WARNING: ERRORS NOT CONVERGED!!!
-Binder Ratio of Magnetization: 0.125792 +/- 0.00873 WARNING: ERRORS NOT CONVERGED!!!
-Binder Ratio of Staggered Magnetization: 0.488935 +/- 0.00125 WARNING: ERRORS NOT CONVERGED!!!
-Energy: -1.67324 +/- 0.036; tau = 0.582 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0244689
-    bin #2   : 512      entries: error = 0.0291386
-    bin #3   : 256      entries: error = 0.0326658
-    bin #4   : 128      entries: error = 0.0359919
-Energy Density: -0.418311 +/- 0.009; tau = 0.582 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00611723
-    bin #2   : 512      entries: error = 0.00728464
-    bin #3   : 256      entries: error = 0.00816645
-    bin #4   : 128      entries: error = 0.00899797
-Energy^2: 2.85699 +/- 0.119; tau = 0.531 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.083001
-    bin #2   : 512      entries: error = 0.0976016
-    bin #3   : 256      entries: error = 0.108753
-    bin #4   : 128      entries: error = 0.119184
-Generalized Magnetization^2: 1.83936 +/- 0.0125; tau = 0.65 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00822649
-    bin #2   : 512      entries: error = 0.00992065
-    bin #3   : 256      entries: error = 0.01179
-    bin #4   : 128      entries: error = 0.0124785
-Generalized Magnetization^4: 6.91943 +/- 0.0793; tau = 0.595 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0536042
-    bin #2   : 512      entries: error = 0.0642094
-    bin #3   : 256      entries: error = 0.0755519
-    bin #4   : 128      entries: error = 0.0793335
-Generalized Staggered Magnetization^2: 0.160645 +/- 0.0125; tau = 0.65 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00822649
-    bin #2   : 512      entries: error = 0.00992065
-    bin #3   : 256      entries: error = 0.01179
-    bin #4   : 128      entries: error = 0.0124785
-Generalized Staggered Magnetization^4: 0.20459 +/- 0.023; tau = 0.802 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0142291
-    bin #2   : 512      entries: error = 0.017386
-    bin #3   : 256      entries: error = 0.0213426
-    bin #4   : 128      entries: error = 0.0229588
-Generalized Staggered Susceptibility: 0.0876983 +/- 0.00792; tau = 0.778 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00495206
-    bin #2   : 512      entries: error = 0.00608979
-    bin #3   : 256      entries: error = 0.00739207
-    bin #4   : 128      entries: error = 0.00791621
-Generalized Susceptibility: 0.847017 +/- 0.013; tau = 0.499 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00920093
-    bin #2   : 512      entries: error = 0.0107178
-    bin #3   : 256      entries: error = 0.0118849
-    bin #4   : 128      entries: error = 0.0130046
+Energy: -1.67197 +/- 0.115017; sign in observable "Sign" WARNING: ERRORS NOT CONVERGED!!!
+Sign * Energy: -0.77168 +/- 0.0726; tau = 0.458 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0524931
+    bin #2   : 512      entries: error = 0.0594067
+    bin #3   : 256      entries: error = 0.066
+    bin #4   : 128      entries: error = 0.072643
+Energy Density: -0.417991 +/- 0.0287543; sign in observable "Sign" WARNING: ERRORS NOT CONVERGED!!!
+Sign * Energy Density: -0.19292 +/- 0.0182; tau = 0.458 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0131233
+    bin #2   : 512      entries: error = 0.0148517
+    bin #3   : 256      entries: error = 0.0165
+    bin #4   : 128      entries: error = 0.0181607
+Energy^2: 2.67482 +/- 0.273732; sign in observable "Sign" WARNING: ERRORS NOT CONVERGED!!!
+Sign * Energy^2: 1.2343 +/- 0.151; tau = 0.354 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.115694
+    bin #2   : 512      entries: error = 0.127683
+    bin #3   : 256      entries: error = 0.140376
+    bin #4   : 128      entries: error = 0.151233
 Inverse Temperature: 5 +/- 0
-Magnetization: 0 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Magnetization Density: 0 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Magnetization^2: 0.160645 +/- 0.0125; tau = 0.65 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00822649
-    bin #2   : 512      entries: error = 0.00992065
-    bin #3   : 256      entries: error = 0.01179
-    bin #4   : 128      entries: error = 0.0124785
-Magnetization^4: 0.20459 +/- 0.023; tau = 0.802 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0142291
-    bin #2   : 512      entries: error = 0.017386
-    bin #3   : 256      entries: error = 0.0213426
-    bin #4   : 128      entries: error = 0.0229588
 Number of Clusters: 11.3652 +/- 0.102031
 Number of Sites: 4 +/- 0
-Specific Heat: 0.365918 +/- 0.157 WARNING: ERRORS NOT CONVERGED!!!
-Staggered Magnetization: 0 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Staggered Magnetization Density: 0 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Staggered Magnetization^2: 1.83936 +/- 0.0125; tau = 0.65 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00822649
-    bin #2   : 512      entries: error = 0.00992065
-    bin #3   : 256      entries: error = 0.01179
-    bin #4   : 128      entries: error = 0.0124785
-Staggered Magnetization^4: 6.91943 +/- 0.0793; tau = 0.595 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0536042
-    bin #2   : 512      entries: error = 0.0642094
-    bin #3   : 256      entries: error = 0.0755519
-    bin #4   : 128      entries: error = 0.0793335
-Staggered Susceptibility: 0.847017 +/- 0.013; tau = 0.499 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00920093
-    bin #2   : 512      entries: error = 0.0107178
-    bin #3   : 256      entries: error = 0.0118849
-    bin #4   : 128      entries: error = 0.0130046
-Stiffness: 0.00437012 +/- 0.000228; tau = 0.706 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0001468
-    bin #2   : 512      entries: error = 0.000176598
-    bin #3   : 256      entries: error = 0.000201021
-    bin #4   : 128      entries: error = 0.000227975
-Susceptibility: 0.0876983 +/- 0.00792; tau = 0.778 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00495206
-    bin #2   : 512      entries: error = 0.00608979
-    bin #3   : 256      entries: error = 0.00739207
-    bin #4   : 128      entries: error = 0.00791621
+Sign: 0.461914 +/- 0.023; tau = 0.586 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0155948
+    bin #2   : 512      entries: error = 0.0183496
+    bin #3   : 256      entries: error = 0.0205127
+    bin #4   : 128      entries: error = 0.0229852
+Specific Heat: -0.671388 +/- 0.932 WARNING: ERRORS NOT CONVERGED!!!
 Temperature: 0.2 +/- 7.17983e-10 Warning: potential error underflow. Errors might be smaller
-Transverse Magnetization: 1.0197 +/- 0.0198; tau = 0.454 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0143404
-    bin #2   : 512      entries: error = 0.0159138
-    bin #3   : 256      entries: error = 0.017923
-    bin #4   : 128      entries: error = 0.0198068
-Transverse Magnetization Density: 0.254925 +/- 0.00495; tau = 0.454 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00358511
-    bin #2   : 512      entries: error = 0.00397846
-    bin #3   : 256      entries: error = 0.00448076
-    bin #4   : 128      entries: error = 0.0049517
+Transverse Magnetization: 0.847003 +/- 0.0236577; sign in observable "Sign" WARNING: ERRORS NOT CONVERGED!!!
+Sign * Transverse Magnetization: 0.391326 +/- 0.0208; tau = 0.309 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0163571
+    bin #2   : 512      entries: error = 0.018257
+    bin #3   : 256      entries: error = 0.0193824
+    bin #4   : 128      entries: error = 0.0208086
+Transverse Magnetization Density: 0.211751 +/- 0.00591442; sign in observable "Sign" WARNING: ERRORS NOT CONVERGED!!!
+Sign * Transverse Magnetization Density: 0.0978315 +/- 0.0052; tau = 0.309 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00408927
+    bin #2   : 512      entries: error = 0.00456426
+    bin #3   : 256      entries: error = 0.00484561
+    bin #4   : 128      entries: error = 0.00520216
 [input parameters]
 SEED = 23125;
 SWEEPS = 1024;
@@ -571,122 +330,43 @@ h' = -h;
 Gamma' = -Gamma;
 T = 0.5;
 [results]
-Binder Ratio of Generalized Magnetization: 0.472979 +/- 0.00183 WARNING: ERRORS NOT CONVERGED!!!
-Binder Ratio of Generalized Staggered Magnetization: 0.25064 +/- 0.00774 WARNING: ERRORS NOT CONVERGED!!!
-Binder Ratio of Magnetization: 0.25064 +/- 0.00774 WARNING: ERRORS NOT CONVERGED!!!
-Binder Ratio of Staggered Magnetization: 0.472979 +/- 0.00183 WARNING: ERRORS NOT CONVERGED!!!
-Energy: -1.25205 +/- 0.0695; tau = 1.01 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0400345
-    bin #2   : 512      entries: error = 0.0500684
-    bin #3   : 256      entries: error = 0.0607037
-    bin #4   : 128      entries: error = 0.0694864
-Energy Density: -0.313013 +/- 0.0174; tau = 1.01 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0100086
-    bin #2   : 512      entries: error = 0.0125171
-    bin #3   : 256      entries: error = 0.0151759
-    bin #4   : 128      entries: error = 0.0173716
-Energy^2: 2.02963 +/- 0.215; tau = 0.852 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.130665
-    bin #2   : 512      entries: error = 0.156335
-    bin #3   : 256      entries: error = 0.188538
-    bin #4   : 128      entries: error = 0.214842
-Generalized Magnetization^2: 1.61328 +/- 0.0161; tau = 0.663 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0105445
-    bin #2   : 512      entries: error = 0.0126468
-    bin #3   : 256      entries: error = 0.0149891
-    bin #4   : 128      entries: error = 0.0160839
-Generalized Magnetization^4: 5.50244 +/- 0.0934; tau = 0.603 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0628715
-    bin #2   : 512      entries: error = 0.0751132
-    bin #3   : 256      entries: error = 0.0884626
-    bin #4   : 128      entries: error = 0.0933779
-Generalized Staggered Magnetization^2: 0.386719 +/- 0.0161; tau = 0.663 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0105445
-    bin #2   : 512      entries: error = 0.0126468
-    bin #3   : 256      entries: error = 0.0149891
-    bin #4   : 128      entries: error = 0.0160839
-Generalized Staggered Magnetization^4: 0.596191 +/- 0.0383; tau = 0.668 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0250419
-    bin #2   : 512      entries: error = 0.0298216
-    bin #3   : 256      entries: error = 0.0351313
-    bin #4   : 128      entries: error = 0.0382788
-Generalized Staggered Susceptibility: 0.180637 +/- 0.00811; tau = 0.785 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00505766
-    bin #2   : 512      entries: error = 0.00617199
-    bin #3   : 256      entries: error = 0.00741885
-    bin #4   : 128      entries: error = 0.00810913
-Generalized Susceptibility: 0.572312 +/- 0.0062; tau = 0.364 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00471502
-    bin #2   : 512      entries: error = 0.00541214
-    bin #3   : 256      entries: error = 0.00578504
-    bin #4   : 128      entries: error = 0.00619767
+Energy: -0.981438 +/- 0.074905; sign in observable "Sign" WARNING: ERRORS NOT CONVERGED!!!
+Sign * Energy: -0.80498 +/- 0.0651; tau = 0.348 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.050026
+    bin #2   : 512      entries: error = 0.0598838
+    bin #3   : 256      entries: error = 0.0624017
+    bin #4   : 128      entries: error = 0.0651441
+Energy Density: -0.245359 +/- 0.0187262; sign in observable "Sign" WARNING: ERRORS NOT CONVERGED!!!
+Sign * Energy Density: -0.201245 +/- 0.0163; tau = 0.348 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0125065
+    bin #2   : 512      entries: error = 0.014971
+    bin #3   : 256      entries: error = 0.0156004
+    bin #4   : 128      entries: error = 0.016286
+Energy^2: 1.11448 +/- 0.172305; sign in observable "Sign"
+Sign * Energy^2: 0.913789 +/- 0.146; tau = 0.0224
+    bin #1   : 1024     entries: error = 0.142432
+    bin #2   : 512      entries: error = 0.159581
+    bin #3   : 256      entries: error = 0.146313
+    bin #4   : 128      entries: error = 0.145582
 Inverse Temperature: 2 +/- 0
-Magnetization: 0 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Magnetization Density: 0 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Magnetization^2: 0.386719 +/- 0.0161; tau = 0.663 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0105445
-    bin #2   : 512      entries: error = 0.0126468
-    bin #3   : 256      entries: error = 0.0149891
-    bin #4   : 128      entries: error = 0.0160839
-Magnetization^4: 0.596191 +/- 0.0383; tau = 0.668 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0250419
-    bin #2   : 512      entries: error = 0.0298216
-    bin #3   : 256      entries: error = 0.0351313
-    bin #4   : 128      entries: error = 0.0382788
 Number of Clusters: 4.92676 +/- 0.0505943
 Number of Sites: 4 +/- 0
-Specific Heat: 0.466821 +/- 0.103 WARNING: ERRORS NOT CONVERGED!!!
-Staggered Magnetization: 0 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Staggered Magnetization Density: 0 +/- 0; tau = nan
-    bin #1   : 1024     entries: error = 0
-    bin #2   : 512      entries: error = 0
-    bin #3   : 256      entries: error = 0
-    bin #4   : 128      entries: error = 0
-Staggered Magnetization^2: 1.61328 +/- 0.0161; tau = 0.663 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0105445
-    bin #2   : 512      entries: error = 0.0126468
-    bin #3   : 256      entries: error = 0.0149891
-    bin #4   : 128      entries: error = 0.0160839
-Staggered Magnetization^4: 5.50244 +/- 0.0934; tau = 0.603 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0628715
-    bin #2   : 512      entries: error = 0.0751132
-    bin #3   : 256      entries: error = 0.0884626
-    bin #4   : 128      entries: error = 0.0933779
-Staggered Susceptibility: 0.572312 +/- 0.0062; tau = 0.364 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00471502
-    bin #2   : 512      entries: error = 0.00541214
-    bin #3   : 256      entries: error = 0.00578504
-    bin #4   : 128      entries: error = 0.00619767
-Stiffness: 0.00296021 +/- 0.000296; tau = 0.562 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.000203345
-    bin #2   : 512      entries: error = 0.000241854
-    bin #3   : 256      entries: error = 0.000281625
-    bin #4   : 128      entries: error = 0.000296383
-Susceptibility: 0.180637 +/- 0.00811; tau = 0.785 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00505766
-    bin #2   : 512      entries: error = 0.00617199
-    bin #3   : 256      entries: error = 0.00741885
-    bin #4   : 128      entries: error = 0.00810913
+Sign: 0.820312 +/- 0.0174; tau = 0.546 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0120094
+    bin #2   : 512      entries: error = 0.0143027
+    bin #3   : 256      entries: error = 0.0165484
+    bin #4   : 128      entries: error = 0.0173674
+Specific Heat: 0.156868 +/- 0.0895
 Temperature: 0.5 +/- 0
-Transverse Magnetization: 0.730099 +/- 0.0204; tau = 0.148 WARNING: check error convergence
-    bin #1   : 1024     entries: error = 0.0179576
-    bin #2   : 512      entries: error = 0.0196842
-    bin #3   : 256      entries: error = 0.0201805
-    bin #4   : 128      entries: error = 0.0204375
-Transverse Magnetization Density: 0.182525 +/- 0.00511; tau = 0.148 WARNING: check error convergence
-    bin #1   : 1024     entries: error = 0.0044894
-    bin #2   : 512      entries: error = 0.00492105
-    bin #3   : 256      entries: error = 0.00504512
-    bin #4   : 128      entries: error = 0.00510938
+Transverse Magnetization: 0.633867 +/- 0.0205279; sign in observable "Sign" WARNING: check error convergence
+Sign * Transverse Magnetization: 0.519967 +/- 0.0202; tau = 0.181 WARNING: check error convergence
+    bin #1   : 1024     entries: error = 0.0172946
+    bin #2   : 512      entries: error = 0.0187741
+    bin #3   : 256      entries: error = 0.0198739
+    bin #4   : 128      entries: error = 0.0201779
+Transverse Magnetization Density: 0.158467 +/- 0.00513198; sign in observable "Sign" WARNING: check error convergence
+Sign * Transverse Magnetization Density: 0.129992 +/- 0.00504; tau = 0.181 WARNING: check error convergence
+    bin #1   : 1024     entries: error = 0.00432365
+    bin #2   : 512      entries: error = 0.00469353
+    bin #3   : 256      entries: error = 0.00496848
+    bin #4   : 128      entries: error = 0.00504447

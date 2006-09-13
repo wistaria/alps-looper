@@ -395,6 +395,19 @@ private:
 };
 
 
+class spinmodel_helper {
+public:
+  template<typename G>
+  spinmodel_helper(alps::Parameters const& p, alps::graph_helper<G> const& g)
+    : model_(g, p), mparam_(p, model_)
+  {}
+
+private:
+  alps::model_helper<short> model_;
+  model_parameter mparam_;
+};
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Implementations
