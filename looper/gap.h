@@ -33,19 +33,19 @@ namespace looper {
 
 struct gap
 {
-  template<typename MC, typename VLAT, typename TIME>
+  template<typename MC, typename LAT, typename TIME>
   struct estimator
   {
     typedef MC   mc_type;
-    typedef VLAT virtual_lattice_t;
+    typedef LAT  lattice_t;
     typedef TIME time_t;
 
     template<typename M>
     void initialize(M& m, alps::Parameters const& /* params */,
-                    virtual_lattice_t const& vlat,
+                    lattice_t const& lat,
                     bool is_signed, bool use_improved_estimator)
     {
-      if (is_bipartite(vlat))
+      if (is_bipartite(lat))
         add_scalar_obs(m, "Staggered Susceptibility [w=2pi/beta]",
                        is_signed);
       if (use_improved_estimator)
@@ -59,46 +59,46 @@ struct gap
     {
       std::complex<double> p;
       void init() { p = std::complex<double>(0,0); }
-      void start_s(virtual_lattice_t const&, double t, int, int)
+      void start_s(lattice_t const&, double t, int, int)
       { p -= ctime(t); }
-      void start_s(virtual_lattice_t const&,
+      void start_s(lattice_t const&,
         imaginary_time<boost::mpl::true_> const& t, int, int)
       { p -= t.ctime_; }
-      void start_bs(virtual_lattice_t const& vlat, double t, int, int s, int c)
-      { start_s(vlat, t, s, c); }
-      void start_bt(virtual_lattice_t const& vlat, double t, int, int s, int c)
-      { start_s(vlat, t, s, c); }
-      void start_bs(virtual_lattice_t const& vlat,
+      void start_bs(lattice_t const& lat, double t, int, int s, int c)
+      { start_s(lat, t, s, c); }
+      void start_bt(lattice_t const& lat, double t, int, int s, int c)
+      { start_s(lat, t, s, c); }
+      void start_bs(lattice_t const& lat,
         imaginary_time<boost::mpl::true_> const& t, int, int s , int c)
-      { start_s(vlat, t, s, c); }
-      void start_bt(virtual_lattice_t const& vlat,
+      { start_s(lat, t, s, c); }
+      void start_bt(lattice_t const& lat,
         imaginary_time<boost::mpl::true_> const& t, int, int s , int c)
-      { start_s(vlat, t, s, c); }
-      void term_s(virtual_lattice_t const&, double t, int, int)
+      { start_s(lat, t, s, c); }
+      void term_s(lattice_t const&, double t, int, int)
       { p += ctime(t); }
-      void term_s(virtual_lattice_t const&,
+      void term_s(lattice_t const&,
         imaginary_time<boost::mpl::true_> const& t, int, int)
       { p += t.ctime_; }
-      void term_bs(virtual_lattice_t const& vlat, double t, int, int s, int c)
-      { term_s(vlat, t, s, c); }
-      void term_bt(virtual_lattice_t const& vlat, double t, int, int s, int c)
-      { term_s(vlat, t, s, c); }
-      void term_bs(virtual_lattice_t const& vlat,
+      void term_bs(lattice_t const& lat, double t, int, int s, int c)
+      { term_s(lat, t, s, c); }
+      void term_bt(lattice_t const& lat, double t, int, int s, int c)
+      { term_s(lat, t, s, c); }
+      void term_bs(lattice_t const& lat,
         imaginary_time<boost::mpl::true_> const& t, int, int s, int c)
-      { term_s(vlat, t, s, c); }
-      void term_bt(virtual_lattice_t const& vlat,
+      { term_s(lat, t, s, c); }
+      void term_bt(lattice_t const& lat,
         imaginary_time<boost::mpl::true_> const& t, int, int s, int c)
-      { term_s(vlat, t, s, c); }
-      void at_bot(virtual_lattice_t const& vlat, double t, int s, int c)
-      { start_s(vlat, t, s, c); }
-      void at_bot(virtual_lattice_t const& vlat,
+      { term_s(lat, t, s, c); }
+      void at_bot(lattice_t const& lat, double t, int s, int c)
+      { start_s(lat, t, s, c); }
+      void at_bot(lattice_t const& lat,
         imaginary_time<boost::mpl::true_> const& t, int s, int c)
-      { start_s(vlat, t, s, c); }
-      void at_top(virtual_lattice_t const& vlat, double t, int s, int c)
-      { term_s(vlat, t, s, c); }
-      void at_top(virtual_lattice_t const& vlat,
+      { start_s(lat, t, s, c); }
+      void at_top(lattice_t const& lat, double t, int s, int c)
+      { term_s(lat, t, s, c); }
+      void at_top(lattice_t const& lat,
         imaginary_time<boost::mpl::true_> const& t, int s, int c)
-      { term_s(vlat, t, s, c); }
+      { term_s(lat, t, s, c); }
     };
     void init_estimate(estimate& est) const { est.init(); }
 
@@ -112,10 +112,10 @@ struct gap
         return *this;
       }
       template<typename M>
-      void commit(M& m, virtual_lattice_t const& vlat, double beta, int,
+      void commit(M& m, lattice_t const& lat, double beta, int,
                   double sign) const {
         m["Generalized Susceptibility [w=2pi/beta]"]
-          << sign * beta * p / power2(4*M_PI) / num_sites(vlat.rgraph());
+          << sign * beta * p / power2(4*M_PI) / num_sites(lat.rg());
       }
     };
     void init_collector(collector& coll) const {
@@ -124,33 +124,33 @@ struct gap
 
     template<typename M, typename OP, typename FRAGMENT>
     void improved_measurement(M& m,
-                              virtual_lattice_t const& vlat,
+                              lattice_t const& lat,
                               double beta, double sign,
                               std::vector<int> const& /* spins */,
                               std::vector<OP> const& operators,
                               std::vector<int> const& /* spins_c */,
                               std::vector<FRAGMENT> const& /* fragments */,
                               collector const& coll) {
-      coll.commit(m, vlat, beta, operators.size(), sign);
+      coll.commit(m, lat, beta, operators.size(), sign);
     }
 
     // normal estimator
 
     template<typename M, typename OP>
-    void normal_measurement(M& m, virtual_lattice_t const& vlat,
+    void normal_measurement(M& m, lattice_t const& lat,
                             double beta, double sign,
                             std::vector<int> const& spins,
                             std::vector<OP> const& operators,
                             std::vector<int>& spins_c) {
       if (!typename is_path_integral<mc_type>::type()) return;
-      if (!is_bipartite(vlat)) return;
+      if (!is_bipartite(lat)) return;
 
-      int nrs = num_sites(vlat.rgraph());
+      int nrs = num_sites(lat.rg());
 
       double smag = 0;
-      typename virtual_lattice_t::virtual_site_iterator si, si_end;
-      for (boost::tie(si, si_end) = vsites(vlat); si != si_end; ++si)
-        smag += (0.5-spins[*si]) * gauge(vlat, *si);
+      typename virtual_site_iterator<lattice_t>::type si, si_end;
+      for (boost::tie(si, si_end) = sites(lat.vg()); si != si_end; ++si)
+        smag += (0.5-spins[*si]) * gauge(lat, *si);
       std::complex<double> smag_a(0, 0);
       std::copy(spins.begin(), spins.end(), spins_c.begin());
       for (typename std::vector<OP>::const_iterator oi = operators.begin();
@@ -161,14 +161,14 @@ struct gap
           if (oi->is_site()) {
             unsigned int s = oi->pos();
             spins_c[s] ^= 1;
-            smag += gauge(vlat, s) * (1-2*spins_c[s]);
+            smag += gauge(lat, s) * (1-2*spins_c[s]);
           } else {
-            unsigned int s0 = vsource(oi->pos(), vlat);
-            unsigned int s1 = vtarget(oi->pos(), vlat);
+            unsigned int s0 = source(oi->pos(), lat.vg());
+            unsigned int s1 = target(oi->pos(), lat.vg());
             spins_c[s0] ^= 1;
             spins_c[s1] ^= 1;
-            smag += gauge(vlat, s0) * (1-2*spins_c[s0])
-              + gauge(vlat, s1) * (1-2*spins_c[s1]);
+            smag += gauge(lat, s0) * (1-2*spins_c[s0])
+              + gauge(lat, s1) * (1-2*spins_c[s1]);
           }
           smag_a -= p * smag;
         }

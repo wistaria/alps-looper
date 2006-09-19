@@ -42,23 +42,21 @@ struct dummy_operator
   static bool is_bond() { return false; }
 };
 
-class loop_worker
-  : public alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
+class loop_worker : public alps::scheduler::MCRun
 {
 public:
-  typedef looper::classical                                mc_type;
-  typedef alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
-                                                           super_type;
+  typedef looper::classical             mc_type;
+  typedef alps::scheduler::MCRun        super_type;
 
-  typedef looper::virtual_lattice<loop_config::lattice_graph_t>
-                                                           virtual_lattice_t;
-  typedef std::vector<dummy_operator>                      operator_string_t;
+  typedef looper::lattice_helper<loop_config::lattice_graph_t>
+                                        lattice_t;
+  typedef std::vector<dummy_operator>   operator_string_t;
 
-  typedef looper::union_find::node                         cluster_fragment_t;
-  typedef looper::cluster_info                             cluster_info_t;
+  typedef looper::union_find::node      cluster_fragment_t;
+  typedef looper::cluster_info          cluster_info_t;
 
-  typedef looper::estimator<loop_config::measurement_set, mc_type,
-    virtual_lattice_t, time_t>::type                       estimator_t;
+  typedef looper::estimator<loop_config::measurement_set, mc_type, lattice_t,
+    time_t>::type                       estimator_t;
 
   loop_worker(alps::ProcessList const& w, alps::Parameters const& p, int n);
   void dostep();
@@ -78,15 +76,18 @@ protected:
   void measure();
 
 private:
+  // helpers
+  lattice_t lattice;
+  looper::spinmodel_helper model;
+
   // parameters
   looper::temperature temperature;
   double beta;
   double energy_offset;
-  bool has_field, is_frustrated, use_improved_estimator;
+  bool use_improved_estimator;
   std::vector<double> field;
   std::vector<double> coupling;
   boost::numeric::ublas::matrix<double> prob;
-  virtual_lattice_t vlattice;
 
   // configuration (checkpoint)
   looper::mc_steps mcs;
@@ -110,56 +111,55 @@ private:
 
 loop_worker::loop_worker(alps::ProcessList const& w,
                          alps::Parameters const& p, int n)
-  : super_type(w, p, n), temperature(p), vlattice(*this),
-    mcs(p), obs(measurements)
+  : super_type(w, p, n), lattice(p), model(p, lattice),
+    temperature(p), mcs(p), obs(measurements)
 {
   if (temperature.annealing_steps() > mcs.thermalization())
     boost::throw_exception(std::invalid_argument(
       "annealing steps are longer than thermalization steps"));
 
-  looper::model_parameter mp(p, *this);
-  energy_offset = mp.energy_offset();
-  has_field = mp.has_field();
-  is_frustrated = mp.is_frustrated();
+  energy_offset = model.energy_offset();
   use_improved_estimator =
-    !has_field && !p.defined("DISABLE_IMPROVED_ESTIMATOR");
+    !model.has_field() && !p.defined("DISABLE_IMPROVED_ESTIMATOR");
 
-  if (mp.is_quantal())
+  if (model.is_quantal())
     boost::throw_exception(std::invalid_argument("not classical Ising model"));
-  if (has_field) std::cerr << "WARNING: model has magnetic field\n";
-  if (is_frustrated)
+  if (model.has_field()) std::cerr << "WARNING: model has magnetic field\n";
+  if (model.is_frustrated())
     std::cerr << "WARNING: model is classically frustrated\n";
   if (!use_improved_estimator)
     std::cerr << "WARNING: improved estimator is disabled\n";
 
-  vlattice.reinitialize(mp, mp.has_d_term());
-  perm.resize(max_virtual_vertices(vlattice));
+  lattice.generate_virtual_graph(model, model.has_d_term());
+  perm.resize(max_virtual_sites(lattice));
 
-  coupling.resize(num_vbonds(vlattice));
-  prob.resize(num_vbonds(vlattice), 2);
+  coupling.resize(num_bonds(lattice.vg()));
+  prob.resize(num_bonds(lattice.vg()), 2);
   int b = 0;
-  bond_iterator rbi, rbi_end;
-  for (boost::tie(rbi, rbi_end) = bonds(); rbi != rbi_end; ++rbi) {
-    double jz = -mp.bond(*rbi, vlattice.rgraph()).jz;
+  looper::real_bond_iterator<lattice_t>::type rbi, rbi_end;
+  for (boost::tie(rbi, rbi_end) = bonds(lattice.rg()); rbi != rbi_end; ++rbi) {
+    double jz = -model.bond(*rbi, lattice.rg()).jz;
       // positive for ferromagnetic
-    virtual_lattice_t::virtual_bond_iterator vbi, vbi_end;
-    for (boost::tie(vbi, vbi_end) = virtual_bonds(vlattice, *rbi);
-         vbi != vbi_end; ++vbi, ++b) coupling[b] = jz;
+    looper::virtual_bond_iterator<lattice_t>::type vbi, vbi_end;
+    for (boost::tie(vbi, vbi_end) = bonds(lattice, *rbi); vbi != vbi_end;
+         ++vbi, ++b)
+      coupling[b] = jz;
   }
-  if (has_field) {
-    field.resize(num_vsites(vlattice));
+  if (model.has_field()) {
+    field.resize(num_sites(lattice.vg()));
     int i = 0;
-    site_iterator rsi, rsi_end;
-    for (boost::tie(rsi, rsi_end) = sites(); rsi != rsi_end; ++rsi) {
-      site_iterator vsi, vsi_end;
-      for (boost::tie(vsi, vsi_end) = virtual_sites(vlattice, *rsi);
-           vsi != vsi_end; ++vsi, ++i)
-        field[i] = mp.site(*rsi, vlattice.rgraph()).hz;
+    looper::real_site_iterator<lattice_t>::type rsi, rsi_end;
+    for (boost::tie(rsi, rsi_end) = sites(lattice.rg()); rsi != rsi_end;
+         ++rsi) {
+      looper::virtual_site_iterator<lattice_t>::type vsi, vsi_end;
+      for (boost::tie(vsi, vsi_end) = sites(lattice, *rsi); vsi != vsi_end;
+           ++vsi, ++i)
+        field[i] = model.site(*rsi, lattice.rg()).hz;
     }
   }
 
   // configuration
-  int nvs = num_vsites(vlattice);
+  int nvs = num_sites(lattice.vg());
   spins.resize(nvs); std::fill(spins.begin(), spins.end(), 0 /* all up */);
 
   // measurements
@@ -168,7 +168,7 @@ loop_worker::loop_worker(alps::ProcessList const& w,
   obs << make_observable(alps::SimpleRealObservable("Number of Sites"));
   obs << make_observable(alps::SimpleRealObservable("Number of Clusters"));
   looper::energy_estimator::initialize(obs, false);
-  estimator.initialize(obs, p, vlattice, false, use_improved_estimator);
+  estimator.initialize(obs, p, lattice, false, use_improved_estimator);
 }
 
 void loop_worker::dostep()
@@ -196,11 +196,11 @@ void loop_worker::dostep()
 void loop_worker::build()
 {
   // initialize cluster information (setup cluster fragments)
-  int nvs = num_vsites(vlattice);
+  int nvs = num_sites(lattice.vg());
   fragments.resize(0); fragments.resize(nvs);
 
   // build table of probabilities
-  int nvb = num_vbonds(vlattice);
+  int nvb = num_bonds(lattice.vg());
   if (mcs() <= temperature.annealing_steps()+1)
     for (int b = 0; b < nvb; ++b) {
       prob(b, 0) = 1-std::exp(-0.5*beta*coupling[b]); // for parallel
@@ -209,17 +209,18 @@ void loop_worker::build()
 
   // building up clusters
   for (int b = 0; b < nvb; ++b) {
-    int s0 = vsource(b, vlattice);
-    int s1 = vtarget(b, vlattice);
+    int s0 = source(b, lattice.vg());
+    int s1 = target(b, lattice.vg());
     if (random() < prob(b, spins[s0] ^ spins[s1])) unify(fragments, s0, s1);
   }
 
   // symmetrize spins
-  if (max_virtual_vertices(vlattice) > 1) {
-    site_iterator rsi, rsi_end;
-    for (boost::tie(rsi, rsi_end) = sites(); rsi != rsi_end; ++rsi) {
-      site_iterator vsi, vsi_end;
-      boost::tie(vsi, vsi_end) = virtual_sites(vlattice, *rsi);
+  if (max_virtual_sites(lattice) > 1) {
+    looper::real_site_iterator<lattice_t>::type rsi, rsi_end;
+    for (boost::tie(rsi, rsi_end) = sites(lattice.rg()); rsi != rsi_end;
+         ++rsi) {
+      looper::virtual_site_iterator<lattice_t>::type vsi, vsi_end;
+      boost::tie(vsi, vsi_end) = sites(lattice, *rsi);
       int offset = *vsi;
       int s2 = *vsi_end - *vsi;
       for (int i = 0; i < s2; ++i) perm[i] = i;
@@ -241,7 +242,7 @@ void loop_worker::flip()
 {
   if (!(false == FIELD() && use_improved_estimator == IMPROVE())) return;
 
-  int nvs = num_vsites(vlattice);
+  int nvs = num_sites(lattice.vg());
 
   // assign cluster id
   int nc = 0;
@@ -254,7 +255,7 @@ void loop_worker::flip()
   cluster_info_t::accumulator<cluster_fragment_t, FIELD,
     boost::mpl::false_, IMPROVE> weight(clusters, fragments, field, 0, 0);
   looper::accumulator<estimator_t, cluster_fragment_t, IMPROVE>
-    accum(estimates, nc, vlattice, estimator, fragments);
+    accum(estimates, nc, lattice, estimator, fragments);
   for (unsigned int s = 0; s < nvs; ++s) {
     weight.at_bot(s, time_t(0), s, spins[s]);
     weight.at_top(s, time_t(1), s, spins[s]);
@@ -273,7 +274,7 @@ void loop_worker::flip()
     typename looper::collector<estimator_t>::type
       coll = get_collector(estimator);
     coll = std::accumulate(estimates.begin(), estimates.end(), coll);
-    estimator.improved_measurement(obs, vlattice, beta, 1,
+    estimator.improved_measurement(obs, lattice, beta, 1,
       spins, operator_string_t(), spins, fragments, coll);
   }
   obs["Number of Clusters"] << (double)clusters.size();
@@ -290,28 +291,28 @@ void loop_worker::flip()
 
 void loop_worker::measure()
 {
-  int nrs = num_sites();
+  int nrs = num_sites(lattice.rg());
   obs["Temperature"] << 1/beta;
   obs["Inverse Temperature"] << beta;
   obs["Number of Sites"] << (double)nrs;
 
   // energy
   double ene = energy_offset;
-  int nvb = num_vbonds(vlattice);
+  int nvb = num_bonds(lattice.vg());
   for (int b = 0; b < nvb; ++b) {
-    int s0 = vsource(b, vlattice);
-    int s1 = vtarget(b, vlattice);
+    int s0 = source(b, lattice.vg());
+    int s1 = target(b, lattice.vg());
     ene -= 0.5 * coupling[b] * (0.5 - (spins[s0] ^ spins[s1]));
   }
-  if (has_field) {
+  if (model.has_field()) {
     for (std::vector<cluster_info_t>::iterator ci = clusters.begin();
          ci != clusters.end(); ++ci)
       if (ci->to_flip) ene -= ci->weight;
       else ene += ci->weight;
   }
-  looper::energy_estimator::measurement(obs, vlattice, beta, 0, 1, ene);
+  looper::energy_estimator::measurement(obs, lattice, beta, 0, 1, ene);
 
-  estimator.normal_measurement(obs, vlattice, beta, 1, spins,
+  estimator.normal_measurement(obs, lattice, beta, 1, spins,
                                operator_string_t(), spins);
 }
 

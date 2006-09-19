@@ -31,16 +31,16 @@ namespace looper {
 
 struct transverse_magnetization
 {
-  template<typename MC, typename VLAT, typename TIME>
+  template<typename MC, typename LAT, typename TIME>
   struct estimator
   {
     typedef MC   mc_type;
-    typedef VLAT virtual_lattice_t;
+    typedef LAT  lattice_t;
     typedef TIME time_t;
 
     template<typename M>
     void initialize(M& m, alps::Parameters const& /* params */,
-                    virtual_lattice_t const& /* vlat */,
+                    lattice_t const& /* lat */,
                     bool is_signed, bool use_improved_estimator)
     {
       if (use_improved_estimator) {
@@ -62,27 +62,27 @@ struct transverse_magnetization
         length = 0;
         closed = true;
       }
-      void start_s(virtual_lattice_t const&, double t, int, int)
+      void start_s(lattice_t const&, double t, int, int)
       {
         length -= t;
         closed = false;
       }
-      void start_bs(virtual_lattice_t const&, double t, int, int, int)
+      void start_bs(lattice_t const&, double t, int, int, int)
       { length -= t; }
-      void start_bt(virtual_lattice_t const&, double t, int, int, int)
+      void start_bt(lattice_t const&, double t, int, int, int)
       { length -= t; }
-      void term_s(virtual_lattice_t const&, double t, int, int)
+      void term_s(lattice_t const&, double t, int, int)
       {
         length += t;
         closed = false;
       }
-      void term_bs(virtual_lattice_t const&, double t, int, int, int)
+      void term_bs(lattice_t const&, double t, int, int, int)
       { length += t; }
-      void term_bt(virtual_lattice_t const&, double t, int, int, int)
+      void term_bt(lattice_t const&, double t, int, int, int)
       { length += t; }
-      void at_bot(virtual_lattice_t const&, double t, int, int)
+      void at_bot(lattice_t const&, double t, int, int)
       { length -= t; }
-      void at_top(virtual_lattice_t const&, double t, int, int)
+      void at_top(lattice_t const&, double t, int, int)
       { length += t; }
     };
     void init_estimate(estimate& es) const { es.init(); }
@@ -98,32 +98,32 @@ struct transverse_magnetization
         return *this;
       }
       template<typename M>
-      void commit(M& m, virtual_lattice_t const& vlat, double, int,
+      void commit(M& m, lattice_t const& lat, double, int,
                   double sign) const
       {
         m["Transverse Magnetization"] << 0.5 * sign * length;
         m["Transverse Magnetization Density"] << 0.5 * sign * length /
-          num_sites(vlat.rgraph());
+          num_sites(lat.rg());
       }
     };
     void init_collector(collector& coll) const { coll.init(); }
 
     template<typename M, typename OP, typename FRAGMENT>
     void improved_measurement(M& m,
-                              virtual_lattice_t const& vlat,
+                              lattice_t const& lat,
                               double beta, double sign,
                               std::vector<int> const& /* spins */,
                               std::vector<OP> const& operators,
                               std::vector<int> const& /* spins_c */,
                               std::vector<FRAGMENT> const& /* fragments */,
                               collector const& coll)
-    { coll.commit(m, vlat, beta, operators.size(), sign); }
+    { coll.commit(m, lat, beta, operators.size(), sign); }
 
     // normal estimator
 
     template<typename M, typename OP>
     void normal_measurement(M& /* m */,
-                            virtual_lattice_t const& /* vlat */,
+                            lattice_t const& /* lat */,
                             double /* beta */,
                             double /* sign */,
                             std::vector<int> const& /* spins */,

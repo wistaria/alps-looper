@@ -33,14 +33,14 @@ namespace looper {
 
 struct susceptibility
 {
-  template<typename MC, typename VLAT, typename TIME>
+  template<typename MC, typename LAT, typename TIME>
   struct estimator
   {
     typedef MC   mc_type;
-    typedef VLAT virtual_lattice_t;
+    typedef LAT lattice_t;
     typedef TIME time_t;
     typedef typename alps::property_map<gauge_t,
-              const typename virtual_lattice_t::virtual_graph_type,
+              const typename lattice_t::virtual_graph_type,
               double>::type gauge_map_t;
 
     bool improved;
@@ -48,11 +48,11 @@ struct susceptibility
 
     template<typename M>
     void initialize(M& m, alps::Parameters const& /* params */,
-                    virtual_lattice_t const& vlat,
+                    lattice_t const& lat,
                     bool is_signed, bool use_improved_estimator)
     {
       improved = use_improved_estimator;
-      gauge = alps::get_or_default(gauge_t(), vlat.vgraph(), 0);
+      gauge = alps::get_or_default(gauge_t(), lat.vg(), 0);
 
       add_scalar_obs(m, "Magnetization", is_signed);
       add_scalar_obs(m, "Magnetization Density", is_signed);
@@ -70,7 +70,7 @@ struct susceptibility
         add_scalar_obs(m, "Generalized Magnetization Density^4", is_signed);
         add_scalar_obs(m, "Generalized Susceptibility", is_signed);
       }
-      if (is_bipartite(vlat)) {
+      if (is_bipartite(lat)) {
         add_scalar_obs(m, "Staggered Magnetization", is_signed);
         add_scalar_obs(m, "Staggered Magnetization Density", is_signed);
         add_scalar_obs(m, "|Staggered Magnetization|", is_signed);
@@ -114,13 +114,13 @@ struct susceptibility
         ssize = 0;
         smag = 0;
       }
-      void start_s(virtual_lattice_t const& vlat, double t, int s, int c)
-      { term_s(vlat, -t, s, c); }
-      void start_bs(virtual_lattice_t const& vlat, double t, int, int s, int c)
-      { start_s(vlat, t, s, c); }
-      void start_bt(virtual_lattice_t const& vlat, double t, int, int s, int c)
-      { start_s(vlat, t, s, c); }
-      void term_s(virtual_lattice_t const&, double t, int s, int c)
+      void start_s(lattice_t const& lat, double t, int s, int c)
+      { term_s(lat, -t, s, c); }
+      void start_bs(lattice_t const& lat, double t, int, int s, int c)
+      { start_s(lat, t, s, c); }
+      void start_bt(lattice_t const& lat, double t, int, int s, int c)
+      { start_s(lat, t, s, c); }
+      void term_s(lattice_t const&, double t, int s, int c)
       {
         usize += t * 0.5;
         umag  += t * (0.5-c);
@@ -128,21 +128,21 @@ struct susceptibility
         ssize += gg * t * 0.5;
         smag  += gg * t * (0.5-c);
       }
-      void term_bs(virtual_lattice_t const& vlat, double t, int, int s, int c)
-      { term_s(vlat, t, s, c); }
-      void term_bt(virtual_lattice_t const& vlat, double t, int, int s, int c)
-      { term_s(vlat, t, s, c); }
-      void at_bot(virtual_lattice_t const& vlat, double t, int s, int c)
+      void term_bs(lattice_t const& lat, double t, int, int s, int c)
+      { term_s(lat, t, s, c); }
+      void term_bt(lattice_t const& lat, double t, int, int s, int c)
+      { term_s(lat, t, s, c); }
+      void at_bot(lattice_t const& lat, double t, int s, int c)
       {
-        start_s(vlat, t, s, c);
+        start_s(lat, t, s, c);
         usize0 += 0.5;
         umag0  += (0.5-c);
         double gg = gauge[s];
         ssize0 += gg * 0.5;
         smag0  += gg * (0.5-c);
       }
-      void at_top(virtual_lattice_t const& vlat, double t, int s, int c)
-      { term_s(vlat, t, s, c); }
+      void at_top(lattice_t const& lat, double t, int s, int c)
+      { term_s(lat, t, s, c); }
     };
     void init_estimate(estimate& est) const { est.init(gauge); }
 
@@ -175,10 +175,10 @@ struct susceptibility
         return *this;
       }
       template<typename M>
-      void commit(M& m, virtual_lattice_t const& vlat,
+      void commit(M& m, lattice_t const& lat,
                   double beta, int nop, double sign) const
       {
-        int nrs = num_sites(vlat.rgraph());
+        int nrs = num_sites(lat.rg());
         m["Magnetization"] << 0.0;
         m["Magnetization Density"] << 0.0;
         m["|Magnetization|"] << 0.0;
@@ -203,7 +203,7 @@ struct susceptibility
           << (typename is_sse<mc_type>::type() ?
               sign * beta * (dip(usize, nop) + usize2) / (nop + 1) / nrs :
               sign * beta * usize / nrs);
-        if (is_bipartite(vlat)) {
+        if (is_bipartite(lat)) {
           m["Staggered Magnetization"] << 0.0;
           m["Staggered Magnetization Density"] << 0.0;
           m["|Staggered Magnetization|"] << 0.0;
@@ -236,17 +236,17 @@ struct susceptibility
 
     template<typename M, typename OP, typename FRAGMENT>
     void improved_measurement(M& m,
-                              virtual_lattice_t const& vlat,
+                              lattice_t const& lat,
                               double beta, double sign,
                               std::vector<int> const& /* spins */,
                               std::vector<OP> const& operators,
                               std::vector<int> const& /* spins_c */,
                               std::vector<FRAGMENT> const& /* fragments */,
                               collector const& coll)
-    { coll.commit(m, vlat, beta, operators.size(), sign); }
+    { coll.commit(m, lat, beta, operators.size(), sign); }
 
     template<typename M, typename OP>
-    void normal_measurement(M& m, virtual_lattice_t const& vlat,
+    void normal_measurement(M& m, lattice_t const& lat,
                             double beta, double sign,
                             std::vector<int> const& spins,
                             std::vector<OP> const& operators,
@@ -254,12 +254,12 @@ struct susceptibility
     {
       if (improved) return;
 
-      int nrs = num_sites(vlat.rgraph());
+      int nrs = num_sites(lat.rg());
       int nop = operators.size();
       double umag = 0;
       double smag = 0;
-      typename virtual_lattice_t::virtual_site_iterator si, si_end;
-      for (boost::tie(si, si_end) = vsites(vlat); si != si_end; ++si) {
+      typename virtual_site_iterator<lattice_t>::type si, si_end;
+      for (boost::tie(si, si_end) = sites(lat.vg()); si != si_end; ++si) {
         umag += 0.5-spins[*si];
         smag += (0.5-spins[*si]) * gauge[*si];
       }
@@ -271,7 +271,7 @@ struct susceptibility
       m["Magnetization Density^2"] << sign * power2(umag / nrs);
       m["Magnetization^4"] << sign * power4(umag);
       m["Magnetization Density^4"] << sign * power4(umag / nrs);
-      if (is_bipartite(vlat)) {
+      if (is_bipartite(lat)) {
         m["Staggered Magnetization"] << sign * smag;
         m["Staggered Magnetization Density"] << sign * smag / nrs;
         m["|Staggered Magnetization|"] << sign * std::abs(smag);
@@ -297,8 +297,8 @@ struct susceptibility
             umag += 1-2*spins_c[s];
             smag += gauge[s] * (1-2*spins_c[s]);
           } else {
-            unsigned int s0 = vsource(oi->pos(), vlat);
-            unsigned int s1 = vtarget(oi->pos(), vlat);
+            unsigned int s0 = source(oi->pos(), lat.vg());
+            unsigned int s1 = target(oi->pos(), lat.vg());
             spins_c[s0] ^= 1;
             spins_c[s1] ^= 1;
             umag += 1-2*spins_c[s0] + 1-2*spins_c[s1];
@@ -314,7 +314,7 @@ struct susceptibility
         umag_a += umag;
         m["Susceptibility"] << sign * beta * power2(umag_a) / nrs;
         smag_a += smag;
-        if (is_bipartite(vlat))
+        if (is_bipartite(lat))
           m["Staggered Susceptibility"] << sign * beta * power2(smag_a) / nrs;
       } else {
         umag_a += nop * umag;
@@ -322,7 +322,7 @@ struct susceptibility
           << sign * beta * (dip(power2(umag_a), nop) + power2(umag))
           / (nop + 1) / nrs;
         smag_a += nop * smag;
-        if (is_bipartite(vlat))
+        if (is_bipartite(lat))
           m["Staggered Susceptibility"]
             << sign * beta * (dip(power2(smag_a), nop) + power2(smag))
             / (nop + 1) / nrs;

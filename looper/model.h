@@ -398,9 +398,31 @@ private:
 class spinmodel_helper {
 public:
   template<typename G>
-  spinmodel_helper(alps::Parameters const& p, alps::graph_helper<G> const& g)
-    : model_(g, p), mparam_(p, model_)
+  spinmodel_helper(alps::Parameters const& p, lattice_helper<G> const& lat)
+    : model_(lat.graph_helper(), p), mparam_(p, lat.graph_helper(), model_)
   {}
+
+  double energy_offset() const { return mparam_.energy_offset(); }
+  bool has_field() const { return mparam_.has_field(); }
+  bool has_d_term() const { return mparam_.has_d_term(); }
+  bool is_frustrated() const { return mparam_.is_frustrated(); }
+  bool is_quantal() const { return mparam_.is_quantal(); }
+  bool is_signed() const { return mparam_.is_signed(); }
+
+  alps::model_helper<short> const& helper() const { return model_; }
+
+  template<typename G>
+  site_parameter const& site(
+    typename graph_traits<G>::site_descriptor const& v, G const& g) const
+  {
+    return mparam_.site(v, g);
+  }
+  template<class G>
+  const bond_parameter& bond(
+    typename graph_traits<G>::bond_descriptor const& e, G const& g) const
+  {
+    return mparam_.bond(e, g);
+  }
 
 private:
   alps::model_helper<short> model_;

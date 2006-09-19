@@ -171,51 +171,49 @@ public:
   typedef std::vector<std::pair<int, bond_weight> >::const_iterator
     bond_weight_iterator;
 
-  template<class VL>
-  weight_table(const model_parameter& mp, const VL& vl,
-               double force_scatter = 0)
-  { init(mp, vl, force_scatter); }
+  template<class M, class LAT>
+  weight_table(M const& m, const LAT& lat, double force_scatter = 0)
+  { init(m, lat, force_scatter); }
 
-  template<class VL>
-  void init(const model_parameter& mp, const VL& vl,
-            double force_scatter = 0)
+  template<class M, class LAT>
+  void init(M const& m, const LAT& lat, double force_scatter = 0)
   {
     weight_ = 0;
     site_weights_.clear();
     bond_weights_.clear();
-    typename VL::real_site_iterator rsi, rsi_end;
-    for (boost::tie(rsi, rsi_end) = sites(vl.rgraph());
+    typename real_site_iterator<LAT>::type rsi, rsi_end;
+    for (boost::tie(rsi, rsi_end) = sites(lat.rg());
          rsi != rsi_end; ++rsi) {
-      site_weight sw(mp.site(*rsi, vl.rgraph()), force_scatter);
-      typename VL::virtual_site_iterator vsi, vsi_end;
-      for (boost::tie(vsi, vsi_end) = virtual_sites(vl, *rsi);
+      site_weight sw(m.site(*rsi, lat.rg()), force_scatter);
+      typename virtual_site_iterator<LAT>::type vsi, vsi_end;
+      for (boost::tie(vsi, vsi_end) = sites(lat, *rsi);
            vsi != vsi_end; ++vsi) {
         site_weights_.push_back(
-          std::make_pair(get(site_index_t(), vl.vgraph(), *vsi), sw));
+          std::make_pair(get(site_index_t(), lat.vg(), *vsi), sw));
         weight_ += sw.weight();
       }
     }
-    typename VL::real_bond_iterator rbi, rbi_end;
-    for (boost::tie(rbi, rbi_end) = bonds(vl.rgraph());
+    typename real_bond_iterator<LAT>::type rbi, rbi_end;
+    for (boost::tie(rbi, rbi_end) = bonds(lat.rg());
          rbi != rbi_end; ++rbi) {
-      bond_weight bw(mp.bond(*rbi, vl.rgraph()), force_scatter);
-      typename VL::virtual_bond_iterator vbi, vbi_end;
-      for (boost::tie(vbi, vbi_end) = virtual_bonds(vl, *rbi);
+      bond_weight bw(m.bond(*rbi, lat.rg()), force_scatter);
+      typename virtual_bond_iterator<LAT>::type vbi, vbi_end;
+      for (boost::tie(vbi, vbi_end) = bonds(lat, *rbi);
            vbi != vbi_end; ++vbi) {
         bond_weights_.push_back(
-          std::make_pair(get(bond_index_t(), vl.vgraph(), *vbi), bw));
+          std::make_pair(get(bond_index_t(), lat.vg(), *vbi), bw));
         weight_ += bw.weight();
       }
     }
-    if (mp.has_d_term()) {
-      for (boost::tie(rsi, rsi_end) = sites(vl.rgraph());
+    if (m.has_d_term()) {
+      for (boost::tie(rsi, rsi_end) = sites(lat.rg());
            rsi != rsi_end; ++rsi) {
-        bond_weight bw(mp.site(*rsi, vl.rgraph()), force_scatter);
-        typename VL::virtual_bond_iterator vbi, vbi_end;
-        for (boost::tie(vbi, vbi_end) = virtual_bonds(vl, *rsi);
+        bond_weight bw(m.site(*rsi, lat.rg()), force_scatter);
+        typename virtual_bond_iterator<LAT>::type vbi, vbi_end;
+        for (boost::tie(vbi, vbi_end) = bonds(lat, *rsi);
              vbi != vbi_end; ++vbi) {
           bond_weights_.push_back(
-             std::make_pair(get(bond_index_t(), vl.vgraph(), *vbi), bw));
+             std::make_pair(get(bond_index_t(), lat.vg(), *vbi), bw));
           weight_ += bw.weight();
         }
       }

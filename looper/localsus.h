@@ -36,54 +36,61 @@ struct local_susceptibility
 
   typedef dumb_measurement<local_susceptibility> dumb;
 
-  template<typename MC, typename VLAT, typename TIME>
+  template<typename MC, typename LAT, typename TIME>
   struct estimator
   {
     typedef MC   mc_type;
-    typedef VLAT virtual_lattice_t;
+    typedef LAT lattice_t;
     typedef TIME time_t;
+    typedef typename alps::property_map<real_site_t,
+              const typename lattice_t::virtual_graph_type,
+              typename real_site_descriptor<lattice_t>::type>::type
+              real_site_map_t;
     typedef typename alps::property_map<gauge_t,
-              const typename virtual_lattice_t::virtual_graph_type,
+              const typename lattice_t::virtual_graph_type,
               double>::type gauge_map_t;
 
     bool measure;
+    real_site_map_t real_site;
     gauge_map_t gauge;
 
     template<typename M>
     void initialize(M& m, alps::Parameters const& params,
-                    virtual_lattice_t const& vlat,
+                    lattice_t const& lat,
                     bool is_signed, bool /* use_improved_estimator */)
     {
       measure =
         params.value_or_default("MEASURE[Local Susceptibility]", false);
       if (!measure) return;
 
-      gauge = alps::get_or_default(gauge_t(), vlat.vgraph(), 0);
+      real_site =
+        alps::get_or_default(real_site_t(), lat.vg(), real_site_t());
+      gauge = alps::get_or_default(gauge_t(), lat.vg(), 0);
 
       add_vector_obs(m, "Local Magnetization",
-                     alps::site_labels(vlat.rgraph()), is_signed);
+                     alps::site_labels(lat.rg()), is_signed);
       add_vector_obs(m, "Local Susceptibility",
-                     alps::site_labels(vlat.rgraph()), is_signed);
+                     alps::site_labels(lat.rg()), is_signed);
       add_vector_obs(m, "Local Field Susceptibility",
-                     alps::site_labels(vlat.rgraph()), is_signed);
-      if (is_bipartite(vlat))
+                     alps::site_labels(lat.rg()), is_signed);
+      if (is_bipartite(lat))
         add_vector_obs(m, "Staggered Local Susceptibility",
-                       alps::site_labels(vlat.rgraph()), is_signed);
+                       alps::site_labels(lat.rg()), is_signed);
     }
 
     // improved estimator
 
-    typedef typename dumb::template estimator<MC, VLAT, TIME>::estimate
+    typedef typename dumb::template estimator<MC, LAT, TIME>::estimate
       estimate;
     void init_estimate(estimate const&) const {}
 
-    typedef typename dumb::template estimator<MC, VLAT, TIME>::collector
+    typedef typename dumb::template estimator<MC, LAT, TIME>::collector
       collector;
     void init_collector(collector const&) const {}
 
     template<typename M, typename OP, typename FRAGMENT>
     void improved_measurement(M& /* m */,
-                              virtual_lattice_t const& /* vlat */,
+                              lattice_t const& /* lat */,
                               double /* beta */,
                               double /* sign */,
                               std::vector<int> const& /* spins */,
@@ -95,7 +102,7 @@ struct local_susceptibility
     // normal estimator
 
     template<typename M, typename OP>
-    void normal_measurement(M& m, virtual_lattice_t const& vlat,
+    void normal_measurement(M& m, lattice_t const& lat,
                             double beta, double sign,
                             std::vector<int> const& spins,
                             std::vector<OP> const& operators,
@@ -104,14 +111,14 @@ struct local_susceptibility
       if (!typename looper::is_path_integral<mc_type>::type()) return;
       if (!measure) return;
 
-      int nrs = num_vertices(vlat.rgraph());
+      int nrs = num_vertices(lat.rg());
 
       std::valarray<double> lmag(0., nrs);
       double umag = 0;
       double smag = 0;
-      typename virtual_lattice_t::virtual_site_iterator si, si_end;
-      for (boost::tie(si, si_end) = vsites(vlat); si != si_end; ++si) {
-        int r = rsite(vlat, *si);
+      typename virtual_site_iterator<lattice_t>::type si, si_end;
+      for (boost::tie(si, si_end) = sites(lat.vg()); si != si_end; ++si) {
+        int r = real_site[*si];
         lmag[r] += 0.5-spins[*si];
         umag += 0.5-spins[*si];
         smag += gauge[*si] * (0.5-spins[*si]);
@@ -128,7 +135,7 @@ struct local_susceptibility
           proceed(typename is_path_integral<mc_type>::type(), t, *oi);
           if (oi->is_site()) {
             int s = oi->pos();
-            int r = rsite(vlat, s);
+            int r = real_site[s];
             lmag_a[r] += t * lmag[r];
             umag_a += t * umag;
             smag_a += t * smag;
@@ -140,10 +147,10 @@ struct local_susceptibility
             umag_a -= t * umag;
             smag_a -= t * smag;
           } else {
-            int s0 = vsource(oi->pos(), vlat);
-            int s1 = vtarget(oi->pos(), vlat);
-            int r0 = rsite(vlat, s0);
-            int r1 = rsite(vlat, s1);
+            int s0 = source(oi->pos(), lat.vg());
+            int s1 = target(oi->pos(), lat.vg());
+            int r0 = real_site[s0];
+            int r1 = real_site[s1];
             lmag_a[r0] += t * lmag[r0];
             lmag_a[r1] += t * lmag[r1];
             umag_a += t * umag;
@@ -174,7 +181,7 @@ struct local_susceptibility
         << std::valarray<double>(sign * beta * umag_a * lmag_a);
       m["Local Field Susceptibility"]
         << std::valarray<double>(sign * beta * power2(lmag_a));
-      if (is_bipartite(vlat))
+      if (is_bipartite(lat))
         m["Staggered Local Susceptibility"]
           << std::valarray<double>(sign * beta * smag_a * lmag_a);
     }
@@ -190,50 +197,57 @@ struct site_type_susceptibility
 
   typedef dumb_measurement<site_type_susceptibility> dumb;
 
-  template<typename MC, typename VLAT, typename TIME>
+  template<typename MC, typename LAT, typename TIME>
   struct estimator
   {
     typedef MC   mc_type;
-    typedef VLAT virtual_lattice_t;
+    typedef LAT lattice_t;
     typedef TIME time_t;
+    typedef typename alps::property_map<real_site_t,
+              const typename lattice_t::virtual_graph_type,
+              typename real_site_descriptor<lattice_t>::type>::type
+              real_site_map_t;
     typedef typename alps::property_map<gauge_t,
-              const typename virtual_lattice_t::virtual_graph_type,
+              const typename lattice_t::virtual_graph_type,
               double>::type gauge_map_t;
 
     bool measure;
+    real_site_map_t real_site;
     gauge_map_t gauge;
     unsigned int types;
     std::valarray<double> type_nrs;
 
     template<typename M>
     void initialize(M& m, alps::Parameters const& params,
-                    virtual_lattice_t const& vlat,
+                    lattice_t const& lat,
                     bool is_signed, bool /* use_improved_estimator */)
     {
       measure =
         params.value_or_default("MEASURE[Site Type Susceptibility]", false);
       if (!measure) return;
 
-      gauge = alps::get_or_default(gauge_t(), vlat.vgraph(), 0);
+      real_site =
+        alps::get_or_default(real_site_t(), lat.vg(), real_site_t());
+      gauge = alps::get_or_default(gauge_t(), lat.vg(), 0);
 
       types = 0;
-      typename virtual_lattice_t::real_site_iterator si, si_end;
-      for (boost::tie(si, si_end) = sites(vlat.rgraph()); si != si_end; ++si) {
-        int t = get(alps::site_type_t(), vlat.rgraph(), *si);
+      typename real_site_iterator<lattice_t>::type si, si_end;
+      for (boost::tie(si, si_end) = sites(lat.rg()); si != si_end; ++si) {
+        int t = get(alps::site_type_t(), lat.rg(), *si);
         if (t < 0)
           boost::throw_exception(std::runtime_error("negative site type"));
         if (t >= types) types = t + 1;
       }
       type_nrs.resize(types); type_nrs = 0;
-      for (boost::tie(si, si_end) = sites(vlat.rgraph()); si != si_end; ++si)
-        type_nrs[get(alps::site_type_t(), vlat.rgraph(), *si)] += 1;
+      for (boost::tie(si, si_end) = sites(lat.rg()); si != si_end; ++si)
+        type_nrs[get(alps::site_type_t(), lat.rg(), *si)] += 1;
 
       add_vector_obs(m, "Number of Sites of Each Type", is_signed);
       add_vector_obs(m, "Site Type Magnetization", is_signed);
       add_vector_obs(m, "Site Type Magnetization Density", is_signed);
       add_vector_obs(m, "Site Type Susceptibility", is_signed);
       add_vector_obs(m, "Site Type Field Susceptibility", is_signed);
-      if (is_bipartite(vlat)) {
+      if (is_bipartite(lat)) {
         add_vector_obs(m, "Staggered Site Type Magnetization", is_signed);
         add_vector_obs(m, "Staggered Site Type Magnetization Density",
                        is_signed);
@@ -245,17 +259,17 @@ struct site_type_susceptibility
 
     // improved estimator
 
-    typedef typename dumb::template estimator<MC, VLAT, TIME>::estimate
+    typedef typename dumb::template estimator<MC, LAT, TIME>::estimate
       estimate;
     void init_estimate(estimate const&) const {}
 
-    typedef typename dumb::template estimator<MC, VLAT, TIME>::collector
+    typedef typename dumb::template estimator<MC, LAT, TIME>::collector
       collector;
     void init_collector(collector const&) const {}
 
     template<typename M, typename OP, typename FRAGMENT>
     void improved_measurement(M& /* m */,
-                              virtual_lattice_t const& /* vlat */,
+                              lattice_t const& /* lat */,
                               double /* beta */,
                               double /* sign */,
                               std::vector<int> const& /* spins */,
@@ -267,7 +281,7 @@ struct site_type_susceptibility
     // normal estimator
 
     template<typename M, typename OP>
-    void normal_measurement(M& m, virtual_lattice_t const& vlat,
+    void normal_measurement(M& m, lattice_t const& lat,
                             double beta, double sign,
                             std::vector<int> const& spins,
                             std::vector<OP> const& operators,
@@ -282,9 +296,9 @@ struct site_type_susceptibility
       std::valarray<double> tsmag(0., types);
       double umag = 0;
       double smag = 0;
-      typename virtual_lattice_t::virtual_site_iterator si, si_end;
-      for (boost::tie(si, si_end) = vsites(vlat); si != si_end; ++si) {
-        int p = get(alps::site_type_t(), vlat.rgraph(), rsite(vlat, *si));
+      typename virtual_site_iterator<lattice_t>::type si, si_end;
+      for (boost::tie(si, si_end) = vsites(lat); si != si_end; ++si) {
+        int p = get(alps::site_type_t(), lat.rg(), real_site[*si]);
         tumag[p] += 0.5-spins[*si];
         tsmag[p] += gauge[*si] * (0.5-spins[*si]);
         umag += 0.5-spins[*si];
@@ -303,7 +317,7 @@ struct site_type_susceptibility
           proceed(typename is_path_integral<mc_type>::type(), t, *oi);
           if (oi->is_site()) {
             int s = oi->pos();
-            int p = get(alps::site_type_t(), vlat.rgraph(), rsite(vlat, s));
+            int p = get(alps::site_type_t(), lat.rg(), real_site[s]);
             tumag_a[p] += t * tumag[p];
             tsmag_a[p] += t * tsmag[p];
             umag_a += t * umag;
@@ -318,10 +332,10 @@ struct site_type_susceptibility
             umag_a -= t * umag;
             smag_a -= t * smag;
           } else {
-            int s0 = vsource(oi->pos(), vlat);
-            int s1 = vtarget(oi->pos(), vlat);
-            int p0 = get(alps::site_type_t(), vlat.rgraph(), rsite(vlat, s0));
-            int p1 = get(alps::site_type_t(), vlat.rgraph(), rsite(vlat, s1));
+            int s0 = source(oi->pos(), lat.vg());
+            int s1 = target(oi->pos(), lat.vg());
+            int p0 = get(alps::site_type_t(), lat.rg(), real_site[s0]);
+            int p1 = get(alps::site_type_t(), lat.rg(), real_site[s1]);
             if (p0 == p1) {
               tumag_a[p0] += t * tumag[p0];
               tsmag_a[p0] += t * tsmag[p0];
@@ -371,7 +385,7 @@ struct site_type_susceptibility
         << std::valarray<double>(sign * beta * umag_a * tumag_a / type_nrs);
       m["Site Type Field Susceptibility"]
         << std::valarray<double>(sign * beta * power2(tumag_a) / type_nrs);
-      if (is_bipartite(vlat)) {
+      if (is_bipartite(lat)) {
         m["Staggered Site Type Magnetization"]
           << std::valarray<double>(sign * tsmag_a);
         m["Staggered Site Type Magnetization Density"]

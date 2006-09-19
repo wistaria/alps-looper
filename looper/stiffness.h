@@ -37,30 +37,38 @@ namespace looper {
 template<unsigned int MAX_DIM>
 struct stiffness
 {
-  template<typename MC, typename VLAT, typename TIME>
+  template<typename MC, typename LAT, typename TIME>
   struct estimator
   {
     typedef MC   mc_type;
-    typedef VLAT virtual_lattice_t;
+    typedef LAT  lattice_t;
     typedef TIME time_t;
+    typedef typename alps::property_map<real_bond_t,
+              const typename lattice_t::virtual_graph_type,
+              typename real_bond_descriptor<lattice_t>::type>::type
+              real_bond_map_t;
     typedef typename alps::property_map<alps::bond_vector_relative_t,
-              const typename virtual_lattice_t::real_graph_type,
+              const typename lattice_t::real_graph_type,
               alps::coordinate_type>::type bond_vector_relative_map_t;
 
     bool improved;
+    real_bond_map_t real_bond;
     bond_vector_relative_map_t bond_vector_relative;
     unsigned int dim;
 
     template<typename M>
     void initialize(M& m, alps::Parameters const& /* params */,
-                    virtual_lattice_t const& vlat,
+                    lattice_t const& lat,
                     bool is_signed, bool use_improved_estimator)
     {
       improved = use_improved_estimator;
+      real_bond =
+        alps::get_or_default(real_bond_t(), lat.vg(),
+                             typename real_bond_descriptor<lattice_t>::type());
       bond_vector_relative =
-        get_or_default(alps::bond_vector_relative_t(), vlat.rgraph(),
-                       alps::coordinate_type());
-      dim = boost::get_property(vlat.rgraph(), dimension_t());
+        alps::get_or_default(bond_vector_relative_t(), lat.rg(),
+                             coordinate_type());
+      dim = get_property(lat.rg(), dimension_t());
       if (improved && dim > MAX_DIM) {
         std::cerr << "Spatial dimension (=" << dim << ") is too large.  "
                   << "Stiffness will be measured only for the first "
@@ -74,33 +82,38 @@ struct stiffness
 
     struct estimate
     {
+      real_bond_map_t real_bond;
       bond_vector_relative_map_t bond_vector_relative;
       alps::fixed_capacity_vector<double, MAX_DIM> winding;
-      void init(bond_vector_relative_map_t map, int dim)
+      void init(real_bond_map_t rb_map, bond_vector_relative_map_t bvr_map,
+                int dim)
       {
-        bond_vector_relative = map;
+        real_bond = rb_map;
+        bond_vector_relative = bvr_map;
         winding.resize(dim);
       }
-      void start_s(virtual_lattice_t const&, double, int, int) const {}
-      void start_bs(virtual_lattice_t const& vlat, double, int b, int, int c)
+      void start_s(lattice_t const&, double, int, int) const {}
+      void start_bs(lattice_t const& lat, double, int b, int, int c)
       {
-        alps::coordinate_type const& vr = bond_vector_relative[rbond(vlat, b)];
+        alps::coordinate_type const& vr =
+          bond_vector_relative[real_bond[bond(lat.vg(), b)]];
         for (int i = 0; i < winding.size(); ++i) winding[i] -= (1-2*c) * vr[i];
       }
-      void start_bt(virtual_lattice_t const&, double, int, int, int) {}
-      void term_s(virtual_lattice_t const&, double, int, int) const {}
-      void term_bs(virtual_lattice_t const& vlat, double, int b, int,
+      void start_bt(lattice_t const&, double, int, int, int) {}
+      void term_s(lattice_t const&, double, int, int) const {}
+      void term_bs(lattice_t const& lat, double, int b, int,
                    int c)
       {
-        alps::coordinate_type const& vr = bond_vector_relative[rbond(vlat, b)];
+        alps::coordinate_type const& vr =
+          bond_vector_relative[real_bond[bond(lat.vg(), b)]];
         for (int i = 0; i < winding.size(); ++i) winding[i] += (1-2*c) * vr[i];
       }
-      void term_bt(virtual_lattice_t const&, double, int, int, int) {}
-      void at_bot(virtual_lattice_t const&, double, int, int) const {}
-      void at_top(virtual_lattice_t const&, double, int, int) const {}
+      void term_bt(lattice_t const&, double, int, int, int) {}
+      void at_bot(lattice_t const&, double, int, int) const {}
+      void at_top(lattice_t const&, double, int, int) const {}
     };
     void init_estimate(estimate& est) const
-    { est.init(bond_vector_relative, dim); }
+    { est.init(real_bond, bond_vector_relative, dim); }
 
     struct collector
     {
@@ -114,7 +127,7 @@ struct stiffness
         return *this;
       }
       template<typename M>
-      void commit(M& m, virtual_lattice_t const&, double beta, int,
+      void commit(M& m, lattice_t const&, double beta, int,
                   double sign) const
       { if (dim > 0) m["Stiffness"] << sign * w2 / (beta * dim); }
     };
@@ -122,19 +135,19 @@ struct stiffness
 
     template<typename M, typename OP, typename FRAGMENT>
     void improved_measurement(M& m,
-                              virtual_lattice_t const& vlat,
+                              lattice_t const& lat,
                               double beta, double sign,
                               std::vector<int> const& /* spins */,
                               std::vector<OP> const& operators,
                               std::vector<int> const& /* spins_c */,
                               std::vector<FRAGMENT> const& /* fragments */,
                               collector const& coll)
-    { coll.commit(m, vlat, beta, operators.size(), sign); }
+    { coll.commit(m, lat, beta, operators.size(), sign); }
 
     // normal estimator
 
     template<typename M, typename OP>
-    void normal_measurement(M& m, virtual_lattice_t const& vlat,
+    void normal_measurement(M& m, lattice_t const& lat,
                             double beta, double sign,
                             std::vector<int> const& spins,
                             std::vector<OP> const& operators,
@@ -148,12 +161,12 @@ struct stiffness
            oi != operators.end(); ++oi) {
         if (oi->is_offdiagonal()) {
           if (oi->is_bond()) {
-            double s = 1-2*spins_c[vsource(oi->pos(), vlat)];
+            double s = 1-2*spins_c[source(oi->pos(), lat.vg())];
             alps::coordinate_type const& vr =
-              bond_vector_relative[rbond(vlat, oi->pos())];
+              bond_vector_relative[real_bond[bond(lat.vg(), oi->pos())]];
             for (int i = 0; i < dim; ++i) winding[i] += s * vr[i];
-            spins_c[vsource(oi->pos(), vlat)] ^= 1;
-            spins_c[vtarget(oi->pos(), vlat)] ^= 1;
+            spins_c[source(oi->pos(), lat.vg())] ^= 1;
+            spins_c[target(oi->pos(), lat.vg())] ^= 1;
           } else {
             spins_c[oi->pos()] ^= 1;
           }

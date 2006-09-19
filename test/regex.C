@@ -36,13 +36,13 @@ void match(std::string const& str, std::string const& ex)
 }
 
 void replace(std::string const& str, std::string const& ex,
-	     std::string const& fmt)
+             std::string const& fmt)
 {
   std::cout << "str = \"" << str << "\", ex = \"" << ex << "\", fmt = \""
-	    << fmt << "\", ";
+            << fmt << "\", ";
   std::string out =
     regex_replace(str, boost::regex(ex), fmt,
-		  boost::match_default | boost::format_all);
+                  boost::match_default | boost::format_all);
   std::cout << "result = " << out << std::endl;
 }
 
@@ -77,9 +77,9 @@ try {
   replace("Free Energy Density", "\\sDensity$", "");
   replace("Free Energy Density A", "\\sDensity$", "");
   replace("Free Energy Density", "(\\sDensity$)|([A-Z])|(\\s)",
-	  "(?2\\l$2)(?3_)");
+          "(?2\\l$2)(?3_)");
   replace("Staggered Susceptibility", "(\\sDensity$)|([A-Z])|(\\s)",
-	  "(?2\\l$2)(?3_)");
+          "(?2\\l$2)(?3_)");
 
 #ifndef BOOST_NO_EXCEPTIONS
 }

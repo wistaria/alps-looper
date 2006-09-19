@@ -27,7 +27,6 @@
 
 #include "lattice.h"
 #include "power.h"
-#include <alps/lattice/graph_traits.h>
 #include <alps/alea.h>
 #include <boost/call_traits.hpp>
 #include <boost/mpl/bool.hpp>
@@ -201,11 +200,11 @@ struct measurement<
 // other traits classes
 //
 
-template<typename MEASUREMENT_SET, typename MC, typename VLAT, typename TIME>
+template<typename MEASUREMENT_SET, typename MC, typename LAT, typename TIME>
 struct estimator
 {
   typedef typename measurement<MEASUREMENT_SET>::type measurement_t;
-  typedef typename measurement_t::template estimator<MC, VLAT, TIME> type;
+  typedef typename measurement_t::template estimator<MC, LAT, TIME> type;
 };
 
 template<typename ESTIMATOR>
@@ -253,12 +252,12 @@ struct accumulator
 {
   typedef ESTIMATOR                               estimator_t;
   typedef typename estimate<estimator_t>::type    estimate_t;
-  typedef typename estimator_t::virtual_lattice_t virtual_lattice_t;
+  typedef typename estimator_t::lattice_t         lattice_t;
   typedef typename boost::call_traits<typename estimator_t::time_t>::param_type
                                                   time_pt;
   typedef FRAGMENT                                fragment_t;
   accumulator(std::vector<estimate_t> const&, int /* nc */,
-              virtual_lattice_t const& /* vlat */,
+              lattice_t const& /* lat */,
               estimator_t const& /* emt */,
               std::vector<fragment_t> const& /* fr */) {}
   void start_s(int, time_pt, int, int) const {}
@@ -274,38 +273,38 @@ struct accumulator<ESTIMATOR, FRAGMENT, boost::mpl::true_>
 {
   typedef ESTIMATOR                               estimator_t;
   typedef typename estimate<estimator_t>::type    estimate_t;
-  typedef typename estimator_t::virtual_lattice_t virtual_lattice_t;
+  typedef typename estimator_t::lattice_t         lattice_t;
   typedef typename boost::call_traits<typename estimator_t::time_t>::param_type
                                                   time_pt;
   typedef FRAGMENT                                fragment_t;
   accumulator(std::vector<estimate_t>& es, int nc,
-              virtual_lattice_t const& vlat, estimator_t const& emt,
+              lattice_t const& lt, estimator_t const& emt,
               std::vector<fragment_t> const& fr) :
-    estimates(es), vlattice(vlat), estimator(emt), fragments(fr)
+    estimates(es), lat(lt), estimator(emt), fragments(fr)
   { estimates.resize(0); estimates.resize(nc, get_estimate(emt)); }
   void start_s(int p, time_pt t, int s, int c)
-  { estimates[fragments[p].id].start_s(vlattice, t, s, c); }
+  { estimates[fragments[p].id].start_s(lat, t, s, c); }
   void start_b(int p0, int p1, time_pt t, int b, int s0, int s1,
                int c0, int c1)
   {
-    estimates[fragments[p0].id].start_bs(vlattice, t, b, s0, c0);
-    estimates[fragments[p1].id].start_bt(vlattice, t, b, s1, c1);
+    estimates[fragments[p0].id].start_bs(lat, t, b, s0, c0);
+    estimates[fragments[p1].id].start_bt(lat, t, b, s1, c1);
   }
   void term_s(int p, time_pt t, int s, int c)
-  { estimates[fragments[p].id].term_s(vlattice, t, s, c); }
+  { estimates[fragments[p].id].term_s(lat, t, s, c); }
   void term_b(int p0, int p1, time_pt t, int b, int s0, int s1,
               int c0, int c1)
   {
-    estimates[fragments[p0].id].term_bs(vlattice, t, b, s0, c0);
-    estimates[fragments[p1].id].term_bt(vlattice, t, b, s1, c1);
+    estimates[fragments[p0].id].term_bs(lat, t, b, s0, c0);
+    estimates[fragments[p1].id].term_bt(lat, t, b, s1, c1);
   }
   void at_bot(int p, time_pt t, int s, int c)
-  { estimates[fragments[p].id].at_bot(vlattice, t, s, c); }
+  { estimates[fragments[p].id].at_bot(lat, t, s, c); }
   void at_top(int p, time_pt t, int s, int c)
-  { estimates[fragments[p].id].at_top(vlattice, t, s, c); }
+  { estimates[fragments[p].id].at_top(lat, t, s, c); }
 
   std::vector<estimate_t>&       estimates;
-  virtual_lattice_t const&       vlattice;
+  lattice_t const&               lat;
   estimator_t const&             estimator;
   std::vector<fragment_t> const& fragments;
 };
@@ -327,13 +326,13 @@ struct energy_estimator
 
   // normal estimator
 
-  template<typename RG, typename VG>
+  template<typename RG>
   static void measurement(alps::ObservableSet& m,
-                          virtual_lattice<RG, VG> const& vlat,
+                          lattice_helper<RG> const& lat,
                           double beta, int nop, double sign, double ene)
   {
     m["Energy"] << sign * ene;
-    m["Energy Density"] << sign * ene / num_sites(vlat.rgraph());
+    m["Energy Density"] << sign * ene / num_sites(lat.rg());
     m["Energy^2"] << sign * (power2(ene) - nop / power2(beta));
   }
 };
@@ -364,30 +363,30 @@ struct energy_evaluator
 template<class DUMMY>
 struct dumb_measurement
 {
-  template<typename MC, typename VLAT, typename TIME>
+  template<typename MC, typename LAT, typename TIME>
   struct estimator
   {
     typedef MC   mc_type;
-    typedef VLAT virtual_lattice_t;
+    typedef LAT  lattice_t;
     typedef TIME time_t;
 
     template<typename M>
     void initialize(M& /* m */, alps::Parameters const& /* params */,
-                    virtual_lattice_t const& /* vlat */,
+                    lattice_t const& /* lat */,
                     bool /* is_signed */, bool /* use_improved_estimator */) {}
 
     // improved estimator
 
     struct estimate
     {
-      void start_s(virtual_lattice_t const&, double, int, int) const {}
-      void start_bs(virtual_lattice_t const&, double, int, int, int) const {}
-      void start_bt(virtual_lattice_t const&, double, int, int, int) const {}
-      void term_s(virtual_lattice_t const&, double, int, int) const {}
-      void term_bs(virtual_lattice_t const&, double, int, int, int) const {}
-      void term_bt(virtual_lattice_t const&, double, int, int, int) const {}
-      void at_bot(virtual_lattice_t const&, double, int, int) const {}
-      void at_top(virtual_lattice_t const&, double, int, int) const {}
+      void start_s(lattice_t const&, double, int, int) const {}
+      void start_bs(lattice_t const&, double, int, int, int) const {}
+      void start_bt(lattice_t const&, double, int, int, int) const {}
+      void term_s(lattice_t const&, double, int, int) const {}
+      void term_bs(lattice_t const&, double, int, int, int) const {}
+      void term_bt(lattice_t const&, double, int, int, int) const {}
+      void at_bot(lattice_t const&, double, int, int) const {}
+      void at_top(lattice_t const&, double, int, int) const {}
     };
     void init_estimate(estimate& /* est */) const {}
 
@@ -396,7 +395,7 @@ struct dumb_measurement
       template<typename EST>
       collector operator+(EST const& /* est */) const { return *this; }
       template<typename M>
-      void commit(M& /* m */, virtual_lattice_t const& /* vlat */,
+      void commit(M& /* m */, lattice_t const& /* lat */,
                   double /* beta */, int /* nop */,
                   double /* sign */) const
         {}
@@ -405,7 +404,7 @@ struct dumb_measurement
 
     template<typename M, typename OP, typename FRAGMENT>
     void improved_measurement(M& /* m */,
-                              virtual_lattice_t const& /* vlat */,
+                              lattice_t const& /* lat */,
                               double /* beta */,
                               double /* sign */,
                               std::vector<int> const& /* spins */,
@@ -418,7 +417,7 @@ struct dumb_measurement
 
     template<typename M, typename OP>
     void normal_measurement(M& /* m */,
-                            virtual_lattice_t const& /* vlat */,
+                            lattice_t const& /* lat */,
                             double /* beta */,
                             double /* sign */,
                             std::vector<int> const& /* spins */,
@@ -442,17 +441,17 @@ struct dumb_measurement
 template<typename MEASUREMENT1, typename MEASUREMENT2>
 struct composite_measurement
 {
-  template<typename MC, typename VLAT, typename TIME>
+  template<typename MC, typename LAT, typename TIME>
   struct estimator
   {
     typedef MC   mc_type;
-    typedef VLAT virtual_lattice_t;
+    typedef LAT  lattice_t;
     typedef TIME time_t;
     typedef typename boost::call_traits<time_t>::param_type time_pt;
 
-    typedef typename MEASUREMENT1::template estimator<MC, VLAT, TIME>
+    typedef typename MEASUREMENT1::template estimator<MC, LAT, TIME>
       estimator1;
-    typedef typename MEASUREMENT2::template estimator<MC, VLAT, TIME>
+    typedef typename MEASUREMENT2::template estimator<MC, LAT, TIME>
       estimator2;
 
     estimator1 emt1;
@@ -460,60 +459,56 @@ struct composite_measurement
 
     template<typename M>
     void initialize(M& m, alps::Parameters const& params,
-                    virtual_lattice_t const& vlat,
+                    lattice_t const& lat,
                     bool is_signed, bool use_improved_estimator)
     {
-      emt1.initialize(m, params, vlat, is_signed, use_improved_estimator);
-      emt2.initialize(m, params, vlat, is_signed, use_improved_estimator);
+      emt1.initialize(m, params, lat, is_signed, use_improved_estimator);
+      emt2.initialize(m, params, lat, is_signed, use_improved_estimator);
     };
 
     // improved estimator
 
     struct estimate : public estimator1::estimate, public estimator2::estimate
     {
-      void start_s(virtual_lattice_t const& vlat, time_pt t, int s, int c)
+      void start_s(lattice_t const& lat, time_pt t, int s, int c)
       {
-        estimator1::estimate::start_s(vlat, t, s, c);
-        estimator2::estimate::start_s(vlat, t, s, c);
+        estimator1::estimate::start_s(lat, t, s, c);
+        estimator2::estimate::start_s(lat, t, s, c);
       }
-      void start_bs(virtual_lattice_t const& vlat, time_pt t, int b, int s,
-                    int c)
+      void start_bs(lattice_t const& lat, time_pt t, int b, int s, int c)
       {
-        estimator1::estimate::start_bs(vlat, t, b, s, c);
-        estimator2::estimate::start_bs(vlat, t, b, s, c);
+        estimator1::estimate::start_bs(lat, t, b, s, c);
+        estimator2::estimate::start_bs(lat, t, b, s, c);
       }
-      void start_bt(virtual_lattice_t const& vlat, time_pt t, int b, int s,
-                    int c)
+      void start_bt(lattice_t const& lat, time_pt t, int b, int s, int c)
       {
-        estimator1::estimate::start_bt(vlat, t, b, s, c);
-        estimator2::estimate::start_bt(vlat, t, b, s, c);
+        estimator1::estimate::start_bt(lat, t, b, s, c);
+        estimator2::estimate::start_bt(lat, t, b, s, c);
       }
-      void term_s(virtual_lattice_t const& vlat, time_pt t, int s, int c)
+      void term_s(lattice_t const& lat, time_pt t, int s, int c)
       {
-        estimator1::estimate::term_s(vlat, t, s, c);
-        estimator2::estimate::term_s(vlat, t, s, c);
+        estimator1::estimate::term_s(lat, t, s, c);
+        estimator2::estimate::term_s(lat, t, s, c);
       }
-      void term_bs(virtual_lattice_t const& vlat, time_pt t, int b, int s,
-                   int c)
+      void term_bs(lattice_t const& lat, time_pt t, int b, int s, int c)
       {
-        estimator1::estimate::term_bs(vlat, t, b, s, c);
-        estimator2::estimate::term_bs(vlat, t, b, s, c);
+        estimator1::estimate::term_bs(lat, t, b, s, c);
+        estimator2::estimate::term_bs(lat, t, b, s, c);
       }
-      void term_bt(virtual_lattice_t const& vlat, time_pt t, int b, int s,
-                   int c)
+      void term_bt(lattice_t const& lat, time_pt t, int b, int s, int c)
       {
-        estimator1::estimate::term_bt(vlat, t, b, s, c);
-        estimator2::estimate::term_bt(vlat, t, b, s, c);
+        estimator1::estimate::term_bt(lat, t, b, s, c);
+        estimator2::estimate::term_bt(lat, t, b, s, c);
       }
-      void at_bot(virtual_lattice_t const& vlat, time_pt t, int s, int c)
+      void at_bot(lattice_t const& lat, time_pt t, int s, int c)
       {
-        estimator1::estimate::at_bot(vlat, t, s, c);
-        estimator2::estimate::at_bot(vlat, t, s, c);
+        estimator1::estimate::at_bot(lat, t, s, c);
+        estimator2::estimate::at_bot(lat, t, s, c);
       }
-      void at_top(virtual_lattice_t const& vlat, time_pt t, int s, int c)
+      void at_top(lattice_t const& lat, time_pt t, int s, int c)
       {
-        estimator1::estimate::at_top(vlat, t, s, c);
-        estimator2::estimate::at_top(vlat, t, s, c);
+        estimator1::estimate::at_top(lat, t, s, c);
+        estimator2::estimate::at_top(lat, t, s, c);
       }
     };
     void init_estimate(estimate& est) const
@@ -536,11 +531,11 @@ struct composite_measurement
         return *this;
       }
       template<typename M>
-      void commit(M& m, virtual_lattice_t const& vlat,
-                  double beta, int nop, double sign) const
+      void commit(M& m, lattice_t const& lat, double beta, int nop,
+                  double sign) const
       {
-        base1::commit(m, vlat, beta, nop, sign);
-        base2::commit(m, vlat, beta, nop, sign);
+        base1::commit(m, lat, beta, nop, sign);
+        base2::commit(m, lat, beta, nop, sign);
       }
     };
     void init_collector(collector& coll) const
@@ -550,7 +545,7 @@ struct composite_measurement
     }
 
     template<typename M, typename OP, typename FRAGMENT>
-    void improved_measurement(M& m, virtual_lattice_t const& vlat,
+    void improved_measurement(M& m, lattice_t const& lat,
                               double beta, double sign,
                               std::vector<int> const& spins,
                               std::vector<OP> const& operators,
@@ -558,23 +553,23 @@ struct composite_measurement
                               std::vector<FRAGMENT> const& fragments,
                               collector const& coll)
     {
-      emt1.improved_measurement(m, vlat, beta, sign, spins, operators, spins_c,
+      emt1.improved_measurement(m, lat, beta, sign, spins, operators, spins_c,
                                 fragments, coll);
-      emt2.improved_measurement(m, vlat, beta, sign, spins, operators, spins_c,
+      emt2.improved_measurement(m, lat, beta, sign, spins, operators, spins_c,
                                 fragments, coll);
     }
 
     // normal estimator
 
     template<typename M, typename OP>
-    void normal_measurement(M& m, virtual_lattice_t const& vlat,
+    void normal_measurement(M& m, lattice_t const& lat,
                             double beta, double sign,
                             std::vector<int> const& spins,
                             std::vector<OP> const& operators,
                             std::vector<int>& spins_c)
     {
-      emt1.normal_measurement(m, vlat, beta, sign, spins, operators, spins_c);
-      emt2.normal_measurement(m, vlat, beta, sign, spins, operators, spins_c);
+      emt1.normal_measurement(m, lat, beta, sign, spins, operators, spins_c);
+      emt2.normal_measurement(m, lat, beta, sign, spins, operators, spins_c);
     }
   };
 
