@@ -40,7 +40,7 @@ struct local_susceptibility
   struct estimator
   {
     typedef MC   mc_type;
-    typedef LAT lattice_t;
+    typedef LAT  lattice_t;
     typedef TIME time_t;
     typedef typename alps::property_map<real_site_t,
               const typename lattice_t::virtual_graph_type,
@@ -63,8 +63,7 @@ struct local_susceptibility
         params.value_or_default("MEASURE[Local Susceptibility]", false);
       if (!measure) return;
 
-      real_site =
-        alps::get_or_default(real_site_t(), lat.vg(), real_site_t());
+      real_site = alps::get_or_default(real_site_t(), lat.vg(), 0);
       gauge = alps::get_or_default(gauge_t(), lat.vg(), 0);
 
       add_vector_obs(m, "Local Magnetization",
@@ -201,7 +200,7 @@ struct site_type_susceptibility
   struct estimator
   {
     typedef MC   mc_type;
-    typedef LAT lattice_t;
+    typedef LAT  lattice_t;
     typedef TIME time_t;
     typedef typename alps::property_map<real_site_t,
               const typename lattice_t::virtual_graph_type,
@@ -233,14 +232,14 @@ struct site_type_susceptibility
       types = 0;
       typename real_site_iterator<lattice_t>::type si, si_end;
       for (boost::tie(si, si_end) = sites(lat.rg()); si != si_end; ++si) {
-        int t = get(alps::site_type_t(), lat.rg(), *si);
+        int t = get(site_type_t(), lat.rg(), *si);
         if (t < 0)
           boost::throw_exception(std::runtime_error("negative site type"));
         if (t >= types) types = t + 1;
       }
       type_nrs.resize(types); type_nrs = 0;
       for (boost::tie(si, si_end) = sites(lat.rg()); si != si_end; ++si)
-        type_nrs[get(alps::site_type_t(), lat.rg(), *si)] += 1;
+        type_nrs[get(site_type_t(), lat.rg(), *si)] += 1;
 
       add_vector_obs(m, "Number of Sites of Each Type", is_signed);
       add_vector_obs(m, "Site Type Magnetization", is_signed);
@@ -297,8 +296,8 @@ struct site_type_susceptibility
       double umag = 0;
       double smag = 0;
       typename virtual_site_iterator<lattice_t>::type si, si_end;
-      for (boost::tie(si, si_end) = vsites(lat); si != si_end; ++si) {
-        int p = get(alps::site_type_t(), lat.rg(), real_site[*si]);
+      for (boost::tie(si, si_end) = sites(lat.vg()); si != si_end; ++si) {
+        int p = get(site_type_t(), lat.rg(), real_site[*si]);
         tumag[p] += 0.5-spins[*si];
         tsmag[p] += gauge[*si] * (0.5-spins[*si]);
         umag += 0.5-spins[*si];
@@ -317,7 +316,7 @@ struct site_type_susceptibility
           proceed(typename is_path_integral<mc_type>::type(), t, *oi);
           if (oi->is_site()) {
             int s = oi->pos();
-            int p = get(alps::site_type_t(), lat.rg(), real_site[s]);
+            int p = get(site_type_t(), lat.rg(), real_site[s]);
             tumag_a[p] += t * tumag[p];
             tsmag_a[p] += t * tsmag[p];
             umag_a += t * umag;
@@ -334,8 +333,8 @@ struct site_type_susceptibility
           } else {
             int s0 = source(oi->pos(), lat.vg());
             int s1 = target(oi->pos(), lat.vg());
-            int p0 = get(alps::site_type_t(), lat.rg(), real_site[s0]);
-            int p1 = get(alps::site_type_t(), lat.rg(), real_site[s1]);
+            int p0 = get(site_type_t(), lat.rg(), real_site[s0]);
+            int p1 = get(site_type_t(), lat.rg(), real_site[s1]);
             if (p0 == p1) {
               tumag_a[p0] += t * tumag[p0];
               tsmag_a[p0] += t * tsmag[p0];

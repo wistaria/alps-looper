@@ -83,8 +83,7 @@ struct correlation
 
       if (measure_correlation || measure_green_function ||
           measure_structure_factor) {
-        real_site =
-          alps::get_or_default(real_site_t(), lat.vg(), real_site_t());
+        real_site = alps::get_or_default(real_site_t(), lat.vg(), 0);
       }
 
       if (measure_correlation || measure_green_function) {
@@ -93,7 +92,7 @@ struct correlation
           origin = static_cast<int>(params["INITIAL_SITE"]);
 
         std::vector<std::string> label = distance_labels(lat, origin);
-        if (origin) {
+        if (!origin) {
           std::vector<unsigned int> m = distance_multiplicities(lat);
           mltplcty.resize(m.size());
           for (int i = 0; i < mltplcty.size(); ++i) mltplcty[i] = 1. / m[i];

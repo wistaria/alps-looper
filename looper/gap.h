@@ -39,12 +39,18 @@ struct gap
     typedef MC   mc_type;
     typedef LAT  lattice_t;
     typedef TIME time_t;
+    typedef typename alps::property_map<gauge_t,
+              const typename lattice_t::virtual_graph_type,
+              double>::type gauge_map_t;
+
+    gauge_map_t gauge;
 
     template<typename M>
     void initialize(M& m, alps::Parameters const& /* params */,
                     lattice_t const& lat,
                     bool is_signed, bool use_improved_estimator)
     {
+      gauge = alps::get_or_default(gauge_t(), lat.vg(), 0);
       if (is_bipartite(lat))
         add_scalar_obs(m, "Staggered Susceptibility [w=2pi/beta]",
                        is_signed);
@@ -150,7 +156,7 @@ struct gap
       double smag = 0;
       typename virtual_site_iterator<lattice_t>::type si, si_end;
       for (boost::tie(si, si_end) = sites(lat.vg()); si != si_end; ++si)
-        smag += (0.5-spins[*si]) * gauge(lat, *si);
+        smag += (0.5-spins[*si]) * gauge[*si];
       std::complex<double> smag_a(0, 0);
       std::copy(spins.begin(), spins.end(), spins_c.begin());
       for (typename std::vector<OP>::const_iterator oi = operators.begin();
@@ -161,14 +167,14 @@ struct gap
           if (oi->is_site()) {
             unsigned int s = oi->pos();
             spins_c[s] ^= 1;
-            smag += gauge(lat, s) * (1-2*spins_c[s]);
+            smag += gauge[s] * (1-2*spins_c[s]);
           } else {
             unsigned int s0 = source(oi->pos(), lat.vg());
             unsigned int s1 = target(oi->pos(), lat.vg());
             spins_c[s0] ^= 1;
             spins_c[s1] ^= 1;
-            smag += gauge(lat, s0) * (1-2*spins_c[s0])
-              + gauge(lat, s1) * (1-2*spins_c[s1]);
+            smag += gauge[s0] * (1-2*spins_c[s0])
+              + gauge[s1] * (1-2*spins_c[s1]);
           }
           smag_a -= p * smag;
         }

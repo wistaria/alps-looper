@@ -45,7 +45,7 @@ typename boost::graph_traits<
   boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::vertex_descriptor
 source(int b, boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> const& g)
 {
-  return boost::source(*(vertices(g).first + b), g);
+  return boost::source(*(edges(g).first + b), g);
 }
 
 template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
@@ -54,7 +54,7 @@ typename boost::graph_traits<
   boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::vertex_descriptor
 target(int b, boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> const& g)
 {
-  return boost::target(*(vertices(g).first + b), g);
+  return boost::target(*(edges(g).first + b), g);
 }
 
 template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
@@ -72,7 +72,7 @@ typename boost::graph_traits<
   boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::edge_descriptor
 bond(boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> const& g, int b)
 {
-  return bond(g, b);
+  return edge(g, b);
 }
 
 } // end namespace boost
@@ -435,6 +435,8 @@ template<typename RG>
 std::vector<unsigned int>
 distance_multiplicities(lattice_helper<RG> const& lat)
 {
+  std::vector<unsigned int> mult = lat.graph_helper().distance_multiplicities();
+  std::cerr << mult.size() << std::endl;
   return lat.graph_helper().distance_multiplicities();
 }
 
