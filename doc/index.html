@@ -1,328 +1,667 @@
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
-<html>
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <title>ALPS/looper</title>
-   <style type="text/css">
-     body {
-       color: #333;
-       margin-left: 2em;
-       margin-right: 2em;
-       margin-top: 2em;
-       margin-bottom: 2em;
-     }
-   </style>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<title></title>
+<style type="text/css">
+
+/*
+:Author: David Goodger
+:Contact: goodger@users.sourceforge.net
+:Date: $Date: 2006-09-20 20:22:57 +0900 (Wed, 20 Sep 2006) $
+:Revision: $Revision: 2255 $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+
+See http://docutils.sf.net/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin-left: 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left {
+  clear: left }
+
+img.align-right {
+  clear: right }
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font-family: serif ;
+  font-size: 100% }
+
+pre.literal-block, pre.doctest-block {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
 </head>
 <body>
-
-<h1>ALPS/looper</h1>
-
-<p>The <tt>ALPS/looper</tt> package is one of the applications of the
-<a href="http://alps.comp-phys.org">ALPS project</a>.
-The <tt>ALPS/looper</tt> is the successor of the <a
-href="http://wistaria.comp-phys.org/looper/">Looper library 2</a>,
-which is the Fortran 90 library for quantum Monte Carlo method.  It
-provides multi-cluster quantum Monte Carlo algorithms for generic spin
-systems in the path-integral or SSE representations.</p>
-
-<p>The application supports generic XXZ models with arbitrary spin
-size <i>S</i> on arbitrary lattices.  Since it supports
-so-called <i>freezing graphs</i>, models with easy-axis (Ising-like)
-anisotropy can also be simulated very efficiently.</p>
-
-<h2>Latest News</h2>
-
-<ul>
-  <li>October 8, 2004: Release of 3.1.2.</li>
-  <li>October 6, 2004: Release of 3.1.1.</li>
-  <li>September 23, 2004: Release of 3.1.</li>
-  <li>July 22, 2004: Release of 3.0.1.</li>
-  <li>June 11, 2004: Release of 3.0.</li>
+<div class="document">
+<div class="section">
+<h1><a id="alps-looper" name="alps-looper">ALPS/looper</a></h1>
+<p>The <a class="reference" href="http://wistaria.comp-phys.org/alps-looper/">ALPS/looper</a> package is one of the applications of the <a class="reference" href="http://alps.comp-phys.org/">ALPS
+Project</a>.  The <a class="reference" href="http://wistaria.comp-phys.org/alps-looper/">ALPS/looper</a> is the successor of the <a class="reference" href="http://wistaria.comp-phys.org/looper/">Looper Library
+version 2</a>, which is the Fortran 90 library for quantum Monte Carlo
+method.  It provides multi-cluster quantum Monte Carlo algorithms for
+generic spin systems in the path-integral or SSE representations.</p>
+<p>The application supports generic spin models with arbitrary spin size
+<em>S</em> on arbitrary lattices.  The supported interactions are</p>
+<ul class="simple">
+<li>XXZ two-spin interaction (Ising, Heisenberg, XY)</li>
+<li>single-ion anisotropy (D-term) for <em>S</em> &amp;gt;1/2</li>
+<li>longitudinal magnetic field</li>
+<li>transverse matnetic field</li>
 </ul>
-
-<h2>Compiling programs</h2>
-  
-<h3>Download</h3>
-  
-<ul>
-  <li><a href="http://wistaria.comp-phys.org/alps-looper/download.html">http://wistaria.comp-phys.org/alps-looper/download.html</a></li>
+<p>Since it supports so-called <em>freezing graphs</em>, models with easy-axis
+(Ising-like) anisotropy can also be simulated very efficiently.</p>
+<p>A stripped version of the <a class="reference" href="http://wistaria.comp-phys.org/alps-looper/">ALPS/looper</a> is distributed as a part of
+<a class="reference" href="http://alps.comp-phys.org/software/applications/doc/">ALPS Applications</a> Package.  The full version of
+<a class="reference" href="http://wistaria.comp-phys.org/alps-looper/">ALPS/looper</a> library (including tests, more measurements, etc)
+is available
+from <a class="reference" href="http://wistaria.comp-phys.org/alps-looper">http://wistaria.comp-phys.org/alps-looper</a>/&lt;/a&gt;.</p>
+</div>
+<div class="section">
+<h1><a id="latest-news" name="latest-news">Latest News</a></h1>
+<dl class="docutils">
+<dt>January 20, 2006</dt>
+<dd>Release of 3.2b1.</dd>
+<dt>October 8, 2004:</dt>
+<dd>Release of 3.1.2.</dd>
+<dt>October 6, 2004:</dt>
+<dd>Release of 3.1.1.</dd>
+<dt>September 23, 2004:</dt>
+<dd>Release of 3.1.</dd>
+<dt>July 22, 2004:</dt>
+<dd>Release of 3.0.1.</dd>
+<dt>June 11, 2004:</dt>
+<dd>Release of 3.0.</dd>
+</dl>
+</div>
+<div class="section">
+<h1><a id="compiling-programs" name="compiling-programs">Compiling programs</a></h1>
+<p>Note: This section applies only for the full version of <a class="reference" href="http://wistaria.comp-phys.org/alps-looper/">ALPS/looper</a>.</p>
+<div class="section">
+<h2><a id="prerequisites" name="prerequisites">Prerequisites</a></h2>
+<ul class="simple">
+<li><a class="reference" href="http://www.boost.org/">Boost C++ Library</a> -- version 1.33.1 or higher</li>
+<li><a class="reference" href="http://alps.comp-phys.org/software/ALPS/doc/">ALPS Library</a> -- version 1.3b2 or higher</li>
+<li><a class="reference" href="http://www.netlib.org/lapack/">LAPACK Library</a></li>
 </ul>
-
-<h3>Prerequisites</h3>
-  
-<ul>
-  <li>The <a href="http://www.boost.org/">C++ Boost</a> library -- version
-1.31.0 or higher</li>
-  <li>The <a href="http://alps.comp-phys.org/">ALPS</a> libraries -- version 1.2 or higher</li>
-  <li>The <a href="http://www.netlib.org/lapack/">LAPACK</a> library</li>
-</ul>
-  
-<h3>Compilation</h3>
-  
-<blockquote> 
-  <pre>./configure<br>make<br></pre>
-</blockquote>
-In case that the ALPS library is installed under a directory other
-than the default one (i.e. <tt>$HOME/ALPS</tt>), please specify its
-location to the configure script by <tt>--prefix</tt> option.
-
-<h2>Running a simulation</h2>
-  
-<h3>Input parameters</h3>
-
-<p>In addition to the general input parameters of the <a
-href="http://alps.comp-phys.org/software/alps/doc/scheduler/running.html">ALPS
-scheduler library</a> the <tt>loop</tt> application takes the following
-input parameters:</p>
-<p>
-<table border="2">
- <thead> <tr>
-    <td><b>Name</b></td>
-    <td><b>Default</b></td>
-    <td><b>Description</b></td>
-  </tr>
- </thead> <tbody>
- <tr>
-      <td>LATTICE_LIBRARY</td>
-      <td><tt>lattices.xml</tt></td>
-      <td>path to a file containing lattice descriptions</td>
-    </tr>
- <tr>
-      <td>LATTICE</td>
-      <td><br>
-      </td>
-      <td>name of the lattice</td>
-    </tr>
- <tr>
-      <td>MODEL_LIBRARY</td>
-      <td><tt>models.xml</tt></td>
-      <td>path to a file containing model descriptions</td>
-    </tr>
- <tr>
-      <td>MODEL</td>
-      <td><br>
-      </td>
-      <td>name of the model</td>
-    </tr>
- <tr>
-      <td>REPRESENTATION</td>
-      <td><tt>path integral</tt></td>
-      <td>the type of representatioin, either "<tt>path integral</tt>" or
-"<tt>SSE</tt>"</td>
-    </tr>
- <tr>
-      <td>T</td>
-      <td><br>
-      </td>
-      <td>the temperature</td>
-    </tr>
- <tr>
-      <td>SWEEPS</td>
-      <td><br>
-      </td>
-      <td>Monte Carlo steps after thermalization</td>
-    </tr>
- <tr>
-      <td>THERMALIZATION</td>
-      <td><br>
-      </td>
-      <td>Monte Carlo steps for thermalization</td>
-    </tr>
- 
-  </tbody> 
+</div>
+<div class="section">
+<h2><a id="download" name="download">Download</a></h2>
+<p><a class="reference" href="http://wistaria.comp-phys.org/alps-looper/download">http://wistaria.comp-phys.org/alps-looper/download</a></p>
+<p>&lt;h3&gt;Compilation&lt;/h3&gt;</p>
+<pre class="literal-block">
+./configure&lt;br&gt;make&lt;br&gt;&lt;/pre&gt;
+</pre>
+<p>In case that the <cite>ALPS Library</cite> is installed under a directory other
+than the default one (i.e. <tt class="docutils literal"><span class="pre">$HOME/ALPS</span></tt>), please specify its
+location to the configure script by <tt class="docutils literal"><span class="pre">--prefix</span></tt> option.</p>
+</div>
+</div>
+<div class="section">
+<h1><a id="running-a-simulation" name="running-a-simulation">Running a simulation</a></h1>
+<div class="section">
+<h2><a id="input-parameters" name="input-parameters">Input parameters</a></h2>
+<p>In addition to the general input parameters of the <cite>ALPS scheduler
+library
+&lt;http://alps.comp-phys.org/software/alps/doc/scheduler/running.html&gt;</cite>,
+the <tt class="docutils literal"><span class="pre">loop</span></tt> application takes the following input parameters:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="22%" />
+<col width="64%" />
+</colgroup>
+<tbody valign="top">
+<tr><td>Name</td>
+<td>Default</td>
+<td>Description</td>
+</tr>
+<tr><td><tt class="docutils literal"><span class="pre">LATTICE_LIBRARY</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">$PREFIX/lib/xml/lattices.xml</span></tt></td>
+<td>path to a file containing lattice descriptions</td>
+</tr>
+<tr><td><tt class="docutils literal"><span class="pre">LATTICE</span></tt></td>
+<td><em>none</em></td>
+<td>name of the lattice</td>
+</tr>
+<tr><td><tt class="docutils literal"><span class="pre">MODEL_LIBRARY</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">$PREFIX/lib/xml/models.xml</span></tt></td>
+<td>path to a file containing model descriptions</td>
+</tr>
+<tr><td><tt class="docutils literal"><span class="pre">MODEL</span></tt></td>
+<td><em>none</em></td>
+<td>name of the model</td>
+</tr>
+<tr><td><tt class="docutils literal"><span class="pre">REPRESENTATION</span></tt></td>
+<td>path integral</td>
+<td>type of representation, either <tt class="docutils literal"><span class="pre">&quot;path</span> <span class="pre">integral&quot;</span></tt> <tt class="docutils literal"><span class="pre">&quot;SSE&quot;</span></tt></td>
+</tr>
+<tr><td><tt class="docutils literal"><span class="pre">T</span></tt></td>
+<td><em>none</em></td>
+<td>temperature</td>
+</tr>
+<tr><td><tt class="docutils literal"><span class="pre">SWEEPS</span></tt></td>
+<td>65536</td>
+<td>Monte Carlo steps after thermalization</td>
+</tr>
+<tr><td><tt class="docutils literal"><span class="pre">THERMALIZATION</span></tt></td>
+<td>8192</td>
+<td>Monte Carlo steps for thermalization</td>
+</tr>
+</tbody>
 </table>
-</p>
-
 <p>In addition, the lattice/model descriptions can require further
-parameters (e.g. <tt>L</tt> or <tt>W</tt>) as specified in the lattice
-(model) description file.</p>
-
-<h3>Measurements</h3>
-
-<p>The following observables are measured by the <tt>loop</tt> application:</p>
- 
-<table border="2">
-  <thead> <tr>
-    <td><b>Name</b></td>
-    <td><b>Description</b></td>
-  </tr>
- </thead> <tbody>
- <tr>
-      <td>Energy</td>
-      <td>total energy</td>
-    </tr>
- <tr>
-      <td>Energy Density</td>
-      <td>energy per spin</td>
-    </tr>
- <tr>
-      <td>Energy Density^2</td>
-      <td>energy squared per spin</td>
-    </tr>
- <tr>
-      <td>Magnetization</td>
-      <td>total uniform magnetization</td>
-    </tr>
- <tr>
-      <td>Magnetization Density</td>
-      <td>uniform magnetization per spin</td>
-    </tr>
- <tr>
-      <td>Magnetization^2</td>
-      <td>square of total uniform magnetization</td>
-    </tr>
- <tr>
-      <td>Susceptibility</td>
-      <td>uniform susceptibility</td>
-    </tr>
- <tr>
-      <td>Staggered Magnetization</td>
-      <td>total staggered magnetization</td>
-    </tr>
- <tr>
-      <td>Staggered Magnetization Density</td>
-      <td>staggered magnetization per spin</td>
-    </tr>
- <tr>
-      <td>Staggered Magnetization^2</td>
-      <td>square of total staggered magnetization</td>
-    </tr>
- <tr>
-      <td>Staggered Susceptibility</td>
-      <td>staggered susceptibility</td>
-    </tr>
- <tr>
-      <td>Generalized Magnetization^2</td>
-      <td>square of total generalized magnetization</td>
-    </tr>
- <tr>
-      <td>Generalized Susceptibility</td>
-      <td>generalized susceptibility</td>
-    </tr>
-    <tr>
-      <td>Generalized Staggered Magnetization^2<br>
-      </td>
-      <td>square of total generalized staggered magnetization<br>
-      </td>
-    </tr>
-    <tr>
-      <td>Generalized Staggered Susceptibility<br>
-      </td>
-      <td>generalized staggered susceptibility<br>
-      </td>
-    </tr>
- 
-  </tbody> 
+parameters (e.g. <tt class="docutils literal"><span class="pre">L</span></tt> or <tt class="docutils literal"><span class="pre">W</span></tt>) as specified in the lattice (model)
+description file.</p>
+</div>
+<div class="section">
+<h2><a id="temperature-annealing" name="temperature-annealing">Temperature Annealing</a></h2>
+<p>Some models (typically models with competing interactions) have very
+long equilibration time.  In such cases, one might want to lower the
+temperature slowly during the thermalization steps.  Such temperature
+annealing process can be specified by using the parameters
+<tt class="docutils literal"><span class="pre">T_START_#</span></tt> and <tt class="docutils literal"><span class="pre">T_DURATION_#</span></tt> (<tt class="docutils literal"><span class="pre">#</span> <span class="pre">=</span> <span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">2,...</span></tt>), where
+<tt class="docutils literal"><span class="pre">T_START_#</span></tt> and <tt class="docutils literal"><span class="pre">T_DURATION_#</span></tt> specify the starting temperature
+and the duration of the <tt class="docutils literal"><span class="pre">#</span></tt> th block, respectively.</p>
+<img alt="anneal.jpg" src="anneal.jpg" />
+<p>For example the protocol shown in the above figure can be realized by specifing the following parameter set.</p>
+<pre class="literal-block">
+T_START_0 = 2.0;
+T_DURATION_0 = 100;
+T_START_1 = 1.5;
+T_DURATION_1 = 500;
+THERMALIZATION = 1000;
+T = 1.2;
+</pre>
+<p>Note that the sum of <tt class="docutils literal"><span class="pre">T_DURATION_#</span></tt>'s must be less than or
+equal to <tt class="docutils literal"><span class="pre">THERMALIZATION</span></tt>.</p>
+</div>
+<div class="section">
+<h2><a id="measurements" name="measurements">Measurements</a></h2>
+<p>The following observables are measured by the <tt class="docutils literal"><span class="pre">loop</span></tt> application:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="36%" />
+<col width="64%" />
+</colgroup>
+<tbody valign="top">
+<tr><td>Name</td>
+<td>Description</td>
+</tr>
+<tr><td>Energy</td>
+<td>total energy</td>
+</tr>
+<tr><td>Energy Density</td>
+<td>energy per spin</td>
+</tr>
+<tr><td>Energy^2</td>
+<td>square of total energy</td>
+</tr>
+<tr><td>Specific Heat</td>
+<td>specific heat</td>
+</tr>
+<tr><td>Stiffness</td>
+<td>stiffness constant</td>
+</tr>
+<tr><td>Magnetization</td>
+<td>total uniform magnetization</td>
+</tr>
+<tr><td>Magnetization^2</td>
+<td>square of total uniform magnetization</td>
+</tr>
+<tr><td>Magnetization^4</td>
+<td>4th power of total uniform magnetization</td>
+</tr>
+<tr><td>Binder Ratio of Magnetization</td>
+<td>Binder ratio of uniform magnetization</td>
+</tr>
+<tr><td>Magnetization Density</td>
+<td>uniform magnetization per spin</td>
+</tr>
+<tr><td>Magnetization Density^2</td>
+<td>square of uniform magnetization per spin</td>
+</tr>
+<tr><td>Magnetization Density^4</td>
+<td>4th power of uniform magnetization per spin</td>
+</tr>
+<tr><td>Susceptibility</td>
+<td>uniform susceptibility</td>
+</tr>
+<tr><td>Staggered Magnetization</td>
+<td>total staggered magnetization</td>
+</tr>
+<tr><td>Staggered Magnetization^2</td>
+<td>square of total staggered magnetization</td>
+</tr>
+<tr><td>Staggered Magnetization^4</td>
+<td>4th power of total staggered magnetization</td>
+</tr>
+<tr><td>Staggered Magnetization Density</td>
+<td>staggered magnetization per spin</td>
+</tr>
+<tr><td>Staggered Magnetization Density^2</td>
+<td>square of staggered magnetization per spin</td>
+</tr>
+<tr><td>Staggered Magnetization Density^4</td>
+<td>4th power of staggered magnetization per spin</td>
+</tr>
+<tr><td>Staggered Susceptibility</td>
+<td>staggered susceptibility</td>
+</tr>
+<tr><td>Generalized Magnetization</td>
+<td>total generalized magnetization</td>
+</tr>
+<tr><td>Generalized Magnetization^2</td>
+<td>square of total generalized magnetization</td>
+</tr>
+<tr><td>Generalized Magnetization^4</td>
+<td>4th power of total generalized magnetization</td>
+</tr>
+<tr><td>Generalized Binder Ratio of Magnetization</td>
+<td>Binder ratio of generalized magnetization</td>
+</tr>
+<tr><td>Generalized Magnetization Density</td>
+<td>generalized magnetization per spin</td>
+</tr>
+<tr><td>Generalized Magnetization Density^2</td>
+<td>square of generalized magnetization per spin</td>
+</tr>
+<tr><td>Generalized Magnetization Density^4</td>
+<td>4th power of generalized magnetization per spin</td>
+</tr>
+<tr><td>Generalized Susceptibility</td>
+<td>generalized susceptibility</td>
+</tr>
+<tr><td>Generalized Staggered Magnetization</td>
+<td>total generalized staggered magnetization</td>
+</tr>
+<tr><td>Generalized Staggered Magnetization^2</td>
+<td>square of total generalized staggered magnetization</td>
+</tr>
+<tr><td>Generalized Staggered Magnetization^4</td>
+<td>4th power of total generalized staggered magnetization</td>
+</tr>
+<tr><td>Generalized Staggered Magnetization Density</td>
+<td>generalized staggered magnetization per spin</td>
+</tr>
+<tr><td>Generalized Staggered Magnetization Density^2</td>
+<td>square of generalized staggered magnetization per spin</td>
+</tr>
+<tr><td>Generalized Staggered Magnetization Density^4</td>
+<td>4th power of generalized staggered magnetization per spin</td>
+</tr>
+<tr><td>Generalized Staggered Susceptibility</td>
+<td>generalized staggered susceptibility</td>
+</tr>
+</tbody>
 </table>
-<br>
-A few remarks concerning the generalized susceptibilities :<br>
-The general idea is that the uniform generalized susceptibility is the susceptibility
-for the magnetic order supposed to be stronger. <br>
-The staggered generalized susceptibility is the staggered susceptibility
-of this specific order.<br>
-To be more precise, we have the following correspondance :<br>
-<br>
-<table cellpadding="2" cellspacing="2" border="1" width="100%">
-  <tbody>
-    <tr>
-      <td valign="top"><br>
-      </td>
-      <td valign="top"><b>Generalized Susceptibility</b></td>
-      <td valign="top"><b>Generalized Staggered Susceptibility</b><br>
-      </td>
-    </tr>
-    <tr>
-      <td valign="top">Ferromagnetic model with Ising anisotropy (in the
-<i>z</i> axis)<br>
-      </td>
-      <td valign="top">Uniform <i>z</i>-<i>z</i> susceptibility<br>
-      </td>
-      <td valign="top">Staggered <i>z</i>-<i>z</i> susceptibility<br>
-      </td>
-    </tr>
-    <tr>
-      <td valign="top">Ferromagnetic model (Heisenberg point)<br>
-      </td>
-      <td valign="top">Uniform <i>z</i>-<i>z</i> (or <i>x</i>-<i>x</i>) susceptibility<br>
-      </td>
-      <td valign="top">Staggered <i>z</i>-<i>z</i> (or <i>x</i>-<i>x</i>) susceptibility<br>
-      </td>
-    </tr>
-    <tr>
-      <td valign="top">Ferromagnetic model with XY anisotropy (in the <i>xy</i>
-plane)<br>
-      </td>
-      <td valign="top">Uniform <i>x</i>-<i>x</i> susceptibility<br>
-      </td>
-      <td valign="top">Staggered&nbsp; <i>x</i>-<i>x</i> susceptibility<br>
-      </td>
-    </tr>
-    <tr>
-      <td valign="top">Antiferromagnetic model with XY anisotropy (in the
-<i>xy</i> plane)<br>
-      </td>
-      <td valign="top">Staggered&nbsp; <i>x</i>-<i>x</i> susceptibility<br>
-      </td>
-      <td valign="top">Uniform <i>x</i>-<i>x</i> susceptibility<br>
-      </td>
-    </tr>
-    <tr>
-      <td valign="top">Antiferromagnetic model (Heisenberg point)<br>
-      </td>
-      <td valign="top">Staggered <i>z</i>-<i>z</i> (or <i>x</i>-<i>x</i>) susceptibility<br>
-      </td>
-      <td valign="top">Uniform <i>z</i>-<i>z</i> (or <i>x</i>-<i>x</i>) susceptibility<br>
-      </td>
-    </tr>
-    <tr>
-      <td valign="top">Antiferromagnetic model with Ising anisotropy (in
-the <i>z</i> axis)<br>
-      </td>
-      <td valign="top">Staggered <i>z</i>-<i>z</i> susceptibility<br>
-      </td>
-      <td valign="top">Uniform <i>z</i>-<i>z</i> susceptibility<br>
-      </td>
-    </tr>
-  </tbody>
+<p>A few remarks concerning the generalized susceptibilities: The general
+idea is that the uniform generalized susceptibility is the
+susceptibility for the magnetic order supposed to be stronger.  The
+staggered generalized susceptibility is the staggered susceptibility
+of this specific order.  To be more precise, we have the following
+correspondance:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="39%" />
+<col width="25%" />
+<col width="35%" />
+</colgroup>
+<tbody valign="top">
+<tr><td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>Ferromagnetic model with Ising anisotropy (in the <em>Z</em> axis)</td>
+<td>uniform <em>Z-Z</em> susceptibility</td>
+<td>staggered <em>Z-Z</em> susceptibility&lt;br&gt;</td>
+</tr>
+<tr><td>Ferromagnetic model (Heisenberg point)</td>
+<td>uniform <em>Z-Z</em> (or <em>X-X</em>) susceptibility</td>
+<td>staggered <em>Z-Z</em> (or <em>X-X</em>) susceptibility</td>
+</tr>
+<tr><td>Ferromagnetic model with XY anisotropy (in the <em>XY</em> plane)</td>
+<td>uniform <em>X-X</em> susceptibility</td>
+<td>staggered <em>X-X</em> susceptibility</td>
+</tr>
+<tr><td>Antiferromagnetic model with XY anisotropy (in the <em>XY</em> plane)</td>
+<td>staggered <em>X-X</em> susceptibility</td>
+<td>uniform <em>X-X</em> susceptibility</td>
+</tr>
+<tr><td>Antiferromagnetic model (Heisenberg point)</td>
+<td>staggered <em>Z-Z</em> (or <em>X-X</em>) susceptibility</td>
+<td>uniform <em>Z-Z</em> (or <em>X-X</em>) susceptibility</td>
+</tr>
+<tr><td>Antiferromagnetic model with Ising anisotropy (in the <em>Z</em> axis)</td>
+<td>staggered <em>Z-Z</em> susceptibility</td>
+<td>uniform <em>Z-Z</em> susceptibility</td>
+</tr>
+</tbody>
 </table>
-<br>
-Same considerations apply for the uniform and staggered magnetization to
-the square.<br>
-  
-<h2>License</h2>
-
+<p>Same considerations apply for the uniform and staggered magnetization to the square.</p>
+</div>
+</div>
+<div class="section">
+<h1><a id="license" name="license">License</a></h1>
 <p>The license allows the use of the applications for non-commercial
-scientific use provided that the use of the <tt>ALPS/looper</tt>
-Library and the ALPS Libraries is acknowledged and referenced in any
-scientific publication, as discussed in this <a
-href="http://alps.comp-phys.org/software/applications/LICENSE.txt">license
-file</a>.</p>
-
-<h2>Acknowledgement</h2>
-
-I wish to thank M. Troyer and F. Alet for many useful comments and suggestions.
-
-<h2>Questions and request for support</h2>
-
-can be addressed to <a href="mailto:wistaria@comp-phys.org">Synge Todo</a>.
-
-<h2>References</h2>
-
-<ol>
-  <li>H.G. Evertz, <i>The loop algorithm</i>, Adv. in
-  Physics, <b>52</b>, 1 (2003).</li>
-  <li>S. Todo and K. Kato, <i>Cluster Algorithms for General-S Quantum
-  Spin Systems</i>, Phys. Rev. Lett., <b>87</b>, 047203 (2001).</li>
-  <li>S. Todo, <i>Parallel Quantum Monte Carlo Simulation of S=3
-  Antiferromagnetic Heisenberg Chain</i>, Computer Simulation Studies
-  in Condensed-Matter Physics XV, ed D.P. Landau, S.P. Lewis, and
-  H.-B. Schuettler (Springer-Verlag, Berlin, 2003) pp. 89-94.</li>
-</ol>
-
-<hr>
-<address>Copyright (c) 1997-2006 by
-<a href="mailto:wistaria@comp-phys.org">Synge Todo</a>
-</address>
-
+scientific use provided that the use of the <a class="reference" href="http://wistaria.comp-phys.org/alps-looper/">ALPS/looper</a> Library and
+the ALPS Libraries is acknowledged and referenced in any scientific
+publication, as discussed in this &lt;a
+href=&quot;<a class="reference" href="http://alps.comp-phys.org/software/applications/LICENSE.txt">http://alps.comp-phys.org/software/applications/LICENSE.txt</a>&quot;&gt;license
+file&lt;/a&gt;.</p>
+</div>
+<div class="section">
+<h1><a id="acknowledgement" name="acknowledgement">Acknowledgement</a></h1>
+<p>I wish to thank M. Troyer and F. Alet for many useful comments and suggestions.</p>
+</div>
+<div class="section">
+<h1><a id="questions-and-request-for-support" name="questions-and-request-for-support">Questions and request for support</a></h1>
+<p>can be addressed to <a class="reference" href="mailto:wistaria&#64;comp-phys.org">Synge Todo</a>.</p>
+</div>
+<div class="section">
+<h1><a id="references" name="references">References</a></h1>
+<dl class="docutils">
+<dt>&lt;ol&gt;</dt>
+<dd><p class="first">&lt;li&gt;H.G. Evertz, &lt;i&gt;The loop algorithm&lt;/i&gt;, Adv. in
+Physics, &lt;b&gt;52&lt;/b&gt;, 1 (2003).&lt;/li&gt;</p>
+<p>&lt;li&gt;S. Todo and K. Kato, &lt;i&gt;Cluster Algorithms for General-S Quantum
+Spin Systems&lt;/i&gt;, Phys. Rev. Lett., &lt;b&gt;87&lt;/b&gt;, 047203 (2001).&lt;/li&gt;</p>
+<p>&lt;li&gt;S. Todo, &lt;i&gt;Parallel Quantum Monte Carlo Simulation of S=3
+Antiferromagnetic Heisenberg Chain&lt;/i&gt;, Computer Simulation Studies
+in Condensed-Matter Physics XV, ed D.P. Landau, S.P. Lewis, and
+H.-B. Schuettler (Springer-Verlag, Berlin, 2003) pp. 89-94.&lt;/li&gt;</p>
+<dl class="docutils">
+<dt>&lt;li&gt;F. Alet, P. Dayal, A. Grzesik, A. Honecker, M. Kner,</dt>
+<dd><p class="first">A. L舫chli, S.R. Manmana, I.P. McCulloch, F. Michel, R.M. Noack,
+G. Schmid, U. Schollwk, F. Stkli,
+S. Todo, S. Trebst, M. Troyer, P. Werner, S. Wessel
+(ALPS collaboration),
+&lt;i&gt;&lt;a href=&quot;<a class="reference" href="http://alps.comp-phys.org/">http://alps.comp-phys.org/</a>&quot;&gt;The ALPS project&lt;/a&gt;:</p>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">&lt;stdin&gt;</tt>, line 236)</p>
+Unexpected indentation.</div>
+<blockquote>
+open source software for strongly correlated systems&lt;/i&gt;,</blockquote>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">&lt;stdin&gt;</tt>, line 237)</p>
+Block quote ends without a blank line; unexpected unindent.</div>
+<p class="last">&lt;a
+href=&quot;<a class="reference" href="http://jpsj.ipap.jp/journal/supplement/74/pdf/030.pdf">http://jpsj.ipap.jp/journal/supplement/74/pdf/030.pdf</a>&quot;&gt;J. Phys. Soc. Jpn. Suppl. 74,
+30 (2005)&lt;/a&gt;
+(preprint: &lt;a
+href=&quot;<a class="reference" href="http://www.arXiv.org/abs/cond-mat/0410407">http://www.arXiv.org/abs/cond-mat/0410407</a>&quot;&gt;cond-mat/0410407&lt;/a&gt;).</p>
+</dd>
+</dl>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">&lt;stdin&gt;</tt>, line 242)</p>
+Definition list ends without a blank line; unexpected unindent.</div>
+<p class="last">&lt;/li&gt;</p>
+</dd>
+</dl>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">&lt;stdin&gt;</tt>, line 243)</p>
+Definition list ends without a blank line; unexpected unindent.</div>
+<p>&lt;/ol&gt;</p>
+<p>&lt;hr&gt;
+&lt;address&gt;Copyright (c) 1997-2006 by
+&lt;a href=&quot;<a class="reference" href="mailto:wistaria&#64;comp-phys.org">mailto:wistaria&#64;comp-phys.org</a>&quot;&gt;Synge Todo&lt;/a&gt;
+&lt;/address&gt;</p>
+<p>&lt;/body&gt;
+&lt;/html&gt;</p>
+</div>
+</div>
 </body>
 </html>

@@ -1,0 +1,261 @@
+ALPS/looper
+===========
+
+The `ALPS/looper`_ package is one of the applications of the `ALPS
+Project`_.  The `ALPS/looper`_ is the successor of the `Looper Library
+version 2`_, which is the Fortran 90 library for quantum Monte Carlo
+method.  It provides multi-cluster quantum Monte Carlo algorithms for
+generic spin systems in the path-integral or SSE representations.
+
+The application supports generic spin models with arbitrary spin size
+*S* on arbitrary lattices.  The supported interactions are
+
+* XXZ two-spin interaction (Ising, Heisenberg, XY)
+* single-ion anisotropy (D-term) for *S* &gt;1/2
+* longitudinal magnetic field
+* transverse matnetic field
+
+Since it supports so-called *freezing graphs*, models with easy-axis
+(Ising-like) anisotropy can also be simulated very efficiently.
+
+A stripped version of the `ALPS/looper`_ is distributed as a part of
+`ALPS Applications`_ Package.  The full version of
+`ALPS/looper`_ library (including tests, more measurements, etc)
+is available
+from http://wistaria.comp-phys.org/alps-looper/</a>.
+
+Latest News
+===========
+
+January 20, 2006
+  Release of 3.2b1.
+October 8, 2004:
+  Release of 3.1.2.
+October 6, 2004:
+  Release of 3.1.1.
+September 23, 2004:
+  Release of 3.1.
+July 22, 2004:
+  Release of 3.0.1.
+June 11, 2004:
+  Release of 3.0.
+
+Compiling programs
+==================
+
+Note: This section applies only for the full version of `ALPS/looper`_.
+
+Prerequisites
+-------------
+
+* `Boost C++ Library <http://www.boost.org/>`_ -- version 1.33.1 or higher
+* `ALPS Library`_ -- version 1.3b2 or higher
+* `LAPACK Library <http://www.netlib.org/lapack/>`_
+  
+Download
+--------
+  
+http://wistaria.comp-phys.org/alps-looper/download
+
+<h3>Compilation</h3>
+  
+::
+
+  ./configure<br>make<br></pre>
+
+In case that the `ALPS Library` is installed under a directory other
+than the default one (i.e. ``$HOME/ALPS``), please specify its
+location to the configure script by ``--prefix`` option.
+
+Running a simulation
+====================
+  
+Input parameters
+----------------
+
+In addition to the general input parameters of the `ALPS scheduler
+library
+<http://alps.comp-phys.org/software/alps/doc/scheduler/running.html>`,
+the ``loop`` application takes the following input parameters:
+
+=====================  ===================================  =====================================================================================================
+Name                   Default                              Description
+---------------------  -----------------------------------  -----------------------------------------------------------------------------------------------------
+``LATTICE_LIBRARY``    ``$PREFIX/lib/xml/lattices.xml``     path to a file containing lattice descriptions
+``LATTICE``            *none*                               name of the lattice
+``MODEL_LIBRARY``      ``$PREFIX/lib/xml/models.xml``       path to a file containing model descriptions
+``MODEL``              *none*                               name of the model
+``REPRESENTATION``     path integral                        type of representation, either ``"path integral"`` ``"SSE"``
+``T``                  *none*                               temperature
+``SWEEPS``             65536                                Monte Carlo steps after thermalization
+``THERMALIZATION``     8192                                 Monte Carlo steps for thermalization
+=====================  ===================================  =====================================================================================================
+
+In addition, the lattice/model descriptions can require further
+parameters (e.g. ``L`` or ``W``) as specified in the lattice (model)
+description file.
+
+Temperature Annealing
+---------------------
+
+Some models (typically models with competing interactions) have very
+long equilibration time.  In such cases, one might want to lower the
+temperature slowly during the thermalization steps.  Such temperature
+annealing process can be specified by using the parameters
+``T_START_#`` and ``T_DURATION_#`` (``# = 0, 1, 2,...``), where
+``T_START_#`` and ``T_DURATION_#`` specify the starting temperature
+and the duration of the ``#`` th block, respectively.
+
+.. image:: anneal.jpg
+
+For example the protocol shown in the above figure can be realized by specifing the following parameter set.
+
+::
+
+  T_START_0 = 2.0;
+  T_DURATION_0 = 100;
+  T_START_1 = 1.5;
+  T_DURATION_1 = 500;
+  THERMALIZATION = 1000;
+  T = 1.2;
+
+Note that the sum of ``T_DURATION_#``'s must be less than or
+equal to ``THERMALIZATION``.
+
+Measurements
+------------
+
+The following observables are measured by the ``loop`` application:
+
+===================================================  ========================================================================================== 
+Name                                                 Description
+---------------------------------------------------  ------------------------------------------------------------------------------------------
+Energy                                               total energy
+Energy Density                                       energy per spin
+Energy^2                                             square of total energy
+Specific Heat                                        specific heat
+
+Stiffness                                            stiffness constant
+
+Magnetization                                        total uniform magnetization
+Magnetization^2                                      square of total uniform magnetization
+Magnetization^4                                      4th power of total uniform magnetization
+Binder Ratio of Magnetization                        Binder ratio of uniform magnetization
+Magnetization Density                                uniform magnetization per spin
+Magnetization Density^2                              square of uniform magnetization per spin
+Magnetization Density^4                              4th power of uniform magnetization per spin
+Susceptibility                                       uniform susceptibility
+
+Staggered Magnetization                              total staggered magnetization
+Staggered Magnetization^2                            square of total staggered magnetization
+Staggered Magnetization^4                            4th power of total staggered magnetization
+Staggered Magnetization Density                      staggered magnetization per spin
+Staggered Magnetization Density^2                    square of staggered magnetization per spin
+Staggered Magnetization Density^4                    4th power of staggered magnetization per spin
+Staggered Susceptibility                             staggered susceptibility
+
+Generalized Magnetization                            total generalized magnetization
+Generalized Magnetization^2                          square of total generalized magnetization
+Generalized Magnetization^4                          4th power of total generalized magnetization
+Generalized Binder Ratio of Magnetization            Binder ratio of generalized magnetization
+Generalized Magnetization Density                    generalized magnetization per spin
+Generalized Magnetization Density^2                  square of generalized magnetization per spin
+Generalized Magnetization Density^4                  4th power of generalized magnetization per spin
+Generalized Susceptibility                           generalized susceptibility
+
+Generalized Staggered Magnetization                  total generalized staggered magnetization
+Generalized Staggered Magnetization^2                square of total generalized staggered magnetization
+Generalized Staggered Magnetization^4                4th power of total generalized staggered magnetization
+Generalized Staggered Magnetization Density          generalized staggered magnetization per spin
+Generalized Staggered Magnetization Density^2        square of generalized staggered magnetization per spin
+Generalized Staggered Magnetization Density^4        4th power of generalized staggered magnetization per spin
+Generalized Staggered Susceptibility                 generalized staggered susceptibility
+===================================================  ========================================================================================== 
+
+A few remarks concerning the generalized susceptibilities: The general
+idea is that the uniform generalized susceptibility is the
+susceptibility for the magnetic order supposed to be stronger.  The
+staggered generalized susceptibility is the staggered susceptibility
+of this specific order.  To be more precise, we have the following
+correspondance:
+
+===============================================================  =========================================  =========================================================
+                                                                 Generalized Susceptibility                 Generalized Staggered Susceptibility
+---------------------------------------------------------------  -----------------------------------------  ---------------------------------------------------------
+Ferromagnetic model with Ising anisotropy (in the *Z* axis)      uniform *Z-Z* susceptibility               staggered *Z-Z* susceptibility<br>
+Ferromagnetic model (Heisenberg point)                           uniform *Z-Z* (or *X-X*) susceptibility    staggered *Z-Z* (or *X-X*) susceptibility
+Ferromagnetic model with XY anisotropy (in the *XY* plane)       uniform *X-X* susceptibility               staggered *X-X* susceptibility
+Antiferromagnetic model with XY anisotropy (in the *XY* plane)   staggered *X-X* susceptibility             uniform *X-X* susceptibility
+Antiferromagnetic model (Heisenberg point)                       staggered *Z-Z* (or *X-X*) susceptibility  uniform *Z-Z* (or *X-X*) susceptibility
+Antiferromagnetic model with Ising anisotropy (in the *Z* axis)  staggered *Z-Z* susceptibility             uniform *Z-Z* susceptibility
+===============================================================  =========================================  =========================================================
+
+Same considerations apply for the uniform and staggered magnetization to the square.
+  
+License
+=======
+
+The license allows the use of the applications for non-commercial
+scientific use provided that the use of the `ALPS/looper`_ Library and
+the ALPS Libraries is acknowledged and referenced in any scientific
+publication, as discussed in this <a
+href="http://alps.comp-phys.org/software/applications/LICENSE.txt">license
+file</a>.
+
+Acknowledgement
+================
+
+I wish to thank M. Troyer and F. Alet for many useful comments and suggestions.
+
+Questions and request for support
+===================================
+
+can be addressed to `Synge Todo <wistaria@comp-phys.org>`_.
+
+References
+===========
+
+<ol>
+  <li>H.G. Evertz, <i>The loop algorithm</i>, Adv. in
+  Physics, <b>52</b>, 1 (2003).</li>
+
+  <li>S. Todo and K. Kato, <i>Cluster Algorithms for General-S Quantum
+  Spin Systems</i>, Phys. Rev. Lett., <b>87</b>, 047203 (2001).</li>
+
+  <li>S. Todo, <i>Parallel Quantum Monte Carlo Simulation of S=3
+  Antiferromagnetic Heisenberg Chain</i>, Computer Simulation Studies
+  in Condensed-Matter Physics XV, ed D.P. Landau, S.P. Lewis, and
+  H.-B. Schuettler (Springer-Verlag, Berlin, 2003) pp. 89-94.</li>
+
+  <li>F. Alet, P. Dayal, A. Grzesik, A. Honecker, M. Körner,
+    A. Läuchli, S.R. Manmana, I.P. McCulloch, F. Michel, R.M. Noack,
+    G. Schmid, U. Schollwöck, F. Stöckli,
+    S. Todo, S. Trebst, M. Troyer, P. Werner, S. Wessel
+    (ALPS collaboration),
+    <i><a href="http://alps.comp-phys.org/">The ALPS project</a>:
+      open source software for strongly correlated systems</i>,
+    <a
+    href="http://jpsj.ipap.jp/journal/supplement/74/pdf/030.pdf">J. Phys. Soc. Jpn. Suppl. 74,
+    30 (2005)</a>
+    (preprint: <a
+    href="http://www.arXiv.org/abs/cond-mat/0410407">cond-mat/0410407</a>).
+  </li>
+</ol>
+
+<hr>
+<address>Copyright (c) 1997-2006 by
+<a href="mailto:wistaria@comp-phys.org">Synge Todo</a>
+</address>
+
+</body>
+</html>
+
+.. _`ALPS Project`: http://alps.comp-phys.org/
+
+.. _`ALPS Library`: http://alps.comp-phys.org/software/ALPS/doc/
+
+.. _`ALPS Applications`: http://alps.comp-phys.org/software/applications/doc/
+
+.. _`ALPS/Looper`: http://wistaria.comp-phys.org/alps-looper/
+
+.. _`Looper Library version 2`: http://wistaria.comp-phys.org/looper/
