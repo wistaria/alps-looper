@@ -161,13 +161,9 @@ loop_worker::loop_worker(alps::ProcessList const& w, alps::Parameters const& p, 
 
   if (model.has_field()) {
     field.resize(num_sites(lattice.vg()));
-    int i = 0;
-    BOOST_FOREACH(looper::real_site_descriptor<lattice_t>::type rs, sites(lattice.rg())) {
-      BOOST_FOREACH(looper::virtual_site_descriptor<lattice_t>::type vs, sites(lattice, rs)) {
-        field[i] = model.site(rs, lattice.rg()).hz;
-        ++i;
-      }
-    }
+    BOOST_FOREACH(looper::real_site_descriptor<lattice_t>::type rs, sites(lattice.rg()))
+      BOOST_FOREACH(looper::virtual_site_descriptor<lattice_t>::type vs, sites(lattice, rs))
+        field[vs] = model.site(rs, lattice.rg()).hz;
   }
 
   // configuration
@@ -268,20 +264,17 @@ void loop_worker::build()
 
   // symmetrize spins
   if (max_virtual_sites(lattice) == 1) {
-    for (int i = 0; i < nvs; ++i)
-      unify(fragments, i, current[i]);
+    for (int i = 0; i < nvs; ++i) unify(fragments, i, current[i]);
   } else {
     BOOST_FOREACH(looper::real_site_descriptor<lattice_t>::type rs, sites(lattice.rg())) {
       looper::virtual_site_iterator<lattice_t>::type vsi, vsi_end;
       boost::tie(vsi, vsi_end) = sites(lattice, rs);
       int offset = *vsi;
       int s2 = *vsi_end - *vsi;
-      for (int i = 0; i < s2; ++i)
-        perm[i] = i;
+      for (int i = 0; i < s2; ++i) perm[i] = i;
       looper::partitioned_random_shuffle(perm.begin(), perm.begin() + s2,
         spins.begin() + offset, spins_c.begin() + offset, random);
-      for (int i = 0; i < s2; ++i)
-        unify(fragments, offset+i, current[offset+perm[i]]);
+      for (int i = 0; i < s2; ++i) unify(fragments, offset+i, current[offset+perm[i]]);
     }
   }
 }
@@ -296,8 +289,7 @@ void loop_worker::flip()
 {
   if (model.has_field() != FIELD() ||
       model.is_signed() != SIGN() ||
-      use_improved_estimator != IMPROVE())
-    return;
+      use_improved_estimator != IMPROVE()) return;
 
   int nvs = num_sites(lattice.vg());
 
@@ -347,8 +339,7 @@ void loop_worker::flip()
   double improved_sign = 1;
   BOOST_FOREACH(cluster_info_t& ci, clusters) {
     ci.to_flip = ((2*random()-1) < (FIELD() ? std::tanh(ci.weight) : 0));
-    if (SIGN() && IMPROVE() && (ci.sign & 1 == 1))
-      improved_sign = 0;
+    if (SIGN() && IMPROVE() && (ci.sign & 1 == 1)) improved_sign = 0;
   }
 
   // improved measurement
@@ -365,7 +356,8 @@ void loop_worker::flip()
   BOOST_FOREACH(local_operator_t& op, operators)
     if (clusters[fragments[op.loop_0()].id].to_flip ^ clusters[fragments[op.loop_1()].id].to_flip)
       op.flip();
-  for (int s = 0; s < nvs; ++s) if (clusters[fragments[s].id].to_flip) spins[s] ^= 1;
+  for (int s = 0; s < nvs; ++s)
+    if (clusters[fragments[s].id].to_flip) spins[s] ^= 1;
 }
 
 
@@ -395,7 +387,7 @@ void loop_worker::measure()
   double ene = energy_offset - nop / beta;
   if (model.has_field())
     BOOST_FOREACH(const cluster_info_t& c, clusters)
-      ene += ((ci->to_flip) ? -c.weight : c.weight);
+      ene += (c.to_flip ? -c.weight : c.weight);
   looper::energy_estimator::measurement(obs, lattice, beta, nop, sign, ene);
 
   // other quantities

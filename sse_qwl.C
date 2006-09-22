@@ -34,43 +34,43 @@
 #include <looper/weight.h>
 #include <alps/plot.h>
 #include <boost/regex.hpp>
+#include <boost/foreach.hpp>
 
 namespace {
 
-class loop_worker : public alps::scheduler::MCRun
-{
+class loop_worker : public alps::scheduler::MCRun {
 public:
-  typedef looper::sse                   mc_type;
-  typedef alps::scheduler::MCRun        super_type;
+  typedef looper::sse mc_type;
+  typedef alps::scheduler::MCRun super_type;
 
-  typedef looper::lattice_helper<loop_config::lattice_graph_t>
-                                        lattice_t;
-  typedef loop_config::time_t           time_t;
-  typedef loop_config::loop_graph_t     loop_graph_t;
-  typedef looper::local_operator<mc_type, loop_graph_t, time_t>
-                                        local_operator_t;
+  typedef looper::lattice_helper<loop_config::lattice_graph_t> lattice_t;
+  typedef loop_config::time_t time_t;
+  typedef loop_config::loop_graph_t loop_graph_t;
+  typedef looper::local_operator<mc_type, loop_graph_t, time_t> local_operator_t;
   typedef std::vector<local_operator_t> operator_string_t;
-  typedef operator_string_t::iterator   operator_iterator;
+  typedef operator_string_t::iterator operator_iterator;
 
-  typedef looper::union_find::node      cluster_fragment_t;
-  typedef looper::cluster_info          cluster_info_t;
+  typedef looper::union_find::node cluster_fragment_t;
+  typedef looper::cluster_info cluster_info_t;
 
-  typedef looper::estimator<loop_config::measurement_set, mc_type, lattice_t,
-    time_t>::type                       estimator_t;
+  typedef looper::estimator<loop_config::measurement_set, mc_type, lattice_t, time_t>::type
+    estimator_t;
 
   loop_worker(alps::ProcessList const& w, alps::Parameters const& p, int n);
   void dostep();
 
-  bool is_thermalized() const { return true; }
-  double work_done() const { return mcs.progress(); }
+  bool is_thermalized() const {
+    return true;
+  }
+  double work_done() const {
+    return mcs.progress();
+  }
 
-  void save(alps::ODump& dp) const
-  {
+  void save(alps::ODump& dp) const {
     super_type::save(dp);
     dp << mcs << spins << operators << logf << histogram << obs;
   }
-  void load(alps::IDump& dp)
-  {
+  void load(alps::IDump& dp) {
     super_type::load(dp);
     dp >> mcs >> spins >> operators >> logf >> histogram >> obs;
   }
@@ -127,42 +127,39 @@ private:
 // member functions of loop_worker
 //
 
-loop_worker::loop_worker(alps::ProcessList const& w,
-                         alps::Parameters const& p, int n)
-  : super_type(w, p, n), lattice(p), model(p, lattice),
-    exp_range(p.value_or_default("EXPANSION_RANGE", "[0:500]")),
-    chooser(*engine_ptr), mcs(p, exp_range), histogram(exp_range),
-    obs(exp_range)
-{
+loop_worker::loop_worker(alps::ProcessList const& w, alps::Parameters const& p, int n) :
+  super_type(w, p, n), lattice(p), model(p, lattice),
+  exp_range(p.value_or_default("EXPANSION_RANGE", "[0:500]")),
+  chooser(*engine_ptr), mcs(p, exp_range), histogram(exp_range), obs(exp_range) {
+
   energy_offset = model.energy_offset();
   use_improved_estimator = !p.defined("DISABLE_IMPROVED_ESTIMATOR");
 
   if (model.has_field())
-    boost::throw_exception(std::logic_error("longitudinal field is currently "
-      "not supported in SSE representation"));
+    boost::throw_exception(std::logic_error("longitudinal field is currently not supported "
+      "in SSE representation"));
   if (model.is_frustrated())
     std::cerr << "WARNING: model is classically frustrated\n";
-  if (model.is_signed()) std::cerr << "WARNING: model has negative signs\n";
+  if (model.is_signed())
+    std::cerr << "WARNING: model has negative signs\n";
   if (!use_improved_estimator)
     std::cerr << "WARNING: improved estimator is disabled\n";
 
   lattice.generate_virtual_graph(model, model.has_d_term());
   perm.resize(max_virtual_sites(lattice));
 
-  looper::weight_table wt(model, lattice,
-    p.value_or_default("FORCE_SCATTER", model.is_frustrated() ? 0.1 : 0.));
+  double fs = p.value_or_default("FORCE_SCATTER", model.is_frustrated() ? 0.1 : 0.);
+  looper::weight_table wt(model, lattice, fs);
   energy_offset += wt.energy_offset();
   chooser.init(wt, looper::is_path_integral<mc_type>::type());
 
   if (model.is_signed()) {
     bond_sign.resize(num_bonds(lattice.vg()));
-    looper::weight_table::bond_weight_iterator bi, bi_end;
-    for (boost::tie(bi, bi_end) = wt.bond_weights(); bi != bi_end; ++bi)
-      bond_sign[bi->first] = (bi->second.sign < 0) ? 1 : 0;
+    BOOST_FOREACH(const looper::weight_table::bond_weight_t& b, wt.bond_weights())
+      bond_sign[b.first] = (b.second.sign < 0) ? 1 : 0;
     site_sign.resize(num_sites(lattice.vg()));
-    looper::weight_table::site_weight_iterator si, si_end;
-    for (boost::tie(si, si_end) = wt.site_weights(); si != si_end; ++si)
-      site_sign[si->first] = (si->second.sign < 0) ? 1 : 0;
+    BOOST_FOREACH(const looper::weight_table::site_weight_t& s, wt.site_weights())
+      site_sign[s.first] = (s.second.sign < 0) ? 1 : 0;
   }
 
   // Wang Landau parameters
@@ -275,16 +272,14 @@ void loop_worker::build()
 
   double bw = chooser.weight();
   bool try_gap = true;
-  for (operator_iterator opi = operators_p.begin();
-       try_gap || opi != operators_p.end();) {
+  for (operator_iterator opi = operators_p.begin(); try_gap || opi != operators_p.end();) {
 
     // diagonal update & labeling
     if (try_gap) {
       if ((nop+1) * random() < bw * histogram.accept_rate(nop, nop+1)) {
         loop_graph_t g = chooser.graph();
-        if ((is_bond(g) &&
-             is_compatible(g, spins_c[source(pos(g), lattice.vg())],
-                           spins_c[target(pos(g), lattice.vg())])) ||
+        if ((is_bond(g) && is_compatible(g, spins_c[source(pos(g), lattice.vg())],
+                                            spins_c[target(pos(g), lattice.vg())])) ||
             (is_site(g) && is_compatible(g, spins_c[pos(g)]))) {
           operators.push_back(local_operator_t(g));
           ++nop;
@@ -307,8 +302,7 @@ void loop_worker::build()
           continue;
         } else {
           if (opi->is_site()) {
-            opi->assign_graph(chooser.diagonal(opi->loc(),
-              spins_c[opi->pos()]));
+            opi->assign_graph(chooser.diagonal(opi->loc(), spins_c[opi->pos()]));
           } else {
             opi->assign_graph(chooser.diagonal(opi->loc(),
               spins_c[source(opi->pos(), lattice.vg())],
@@ -336,8 +330,7 @@ void loop_worker::build()
       }
     } else {
       int s = oi->pos();
-      boost::tie(current[s], oi->loop0, oi->loop1) =
-        reconnect(fragments, oi->graph(), current[s]);
+      boost::tie(current[s], oi->loop0, oi->loop1) = reconnect(fragments, oi->graph(), current[s]);
       if (oi->is_offdiagonal()) spins_c[s] ^= 1;
     }
   }
@@ -346,18 +339,15 @@ void loop_worker::build()
   if (max_virtual_sites(lattice) == 1) {
     for (int i = 0; i < nvs; ++i) unify(fragments, i, current[i]);
   } else {
-    looper::real_site_iterator<lattice_t>::type rsi, rsi_end;
-    for (boost::tie(rsi, rsi_end) = sites(lattice.rg()); rsi != rsi_end;
-         ++rsi) {
+    BOOST_FOREACH(looper::real_site_descriptor<lattice_t>::type rs, sites(lattice.rg())) {
       looper::virtual_site_iterator<lattice_t>::type vsi, vsi_end;
-      boost::tie(vsi, vsi_end) = sites(lattice, *rsi);
+      boost::tie(vsi, vsi_end) = sites(lattice, rs);
       int offset = *vsi;
       int s2 = *vsi_end - *vsi;
       for (int i = 0; i < s2; ++i) perm[i] = i;
       looper::partitioned_random_shuffle(perm.begin(), perm.begin() + s2,
         spins.begin() + offset, spins_c.begin() + offset, random);
-      for (int i = 0; i < s2; ++i)
-        unify(fragments, offset+i, current[offset+perm[i]]);
+      for (int i = 0; i < s2; ++i) unify(fragments, offset+i, current[offset+perm[i]]);
     }
   }
 }
@@ -370,18 +360,16 @@ void loop_worker::build()
 template<typename FIELD, typename SIGN, typename IMPROVE>
 void loop_worker::flip()
 {
-  if (!(model.is_signed() == SIGN() &&
-        use_improved_estimator == IMPROVE())) return;
+  if (model.is_signed() != SIGN() ||
+      use_improved_estimator != IMPROVE()) return;
 
   int nvs = num_sites(lattice.vg());
   int nop = operators.size();
 
   // assign cluster id
   int nc = 0;
-  for (std::vector<cluster_fragment_t>::iterator fi = fragments.begin();
-       fi != fragments.end(); ++fi) if (fi->is_root()) fi->id = nc++;
-  for (std::vector<cluster_fragment_t>::iterator fi = fragments.begin();
-       fi != fragments.end(); ++fi) fi->id = cluster_id(fragments, *fi);
+  BOOST_FOREACH(cluster_fragment_t& f, fragments) if (f.is_root()) f.id = nc++;
+  BOOST_FOREACH(cluster_fragment_t& f, fragments) f.id = cluster_id(fragments, f);
   clusters.resize(0); clusters.resize(nc);
 
   std::copy(spins.begin(), spins.end(), spins_c.begin());
@@ -390,31 +378,29 @@ void loop_worker::flip()
   looper::accumulator<estimator_t, cluster_fragment_t, IMPROVE>
     accum(estimates, nc, lattice, estimator, fragments);
   double t = 0;
-  for (std::vector<local_operator_t>::iterator oi = operators.begin();
-       oi != operators.end(); ++oi, t += 1) {
-    if (oi->is_bond()) {
-      int s0 = source(oi->pos(), lattice.vg());
-      int s1 = target(oi->pos(), lattice.vg());
-      weight.term_b(oi->loop_l0(), oi->loop_l1(), t, oi->pos(), s0, s1,
-                    spins_c[s0], spins_c[s1]);
-      accum.term_b(oi->loop_l0(), oi->loop_l1(), t, oi->pos(), s0, s1,
-                   spins_c[s0], spins_c[s1]);
-      if (oi->is_offdiagonal()) {
+  BOOST_FOREACH(local_operator_t& op, operators) {
+    if (op.is_bond()) {
+      int b = op.pos();
+      int s0 = source(b, lattice.vg());
+      int s1 = target(b, lattice.vg());
+      weight.term_b(op.loop_l0(), op.loop_l1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
+      accum.term_b(op.loop_l0(), op.loop_l1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
+      if (op.is_offdiagonal()) {
         spins_c[s0] ^= 1;
         spins_c[s1] ^= 1;
       }
-      weight.start_b(oi->loop_u0(), oi->loop_u1(), t, oi->pos(), s0, s1,
-                     spins_c[s0], spins_c[s1]);
-      accum.start_b(oi->loop_u0(), oi->loop_u1(), t, oi->pos(), s0, s1,
-                    spins_c[s0], spins_c[s1]);
+      weight.start_b(op.loop_u0(), op.loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
+      accum.start_b(op.loop_u0(), op.loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
     } else {
-      int s = oi->pos();
-      weight.term_s(oi->loop_l(), t, s, spins_c[s]);
-      accum.term_s(oi->loop_l(), t, s, spins_c[s]);
-      if (oi->is_offdiagonal()) spins_c[s] ^= 1;
-      weight.start_s(oi->loop_u(), t, s, spins_c[s]);
-      accum.start_s(oi->loop_u(), t, s, spins_c[s]);
+      int s = op.pos();
+      weight.term_s(op.loop_l(), t, s, spins_c[s]);
+      accum.term_s(op.loop_l(), t, s, spins_c[s]);
+      if (op.is_offdiagonal())
+        spins_c[s] ^= 1;
+      weight.start_s(op.loop_u(), t, s, spins_c[s]);
+      accum.start_s(op.loop_u(), t, s, spins_c[s]);
     }
+    ++t;
   }
   for (unsigned int s = 0; s < nvs; ++s) {
     weight.at_bot(s,          0,   s, spins[s]);
@@ -425,27 +411,25 @@ void loop_worker::flip()
 
   // determine whether clusters are flipped or not
   double improved_sign = 1;
-  for (std::vector<cluster_info_t>::iterator ci = clusters.begin();
-       ci != clusters.end(); ++ci) {
-    ci->to_flip = (2*random()-1 < 0);
-    if (SIGN() && IMPROVE()) if (ci->sign & 1 == 1) improved_sign = 0;
+  BOOST_FOREACH(cluster_info_t& ci, clusters) {
+    ci.to_flip = ((2*random()-1) < (FIELD() ? std::tanh(ci.weight) : 0));
+    if (SIGN() && IMPROVE() && (ci.sign & 1 == 1)) improved_sign = 0;
   }
 
   // improved measurement
   if (IMPROVE()) {
-    typename looper::collector<estimator_t>::type
-      coll = get_collector(estimator);
+    typename looper::collector<estimator_t>::type coll = get_collector(estimator);
     coll = std::accumulate(estimates.begin(), estimates.end(), coll);
     obs.set_position(nop);
-    estimator.improved_measurement(obs, lattice, 1, improved_sign,
-      spins, operators, spins_c, fragments, coll);
+    estimator.improved_measurement(obs, lattice, 1, improved_sign, spins, operators,
+      spins_c, fragments, coll);
     if (SIGN()) obs["Sign"] << improved_sign;
   }
 
   // flip operators & spins
-  for (operator_iterator oi = operators.begin(); oi != operators.end(); ++oi)
-    if (clusters[fragments[oi->loop_0()].id].to_flip ^
-        clusters[fragments[oi->loop_1()].id].to_flip) oi->flip();
+  BOOST_FOREACH(local_operator_t& op, operators)
+    if (clusters[fragments[op.loop_0()].id].to_flip ^ clusters[fragments[op.loop_1()].id].to_flip)
+      op.flip();
   for (int s = 0; s < nvs; ++s)
     if (clusters[fragments[s].id].to_flip) spins[s] ^= 1;
 }
@@ -467,16 +451,14 @@ void loop_worker::measure()
   double sign = 1;
   if (model.is_signed()) {
     int n = 0;
-    for (operator_iterator oi = operators.begin(); oi != operators.end(); ++oi)
-      if (oi->is_offdiagonal())
-        n += (oi->is_bond()) ? bond_sign[oi->pos()] : site_sign[oi->pos()];
+    BOOST_FOREACH(const local_operator_t& op, operators)
+      if (op.is_offdiagonal()) n += (op.is_bond()) ? bond_sign[op.pos()] : site_sign[op.pos()];
     if (n & 1 == 1) sign = -1;
     if (!use_improved_estimator) obs["Sign"] << sign;
   }
 
   // other quantities
-  estimator.normal_measurement(obs, lattice, 1, sign, spins, operators,
-                               spins_c);
+  estimator.normal_measurement(obs, lattice, 1, sign, spins, operators, spins_c);
 }
 
 

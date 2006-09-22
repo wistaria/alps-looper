@@ -28,6 +28,7 @@
 #include <looper/power.h>
 #include <alps/math.hpp>
 #include <alps/scheduler.h>
+#include <boost/foreach.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/io.hpp>
@@ -43,8 +44,8 @@ void add_to_matrix(
   const alps::basis_states<I>& basis_set,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor vd,
   const GRAPH& graph,
-  const alps::Parameters& params /* = alps::Parameters() */)
-{
+  const alps::Parameters& params /* = alps::Parameters() */) {
+
   typedef typename MATRIX::value_type value_type;
   typedef alps::basis_states<I> basis_set_type;
 
@@ -54,8 +55,7 @@ void add_to_matrix(
   int ds = basis_set.basis().get_site_basis(s).num_states();
 
   boost::multi_array<value_type, 2>
-    site_matrix(get_matrix(value_type(), hd.site_term(t), basis.site_basis(t),
-                           params));
+    site_matrix(get_matrix(value_type(), hd.site_term(t), basis.site_basis(t), params));
 
   for (int i = 0; i < dim; ++i) {
     int is = basis_set[i][s];
@@ -78,8 +78,8 @@ void add_to_matrix(
   const typename alps::graph_traits<GRAPH>::site_descriptor vd0,
   const typename alps::graph_traits<GRAPH>::site_descriptor vd1,
   const GRAPH& graph,
-  const alps::Parameters& params /* = alps::Parameters() */)
-{
+  const alps::Parameters& params /* = alps::Parameters() */) {
+
   typedef typename MATRIX::value_type value_type;
   typedef alps::basis_states<I> basis_set_type;
 
@@ -121,8 +121,8 @@ void add_to_diagonal_matrix(
   const alps::basis_states<I>& basis_set,
   const typename alps::graph_traits<GRAPH>::vertex_descriptor& vd,
   const GRAPH& graph,
-  const alps::Parameters& params /* = alps::Parameters() */)
-{
+  const alps::Parameters& params /* = alps::Parameters() */) {
+
   typedef typename VECTOR::value_type value_type;
 
   int t = get(alps::site_type_t(), graph, vd);
@@ -144,8 +144,7 @@ void add_to_diagonal_matrix(
 }
 
 template<class VEC>
-std::pair<double, double> static_average2(double beta, double offset,
-                                          const VEC& evals) {
+std::pair<double, double> static_average2(double beta, double offset, const VEC& evals) {
   typedef VEC vector_type;
   typename vector_type::const_reverse_iterator eval = evals.rbegin();
   typename vector_type::const_reverse_iterator eval_end = evals.rend();
@@ -160,8 +159,7 @@ std::pair<double, double> static_average2(double beta, double offset,
 }
 
 template<class VEC, class MAT>
-double static_average(double beta, double offset,
-                      const VEC& evals, const MAT& evecs,
+double static_average(double beta, double offset, const VEC& evals, const MAT& evecs,
                       const VEC& diagonal_matrix) {
   typedef VEC vector_type;
   typedef MAT matrix_type;
@@ -181,9 +179,8 @@ double static_average(double beta, double offset,
 }
 
 template<class VEC, class MAT>
-std::pair<double, double> static_average2(double beta, double offset,
-                                          const VEC& evals, const MAT& evecs,
-                                          const VEC& diagonal_matrix) {
+std::pair<double, double> static_average2(double beta, double offset, const VEC& evals,
+                                          const MAT& evecs, const VEC& diagonal_matrix) {
   typedef VEC vector_type;
   typedef MAT matrix_type;
   typename vector_type::const_reverse_iterator eval = evals.rbegin();
@@ -209,8 +206,7 @@ std::pair<double, double> static_average2(double beta, double offset,
 
 template<class VEC, class MAT>
 boost::tuple<double, double, double>
-static_average4(double beta, double offset,
-                const VEC& evals, const MAT& evecs,
+static_average4(double beta, double offset, const VEC& evals, const MAT& evecs,
                 const VEC& diagonal_matrix) {
   typedef VEC vector_type;
   typedef MAT matrix_type;
@@ -240,8 +236,7 @@ static_average4(double beta, double offset,
 }
 
 template<class VEC, class MAT>
-double dynamic_average2(double beta, double offset,
-                        const VEC& evals, const MAT& evecs,
+double dynamic_average2(double beta, double offset, const VEC& evals, const MAT& evecs,
                         const VEC& diagonal_matrix) {
   typedef VEC vector_type;
   typedef MAT matrix_type;
@@ -285,30 +280,34 @@ double dynamic_average2(double beta, double offset,
 }
 
 
-class diag_worker
-  : public alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
+class diag_worker : public alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
 {
 public:
-  typedef alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
-    super_type;
-  diag_worker(alps::ProcessList const& w, alps::Parameters const& p, int n)
-    : super_type(w, p, n), done(false), params(p) {}
+  typedef alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t> super_type;
+  diag_worker(alps::ProcessList const& w, alps::Parameters const& p, int n) :
+    super_type(w, p, n), done(false), params(p) {}
   void dostep();
-  bool is_thermalized() const { return true; }
-  double work_done() const { return done ? 1 : 0; }
-  void save(alps::ODump& dp) const { super_type::save(dp); dp << done; }
-  void load(alps::IDump& dp) { super_type::load(dp); dp >> done; }
+  bool is_thermalized() const {
+    return true;
+  }
+  double work_done() const {
+    return done ? 1 : 0;
+  }
+  void save(alps::ODump& dp) const {
+    super_type::save(dp); dp << done;
+  }
+  void load(alps::IDump& dp) {
+    super_type::load(dp); dp >> done;
+  }
 private:
   bool done;
   alps::Parameters params;
 };
 
 
-void diag_worker::dostep()
-{
+void diag_worker::dostep() {
   typedef boost::numeric::ublas::vector<double> vector_type;
-  typedef boost::numeric::ublas::matrix<double,
-    boost::numeric::ublas::column_major> matrix_type;
+  typedef boost::numeric::ublas::matrix<double, boost::numeric::ublas::column_major> matrix_type;
   typedef boost::numeric::ublas::vector<double> diagonal_matrix_type;
 
   if (done) return;
@@ -335,15 +334,11 @@ void diag_worker::dostep()
   // generate Hamiltonian matrix
   matrix_type hamiltonian(dim, dim);
   hamiltonian.clear();
-  site_iterator vi, vi_end;
-  for (boost::tie(vi, vi_end) = sites(); vi != vi_end; ++vi)
-    add_to_matrix(hamiltonian, model(), model().basis(),
-                  basis_set, *vi, graph(), params);
-  bond_iterator ei, ei_end;
-  for (boost::tie(ei, ei_end) = bonds(); ei != ei_end; ++ei)
-    add_to_matrix(hamiltonian, model(), model().basis(),
-                  basis_set, *ei, source(*ei, graph()),
-                  target(*ei /*, graph() */), graph(), params);
+  BOOST_FOREACH(site_descriptor v, sites())
+    add_to_matrix(hamiltonian, model(), model().basis(), basis_set, v, graph(), params);
+  BOOST_FOREACH(bond_descriptor e, bonds())
+    add_to_matrix(hamiltonian, model(), model().basis(), basis_set, e, source(e), target(e),
+                  graph(), params);
   diagonal_matrix_type diagonal_energy(dim);
   for (int i = 0; i < dim; ++i) diagonal_energy(i) = hamiltonian(i,i);
 
@@ -388,8 +383,7 @@ void diag_worker::dostep()
   m["Ground State Energy Density"] = gs_ene / nsite;
   m["Energy"] = ene;
   m["Energy Density"] = ene / nsite;
-  m["Specific Heat"] =
-    looper::power2(beta) * nsite * (ene2 - looper::power2(ene/nsite));
+  m["Specific Heat"] = looper::power2(beta) * nsite * (ene2 - looper::power2(ene/nsite));
   m["Free Energy"] = fe;
   m["Free Energy Density"] = fe / nsite;
   m["Entropy"] = beta * (ene - fe);
@@ -398,14 +392,11 @@ void diag_worker::dostep()
   // generate uniform/staggered Sz matrix
   diagonal_matrix_type uniform_sz(dim);
   uniform_sz.clear();
-  for (boost::tie(vi, vi_end) = sites(); vi != vi_end; ++vi)
-    add_to_diagonal_matrix(uniform_sz,
-                           alps::SiteTermDescriptor("Sz(i)", "i"),
-                           model().basis(), basis_set, *vi, graph(),
-                           params);
+  BOOST_FOREACH(site_descriptor v, sites())
+    add_to_diagonal_matrix(uniform_sz, alps::SiteTermDescriptor("Sz(i)", "i"),
+                           model().basis(), basis_set, v, graph(), params);
   double umag, umag2, umag4;
-  boost::tie(umag, umag2, umag4) =
-    static_average4(beta, gs_ene, evals, hamiltonian, uniform_sz);
+  boost::tie(umag, umag2, umag4) = static_average4(beta, gs_ene, evals, hamiltonian, uniform_sz);
   umag = alps::round<1>(umag);
   m["Magnetization"] = umag / part;
   m["Magnetization Density"] = umag / part / nsite;
@@ -414,25 +405,19 @@ void diag_worker::dostep()
   m["Magnetization^4"] = umag4 / part;
   m["Magnetization Density^4"] = umag4 / part / looper::power4(nsite);
   m["Susceptibility"] =
-    dynamic_average2(beta, gs_ene, evals, hamiltonian, uniform_sz) / part
-    / nsite;
-  m["Binder Ratio of Magnetization"] =
-    looper::power2(umag2 / part) / (umag4 / part);
+    dynamic_average2(beta, gs_ene, evals, hamiltonian, uniform_sz) / part / nsite;
+  m["Binder Ratio of Magnetization"] = looper::power2(umag2 / part) / (umag4 / part);
   if (is_bipartite()) {
     diagonal_matrix_type staggered_sz(dim);
     staggered_sz.clear();
-    for (boost::tie(vi, vi_end) = sites(); vi != vi_end; ++vi) {
-      int g = 2 * get(alps::parity_t(), graph(), *vi) - 1;
+    BOOST_FOREACH(site_descriptor v, sites()) {
+      int g = 2 * get(alps::parity_t(), graph(), v) - 1;
       if (g == 1) {
-        add_to_diagonal_matrix(staggered_sz,
-                               alps::SiteTermDescriptor("Sz(i)", "i"),
-                               model().basis(), basis_set, *vi, graph(),
-                               params);
+        add_to_diagonal_matrix(staggered_sz, alps::SiteTermDescriptor("Sz(i)", "i"),
+                               model().basis(), basis_set, v, graph(), params);
       } else {
-        add_to_diagonal_matrix(staggered_sz,
-                               alps::SiteTermDescriptor("-Sz(i)", "i"),
-                               model().basis(), basis_set, *vi, graph(),
-                               params);
+        add_to_diagonal_matrix(staggered_sz, alps::SiteTermDescriptor("-Sz(i)", "i"),
+                               model().basis(), basis_set, v, graph(), params);
       }
     }
     double smag, smag2, smag4;
@@ -442,31 +427,26 @@ void diag_worker::dostep()
     m["Staggered Magnetization"] = smag / part;
     m["Staggered Magnetization Density"] = smag / part / nsite;
     m["Staggered Magnetization^2"] = smag2 / part;
-    m["Staggered Magnetization Density^2"] =
-      smag2 / part / looper::power2(nsite);
+    m["Staggered Magnetization Density^2"] = smag2 / part / looper::power2(nsite);
     m["Staggered Magnetization^4"] = smag4 / part;
-    m["Staggered Magnetization Density^4"] =
-      smag4 / part / looper::power4(nsite);
+    m["Staggered Magnetization Density^4"] = smag4 / part / looper::power4(nsite);
     m["Staggered Susceptibility"] =
-      dynamic_average2(beta, gs_ene, evals, hamiltonian, staggered_sz) / part
-      / nsite;
+      dynamic_average2(beta, gs_ene, evals, hamiltonian, staggered_sz) / part / nsite;
     m["Binder Ratio of Staggered Magnetization"] =
       looper::power2(smag2 / part) / (smag4 / part);
   }
 
   // store measurements
-  for (std::map<std::string, double>::const_iterator itr = m.begin();
-       itr != m.end(); ++itr)
-    measurements << alps::SimpleRealObservable(itr->first);
+  typedef std::pair<std::string, double> nv_t;
+  BOOST_FOREACH(nv_t const& t, m)
+    measurements << alps::SimpleRealObservable(t.first);
   measurements.reset(true);
-  for (std::map<std::string, double>::const_iterator itr = m.begin();
-       itr != m.end(); ++itr)
-    measurements[itr->first] << itr->second;
+  BOOST_FOREACH(nv_t const& t, m)
+    measurements[t.first] << t.second;
 }
 
 
-class dummy_evaluator : public looper::abstract_evaluator
-{
+class dummy_evaluator : public looper::abstract_evaluator {
 public:
   void evaluate(alps::scheduler::MCSimulation&, alps::Parameters const&,
                 boost::filesystem::path const&) const {}

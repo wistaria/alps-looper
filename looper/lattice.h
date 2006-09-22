@@ -436,7 +436,6 @@ std::vector<unsigned int>
 distance_multiplicities(lattice_helper<RG> const& lat)
 {
   std::vector<unsigned int> mult = lat.graph_helper().distance_multiplicities();
-  std::cerr << mult.size() << std::endl;
   return lat.graph_helper().distance_multiplicities();
 }
 
