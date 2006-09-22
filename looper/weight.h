@@ -166,6 +166,8 @@ struct bond_weight {
 class weight_table
 {
 public:
+  typedef std::pair<int, site_weight> site_weight_t;
+  typedef std::pair<int, bond_weight> bond_weight_t;
   typedef std::vector<std::pair<int, site_weight> >::const_iterator
     site_weight_iterator;
   typedef std::vector<std::pair<int, bond_weight> >::const_iterator
