@@ -303,12 +303,9 @@ void loop_worker::flip()
 
   // assign cluster id
   int nc = 0;
-  BOOST_FOREACH(cluster_fragment_t& f, fragments)
-    if (f.is_root()) f.id = nc++;
-  BOOST_FOREACH(cluster_fragment_t& f, fragments)
-    f.id = cluster_id(fragments, f);
-  clusters.resize(0);
-  clusters.resize(nc);
+  BOOST_FOREACH(cluster_fragment_t& f, fragments) if (f.is_root()) f.id = nc++;
+  BOOST_FOREACH(cluster_fragment_t& f, fragments) f.id = cluster_id(fragments, f);
+  clusters.resize(0); clusters.resize(nc);
 
   std::copy(spins.begin(), spins.end(), spins_c.begin());
   cluster_info_t::accumulator<cluster_fragment_t, FIELD, SIGN, IMPROVE>
@@ -360,8 +357,7 @@ void loop_worker::flip()
     coll = std::accumulate(estimates.begin(), estimates.end(), coll);
     estimator.improved_measurement(obs, lattice, beta, improved_sign, spins, operators,
       spins_c, fragments, coll);
-    if (SIGN())
-      obs["Sign"] << improved_sign;
+    if (SIGN()) obs["Sign"] << improved_sign;
   }
   obs["Number of Clusters"] << (double)clusters.size();
 
@@ -369,8 +365,7 @@ void loop_worker::flip()
   BOOST_FOREACH(local_operator_t& op, operators)
     if (clusters[fragments[op.loop_0()].id].to_flip ^ clusters[fragments[op.loop_1()].id].to_flip)
       op.flip();
-  for (int s = 0; s < nvs; ++s)
-    if (clusters[fragments[s].id].to_flip) spins[s] ^= 1;
+  for (int s = 0; s < nvs; ++s) if (clusters[fragments[s].id].to_flip) spins[s] ^= 1;
 }
 
 
@@ -390,8 +385,7 @@ void loop_worker::measure()
   if (model.is_signed()) {
     int n = 0;
     BOOST_FOREACH(const local_operator_t& op, operators)
-      if (op.is_offdiagonal())
-        n += (op.is_bond()) ? bond_sign[op.pos()] : site_sign[op.pos()];
+      if (op.is_offdiagonal()) n += (op.is_bond()) ? bond_sign[op.pos()] : site_sign[op.pos()];
     if (n & 1 == 1) sign = -1;
     if (!use_improved_estimator) obs["Sign"] << sign;
   }
@@ -399,17 +393,13 @@ void loop_worker::measure()
   // energy
   int nop = operators.size();
   double ene = energy_offset - nop / beta;
-  if (model.has_field()) {
-    for (std::vector<cluster_info_t>::iterator ci = clusters.begin();
-         ci != clusters.end(); ++ci)
-      if (ci->to_flip) ene -= ci->weight;
-      else ene += ci->weight;
-  }
+  if (model.has_field())
+    BOOST_FOREACH(const cluster_info_t& c, clusters)
+      ene += ((ci->to_flip) ? -c.weight : c.weight);
   looper::energy_estimator::measurement(obs, lattice, beta, nop, sign, ene);
 
   // other quantities
-  estimator.normal_measurement(obs, lattice, beta, sign, spins, operators,
-                               spins_c);
+  estimator.normal_measurement(obs, lattice, beta, sign, spins, operators, spins_c);
 }
 
 
@@ -420,7 +410,6 @@ void loop_worker::measure()
 const bool worker_registered =
   loop_factory::instance()->register_worker<loop_worker>("path integral");
 const bool evaluator_registered = evaluator_factory::instance()->
-  register_evaluator<looper::evaluator<loop_config::measurement_set> >
-  ("path integral");
+  register_evaluator<looper::evaluator<loop_config::measurement_set> >("path integral");
 
 } // end namespace
