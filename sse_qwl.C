@@ -77,8 +77,10 @@ public:
 
 protected:
   void build();
+
   template<typename FIELD, typename SIGN, typename IMPROVE>
   void flip();
+
   void measure();
 
 private:
@@ -164,15 +166,15 @@ loop_worker::loop_worker(alps::ProcessList const& w, alps::Parameters const& p, 
 
   // Wang Landau parameters
   if (exp_range.min() < 0)
-    boost::throw_exception(std::invalid_argument("minimum of expansion order "
-                                                 "must not be negative"));
-  double f = p.value_or_default("INITIAL_MODIFICATION_FACTOR",
-    mcs.use_zhou_bhatt() ? std::exp(1.) :
-      std::exp(exp_range.max() * std::log(1.*num_sites(lattice.vg())) /
-      mcs.block()));
+    boost::throw_exception(
+      std::invalid_argument("minimum of expansion order must not be negative"));
+  double f =
+    p.value_or_default("INITIAL_MODIFICATION_FACTOR",
+      mcs.use_zhou_bhatt() ? std::exp(1.) :
+      std::exp(exp_range.max() * std::log(1.*num_sites(lattice.vg())) / mcs.block()));
   if (f <= 1)
-    boost::throw_exception(std::invalid_argument("initial modification factor "
-                                                 "must be larger than 1"));
+    boost::throw_exception(
+      std::invalid_argument("initial modification factor must be larger than 1"));
   logf = std::log(f);
   if (mcs.use_zhou_bhatt()) {
     min_visit = static_cast<int>(1 / logf);
@@ -190,25 +192,21 @@ loop_worker::loop_worker(alps::ProcessList const& w, alps::Parameters const& p, 
 
   // measurements
   store_all_histograms =  parms.defined("STORE_ALL_HISTOGRAMS");
-  measurements
-    << alps::SimpleRealObservable("Number of Sites")
-    << alps::SimpleRealObservable("Energy Offset")
-    << alps::SimpleRealVectorObservable("Partition Function Coefficient")
-    << alps::SimpleRealVectorObservable("Histogram");
+  measurements << alps::SimpleRealObservable("Number of Sites");
+  measurements << alps::SimpleRealObservable("Energy Offset");
+  measurements << alps::SimpleRealVectorObservable("Partition Function Coefficient");
+  measurements << alps::SimpleRealVectorObservable("Histogram");
   if (store_all_histograms) {
     for (int p = 0; p < mcs.iterations(); ++p) {
-      std::string suffix =
-        "(iteration #" + boost::lexical_cast<std::string>(p) + ")";
+      std::string suffix = "(iteration #" + boost::lexical_cast<std::string>(p) + ")";
       measurements
-        << alps::SimpleRealVectorObservable("Partition Function Coefficient " +
-                                            suffix)
+        << alps::SimpleRealVectorObservable("Partition Function Coefficient " + suffix)
         << alps::SimpleRealVectorObservable("Histogram " + suffix);
     }
   }
   measurements.reset(true);
   if (model.is_signed()) obs.add_histogram("Sign");
-  estimator.initialize(obs, p, lattice, model.is_signed(),
-                       use_improved_estimator);
+  estimator.initialize(obs, p, lattice, model.is_signed(), use_improved_estimator);
 }
 
 void loop_worker::dostep()
@@ -227,16 +225,13 @@ void loop_worker::dostep()
   if (mcs.doing_multicanonical()) measure();
 
   if (!mcs.doing_multicanonical() && mcs() == mcs.block()) {
-    if (histogram.check_flatness(flatness) &&
-        histogram.check_visit(min_visit)) {
+    if (histogram.check_flatness(flatness) && histogram.check_visit(min_visit)) {
       std::cerr << "stage " << mcs.stage() << ": histogram becomes flat\n";
       histogram.subtract();
       if (store_all_histograms) {
-        std::string suffix =
-          "(iteration #" + boost::lexical_cast<std::string>(mcs.stage()) + ")";
-        histogram.store(measurements, "Partition Function Coefficient "
-                        + suffix, "Histogram " + suffix,
-                        mcs.doing_multicanonical());
+        std::string suffix = "(iteration #" + boost::lexical_cast<std::string>(mcs.stage()) + ")";
+        histogram.store(measurements, "Partition Function Coefficient " + suffix,
+          "Histogram " + suffix, mcs.doing_multicanonical());
       }
       logf = 0.5 * logf;
       if (mcs.use_zhou_bhatt()) min_visit *= 2;
@@ -250,7 +245,7 @@ void loop_worker::dostep()
   }
   if (mcs.doing_multicanonical() && mcs() == mcs.sweeps())
     histogram.store(measurements, "Partition Function Coefficient", "Histogram",
-                    mcs.doing_multicanonical());
+      mcs.doing_multicanonical());
 }
 
 

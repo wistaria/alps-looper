@@ -354,8 +354,7 @@ void diag_worker::dostep() {
     }
     double tr = 0;
     for (int i = 0; i < dim; ++i) tr += mat(i,i);
-    m["Partition Function Coefficient #" + boost::lexical_cast<std::string>(k)]
-      = tr / f;
+    m["Partition Function Coefficient #" + boost::lexical_cast<std::string>(k)] = tr / f;
   }
 
   // diagonalization
@@ -368,8 +367,7 @@ void diag_worker::dostep() {
   double gs_ene = evals(0);
   double part = 0.;
   vector_type::reverse_iterator eval_end = evals.rend();
-  for (vector_type::reverse_iterator eval = evals.rbegin();
-       eval != eval_end; ++eval) {
+  for (vector_type::reverse_iterator eval = evals.rbegin(); eval != eval_end; ++eval) {
     double weight = std::exp(- beta * (*eval - gs_ene)); // Boltzmann weight
     part += weight; // partition function
   }
@@ -432,8 +430,7 @@ void diag_worker::dostep() {
     m["Staggered Magnetization Density^4"] = smag4 / part / looper::power4(nsite);
     m["Staggered Susceptibility"] =
       dynamic_average2(beta, gs_ene, evals, hamiltonian, staggered_sz) / part / nsite;
-    m["Binder Ratio of Staggered Magnetization"] =
-      looper::power2(smag2 / part) / (smag4 / part);
+    m["Binder Ratio of Staggered Magnetization"] = looper::power2(smag2 / part) / (smag4 / part);
   }
 
   // store measurements
@@ -450,8 +447,7 @@ class dummy_evaluator : public looper::abstract_evaluator {
 public:
   void evaluate(alps::scheduler::MCSimulation&, alps::Parameters const&,
                 boost::filesystem::path const&) const {}
-  void evaluate(alps::ObservableSet&, alps::Parameters const&,
-                alps::ObservableSet const&) const {}
+  void evaluate(alps::ObservableSet&, alps::Parameters const&, alps::ObservableSet const&) const {}
 };
 
 

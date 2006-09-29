@@ -25,7 +25,6 @@
 #ifndef LOOPER_EVALUATOR_H
 #define LOOPER_EVALUATOR_H
 
-#include <alps/alea.h>
 #include <alps/scheduler.h>
 
 namespace looper {

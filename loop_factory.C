@@ -27,18 +27,18 @@
 
 alps::scheduler::MCSimulation*
 loop_factory::make_task(const alps::ProcessList& w,
-  const boost::filesystem::path& fn) const
-{ return new alps::scheduler::MCSimulation(w, fn); }
+  const boost::filesystem::path& fn) const {
+  return new alps::scheduler::MCSimulation(w, fn);
+}
 
 alps::scheduler::MCSimulation*
 loop_factory::make_task(const alps::ProcessList& w,
-  const boost::filesystem::path& fn, const alps::Parameters&) const
-{ return new alps::scheduler::MCSimulation(w, fn); }
+  const boost::filesystem::path& fn, const alps::Parameters&) const {
+  return new alps::scheduler::MCSimulation(w, fn);
+}
 
 alps::scheduler::MCRun*
-loop_factory::make_worker(const alps::ProcessList& w,
-  const alps::Parameters& p, int n) const
-{
+loop_factory::make_worker(const alps::ProcessList& w, const alps::Parameters& p, int n) const {
   if (p.defined("REPRESENTATION")) {
     map_type::const_iterator itr = creators_.find(p["REPRESENTATION"]);
     if (itr == creators_.end() || itr->second == 0)
@@ -49,19 +49,18 @@ loop_factory::make_worker(const alps::ProcessList& w,
   } else {
     map_type::const_iterator itr = creators_.find("path integral");
     if (itr == creators_.end() || itr->second == 0)
-      boost::throw_exception(std::runtime_error(
-        "representation is not specified"));
+      boost::throw_exception(std::runtime_error("representation is not specified"));
     return itr->second->create(w, p, n);
   }
   return 0;
 }
 
-void loop_factory::print_copyright(std::ostream& os) const
-{ looper::print_copyright(os); }
+void loop_factory::print_copyright(std::ostream& os) const {
+  looper::print_copyright(os);
+}
 
 looper::abstract_evaluator*
-evaluator_factory::make_evaluator(const alps::Parameters& p) const
-{
+evaluator_factory::make_evaluator(const alps::Parameters& p) const {
   if (p.defined("REPRESENTATION")) {
     map_type::const_iterator itr = creators_.find(p["REPRESENTATION"]);
     if (itr == creators_.end() || itr->second == 0)
@@ -71,8 +70,7 @@ evaluator_factory::make_evaluator(const alps::Parameters& p) const
     if (creators_.size() == 1 && creators_.begin()->second)
       return creators_.begin()->second->create();
     else
-      boost::throw_exception(std::runtime_error(
-        "representation is not specified"));
+      boost::throw_exception(std::runtime_error("representation is not specified"));
   }
   return 0;
 }

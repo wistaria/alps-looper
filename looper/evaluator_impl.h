@@ -27,27 +27,25 @@
 
 #include "evaluator.h"
 #include "measurement.h"
+#include <boost/foreach.hpp>
 
 namespace looper {
 
 template<typename MEASUREMENT_SET>
-class evaluator : public abstract_evaluator
-{
+class evaluator : public abstract_evaluator {
 public:
   typedef typename measurement<MEASUREMENT_SET>::type measurement_t;
   typedef typename measurement_t::evaluator evaluator_t;
   void evaluate(alps::scheduler::MCSimulation& sim, alps::Parameters const& p,
-                boost::filesystem::path const&) const
-  {
+                boost::filesystem::path const&) const {
     alps::ObservableSet m;
     evaluate(m, p, sim.get_measurements());
-    for (alps::ObservableSet::const_iterator itr = m.begin(); itr != m.end();
-         ++itr) sim.addObservable(*(itr->second));
+    BOOST_FOREACH(alps::ObservableSet::iterator::value_type const& v, m)
+      sim.addObservable(*(v.second));
   }
 
   void evaluate(alps::ObservableSet& m, alps::Parameters const& p,
-                alps::ObservableSet const& m_in) const
-  {
+                alps::ObservableSet const& m_in) const {
     energy_evaluator::evaluate(m, m_in);
     evaluator_t::evaluate(m, p, m_in);
   }

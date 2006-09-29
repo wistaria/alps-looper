@@ -118,8 +118,8 @@ private:
 //
 
 loop_worker::loop_worker(alps::ProcessList const& w, alps::Parameters const& p, int n) :
-  super_type(w, p, n), lattice(p), model(p, lattice), temperature(p), mcs(p), obs(measurements)
-{
+  super_type(w, p, n), lattice(p), model(p, lattice), temperature(p), mcs(p), obs(measurements) {
+
   if (temperature.annealing_steps() > mcs.thermalization())
     boost::throw_exception(std::invalid_argument("longer annealing steps than thermalization"));
 
