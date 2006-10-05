@@ -25,7 +25,6 @@
 #include <looper/model.h>
 #include <looper/weight.h>
 #include <alps/math.hpp>
-#include <alps/parameterlist.h>
 #include <boost/random.hpp>
 #include <iostream>
 

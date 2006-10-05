@@ -23,7 +23,6 @@
 *****************************************************************************/
 
 #include <looper/model.h>
-#include <alps/parameterlist.h>
 #include <alps/lattice.h>
 #include <iostream>
 

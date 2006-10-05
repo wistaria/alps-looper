@@ -23,7 +23,6 @@
 *****************************************************************************/
 
 #include <looper/temperature.h>
-#include <alps/parameterlist.h>
 #include <iostream>
 
 int main() {

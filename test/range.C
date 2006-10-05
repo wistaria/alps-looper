@@ -29,11 +29,12 @@
 
 int main()
 {
+  std::string str;
   alps::Parameters params;
-  std::cin >> params;
+  while (std::getline(std::cin, str) && str.size())
+    params << alps::Parameter(str);
   std::cout << "Parameters:\n" << params;
 
-  std::string str;
   std::cout << "Test for integer_range<int>:\n";
   while (std::getline(std::cin, str)) {
     if (str[0] == '\0') break;
