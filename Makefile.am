@@ -52,6 +52,7 @@ dist_noinst_HEADERS = \
 	looper/stiffness.h \
 	looper/susceptibility.h \
 	looper/temperature.h \
+	looper/top.h \
 	looper/time.h \
 	looper/transmag.h \
 	looper/type.h \

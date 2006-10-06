@@ -88,6 +88,22 @@ if test "$ac_cv_have_lapack" != yes; then
 fi
 
 dnl
+dnl config file
+dnl
+
+config_file=
+AC_ARG_WITH(config,
+  AC_HELP_STRING([--with-config=FILE],
+    [use config file instead of the default one (loop_config.h)]),
+  [
+  if test "x$withval" != xno; then
+    config_file=`echo "$withval" | sed 's,//*,/,g' | sed 's,/$,,'`
+  fi
+  ]
+)
+test -n "$config_file" && AC_MSG_NOTICE([using config file: $config_file])
+
+dnl
 dnl compile flags
 dnl
 
@@ -96,6 +112,9 @@ CPPFLAGS="$ac_cv_alps_cppflags"
 LDFLAGS="$ac_cv_alps_ldflags"
 LIBS=
 AC_SUBST([DEFAULT_INCLUDES], '-I$(top_srcdir) -I$(top_builddir)')
+if test -n "$config_file"; then
+  DEFAULT_INCLUDES="$DEFAULT_INCLUDES -DLOOP_CONFIG_HEADER=\\\"$config_file\\\""
+fi
 AC_SUBST([LDADD], "$ac_cv_alps_libs")
 
 AC_SUBST([CPPFLAGS_MPI], "$ac_cv_alps_cppflags_mpi")
@@ -192,6 +211,7 @@ if test "$exist_extras" = yes; then
   AC_CONFIG_FILES(extras/Makefile)
   AC_CONFIG_FILES(extras/gap/Makefile)
   AC_CONFIG_FILES(extras/localsus/Makefile)
+  AC_CONFIG_FILES(extras/top/Makefile)
   AC_CONFIG_FILES(extras/transmag/Makefile extras/transmag/alternating_chain.xml)
 fi
 if test "$exist_test" = yes; then
