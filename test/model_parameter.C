@@ -23,45 +23,31 @@
 *****************************************************************************/
 
 #include <looper/model.h>
+#include <boost/foreach.hpp>
 #include <iostream>
 
-std::ostream& operator<<(std::ostream& os, const looper::site_parameter& p)
-{
+std::ostream& operator<<(std::ostream& os, const looper::site_parameter& p) {
   os << "C = " << p.c << ", Hx = " << p.hx << ", Hz = " << p.hz;
   return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const looper::bond_parameter& p)
-{
+std::ostream& operator<<(std::ostream& os, const looper::bond_parameter& p) {
   os << "C = " << p.c << ", Jxy = " << p.jxy << ", Jz = " << p.jz;
   return os;
 }
 
 template<typename G>
-void output(const alps::graph_helper<G>& gh,
-            const looper::model_parameter& m)
-{
-  typedef G graph_type;
-  typedef typename alps::graph_helper<G>::site_iterator site_iterator;
-  typedef typename alps::graph_helper<G>::bond_iterator bond_iterator;
-
-  // site parameters
-  site_iterator vi, vi_end;
-  for (boost::tie(vi, vi_end) = gh.sites(); vi != vi_end; ++vi) {
-    std::cout << "site " << *vi << ": type = " << gh.site_type(*vi)
-              << ", S = " << m.site(*vi, gh.graph()).s << std::endl;
-  }
-
-  // bond parameters
-  bond_iterator ei, ei_end;
-  for (boost::tie(ei, ei_end) = gh.bonds(); ei != ei_end; ++ei) {
-    std::cout << "bond " << *ei << ": type = " << gh.bond_type(*ei)
-              << ", " << m.bond(*ei, gh.graph()) << std::endl;
-  }
+void output(const alps::graph_helper<G>& gh, const looper::model_parameter& m) {
+  BOOST_FOREACH(typename alps::graph_helper<G>::site_descriptor s, gh.sites())
+    std::cout << "site " << s << ": type = " << gh.site_type(s)
+              << ", S = " << m.site(s, gh.graph()).s << std::endl;
+  BOOST_FOREACH(typename alps::graph_helper<G>::bond_descriptor b, gh.bonds())
+    std::cout << "bond " << b << ": type = " << gh.bond_type(b)
+              << ", " << m.bond(b, gh.graph()) << std::endl;
 }
 
-int main()
-{
+int main() {
+
 #ifndef BOOST_NO_EXCEPTIONS
 try {
 #endif
@@ -79,10 +65,13 @@ try {
   looper::model_parameter m0(params, gh, mh);
   output(gh, m0);
 
-  // construct from parameters
-  looper::model_parameter m1(gh.graph(), alps::half_integer<int>(1.5),
-                             -2, -1);
+  // construct for inhomogeneous model
+  looper::model_parameter m1(params, gh.graph(), true, true, mh.model());
   output(gh, m1);
+
+  // construct from parameters
+  looper::model_parameter m2(gh.graph(), alps::half_integer<int>(1.5), -2, -1);
+  output(gh, m2);
 
 #ifndef BOOST_NO_EXCEPTIONS
 }
