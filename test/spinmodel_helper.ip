@@ -1,0 +1,39 @@
+LATTICE = "chain lattice"
+L = 4
+MODEL   = "spin"
+
+{}
+
+{
+  USE_BOND_INDICES_AS_TYPES = true
+  Gamma = 0.3;
+  Jxy = 0;
+  Jz0 = 1.5;
+  Jz1 = 0.5;
+  Jz2 = 1.2;
+  Jz3 = 0.9;
+}
+
+{
+  USE_SITE_INDICES_AS_TYPES = true
+  Gamma0 = 0.3;
+  Gamma1 = 0.2;
+  Gamma2 = 0.1;
+  Gamma3 = 0.4;
+  Jxy = 0.5;
+  Jz = 0.8;
+}
+
+{
+  USE_SITE_INDICES_AS_TYPES = true
+  USE_BOND_INDICES_AS_TYPES = true
+  Gamma0 = 0.3;
+  Gamma1 = 0.2;
+  Gamma2 = 0.1;
+  Gamma3 = 0.4;
+  Jxy = 0;
+  Jz0 = 1.5;
+  Jz1 = 0.5;
+  Jz2 = 1.2;
+  Jz3 = 0.9;
+}

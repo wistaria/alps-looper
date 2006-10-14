@@ -10,8 +10,8 @@
 /*
 :Author: David Goodger
 :Contact: goodger@users.sourceforge.net
-:Date: $Date: 2006-09-20 23:54:31 +0900 (Wed, 20 Sep 2006) $
-:Revision: $Revision: 2256 $
+:Date: $Date: 2006-10-15 00:00:28 +0900 (Sun, 15 Oct 2006) $
+:Revision: $Revision: 2303 $
 :Copyright: This stylesheet has been placed in the public domain.
 
 Default cascading style sheet for the HTML output of Docutils.
@@ -352,15 +352,14 @@ location to the configure script by <tt class="docutils literal"><span class="pr
 <h1><a id="running-a-simulation" name="running-a-simulation">Running a simulation</a></h1>
 <div class="section">
 <h2><a id="input-parameters" name="input-parameters">Input parameters</a></h2>
-<p>In addition to the general input parameters of the <cite>ALPS scheduler
-library
-&lt;http://alps.comp-phys.org/software/alps/doc/scheduler/running.html&gt;</cite>,
-the <tt class="docutils literal"><span class="pre">loop</span></tt> application takes the following input parameters:</p>
+<p>In addition to the general input parameters of the <a class="reference" href="http://alps.comp-phys.org/software/alps/doc/scheduler/running.html">ALPS scheduler
+library</a>,
+the <tt class="docutils literal"><span class="pre">loop</span></tt> and <tt class="docutils literal"><span class="pre">loop_mpi</span></tt> applications take the following input parameters:</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="14%" />
-<col width="15%" />
-<col width="70%" />
+<col width="13%" />
+<col width="13%" />
+<col width="74%" />
 </colgroup>
 <tbody valign="top">
 <tr><td><strong>Name</strong></td>
@@ -391,6 +390,14 @@ the <tt class="docutils literal"><span class="pre">loop</span></tt> application 
 <td><em>none</em></td>
 <td>temperature</td>
 </tr>
+<tr><td><tt class="docutils literal"><span class="pre">T_START_#</span></tt></td>
+<td><em>undefined</em></td>
+<td>[optional] see <a class="reference" href="#temperature-annealing">Temperature Annealing</a>.</td>
+</tr>
+<tr><td><tt class="docutils literal"><span class="pre">T_DURATION_#</span></tt></td>
+<td><em>undefined</em></td>
+<td>[optional] see <a class="reference" href="#temperature-annealing">Temperature Annealing</a>.</td>
+</tr>
 <tr><td><tt class="docutils literal"><span class="pre">SWEEPS</span></tt></td>
 <td>65536</td>
 <td>Monte Carlo steps after thermalization</td>
@@ -398,6 +405,14 @@ the <tt class="docutils literal"><span class="pre">loop</span></tt> application 
 <tr><td><tt class="docutils literal"><span class="pre">THERMALIZATION</span></tt></td>
 <td>8192</td>
 <td>Monte Carlo steps for thermalization</td>
+</tr>
+<tr><td><tt class="docutils literal"><span class="pre">USE_SITE_INDICES_AS_TYPES</span></tt></td>
+<td>false</td>
+<td>if true, all sites will have distinct site types, which are identical to site indices (starting from 0).</td>
+</tr>
+<tr><td><tt class="docutils literal"><span class="pre">USE_BOND_INDICES_AS_TYPES</span></tt></td>
+<td>false</td>
+<td>if true, all bonds will have distinct bond types, which are identical to bond indices (starting from 0).</td>
 </tr>
 <tr><td><tt class="docutils literal"><span class="pre">MEASURE[Correlations]</span></tt></td>
 <td>false</td>
@@ -421,19 +436,15 @@ the <tt class="docutils literal"><span class="pre">loop</span></tt> application 
 </tr>
 <tr><td><tt class="docutils literal"><span class="pre">DISABLE_IMPROVED_ESTIMATOR</span></tt></td>
 <td>false</td>
-<td>use normal (i.e. unimproved) estimator for measurements (will be set to true automatically in the presence of longitudinal magnetic field)</td>
+<td>[optional] use normal (i.e. unimproved) estimator for measurements (will be set to true automatically in the presence of longitudinal magnetic field)</td>
 </tr>
 <tr><td><tt class="docutils literal"><span class="pre">FORCE_SCATTER</span></tt></td>
 <td>0</td>
-<td>minimum probability for forward scattering graph (will be set to 0.1 automatically for classically frustrated models in order to ensure the ergodicity</td>
+<td>[optional] minimum probability for forward scattering graph (will be set to 0.1 automatically for classically frustrated models in order to ensure the ergodicity</td>
 </tr>
-<tr><td><tt class="docutils literal"><span class="pre">T_START_#</span></tt></td>
+<tr><td><tt class="docutils literal"><span class="pre">LOOPER_DEBUG[MODEL</span> <span class="pre">OUTPUT]</span></tt></td>
 <td><em>undefined</em></td>
-<td>see <a class="reference" href="#temperature-annealing">Temperature Annealing</a>.</td>
-</tr>
-<tr><td><tt class="docutils literal"><span class="pre">T_DURATION_#</span></tt></td>
-<td><em>undefined</em></td>
-<td>see <a class="reference" href="#temperature-annealing">Temperature Annealing</a>.</td>
+<td>if defined, all the coupling constants will be printed out to <em>standard output</em> (<tt class="docutils literal"><span class="pre">cout</span></tt>) before calculation.  If the value is <tt class="docutils literal"><span class="pre">cerr</span></tt>, the output will be made for <em>standard error</em> (<tt class="docutils literal"><span class="pre">cerr</span></tt>).</td>
 </tr>
 </tbody>
 </table>
@@ -711,9 +722,9 @@ Applications Licence</a>.</p>
 <li>publications<ul>
 <li>S. Todo and K. Kato, <em>Cluster Algorithms for General-S Quantum
 Spin Systems</em>, Phys. Rev. Lett., <strong>87</strong>, 047203 (2001).</li>
-<li>F. Alet, P. Dayal, A. Grzesik, A. Honecker, M. Körner, A. Läuchli,
+<li>F. Alet, P. Dayal, A. Grzesik, A. Honecker, M. Kner, A. L舫chli,
 S.R. Manmana, I.P. McCulloch, F. Michel, R.M. Noack, G. Schmid,
-U. Schollwöck, F. Stöckli, S. Todo, S. Trebst, M. Troyer, P. Werner,
+U. Schollwk, F. Stkli, S. Todo, S. Trebst, M. Troyer, P. Werner,
 S. Wessel (ALPS collaboration), <em>The ALPS project: open source
 software for strongly correlated systems</em>,
 <a class="reference" href="http://jpsj.ipap.jp/journal/supplement/74/pdf/030.pdf">J. Phys. Soc. Jpn. Suppl. 74, 30 (2005)</a>.</li>
@@ -739,9 +750,9 @@ Spin Systems</em>, Phys. Rev. Lett., <strong>87</strong>, 047203 (2001).</li>
 Antiferromagnetic Heisenberg Chain</em>, Computer Simulation Studies
 in Condensed-Matter Physics XV, ed D.P. Landau, S.P. Lewis, and
 H.-B. Schuettler (Springer-Verlag, Berlin, 2003) pp. 89-94.</li>
-<li>F. Alet, P. Dayal, A. Grzesik, A. Honecker, M. Körner, A. Läuchli,
+<li>F. Alet, P. Dayal, A. Grzesik, A. Honecker, M. Kner, A. L舫chli,
 S.R. Manmana, I.P. McCulloch, F. Michel, R.M. Noack, G. Schmid,
-U. Schollwöck, F. Stöckli, S. Todo, S. Trebst, M. Troyer, P. Werner,
+U. Schollwk, F. Stkli, S. Todo, S. Trebst, M. Troyer, P. Werner,
 S. Wessel (ALPS collaboration), <em>The ALPS project: open source
 software for strongly correlated systems</em>,
 <a class="reference" href="http://jpsj.ipap.jp/journal/supplement/74/pdf/030.pdf">J. Phys. Soc. Jpn. Suppl. 74, 30 (2005)</a>

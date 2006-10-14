@@ -15,6 +15,7 @@ dist_noinst_DATA = \
 	range.ip range.op \
 	sign.ip sign.op \
 	site_matrix.ip site_matrix.op \
+	spinmodel_helper.ip spinmodel_helper.op \
 	syev.op \
 	temperature.ip temperature.op \
 	union_find.op \
@@ -39,6 +40,7 @@ check_PROGRAMS = \
 	range \
 	sign \
 	site_matrix \
+	spinmodel_helper \
 	syev \
 	temperature \
 	union_find \
@@ -62,6 +64,7 @@ random_choice_SOURCES = random_choice.C
 range_SOURCES = range.C
 sign_SOURCES = sign.C
 site_matrix_SOURCES = site_matrix.C
+spinmodel_helper_SOURCES = spinmodel_helper.C
 syev_SOURCES = syev.C
 temperature_SOURCES = temperature.C
 union_find_SOURCES = union_find.C

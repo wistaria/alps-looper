@@ -1,0 +1,80 @@
+<GRAPH dimension="1" vertices="4" edges="4">
+  <VERTEX id="1" type="0"><COORDINATE>0</COORDINATE></VERTEX>
+  <VERTEX id="2" type="0"><COORDINATE>1</COORDINATE></VERTEX>
+  <VERTEX id="3" type="0"><COORDINATE>2</COORDINATE></VERTEX>
+  <VERTEX id="4" type="0"><COORDINATE>3</COORDINATE></VERTEX>
+  <EDGE source="1" target="2" id="1" type="0" vector="1"/>
+  <EDGE source="2" target="3" id="2" type="0" vector="1"/>
+  <EDGE source="3" target="4" id="3" type="0" vector="1"/>
+  <EDGE source="4" target="1" id="4" type="0" vector="1"/>
+</GRAPH>
+site terms: number of sites = 4
+  site 0: (S, C, Hx, Hz, D) = (1/2, 0, 0, 0, 0)
+  site 1: (S, C, Hx, Hz, D) = (1/2, 0, 0, 0, 0)
+  site 2: (S, C, Hx, Hz, D) = (1/2, 0, 0, 0, 0)
+  site 3: (S, C, Hx, Hz, D) = (1/2, 0, 0, 0, 0)
+bond terms: number of bonds = 4
+  bond (0,1): (C, Jxy, Jz) = (0, 1, 1)
+  bond (1,2): (C, Jxy, Jz) = (0, 1, 1)
+  bond (2,3): (C, Jxy, Jz) = (0, 1, 1)
+  bond (3,0): (C, Jxy, Jz) = (0, 1, 1)
+<GRAPH dimension="1" vertices="4" edges="4">
+  <VERTEX id="1" type="0"><COORDINATE>0</COORDINATE></VERTEX>
+  <VERTEX id="2" type="0"><COORDINATE>1</COORDINATE></VERTEX>
+  <VERTEX id="3" type="0"><COORDINATE>2</COORDINATE></VERTEX>
+  <VERTEX id="4" type="0"><COORDINATE>3</COORDINATE></VERTEX>
+  <EDGE source="1" target="2" id="1" type="0" vector="1"/>
+  <EDGE source="2" target="3" id="2" type="1" vector="1"/>
+  <EDGE source="3" target="4" id="3" type="2" vector="1"/>
+  <EDGE source="4" target="1" id="4" type="3" vector="1"/>
+</GRAPH>
+site terms: number of sites = 4
+  site 0: (S, C, Hx, Hz, D) = (1/2, 0, 0.3, 0, 0)
+  site 1: (S, C, Hx, Hz, D) = (1/2, 0, 0.3, 0, 0)
+  site 2: (S, C, Hx, Hz, D) = (1/2, 0, 0.3, 0, 0)
+  site 3: (S, C, Hx, Hz, D) = (1/2, 0, 0.3, 0, 0)
+bond terms: number of bonds = 4
+  bond (0,1): (C, Jxy, Jz) = (0, 0, 1.5)
+  bond (1,2): (C, Jxy, Jz) = (0, 0, 0.5)
+  bond (2,3): (C, Jxy, Jz) = (0, 0, 1.2)
+  bond (3,0): (C, Jxy, Jz) = (0, 0, 0.9)
+<GRAPH dimension="1" vertices="4" edges="4">
+  <VERTEX id="1" type="0"><COORDINATE>0</COORDINATE></VERTEX>
+  <VERTEX id="2" type="1"><COORDINATE>1</COORDINATE></VERTEX>
+  <VERTEX id="3" type="2"><COORDINATE>2</COORDINATE></VERTEX>
+  <VERTEX id="4" type="3"><COORDINATE>3</COORDINATE></VERTEX>
+  <EDGE source="1" target="2" id="1" type="0" vector="1"/>
+  <EDGE source="2" target="3" id="2" type="0" vector="1"/>
+  <EDGE source="3" target="4" id="3" type="0" vector="1"/>
+  <EDGE source="4" target="1" id="4" type="0" vector="1"/>
+</GRAPH>
+site terms: number of sites = 4
+  site 0: (S, C, Hx, Hz, D) = (1/2, 0, 0.3, 0, 0)
+  site 1: (S, C, Hx, Hz, D) = (1/2, 0, 0.2, 0, 0)
+  site 2: (S, C, Hx, Hz, D) = (1/2, 0, 0.1, 0, 0)
+  site 3: (S, C, Hx, Hz, D) = (1/2, 0, 0.4, 0, 0)
+bond terms: number of bonds = 4
+  bond (0,1): (C, Jxy, Jz) = (0, 0.5, 0.8)
+  bond (1,2): (C, Jxy, Jz) = (0, 0.5, 0.8)
+  bond (2,3): (C, Jxy, Jz) = (0, 0.5, 0.8)
+  bond (3,0): (C, Jxy, Jz) = (0, 0.5, 0.8)
+<GRAPH dimension="1" vertices="4" edges="4">
+  <VERTEX id="1" type="0"><COORDINATE>0</COORDINATE></VERTEX>
+  <VERTEX id="2" type="1"><COORDINATE>1</COORDINATE></VERTEX>
+  <VERTEX id="3" type="2"><COORDINATE>2</COORDINATE></VERTEX>
+  <VERTEX id="4" type="3"><COORDINATE>3</COORDINATE></VERTEX>
+  <EDGE source="1" target="2" id="1" type="0" vector="1"/>
+  <EDGE source="2" target="3" id="2" type="1" vector="1"/>
+  <EDGE source="3" target="4" id="3" type="2" vector="1"/>
+  <EDGE source="4" target="1" id="4" type="3" vector="1"/>
+</GRAPH>
+site terms: number of sites = 4
+  site 0: (S, C, Hx, Hz, D) = (1/2, 0, 0.3, 0, 0)
+  site 1: (S, C, Hx, Hz, D) = (1/2, 0, 0.2, 0, 0)
+  site 2: (S, C, Hx, Hz, D) = (1/2, 0, 0.1, 0, 0)
+  site 3: (S, C, Hx, Hz, D) = (1/2, 0, 0.4, 0, 0)
+bond terms: number of bonds = 4
+  bond (0,1): (C, Jxy, Jz) = (0, 0, 1.5)
+  bond (1,2): (C, Jxy, Jz) = (0, 0, 0.5)
+  bond (2,3): (C, Jxy, Jz) = (0, 0, 1.2)
+  bond (3,0): (C, Jxy, Jz) = (0, 0, 0.9)

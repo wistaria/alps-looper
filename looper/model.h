@@ -82,10 +82,31 @@ struct site_parameter {
     return alps::is_nonzero<1>(d);
   }
 
+  void output(std::ostream& os) const {
+    os << '(' << s << ", " << c << ", " << hx << ", " << hz << ", " << d << ')';
+  }
+
 protected:
   void do_fit(const boost::multi_array<double, 2>& mat);
 };
 
+} // end namespace looper
+
+#ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
+namespace looper {
+#endif
+
+inline std::ostream& operator<<(std::ostream& os, looper::site_parameter const& p) {
+  p.output(os);
+  return os;
+}
+
+#ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
+} // end namespace looper
+#endif
+
+
+namespace looper {
 
 struct bond_parameter {
   double c;   // constant energy offset:   + c
@@ -111,10 +132,31 @@ struct bond_parameter {
     return alps::is_nonzero<1>(jxy);
   }
 
+  void print(std::ostream& os) const {
+    os << '(' << c << ", " << jxy << ", " << jz << ')';
+  }
+
 protected:
   void do_fit(const boost::multi_array<double, 4>& mat);
 };
 
+} // end namespace looper
+
+#ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
+namespace looper {
+#endif
+
+inline std::ostream& operator<<(std::ostream& os, looper::bond_parameter const& p) {
+  p.print(os);
+  return os;
+}
+
+#ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
+} // end namespace looper
+#endif
+
+
+namespace looper {
 
 //
 // matrices
@@ -245,17 +287,17 @@ private:
 
 template<typename G, typename I>
 site_parameter get_site_parameter(alps::Parameters const& param, G const& graph,
-  alps::HamiltonianDescriptor<I> const& hd, typename alps::graph_traits<G>::site_descriptor sd) {
-  int t = get(site_type_t(), graph, sd);
+  alps::HamiltonianDescriptor<I> const& hd, typename alps::graph_traits<G>::site_descriptor s) {
+  int t = get(site_type_t(), graph, s);
   return site_parameter(get_matrix(double(), hd.site_term(t), hd.basis().site_basis(t), param));
 }
 
 template<typename G, typename I>
 bond_parameter get_bond_parameter(alps::Parameters const& param, G const& graph,
-  alps::HamiltonianDescriptor<I> const& hd, typename alps::graph_traits<G>::bond_descriptor bd) {
-  int t = get(bond_type_t(), graph, bd);
-  int ts = get(site_type_t(), graph, source(bd, graph));
-  int tt = get(site_type_t(), graph, target(bd, graph));
+  alps::HamiltonianDescriptor<I> const& hd, typename alps::graph_traits<G>::bond_descriptor b) {
+  int t = get(bond_type_t(), graph, b);
+  int ts = get(site_type_t(), graph, source(b, graph));
+  int tt = get(site_type_t(), graph, target(b, graph));
   return bond_parameter(get_matrix(double(), hd.bond_term(t),
     hd.basis().site_basis(ts), hd.basis().site_basis(tt), param));
 }
@@ -270,22 +312,8 @@ public:
   typedef site_parameter::spin_type spin_type;
 
   model_parameter() :
-    sites_(), bonds_(), use_site_index_(false), use_bond_index_(false), quantal_(false),
+    sites_(), bonds_(), use_site_indices_(false), use_bond_indices_(false), quantal_(false),
     has_hz_(false), has_d_(false), signed_(false), frustrated_(false), energy_offset_(0) {
-  }
-  template<typename G, typename I>
-  model_parameter(const G& g, const alps::half_integer<I>& spin, double Jxy, double Jz) {
-    set_parameters(g, spin, Jxy, Jz);
-  }
-  template<typename G, typename I>
-  model_parameter(const alps::Parameters& params, const G& g, bool inhomogeneous_sites,
-    bool inhomogeneous_bond, const alps::HamiltonianDescriptor<I>& hd) {
-    set_parameters(params, g, inhomogeneous_sites, inhomogeneous_bond, hd);
-  }
-  template<typename G, typename I>
-  model_parameter(const alps::Parameters& params, const G& g, bool inhomogeneous_sites,
-    bool inhomogeneous_bond, const alps::HamiltonianDescriptor<I>& hd, bool is_signed) {
-    set_parameters(params, g, inhomogeneous_sites, inhomogeneous_bond, hd, is_signed);
   }
   template<typename G, typename I>
   model_parameter(const alps::Parameters& params, const alps::graph_helper<G>& gh,
@@ -293,17 +321,12 @@ public:
     set_parameters(params, gh.graph(), gh.inhomogeneous_sites(), gh.inhomogeneous_bonds(),
       mh.model(), alps::has_sign_problem(mh.model(), gh, params));
   }
-  template<typename G, typename I>
-  model_parameter(const alps::Parameters& params,
-    const alps::scheduler::LatticeModelMCRun<G, I>& mcrun) {
-    set_parameters(params, mcrun);
-  }
 
   // set_parameters
 
-  template<typename G, typename I>
-  void set_parameters(const G& g, const alps::half_integer<I>& spin, double Jxy, double Jz) {
-    set_parameters_impl(g, spin, Jxy, Jz);
+  template<typename G>
+  void set_parameters(G const& g, site_parameter const& sp, bond_parameter const& bp) {
+    set_parameters_impl(g, sp, bp);
     signed_ = check_sign(g);
     frustrated_ = check_frustration(g);
   }
@@ -321,31 +344,19 @@ public:
     signed_ = is_signed;
     frustrated_ = check_frustration(g);
   }
-  template<typename G, typename I>
-  void set_parameters(const alps::Parameters& params,
-    const alps::scheduler::LatticeModelMCRun<G, I>& mcrun) {
-    set_parameters(params, mcrun.graph(), mcrun.inhomogeneous_sites(), mcrun.inhomogeneous_bonds(),
-      mcrun.model(), alps::has_sign_problem(mcrun.model(), mcrun, params));
-  }
 
   // bool uniform_site() const { return sites_.size() == 1; }
   bool inhomogeneous_site() const {
-    return use_site_index_;
+    return use_site_indices_;
   }
   template<class G>
   const site_parameter& site(const typename alps::graph_traits<G>::site_descriptor& v,
     const G& g) const {
     return inhomogeneous_site() ? sites_[v] : sites_map_.find(get(site_type_t(), g, v))->second;
   }
-  // const site_parameter& site() const {
-  //   if (!uniform_site())
-  //     boost::throw_exception(std::runtime_error("nonuniform sites"));
-  // return sites_[0];
-  // }
 
-  // bool uniform_bond() const { return bonds_.size() == 1; }
   bool inhomogeneous_bond() const {
-    return use_bond_index_;
+    return use_bond_indices_;
   }
   template<class G>
   const bond_parameter& bond(const typename alps::graph_traits<G>::bond_descriptor& e,
@@ -354,11 +365,6 @@ public:
       bonds_map_.find(boost::make_tuple(get(bond_type_t(), g, e),
         get(site_type_t(), g, source(e, g)), get(site_type_t(), g, target(e, g))))->second;
   }
-  // const bond_parameter& bond() const {
-  //   if (!uniform_bond())
-  //     boost::throw_exception(std::runtime_error("nonuniform bonds"));
-  //   return bonds_[0];
-  // }
 
   bool is_quantal() const { return quantal_; }
   bool has_field() const { return has_hz_; }
@@ -367,9 +373,12 @@ public:
   bool is_frustrated() const { return frustrated_; }
   double energy_offset() const { return energy_offset_; }
 
+  template<typename G>
+  void output(std::ostream& os, G const& g) const;
+
 protected:
-  template<typename G, typename I>
-  void set_parameters_impl(const G& g, const alps::half_integer<I>& spin, double Jxy, double Jz);
+  template<typename G>
+  void set_parameters_impl(G const& g, site_parameter const& sp, bond_parameter const& bp);
 
   template<typename G, typename I>
   void set_parameters_impl(alps::Parameters params, const G& g, bool inhomogeneous_sites,
@@ -386,8 +395,8 @@ private:
   std::map<int, site_parameter> sites_map_;
   std::vector<bond_parameter> bonds_;
   std::map<boost::tuple<int, int, int>, bond_parameter> bonds_map_;
-  bool use_site_index_;
-  bool use_bond_index_;
+  bool use_site_indices_;
+  bool use_bond_indices_;
   bool quantal_;
   bool has_hz_;
   bool has_d_;
@@ -400,9 +409,9 @@ private:
 class spinmodel_helper {
 public:
   template<typename G>
-  spinmodel_helper(alps::Parameters const& p, lattice_helper<G> const& lat)
-    : model_(lat.graph_helper(), p), mparam_(p, lat.graph_helper(), model_)
-  {}
+  spinmodel_helper(alps::Parameters const& p, lattice_helper<G> const& lat) :
+    model_(lat.graph_helper(), p), mparam_(p, lat.graph_helper(), model_) {
+  }
 
   double energy_offset() const { return mparam_.energy_offset(); }
   bool has_field() const { return mparam_.has_field(); }
@@ -418,7 +427,7 @@ public:
     return mparam_.site(v, g);
   }
   template<class G>
-  const bond_parameter& bond(typename graph_traits<G>::bond_descriptor e, G const& g) const {
+  bond_parameter const& bond(typename graph_traits<G>::bond_descriptor e, G const& g) const {
     return mparam_.bond(e, g);
   }
 
@@ -540,24 +549,22 @@ inline void bond_parameter::do_fit(const boost::multi_array<double, 4>& mat) {
 // class model_parameter
 //
 
-template<typename G, typename I>
-void model_parameter::set_parameters_impl(const G& g, const alps::half_integer<I>& spin,
-  double Jxy, double Jz) {
+template<typename G>
+void model_parameter::set_parameters_impl(G const& g, site_parameter const& sp,
+  bond_parameter const& bp) {
 
-  use_site_index_ = false;
+  use_site_indices_ = false;
   sites_.clear();
   sites_map_.clear();
-  site_parameter sp(spin);
   BOOST_FOREACH(typename alps::graph_traits<G>::site_descriptor s, sites(g)) {
     int t = get(site_type_t(), g, s);
     if (sites_map_.find(t) == sites_map_.end())
       sites_map_[t] = sp;
   }
 
-  use_bond_index_ = false;
+  use_bond_indices_ = false;
   bonds_.clear();
   bonds_map_.clear();
-  bond_parameter bp(0, Jxy, Jz);
   BOOST_FOREACH(typename alps::graph_traits<G>::bond_descriptor b, bonds(g)) {
     boost::tuple<int, int, int>
       t(get(bond_type_t(), g, b), get(site_type_t(), g, source(b, g)),
@@ -587,22 +594,22 @@ void model_parameter::set_parameters_impl(alps::Parameters params, const G& g,
   alps::basis_states_descriptor<I> basis(hd.basis(), g);
   alps::Disorder::seed(params.value_or_default("DISORDER_SEED",0));
 
+  if (inhomogeneous_sites || inhomogeneous_bonds)
+    alps::throw_if_xyz_defined(params, g);
+
   // site terms
 
   sites_.clear();
   sites_map_.clear();
-  if (inhomogeneous_sites) {
-    use_site_index_ = true;
+  if (inhomogeneous_sites || params.value_or_default("USE_SITE_INDICES_AS_TYPES", false)) {
+    use_site_indices_ = true;
     sites_.resize(num_sites(g));
   } else {
-    use_site_index_ = false;
+    use_site_indices_ = false;
   }
 
-  if (inhomogeneous_sites || inhomogeneous_bonds)
-    alps::throw_if_xyz_defined(params, g);
-
   // generate site matrices and set site parameters
-  if (use_site_index_) {
+  if (use_site_indices_) {
     alps::Parameters p(params);
     BOOST_FOREACH(typename alps::graph_traits<G>::site_descriptor s, sites(g)) {
       if (inhomogeneous_sites)
@@ -628,15 +635,15 @@ void model_parameter::set_parameters_impl(alps::Parameters params, const G& g,
 
   bonds_.clear();
   bonds_map_.clear();
-  if (inhomogeneous_bonds) {
-    use_bond_index_ = true;
+  if (inhomogeneous_bonds || params.value_or_default("USE_BOND_INDICES_AS_TYPES", false)) {
+    use_bond_indices_ = true;
     bonds_.resize(num_bonds(g));
   } else {
-    use_bond_index_ = false;
+    use_bond_indices_ = false;
   }
 
   // generate bond matrices and set bond parameters
-  if (use_bond_index_) {
+  if (use_bond_indices_) {
     alps::Parameters p(params);
     BOOST_FOREACH(typename alps::graph_traits<G>::bond_descriptor b, bonds(g)) {
       if (inhomogeneous_bonds)
@@ -665,8 +672,25 @@ void model_parameter::set_parameters_impl(alps::Parameters params, const G& g,
   if (has_d_term())
     BOOST_FOREACH(typename alps::graph_traits<G>::site_descriptor s, sites(g))
       energy_offset_ += 0.5 * site(s, g).s.get_twice() * site(s, g).d;
+
+  if (params.defined("LOOPER_DEBUG[MODEL OUTPUT]")) {
+    if (params["LOOPER_DEBUG[MODEL OUTPUT]"] == "cerr")
+      output(std::cerr, g);
+    else
+      output(std::cout, g);
+  }
+
 }
 
+template<typename G>
+void model_parameter::output(std::ostream& os, G const& g) const {
+  os << "site terms: number of sites = " << num_sites(g) << std::endl;
+  BOOST_FOREACH(typename alps::graph_helper<G>::site_descriptor s, sites(g))
+    os << "  site " << s << ": (S, C, Hx, Hz, D) = " << site(s, g) << std::endl;
+  os << "bond terms: number of bonds = " << num_bonds(g) << std::endl;
+  BOOST_FOREACH(typename alps::graph_helper<G>::bond_descriptor b, bonds(g))
+    os << "  bond " << b << ": (C, Jxy, Jz) = " << bond(b, g) << std::endl;
+}
 
 template<typename G>
 bool model_parameter::check_sign(const G& g) const {

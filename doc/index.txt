@@ -73,8 +73,8 @@ Input parameters
 
 In addition to the general input parameters of the `ALPS scheduler
 library
-<http://alps.comp-phys.org/software/alps/doc/scheduler/running.html>`,
-the ``loop`` application takes the following input parameters:
+<http://alps.comp-phys.org/software/alps/doc/scheduler/running.html>`_,
+the ``loop`` and ``loop_mpi`` applications take the following input parameters:
 
 =================================  ===================================  =====================================================================================================
 **Name**                           **Default Value**                    **Description**
@@ -84,9 +84,16 @@ the ``loop`` application takes the following input parameters:
 ``MODEL_LIBRARY``                  ``$PREFIX/lib/xml/models.xml``       path to a file containing model descriptions
 ``MODEL``                          *none*                               name of the model
 ``REPRESENTATION``                 path integral                        type of representation, either ``"path integral"`` or ``"SSE"``
+
 ``T``                              *none*                               temperature
+``T_START_#``                      *undefined*                          [optional] see `Temperature Annealing`_.
+``T_DURATION_#``                   *undefined*                          [optional] see `Temperature Annealing`_.
+
 ``SWEEPS``                         65536                                Monte Carlo steps after thermalization
 ``THERMALIZATION``                 8192                                 Monte Carlo steps for thermalization
+
+``USE_SITE_INDICES_AS_TYPES``      false                                if true, all sites will have distinct site types, which are identical to site indices (starting from 0).
+``USE_BOND_INDICES_AS_TYPES``      false                                if true, all bonds will have distinct bond types, which are identical to bond indices (starting from 0).
 
 ``MEASURE[Correlations]``          false				if true, correlation function will be calculated
 ``MEASURE[Green Function]``        false                                if true, Green's function will be calculated
@@ -94,11 +101,10 @@ the ``loop`` application takes the following input parameters:
 ``MEASURE[Local Susceptibility]``  false                                if true, local suscepbility and local magnetization will be calculated
 ``MEASURE[Structure Factor]``      false                                if true, structure factor for all possible k-values will be calculated
 
-``DISABLE_IMPROVED_ESTIMATOR``     false				use normal (i.e. unimproved) estimator for measurements (will be set to true automatically in the presence of longitudinal magnetic field)
-``FORCE_SCATTER``                  0                                    minimum probability for forward scattering graph (will be set to 0.1 automatically for classically frustrated models in order to ensure the ergodicity
+``DISABLE_IMPROVED_ESTIMATOR``     false				[optional] use normal (i.e. unimproved) estimator for measurements (will be set to true automatically in the presence of longitudinal magnetic field)
+``FORCE_SCATTER``                  0                                    [optional] minimum probability for forward scattering graph (will be set to 0.1 automatically for classically frustrated models in order to ensure the ergodicity
 
-``T_START_#``                      *undefined*                          see `Temperature Annealing`_.
-``T_DURATION_#``                   *undefined*                          see `Temperature Annealing`_.
+``LOOPER_DEBUG[MODEL OUTPUT]``     *undefined*                          if defined, all the coupling constants will be printed out to *standard output* (``cout``) before calculation.  If the value is ``cerr``, the output will be made for *standard error* (``cerr``).
 =================================  ===================================  =====================================================================================================
 
 In addition, the lattice/model descriptions can require further

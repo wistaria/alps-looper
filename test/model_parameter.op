@@ -1,48 +1,50 @@
-site 0: type = 0, S = 1/2
-site 1: type = 0, S = 1/2
-site 2: type = 0, S = 1/2
-site 3: type = 0, S = 1/2
-site 4: type = 0, S = 1/2
-site 5: type = 0, S = 1/2
-site 6: type = 0, S = 1/2
-site 7: type = 0, S = 1/2
-bond (0,1): type = 0, C = 0, Jxy = 2, Jz = -0.6
-bond (1,2): type = 0, C = 0, Jxy = 2, Jz = -0.6
-bond (2,3): type = 0, C = 0, Jxy = 2, Jz = -0.6
-bond (3,4): type = 0, C = 0, Jxy = 2, Jz = -0.6
-bond (4,5): type = 0, C = 0, Jxy = 2, Jz = -0.6
-bond (5,6): type = 0, C = 0, Jxy = 2, Jz = -0.6
-bond (6,7): type = 0, C = 0, Jxy = 2, Jz = -0.6
-bond (7,0): type = 0, C = 0, Jxy = 2, Jz = -0.6
-site 0: type = 0, S = 1/2
-site 1: type = 0, S = 1/2
-site 2: type = 0, S = 1/2
-site 3: type = 0, S = 1/2
-site 4: type = 0, S = 1/2
-site 5: type = 0, S = 1/2
-site 6: type = 0, S = 1/2
-site 7: type = 0, S = 1/2
-bond (0,1): type = 0, C = 0, Jxy = 2, Jz = -0.6
-bond (1,2): type = 0, C = 0, Jxy = 2, Jz = -0.6
-bond (2,3): type = 0, C = 0, Jxy = 2, Jz = -0.6
-bond (3,4): type = 0, C = 0, Jxy = 2, Jz = -0.6
-bond (4,5): type = 0, C = 0, Jxy = 2, Jz = -0.6
-bond (5,6): type = 0, C = 0, Jxy = 2, Jz = -0.6
-bond (6,7): type = 0, C = 0, Jxy = 2, Jz = -0.6
-bond (7,0): type = 0, C = 0, Jxy = 2, Jz = -0.6
-site 0: type = 0, S = 3/2
-site 1: type = 0, S = 3/2
-site 2: type = 0, S = 3/2
-site 3: type = 0, S = 3/2
-site 4: type = 0, S = 3/2
-site 5: type = 0, S = 3/2
-site 6: type = 0, S = 3/2
-site 7: type = 0, S = 3/2
-bond (0,1): type = 0, C = 0, Jxy = -2, Jz = -1
-bond (1,2): type = 0, C = 0, Jxy = -2, Jz = -1
-bond (2,3): type = 0, C = 0, Jxy = -2, Jz = -1
-bond (3,4): type = 0, C = 0, Jxy = -2, Jz = -1
-bond (4,5): type = 0, C = 0, Jxy = -2, Jz = -1
-bond (5,6): type = 0, C = 0, Jxy = -2, Jz = -1
-bond (6,7): type = 0, C = 0, Jxy = -2, Jz = -1
-bond (7,0): type = 0, C = 0, Jxy = -2, Jz = -1
+site 0: type = 0: (S, C, Hx, Hz, D) = (1/2, 0, 0, 0, 0)
+site 1: type = 0: (S, C, Hx, Hz, D) = (1/2, 0, 0, 0, 0)
+site 2: type = 0: (S, C, Hx, Hz, D) = (1/2, 0, 0, 0, 0)
+site 3: type = 0: (S, C, Hx, Hz, D) = (1/2, 0, 0, 0, 0)
+site 4: type = 0: (S, C, Hx, Hz, D) = (1/2, 0, 0, 0, 0)
+site 5: type = 0: (S, C, Hx, Hz, D) = (1/2, 0, 0, 0, 0)
+site 6: type = 0: (S, C, Hx, Hz, D) = (1/2, 0, 0, 0, 0)
+site 7: type = 0: (S, C, Hx, Hz, D) = (1/2, 0, 0, 0, 0)
+bond (0,1): type = 0: (C, Jxy, Jz) = (0, 2, -0.6)
+bond (1,2): type = 0: (C, Jxy, Jz) = (0, 2, -0.6)
+bond (2,3): type = 0: (C, Jxy, Jz) = (0, 2, -0.6)
+bond (3,4): type = 0: (C, Jxy, Jz) = (0, 2, -0.6)
+bond (4,5): type = 0: (C, Jxy, Jz) = (0, 2, -0.6)
+bond (5,6): type = 0: (C, Jxy, Jz) = (0, 2, -0.6)
+bond (6,7): type = 0: (C, Jxy, Jz) = (0, 2, -0.6)
+bond (7,0): type = 0: (C, Jxy, Jz) = (0, 2, -0.6)
+site terms: number of sites = 8
+  site 0: (S, C, Hx, Hz, D) = (1/2, 0, 0, 0, 0)
+  site 1: (S, C, Hx, Hz, D) = (1/2, 0, 0, 0, 0)
+  site 2: (S, C, Hx, Hz, D) = (1/2, 0, 0, 0, 0)
+  site 3: (S, C, Hx, Hz, D) = (1/2, 0, 0, 0, 0)
+  site 4: (S, C, Hx, Hz, D) = (1/2, 0, 0, 0, 0)
+  site 5: (S, C, Hx, Hz, D) = (1/2, 0, 0, 0, 0)
+  site 6: (S, C, Hx, Hz, D) = (1/2, 0, 0, 0, 0)
+  site 7: (S, C, Hx, Hz, D) = (1/2, 0, 0, 0, 0)
+bond terms: number of bonds = 8
+  bond (0,1): (C, Jxy, Jz) = (0, 2, -0.6)
+  bond (1,2): (C, Jxy, Jz) = (0, 2, -0.6)
+  bond (2,3): (C, Jxy, Jz) = (0, 2, -0.6)
+  bond (3,4): (C, Jxy, Jz) = (0, 2, -0.6)
+  bond (4,5): (C, Jxy, Jz) = (0, 2, -0.6)
+  bond (5,6): (C, Jxy, Jz) = (0, 2, -0.6)
+  bond (6,7): (C, Jxy, Jz) = (0, 2, -0.6)
+  bond (7,0): (C, Jxy, Jz) = (0, 2, -0.6)
+site 0: type = 0: (S, C, Hx, Hz, D) = (3/2, 0, 0, 0, 0)
+site 1: type = 0: (S, C, Hx, Hz, D) = (3/2, 0, 0, 0, 0)
+site 2: type = 0: (S, C, Hx, Hz, D) = (3/2, 0, 0, 0, 0)
+site 3: type = 0: (S, C, Hx, Hz, D) = (3/2, 0, 0, 0, 0)
+site 4: type = 0: (S, C, Hx, Hz, D) = (3/2, 0, 0, 0, 0)
+site 5: type = 0: (S, C, Hx, Hz, D) = (3/2, 0, 0, 0, 0)
+site 6: type = 0: (S, C, Hx, Hz, D) = (3/2, 0, 0, 0, 0)
+site 7: type = 0: (S, C, Hx, Hz, D) = (3/2, 0, 0, 0, 0)
+bond (0,1): type = 0: (C, Jxy, Jz) = (0, -2, -1)
+bond (1,2): type = 0: (C, Jxy, Jz) = (0, -2, -1)
+bond (2,3): type = 0: (C, Jxy, Jz) = (0, -2, -1)
+bond (3,4): type = 0: (C, Jxy, Jz) = (0, -2, -1)
+bond (4,5): type = 0: (C, Jxy, Jz) = (0, -2, -1)
+bond (5,6): type = 0: (C, Jxy, Jz) = (0, -2, -1)
+bond (6,7): type = 0: (C, Jxy, Jz) = (0, -2, -1)
+bond (7,0): type = 0: (C, Jxy, Jz) = (0, -2, -1)

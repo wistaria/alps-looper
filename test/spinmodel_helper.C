@@ -22,36 +22,35 @@
 *
 *****************************************************************************/
 
-#include <looper/flatten_matrix.h>
 #include <looper/model.h>
-#include <boost/numeric/ublas/io.hpp>
+#include <boost/foreach.hpp>
 #include <iostream>
 
-std::ostream& operator<<(std::ostream& os, const looper::bond_matrix& m)
-{
-  boost::numeric::ublas::matrix<double> mat;
-  looper::flatten_matrix(m.matrix(), mat);
-  os << mat;
-  return os;
-}
+int main() {
 
-int main()
-{
-  while (true) {
-    double s0_in, s1_in, c, jxy, jz;
-    std::cin >> s0_in >> s1_in >> c >> jxy >> jz;
-    if (!std::cin) break;
+#ifndef BOOST_NO_EXCEPTIONS
+try {
+#endif
 
-    alps::half_integer<int> s0(s0_in);
-    alps::half_integer<int> s1(s1_in);
-    looper::bond_parameter pi(c, jxy, jz);
-    looper::bond_matrix m(s0, s1, pi);
-    std::cout << "input parameters: S0 = " << s0 << ", S1 = " << s1 << ", "
-              << pi << std::endl << m << std::endl;
+  alps::ParameterList params;
+  std::cin >> params;
 
-    looper::bond_parameter pr(m.matrix());
-    if (pi != pr) std::cerr << "Error: fitting failed\n";
-
-    std::cout << "fitting result: " << pr << std::endl;
+  BOOST_FOREACH(alps::Parameters& p, params) {
+    looper::lattice_helper<alps::coordinate_graph_type> lattice(p);
+    std::cout << lattice.rg();
+    p["LOOPER_DEBUG[MODEL OUTPUT]"] = true;
+    looper::spinmodel_helper model(p, lattice);
   }
+
+#ifndef BOOST_NO_EXCEPTIONS
+}
+catch (std::exception& exc) {
+  std::cerr << exc.what() << "\n";
+  return -1;
+}
+catch (...) {
+  std::cerr << "Fatal Error: Unknown Exception!\n";
+  return -2;
+}
+#endif
 }

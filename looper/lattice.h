@@ -290,7 +290,17 @@ public:
   typedef virtual_graph_type vg_type;
   typedef mapping_type       mp_type;
 
-  lattice_helper(alps::Parameters const& p) : graph_helper_(p) {}
+  lattice_helper(alps::Parameters const& p) : graph_helper_(p) {
+    typedef typename graph_traits<real_graph_type>::site_descriptor site_descriptor;
+    typedef typename graph_traits<real_graph_type>::bond_descriptor bond_descriptor;
+    real_graph_type& graph = graph_helper_.graph();
+    if (p.value_or_default("USE_SITE_INDICES_AS_TYPES", false))
+      BOOST_FOREACH(site_descriptor s, sites(graph))
+        put(site_type_t(), graph, s, s);
+    if (p.value_or_default("USE_BOND_INDICES_AS_TYPES", false))
+      BOOST_FOREACH(bond_descriptor b, bonds(graph))
+        put(bond_type_t(), graph, b, get(bond_index_t(), graph, b));
+  }
 
   real_graph_type const& rg() const { return graph_helper_.graph(); }
   virtual_graph_type const& vg() const { return vgraph_; }
@@ -482,10 +492,9 @@ void virtual_mapping<RG, VG>::output(std::ostream& os, RG const& rg,
   os << "[[vitual_mapping]]\n";
   os << "  number of site groups = " << num_vertices(rg) << '\n';
   os << "  site mapping:\n";
-  virtual_site_iterator vi, vi_end;
-  for (boost::tie(vi, vi_end) = vertices(rg); vi != vi_end; ++vi) {
-    os << "    " << get(site_index_t(), rg, *vi) << " -> ";
-    virtual_site_range_type vr = virtual_vertices(rg, *vi);
+  BOOST_FOREACH(real_site_descriptor v, vertices(rg)) {
+    os << "    " << get(site_index_t(), rg, v) << " -> ";
+    virtual_site_range_type vr = virtual_vertices(rg, v);
     if (vr.first == vr.second) {
       os << "null\n";
     } else if (vr.first == boost::prior(vr.second)) {
@@ -499,10 +508,9 @@ void virtual_mapping<RG, VG>::output(std::ostream& os, RG const& rg,
   }
   os << "  number of bond groups = " << num_bonds(rg) << '\n';
   os << "  bond mapping:\n";
-  real_bond_iterator ei, ei_end;
-  for (boost::tie(ei, ei_end) = bonds(rg); ei != ei_end; ++ei) {
-    os << "    " << get(bond_index_t(), rg, *ei) << " -> ";
-    virtual_bond_range_type er = virtual_bonds(rg, *ei);
+  BOOST_FOREACH(real_bond_descriptor e, bonds(rg)) {
+    os << "    " << get(bond_index_t(), rg, e) << " -> ";
+    virtual_bond_range_type er = virtual_bonds(rg, e);
     if (er.first == er.second) {
       os << "null\n";
     } else if (er.first == boost::prior(er.second)) {
@@ -515,9 +523,9 @@ void virtual_mapping<RG, VG>::output(std::ostream& os, RG const& rg,
     }
   }
   os << "  site2bond mapping:\n";
-  for (boost::tie(vi, vi_end) = vertices(rg); vi != vi_end; ++vi) {
-    os << "    " << get(site_index_t(), rg, *vi) << " -> ";
-    virtual_bond_range_type er = virtual_bonds(rg, *vi);
+  BOOST_FOREACH(real_site_descriptor v, vertices(rg)) {
+    os << "    " << get(site_index_t(), rg, v) << " -> ";
+    virtual_bond_range_type er = virtual_bonds(rg, v);
     if (er.first == er.second) {
       os << "null\n";
     } else if (er.first == boost::prior(er.second)) {
@@ -549,97 +557,90 @@ lattice_helper<RG>::generate_virtual_graph(
   int tmin = 0;
   typename alps::property_map<site_type_t, const rg_type, int>::type
     site_type = alps::get_or_default(site_type_t(), rg(), 0);
-  typename alps::graph_traits<rg_type>::site_iterator rvi, rvi_end;
-  for (boost::tie(rvi, rvi_end) = vertices(rg()); rvi != rvi_end; ++rvi)
-    tmin = std::min(tmin, int(site_type[*rvi]));
+  BOOST_FOREACH(typename graph_traits<rg_type>::site_descriptor rv, vertices(rg()))
+    tmin = std::min(tmin, int(site_type[rv]));
 
   int tmax = 0;
   typename alps::property_map<bond_type_t, const rg_type, int>::type
     bond_type = alps::get_or_default(bond_type_t(), rg(), 0);
-  typename alps::graph_traits<rg_type>::bond_iterator rei, rei_end;
-  for (boost::tie(rei, rei_end) = bonds(rg()); rei != rei_end; ++rei)
-    tmax = std::max(tmax, int(bond_type[*rei]));
+  BOOST_FOREACH(typename graph_traits<rg_type>::bond_descriptor re, bonds(rg()))
+    tmax = std::max(tmax, int(bond_type[re]));
   mapping_.set_s2bond_type_offset(tmax-tmin+1);
 
   // add vertices to virtual graph
-  for (boost::tie(rvi, rvi_end) = vertices(rg()); rvi != rvi_end; ++rvi)
-    for (int i = 0; i < model.site(*rvi, rg()).s.get_twice(); ++i) {
-      typename alps::graph_traits<vg_type>::site_descriptor
-        vvd = add_vertex(vgraph_);
-      put(real_site_t(), vgraph_, vvd, *rvi);
-      put(gauge_t(), vgraph_, vvd, 2. * get(parity_t(), rg(), *rvi) - 1);
+  BOOST_FOREACH(typename graph_traits<rg_type>::site_descriptor rv, vertices(rg()))
+    for (int i = 0; i < model.site(rv, rg()).s.get_twice(); ++i) {
+      typename graph_traits<vg_type>::site_descriptor vvd = add_vertex(vgraph_);
+      put(real_site_t(), vgraph_, vvd, rv);
+      put(gauge_t(), vgraph_, vvd, 2. * get(parity_t(), rg(), rv) - 1);
     }
 
   // setup site mapping
-  typename alps::graph_traits<vg_type>::site_iterator
-    vvi_first = vertices(vgraph_).first;
-  typename alps::graph_traits<vg_type>::site_iterator vvi_last = vvi_first;
-  for (boost::tie(rvi, rvi_end) = vertices(rg()); rvi != rvi_end; ++rvi) {
-    vvi_last += model.site(*rvi, rg()).s.get_twice();
-    mapping_.add_vertices(rg(), *rvi, vvi_first, vvi_last);
+  typename graph_traits<vg_type>::site_iterator vvi_first = vertices(vgraph_).first;
+  typename graph_traits<vg_type>::site_iterator vvi_last = vvi_first;
+  BOOST_FOREACH(typename graph_traits<rg_type>::site_descriptor rv, vertices(rg())) {
+    vvi_last += model.site(rv, rg()).s.get_twice();
+    mapping_.add_vertices(rg(), rv, vvi_first, vvi_last);
     vvi_first = vvi_last;
   }
 
   // add bonds to virtual graph
-  for (boost::tie(rei, rei_end) = bonds(rg()); rei != rei_end; ++rei) {
-    typename alps::graph_traits<rg_type>::site_descriptor
-      rs = source(*rei, rg());
-    typename alps::graph_traits<rg_type>::site_descriptor
-      rt = target(*rei, rg());
-    typename alps::graph_traits<vg_type>::site_iterator vvsi, vvsi_end;
+  BOOST_FOREACH(typename graph_traits<rg_type>::bond_descriptor re, bonds(rg())) {
+    typename graph_traits<rg_type>::site_descriptor rs = source(re, rg());
+    typename graph_traits<rg_type>::site_descriptor rt = target(re, rg());
+    typename graph_traits<vg_type>::site_iterator vvsi, vvsi_end;
     for (boost::tie(vvsi, vvsi_end) = mapping_.virtual_vertices(rg(), rs);
          vvsi != vvsi_end; ++vvsi) {
-      typename alps::graph_traits<vg_type>::site_iterator vvti, vvti_end;
+      typename graph_traits<vg_type>::site_iterator vvti, vvti_end;
       for (boost::tie(vvti, vvti_end) = mapping_.virtual_vertices(rg(), rt);
            vvti != vvti_end; ++vvti) {
-        typename alps::graph_traits<vg_type>::bond_descriptor
+        typename graph_traits<vg_type>::bond_descriptor
           ved = add_edge(*vvsi, *vvti, vgraph_).first;
         put(bond_index_t(), vgraph_, ved, num_bonds(vgraph_) - 1);
-        put(real_bond_t(), vgraph_, ved, *rei);
+        put(real_bond_t(), vgraph_, ved, re);
       }
     }
   }
 
   // add `in-real-site' bonds to virtual graph
   if (has_d_term)
-    for (boost::tie(rvi, rvi_end) = vertices(rg()); rvi != rvi_end; ++rvi) {
-      typename alps::graph_traits<vg_type>::site_iterator vvsi, vvsi_end;
+    BOOST_FOREACH(typename graph_traits<rg_type>::site_descriptor rv, vertices(rg())) {
+      typename graph_traits<vg_type>::site_iterator vvsi, vvsi_end;
       for (boost::tie(vvsi, vvsi_end) =
-             mapping_.virtual_vertices(rg(), *rvi); vvsi != vvsi_end;
+             mapping_.virtual_vertices(rg(), rv); vvsi != vvsi_end;
            ++vvsi)
-        for (typename alps::graph_traits<vg_type>::site_iterator
+        for (typename graph_traits<vg_type>::site_iterator
                vvti = boost::next(vvsi); vvti != vvsi_end; ++vvti) {
-          typename alps::graph_traits<vg_type>::bond_descriptor
+          typename graph_traits<vg_type>::bond_descriptor
             ved = add_edge(*vvsi, *vvti, vgraph_).first;
           put(bond_index_t(), vgraph_, ved, num_bonds(vgraph_) - 1);
         }
     }
 
   // setup bond and s2bond mapping
-  typename alps::graph_traits<vg_type>::bond_iterator
-    vei_first = bonds(vgraph_).first;
-  typename alps::graph_traits<vg_type>::bond_iterator vei_last = vei_first;
-  for (boost::tie(rei, rei_end) = bonds(rg()); rei != rei_end; ++rei) {
-    vei_last += model.site(source(*rei, rg()), rg()).s.get_twice() *
-      model.site(target(*rei, rg()), rg()).s.get_twice();
-    mapping_.add_bonds(rg(), *rei, vei_first, vei_last);
+  typename graph_traits<vg_type>::bond_iterator vei_first = bonds(vgraph_).first;
+  typename graph_traits<vg_type>::bond_iterator vei_last = vei_first;
+  BOOST_FOREACH(typename graph_traits<rg_type>::bond_descriptor re, bonds(rg())) {
+    vei_last += model.site(source(re, rg()), rg()).s.get_twice() *
+      model.site(target(re, rg()), rg()).s.get_twice();
+    mapping_.add_bonds(rg(), re, vei_first, vei_last);
     vei_first = vei_last;
   }
-  for (boost::tie(rvi, rvi_end) = vertices(rg()); rvi != rvi_end; ++rvi) {
+  BOOST_FOREACH(typename graph_traits<rg_type>::site_descriptor rv, vertices(rg())) {
     if (has_d_term)
-      vei_last += model.site(*rvi, rg()).s.get_twice() *
-        (model.site(*rvi, rg()).s.get_twice() - 1) / 2;
-    mapping_.add_s2bonds(rg(), *rvi, vei_first, vei_last);
+      vei_last += model.site(rv, rg()).s.get_twice() *
+        (model.site(rv, rg()).s.get_twice() - 1) / 2;
+    mapping_.add_s2bonds(rg(), rv, vei_first, vei_last);
     vei_first = vei_last;
   }
 
   // set range of types
   site_type_range_ = 0;
-  for (boost::tie(rvi, rvi_end) = vertices(rg()); rvi != rvi_end; ++rvi)
-    site_type_range_.include(get(site_index_t(), rg(), *rvi));
+  BOOST_FOREACH(typename graph_traits<rg_type>::site_descriptor rv, vertices(rg()))
+    site_type_range_.include(get(site_index_t(), rg(), rv));
   bond_type_range_ = 0;
-  for (boost::tie(rei, rei_end) = bonds(rg()); rei != rei_end; ++rei)
-    bond_type_range_.include(get(bond_index_t(), rg(), *rei));
+  BOOST_FOREACH(typename graph_traits<rg_type>::bond_descriptor re, bonds(rg()))
+    bond_type_range_.include(get(bond_index_t(), rg(), re));
 }
 
 } // end namespace looper

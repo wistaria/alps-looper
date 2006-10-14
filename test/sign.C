@@ -51,8 +51,9 @@ try {
         }
 
         alps::graph_helper<> gh(*itr);
-        looper::model_parameter model(gh.graph(), alps::half_integer<int>(0.5),
-                                      (double)jxy, (double)jz);
+        looper::model_parameter model;
+        model.set_parameters(gh.graph(), looper::site_parameter(0.5),
+          looper::bond_parameter(0, jxy, jz));
 
         std::cout << "model has "
                   << (model.is_signed() ? "" : "no ")

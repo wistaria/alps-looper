@@ -35,13 +35,6 @@ std::ostream& operator<<(std::ostream& os, const looper::site_matrix& m)
   return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const looper::site_parameter& p)
-{
-  os << "S = " << p.s << ", C = " << p.c << ", Hx = " << p.hx
-     << ", Hz = " << p.hz << ", D = " << p.d;
-  return os;
-}
-
 int main()
 {
   while (true) {

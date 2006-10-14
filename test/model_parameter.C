@@ -26,24 +26,14 @@
 #include <boost/foreach.hpp>
 #include <iostream>
 
-std::ostream& operator<<(std::ostream& os, const looper::site_parameter& p) {
-  os << "C = " << p.c << ", Hx = " << p.hx << ", Hz = " << p.hz;
-  return os;
-}
-
-std::ostream& operator<<(std::ostream& os, const looper::bond_parameter& p) {
-  os << "C = " << p.c << ", Jxy = " << p.jxy << ", Jz = " << p.jz;
-  return os;
-}
-
 template<typename G>
 void output(const alps::graph_helper<G>& gh, const looper::model_parameter& m) {
   BOOST_FOREACH(typename alps::graph_helper<G>::site_descriptor s, gh.sites())
     std::cout << "site " << s << ": type = " << gh.site_type(s)
-              << ", S = " << m.site(s, gh.graph()).s << std::endl;
+              << ": (S, C, Hx, Hz, D) = " << m.site(s, gh.graph()) << std::endl;
   BOOST_FOREACH(typename alps::graph_helper<G>::bond_descriptor b, gh.bonds())
     std::cout << "bond " << b << ": type = " << gh.bond_type(b)
-              << ", " << m.bond(b, gh.graph()) << std::endl;
+              << ": (C, Jxy, Jz) = " << m.bond(b, gh.graph()) << std::endl;
 }
 
 int main() {
@@ -62,16 +52,16 @@ try {
   alps::model_helper<> mh(gh, params);
 
   // construct from model library
-  looper::model_parameter m0(params, gh, mh);
-  output(gh, m0);
+  looper::model_parameter mp(params, gh, mh);
+  output(gh, mp);
 
   // construct for inhomogeneous model
-  looper::model_parameter m1(params, gh.graph(), true, true, mh.model());
-  output(gh, m1);
+  params["LOOPER_DEBUG[MODEL OUTPUT]"] = "cout";
+  mp.set_parameters(params, gh.graph(), true, true, mh.model());
 
   // construct from parameters
-  looper::model_parameter m2(gh.graph(), alps::half_integer<int>(1.5), -2, -1);
-  output(gh, m2);
+  mp.set_parameters(gh.graph(), looper::site_parameter(1.5), looper::bond_parameter(0, -2, -1));
+  output(gh, mp);
 
 #ifndef BOOST_NO_EXCEPTIONS
 }
