@@ -23,7 +23,6 @@ DIST_SUBDIRS = $(SUBDIRS)
 #
 
 dist_noinst_HEADERS = \
-	looper.h \
 	looper/alternating_tensor.h \
 	looper/cluster.h \
 	looper/correlation.h \
