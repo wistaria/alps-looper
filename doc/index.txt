@@ -73,7 +73,7 @@ Input parameters
 
 In addition to the general input parameters of the `ALPS scheduler
 library
-<http://alps.comp-phys.org/software/alps/doc/scheduler/running.html>`_,
+<http://alps.comp-phys.org/software/alps/doc/scheduler/running.html>`__,
 the ``loop`` and ``loop_mpi`` applications take the following input parameters:
 
 =================================  ===================================  =====================================================================================================
