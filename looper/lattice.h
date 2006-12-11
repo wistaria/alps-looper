@@ -290,29 +290,30 @@ public:
   typedef virtual_graph_type vg_type;
   typedef mapping_type       mp_type;
 
-  lattice_helper(alps::Parameters const& p) : graph_helper_(p) {
-    typedef typename graph_traits<real_graph_type>::site_descriptor site_descriptor;
-    typedef typename graph_traits<real_graph_type>::bond_descriptor bond_descriptor;
-    real_graph_type& graph = graph_helper_.graph();
-    if (p.value_or_default("USE_SITE_INDICES_AS_TYPES", false))
-      BOOST_FOREACH(site_descriptor s, sites(graph))
-        put(site_type_t(), graph, s, s);
-    if (p.value_or_default("USE_BOND_INDICES_AS_TYPES", false))
-      BOOST_FOREACH(bond_descriptor b, bonds(graph))
-        put(bond_type_t(), graph, b, get(bond_index_t(), graph, b));
+  lattice_helper(alps::Parameters const& params) : helper_(params) {
+    convert_type(params);
+  }
+  template<typename M>
+  lattice_helper(alps::Parameters const& params, M const& model, bool has_d_term = false) :
+    helper_(params) {
+    convert_type(params);
+    generate_virtual_graph(model, has_d_term);
   }
 
-  real_graph_type const& rg() const { return graph_helper_.graph(); }
+  real_graph_type const& rg() const { return helper_.graph(); }
   virtual_graph_type const& vg() const { return vgraph_; }
   mapping_type const& mp() const { return mapping_; }
 
-  graph_helper_type const& graph_helper() const { return graph_helper_; }
+  graph_helper_type const& graph_helper() const { return helper_; }
 
   template<typename M>
   void generate_virtual_graph(M const& model, bool has_d_term = false);
 
+protected:
+  void convert_type(alps::Parameters const& p);
+
 private:
-  graph_helper_type  graph_helper_;
+  graph_helper_type  helper_;
   virtual_graph_type vgraph_;
   mapping_type       mapping_;
   type_range_type    site_type_range_;
@@ -321,56 +322,47 @@ private:
 
 
 template<typename L>
-struct real_bond_iterator
-{
+struct real_bond_iterator {
   typedef typename graph_traits<typename L::rg_type>::bond_iterator type;
 };
 
 template<typename L>
-struct real_site_iterator
-{
+struct real_site_iterator {
   typedef typename graph_traits<typename L::rg_type>::site_iterator type;
 };
 
 template<typename L>
-struct real_bond_descriptor
-{
+struct real_bond_descriptor {
   typedef typename graph_traits<typename L::rg_type>::bond_descriptor type;
 };
 
 template<typename L>
-struct real_site_descriptor
-{
+struct real_site_descriptor {
   typedef typename graph_traits<typename L::rg_type>::site_descriptor type;
 };
 
 template<typename L>
-struct virtual_bond_iterator
-{
+struct virtual_bond_iterator {
   typedef typename graph_traits<typename L::vg_type>::bond_iterator type;
 };
 
 template<typename L>
-struct virtual_site_iterator
-{
+struct virtual_site_iterator {
   typedef typename graph_traits<typename L::vg_type>::site_iterator type;
 };
 
 template<typename L>
-struct virtual_bond_descriptor
-{
+struct virtual_bond_descriptor {
   typedef typename graph_traits<typename L::vg_type>::bond_descriptor type;
 };
 
 template<typename L>
-struct virtual_site_descriptor
-{
+struct virtual_site_descriptor {
   typedef typename graph_traits<typename L::vg_type>::site_descriptor type;
 };
 
 template<typename L>
-struct momentum_iterator
-{
+struct momentum_iterator {
   typedef typename L::graph_helper_type::momentum_iterator type;
 };
 
@@ -379,10 +371,8 @@ template<typename RG>
 std::pair<
   typename virtual_site_iterator<lattice_helper<RG> >::type,
   typename virtual_site_iterator<lattice_helper<RG> >::type>
-sites(
-  lattice_helper<RG> const& lat,
-  typename real_site_descriptor<lattice_helper<RG> >::type s)
-{
+sites(lattice_helper<RG> const& lat,
+  typename real_site_descriptor<lattice_helper<RG> >::type s) {
   return lat.mp().virtual_vertices(lat.rg(), s);
 }
 
@@ -390,10 +380,8 @@ template<typename RG>
 std::pair<
   typename virtual_bond_iterator<lattice_helper<RG> >::type,
   typename virtual_bond_iterator<lattice_helper<RG> >::type>
-bonds(
-  lattice_helper<RG> const& lat,
-  typename real_bond_descriptor<lattice_helper<RG> >::type b)
-{
+bonds(lattice_helper<RG> const& lat,
+  typename real_bond_descriptor<lattice_helper<RG> >::type b) {
   return lat.mp().virtual_bonds(lat.rg(), b);
 }
 
@@ -401,16 +389,13 @@ template<typename RG>
 std::pair<
   typename virtual_bond_iterator<lattice_helper<RG> >::type,
   typename virtual_bond_iterator<lattice_helper<RG> >::type>
-bonds(
-  lattice_helper<RG> const& lat,
-  typename real_site_descriptor<lattice_helper<RG> >::type s)
-{
+bonds(lattice_helper<RG> const& lat,
+  typename real_site_descriptor<lattice_helper<RG> >::type s) {
   return lat.mp().virtual_bonds(lat.rg(), s);
 }
 
 template<typename RG>
-int max_virtual_sites(lattice_helper<RG> const& lat)
-{
+int max_virtual_sites(lattice_helper<RG> const& lat) {
   return lat.mp().max_virtual_vertices();
 }
 
@@ -420,9 +405,7 @@ int max_virtual_sites(lattice_helper<RG> const& lat)
 
 template<typename RG>
 std::vector<std::string>
-distance_labels(lattice_helper<RG> const& lat,
-                boost::optional<int> const& origin)
-{
+distance_labels(lattice_helper<RG> const& lat, boost::optional<int> const& origin) {
   if (origin) {
     std::vector<std::string> label;
     for (int s = 0; s < num_sites(lat.rg()); ++s)
@@ -435,31 +418,23 @@ distance_labels(lattice_helper<RG> const& lat,
 }
 
 template<typename RG>
-int
-distance(lattice_helper<RG> const& lat, int s0, int s1)
-{
+int distance(lattice_helper<RG> const& lat, int s0, int s1) {
   return lat.graph_helper().distance(s0, s1);
 }
 
 template<typename RG>
-std::vector<unsigned int>
-distance_multiplicities(lattice_helper<RG> const& lat)
-{
+std::vector<unsigned int> distance_multiplicities(lattice_helper<RG> const& lat) {
   std::vector<unsigned int> mult = lat.graph_helper().distance_multiplicities();
   return lat.graph_helper().distance_multiplicities();
 }
 
 template<typename RG>
-bool
-is_bipartite(lattice_helper<RG> const& lat)
-{
+bool is_bipartite(lattice_helper<RG> const& lat) {
   return lat.graph_helper().is_bipartite();
 }
 
 template<typename RG>
-std::vector<std::string>
-momenta_labels(lattice_helper<RG> const& lat)
-{
+std::vector<std::string> momenta_labels(lattice_helper<RG> const& lat) {
   return lat.graph_helper().momenta_labels();
 }
 
@@ -467,8 +442,7 @@ template<typename RG>
 std::pair<
   typename momentum_iterator<lattice_helper<RG> >::type,
   typename momentum_iterator<lattice_helper<RG> >::type>
-momenta(lattice_helper<RG> const& lat)
-{
+momenta(lattice_helper<RG> const& lat) {
   return lat.graph_helper().momenta();
 }
 
@@ -486,9 +460,7 @@ namespace looper {
 //
 
 template<typename RG, typename VG>
-void virtual_mapping<RG, VG>::output(std::ostream& os, RG const& rg,
-                                     VG const& vg) const
-{
+void virtual_mapping<RG, VG>::output(std::ostream& os, RG const& rg, VG const& vg) const {
   os << "[[vitual_mapping]]\n";
   os << "  number of site groups = " << num_vertices(rg) << '\n';
   os << "  site mapping:\n";
@@ -546,10 +518,7 @@ void virtual_mapping<RG, VG>::output(std::ostream& os, RG const& rg,
 
 template<typename RG>
 template<typename M>
-void
-lattice_helper<RG>::generate_virtual_graph(
-  M const& model, bool has_d_term)
-{
+void lattice_helper<RG>::generate_virtual_graph(M const& model, bool has_d_term) {
   vgraph_.clear();
   mapping_.clear();
 
@@ -641,6 +610,18 @@ lattice_helper<RG>::generate_virtual_graph(
   bond_type_range_ = 0;
   BOOST_FOREACH(typename graph_traits<rg_type>::bond_descriptor re, bonds(rg()))
     bond_type_range_.include(get(bond_index_t(), rg(), re));
+}
+
+template<typename RG>
+void lattice_helper<RG>::convert_type(alps::Parameters const& p) {
+  typedef typename graph_traits<RG>::site_descriptor site_descriptor;
+  typedef typename graph_traits<RG>::bond_descriptor bond_descriptor;
+  if (p.value_or_default("USE_SITE_INDICES_AS_TYPES", false))
+    BOOST_FOREACH(site_descriptor s, sites(helper_.graph()))
+      put(site_type_t(), helper_.graph(), s, s);
+  if (p.value_or_default("USE_BOND_INDICES_AS_TYPES", false))
+    BOOST_FOREACH(bond_descriptor b, bonds(helper_.graph()))
+      put(bond_type_t(), helper_.graph(), b, get(bond_index_t(), helper_.graph(), b));
 }
 
 } // end namespace looper

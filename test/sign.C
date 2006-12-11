@@ -22,8 +22,7 @@
 *
 *****************************************************************************/
 
-#include <looper/model.h>
-#include <alps/lattice.h>
+#include <looper/model_parameter.h>
 #include <iostream>
 
 #ifdef BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP

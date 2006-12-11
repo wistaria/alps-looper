@@ -26,6 +26,7 @@
 #define LOOPER_WEIGHT_H
 
 #include "crop.h"
+#include "model_parameter.h"
 
 #include <alps/math.hpp>
 #include <algorithm> // for std::min std::max

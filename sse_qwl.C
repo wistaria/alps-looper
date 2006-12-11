@@ -34,18 +34,17 @@
 #include <looper/weight.h>
 #include <alps/plot.h>
 #include <boost/regex.hpp>
-#include <boost/foreach.hpp>
 
 namespace {
 
-class loop_worker : public alps::scheduler::MCRun {
+class loop_worker {
 public:
   typedef looper::sse mc_type;
-  typedef alps::scheduler::MCRun super_type;
 
   typedef looper::lattice_helper<loop_config::lattice_graph_t> lattice_t;
   typedef loop_config::time_t time_t;
   typedef loop_config::loop_graph_t loop_graph_t;
+  typedef looper::spinmodel_helper<loop_config::lattice_graph_t, loop_graph_t> model_t;
   typedef looper::local_operator<mc_type, loop_graph_t, time_t> local_operator_t;
   typedef std::vector<local_operator_t> operator_string_t;
   typedef operator_string_t::iterator operator_iterator;
@@ -56,51 +55,41 @@ public:
   typedef looper::estimator<loop_config::measurement_set, mc_type, lattice_t, time_t>::type
     estimator_t;
 
-  loop_worker(alps::ProcessList const& w, alps::Parameters const& p, int n);
-  void dostep();
+  loop_worker(alps::Parameters const& p, alps::ObservableSet& obs);
+  template<typename ENGINE>
+  void run(ENGINE& eng, alps::ObservableSet& obs);
 
-  bool is_thermalized() const {
-    return true;
-  }
-  double work_done() const {
-    return mcs.progress();
-  }
+  bool is_thermalized() const { return true; }
+  double progress() const { return mcs.progress(); }
 
   void save(alps::ODump& dp) const {
-    super_type::save(dp);
-    dp << mcs << spins << operators << logf << histogram << obs;
+    dp << mcs << spins << operators << logf << histogram << histobs;
   }
   void load(alps::IDump& dp) {
-    super_type::load(dp);
-    dp >> mcs >> spins >> operators >> logf >> histogram >> obs;
+    dp >> mcs >> spins >> operators >> logf >> histogram >> histobs;
   }
 
 protected:
-  void build();
+  template<typename ENGINE>
+  void build(ENGINE& eng);
 
-  template<typename FIELD, typename SIGN, typename IMPROVE>
-  void flip();
+  template<typename ENGINE, typename FIELD, typename SIGN, typename IMPROVE>
+  void flip(ENGINE& eng, alps::ObservableSet& obs);
 
-  void measure();
+  void measure(alps::ObservableSet& obs);
 
 private:
   // helpers
   lattice_t lattice;
-  looper::spinmodel_helper model;
+  model_t model;
 
   // parameters
-  double energy_offset;
   bool use_improved_estimator;
-  std::vector<double> field;
-  std::vector<int> bond_sign, site_sign;
   // Wang-Landau parameters
   looper::integer_range<int> exp_range;
   bool store_all_histograms;
   int min_visit;
   double flatness;
-
-  // random number generator
-  looper::graph_chooser<loop_graph_t, super_type::engine_type> chooser;
 
   // configuration (checkpoint)
   looper::wl_steps mcs;
@@ -111,7 +100,7 @@ private:
 
   // observables
   looper::wl_histogram histogram;
-  looper::histogram_set<double> obs;
+  looper::histogram_set<double> histobs;
   estimator_t estimator;
 
   // working vectors
@@ -129,12 +118,11 @@ private:
 // member functions of loop_worker
 //
 
-loop_worker::loop_worker(alps::ProcessList const& w, alps::Parameters const& p, int n) :
-  super_type(w, p, n), lattice(p), model(p, lattice),
+loop_worker::loop_worker(alps::Parameters const& p, alps::ObservableSet& obs) :
+  lattice(p), model(p, lattice, looper::is_path_integral<mc_type>::type()),
   exp_range(p.value_or_default("EXPANSION_RANGE", "[0:500]")),
-  chooser(*engine_ptr), mcs(p, exp_range), histogram(exp_range), obs(exp_range) {
+  mcs(p, exp_range), histogram(exp_range), histobs(exp_range) {
 
-  energy_offset = model.energy_offset();
   use_improved_estimator = !p.defined("DISABLE_IMPROVED_ESTIMATOR");
 
   if (model.has_field())
@@ -147,41 +135,25 @@ loop_worker::loop_worker(alps::ProcessList const& w, alps::Parameters const& p, 
   if (!use_improved_estimator)
     std::cerr << "WARNING: improved estimator is disabled\n";
 
-  lattice.generate_virtual_graph(model, model.has_d_term());
   perm.resize(max_virtual_sites(lattice));
-
-  double fs = p.value_or_default("FORCE_SCATTER", model.is_frustrated() ? 0.1 : 0.);
-  looper::weight_table wt(model, lattice, fs);
-  energy_offset += wt.energy_offset();
-  chooser.init(wt, looper::is_path_integral<mc_type>::type());
-
-  if (model.is_signed()) {
-    bond_sign.resize(num_bonds(lattice.vg()));
-    BOOST_FOREACH(const looper::weight_table::bond_weight_t& b, wt.bond_weights())
-      bond_sign[b.first] = (b.second.sign < 0) ? 1 : 0;
-    site_sign.resize(num_sites(lattice.vg()));
-    BOOST_FOREACH(const looper::weight_table::site_weight_t& s, wt.site_weights())
-      site_sign[s.first] = (s.second.sign < 0) ? 1 : 0;
-  }
 
   // Wang Landau parameters
   if (exp_range.min() < 0)
-    boost::throw_exception(
-      std::invalid_argument("minimum of expansion order must not be negative"));
+    boost::throw_exception(std::invalid_argument(
+      "minimum of expansion order must not be negative"));
   double f =
-    p.value_or_default("INITIAL_MODIFICATION_FACTOR",
-      mcs.use_zhou_bhatt() ? std::exp(1.) :
+    p.value_or_default("INITIAL_MODIFICATION_FACTOR", mcs.use_zhou_bhatt() ? std::exp(1.) :
       std::exp(exp_range.max() * std::log(1.*num_sites(lattice.vg())) / mcs.block()));
   if (f <= 1)
-    boost::throw_exception(
-      std::invalid_argument("initial modification factor must be larger than 1"));
+    boost::throw_exception(std::invalid_argument(
+      "initial modification factor must be larger than 1"));
   logf = std::log(f);
   if (mcs.use_zhou_bhatt()) {
     min_visit = static_cast<int>(1 / logf);
-    flatness = parms.value_or_default("FLATNESS_THRESHOLD", -1.);
+    flatness = p.value_or_default("FLATNESS_THRESHOLD", -1.);
   } else {
     min_visit = 0;
-    flatness = parms.value_or_default("FLATNESS_THRESHOLD", 0.2);
+    flatness = p.value_or_default("FLATNESS_THRESHOLD", 0.2);
   }
 
   // configuration
@@ -191,38 +163,37 @@ loop_worker::loop_worker(alps::ProcessList const& w, alps::Parameters const& p, 
   current.resize(nvs);
 
   // measurements
-  store_all_histograms =  parms.defined("STORE_ALL_HISTOGRAMS");
-  measurements << alps::SimpleRealObservable("Number of Sites");
-  measurements << alps::SimpleRealObservable("Energy Offset");
-  measurements << alps::SimpleRealVectorObservable("Partition Function Coefficient");
-  measurements << alps::SimpleRealVectorObservable("Histogram");
+  store_all_histograms =  p.defined("STORE_ALL_HISTOGRAMS");
+  obs << alps::SimpleRealObservable("Number of Sites");
+  obs << alps::SimpleRealObservable("Energy Offset");
+  obs << alps::SimpleRealVectorObservable("Partition Function Coefficient");
+  obs << alps::SimpleRealVectorObservable("Histogram");
   if (store_all_histograms) {
     for (int p = 0; p < mcs.iterations(); ++p) {
       std::string suffix = "(iteration #" + boost::lexical_cast<std::string>(p) + ")";
-      measurements
-        << alps::SimpleRealVectorObservable("Partition Function Coefficient " + suffix)
-        << alps::SimpleRealVectorObservable("Histogram " + suffix);
+      obs << alps::SimpleRealVectorObservable("Partition Function Coefficient " + suffix)
+          << alps::SimpleRealVectorObservable("Histogram " + suffix);
     }
   }
-  measurements.reset(true);
-  if (model.is_signed()) obs.add_histogram("Sign");
-  estimator.initialize(obs, p, lattice, model.is_signed(), use_improved_estimator);
+  obs.reset(true);
+  if (model.is_signed()) histobs.add_histogram("Sign");
+  estimator.initialize(histobs, p, lattice, model.is_signed(), use_improved_estimator);
 }
 
-void loop_worker::dostep()
-{
+template<typename ENGINE>
+void loop_worker::run(ENGINE& eng, alps::ObservableSet& obs) {
   if (!mcs.can_work()) return;
   ++mcs;
 
-  build();
+  build(eng);
 
-  //   FIELD               SIGN                IMPROVE
-  flip<boost::mpl::false_, boost::mpl::true_,  boost::mpl::true_ >();
-  flip<boost::mpl::false_, boost::mpl::true_,  boost::mpl::false_>();
-  flip<boost::mpl::false_, boost::mpl::false_, boost::mpl::true_ >();
-  flip<boost::mpl::false_, boost::mpl::false_, boost::mpl::false_>();
+  //           FIELD               SIGN                IMPROVE
+  flip<ENGINE, boost::mpl::false_, boost::mpl::true_,  boost::mpl::true_ >(eng, obs);
+  flip<ENGINE, boost::mpl::false_, boost::mpl::true_,  boost::mpl::false_>(eng, obs);
+  flip<ENGINE, boost::mpl::false_, boost::mpl::false_, boost::mpl::true_ >(eng, obs);
+  flip<ENGINE, boost::mpl::false_, boost::mpl::false_, boost::mpl::false_>(eng, obs);
 
-  if (mcs.doing_multicanonical()) measure();
+  if (mcs.doing_multicanonical()) measure(obs);
 
   if (!mcs.doing_multicanonical() && mcs() == mcs.block()) {
     if (histogram.check_flatness(flatness) && histogram.check_visit(min_visit)) {
@@ -230,7 +201,7 @@ void loop_worker::dostep()
       histogram.subtract();
       if (store_all_histograms) {
         std::string suffix = "(iteration #" + boost::lexical_cast<std::string>(mcs.stage()) + ")";
-        histogram.store(measurements, "Partition Function Coefficient " + suffix,
+        histogram.store(obs, "Partition Function Coefficient " + suffix,
           "Histogram " + suffix, mcs.doing_multicanonical());
       }
       logf = 0.5 * logf;
@@ -244,7 +215,7 @@ void loop_worker::dostep()
     }
   }
   if (mcs.doing_multicanonical() && mcs() == mcs.sweeps())
-    histogram.store(measurements, "Partition Function Coefficient", "Histogram",
+    histogram.store(obs, "Partition Function Coefficient", "Histogram",
       mcs.doing_multicanonical());
 }
 
@@ -253,8 +224,8 @@ void loop_worker::dostep()
 // diagonal update and cluster construction
 //
 
-void loop_worker::build()
-{
+template<typename ENGINE>
+void loop_worker::build(ENGINE& eng) {
   // initialize spin & operator information
   int nop = operators.size();
   std::copy(spins.begin(), spins.end(), spins_c.begin());
@@ -265,14 +236,14 @@ void loop_worker::build()
   fragments.resize(0); fragments.resize(nvs);
   for (int s = 0; s < nvs; ++s) current[s] = s;
 
-  double bw = chooser.weight();
+  double bw = model.graph_weight();
   bool try_gap = true;
   for (operator_iterator opi = operators_p.begin(); try_gap || opi != operators_p.end();) {
 
     // diagonal update & labeling
     if (try_gap) {
       if ((nop+1) * random() < bw * histogram.accept_rate(nop, nop+1)) {
-        loop_graph_t g = chooser.graph();
+        loop_graph_t g = model.choose_graph(eng);
         if ((is_bond(g) && is_compatible(g, spins_c[source(pos(g), lattice.vg())],
                                             spins_c[target(pos(g), lattice.vg())])) ||
             (is_site(g) && is_compatible(g, spins_c[pos(g)]))) {
@@ -297,15 +268,15 @@ void loop_worker::build()
           continue;
         } else {
           if (opi->is_site()) {
-            opi->assign_graph(chooser.diagonal(opi->loc(), spins_c[opi->pos()]));
+            opi->assign_graph(model.choose_diagonal(eng, opi->loc(), spins_c[opi->pos()]));
           } else {
-            opi->assign_graph(chooser.diagonal(opi->loc(),
+            opi->assign_graph(model.choose_diagonal(eng, opi->loc(),
               spins_c[source(opi->pos(), lattice.vg())],
               spins_c[target(opi->pos(), lattice.vg())]));
           }
         }
       } else {
-        opi->assign_graph(chooser.offdiagonal(opi->loc()));
+        opi->assign_graph(model.choose_offdiagonal(eng, opi->loc()));
       }
       operators.push_back(*opi);
       ++opi;
@@ -352,11 +323,13 @@ void loop_worker::build()
 // cluster flip
 //
 
-template<typename FIELD, typename SIGN, typename IMPROVE>
-void loop_worker::flip()
-{
+template<typename ENGINE, typename FIELD, typename SIGN, typename IMPROVE>
+void loop_worker::flip(ENGINE& eng, alps::ObservableSet& /* obs */) {
   if (model.is_signed() != SIGN() ||
       use_improved_estimator != IMPROVE()) return;
+
+  boost::variate_generator<ENGINE&, boost::uniform_real<> >
+    uniform_01(eng, boost::uniform_real<>());
 
   int nvs = num_sites(lattice.vg());
   int nop = operators.size();
@@ -369,7 +342,7 @@ void loop_worker::flip()
 
   std::copy(spins.begin(), spins.end(), spins_c.begin());
   cluster_info_t::accumulator<cluster_fragment_t, FIELD, SIGN, IMPROVE>
-    weight(clusters, fragments, field, bond_sign, site_sign);
+    weight(clusters, fragments, model.field(), model.bond_sign(), model.site_sign());
   looper::accumulator<estimator_t, cluster_fragment_t, IMPROVE>
     accum(estimates, nc, lattice, estimator, fragments);
   double t = 0;
@@ -407,7 +380,7 @@ void loop_worker::flip()
   // determine whether clusters are flipped or not
   double improved_sign = 1;
   BOOST_FOREACH(cluster_info_t& ci, clusters) {
-    ci.to_flip = ((2*random()-1) < (FIELD() ? std::tanh(ci.weight) : 0));
+    ci.to_flip = ((2*uniform_01()-1) < (FIELD() ? std::tanh(ci.weight) : 0));
     if (SIGN() && IMPROVE() && (ci.sign & 1 == 1)) improved_sign = 0;
   }
 
@@ -415,10 +388,10 @@ void loop_worker::flip()
   if (IMPROVE()) {
     typename looper::collector<estimator_t>::type coll = get_collector(estimator);
     coll = std::accumulate(estimates.begin(), estimates.end(), coll);
-    obs.set_position(nop);
-    estimator.improved_measurement(obs, lattice, 1, improved_sign, spins, operators,
+    histobs.set_position(nop);
+    estimator.improved_measurement(histobs, lattice, 1, improved_sign, spins, operators,
       spins_c, fragments, coll);
-    if (SIGN()) obs["Sign"] << improved_sign;
+    if (SIGN()) histobs["Sign"] << improved_sign;
   }
 
   // flip operators & spins
@@ -434,26 +407,26 @@ void loop_worker::flip()
 // measurement
 //
 
-void loop_worker::measure()
-{
+void loop_worker::measure(alps::ObservableSet& obs) {
   int nrs = num_sites(lattice.rg());
   int nop = operators.size();
-  measurements["Number of Sites"] << (double)nrs;
-  measurements["Energy Offset"] << energy_offset;
-  obs.set_position(nop);
+  obs["Number of Sites"] << (double)nrs;
+  obs["Energy Offset"] << model.energy_offset();
+  histobs.set_position(nop);
 
   // sign
   double sign = 1;
   if (model.is_signed()) {
     int n = 0;
     BOOST_FOREACH(const local_operator_t& op, operators)
-      if (op.is_offdiagonal()) n += (op.is_bond()) ? bond_sign[op.pos()] : site_sign[op.pos()];
+      if (op.is_offdiagonal())
+        n += (op.is_bond()) ? model.bond_sign(op.pos()) : model.site_sign(op.pos());
     if (n & 1 == 1) sign = -1;
-    if (!use_improved_estimator) obs["Sign"] << sign;
+    if (!use_improved_estimator) histobs["Sign"] << sign;
   }
 
   // other quantities
-  estimator.normal_measurement(obs, lattice, 1, sign, spins, operators, spins_c);
+  estimator.normal_measurement(histobs, lattice, 1, sign, spins, operators, spins_c);
 }
 
 

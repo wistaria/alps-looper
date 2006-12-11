@@ -14,12 +14,13 @@ define([package_name], [looper])
 dnl version of package
 define([package_version], [esyscmd(config/extract_version.sh)])
 define([package_date], [esyscmd(config/extract_date.sh)])
+define([package_bugreport], [wistaria@comp-phys.org])
 
 dnl 
 dnl Initialization ----------------------------------------------------------
 dnl
 
-AC_INIT(package_name, package_version)
+AC_INIT(package_name, package_version, package_bugreport)
 AC_CONFIG_AUX_DIR([config])
 AM_INIT_AUTOMAKE
 AC_PREFIX_DEFAULT([$HOME/ALPS])
@@ -30,6 +31,7 @@ AC_MSG_NOTICE([starting configuration for ALPS/looper version package_version (p
 undefine([package_name])
 undefine([package_version])
 undefine([package_date])
+undefine([package_bugreport])
 
 dnl
 dnl check for ALPS library --------------------------------------------------
@@ -68,6 +70,15 @@ CPPFLAGS="$ac_cv_alps_cppflags"
 CXXFLAGS="$ac_cv_alps_cxxflags"
 LDFLAGS="$ac_cv_alps_ldflags"
 LIBS="$ac_cv_alps_libs"
+
+dnl
+dnl check for ALPS/parapack
+dnl
+
+AC_CHECK_HEADER([parapack/scheduler.h])
+test "$ac_cv_header_parapack_scheduler_h" = yes && ac_cv_have_parapack=yes
+test "$ac_cv_have_parapack" = yes && AC_DEFINE([HAVE_PARAPACK])
+AM_CONDITIONAL(HAVE_PARAPACK, test "$ac_cv_have_parapack" = yes)
 
 dnl
 dnl check for MPI library
@@ -115,11 +126,19 @@ AC_SUBST([DEFAULT_INCLUDES], '-I$(top_srcdir) -I$(top_builddir)')
 if test -n "$config_file"; then
   DEFAULT_INCLUDES="$DEFAULT_INCLUDES -DLOOP_CONFIG_HEADER=\\\"$config_file\\\""
 fi
-AC_SUBST([LDADD], "$ac_cv_alps_libs")
+if test "$ac_cv_have_parapack" = yes; then
+  AC_SUBST([LDADD], "-lparapack $ac_cv_alps_libs")
+else
+  AC_SUBST([LDADD], "$ac_cv_alps_libs")
+fi
 
 AC_SUBST([CPPFLAGS_MPI], "$ac_cv_alps_cppflags_mpi")
 AC_SUBST([LDFLAGS_MPI], "$ac_cv_alps_ldflags_mpi")
-AC_SUBST([LIBS_MPI], "$ac_cv_alps_libs_mpi")
+if test "$ac_cv_have_parapack" = yes; then
+  AC_SUBST([LIBS_MPI], "-lparapack $ac_cv_alps_libs_mpi")
+else
+  AC_SUBST([LIBS_MPI], "$ac_cv_alps_libs_mpi")
+fi
 
 dnl
 dnl methods

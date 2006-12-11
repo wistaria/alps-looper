@@ -30,8 +30,6 @@
 #include <looper/montecarlo.h>
 #include <looper/permutation.h>
 #include <looper/temperature.h>
-#include <boost/foreach.hpp>
-#include <boost/numeric/ublas/matrix.hpp>
 
 namespace {
 
@@ -42,12 +40,13 @@ struct dummy_operator {
   static bool is_bond() { return false; }
 };
 
-class loop_worker : public alps::scheduler::MCRun {
+class loop_worker {
 public:
   typedef looper::classical mc_type;
-  typedef alps::scheduler::MCRun super_type;
 
   typedef looper::lattice_helper<loop_config::lattice_graph_t> lattice_t;
+  typedef loop_config::loop_graph_t loop_graph_t;
+  typedef looper::spinmodel_helper<loop_config::lattice_graph_t, loop_graph_t> model_t;
   typedef std::vector<dummy_operator> operator_string_t;
 
   typedef looper::union_find::node cluster_fragment_t;
@@ -56,56 +55,43 @@ public:
   typedef looper::estimator<loop_config::measurement_set, mc_type, lattice_t, time_t>::type
     estimator_t;
 
-  loop_worker(alps::ProcessList const& w, alps::Parameters const& p, int n);
-  void dostep();
+  loop_worker(alps::Parameters const& p, alps::ObservableSet& obs);
+  template<typename ENGINE>
+  void run(ENGINE& eng, alps::ObservableSet& obs);
 
-  bool is_thermalized() const {
-    return mcs.is_thermalized();
-  }
-  double work_done() const {
-    return mcs.progress();
-  }
+  bool is_thermalized() const { return mcs.is_thermalized(); }
+  double progress() const { return mcs.progress(); }
 
-  void save(alps::ODump& dp) const {
-    super_type::save(dp);
-    dp << mcs << spins;
-  }
-  void load(alps::IDump& dp) {
-    super_type::load(dp);
-    dp >> mcs >> spins;
-  }
+  void save(alps::ODump& dp) const { dp << mcs << spins; }
+  void load(alps::IDump& dp) { dp >> mcs >> spins; }
 
 protected:
-  void build();
+  template<typename ENGINE>
+  void build(ENGINE& eng);
 
-  template<typename FIELD, typename IMPROVE>
-  void flip();
+  template<typename ENGINE, typename FIELD, typename IMPROVE>
+  void flip(ENGINE& eng, alps::ObservableSet& obs);
 
-  void measure();
+  void measure(alps::ObservableSet& obs);
 
 private:
   // helpers
   lattice_t lattice;
-  looper::spinmodel_helper model;
+  model_t model;
 
   // parameters
   looper::temperature temperature;
   double beta;
-  double energy_offset;
   bool use_improved_estimator;
-  std::vector<double> field;
-  std::vector<double> coupling;
-  boost::numeric::ublas::matrix<double> prob;
 
   // configuration (checkpoint)
   looper::mc_steps mcs;
   std::vector<int> spins;
 
-  // observables
-  alps::ObservableSet& obs;
   estimator_t estimator;
 
   // working vectors
+  int nop;
   std::vector<cluster_fragment_t> fragments;
   std::vector<cluster_info_t> clusters;
   std::vector<looper::estimate<estimator_t>::type> estimates;
@@ -117,13 +103,12 @@ private:
 // member functions of loop_worker
 //
 
-loop_worker::loop_worker(alps::ProcessList const& w, alps::Parameters const& p, int n) :
-  super_type(w, p, n), lattice(p), model(p, lattice), temperature(p), mcs(p), obs(measurements) {
+loop_worker::loop_worker(alps::Parameters const& p, alps::ObservableSet& obs) :
+  lattice(p), model(p, lattice), temperature(p), mcs(p) {
 
   if (temperature.annealing_steps() > mcs.thermalization())
     boost::throw_exception(std::invalid_argument("longer annealing steps than thermalization"));
 
-  energy_offset = model.energy_offset();
   use_improved_estimator = !model.has_field() && !p.defined("DISABLE_IMPROVED_ESTIMATOR");
 
   if (model.is_quantal())
@@ -135,27 +120,7 @@ loop_worker::loop_worker(alps::ProcessList const& w, alps::Parameters const& p, 
   if (!use_improved_estimator)
     std::cerr << "WARNING: improved estimator is disabled\n";
 
-  lattice.generate_virtual_graph(model, model.has_d_term());
   perm.resize(max_virtual_sites(lattice));
-
-  coupling.resize(num_bonds(lattice.vg()));
-  prob.resize(num_bonds(lattice.vg()), 2);
-  int b = 0;
-  BOOST_FOREACH(looper::real_bond_descriptor<lattice_t>::type rb, bonds(lattice.rg())) {
-    double jz = -model.bond(rb, lattice.rg()).jz; // positive for ferromagnetic
-    BOOST_FOREACH(looper::virtual_bond_descriptor<lattice_t>::type vb, bonds(lattice, rb)) {
-      coupling[b] = jz;
-      ++b;
-    }
-  }
-  if (model.has_field()) {
-    field.resize(num_sites(lattice.vg()));
-    BOOST_FOREACH(looper::real_site_descriptor<lattice_t>::type rs, sites(lattice.rg())) {
-      double hz = model.site(rs, lattice.rg()).hz;
-      BOOST_FOREACH(looper::virtual_site_descriptor<lattice_t>::type vs, sites(lattice, rs))
-        field[vs] = hz;
-    }
-  }
 
   // configuration
   int nvs = num_sites(lattice.vg());
@@ -170,21 +135,21 @@ loop_worker::loop_worker(alps::ProcessList const& w, alps::Parameters const& p, 
   estimator.initialize(obs, p, lattice, false, use_improved_estimator);
 }
 
-void loop_worker::dostep()
-{
+template<typename ENGINE>
+void loop_worker::run(ENGINE& eng, alps::ObservableSet& obs) {
   if (!mcs.can_work()) return;
   ++mcs;
   beta = 1.0 / temperature(mcs());
 
-  build();
+  build(eng);
 
-  //   FIELD               IMPROVE
-  flip<boost::mpl::true_,  boost::mpl::true_ >();
-  flip<boost::mpl::true_,  boost::mpl::false_>();
-  flip<boost::mpl::false_, boost::mpl::true_ >();
-  flip<boost::mpl::false_, boost::mpl::false_>();
+  //           FIELD               IMPROVE
+  flip<ENGINE, boost::mpl::true_,  boost::mpl::true_ >(eng, obs);
+  flip<ENGINE, boost::mpl::true_,  boost::mpl::false_>(eng, obs);
+  flip<ENGINE, boost::mpl::false_, boost::mpl::true_ >(eng, obs);
+  flip<ENGINE, boost::mpl::false_, boost::mpl::false_>(eng, obs);
 
-  measure();
+  measure(obs);
 }
 
 
@@ -192,25 +157,26 @@ void loop_worker::dostep()
 // cluster construction
 //
 
-void loop_worker::build() {
-
+template<typename ENGINE>
+void loop_worker::build(ENGINE& eng) {
   // initialize cluster information (setup cluster fragments)
   int nvs = num_sites(lattice.vg());
   fragments.resize(0); fragments.resize(nvs);
 
-  // build table of probabilities
-  int nvb = num_bonds(lattice.vg());
-  if (mcs() <= temperature.annealing_steps() + 1)
-    for (int b = 0; b < nvb; ++b) {
-      prob(b, 0) = 1-std::exp(-0.5 * beta * coupling[b]); // for parallel
-      prob(b, 1) = 1-std::exp( 0.5 * beta * coupling[b]); // for antiparallel
-    }
-
   // building up clusters
-  for (int b = 0; b < nvb; ++b) {
-    int s0 = source(b, lattice.vg());
-    int s1 = target(b, lattice.vg());
-    if (random() < prob(b, spins[s0] ^ spins[s1])) unify(fragments, s0, s1);
+  nop = 0;
+  boost::variate_generator<ENGINE&, boost::exponential_distribution<> >
+    r_time(eng, boost::exponential_distribution<>(beta * model.graph_weight()));
+  double t = r_time();
+  while (t < 1) {
+    loop_graph_t g = model.choose_graph(eng);
+    int s0 = source(pos(g), lattice.vg());
+    int s1 = target(pos(g), lattice.vg());
+    if (is_compatible(g, spins[s0], spins[s1])) {
+      unify(fragments, s0, s1);
+      ++nop;
+    }
+    t += r_time();
   }
 
   // symmetrize spins
@@ -233,10 +199,12 @@ void loop_worker::build() {
 // cluster flip
 //
 
-template<typename FIELD, typename IMPROVE>
-void loop_worker::flip() {
-
+template<typename ENGINE, typename FIELD, typename IMPROVE>
+void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
   if (FIELD() || use_improved_estimator != IMPROVE()) return;
+
+  boost::variate_generator<ENGINE&, boost::uniform_real<> >
+    uniform_01(eng, boost::uniform_real<>());
 
   int nvs = num_sites(lattice.vg());
 
@@ -248,7 +216,7 @@ void loop_worker::flip() {
   clusters.resize(0); clusters.resize(nc);
 
   cluster_info_t::accumulator<cluster_fragment_t, FIELD,
-    boost::mpl::false_, IMPROVE> weight(clusters, fragments, field, 0, 0);
+    boost::mpl::false_, IMPROVE> weight(clusters, fragments, model.field(), 0, 0);
   looper::accumulator<estimator_t, cluster_fragment_t, IMPROVE>
     accum(estimates, nc, lattice, estimator, fragments);
   for (unsigned int s = 0; s < nvs; ++s) {
@@ -260,7 +228,7 @@ void loop_worker::flip() {
 
   // determine whether clusters are flipped or not
   BOOST_FOREACH(cluster_info_t& ci, clusters)
-    ci.to_flip = ((2*random()-1) < (FIELD() ? std::tanh(ci.weight) : 0));
+    ci.to_flip = ((2*uniform_01()-1) < (FIELD() ? std::tanh(ci.weight) : 0));
 
   // improved measurement
   if (IMPROVE()) {
@@ -280,26 +248,19 @@ void loop_worker::flip() {
 // measurement
 //
 
-void loop_worker::measure() {
-
+void loop_worker::measure(alps::ObservableSet& obs) {
   int nrs = num_sites(lattice.rg());
   obs["Temperature"] << 1/beta;
   obs["Inverse Temperature"] << beta;
   obs["Number of Sites"] << (double)nrs;
 
   // energy
-  double ene = energy_offset;
-  int nvb = num_bonds(lattice.vg());
-  for (int b = 0; b < nvb; ++b) {
-    int s0 = source(b, lattice.vg());
-    int s1 = target(b, lattice.vg());
-    ene -= 0.5 * coupling[b] * (0.5 - (spins[s0] ^ spins[s1]));
-  }
+  double ene = model.energy_offset() - nop / beta;
   if (model.has_field())
     BOOST_FOREACH(const cluster_info_t& c, clusters)
       ene += (c.to_flip ? -c.weight : c.weight);
-  looper::energy_estimator::measurement(obs, lattice, beta, 0, 1, ene);
-  
+  looper::energy_estimator::measurement(obs, lattice, beta, nop, 1, ene);
+
   estimator.normal_measurement(obs, lattice, beta, 1, spins, operator_string_t(), spins);
 }
 

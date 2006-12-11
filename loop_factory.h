@@ -24,17 +24,59 @@
 
 #include <looper/evaluator.h>
 #include <alps/scheduler.h>
+#ifdef HAVE_PARAPACK
+# include <parapack/worker.h>
+#endif
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/throw_exception.hpp>
 #include <map>
 #include <stdexcept>
 
+template<typename WORKER>
+class alps_worker_wrapper : public alps::scheduler::MCRun {
+public:
+  alps_worker_wrapper(alps::ProcessList const& w, alps::Parameters const& p, int n) :
+    alps::scheduler::MCRun(w, p, n),  worker_(p, measurements) {}
+  virtual ~alps_worker_wrapper() {}
+  virtual void dostep() { worker_.run(*engine_ptr, measurements); }
+  virtual void load(alps::IDump& dump) { worker_.load(dump); }
+  virtual void save(alps::ODump& dump) const { worker_.save(dump); }
+
+  virtual bool is_thermalized() const { return worker_.is_thermalized(); }
+  virtual double work_done() const { return worker_.progress(); }
+private:
+  WORKER worker_;
+};
+
+#ifdef HAVE_PARAPACK
+
+template<typename WORKER>
+class parapack_worker_wrapper : public alps::parapack::mc_worker {
+public:
+  parapack_worker_wrapper(alps::Parameters const& p, alps::ObservableSet& obs) :
+    alps::parapack::mc_worker(p),  worker_(p, obs) {}
+  virtual ~parapack_worker_wrapper() {}
+  virtual void run(alps::ObservableSet& obs) { worker_.run(*engine_ptr, obs); }
+  virtual void load(alps::IDump& dump) { worker_.load(dump); }
+  virtual void save(alps::ODump& dump) const { worker_.save(dump); }
+  virtual bool is_thermalized() const { return worker_.is_thermalized(); }
+  virtual double progress() const { return worker_.progress(); }
+private:
+  WORKER worker_;
+};
+
+#endif // HAVE_PARAPACK
+
 class abstract_worker_creator {
 public:
   virtual ~abstract_worker_creator() {}
-  virtual alps::scheduler::MCRun* create(const alps::ProcessList& w,
-    const alps::Parameters& p, int n) const = 0;
+  virtual alps::scheduler::MCRun* create(alps::ProcessList const& w,
+    alps::Parameters const& p, int n) const = 0;
+#ifdef HAVE_PARAPACK
+  virtual alps::parapack::abstract_worker* create(const alps::Parameters& p,
+    alps::ObservableSet& obs) const = 0;
+#endif // HAVE_PARAPACK
 };
 
 template <typename WORKER>
@@ -42,24 +84,39 @@ class worker_creator : public abstract_worker_creator {
 public:
   typedef WORKER worker_type;
   virtual ~worker_creator() {}
-  alps::scheduler::MCRun* create(const alps::ProcessList& w,const alps::Parameters& p,
+  alps::scheduler::MCRun* create(alps::ProcessList const& w, alps::Parameters const& p,
     int n) const {
-    return new worker_type(w, p, n);
+    return new alps_worker_wrapper<worker_type>(w, p, n);
   }
+#ifdef HAVE_PARAPACK
+  virtual alps::parapack::abstract_worker* create(const alps::Parameters& p,
+    alps::ObservableSet& obs) const {
+    return new parapack_worker_wrapper<worker_type>(p, obs);
+  }
+#endif // HAVE_PARAPACK
 };
 
-class loop_factory : public alps::scheduler::Factory, private boost::noncopyable {
+class loop_factory :
+  public alps::scheduler::Factory,
+#ifdef HAVE_PARAPACK
+  public alps::parapack::abstract_single_worker_factory,
+#endif
+  private boost::noncopyable {
 public:
   alps::scheduler::MCSimulation* make_task(const alps::ProcessList& w,
     const boost::filesystem::path& fn) const;
   alps::scheduler::MCSimulation* make_task(const alps::ProcessList& w,
     const boost::filesystem::path& fn, const alps::Parameters&) const;
   alps::scheduler::MCSimulation* make_task(const alps::ProcessList&,
-    const alps::Parameters&) const {
+    alps::Parameters const&) const {
     return 0;
   }
-  alps::scheduler::MCRun* make_worker(const alps::ProcessList& w,
-    const alps::Parameters& p, int n) const;
+  alps::scheduler::MCRun* make_worker(alps::ProcessList const& w, alps::Parameters const& p,
+    int n) const;
+#ifdef HAVE_PARAPACK
+  alps::parapack::abstract_worker* make_worker(alps::Parameters const& params,
+    alps::ObservableSet& obs) const;
+#endif // HAVE_PARAPACK
 
   void print_copyright(std::ostream& os) const;
 

@@ -69,8 +69,7 @@ try {
   param["LATTICE"] = "square lattice";
   param["L"] = 2;
   lattice_type lat(param);
-  put(looper::site_type_t(), const_cast<real_graph_type&>(lat.rg()),
-      *(sites(lat.rg()).first), 1);
+  put(looper::site_type_t(), const_cast<real_graph_type&>(lat.rg()), *(sites(lat.rg()).first), 1);
   std::cout << lat.rg();
   real_site_iterator rvi, rvi_end;
   for (boost::tie(rvi, rvi_end) = sites(lat.rg()); rvi != rvi_end; ++rvi)

@@ -33,18 +33,17 @@
 #include <looper/temperature.h>
 #include <looper/type.h>
 #include <looper/weight.h>
-#include <boost/foreach.hpp>
 
 namespace {
 
-class loop_worker : public alps::scheduler::MCRun {
+class loop_worker {
 public:
   typedef looper::path_integral mc_type;
-  typedef alps::scheduler::MCRun super_type;
 
   typedef looper::lattice_helper<loop_config::lattice_graph_t> lattice_t;
   typedef loop_config::time_t time_t;
   typedef loop_config::loop_graph_t loop_graph_t;
+  typedef looper::spinmodel_helper<loop_config::lattice_graph_t, loop_graph_t> model_t;
   typedef looper::local_operator<mc_type, loop_graph_t, time_t> local_operator_t;
   typedef std::vector<local_operator_t> operator_string_t;
   typedef operator_string_t::iterator operator_iterator;
@@ -55,57 +54,40 @@ public:
   typedef looper::estimator<loop_config::measurement_set, mc_type, lattice_t, time_t>::type
     estimator_t;
 
-  loop_worker(alps::ProcessList const& w, alps::Parameters const& p, int n);
-  void dostep();
+  loop_worker(alps::Parameters const& p, alps::ObservableSet& obs);
+  template<typename ENGINE>
+  void run(ENGINE& eng, alps::ObservableSet& obs);
 
-  bool is_thermalized() const {
-    return mcs.is_thermalized();
-  }
-  double work_done() const {
-    return mcs.progress();
-  }
+  bool is_thermalized() const { return mcs.is_thermalized(); }
+  double progress() const { return mcs.progress(); }
 
-  void save(alps::ODump& dp) const {
-    super_type::save(dp);
-    dp << mcs << spins << operators;
-  }
-  void load(alps::IDump& dp) {
-    super_type::load(dp);
-    dp >> mcs >> spins >> operators;
-  }
+  void save(alps::ODump& dp) const { dp << mcs << spins << operators; }
+  void load(alps::IDump& dp) { dp >> mcs >> spins >> operators; }
 
 protected:
-  void build();
+  template<typename ENGINE>
+  void build(ENGINE& eng);
 
-  template<typename FIELD, typename SIGN, typename IMPROVE>
-  void flip();
+  template<typename ENGINE, typename FIELD, typename SIGN, typename IMPROVE>
+  void flip(ENGINE& eng, alps::ObservableSet& obs);
 
-  void measure();
+  void measure(alps::ObservableSet& obs);
 
 private:
   // helpers
   lattice_t lattice;
-  looper::spinmodel_helper model;
+  model_t model;
 
   // parameters
   looper::temperature temperature;
   double beta;
-  double energy_offset;
   bool use_improved_estimator;
-  std::vector<double> field;
-  std::vector<int> bond_sign, site_sign;
-
-  // random number generator
-  looper::graph_chooser<loop_graph_t, super_type::engine_type> chooser;
-  boost::variate_generator<super_type::engine_type&, boost::exponential_distribution<> > r_time;
 
   // configuration (checkpoint)
   looper::mc_steps mcs;
   std::vector<int> spins;
   std::vector<local_operator_t> operators;
 
-  // observables
-  alps::ObservableSet& obs;
   estimator_t estimator;
 
   // working vectors
@@ -123,14 +105,13 @@ private:
 // member functions of loop_worker
 //
 
-loop_worker::loop_worker(alps::ProcessList const& w, alps::Parameters const& p, int n) :
-  super_type(w, p, n), lattice(p), model(p, lattice), temperature(p), chooser(*engine_ptr),
-  r_time(*engine_ptr, boost::exponential_distribution<>()), mcs(p), obs(measurements) {
+loop_worker::loop_worker(alps::Parameters const& p, alps::ObservableSet& obs) :
+  lattice(p), model(p, lattice, looper::is_path_integral<mc_type>::type()), temperature(p),
+  mcs(p) {
 
   if (temperature.annealing_steps() > mcs.thermalization())
     boost::throw_exception(std::invalid_argument("longer annealing steps than thermalization"));
 
-  energy_offset = model.energy_offset();
   use_improved_estimator = !model.has_field() && !p.defined("DISABLE_IMPROVED_ESTIMATOR");
 
   if (model.has_field())
@@ -142,29 +123,7 @@ loop_worker::loop_worker(alps::ProcessList const& w, alps::Parameters const& p, 
   if (!use_improved_estimator)
     std::cerr << "WARNING: improved estimator is disabled\n";
 
-  lattice.generate_virtual_graph(model, model.has_d_term());
   perm.resize(max_virtual_sites(lattice));
-
-  double fs = p.value_or_default("FORCE_SCATTER", model.is_frustrated() ? 0.1 : 0.);
-  looper::weight_table wt(model, lattice, fs);
-  energy_offset += wt.energy_offset();
-  chooser.init(wt, looper::is_path_integral<mc_type>::type());
-
-  if (model.is_signed()) {
-    bond_sign.resize(num_bonds(lattice.vg()));
-    BOOST_FOREACH(const looper::weight_table::bond_weight_t& b, wt.bond_weights())
-      bond_sign[b.first] = (b.second.sign < 0) ? 1 : 0;
-    site_sign.resize(num_sites(lattice.vg()));
-    BOOST_FOREACH(const looper::weight_table::site_weight_t& s, wt.site_weights())
-      site_sign[s.first] = (s.second.sign < 0) ? 1 : 0;
-  }
-
-  if (model.has_field()) {
-    field.resize(num_sites(lattice.vg()));
-    BOOST_FOREACH(looper::real_site_descriptor<lattice_t>::type rs, sites(lattice.rg()))
-      BOOST_FOREACH(looper::virtual_site_descriptor<lattice_t>::type vs, sites(lattice, rs))
-        field[vs] = model.site(rs, lattice.rg()).hz;
-  }
 
   // configuration
   int nvs = num_sites(lattice.vg());
@@ -181,25 +140,25 @@ loop_worker::loop_worker(alps::ProcessList const& w, alps::Parameters const& p, 
   estimator.initialize(obs, p, lattice, model.is_signed(), use_improved_estimator);
 }
 
-void loop_worker::dostep()
-{
+template<typename ENGINE>
+void loop_worker::run(ENGINE& eng, alps::ObservableSet& obs) {
   if (!mcs.can_work()) return;
   ++mcs;
   beta = 1.0 / temperature(mcs());
 
-  build();
+  build(eng);
 
-  //   FIELD               SIGN                IMPROVE
-  flip<boost::mpl::true_,  boost::mpl::true_,  boost::mpl::true_ >();
-  flip<boost::mpl::true_,  boost::mpl::true_,  boost::mpl::false_>();
-  flip<boost::mpl::true_,  boost::mpl::false_, boost::mpl::true_ >();
-  flip<boost::mpl::true_,  boost::mpl::false_, boost::mpl::false_>();
-  flip<boost::mpl::false_, boost::mpl::true_,  boost::mpl::true_ >();
-  flip<boost::mpl::false_, boost::mpl::true_,  boost::mpl::false_>();
-  flip<boost::mpl::false_, boost::mpl::false_, boost::mpl::true_ >();
-  flip<boost::mpl::false_, boost::mpl::false_, boost::mpl::false_>();
+  //           FIELD               SIGN                IMPROVE
+  flip<ENGINE, boost::mpl::true_,  boost::mpl::true_,  boost::mpl::true_ >(eng, obs);
+  flip<ENGINE, boost::mpl::true_,  boost::mpl::true_,  boost::mpl::false_>(eng, obs);
+  flip<ENGINE, boost::mpl::true_,  boost::mpl::false_, boost::mpl::true_ >(eng, obs);
+  flip<ENGINE, boost::mpl::true_,  boost::mpl::false_, boost::mpl::false_>(eng, obs);
+  flip<ENGINE, boost::mpl::false_, boost::mpl::true_,  boost::mpl::true_ >(eng, obs);
+  flip<ENGINE, boost::mpl::false_, boost::mpl::true_,  boost::mpl::false_>(eng, obs);
+  flip<ENGINE, boost::mpl::false_, boost::mpl::false_, boost::mpl::true_ >(eng, obs);
+  flip<ENGINE, boost::mpl::false_, boost::mpl::false_, boost::mpl::false_>(eng, obs);
 
-  measure();
+  measure(obs);
 }
 
 
@@ -207,8 +166,8 @@ void loop_worker::dostep()
 // diagonal update and cluster construction
 //
 
-void loop_worker::build()
-{
+template<typename ENGINE>
+void loop_worker::build(ENGINE& eng) {
   // initialize spin & operator information
   std::copy(spins.begin(), spins.end(), spins_c.begin());
   std::swap(operators, operators_p); operators.resize(0);
@@ -218,13 +177,14 @@ void loop_worker::build()
   fragments.resize(0); fragments.resize(nvs);
   for (int s = 0; s < nvs; ++s) current[s] = s;
 
-  r_time.distribution() = boost::exponential_distribution<>(beta * chooser.weight());
+  boost::variate_generator<ENGINE&, boost::exponential_distribution<> >
+    r_time(eng, boost::exponential_distribution<>(beta * model.graph_weight()));
   double t = r_time();
   for (operator_iterator opi = operators_p.begin(); t < 1 || opi != operators_p.end();) {
 
     // diagonal update & labeling
     if (opi == operators_p.end() || t < opi->time()) {
-      loop_graph_t g = chooser.graph();
+      loop_graph_t g = model.choose_graph(eng);
       if ((is_bond(g) && is_compatible(g, spins_c[source(pos(g), lattice.vg())],
                                           spins_c[target(pos(g), lattice.vg())])) ||
           (is_site(g) && is_compatible(g, spins_c[pos(g)]))) {
@@ -239,7 +199,7 @@ void loop_worker::build()
         ++opi;
         continue;
       } else {
-        opi->assign_graph(chooser.offdiagonal(opi->loc()));
+        opi->assign_graph(model.choose_offdiagonal(eng, opi->loc()));
         operators.push_back(*opi);
         ++opi;
       }
@@ -284,12 +244,14 @@ void loop_worker::build()
 // cluster flip
 //
 
-template<typename FIELD, typename SIGN, typename IMPROVE>
-void loop_worker::flip()
-{
+template<typename ENGINE, typename FIELD, typename SIGN, typename IMPROVE>
+void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
   if (model.has_field() != FIELD() ||
       model.is_signed() != SIGN() ||
       use_improved_estimator != IMPROVE()) return;
+
+  boost::variate_generator<ENGINE&, boost::uniform_real<> >
+    uniform_01(eng, boost::uniform_real<>());
 
   int nvs = num_sites(lattice.vg());
 
@@ -301,7 +263,7 @@ void loop_worker::flip()
 
   std::copy(spins.begin(), spins.end(), spins_c.begin());
   cluster_info_t::accumulator<cluster_fragment_t, FIELD, SIGN, IMPROVE>
-    weight(clusters, fragments, field, bond_sign, site_sign);
+    weight(clusters, fragments, model.field(), model.bond_sign(), model.site_sign());
   looper::accumulator<estimator_t, cluster_fragment_t, IMPROVE>
     accum(estimates, nc, lattice, estimator, fragments);
   BOOST_FOREACH(local_operator_t& op, operators) {
@@ -338,7 +300,7 @@ void loop_worker::flip()
   // determine whether clusters are flipped or not
   double improved_sign = 1;
   BOOST_FOREACH(cluster_info_t& ci, clusters) {
-    ci.to_flip = ((2*random()-1) < (FIELD() ? std::tanh(ci.weight) : 0));
+    ci.to_flip = ((2*uniform_01()-1) < (FIELD() ? std::tanh(ci.weight) : 0));
     if (SIGN() && IMPROVE() && (ci.sign & 1 == 1)) improved_sign = 0;
   }
 
@@ -365,8 +327,7 @@ void loop_worker::flip()
 // measurement
 //
 
-void loop_worker::measure()
-{
+void loop_worker::measure(alps::ObservableSet& obs) {
   int nrs = num_sites(lattice.rg());
   obs["Temperature"] << 1/beta;
   obs["Inverse Temperature"] << beta;
@@ -377,14 +338,15 @@ void loop_worker::measure()
   if (model.is_signed()) {
     int n = 0;
     BOOST_FOREACH(const local_operator_t& op, operators)
-      if (op.is_offdiagonal()) n += (op.is_bond()) ? bond_sign[op.pos()] : site_sign[op.pos()];
+      if (op.is_offdiagonal())
+        n += (op.is_bond()) ? model.bond_sign(op.pos()) : model.site_sign(op.pos());
     if (n & 1 == 1) sign = -1;
     if (!use_improved_estimator) obs["Sign"] << sign;
   }
 
   // energy
   int nop = operators.size();
-  double ene = energy_offset - nop / beta;
+  double ene = model.energy_offset() - nop / beta;
   if (model.has_field())
     BOOST_FOREACH(const cluster_info_t& c, clusters)
       ene += (c.to_flip ? -c.weight : c.weight);

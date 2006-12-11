@@ -22,7 +22,7 @@
 *
 *****************************************************************************/
 
-#include <looper/model.h>
+#include <looper/model_parameter.h>
 #include <looper/weight.h>
 #include <alps/math.hpp>
 #include <boost/random.hpp>

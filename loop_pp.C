@@ -22,37 +22,9 @@
 *
 *****************************************************************************/
 
-#include <looper/flatten_matrix.h>
-#include <looper/matrix.h>
-#include <looper/model_parameter.h>
-#include <boost/numeric/ublas/io.hpp>
-#include <iostream>
+#include "loop_factory.h"
+#include <parapack/scheduler.h>
 
-std::ostream& operator<<(std::ostream& os, const looper::bond_matrix& m)
-{
-  boost::numeric::ublas::matrix<double> mat;
-  looper::flatten_matrix(m.matrix(), mat);
-  os << mat;
-  return os;
-}
-
-int main()
-{
-  while (true) {
-    double s0_in, s1_in, c, jxy, jz;
-    std::cin >> s0_in >> s1_in >> c >> jxy >> jz;
-    if (!std::cin) break;
-
-    alps::half_integer<int> s0(s0_in);
-    alps::half_integer<int> s1(s1_in);
-    looper::bond_parameter pi(c, jxy, jz);
-    looper::bond_matrix m(s0, s1, pi);
-    std::cout << "input parameters: S0 = " << s0 << ", S1 = " << s1 << ", "
-              << pi << std::endl << m << std::endl;
-
-    looper::bond_parameter pr(m.matrix());
-    if (pi != pr) std::cerr << "Error: fitting failed\n";
-
-    std::cout << "fitting result: " << pr << std::endl;
-  }
+int main(int argc, char** argv) {
+  return alps::parapack::start(argc, argv, *loop_factory::instance());
 }

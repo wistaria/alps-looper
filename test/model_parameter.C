@@ -22,8 +22,7 @@
 *
 *****************************************************************************/
 
-#include <looper/model.h>
-#include <boost/foreach.hpp>
+#include <looper/model_parameter.h>
 #include <iostream>
 
 template<typename G>

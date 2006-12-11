@@ -55,6 +55,27 @@ loop_factory::make_worker(const alps::ProcessList& w, const alps::Parameters& p,
   return 0;
 }
 
+#ifdef HAVE_PARAPACK
+alps::parapack::abstract_worker*
+loop_factory::make_worker(alps::Parameters const& p, alps::ObservableSet& obs) const {
+
+  if (p.defined("REPRESENTATION")) {
+    map_type::const_iterator itr = creators_.find(p["REPRESENTATION"]);
+    if (itr == creators_.end() || itr->second == 0)
+      boost::throw_exception(std::runtime_error("unknown representation"));
+    return itr->second->create(p, obs);
+  } else if (creators_.size() == 1 && creators_.begin()->second) {
+    return creators_.begin()->second->create(p, obs);
+  } else {
+    map_type::const_iterator itr = creators_.find("path integral");
+    if (itr == creators_.end() || itr->second == 0)
+      boost::throw_exception(std::runtime_error("representation is not specified"));
+    return itr->second->create(p, obs);
+  }
+  return 0;
+}
+#endif // HAVE_PARAPACK
+
 void loop_factory::print_copyright(std::ostream& os) const {
   looper::print_copyright(os);
 }

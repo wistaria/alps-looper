@@ -43,6 +43,7 @@ dist_noinst_HEADERS = \
 	looper/localsus.h \
 	looper/measurement.h \
 	looper/model.h \
+	looper/model_impl.h \
 	looper/montecarlo.h \
 	looper/operator.h \
 	looper/permutation.h \
@@ -70,8 +71,11 @@ noinst_PROGRAMS = loop loop_evaluate
 if HAVE_MPI
 noinst_PROGRAMS += loop_mpi
 endif
+if HAVE_PARAPACK
+noinst_PROGRAMS += loop_pp
+endif
 
-SRC = loop_config.h loop_factory.h loop_factory.C
+SRC = loop_config.h loop_factory.h loop_factory.C loop_model.C
 if ENABLE_DIAG
 SRC += diag.C
 endif
@@ -94,6 +98,10 @@ loop_mpi_LDFLAGS = @LDFLAGS_MPI@
 loop_mpi_LDADD = @LIBS_MPI@
 
 loop_evaluate_SOURCES = loop_evaluate.C qwl_evaluate.C $(SRC)
+
+loop_pp_SOURCES = loop_pp.C $(SRC)
+loop_pp_LDFLAGS = @LDFLAGS_MPI@
+loop_pp_LDADD = @LIBS_MPI@
 
 #
 # tests

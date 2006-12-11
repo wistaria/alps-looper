@@ -280,32 +280,28 @@ double dynamic_average2(double beta, double offset, const VEC& evals, const MAT&
 }
 
 
-class diag_worker : public alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t>
+class diag_worker :
+  protected alps::graph_helper<loop_config::lattice_graph_t>,
+  protected alps::model_helper<>
 {
 public:
-  typedef alps::scheduler::LatticeModelMCRun<loop_config::lattice_graph_t> super_type;
-  diag_worker(alps::ProcessList const& w, alps::Parameters const& p, int n) :
-    super_type(w, p, n), done(false), params(p) {}
-  void dostep();
-  bool is_thermalized() const {
-    return true;
-  }
-  double work_done() const {
-    return done ? 1 : 0;
-  }
-  void save(alps::ODump& dp) const {
-    super_type::save(dp); dp << done;
-  }
-  void load(alps::IDump& dp) {
-    super_type::load(dp); dp >> done;
-  }
+  diag_worker(alps::Parameters const& p, alps::ObservableSet&) :
+    alps::graph_helper<loop_config::lattice_graph_t>(p),
+    alps::model_helper<>(*this, p), done(false), params(p) {}
+  template<typename ENGINE>
+  void run(ENGINE&, alps::ObservableSet& obs);
+  bool is_thermalized() const { return true; }
+  double progress() const { return done ? 1 : 0; }
+  void save(alps::ODump& dp) const { dp << done; }
+  void load(alps::IDump& dp) { dp >> done; }
 private:
   bool done;
   alps::Parameters params;
 };
 
 
-void diag_worker::dostep() {
+template<typename ENGINE>
+void diag_worker::run(ENGINE&, alps::ObservableSet& obs) {
   typedef boost::numeric::ublas::vector<double> vector_type;
   typedef boost::numeric::ublas::matrix<double, boost::numeric::ublas::column_major> matrix_type;
   typedef boost::numeric::ublas::vector<double> diagonal_matrix_type;
@@ -435,11 +431,9 @@ void diag_worker::dostep() {
 
   // store measurements
   typedef std::pair<std::string, double> nv_t;
-  BOOST_FOREACH(nv_t const& t, m)
-    measurements << alps::SimpleRealObservable(t.first);
-  measurements.reset(true);
-  BOOST_FOREACH(nv_t const& t, m)
-    measurements[t.first] << t.second;
+  BOOST_FOREACH(nv_t const& t, m) obs << alps::SimpleRealObservable(t.first);
+  obs.reset(true);
+  BOOST_FOREACH(nv_t const& t, m) obs[t.first] << t.second;
 }
 
 

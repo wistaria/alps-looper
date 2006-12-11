@@ -22,8 +22,10 @@
 *
 *****************************************************************************/
 
+#include <looper/graph.h>
 #include <looper/model.h>
-#include <boost/foreach.hpp>
+#include <looper/model_impl.h>
+#include <looper/location.h>
 #include <iostream>
 
 int main() {
@@ -39,7 +41,8 @@ try {
     looper::lattice_helper<alps::coordinate_graph_type> lattice(p);
     std::cout << lattice.rg();
     p["LOOPER_DEBUG[MODEL OUTPUT]"] = true;
-    looper::spinmodel_helper model(p, lattice);
+    looper::spinmodel_helper<alps::coordinate_graph_type, looper::local_graph<looper::location> >
+      spinmodel(p, lattice);
   }
 
 #ifndef BOOST_NO_EXCEPTIONS

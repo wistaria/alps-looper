@@ -248,29 +248,23 @@ reconnect(std::vector<T>& fragments, const local_graph_haf<LOC>& g,
 // graph_chooser
 //
 
-template<class LOCAL_GRAPH, class ENGINE> class graph_chooser;
+template<class LOCAL_GRAPH> class graph_chooser;
 
-template<class LOC, class ENGINE>
-class graph_chooser<local_graph<LOC>, ENGINE>
-{
+template<class LOC>
+class graph_chooser<local_graph<LOC> > {
 public:
-  typedef local_graph<LOC>                   local_graph_t;
-  typedef typename local_graph_t::location_t location_t;
-  typedef ENGINE                             engine_t;
+  typedef LOC location_t;
+  typedef local_graph<location_t> local_graph_t;
 
-  graph_chooser(engine_t& eng)
-    : r_uniform_(eng, boost::uniform_real<>(0, 1)),
-      r_graph_(eng, random_choice<>())
-  {}
+  graph_chooser() : dist_uniform_(0, 1), dist_graph_() {}
   template<class WEIGHT_TABLE>
-  graph_chooser(engine_t& eng, const WEIGHT_TABLE& wt, bool is_path_integral)
-    : r_uniform_(eng, boost::uniform_real<>(0, 1)),
-      r_graph_(eng, random_choice<>())
-  { init(wt, is_path_integral); }
+  graph_chooser(const WEIGHT_TABLE& wt, bool is_path_integral) :
+    dist_uniform_(0, 1), dist_graph_() {
+    init(wt, is_path_integral);
+  }
 
   template<class WEIGHT_TABLE>
-  void init(const WEIGHT_TABLE& wt, bool is_path_integral)
-  {
+  void init(const WEIGHT_TABLE& wt, bool is_path_integral) {
     graph_.resize(0);
     diag_.resize(0);
     offdiag_.resize(0);
@@ -313,52 +307,51 @@ public:
             itr->second.v[2] / (itr->second.v[2] + itr->second.v[3]) : 1);
       }
     }
-    if (w.size()) r_graph_.distribution().init(w);
+    if (w.size()) dist_graph_.init(w);
     if (alps::is_zero<2>(weight_)) weight_ = 1.0e-20;
   }
 
-  const local_graph_t& graph() const { return graph_[r_graph_()]; }
-  local_graph_t diagonal(const location_t& loc, int /* c */) const
-  { return local_graph_t(0, loc); }
-  local_graph_t diagonal(const location_t& loc, int c0, int c1) const
-  {
+  template<typename ENGINE>
+  const local_graph_t& graph(ENGINE& eng) const { return graph_[dist_graph_(eng)]; }
+  template<typename ENGINE>
+  local_graph_t diagonal(ENGINE& /* eng */, const location_t& loc, int /* c */) const {
+    return local_graph_t(0, loc);
+  }
+  template<typename ENGINE>
+  local_graph_t diagonal(ENGINE& eng, const location_t& loc, int c0, int c1) const {
     int c = 1 ^ c0 ^ c1; // 0 for antiparallel, 1 for parallel
-    int g = ((r_uniform_() < diag_[(pos(loc) << 1) | c]) ? 0 : 1) ^ (c << 1);
+    int g = ((dist_uniform_(eng) < diag_[(pos(loc) << 1) | c]) ? 0 : 1) ^ (c << 1);
     return local_graph_t(g, loc);
   }
-  local_graph_t offdiagonal(const location_t& loc) const
-  {
-    int g = (is_site(loc) || r_uniform_() < offdiag_[pos(loc)]) ? 0 : 2;
+  template<typename ENGINE>
+  local_graph_t offdiagonal(ENGINE& eng, const location_t& loc) const {
+    int g = (is_site(loc) || dist_uniform_(eng) < offdiag_[pos(loc)]) ? 0 : 2;
     return local_graph_t(g, loc);
   }
   double weight() const { return weight_; }
 
 private:
-  mutable boost::variate_generator<engine_t&,
-    boost::uniform_real<> > r_uniform_;
-  mutable boost::variate_generator<engine_t&, random_choice<> > r_graph_;
+  mutable boost::uniform_real<> dist_uniform_;
+  random_choice<> dist_graph_;
   double weight_;
   std::vector<local_graph_t> graph_;
   std::vector<double> diag_;
   std::vector<double> offdiag_;
 };
 
-template<class LOC, class ENGINE>
-class graph_chooser<local_graph_haf<LOC>, ENGINE>
-{
+template<class LOC>
+class graph_chooser<local_graph_haf<LOC> > {
 public:
-  typedef local_graph_haf<LOC>                   local_graph_t;
-  typedef typename local_graph_t::location_t     location_t;
-  typedef ENGINE                                 engine_t;
+  typedef LOC location_t;
+  typedef local_graph_haf<location_t> local_graph_t;
 
   template<class WEIGHT_TABLE>
-  graph_chooser(engine_t& eng, const WEIGHT_TABLE& wt, bool is_path_integral)
-    : r_graph_(eng, random_choice<>())
-  { init(wt, is_path_integral); }
+  graph_chooser(const WEIGHT_TABLE& wt, bool is_path_integral) : dist_graph_() {
+    init(wt, is_path_integral);
+  }
 
   template<class WEIGHT_TABLE>
-  void init(const WEIGHT_TABLE& wt, bool is_path_integral)
-  {
+  void init(const WEIGHT_TABLE& wt, bool is_path_integral) {
     diag_.claer();
     std::vector<double> w;
     weight_ = 0;
@@ -370,22 +363,28 @@ public:
         weight_ += itr->second.v[0];
       }
     }
-    if (w.size()) r_graph_.distribution().init(w);
+    if (w.size()) dist_graph_.init(w);
     if (alps::is_zero<2>(weight_)) weight_ = 1.0e-20;
   }
 
-  const local_graph_t& graph() const { return diag_[r_graph_()]; }
-  static local_graph_t diagonal(const location_t& loc, int)
-  { return local_graph_t(0, loc); }
-  static local_graph_t diagonal(const location_t& loc, int, int)
-  { return local_graph_t(0, loc); }
-  static local_graph_t offdiagonal(const location_t& loc)
-  { return local_graph_t(0, loc); }
+  template<typename ENGINE>
+  const local_graph_t& graph(ENGINE& eng) const { return diag_[dist_graph_(eng)]; }
+  template<typename ENGINE>
+  static local_graph_t diagonal(ENGINE& /* eng */, const location_t& loc, int) {
+    return local_graph_t(0, loc);
+  }
+  template<typename ENGINE>
+  static local_graph_t diagonal(ENGINE& /* eng */, const location_t& loc, int, int) {
+    return local_graph_t(0, loc);
+  }
+  template<typename ENGINE>
+  static local_graph_t offdiagonal(ENGINE& /* eng */, const location_t& loc) {
+    return local_graph_t(0, loc);
+  }
   double weight() const { return weight_; }
 
 private:
-  mutable boost::variate_generator<engine_t&,
-    random_choice<> > r_graph_;
+  random_choice<> dist_graph_;
   double weight_;
   std::vector<local_graph_t> diag_;
 };

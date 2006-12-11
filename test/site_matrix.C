@@ -23,7 +23,8 @@
 *****************************************************************************/
 
 #include <looper/flatten_matrix.h>
-#include <looper/model.h>
+#include <looper/matrix.h>
+#include <looper/model_parameter.h>
 #include <boost/numeric/ublas/io.hpp>
 #include <iostream>
 
