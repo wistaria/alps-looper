@@ -236,14 +236,16 @@ void loop_worker::build(ENGINE& eng) {
   fragments.resize(0); fragments.resize(nvs);
   for (int s = 0; s < nvs; ++s) current[s] = s;
 
+  boost::variate_generator<ENGINE&, boost::uniform_real<> >
+    r_uniform(eng, boost::uniform_real<>());
   double bw = model.graph_weight();
   bool try_gap = true;
   for (operator_iterator opi = operators_p.begin(); try_gap || opi != operators_p.end();) {
 
     // diagonal update & labeling
     if (try_gap) {
-      if ((nop+1) * random() < bw * histogram.accept_rate(nop, nop+1)) {
-        loop_graph_t g = model.choose_graph(eng);
+      if ((nop+1) * r_uniform() < bw * histogram.accept_rate(nop, nop+1)) {
+        loop_graph_t g = model.choose_graph(r_uniform);
         if ((is_bond(g) && is_compatible(g, spins_c[source(pos(g), lattice.vg())],
                                             spins_c[target(pos(g), lattice.vg())])) ||
             (is_site(g) && is_compatible(g, spins_c[pos(g)]))) {
@@ -261,22 +263,22 @@ void loop_worker::build(ENGINE& eng) {
       }
     } else {
       if (opi->is_diagonal()) {
-        if (bw * random() < nop * histogram.accept_rate(nop, nop-1)) {
+        if (bw * r_uniform() < nop * histogram.accept_rate(nop, nop-1)) {
           --nop;
           ++opi;
           histogram.visit(nop, logf, !mcs.doing_multicanonical());
           continue;
         } else {
           if (opi->is_site()) {
-            opi->assign_graph(model.choose_diagonal(eng, opi->loc(), spins_c[opi->pos()]));
+            opi->assign_graph(model.choose_diagonal(r_uniform, opi->loc(), spins_c[opi->pos()]));
           } else {
-            opi->assign_graph(model.choose_diagonal(eng, opi->loc(),
+            opi->assign_graph(model.choose_diagonal(r_uniform, opi->loc(),
               spins_c[source(opi->pos(), lattice.vg())],
               spins_c[target(opi->pos(), lattice.vg())]));
           }
         }
       } else {
-        opi->assign_graph(model.choose_offdiagonal(eng, opi->loc()));
+        opi->assign_graph(model.choose_offdiagonal(r_uniform, opi->loc()));
       }
       operators.push_back(*opi);
       ++opi;
@@ -312,7 +314,7 @@ void loop_worker::build(ENGINE& eng) {
       int s2 = *vsi_end - *vsi;
       for (int i = 0; i < s2; ++i) perm[i] = i;
       looper::partitioned_random_shuffle(perm.begin(), perm.begin() + s2,
-        spins.begin() + offset, spins_c.begin() + offset, random);
+        spins.begin() + offset, spins_c.begin() + offset, r_uniform);
       for (int i = 0; i < s2; ++i) unify(fragments, offset+i, current[offset+perm[i]]);
     }
   }
@@ -329,7 +331,7 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& /* obs */) {
       use_improved_estimator != IMPROVE()) return;
 
   boost::variate_generator<ENGINE&, boost::uniform_real<> >
-    uniform_01(eng, boost::uniform_real<>());
+    r_uniform(eng, boost::uniform_real<>());
 
   int nvs = num_sites(lattice.vg());
   int nop = operators.size();
@@ -380,7 +382,7 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& /* obs */) {
   // determine whether clusters are flipped or not
   double improved_sign = 1;
   BOOST_FOREACH(cluster_info_t& ci, clusters) {
-    ci.to_flip = ((2*uniform_01()-1) < (FIELD() ? std::tanh(ci.weight) : 0));
+    ci.to_flip = ((2*r_uniform()-1) < (FIELD() ? std::tanh(ci.weight) : 0));
     if (SIGN() && IMPROVE() && (ci.sign & 1 == 1)) improved_sign = 0;
   }
 

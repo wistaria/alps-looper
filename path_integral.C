@@ -108,7 +108,6 @@ private:
 loop_worker::loop_worker(alps::Parameters const& p, alps::ObservableSet& obs) :
   lattice(p), model(p, lattice, looper::is_path_integral<mc_type>::type()), temperature(p),
   mcs(p) {
-
   if (temperature.annealing_steps() > mcs.thermalization())
     boost::throw_exception(std::invalid_argument("longer annealing steps than thermalization"));
 
@@ -177,6 +176,8 @@ void loop_worker::build(ENGINE& eng) {
   fragments.resize(0); fragments.resize(nvs);
   for (int s = 0; s < nvs; ++s) current[s] = s;
 
+  boost::variate_generator<ENGINE&, boost::uniform_real<> >
+    r_uniform(eng, boost::uniform_real<>());
   boost::variate_generator<ENGINE&, boost::exponential_distribution<> >
     r_time(eng, boost::exponential_distribution<>(beta * model.graph_weight()));
   double t = r_time();
@@ -184,7 +185,7 @@ void loop_worker::build(ENGINE& eng) {
 
     // diagonal update & labeling
     if (opi == operators_p.end() || t < opi->time()) {
-      loop_graph_t g = model.choose_graph(eng);
+      loop_graph_t g = model.choose_graph(r_uniform);
       if ((is_bond(g) && is_compatible(g, spins_c[source(pos(g), lattice.vg())],
                                           spins_c[target(pos(g), lattice.vg())])) ||
           (is_site(g) && is_compatible(g, spins_c[pos(g)]))) {
@@ -199,7 +200,7 @@ void loop_worker::build(ENGINE& eng) {
         ++opi;
         continue;
       } else {
-        opi->assign_graph(model.choose_offdiagonal(eng, opi->loc()));
+        opi->assign_graph(model.choose_offdiagonal(r_uniform, opi->loc()));
         operators.push_back(*opi);
         ++opi;
       }
@@ -233,7 +234,7 @@ void loop_worker::build(ENGINE& eng) {
       int s2 = *vsi_end - *vsi;
       for (int i = 0; i < s2; ++i) perm[i] = i;
       looper::partitioned_random_shuffle(perm.begin(), perm.begin() + s2,
-        spins.begin() + offset, spins_c.begin() + offset, random);
+        spins.begin() + offset, spins_c.begin() + offset, r_uniform);
       for (int i = 0; i < s2; ++i) unify(fragments, offset+i, current[offset+perm[i]]);
     }
   }
@@ -251,7 +252,7 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
       use_improved_estimator != IMPROVE()) return;
 
   boost::variate_generator<ENGINE&, boost::uniform_real<> >
-    uniform_01(eng, boost::uniform_real<>());
+    r_uniform(eng, boost::uniform_real<>());
 
   int nvs = num_sites(lattice.vg());
 
@@ -300,7 +301,7 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
   // determine whether clusters are flipped or not
   double improved_sign = 1;
   BOOST_FOREACH(cluster_info_t& ci, clusters) {
-    ci.to_flip = ((2*uniform_01()-1) < (FIELD() ? std::tanh(ci.weight) : 0));
+    ci.to_flip = ((2*r_uniform()-1) < (FIELD() ? std::tanh(ci.weight) : 0));
     if (SIGN() && IMPROVE() && (ci.sign & 1 == 1)) improved_sign = 0;
   }
 

@@ -165,11 +165,13 @@ void loop_worker::build(ENGINE& eng) {
 
   // building up clusters
   nop = 0;
+  boost::variate_generator<ENGINE&, boost::uniform_real<> >
+    r_uniform(eng, boost::uniform_real<>());
   boost::variate_generator<ENGINE&, boost::exponential_distribution<> >
     r_time(eng, boost::exponential_distribution<>(beta * model.graph_weight()));
   double t = r_time();
   while (t < 1) {
-    loop_graph_t g = model.choose_graph(eng);
+    loop_graph_t g = model.choose_graph(r_uniform);
     int s0 = source(pos(g), lattice.vg());
     int s1 = target(pos(g), lattice.vg());
     if (is_compatible(g, spins[s0], spins[s1])) {
@@ -188,7 +190,7 @@ void loop_worker::build(ENGINE& eng) {
       int s2 = *vsi_end - *vsi;
       for (int i = 0; i < s2; ++i) perm[i] = i;
       looper::partitioned_random_shuffle(perm.begin(), perm.begin() + s2,
-        spins.begin() + offset, spins.begin() + offset, random);
+        spins.begin() + offset, spins.begin() + offset, r_uniform);
       for (int i = 0; i < s2; ++i) unify(fragments, offset+i, offset+perm[i]);
     }
   }
@@ -204,7 +206,7 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
   if (FIELD() || use_improved_estimator != IMPROVE()) return;
 
   boost::variate_generator<ENGINE&, boost::uniform_real<> >
-    uniform_01(eng, boost::uniform_real<>());
+    r_uniform(eng, boost::uniform_real<>());
 
   int nvs = num_sites(lattice.vg());
 
@@ -228,7 +230,7 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
 
   // determine whether clusters are flipped or not
   BOOST_FOREACH(cluster_info_t& ci, clusters)
-    ci.to_flip = ((2*uniform_01()-1) < (FIELD() ? std::tanh(ci.weight) : 0));
+    ci.to_flip = ((2*r_uniform()-1) < (FIELD() ? std::tanh(ci.weight) : 0));
 
   // improved measurement
   if (IMPROVE()) {

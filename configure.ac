@@ -126,19 +126,13 @@ AC_SUBST([DEFAULT_INCLUDES], '-I$(top_srcdir) -I$(top_builddir)')
 if test -n "$config_file"; then
   DEFAULT_INCLUDES="$DEFAULT_INCLUDES -DLOOP_CONFIG_HEADER=\\\"$config_file\\\""
 fi
-if test "$ac_cv_have_parapack" = yes; then
-  AC_SUBST([LDADD], "-lparapack $ac_cv_alps_libs")
-else
-  AC_SUBST([LDADD], "$ac_cv_alps_libs")
-fi
+AC_SUBST([LDADD], "$ac_cv_alps_libs")
 
-AC_SUBST([CPPFLAGS_MPI], "$ac_cv_alps_cppflags_mpi")
 AC_SUBST([LDFLAGS_MPI], "$ac_cv_alps_ldflags_mpi")
-if test "$ac_cv_have_parapack" = yes; then
-  AC_SUBST([LIBS_MPI], "-lparapack $ac_cv_alps_libs_mpi")
-else
-  AC_SUBST([LIBS_MPI], "$ac_cv_alps_libs_mpi")
-fi
+AC_SUBST([LIBS_MPI], "$ac_cv_alps_libs_mpi")
+
+AC_SUBST([LDFLAGS_PP], "$ac_cv_alps_ldflags_mpi")
+AC_SUBST([LIBS_PP], "-lparapack $ac_cv_alps_libs_mpi")
 
 dnl
 dnl methods

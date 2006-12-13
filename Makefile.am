@@ -100,8 +100,8 @@ loop_mpi_LDADD = @LIBS_MPI@
 loop_evaluate_SOURCES = loop_evaluate.C qwl_evaluate.C $(SRC)
 
 loop_pp_SOURCES = loop_pp.C $(SRC)
-loop_pp_LDFLAGS = @LDFLAGS_MPI@
-loop_pp_LDADD = @LIBS_MPI@
+loop_pp_LDFLAGS = @LDFLAGS_PP@
+loop_pp_LDADD = @LIBS_PP@
 
 #
 # tests
