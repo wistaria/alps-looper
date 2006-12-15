@@ -32,8 +32,8 @@
 #define LOOP_CONFIG_H
 
 #include <alps/lattice.h>
-#include <looper/location.h>
 #include <looper/graph.h>
+#include <looper/model.h>
 
 #include <looper/correlation.h>
 #include <looper/localsus.h>
@@ -41,8 +41,7 @@
 #include <looper/susceptibility.h>
 // #include <looper/custom_measurement.h>
 
-struct loop_config
-{
+struct loop_config {
   // lattice structure
   typedef alps::coordinate_graph_type lattice_graph_t;
 
@@ -50,14 +49,18 @@ struct loop_config
   typedef double time_t;
 
   // graph for loops
-  typedef looper::local_graph<looper::location> loop_graph_t;
+  typedef looper::local_graph<> loop_graph_t;
+
+  // model
+  typedef looper::spinmodel_helper<lattice_graph_t, loop_graph_t> model_t;
 
   // measurements
   typedef looper::measurement_set<
     looper::correlation,
     looper::local_susceptibility,
     looper::stiffness<3>,
-    looper::susceptibility /* , looper::custom_measurement */
+    looper::susceptibility /* ,
+    looper::custom_measurement */
   > measurement_set;
 };
 

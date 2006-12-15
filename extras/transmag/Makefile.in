@@ -57,8 +57,8 @@ CONFIG_CLEAN_FILES = alternating_chain.xml
 @HAVE_MPI_TRUE@am__EXEEXT_1 = transmag_mpi$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 dist_transmag_OBJECTS =
-am__objects_1 = loop_factory.$(OBJEXT) diag.$(OBJEXT) \
-	path_integral.$(OBJEXT)
+am__objects_1 = loop_factory.$(OBJEXT) loop_model.$(OBJEXT) \
+	diag.$(OBJEXT) path_integral.$(OBJEXT)
 nodist_transmag_OBJECTS = loop.$(OBJEXT) $(am__objects_1)
 transmag_OBJECTS = $(dist_transmag_OBJECTS) $(nodist_transmag_OBJECTS)
 transmag_LDADD = $(LDADD)
@@ -236,7 +236,7 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-SRC = $(top_srcdir)/loop_factory.C $(top_srcdir)/diag.C $(top_srcdir)/path_integral.C
+SRC = $(top_srcdir)/loop_factory.C $(top_srcdir)/loop_model.C $(top_srcdir)/diag.C $(top_srcdir)/path_integral.C
 dist_transmag_SOURCES = transmag_config.h
 nodist_transmag_SOURCES = $(top_srcdir)/loop.C $(SRC)
 nodist_transmag_mpi_SOURCES = $(top_srcdir)/loop.C $(SRC)
@@ -323,6 +323,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_evaluate.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_factory.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_model.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_ns.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/path_integral.Po@am__quote@
 
@@ -374,6 +375,20 @@ loop_factory.obj: $(top_srcdir)/loop_factory.C
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/loop_factory.C' object='loop_factory.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_factory.obj `if test -f '$(top_srcdir)/loop_factory.C'; then $(CYGPATH_W) '$(top_srcdir)/loop_factory.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/loop_factory.C'; fi`
+
+loop_model.o: $(top_srcdir)/loop_model.C
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_model.o -MD -MP -MF "$(DEPDIR)/loop_model.Tpo" -c -o loop_model.o `test -f '$(top_srcdir)/loop_model.C' || echo '$(srcdir)/'`$(top_srcdir)/loop_model.C; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_model.Tpo" "$(DEPDIR)/loop_model.Po"; else rm -f "$(DEPDIR)/loop_model.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/loop_model.C' object='loop_model.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_model.o `test -f '$(top_srcdir)/loop_model.C' || echo '$(srcdir)/'`$(top_srcdir)/loop_model.C
+
+loop_model.obj: $(top_srcdir)/loop_model.C
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_model.obj -MD -MP -MF "$(DEPDIR)/loop_model.Tpo" -c -o loop_model.obj `if test -f '$(top_srcdir)/loop_model.C'; then $(CYGPATH_W) '$(top_srcdir)/loop_model.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/loop_model.C'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_model.Tpo" "$(DEPDIR)/loop_model.Po"; else rm -f "$(DEPDIR)/loop_model.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/loop_model.C' object='loop_model.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_model.obj `if test -f '$(top_srcdir)/loop_model.C'; then $(CYGPATH_W) '$(top_srcdir)/loop_model.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/loop_model.C'; fi`
 
 diag.o: $(top_srcdir)/diag.C
 @am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT diag.o -MD -MP -MF "$(DEPDIR)/diag.Tpo" -c -o diag.o `test -f '$(top_srcdir)/diag.C' || echo '$(srcdir)/'`$(top_srcdir)/diag.C; \

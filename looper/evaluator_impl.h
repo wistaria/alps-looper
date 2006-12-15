@@ -37,7 +37,7 @@ public:
   typedef typename measurement<MEASUREMENT_SET>::type measurement_t;
   typedef typename measurement_t::evaluator evaluator_t;
   void evaluate(alps::scheduler::MCSimulation& sim, alps::Parameters const& p,
-                boost::filesystem::path const&) const {
+    boost::filesystem::path const&) const {
     alps::ObservableSet m;
     evaluate(m, p, sim.get_measurements());
     BOOST_FOREACH(alps::ObservableSet::iterator::value_type const& v, m)
@@ -45,7 +45,7 @@ public:
   }
 
   void evaluate(alps::ObservableSet& m, alps::Parameters const& p,
-                alps::ObservableSet const& m_in) const {
+    alps::ObservableSet const& m_in) const {
     energy_evaluator::evaluate(m, m_in);
     evaluator_t::evaluate(m, p, m_in);
   }

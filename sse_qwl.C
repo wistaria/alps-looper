@@ -26,12 +26,10 @@
 #include "loop_factory.h"
 #include <looper/cluster.h>
 #include <looper/histogram.h>
-#include <looper/model.h>
 #include <looper/montecarlo.h>
 #include <looper/operator.h>
 #include <looper/permutation.h>
 #include <looper/type.h>
-#include <looper/weight.h>
 #include <alps/plot.h>
 #include <boost/regex.hpp>
 
@@ -44,7 +42,7 @@ public:
   typedef looper::lattice_helper<loop_config::lattice_graph_t> lattice_t;
   typedef loop_config::time_t time_t;
   typedef loop_config::loop_graph_t loop_graph_t;
-  typedef looper::spinmodel_helper<loop_config::lattice_graph_t, loop_graph_t> model_t;
+  typedef loop_config::model_t model_t;
   typedef looper::local_operator<mc_type, loop_graph_t, time_t> local_operator_t;
   typedef std::vector<local_operator_t> operator_string_t;
   typedef operator_string_t::iterator operator_iterator;

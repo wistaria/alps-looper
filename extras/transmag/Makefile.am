@@ -13,7 +13,7 @@ if HAVE_MPI
 noinst_PROGRAMS += transmag_mpi
 endif
 
-SRC = $(top_srcdir)/loop_factory.C $(top_srcdir)/diag.C $(top_srcdir)/path_integral.C
+SRC = $(top_srcdir)/loop_factory.C $(top_srcdir)/loop_model.C $(top_srcdir)/diag.C $(top_srcdir)/path_integral.C
 
   dist_transmag_SOURCES = transmag_config.h
 nodist_transmag_SOURCES = $(top_srcdir)/loop.C $(SRC)

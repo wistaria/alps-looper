@@ -13,7 +13,7 @@ if HAVE_MPI
 noinst_PROGRAMS += localsus_mpi
 endif
 
-SRC = $(top_srcdir)/loop_factory.C $(top_srcdir)/path_integral.C
+SRC = $(top_srcdir)/loop_factory.C $(top_srcdir)/loop_model.C $(top_srcdir)/path_integral.C
 
   dist_localsus_SOURCES = localsus_config.h
 nodist_localsus_SOURCES = $(top_srcdir)/loop.C $(SRC)

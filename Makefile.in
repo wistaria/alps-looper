@@ -50,7 +50,7 @@ host_triplet = @host@
 noinst_PROGRAMS = loop$(EXEEXT) loop_evaluate$(EXEEXT) $(am__EXEEXT_2) \
 	$(am__EXEEXT_3)
 @HAVE_MPI_TRUE@am__append_5 = loop_mpi
-@HAVE_PARAPACK_TRUE@am__append_6 = loop_pp
+@HAVE_PARAPACK_TRUE@am__append_6 = loop_pp loop_evaluate_pp
 @ENABLE_DIAG_TRUE@am__append_7 = diag.C
 @ENABLE_ISING_TRUE@am__append_8 = ising.C
 @ENABLE_PI_TRUE@am__append_9 = path_integral.C
@@ -75,7 +75,8 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
 @ENABLE_DIAG_TRUE@@ENABLE_ISING_TRUE@@ENABLE_PI_TRUE@@ENABLE_SSE_TRUE@am__EXEEXT_1 = loop_ns$(EXEEXT)
 @HAVE_MPI_TRUE@am__EXEEXT_2 = loop_mpi$(EXEEXT)
-@HAVE_PARAPACK_TRUE@am__EXEEXT_3 = loop_pp$(EXEEXT)
+@HAVE_PARAPACK_TRUE@am__EXEEXT_3 = loop_pp$(EXEEXT) \
+@HAVE_PARAPACK_TRUE@	loop_evaluate_pp$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 am__loop_SOURCES_DIST = loop.C loop_config.h loop_factory.h \
 	loop_factory.C loop_model.C diag.C ising.C path_integral.C \
@@ -100,6 +101,13 @@ am_loop_evaluate_OBJECTS = loop_evaluate.$(OBJEXT) \
 loop_evaluate_OBJECTS = $(am_loop_evaluate_OBJECTS)
 loop_evaluate_LDADD = $(LDADD)
 loop_evaluate_DEPENDENCIES =
+am__loop_evaluate_pp_SOURCES_DIST = loop_evaluate_pp.C qwl_evaluate.C \
+	loop_config.h loop_factory.h loop_factory.C loop_model.C \
+	diag.C ising.C path_integral.C sse.C sse_qwl.C
+am_loop_evaluate_pp_OBJECTS = loop_evaluate_pp.$(OBJEXT) \
+	qwl_evaluate.$(OBJEXT) $(am__objects_6)
+loop_evaluate_pp_OBJECTS = $(am_loop_evaluate_pp_OBJECTS)
+loop_evaluate_pp_DEPENDENCIES =
 am__loop_mpi_SOURCES_DIST = loop.C loop_config.h loop_factory.h \
 	loop_factory.C loop_model.C diag.C ising.C path_integral.C \
 	sse.C sse_qwl.C
@@ -138,11 +146,14 @@ LTCOMPILE = $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(loop_SOURCES) $(loop_evaluate_SOURCES) $(loop_mpi_SOURCES) \
+SOURCES = $(loop_SOURCES) $(loop_evaluate_SOURCES) \
+	$(loop_evaluate_pp_SOURCES) $(loop_mpi_SOURCES) \
 	$(loop_ns_SOURCES) $(loop_pp_SOURCES)
 DIST_SOURCES = $(am__loop_SOURCES_DIST) \
-	$(am__loop_evaluate_SOURCES_DIST) $(am__loop_mpi_SOURCES_DIST) \
-	$(am__loop_ns_SOURCES_DIST) $(am__loop_pp_SOURCES_DIST)
+	$(am__loop_evaluate_SOURCES_DIST) \
+	$(am__loop_evaluate_pp_SOURCES_DIST) \
+	$(am__loop_mpi_SOURCES_DIST) $(am__loop_ns_SOURCES_DIST) \
+	$(am__loop_pp_SOURCES_DIST)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-exec-recursive install-info-recursive \
@@ -353,13 +364,16 @@ SRC = loop_config.h loop_factory.h loop_factory.C loop_model.C \
 	$(am__append_7) $(am__append_8) $(am__append_9) \
 	$(am__append_10) $(am__append_11)
 loop_SOURCES = loop.C $(SRC)
+loop_evaluate_SOURCES = loop_evaluate.C qwl_evaluate.C $(SRC)
 loop_mpi_SOURCES = loop.C $(SRC)
 loop_mpi_LDFLAGS = @LDFLAGS_MPI@
 loop_mpi_LDADD = @LIBS_MPI@
-loop_evaluate_SOURCES = loop_evaluate.C qwl_evaluate.C $(SRC)
 loop_pp_SOURCES = loop_pp.C $(SRC)
 loop_pp_LDFLAGS = @LDFLAGS_PP@
 loop_pp_LDADD = @LIBS_PP@
+loop_evaluate_pp_SOURCES = loop_evaluate_pp.C qwl_evaluate.C $(SRC)
+loop_evaluate_pp_LDFLAGS = @LDFLAGS_PP@
+loop_evaluate_pp_LDADD = @LIBS_PP@
 loop_ns_SOURCES = loop_ns.C $(SRC)
 TESTS = $(check_PROGRAMS)
 TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
@@ -428,6 +442,9 @@ loop$(EXEEXT): $(loop_OBJECTS) $(loop_DEPENDENCIES)
 loop_evaluate$(EXEEXT): $(loop_evaluate_OBJECTS) $(loop_evaluate_DEPENDENCIES) 
 	@rm -f loop_evaluate$(EXEEXT)
 	$(CXXLINK) $(loop_evaluate_LDFLAGS) $(loop_evaluate_OBJECTS) $(loop_evaluate_LDADD) $(LIBS)
+loop_evaluate_pp$(EXEEXT): $(loop_evaluate_pp_OBJECTS) $(loop_evaluate_pp_DEPENDENCIES) 
+	@rm -f loop_evaluate_pp$(EXEEXT)
+	$(CXXLINK) $(loop_evaluate_pp_LDFLAGS) $(loop_evaluate_pp_OBJECTS) $(loop_evaluate_pp_LDADD) $(LIBS)
 loop_mpi$(EXEEXT): $(loop_mpi_OBJECTS) $(loop_mpi_DEPENDENCIES) 
 	@rm -f loop_mpi$(EXEEXT)
 	$(CXXLINK) $(loop_mpi_LDFLAGS) $(loop_mpi_OBJECTS) $(loop_mpi_LDADD) $(LIBS)
@@ -448,6 +465,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ising.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_evaluate.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_evaluate_pp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_factory.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_model.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_ns.Po@am__quote@

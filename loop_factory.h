@@ -23,7 +23,7 @@
 *****************************************************************************/
 
 #include <looper/evaluator.h>
-#include <alps/scheduler.h>
+// #include <alps/scheduler.h>
 #ifdef HAVE_PARAPACK
 # include <parapack/worker.h>
 #endif
@@ -150,6 +150,11 @@ private:
   map_type creators_;
 };
 
+
+//
+// evaluator factory
+//
+
 class abstract_evaluator_creator {
 public:
   virtual ~abstract_evaluator_creator() {}
@@ -161,14 +166,20 @@ class evaluator_creator : public abstract_evaluator_creator {
 public:
   typedef EVALUATOR evaluator_type;
   virtual ~evaluator_creator() {}
-  looper::abstract_evaluator* create() const {
-    return new evaluator_type();
-  }
+  looper::abstract_evaluator* create() const { return new evaluator_type(); }
 };
 
-class evaluator_factory : private boost::noncopyable {
+class evaluator_factory :
+  private boost::noncopyable
+#ifdef HAVE_PARAPACK
+  , public alps::parapack::abstract_evaluator
+#endif
+{
 public:
   looper::abstract_evaluator* make_evaluator(alps::Parameters const& p) const;
+  void evaluate(alps::ObservableSet& obs, alps::Parameters const& p) const;
+
+  void print_copyright(std::ostream& os) const;
 
   template<typename EVALUATOR>
   bool register_evaluator(std::string const& name) {

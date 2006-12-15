@@ -25,6 +25,7 @@
 #ifndef LOOPER_GRAPH_H
 #define LOOPER_GRAPH_H
 
+#include "location.h"
 #include "random_choice.h"
 #include "union_find.h"
 
@@ -51,7 +52,7 @@ struct site_graph_type {
   static bool is_compatible(int /* g */, int /* c */) { return true; }
 };
 
-template<class LOC>
+template<class LOC = location>
 class local_graph
 {
 public:

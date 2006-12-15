@@ -159,7 +159,7 @@ REPRESENTATION = "path integral";
 LATTICE = "4-site mixed";
 MEASURE[Local Susceptibility] = 1;
 MEASURE[Site Type Susceptibility] = 1;
-local_S = "1 ";
+local_S = 1;
 [results]
 Energy: -6.04272 +/- 0.072; tau = 0.603 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0.0484938

@@ -26,8 +26,8 @@
 #define GAP_CONFIG_H
 
 #include <alps/lattice.h>
-#include <looper/location.h>
 #include <looper/graph.h>
+#include <looper/model.h>
 #include <looper/time.h>
 
 #include <looper/gap.h>
@@ -42,7 +42,10 @@ struct loop_config
   typedef looper::imaginary_time<boost::mpl::true_> time_t;
 
   // graph for loops
-  typedef looper::local_graph<looper::location> loop_graph_t;
+  typedef looper::local_graph<> loop_graph_t;
+
+  // model
+  typedef looper::spinmodel_helper<lattice_graph_t, loop_graph_t> model_t;
 
   // measurements
   typedef looper::measurement_set<

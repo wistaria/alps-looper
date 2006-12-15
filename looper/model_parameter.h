@@ -28,7 +28,6 @@
 #include "lapack.h"
 #include "lattice.h"
 #include "matrix.h"
-
 #include <alps/model.h>
 
 namespace looper {
@@ -55,74 +54,24 @@ struct site_parameter {
     double hx_in = 0, double hz_in = 0, double d_in = 0) :
     s(s_in), c(c_in), hx(hx_in), hz(hz_in), d(d_in) {
   }
-  site_parameter(const boost::multi_array<double, 2>& mat) {
-    do_fit(mat);
-  }
+  site_parameter(const boost::multi_array<double, 2>& mat) { do_fit(mat); }
 
   bool operator==(const site_parameter& rhs) const {
     return (s == rhs.s) && alps::is_equal<1>(c, rhs.c) && alps::is_equal<1>(hx, rhs.hx) &&
       alps::is_equal<1>(hz, rhs.hz) && alps::is_equal<1>(d, rhs.d);
   }
-  bool operator!=(const site_parameter& rhs) const {
-    return !operator==(rhs);
-  }
+  bool operator!=(const site_parameter& rhs) const { return !operator==(rhs); }
 
-  bool is_quantal() const {
-    return alps::is_nonzero<1>(hx);
-  }
-  bool has_hz() const {
-    return alps::is_nonzero<1>(hz);
-  }
-  bool has_d() const {
-    return alps::is_nonzero<1>(d);
-  }
+  bool is_quantal() const { return alps::is_nonzero<1>(hx); }
+  bool has_hz() const { return alps::is_nonzero<1>(hz); }
+  bool has_d() const { return alps::is_nonzero<1>(d); }
 
   void output(std::ostream& os) const {
     os << '(' << s << ", " << c << ", " << hx << ", " << hz << ", " << d << ')';
   }
 
 protected:
-  void do_fit(const boost::multi_array<double, 2>& mat) {
-    int dim = mat.shape()[0];
-    int m = dim * dim;
-    int n = (dim > 2 ? 4 : 3); // D-term is meaningful only for S > 1/2
-    s = (double)(dim-1)/2;
-
-    if (!(mat.shape()[0] == mat.shape()[1] && s.get_twice() + 1 == dim))
-      boost::throw_exception(std::runtime_error("Error: fitting to site_parameter failed.  "
-        "This model is not supported by the current version of looper."));
-
-    site_matrix mat_c(site_parameter(s, 1, 0, 0, 0));
-    site_matrix mat_hx(site_parameter(s, 0, 1, 0, 0));
-    site_matrix mat_hz(site_parameter(s, 0, 0, 1, 0));
-    site_matrix mat_d(site_parameter(s, 0, 0, 0, 1));
-
-    boost::numeric::ublas::matrix<double, boost::numeric::ublas::column_major> a(m, n);
-    boost::numeric::ublas::vector<double> b(m);
-    boost::numeric::ublas::vector<double> x(n);
-    for (int i = 0; i < dim; ++i) {
-      for (int j = 0; j < dim; ++j) {
-        int k = dim * i + j;
-        b(k) = mat[i][j];
-        a(k, 0) = mat_c(i,j);
-        a(k, 1) = mat_hx(i,j);
-        a(k, 2) = mat_hz(i,j);
-        if (n == 4) a(k, 3) = mat_d(i,j);
-      }
-    }
-
-    // call linear least sqaure problem solver
-    bool success = alps::is_zero<1>(solve_llsp(a, b, x));
-    if (!success)
-      boost::throw_exception(std::runtime_error("Error: fitting to site_parameter failed.  "
-        "This model is not supported by the current version of looper."));
-
-    for (int i = 0; i < n; ++i) x(i) = alps::round<1>(x(i));
-    c = x(0);
-    hx = x(1);
-    hz = x(2);
-    d = (n == 4 ? x(3) : 0);
-  }
+  void do_fit(const boost::multi_array<double, 2>& mat);
 };
 
 } // end namespace looper
@@ -154,73 +103,20 @@ struct bond_parameter {
   bond_parameter(double c_in = 0, double jxy_in = 0, double jz_in = 0) :
     c(c_in), jxy(jxy_in), jz(jz_in) {
   }
-  bond_parameter(const boost::multi_array<double, 4>& mat) {
-    do_fit(mat);
-  }
+  bond_parameter(const boost::multi_array<double, 4>& mat) { do_fit(mat); }
 
   bool operator==(const bond_parameter& rhs) const {
     return alps::is_equal<1>(c, rhs.c) && alps::is_equal<1>(jxy, rhs.jxy) &&
       alps::is_equal<1>(jz, rhs.jz);
   }
-  bool operator!=(const bond_parameter& rhs) const {
-    return !operator==(rhs);
-  }
+  bool operator!=(const bond_parameter& rhs) const { return !operator==(rhs); }
 
-  bool is_quantal() const {
-    return alps::is_nonzero<1>(jxy);
-  }
+  bool is_quantal() const { return alps::is_nonzero<1>(jxy); }
 
-  void print(std::ostream& os) const {
-    os << '(' << c << ", " << jxy << ", " << jz << ')';
-  }
+  void print(std::ostream& os) const { os << '(' << c << ", " << jxy << ", " << jz << ')'; }
 
 protected:
-  void do_fit(const boost::multi_array<double, 4>& mat) {
-    int d0 = mat.shape()[0];
-    int d1 = mat.shape()[1];
-    int dim = d0 * d1;
-    int m = dim * dim;
-    int n = 3;
-    alps::half_integer<int> s0((double)(d0-1)/2);
-    alps::half_integer<int> s1((double)(d1-1)/2);
-
-    if (!(mat.shape()[0] == mat.shape()[2] && mat.shape()[1] == mat.shape()[3] &&
-          s0.get_twice() + 1 == d0 && s1.get_twice() + 1 == d1))
-      boost::throw_exception(std::runtime_error("Error: fitting to bond_parameter failed.  "
-        "This model is not supported by the current version of looper."));
-
-    bond_matrix mat_c(s0, s1, bond_parameter(1, 0, 0));
-    bond_matrix mat_jxy(s0, s1, bond_parameter(0, 1, 0));
-    bond_matrix mat_jz(s0, s1, bond_parameter(0, 0, 1));
-
-    boost::numeric::ublas::matrix<double, boost::numeric::ublas::column_major> a(m, n);
-    boost::numeric::ublas::vector<double> b(m);
-    boost::numeric::ublas::vector<double> x(n);
-    for (int i0 = 0; i0 < d0; ++i0) {
-      for (int i1 = 0; i1 < d1; ++i1) {
-        for (int j0 = 0; j0 < d0; ++j0) {
-          for (int j1 = 0; j1 < d1; ++j1) {
-            int k = dim * (i0 * d1 + i1) + (j0 * d1 + j1);
-            b(k) = mat[i0][i1][j0][j1];
-            a(k, 0) = mat_c(i0,i1,j0,j1);
-            a(k, 1) = mat_jxy(i0,i1,j0,j1);
-            a(k, 2) = mat_jz(i0,i1,j0,j1);
-          }
-        }
-      }
-    }
-
-    // call linear least squaure problem solver
-    bool success = alps::is_zero<1>(solve_llsp(a, b, x));
-    if (!success)
-      boost::throw_exception(std::runtime_error("Error: fitting to bond_parameter failed.  "
-        "This model is not supported by the current version of looper."));
-
-    for (int i = 0; i < n; ++i) x(i) = alps::round<1>(x(i));
-    c = x(0);
-    jxy = x(1);
-    jz = x(2);
-  }
+  void do_fit(const boost::multi_array<double, 4>& mat);
 };
 
 } // end namespace looper
@@ -256,7 +152,6 @@ bond_parameter get_bond_parameter(alps::Parameters const& param, G const& graph,
   return bond_parameter(get_matrix(double(), hd.bond_term(t),
     hd.basis().site_basis(ts), hd.basis().site_basis(tt), param));
 }
-
 
 //
 // model_parameter
@@ -361,6 +256,104 @@ private:
   bool frustrated_;
   double energy_offset_;
 };
+
+//
+// implementation of site_parameter
+//
+
+inline void site_parameter::do_fit(const boost::multi_array<double, 2>& mat) {
+  int dim = mat.shape()[0];
+  int m = dim * dim;
+  int n = (dim > 2 ? 4 : 3); // D-term is meaningful only for S > 1/2
+  s = (double)(dim-1)/2;
+
+  if (!(mat.shape()[0] == mat.shape()[1] && s.get_twice() + 1 == dim))
+    boost::throw_exception(std::runtime_error("Error: fitting to site_parameter failed.  "
+      "This model is not supported by the current version of looper."));
+
+  site_matrix mat_c(site_parameter(s, 1, 0, 0, 0));
+  site_matrix mat_hx(site_parameter(s, 0, 1, 0, 0));
+  site_matrix mat_hz(site_parameter(s, 0, 0, 1, 0));
+  site_matrix mat_d(site_parameter(s, 0, 0, 0, 1));
+
+  boost::numeric::ublas::matrix<double, boost::numeric::ublas::column_major> a(m, n);
+  boost::numeric::ublas::vector<double> b(m);
+  boost::numeric::ublas::vector<double> x(n);
+  for (int i = 0; i < dim; ++i) {
+    for (int j = 0; j < dim; ++j) {
+      int k = dim * i + j;
+      b(k) = mat[i][j];
+      a(k, 0) = mat_c(i,j);
+      a(k, 1) = mat_hx(i,j);
+      a(k, 2) = mat_hz(i,j);
+      if (n == 4) a(k, 3) = mat_d(i,j);
+    }
+  }
+
+  // call linear least sqaure problem solver
+  bool success = alps::is_zero<1>(solve_llsp(a, b, x));
+  if (!success)
+    boost::throw_exception(std::runtime_error("Error: fitting to site_parameter failed.  "
+      "This model is not supported by the current version of looper."));
+
+  for (int i = 0; i < n; ++i) x(i) = alps::round<1>(x(i));
+  c = x(0);
+  hx = x(1);
+  hz = x(2);
+  d = (n == 4 ? x(3) : 0);
+}
+
+//
+// implementation of bond_paraemter
+//
+
+inline void bond_parameter::do_fit(const boost::multi_array<double, 4>& mat) {
+  int d0 = mat.shape()[0];
+  int d1 = mat.shape()[1];
+  int dim = d0 * d1;
+  int m = dim * dim;
+  int n = 3;
+  alps::half_integer<int> s0((double)(d0-1)/2);
+  alps::half_integer<int> s1((double)(d1-1)/2);
+
+  if (!(mat.shape()[0] == mat.shape()[2] && mat.shape()[1] == mat.shape()[3] &&
+        s0.get_twice() + 1 == d0 && s1.get_twice() + 1 == d1))
+    boost::throw_exception(std::runtime_error("Error: fitting to bond_parameter failed.  "
+      "This model is not supported by the current version of looper."));
+
+  bond_matrix mat_c(s0, s1, bond_parameter(1, 0, 0));
+  bond_matrix mat_jxy(s0, s1, bond_parameter(0, 1, 0));
+  bond_matrix mat_jz(s0, s1, bond_parameter(0, 0, 1));
+
+  boost::numeric::ublas::matrix<double, boost::numeric::ublas::column_major> a(m, n);
+  boost::numeric::ublas::vector<double> b(m);
+  boost::numeric::ublas::vector<double> x(n);
+  for (int i0 = 0; i0 < d0; ++i0)
+    for (int i1 = 0; i1 < d1; ++i1)
+      for (int j0 = 0; j0 < d0; ++j0)
+        for (int j1 = 0; j1 < d1; ++j1) {
+          int k = dim * (i0 * d1 + i1) + (j0 * d1 + j1);
+          b(k) = mat[i0][i1][j0][j1];
+          a(k, 0) = mat_c(i0,i1,j0,j1);
+          a(k, 1) = mat_jxy(i0,i1,j0,j1);
+          a(k, 2) = mat_jz(i0,i1,j0,j1);
+        }
+
+  // call linear least squaure problem solver
+  bool success = alps::is_zero<1>(solve_llsp(a, b, x));
+  if (!success)
+    boost::throw_exception(std::runtime_error("Error: fitting to bond_parameter failed.  "
+      "This model is not supported by the current version of looper."));
+
+  for (int i = 0; i < n; ++i) x(i) = alps::round<1>(x(i));
+  c = x(0);
+  jxy = x(1);
+  jz = x(2);
+}
+
+//
+// implementation of model_parameter
+//
 
 template<typename G>
 void model_parameter::set_parameters_impl(G const& g, site_parameter const& sp,

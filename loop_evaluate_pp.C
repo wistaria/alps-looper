@@ -22,23 +22,9 @@
 *
 *****************************************************************************/
 
-#ifndef LOOPER_EVALUATOR_H
-#define LOOPER_EVALUATOR_H
+#include "loop_factory.h"
+#include <parapack/scheduler.h>
 
-#include "version.h"
-#include <alps/scheduler.h>
-
-namespace looper {
-
-class abstract_evaluator {
-public:
-  virtual ~abstract_evaluator() {}
-  virtual void evaluate(alps::scheduler::MCSimulation&, alps::Parameters const&,
-    boost::filesystem::path const&) const = 0;
-  virtual void evaluate(alps::ObservableSet& m, alps::Parameters const&,
-    alps::ObservableSet const& m_in) const = 0;
-};
-
-} // end namespace looper
-
-#endif // LOOPER_EVALUATOR_H
+int main(int argc, char** argv) {
+  return alps::parapack::evaluate(argc, argv, *evaluator_factory::instance());
+}

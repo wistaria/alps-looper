@@ -1,5 +1,9 @@
-2006-01-26  Synge Todo <wistaria@comp-phys.org>
+2006-12-15  Synge Todo <wistaria@comp-phys.org>
 
+	* Added support for ALPS/parapack.
+	
+2006-01-26  Synge Todo <wistaria@comp-phys.org>
+	
 	* Added extras subdirectory
 	
 2006-01-23  Synge Todo <wistaria@comp-phys.org>

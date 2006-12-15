@@ -72,7 +72,7 @@ if HAVE_MPI
 noinst_PROGRAMS += loop_mpi
 endif
 if HAVE_PARAPACK
-noinst_PROGRAMS += loop_pp
+noinst_PROGRAMS += loop_pp loop_evaluate_pp
 endif
 
 SRC = loop_config.h loop_factory.h loop_factory.C loop_model.C
@@ -93,15 +93,20 @@ SRC += sse_qwl.C
 endif
 
 loop_SOURCES = loop.C $(SRC)
+
+loop_evaluate_SOURCES = loop_evaluate.C qwl_evaluate.C $(SRC)
+
 loop_mpi_SOURCES = loop.C $(SRC)
 loop_mpi_LDFLAGS = @LDFLAGS_MPI@
 loop_mpi_LDADD = @LIBS_MPI@
 
-loop_evaluate_SOURCES = loop_evaluate.C qwl_evaluate.C $(SRC)
-
 loop_pp_SOURCES = loop_pp.C $(SRC)
 loop_pp_LDFLAGS = @LDFLAGS_PP@
 loop_pp_LDADD = @LIBS_PP@
+
+loop_evaluate_pp_SOURCES = loop_evaluate_pp.C qwl_evaluate.C $(SRC)
+loop_evaluate_pp_LDFLAGS = @LDFLAGS_PP@
+loop_evaluate_pp_LDADD = @LIBS_PP@
 
 #
 # tests
