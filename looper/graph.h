@@ -62,35 +62,38 @@ public:
   local_graph(int type, const location_t& loc) : type_(type), loc_(loc) {}
 
   int type() const { return type_; }
-  bool is_compatible(int c) const
-  { assert(is_site()); return site_graph_type::is_compatible(type_, c); }
-  bool is_compatible(int c0, int c1) const
-  { assert(is_bond()); return bond_graph_type::is_compatible(type_, c0, c1); }
+  bool is_compatible(int c) const {
+    assert(is_site());
+    return site_graph_type::is_compatible(type_, c);
+  }
+  bool is_compatible(int c0, int c1) const {
+    assert(is_bond());
+    return bond_graph_type::is_compatible(type_, c0, c1);
+  }
 
   const location_t& loc() const { return loc_; }
   int pos() const { return loc_.pos(); }
   bool is_bond() const { return loc_.is_bond(); }
   bool is_site() const { return loc_.is_site(); }
 
-  static local_graph bond_graph(int type, int pos)
-  { return local_graph(type, location_t::bond_location(pos)); }
-  static local_graph site_graph(int type, int pos)
-  { return local_graph(type, location_t::site_location(pos)); }
+  static local_graph bond_graph(int type, int pos) {
+    return local_graph(type, location_t::bond_location(pos));
+  }
+  static local_graph site_graph(int type, int pos) {
+    return local_graph(type, location_t::site_location(pos));
+  }
 
   template<class T>
   boost::tuple<int /* curr */, int /* loop0 */, int /* loop1 */>
-  reconnect(std::vector<T>& fragments, int curr) const
-  {
+  reconnect(std::vector<T>& fragments, int curr) const {
     assert(is_site());
     int loop1 = add(fragments);
     return boost::make_tuple(loop1, curr, loop1);
   }
 
   template<class T>
-  boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */,
-               int /* loop1 */>
-  reconnect(std::vector<T>& fragments, int curr0, int curr1) const
-  {
+  boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
+  reconnect(std::vector<T>& fragments, int curr0, int curr1) const {
     assert(is_bond());
     int loop0, loop1;
     if (type_ == 0) {
@@ -121,11 +124,11 @@ private:
 template<class LOC>
 inline int type(const local_graph<LOC>& g) { return g.type(); }
 template<class LOC>
-inline bool is_compatible(const local_graph<LOC>& g, int c)
-{ return g.is_compatible(c); }
+inline bool is_compatible(const local_graph<LOC>& g, int c) { return g.is_compatible(c); }
 template<class LOC>
-inline bool is_compatible(const local_graph<LOC>& g, int c0, int c1)
-{ return g.is_compatible(c0, c1); }
+inline bool is_compatible(const local_graph<LOC>& g, int c0, int c1) {
+  return g.is_compatible(c0, c1);
+}
 
 template<class LOC>
 inline int pos(const local_graph<LOC>& g) { return g.pos(); }
@@ -136,30 +139,28 @@ inline bool is_bond(const local_graph<LOC>& g) { return g.is_bond(); }
 
 template<class T, class LOC>
 boost::tuple<int /* curr */, int /* loop0 */, int /* loop1 */>
-reconnect(std::vector<T>& fragments, const local_graph<LOC>& g, int curr)
-{ return g.reconnect(fragments, curr); }
+reconnect(std::vector<T>& fragments, const local_graph<LOC>& g, int curr) {
+  return g.reconnect(fragments, curr);
+}
 
 template<class T, class LOC>
 boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
-reconnect(std::vector<T>& fragments, const local_graph<LOC>& g,
-          int curr0, int curr1)
-{ return g.reconnect(fragments, curr0, curr1); }
+reconnect(std::vector<T>& fragments, const local_graph<LOC>& g, int curr0, int curr1) {
+  return g.reconnect(fragments, curr0, curr1);
+}
 
 // optimized version for antiferromagnetic Heisenberg interaction
 
 template<class LOC>
-class local_graph_haf
-{
+class local_graph_haf {
 public:
   typedef LOC location_t;
 
   local_graph_haf() {}
-  local_graph_haf(int type, const location_t& loc) : loc_(loc)
-  { assert(type == 0); }
+  local_graph_haf(int type, const location_t& loc) : loc_(loc) { assert(type == 0); }
 
   static int type() { return 0; }
-  bool is_compatible(int c) const
-  {
+  bool is_compatible(int c) const {
     boost::throw_exception(std::logic_error("local_graph_haf::is_compatible"));
     return false;
   }
@@ -170,42 +171,35 @@ public:
   static bool is_bond() { return true; }
   static bool is_site() { return false; }
 
-  static local_graph_haf bond_graph(int type, int pos)
-  {
+  static local_graph_haf bond_graph(int type, int pos) {
     assert(type == 0);
     return local_graph_haf(0, location_t::bond_location(pos));
   }
-  static local_graph_haf site_graph(int type, int pos)
-  {
+  static local_graph_haf site_graph(int /* type */, int /* pos */) {
     boost::throw_exception(std::logic_error("local_graph_haf::site_graph"));
     return local_graph_haf();
   }
 
   template<class T>
   boost::tuple<int /* curr */, int /* loop0 */, int /* loop1 */>
-  reconnect(std::vector<T>& /* fragments */, int /* curr */) const
-  {
+  reconnect(std::vector<T>& /* fragments */, int /* curr */) const {
     boost::throw_exception(std::logic_error("local_graph_haf::reconnect"));
     return boost::make_tuple(0, 0, 0);
   }
 
   template<class T>
-  boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */,
-               int /* loop1 */>
-  reconnect(std::vector<T>& fragments, int curr0, int curr1) const
-  {
+  boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
+  reconnect(std::vector<T>& fragments, int curr0, int curr1) const {
     curr0 = unify(fragments, curr0, curr1);
     curr1 = add(fragments);
     return boost::make_tuple(curr1, curr1, curr0, curr1);
   }
 
-  static int loop_l(int, int, int)
-  {
+  static int loop_l(int, int, int) {
     boost::throw_exception(std::logic_error("local_graph_haf::loop_u0"));
     return 0;
   }
-  static int loop_u(int, int, int)
-  {
+  static int loop_u(int, int, int) {
     boost::throw_exception(std::logic_error("local_graph_haf::loop_u1"));
     return 0;
   }
