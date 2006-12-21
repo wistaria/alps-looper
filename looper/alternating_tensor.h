@@ -33,8 +33,7 @@ namespace looper {
 // function alternating_tensor
 //
 
-inline int alternating_tensor(int i, int j, int k)
-{
+inline int alternating_tensor(int i, int j, int k) {
   switch (i) {
   case 0 :
     switch (j) {
@@ -69,9 +68,9 @@ inline int alternating_tensor(int i, int j, int k)
   return 0;
 }
 
-inline
-int alternating_tensor(boost::tuple<int, int, int> const& x)
-{ return alternating_tensor(x.get<0>(), x.get<1>(), x.get<2>()); }
+inline int alternating_tensor(boost::tuple<int, int, int> const& x) {
+  return alternating_tensor(x.get<0>(), x.get<1>(), x.get<2>());
+}
 
 } // end namespace looper
 
