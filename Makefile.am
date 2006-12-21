@@ -39,11 +39,13 @@ dist_noinst_HEADERS = \
 	looper/integer_range.h \
 	looper/lapack.h \
 	looper/lattice.h \
-	looper/location.h \
 	looper/localsus.h \
+	looper/location.h \
+	looper/matrix.h \
 	looper/measurement.h \
 	looper/model.h \
 	looper/model_impl.h \
+	looper/model_parameter.h \
 	looper/montecarlo.h \
 	looper/operator.h \
 	looper/permutation.h \
@@ -52,8 +54,8 @@ dist_noinst_HEADERS = \
 	looper/stiffness.h \
 	looper/susceptibility.h \
 	looper/temperature.h \
-	looper/top.h \
 	looper/time.h \
+	looper/top.h \
 	looper/transmag.h \
 	looper/type.h \
 	looper/union_find.h \
