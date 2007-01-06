@@ -43,6 +43,7 @@ dist_noinst_HEADERS = \
 	looper/location.h \
 	looper/matrix.h \
 	looper/measurement.h \
+	looper/measurement_operators.h \
 	looper/model.h \
 	looper/model_impl.h \
 	looper/model_parameter.h \
@@ -74,7 +75,10 @@ if HAVE_MPI
 noinst_PROGRAMS += loop_mpi
 endif
 if HAVE_PARAPACK
-noinst_PROGRAMS += loop_pp loop_evaluate_pp
+noinst_PROGRAMS += loop_ps loop_pevaluate
+if HAVE_MPI
+noinst_PROGRAMS += loop_pp
+endif
 endif
 
 SRC = loop_config.h loop_factory.h loop_factory.C loop_model.C
@@ -102,13 +106,17 @@ loop_mpi_SOURCES = loop.C $(SRC)
 loop_mpi_LDFLAGS = @LDFLAGS_MPI@
 loop_mpi_LDADD = @LIBS_MPI@
 
+loop_ps_SOURCES = loop_pp.C $(SRC)
+loop_ps_LDFLAGS = @LDFLAGS_PS@
+loop_ps_LDADD = @LIBS_PS@
+
 loop_pp_SOURCES = loop_pp.C $(SRC)
 loop_pp_LDFLAGS = @LDFLAGS_PP@
 loop_pp_LDADD = @LIBS_PP@
 
-loop_evaluate_pp_SOURCES = loop_evaluate_pp.C qwl_evaluate.C $(SRC)
-loop_evaluate_pp_LDFLAGS = @LDFLAGS_PP@
-loop_evaluate_pp_LDADD = @LIBS_PP@
+loop_pevaluate_SOURCES = loop_pevaluate.C qwl_evaluate.C $(SRC)
+loop_pevaluate_LDFLAGS = @LDFLAGS_PS@
+loop_pevaluate_LDADD = @LIBS_PS@
 
 #
 # tests

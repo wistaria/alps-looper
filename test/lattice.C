@@ -22,38 +22,35 @@
 *
 *****************************************************************************/
 
-#ifndef LOOPER_VERSION_H
-#define LOOPER_VERSION_H
-
+#include <looper/lattice.h>
 #include <iostream>
 
-/* Define the version of ALPS/looper */
-#define LOOPER_VERSION "3.2b2-20070106"
+int main() {
 
-/* Define the published date of ALPS/looper */
-#define LOOPER_DATE "2007/01/06"
+#ifndef BOOST_NO_EXCEPTIONS
+try {
+#endif
 
-#include <alps/copyright.h>
-#include <iostream>
+  typedef alps::coordinate_graph_type real_graph_type;
+  typedef looper::lattice_helper<real_graph_type> lattice_type;
 
-namespace looper {
+  alps::ParameterList params(std::cin);
+  BOOST_FOREACH(alps::Parameters const& p, params) {
+    lattice_type lat(p);
+    std::cout << p
+              << "  volume of lattice    = " << lat.volume() << std::endl
+              << "  number of real sites = " << num_sites(lat.rg()) << std::endl
+              << "  number of real bonds = " << num_bonds(lat.rg()) << std::endl;
+  }
 
-inline
-std::ostream& print_copyright(std::ostream& os = std::cout) {
-  os << "ALPS/looper version " LOOPER_VERSION " (" LOOPER_DATE ")\n"
-     << "  multi-cluster quantum Monte Carlo algorithms for spin systems\n"
-     << "  available from http://wistaria.comp-phys.org/alps-looper/\n"
-     << "  copyright (c) 1997-2006 by Synge Todo <wistaria@comp-phys.org>\n"
-     << "\n";
-  return os;
+#ifndef BOOST_NO_EXCEPTIONS
 }
+catch (const std::exception& excp) {
+  std::cerr << excp.what() << std::endl;
+  std::exit(-1); }
+catch (...) {
+  std::cerr << "Unknown exception occurred!" << std::endl;
+  std::exit(-1); }
+#endif
 
-inline
-std::ostream& print_license(std::ostream& os = std::cout) {
-  os << "Please look at the file LICENSE for the license conditions.\n";
-  return os;
 }
-
-} // end namespace looper
-
-#endif // LOOPER_VERSION_H

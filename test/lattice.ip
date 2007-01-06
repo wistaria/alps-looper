@@ -1,0 +1,22 @@
+{
+LATTICE = "chain lattice"
+L = 4
+}
+
+{
+LATTICE = "chain lattice"
+L = 4
+a = 1.6
+}
+
+{
+LATTICE = "triangular lattice"
+L = 2
+}
+
+{
+LATTICE = "anisotropic square lattice"
+L = 2
+W = 4
+b = 2
+}

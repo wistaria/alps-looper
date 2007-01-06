@@ -126,6 +126,7 @@ Transverse Magnetization Density: 0.492676 +/- 0.00204; tau = 0.0873
     bin #2   : 512      entries: error = 0.00186593
     bin #3   : 256      entries: error = 0.00208365
     bin #4   : 128      entries: error = 0.00203649
+Volume: 1 +/- 0
 [input parameters]
 SEED = 23125;
 SWEEPS = 1024;
@@ -166,6 +167,7 @@ Transverse Magnetization Density: 0.371094 +/- 0.00849; tau = 0.27 WARNING: ERRO
     bin #2   : 512      entries: error = 0.00718469
     bin #3   : 256      entries: error = 0.00794929
     bin #4   : 128      entries: error = 0.00848758
+Volume: 1 +/- 0
 [input parameters]
 SEED = 23125;
 SWEEPS = 1024;
@@ -316,6 +318,7 @@ Sign * Transverse Magnetization Density: 0.0978315 +/- 0.0052; tau = 0.309 WARNI
     bin #2   : 512      entries: error = 0.00456426
     bin #3   : 256      entries: error = 0.00484561
     bin #4   : 128      entries: error = 0.00520216
+Volume: 4 +/- 0
 [input parameters]
 SEED = 23125;
 SWEEPS = 1024;
@@ -370,3 +373,4 @@ Sign * Transverse Magnetization Density: 0.129992 +/- 0.00504; tau = 0.181 WARNI
     bin #2   : 512      entries: error = 0.00469353
     bin #3   : 256      entries: error = 0.00496848
     bin #4   : 128      entries: error = 0.00504447
+Volume: 4 +/- 0

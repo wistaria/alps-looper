@@ -12,6 +12,12 @@ noinst_PROGRAMS = transmag transmag_evaluate
 if HAVE_MPI
 noinst_PROGRAMS += transmag_mpi
 endif
+if HAVE_PARAPACK
+noinst_PROGRAMS += transmag_ps transmag_pevaluate
+if HAVE_MPI
+noinst_PROGRAMS += transmag_pp
+endif
+endif
 
 SRC = $(top_srcdir)/loop_factory.C $(top_srcdir)/loop_model.C $(top_srcdir)/diag.C $(top_srcdir)/path_integral.C
 
@@ -20,8 +26,18 @@ nodist_transmag_SOURCES = $(top_srcdir)/loop.C $(SRC)
 nodist_transmag_mpi_SOURCES = $(top_srcdir)/loop.C $(SRC)
        transmag_mpi_LDFLAGS = @LDFLAGS_MPI@
        transmag_mpi_LDADD = @LIBS_MPI@
-
 nodist_transmag_evaluate_SOURCES = $(top_srcdir)/loop_evaluate.C $(SRC)
+
+nodist_transmag_ps_SOURCES = $(top_srcdir)/loop_pp.C $(SRC)
+       transmag_ps_LDFLAGS = @LDFLAGS_PS@
+       transmag_ps_LDADD = @LIBS_PS@
+nodist_transmag_pp_SOURCES = $(top_srcdir)/loop_pp.C $(SRC)
+       transmag_pp_LDFLAGS = @LDFLAGS_PP@
+       transmag_pp_LDADD = @LIBS_PP@
+nodist_transmag_pevaluate_SOURCES = $(top_srcdir)/loop_pevaluate.C $(SRC)
+       transmag_pevaluate_LDFLAGS = @LDFLAGS_PP@
+       transmag_pevaluate_LDADD = @LIBS_PP@
+
 
 #
 # tests

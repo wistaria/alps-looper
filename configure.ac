@@ -75,8 +75,8 @@ dnl
 dnl check for ALPS/parapack
 dnl
 
-AC_CHECK_HEADER([parapack/scheduler.h])
-test "$ac_cv_header_parapack_scheduler_h" = yes && ac_cv_have_parapack=yes
+AC_CHECK_HEADER([parapack/version.h])
+test "$ac_cv_header_parapack_version_h" = yes && ac_cv_have_parapack=yes
 test "$ac_cv_have_parapack" = yes && AC_DEFINE([HAVE_PARAPACK])
 AM_CONDITIONAL(HAVE_PARAPACK, test "$ac_cv_have_parapack" = yes)
 
@@ -131,8 +131,11 @@ AC_SUBST([LDADD], "$ac_cv_alps_libs")
 AC_SUBST([LDFLAGS_MPI], "$ac_cv_alps_ldflags_mpi")
 AC_SUBST([LIBS_MPI], "$ac_cv_alps_libs_mpi")
 
+AC_SUBST([LDFLAGS_PS], "$ac_cv_alps_ldflags_mpi")
+AC_SUBST([LIBS_PS], "-lparapack_sgl $ac_cv_alps_libs_mpi")
+
 AC_SUBST([LDFLAGS_PP], "$ac_cv_alps_ldflags_mpi")
-AC_SUBST([LIBS_PP], "-lparapack $ac_cv_alps_libs_mpi")
+AC_SUBST([LIBS_PP], "-lparapack_mpi $ac_cv_alps_libs_mpi")
 
 dnl
 dnl methods

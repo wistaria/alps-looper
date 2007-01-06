@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -282,21 +282,21 @@ struct energy_estimator {
   static void measurement(alps::ObservableSet& m, lattice_helper<RG> const& lat, double beta,
     int nop, double sign, double ene) {
     m["Energy"] << sign * ene;
-    m["Energy Density"] << sign * ene / num_sites(lat.rg());
+    m["Energy Density"] << sign * ene / lat.volume();
     m["Energy^2"] << sign * (power2(ene) - nop / power2(beta));
   }
 };
 
 struct energy_evaluator {
   static void evaluate(alps::ObservableSet& m, alps::ObservableSet const& m_in) {
-    if (m_in.has("Inverse Temperature") && m_in.has("Number of Sites") &&
+    if (m_in.has("Inverse Temperature") && m_in.has("Volume") &&
         m_in.has("Energy") && m_in.has("Energy^2")) {
       double beta = alps::RealObsevaluator(m_in["Inverse Temperature"]).mean();
-      double nrs = alps::RealObsevaluator(m_in["Number of Sites"]).mean();
+      double vol = alps::RealObsevaluator(m_in["Volume"]).mean();
       alps::RealObsevaluator obse_e = m_in["Energy"];
       alps::RealObsevaluator obse_e2 = m_in["Energy^2"];
       alps::RealObsevaluator eval("Specific Heat");
-      eval = power2(beta) * (obse_e2 - power2(obse_e)) / nrs;
+      eval = power2(beta) * (obse_e2 - power2(obse_e)) / vol;
       m.addObservable(eval);
     }
   }

@@ -150,6 +150,7 @@ Entry[1]: 0.0351003 +/- 0.0111493; tau = 0.725506 WARNING: ERRORS NOT CONVERGED!
     bin #4   : 128      entries: error = 0.0111493
 Specific Heat: -0.053696 +/- 0.154 WARNING: ERRORS NOT CONVERGED!!!
 Temperature: 0.25 +/- 0
+Volume: 4 +/- 0
 [input parameters]
 SEED = 23125;
 SWEEPS = 1024;
@@ -303,3 +304,4 @@ Entry[1]: 0.0466997 +/- 0.0169459; tau = 0.768866 WARNING: ERRORS NOT CONVERGED!
     bin #4   : 128      entries: error = 0.0169459
 Specific Heat: -0.408442 +/- 0.48 WARNING: ERRORS NOT CONVERGED!!!
 Temperature: 0.25 +/- 0
+Volume: 4 +/- 0

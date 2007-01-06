@@ -12,6 +12,12 @@ noinst_PROGRAMS = top top_evaluate
 if HAVE_MPI
 noinst_PROGRAMS += top_mpi
 endif
+if HAVE_PARAPACK
+noinst_PROGRAMS += top_ps top_pevaluate
+if HAVE_MPI
+noinst_PROGRAMS += top_pp
+endif
+endif
 
 SRC = $(top_srcdir)/loop_factory.C $(top_srcdir)/loop_model.C $(top_srcdir)/path_integral.C
 
@@ -20,8 +26,18 @@ nodist_top_SOURCES = $(top_srcdir)/loop.C $(SRC)
 nodist_top_mpi_SOURCES = $(top_srcdir)/loop.C $(SRC)
        top_mpi_LDFLAGS = @LDFLAGS_MPI@
        top_mpi_LDADD = @LIBS_MPI@
-
 nodist_top_evaluate_SOURCES = $(top_srcdir)/loop_evaluate.C $(SRC)
+
+nodist_top_ps_SOURCES = $(top_srcdir)/loop_pp.C $(SRC)
+       top_ps_LDFLAGS = @LDFLAGS_PS@
+       top_ps_LDADD = @LIBS_PS@
+nodist_top_pp_SOURCES = $(top_srcdir)/loop_pp.C $(SRC)
+       top_pp_LDFLAGS = @LDFLAGS_PP@
+       top_pp_LDADD = @LIBS_PP@
+nodist_top_pevaluate_SOURCES = $(top_srcdir)/loop_pevaluate.C $(SRC)
+       top_pevaluate_LDFLAGS = @LDFLAGS_PP@
+       top_pevaluate_LDADD = @LIBS_PP@
+
 
 #
 # tests

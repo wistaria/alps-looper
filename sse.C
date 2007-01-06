@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -133,6 +133,7 @@ loop_worker::loop_worker(alps::Parameters const& p, alps::ObservableSet& obs) :
 
   obs << make_observable(alps::SimpleRealObservable("Temperature"));
   obs << make_observable(alps::SimpleRealObservable("Inverse Temperature"));
+  obs << make_observable(alps::SimpleRealObservable("Volume"));
   obs << make_observable(alps::SimpleRealObservable("Number of Sites"));
   obs << make_observable(alps::SimpleRealObservable("Number of Clusters"));
   if (model.is_signed()) obs << alps::RealObservable("Sign");
@@ -344,10 +345,10 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
 //
 
 void loop_worker::measure(alps::ObservableSet& obs) {
-  int nrs = num_sites(lattice.rg());
   obs["Temperature"] << 1/beta;
   obs["Inverse Temperature"] << beta;
-  obs["Number of Sites"] << (double)nrs;
+  obs["Volume"] << (double)lattice.volume();
+  obs["Number of Sites"] << (double)num_sites(lattice.rg());
 
   // sign
   double sign = 1;

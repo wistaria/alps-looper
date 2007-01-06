@@ -39,8 +39,8 @@ host_triplet = @host@
 check_PROGRAMS = alternating_tensor$(EXEEXT) bond_matrix$(EXEEXT) \
 	compatibility$(EXEEXT) edge_type$(EXEEXT) \
 	filtered_graph$(EXEEXT) find_bridge$(EXEEXT) \
-	generate_01$(EXEEXT) gesvd$(EXEEXT) llsp$(EXEEXT) \
-	model_parameter$(EXEEXT) parse_vector$(EXEEXT) \
+	generate_01$(EXEEXT) gesvd$(EXEEXT) lattice$(EXEEXT) \
+	llsp$(EXEEXT) model_parameter$(EXEEXT) parse_vector$(EXEEXT) \
 	permutation$(EXEEXT) postorder$(EXEEXT) random_choice$(EXEEXT) \
 	range$(EXEEXT) sign$(EXEEXT) site_matrix$(EXEEXT) \
 	spinmodel_helper$(EXEEXT) syev$(EXEEXT) temperature$(EXEEXT) \
@@ -86,6 +86,10 @@ am_gesvd_OBJECTS = gesvd.$(OBJEXT)
 gesvd_OBJECTS = $(am_gesvd_OBJECTS)
 gesvd_LDADD = $(LDADD)
 gesvd_DEPENDENCIES =
+am_lattice_OBJECTS = lattice.$(OBJEXT)
+lattice_OBJECTS = $(am_lattice_OBJECTS)
+lattice_LDADD = $(LDADD)
+lattice_DEPENDENCIES =
 am_llsp_OBJECTS = llsp.$(OBJEXT)
 llsp_OBJECTS = $(am_llsp_OBJECTS)
 llsp_LDADD = $(LDADD)
@@ -159,22 +163,24 @@ CXXLINK = $(LIBTOOL) --tag=CXX --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 SOURCES = $(alternating_tensor_SOURCES) $(bond_matrix_SOURCES) \
 	$(compatibility_SOURCES) $(edge_type_SOURCES) \
 	$(filtered_graph_SOURCES) $(find_bridge_SOURCES) \
-	$(generate_01_SOURCES) $(gesvd_SOURCES) $(llsp_SOURCES) \
-	$(model_parameter_SOURCES) $(parse_vector_SOURCES) \
-	$(permutation_SOURCES) $(postorder_SOURCES) \
-	$(random_choice_SOURCES) $(range_SOURCES) $(sign_SOURCES) \
-	$(site_matrix_SOURCES) $(spinmodel_helper_SOURCES) \
-	$(syev_SOURCES) $(temperature_SOURCES) $(union_find_SOURCES) \
+	$(generate_01_SOURCES) $(gesvd_SOURCES) $(lattice_SOURCES) \
+	$(llsp_SOURCES) $(model_parameter_SOURCES) \
+	$(parse_vector_SOURCES) $(permutation_SOURCES) \
+	$(postorder_SOURCES) $(random_choice_SOURCES) $(range_SOURCES) \
+	$(sign_SOURCES) $(site_matrix_SOURCES) \
+	$(spinmodel_helper_SOURCES) $(syev_SOURCES) \
+	$(temperature_SOURCES) $(union_find_SOURCES) \
 	$(virtual_lattice_SOURCES) $(weight_SOURCES)
 DIST_SOURCES = $(alternating_tensor_SOURCES) $(bond_matrix_SOURCES) \
 	$(compatibility_SOURCES) $(edge_type_SOURCES) \
 	$(filtered_graph_SOURCES) $(find_bridge_SOURCES) \
-	$(generate_01_SOURCES) $(gesvd_SOURCES) $(llsp_SOURCES) \
-	$(model_parameter_SOURCES) $(parse_vector_SOURCES) \
-	$(permutation_SOURCES) $(postorder_SOURCES) \
-	$(random_choice_SOURCES) $(range_SOURCES) $(sign_SOURCES) \
-	$(site_matrix_SOURCES) $(spinmodel_helper_SOURCES) \
-	$(syev_SOURCES) $(temperature_SOURCES) $(union_find_SOURCES) \
+	$(generate_01_SOURCES) $(gesvd_SOURCES) $(lattice_SOURCES) \
+	$(llsp_SOURCES) $(model_parameter_SOURCES) \
+	$(parse_vector_SOURCES) $(permutation_SOURCES) \
+	$(postorder_SOURCES) $(random_choice_SOURCES) $(range_SOURCES) \
+	$(sign_SOURCES) $(site_matrix_SOURCES) \
+	$(spinmodel_helper_SOURCES) $(syev_SOURCES) \
+	$(temperature_SOURCES) $(union_find_SOURCES) \
 	$(virtual_lattice_SOURCES) $(weight_SOURCES)
 DATA = $(dist_noinst_DATA)
 ETAGS = etags
@@ -248,10 +254,12 @@ LDADD = @LDADD@
 LDFLAGS = @LDFLAGS@
 LDFLAGS_MPI = @LDFLAGS_MPI@
 LDFLAGS_PP = @LDFLAGS_PP@
+LDFLAGS_PS = @LDFLAGS_PS@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LIBS_MPI = @LIBS_MPI@
 LIBS_PP = @LIBS_PP@
+LIBS_PS = @LIBS_PS@
 LIBTOOL = @LIBTOOL@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
@@ -323,6 +331,7 @@ dist_noinst_DATA = \
 	filtered_graph.ip filtered_graph.op \
 	find_bridge.ip find_bridge.op \
 	gesvd.ip gesvd.op \
+	lattice.ip lattice.op \
 	llsp.ip llsp.op \
 	model_parameter.ip model_parameter.op \
 	parse_vector.ip parse_vector.op \
@@ -347,6 +356,7 @@ filtered_graph_SOURCES = filtered_graph.C
 find_bridge_SOURCES = find_bridge.C
 generate_01_SOURCES = generate_01.C
 gesvd_SOURCES = gesvd.C
+lattice_SOURCES = lattice.C
 llsp_SOURCES = llsp.C
 model_parameter_SOURCES = model_parameter.C
 parse_vector_SOURCES = parse_vector.C
@@ -428,6 +438,9 @@ generate_01$(EXEEXT): $(generate_01_OBJECTS) $(generate_01_DEPENDENCIES)
 gesvd$(EXEEXT): $(gesvd_OBJECTS) $(gesvd_DEPENDENCIES) 
 	@rm -f gesvd$(EXEEXT)
 	$(CXXLINK) $(gesvd_LDFLAGS) $(gesvd_OBJECTS) $(gesvd_LDADD) $(LIBS)
+lattice$(EXEEXT): $(lattice_OBJECTS) $(lattice_DEPENDENCIES) 
+	@rm -f lattice$(EXEEXT)
+	$(CXXLINK) $(lattice_LDFLAGS) $(lattice_OBJECTS) $(lattice_LDADD) $(LIBS)
 llsp$(EXEEXT): $(llsp_OBJECTS) $(llsp_DEPENDENCIES) 
 	@rm -f llsp$(EXEEXT)
 	$(CXXLINK) $(llsp_LDFLAGS) $(llsp_OBJECTS) $(llsp_LDADD) $(LIBS)
@@ -488,6 +501,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/find_bridge.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_01.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gesvd.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lattice.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/llsp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/model_parameter.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parse_vector.Po@am__quote@

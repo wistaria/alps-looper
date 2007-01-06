@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -162,15 +162,17 @@ loop_worker::loop_worker(alps::Parameters const& p, alps::ObservableSet& obs) :
 
   // measurements
   store_all_histograms =  p.defined("STORE_ALL_HISTOGRAMS");
-  obs << alps::SimpleRealObservable("Number of Sites");
-  obs << alps::SimpleRealObservable("Energy Offset");
-  obs << alps::SimpleRealVectorObservable("Partition Function Coefficient");
-  obs << alps::SimpleRealVectorObservable("Histogram");
+  obs << make_observable(alps::SimpleRealObservable("Volume"));
+  obs << make_observable(alps::SimpleRealObservable("Number of Sites"));
+  obs << make_observable(alps::SimpleRealObservable("Energy Offset"));
+  obs << make_observable(alps::SimpleRealVectorObservable("Partition Function Coefficient"));
+  obs << make_observable(alps::SimpleRealVectorObservable("Histogram"));
   if (store_all_histograms) {
     for (int p = 0; p < mcs.iterations(); ++p) {
       std::string suffix = "(iteration #" + boost::lexical_cast<std::string>(p) + ")";
-      obs << alps::SimpleRealVectorObservable("Partition Function Coefficient " + suffix)
-          << alps::SimpleRealVectorObservable("Histogram " + suffix);
+      obs << make_observable(alps::SimpleRealVectorObservable(
+        "Partition Function Coefficient " + suffix));
+      obs<< make_observable(alps::SimpleRealVectorObservable("Histogram " + suffix));
     }
   }
   obs.reset(true);
@@ -408,11 +410,10 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& /* obs */) {
 //
 
 void loop_worker::measure(alps::ObservableSet& obs) {
-  int nrs = num_sites(lattice.rg());
-  int nop = operators.size();
-  obs["Number of Sites"] << (double)nrs;
+  obs["Volume"] << (double)lattice.volume();
+  obs["Number of Sites"] << (double)num_sites(lattice.rg());
   obs["Energy Offset"] << model.energy_offset();
-  histobs.set_position(nop);
+  histobs.set_position(operators.size());
 
   // sign
   double sign = 1;

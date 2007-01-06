@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 2006-2007 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -29,113 +29,83 @@
 
 namespace looper {
 
-struct transverse_magnetization
-{
+struct transverse_magnetization {
   template<typename MC, typename LAT, typename TIME>
-  struct estimator
-  {
+  struct estimator {
     typedef MC   mc_type;
     typedef LAT  lattice_t;
     typedef TIME time_t;
 
     template<typename M>
-    void initialize(M& m, alps::Parameters const& /* params */,
-                    lattice_t const& /* lat */,
-                    bool is_signed, bool use_improved_estimator)
-    {
+    void initialize(M& m, alps::Parameters const& /* params */, lattice_t const& /* lat */,
+      bool is_signed, bool use_improved_estimator) {
       if (use_improved_estimator) {
-        add_scalar_obs(m, "Transverse Magnetization",
-                       is_signed);
-        add_scalar_obs(m, "Transverse Magnetization Density",
-                       is_signed);
+        add_scalar_obs(m, "Transverse Magnetization", is_signed);
+        add_scalar_obs(m, "Transverse Magnetization Density", is_signed);
       }
     }
 
     // improved estimator
 
-    struct estimate
-    {
+    struct estimate {
       double length;
       bool closed;
-      void init()
-      {
+      void init() {
         length = 0;
         closed = true;
       }
-      void start_s(lattice_t const&, double t, int, int)
-      {
+      void start_s(lattice_t const&, double t, int, int) {
         length -= t;
         closed = false;
       }
-      void start_bs(lattice_t const&, double t, int, int, int)
-      { length -= t; }
-      void start_bt(lattice_t const&, double t, int, int, int)
-      { length -= t; }
-      void term_s(lattice_t const&, double t, int, int)
-      {
+      void start_bs(lattice_t const&, double t, int, int, int) { length -= t; }
+      void start_bt(lattice_t const&, double t, int, int, int) { length -= t; }
+      void term_s(lattice_t const&, double t, int, int) {
         length += t;
         closed = false;
       }
-      void term_bs(lattice_t const&, double t, int, int, int)
-      { length += t; }
-      void term_bt(lattice_t const&, double t, int, int, int)
-      { length += t; }
-      void at_bot(lattice_t const&, double t, int, int)
-      { length -= t; }
-      void at_top(lattice_t const&, double t, int, int)
-      { length += t; }
+      void term_bs(lattice_t const&, double t, int, int, int) { length += t; }
+      void term_bt(lattice_t const&, double t, int, int, int) { length += t; }
+      void at_bot(lattice_t const&, double t, int, int) { length -= t; }
+      void at_top(lattice_t const&, double t, int, int) { length += t; }
     };
     void init_estimate(estimate& es) const { es.init(); }
 
-    struct collector
-    {
+    struct collector {
       double length;
       void init() { length = 0; }
       template<typename EST>
-      collector operator+(EST const& cm)
-      {
+      collector operator+(EST const& cm) {
         if (!cm.closed) length += cm.length;
         return *this;
       }
       template<typename M>
-      void commit(M& m, lattice_t const& lat, double, int,
-                  double sign) const
-      {
+      void commit(M& m, lattice_t const& lat, double, int, double sign) const {
         m["Transverse Magnetization"] << 0.5 * sign * length;
-        m["Transverse Magnetization Density"] << 0.5 * sign * length /
-          num_sites(lat.rg());
+        m["Transverse Magnetization Density"] << 0.5 * sign * length / lat.volume();
       }
     };
     void init_collector(collector& coll) const { coll.init(); }
 
     template<typename M, typename OP, typename FRAGMENT>
-    void improved_measurement(M& m,
-                              lattice_t const& lat,
-                              double beta, double sign,
-                              std::vector<int> const& /* spins */,
-                              std::vector<OP> const& operators,
-                              std::vector<int> const& /* spins_c */,
-                              std::vector<FRAGMENT> const& /* fragments */,
-                              collector const& coll)
-    { coll.commit(m, lat, beta, operators.size(), sign); }
+    void improved_measurement(M& m, lattice_t const& lat, double beta, double sign,
+      std::vector<int> const& /* spins */, std::vector<OP> const& operators,
+      std::vector<int> const& /* spins_c */, std::vector<FRAGMENT> const& /* fragments */,
+      collector const& coll) {
+      coll.commit(m, lat, beta, operators.size(), sign);
+    }
 
     // normal estimator
 
     template<typename M, typename OP>
-    void normal_measurement(M& /* m */,
-                            lattice_t const& /* lat */,
-                            double /* beta */,
-                            double /* sign */,
-                            std::vector<int> const& /* spins */,
-                            std::vector<OP> const& /* operators */,
-                            std::vector<int> const& /* spins_c */) {}
+    void normal_measurement(M& /* m */, lattice_t const& /* lat */, double /* beta */,
+      double /* sign */, std::vector<int> const& /* spins */,
+      std::vector<OP> const& /* operators */, std::vector<int> const& /* spins_c */) {}
   };
 
-  struct evaluator
-  {
-    static void evaluate(alps::ObservableSet& /* m */,
-                         alps::Parameters const& /* params */,
-                         alps::ObservableSet const& /* m_in */) {}
+  struct evaluator {
+    static void evaluate(alps::ObservableSet& /* m */, alps::Parameters const& /* params */,
+      alps::ObservableSet const& /* m_in */) {}
   };
 };
 

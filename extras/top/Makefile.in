@@ -41,8 +41,11 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-noinst_PROGRAMS = top$(EXEEXT) top_evaluate$(EXEEXT) $(am__EXEEXT_1)
+noinst_PROGRAMS = top$(EXEEXT) top_evaluate$(EXEEXT) $(am__EXEEXT_1) \
+	$(am__EXEEXT_2) $(am__EXEEXT_3)
 @HAVE_MPI_TRUE@am__append_1 = top_mpi
+@HAVE_PARAPACK_TRUE@am__append_2 = top_ps top_pevaluate
+@HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__append_3 = top_pp
 check_PROGRAMS = top_ns$(EXEEXT)
 subdir = extras/top
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
@@ -54,6 +57,9 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
 @HAVE_MPI_TRUE@am__EXEEXT_1 = top_mpi$(EXEEXT)
+@HAVE_PARAPACK_TRUE@am__EXEEXT_2 = top_ps$(EXEEXT) \
+@HAVE_PARAPACK_TRUE@	top_pevaluate$(EXEEXT)
+@HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__EXEEXT_3 = top_pp$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 dist_top_OBJECTS =
 am__objects_1 = loop_factory.$(OBJEXT) loop_model.$(OBJEXT) \
@@ -73,6 +79,16 @@ nodist_top_ns_OBJECTS = loop_ns.$(OBJEXT) $(am__objects_1)
 top_ns_OBJECTS = $(nodist_top_ns_OBJECTS)
 top_ns_LDADD = $(LDADD)
 top_ns_DEPENDENCIES =
+nodist_top_pevaluate_OBJECTS = loop_pevaluate.$(OBJEXT) \
+	$(am__objects_1)
+top_pevaluate_OBJECTS = $(nodist_top_pevaluate_OBJECTS)
+top_pevaluate_DEPENDENCIES =
+nodist_top_pp_OBJECTS = loop_pp.$(OBJEXT) $(am__objects_1)
+top_pp_OBJECTS = $(nodist_top_pp_OBJECTS)
+top_pp_DEPENDENCIES =
+nodist_top_ps_OBJECTS = loop_pp.$(OBJEXT) $(am__objects_1)
+top_ps_OBJECTS = $(nodist_top_ps_OBJECTS)
+top_ps_DEPENDENCIES =
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -93,7 +109,8 @@ LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 SOURCES = $(dist_top_SOURCES) $(nodist_top_SOURCES) \
 	$(nodist_top_evaluate_SOURCES) $(nodist_top_mpi_SOURCES) \
-	$(nodist_top_ns_SOURCES)
+	$(nodist_top_ns_SOURCES) $(nodist_top_pevaluate_SOURCES) \
+	$(nodist_top_pp_SOURCES) $(nodist_top_ps_SOURCES)
 DIST_SOURCES = $(dist_top_SOURCES)
 DATA = $(dist_noinst_DATA)
 ETAGS = etags
@@ -167,10 +184,12 @@ LDADD = @LDADD@
 LDFLAGS = @LDFLAGS@
 LDFLAGS_MPI = @LDFLAGS_MPI@
 LDFLAGS_PP = @LDFLAGS_PP@
+LDFLAGS_PS = @LDFLAGS_PS@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LIBS_MPI = @LIBS_MPI@
 LIBS_PP = @LIBS_PP@
+LIBS_PS = @LIBS_PS@
 LIBTOOL = @LIBTOOL@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
@@ -241,6 +260,15 @@ nodist_top_mpi_SOURCES = $(top_srcdir)/loop.C $(SRC)
 top_mpi_LDFLAGS = @LDFLAGS_MPI@
 top_mpi_LDADD = @LIBS_MPI@
 nodist_top_evaluate_SOURCES = $(top_srcdir)/loop_evaluate.C $(SRC)
+nodist_top_ps_SOURCES = $(top_srcdir)/loop_pp.C $(SRC)
+top_ps_LDFLAGS = @LDFLAGS_PS@
+top_ps_LDADD = @LIBS_PS@
+nodist_top_pp_SOURCES = $(top_srcdir)/loop_pp.C $(SRC)
+top_pp_LDFLAGS = @LDFLAGS_PP@
+top_pp_LDADD = @LIBS_PP@
+nodist_top_pevaluate_SOURCES = $(top_srcdir)/loop_pevaluate.C $(SRC)
+top_pevaluate_LDFLAGS = @LDFLAGS_PP@
+top_pevaluate_LDADD = @LIBS_PP@
 
 #
 # tests
@@ -308,6 +336,15 @@ top_mpi$(EXEEXT): $(top_mpi_OBJECTS) $(top_mpi_DEPENDENCIES)
 top_ns$(EXEEXT): $(top_ns_OBJECTS) $(top_ns_DEPENDENCIES) 
 	@rm -f top_ns$(EXEEXT)
 	$(CXXLINK) $(top_ns_LDFLAGS) $(top_ns_OBJECTS) $(top_ns_LDADD) $(LIBS)
+top_pevaluate$(EXEEXT): $(top_pevaluate_OBJECTS) $(top_pevaluate_DEPENDENCIES) 
+	@rm -f top_pevaluate$(EXEEXT)
+	$(CXXLINK) $(top_pevaluate_LDFLAGS) $(top_pevaluate_OBJECTS) $(top_pevaluate_LDADD) $(LIBS)
+top_pp$(EXEEXT): $(top_pp_OBJECTS) $(top_pp_DEPENDENCIES) 
+	@rm -f top_pp$(EXEEXT)
+	$(CXXLINK) $(top_pp_LDFLAGS) $(top_pp_OBJECTS) $(top_pp_LDADD) $(LIBS)
+top_ps$(EXEEXT): $(top_ps_OBJECTS) $(top_ps_DEPENDENCIES) 
+	@rm -f top_ps$(EXEEXT)
+	$(CXXLINK) $(top_ps_LDFLAGS) $(top_ps_OBJECTS) $(top_ps_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -320,6 +357,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_factory.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_model.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_ns.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_pevaluate.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_pp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/path_integral.Po@am__quote@
 
 .C.o:
@@ -426,6 +465,34 @@ loop_ns.obj: $(top_srcdir)/loop_ns.C
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/loop_ns.C' object='loop_ns.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_ns.obj `if test -f '$(top_srcdir)/loop_ns.C'; then $(CYGPATH_W) '$(top_srcdir)/loop_ns.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/loop_ns.C'; fi`
+
+loop_pevaluate.o: $(top_srcdir)/loop_pevaluate.C
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_pevaluate.o -MD -MP -MF "$(DEPDIR)/loop_pevaluate.Tpo" -c -o loop_pevaluate.o `test -f '$(top_srcdir)/loop_pevaluate.C' || echo '$(srcdir)/'`$(top_srcdir)/loop_pevaluate.C; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_pevaluate.Tpo" "$(DEPDIR)/loop_pevaluate.Po"; else rm -f "$(DEPDIR)/loop_pevaluate.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/loop_pevaluate.C' object='loop_pevaluate.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_pevaluate.o `test -f '$(top_srcdir)/loop_pevaluate.C' || echo '$(srcdir)/'`$(top_srcdir)/loop_pevaluate.C
+
+loop_pevaluate.obj: $(top_srcdir)/loop_pevaluate.C
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_pevaluate.obj -MD -MP -MF "$(DEPDIR)/loop_pevaluate.Tpo" -c -o loop_pevaluate.obj `if test -f '$(top_srcdir)/loop_pevaluate.C'; then $(CYGPATH_W) '$(top_srcdir)/loop_pevaluate.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/loop_pevaluate.C'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_pevaluate.Tpo" "$(DEPDIR)/loop_pevaluate.Po"; else rm -f "$(DEPDIR)/loop_pevaluate.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/loop_pevaluate.C' object='loop_pevaluate.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_pevaluate.obj `if test -f '$(top_srcdir)/loop_pevaluate.C'; then $(CYGPATH_W) '$(top_srcdir)/loop_pevaluate.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/loop_pevaluate.C'; fi`
+
+loop_pp.o: $(top_srcdir)/loop_pp.C
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_pp.o -MD -MP -MF "$(DEPDIR)/loop_pp.Tpo" -c -o loop_pp.o `test -f '$(top_srcdir)/loop_pp.C' || echo '$(srcdir)/'`$(top_srcdir)/loop_pp.C; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_pp.Tpo" "$(DEPDIR)/loop_pp.Po"; else rm -f "$(DEPDIR)/loop_pp.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/loop_pp.C' object='loop_pp.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_pp.o `test -f '$(top_srcdir)/loop_pp.C' || echo '$(srcdir)/'`$(top_srcdir)/loop_pp.C
+
+loop_pp.obj: $(top_srcdir)/loop_pp.C
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_pp.obj -MD -MP -MF "$(DEPDIR)/loop_pp.Tpo" -c -o loop_pp.obj `if test -f '$(top_srcdir)/loop_pp.C'; then $(CYGPATH_W) '$(top_srcdir)/loop_pp.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/loop_pp.C'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/loop_pp.Tpo" "$(DEPDIR)/loop_pp.Po"; else rm -f "$(DEPDIR)/loop_pp.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/loop_pp.C' object='loop_pp.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_pp.obj `if test -f '$(top_srcdir)/loop_pp.C'; then $(CYGPATH_W) '$(top_srcdir)/loop_pp.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/loop_pp.C'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

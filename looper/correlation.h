@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -125,8 +125,7 @@ struct correlation
       if (measure_structure_factor) {
         coordinate = alps::get_or_default(coordinate_t(), lat.rg(), 0);
         sfac.resize(num_sites(lat.rg()));
-        add_vector_obs(m, "Spin Structure Factor", momenta_labels(lat),
-                       is_signed);
+        add_vector_obs(m, "Spin Structure Factor", momenta_labels(lat), is_signed);
       }
     }
 
@@ -271,11 +270,9 @@ struct correlation
         for (boost::tie(mit, mit_end) = momenta(lat); mit != mit_end;
              ++mit, ++k) {
           std::complex<double> val;
-          typename virtual_site_iterator<lattice_t>::type si, si_end;
-          for (boost::tie(si, si_end) = sites(lat.vg()); si != si_end;
-               ++si)
-            val += (0.5-spins[*si])  * mit.phase(coordinate[real_site[*si]]);
-          sfac[k] = sign * power2(val) / num_sites(lat.rg());
+          BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type s, sites(lat.vg()))
+            val += (0.5-spins[s])  * mit.phase(coordinate[real_site[s]]);
+          sfac[k] = sign * power2(val) / lat.volume();
         }
         m["Spin Structure Factor"] << sfac;
       }

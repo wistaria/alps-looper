@@ -165,6 +165,7 @@ Susceptibility: 0.027832 +/- 0.00558; tau = 0.712 WARNING: ERRORS NOT CONVERGED!
     bin #3   : 256      entries: error = 0.00509405
     bin #4   : 128      entries: error = 0.00558363
 Temperature: 0.25 +/- 0
+Volume: 4 +/- 0
 |Magnetization Density|: 0 +/- 0; tau = nan
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
@@ -353,6 +354,7 @@ Susceptibility: 0.0371094 +/- 0.00652; tau = 0.766 WARNING: ERRORS NOT CONVERGED
     bin #3   : 256      entries: error = 0.00582123
     bin #4   : 128      entries: error = 0.00652257
 Temperature: 0.25 +/- 0
+Volume: 4 +/- 0
 |Magnetization Density|: 0 +/- 0; tau = nan
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
@@ -540,6 +542,7 @@ Susceptibility: 0.479062 +/- 0.0123; tau = 0.778 WARNING: ERRORS NOT CONVERGED!!
     bin #3   : 256      entries: error = 0.0109159
     bin #4   : 128      entries: error = 0.0122551
 Temperature: 0.25 +/- 0
+Volume: 1 +/- 0
 |Magnetization Density|: 0 +/- 0; tau = nan
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
@@ -669,6 +672,7 @@ Susceptibility: 0.0273438 +/- 0.0082; tau = 0.792 WARNING: ERRORS NOT CONVERGED!
     bin #3   : 256      entries: error = 0.0075155
     bin #4   : 128      entries: error = 0.00819929
 Temperature: 0.25 +/- 0
+Volume: 4 +/- 0
 |Magnetization Density|: 0.00683594 +/- 0.00205; tau = 0.792 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0.00127533
     bin #2   : 512      entries: error = 0.00159335
@@ -799,6 +803,7 @@ Susceptibility: 0.0361328 +/- 0.00857; tau = 0.577 WARNING: ERRORS NOT CONVERGED
     bin #3   : 256      entries: error = 0.00817015
     bin #4   : 128      entries: error = 0.00856823
 Temperature: 0.25 +/- 0
+Volume: 4 +/- 0
 |Magnetization Density|: 0.0090332 +/- 0.00214; tau = 0.577 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0.0014594
     bin #2   : 512      entries: error = 0.0017345
@@ -928,6 +933,7 @@ Susceptibility: 0.482256 +/- 0.0183; tau = 0.589 WARNING: ERRORS NOT CONVERGED!!
     bin #3   : 256      entries: error = 0.0167765
     bin #4   : 128      entries: error = 0.0182894
 Temperature: 0.25 +/- 0
+Volume: 1 +/- 0
 |Magnetization Density|: 0.5 +/- 0; tau = nan
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0

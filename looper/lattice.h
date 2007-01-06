@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -25,6 +25,7 @@
 #ifndef LOOPER_LATTICE_H_
 #define LOOPER_LATTICE_H_
 
+#include "alternating_tensor.h"
 #include "integer_range.h"
 #include <alps/lattice.h>
 #include <alps/math.hpp>
@@ -40,40 +41,30 @@
 namespace boost {
 
 template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
-inline
 typename boost::graph_traits<
   boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::vertex_descriptor
-source(int b, boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> const& g)
-{
+source(int b, boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> const& g) {
   return boost::source(*(edges(g).first + b), g);
 }
 
 template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
-inline
 typename boost::graph_traits<
   boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::vertex_descriptor
-target(int b, boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> const& g)
-{
+target(int b, boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> const& g) {
   return boost::target(*(edges(g).first + b), g);
 }
 
 template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
-inline
 typename boost::graph_traits<
   boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::edge_descriptor
-edge(boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> const& g, int b)
-{
+edge(boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> const& g, int b) {
   return *(edges(g).first + b);
 }
 
 template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
-inline
 typename boost::graph_traits<
   boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::edge_descriptor
-bond(boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> const& g, int b)
-{
-  return edge(g, b);
-}
+bond(boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> const& g, int b) { return edge(g, b); }
 
 } // end namespace boost
 
@@ -102,8 +93,7 @@ struct real_edge_t {typedef boost::edge_property_tag kind; };
 typedef real_edge_t real_bond_t;
 
 template<typename RG>
-struct virtual_graph
-{
+struct virtual_graph {
 private:
   typedef typename graph_traits<RG>::site_descriptor real_site_descriptor;
   typedef typename graph_traits<RG>::bond_descriptor real_bond_descriptor;
@@ -122,18 +112,17 @@ public:
 };
 
 template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>
-inline int
+int
 gauge(boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> const& g,
-      typename graph_traits<
-        boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::
-          site_descriptor s)
-{ return 2 * get(parity_t(), g, s) - 1; }
+  typename graph_traits<boost::adjacency_list<T0, T1, T2, T3, T4, T5, T6> >::site_descriptor s) {
+  return 2 * get(parity_t(), g, s) - 1;
+}
 
 template<class G>
-inline int
-gauge(alps::graph_helper<G> const& g,
-      typename graph_traits<G>::site_descriptor s)
-{ return 2 * get(parity_t(), g.graph(), s) - 1; }
+int
+gauge(alps::graph_helper<G> const& g, typename graph_traits<G>::site_descriptor s) {
+  return 2 * get(parity_t(), g.graph(), s) - 1;
+}
 
 
 //
@@ -142,29 +131,20 @@ gauge(alps::graph_helper<G> const& g,
 // for describing a mapping from a real site/bond to virtual ones
 
 template<typename RG, typename VG>
-class virtual_mapping
-{
+class virtual_mapping {
 public:
   typedef RG real_graph_type;
-  typedef typename graph_traits<real_graph_type>::site_descriptor
-    real_site_descriptor;
-  typedef typename graph_traits<real_graph_type>::bond_descriptor
-    real_bond_descriptor;
-  typedef typename graph_traits<real_graph_type>::site_iterator
-    real_site_iterator;
-  typedef typename graph_traits<real_graph_type>::bond_iterator
-    real_bond_iterator;
+  typedef typename graph_traits<real_graph_type>::site_descriptor real_site_descriptor;
+  typedef typename graph_traits<real_graph_type>::bond_descriptor real_bond_descriptor;
+  typedef typename graph_traits<real_graph_type>::site_iterator real_site_iterator;
+  typedef typename graph_traits<real_graph_type>::bond_iterator real_bond_iterator;
 
   typedef VG virtual_graph_type;
-  typedef typename graph_traits<virtual_graph_type>::site_iterator
-    virtual_site_iterator;
-  typedef typename graph_traits<virtual_graph_type>::bond_iterator
-    virtual_bond_iterator;
+  typedef typename graph_traits<virtual_graph_type>::site_iterator virtual_site_iterator;
+  typedef typename graph_traits<virtual_graph_type>::bond_iterator virtual_bond_iterator;
 
-  typedef std::pair<virtual_site_iterator, virtual_site_iterator>
-    virtual_site_range_type;
-  typedef std::pair<virtual_bond_iterator, virtual_bond_iterator>
-    virtual_bond_range_type;
+  typedef std::pair<virtual_site_iterator, virtual_site_iterator> virtual_site_range_type;
+  typedef std::pair<virtual_bond_iterator, virtual_bond_iterator> virtual_bond_range_type;
 
   virtual_mapping() :
     site_map_(1, virtual_site_iterator()),
@@ -173,34 +153,27 @@ public:
     s2b_offset_(0), max_vv_(0) {}
 
   virtual_site_range_type
-  virtual_vertices(const real_graph_type& rg,
-                   const real_site_descriptor& rv) const {
+  virtual_vertices(const real_graph_type& rg, const real_site_descriptor& rv) const {
     return std::make_pair(site_map_[get(site_index_t(), rg, rv)],
                           site_map_[get(site_index_t(), rg, rv) + 1]);
   }
 
   virtual_bond_range_type
-  virtual_bonds(const real_graph_type& rg,
-                const real_bond_descriptor& re) const {
+  virtual_bonds(const real_graph_type& rg, const real_bond_descriptor& re) const {
     return std::make_pair(bond_map_[get(bond_index_t(), rg, re)],
                           bond_map_[get(bond_index_t(), rg, re) + 1]);
   }
 
   virtual_bond_range_type
-  virtual_bonds(const real_graph_type& rg,
-                const real_site_descriptor& rv) const {
+  virtual_bonds(const real_graph_type& rg, const real_site_descriptor& rv) const {
     return std::make_pair(s2b_map_[get(site_index_t(), rg, rv)],
                           s2b_map_[get(site_index_t(), rg, rv) + 1]);
   }
 
-  void add_vertices(const real_graph_type& rg,
-                    const real_site_descriptor& rv,
-                    const virtual_site_iterator& first,
-                    const virtual_site_iterator& last)
-  {
+  void add_vertices(const real_graph_type& rg, const real_site_descriptor& rv,
+    const virtual_site_iterator& first, const virtual_site_iterator& last) {
     if (get(site_index_t(), rg, rv) != site_map_.size() - 1)
-      boost::throw_exception(std::invalid_argument(
-        "virtual_mapping<G>::add_vertices()"));
+      boost::throw_exception(std::invalid_argument("virtual_mapping<G>::add_vertices()"));
     if (site_map_.size() == 1) {
       site_map_.back() = first;
     } else {
@@ -210,14 +183,10 @@ public:
     max_vv_ = std::max(max_vv_, static_cast<int>(last - first));
   }
 
-  void add_bonds(const real_graph_type& rg,
-                 const real_bond_descriptor& re,
-                 const virtual_bond_iterator& first,
-                 const virtual_bond_iterator& last)
-  {
+  void add_bonds(const real_graph_type& rg, const real_bond_descriptor& re,
+    const virtual_bond_iterator& first, const virtual_bond_iterator& last) {
     if (get(bond_index_t(), rg, re) != bond_map_.size() - 1)
-      boost::throw_exception(std::invalid_argument(
-        "virtual_mapping<G>::add_bonds()"));
+      boost::throw_exception(std::invalid_argument("virtual_mapping<G>::add_bonds()"));
     if (bond_map_.size() == 1) {
       bond_map_.back() = first;
     } else {
@@ -226,14 +195,10 @@ public:
     bond_map_.push_back(last);
   }
 
-  void add_s2bonds(const real_graph_type& rg,
-                   const real_site_descriptor& rv,
-                   const virtual_bond_iterator& first,
-                   const virtual_bond_iterator& last)
-  {
+  void add_s2bonds(const real_graph_type& rg, const real_site_descriptor& rv,
+    const virtual_bond_iterator& first, const virtual_bond_iterator& last) {
     if (get(site_index_t(), rg, rv) != s2b_map_.size() - 1)
-      boost::throw_exception(std::invalid_argument(
-        "virtual_mapping<G>::add_s2bonds()"));
+      boost::throw_exception(std::invalid_argument("virtual_mapping<G>::add_s2bonds()"));
     if (s2b_map_.size() == 1) {
       s2b_map_.back() = first;
     } else {
@@ -242,8 +207,7 @@ public:
     s2b_map_.push_back(last);
   }
 
-  void clear()
-  {
+  void clear() {
     site_map_.clear();
     site_map_.push_back(virtual_site_iterator());
     bond_map_.clear();
@@ -259,13 +223,12 @@ public:
 
   int max_virtual_vertices() const { return max_vv_; }
 
-  bool operator==(const virtual_mapping& rhs) const
-  { return site_map_ == rhs.site_map_ && bond_map_ == rhs.bond_map_ &&
-      s2b_map_ == rhs.s2b_map_; }
+  bool operator==(const virtual_mapping& rhs) const {
+    return site_map_ == rhs.site_map_ && bond_map_ == rhs.bond_map_ && s2b_map_ == rhs.s2b_map_;
+  }
   bool operator!=(const virtual_mapping& rhs) { return !(*this == rhs); }
 
-  void output(std::ostream& os, const real_graph_type& rg,
-              const virtual_graph_type& vg) const;
+  void output(std::ostream& os, const real_graph_type& rg, const virtual_graph_type& vg) const;
 
 private:
   std::vector<virtual_site_iterator> site_map_;
@@ -291,14 +254,18 @@ public:
   typedef mapping_type       mp_type;
 
   lattice_helper(alps::Parameters const& params) : helper_(params) {
+    volume_ = calc_volume(params);
     convert_type(params);
   }
   template<typename M>
   lattice_helper(alps::Parameters const& params, M const& model, bool has_d_term = false) :
     helper_(params) {
+    volume_ = calc_volume(params);
     convert_type(params);
     generate_virtual_graph(model, has_d_term);
   }
+
+  double volume() const { return volume_; }
 
   real_graph_type const& rg() const { return helper_.graph(); }
   virtual_graph_type const& vg() const { return vgraph_; }
@@ -312,12 +279,46 @@ public:
 protected:
   void convert_type(alps::Parameters const& p);
 
+  double calc_volume(alps::Parameters const& p) {
+    double vol;
+    if (helper_.has_lattice(p["LATTICE"])) {
+      vol = helper_.volume();
+      std::vector<std::vector<double> > vecs;
+      BOOST_FOREACH(std::vector<double> const& v, helper_.basis_vectors()) vecs.push_back(v);
+      double f = 0;
+      switch (vecs.size()) {
+      case 1 :
+        f = vecs[0][0];
+        break;
+      case 2 :
+        for (int i = 0; i < 2; ++i)
+          for (int j = 0; j < 2; ++j)
+            f += alternating_tensor(i,j,2) * vecs[0][i] * vecs[1][j];
+        break;
+      case 3 :
+        for (int i = 0; i < 3; ++i)
+          for (int j = 0; j < 3; ++j)
+            for (int k = 0; k < 3; ++k)
+              f += alternating_tensor(i,j,k) * vecs[0][i] * vecs[1][j] * vecs[2][k];
+        break;
+      default :
+        std::cerr << "Warning: can not calculate unit lattice volume.  Assume 1.\n";
+        f = 1;
+      }
+      vol *= std::abs(f);
+    } else {
+      vol = num_sites(rg());
+    }
+    return vol;
+  }
+
 private:
-  graph_helper_type  helper_;
+  graph_helper_type helper_;
+  double volume_;
   virtual_graph_type vgraph_;
-  mapping_type       mapping_;
-  type_range_type    site_type_range_;
-  type_range_type    bond_type_range_;
+  mapping_type mapping_;
+  type_range_type site_type_range_;
+  type_range_type bond_type_range_;
 };
 
 

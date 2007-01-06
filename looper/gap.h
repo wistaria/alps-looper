@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 2006-2007 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -121,7 +121,7 @@ struct gap
       void commit(M& m, lattice_t const& lat, double beta, int,
                   double sign) const {
         m["Generalized Susceptibility [w=2pi/beta]"]
-          << sign * beta * p / power2(4*M_PI) / num_sites(lat.rg());
+          << sign * beta * p / power2(4*M_PI) / lat.volume();
       }
     };
     void init_collector(collector& coll) const {
@@ -151,8 +151,6 @@ struct gap
       if (!typename is_path_integral<mc_type>::type()) return;
       if (!is_bipartite(lat)) return;
 
-      int nrs = num_sites(lat.rg());
-
       double smag = 0;
       typename virtual_site_iterator<lattice_t>::type si, si_end;
       for (boost::tie(si, si_end) = sites(lat.vg()); si != si_end; ++si)
@@ -180,7 +178,7 @@ struct gap
         }
       }
       m["Staggered Susceptibility [w=2pi/beta]"] <<
-        sign * beta * power2(smag_a) / power2(2*M_PI) / nrs;
+        sign * beta * power2(smag_a) / power2(2*M_PI) / lat.volume();
     }
   };
 

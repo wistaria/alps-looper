@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -26,6 +26,7 @@
 #define LOOPER_MODEL_IMPL_H
 
 #include "model.h"
+#include "measurement_operators.h"
 #include "model_parameter.h"
 #include "weight.h"
 
@@ -43,11 +44,17 @@ void spinmodel_helper<RG, LG>::init(alps::Parameters const& p, lattice_helper<RG
   quantal_ = mp.is_quantal();
   frustrated_ = mp.is_frustrated();
 
+  // virtual graph
   lat.generate_virtual_graph(mp, mp.has_d_term());
 
+  // custom measurements
+  measurement_operators mops(p, lat, mh);
+
+  // weight table
   weight_table wt(mp, lat, p.value_or_default("FORCE_SCATTER", frustrated_ ? 0.1 : 0.));
   chooser_.init(wt, is_path_integral);
 
+  // signs
   site_sign_.clear();
   bond_sign_.clear();
   signed_ = mp.is_signed();
@@ -60,6 +67,7 @@ void spinmodel_helper<RG, LG>::init(alps::Parameters const& p, lattice_helper<RG
       bond_sign_[b.first] = (b.second.sign < 0) ? 1 : 0;
   }
 
+  // external longitudinal field
   field_.clear();
   if (mp.has_field()) {
     field_.resize(num_sites(lat.vg()));
@@ -68,6 +76,7 @@ void spinmodel_helper<RG, LG>::init(alps::Parameters const& p, lattice_helper<RG
         field_[vs] = mp.site(rs, lat.rg()).hz;
   }
 
+  // energy offset
   offset_ = mp.energy_offset() + wt.energy_offset();
 }
 

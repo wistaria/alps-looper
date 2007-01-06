@@ -162,6 +162,7 @@ Twist Order Parameter (Imaginary Part): 0 +/- 0; tau = nan
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
+Volume: 4 +/- 0
 |Magnetization Density|: 0 +/- 0; tau = nan
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
@@ -346,6 +347,7 @@ Twist Order Parameter (Imaginary Part): 0 +/- 0; tau = nan
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
+Volume: 4 +/- 0
 |Magnetization Density|: 0 +/- 0; tau = nan
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
@@ -530,6 +532,7 @@ Twist Order Parameter (Imaginary Part): 0 +/- 0; tau = nan
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
+Volume: 4 +/- 0
 |Magnetization Density|: 0 +/- 0; tau = nan
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
@@ -663,6 +666,7 @@ Twist Order Parameter (Imaginary Part): -0.0273438 +/- 0.0278; tau = 0.0838
     bin #2   : 512      entries: error = 0.025624
     bin #3   : 256      entries: error = 0.0266113
     bin #4   : 128      entries: error = 0.0278106
+Volume: 4 +/- 0
 |Magnetization Density|: 0.00683594 +/- 0.00205; tau = 0.792 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0.00127533
     bin #2   : 512      entries: error = 0.00159335
@@ -796,6 +800,7 @@ Twist Order Parameter (Imaginary Part): 0.0146484 +/- 0.0192; tau = 0.00938
     bin #2   : 512      entries: error = 0.0184673
     bin #3   : 256      entries: error = 0.0189351
     bin #4   : 128      entries: error = 0.0192022
+Volume: 4 +/- 0
 |Magnetization Density|: 0.0090332 +/- 0.00214; tau = 0.577 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0.0014594
     bin #2   : 512      entries: error = 0.0017345
@@ -929,6 +934,7 @@ Twist Order Parameter (Imaginary Part): -0.0283203 +/- 0.0227; tau = -0.0197
     bin #2   : 512      entries: error = 0.023983
     bin #3   : 256      entries: error = 0.0243308
     bin #4   : 128      entries: error = 0.0226757
+Volume: 4 +/- 0
 |Magnetization Density|: 0.00878906 +/- 0.00202; tau = 0.484 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0.00144027
     bin #2   : 512      entries: error = 0.00178783
