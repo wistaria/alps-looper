@@ -22,48 +22,12 @@
 *
 *****************************************************************************/
 
-#ifdef LOOP_CONFIG_HEADER
+#include "loop_config.h"
+#include <looper/custom_impl.h>
 
-#include LOOP_CONFIG_HEADER
+//
+// explicit instantiation of custom_measurement_initializer
+//
 
-#else
-
-#ifndef LOOP_CONFIG_H
-#define LOOP_CONFIG_H
-
-#include <alps/lattice.h>
-#include <looper/graph.h>
-#include <looper/model.h>
-
-#include <looper/correlation.h>
-#include <looper/custom.h>
-#include <looper/localsus.h>
-#include <looper/stiffness.h>
-#include <looper/susceptibility.h>
-
-struct loop_config {
-  // lattice structure
-  typedef alps::coordinate_graph_type lattice_graph_t;
-
-  // imaginary time
-  typedef double time_t;
-
-  // graph for loops
-  typedef looper::local_graph<> loop_graph_t;
-
-  // model
-  typedef looper::spinmodel_helper<lattice_graph_t, loop_graph_t> model_t;
-
-  // measurements
-  typedef looper::measurement_set<
-    looper::correlation,
-    looper::local_susceptibility,
-    looper::stiffness<3>,
-    looper::susceptibility,
-    looper::custom_measurement
-  > measurement_set;
-};
-
-#endif // LOOP_CONFIG_H
-
-#endif // LOOP_CONFIG_HEADER
+template struct
+looper::custom_measurement_initializer<looper::lattice_helper<loop_config::lattice_graph_t> >;

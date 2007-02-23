@@ -81,57 +81,57 @@ CONFIG_CLEAN_FILES =
 @HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__EXEEXT_4 = loop_pp$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 am__loop_SOURCES_DIST = loop.C loop_config.h loop_factory.h \
-	loop_factory.C loop_model.C diag.C ising.C path_integral.C \
-	sse.C sse_qwl.C
+	loop_factory.C loop_custom.C loop_model.C diag.C ising.C \
+	path_integral.C sse.C sse_qwl.C
 @ENABLE_DIAG_TRUE@am__objects_1 = diag.$(OBJEXT)
 @ENABLE_ISING_TRUE@am__objects_2 = ising.$(OBJEXT)
 @ENABLE_PI_TRUE@am__objects_3 = path_integral.$(OBJEXT)
 @ENABLE_SSE_TRUE@am__objects_4 = sse.$(OBJEXT)
 @ENABLE_SSE_QWL_TRUE@am__objects_5 = sse_qwl.$(OBJEXT)
-am__objects_6 = loop_factory.$(OBJEXT) loop_model.$(OBJEXT) \
-	$(am__objects_1) $(am__objects_2) $(am__objects_3) \
-	$(am__objects_4) $(am__objects_5)
+am__objects_6 = loop_factory.$(OBJEXT) loop_custom.$(OBJEXT) \
+	loop_model.$(OBJEXT) $(am__objects_1) $(am__objects_2) \
+	$(am__objects_3) $(am__objects_4) $(am__objects_5)
 am_loop_OBJECTS = loop.$(OBJEXT) $(am__objects_6)
 loop_OBJECTS = $(am_loop_OBJECTS)
 loop_LDADD = $(LDADD)
 loop_DEPENDENCIES =
 am__loop_evaluate_SOURCES_DIST = loop_evaluate.C qwl_evaluate.C \
-	loop_config.h loop_factory.h loop_factory.C loop_model.C \
-	diag.C ising.C path_integral.C sse.C sse_qwl.C
+	loop_config.h loop_factory.h loop_factory.C loop_custom.C \
+	loop_model.C diag.C ising.C path_integral.C sse.C sse_qwl.C
 am_loop_evaluate_OBJECTS = loop_evaluate.$(OBJEXT) \
 	qwl_evaluate.$(OBJEXT) $(am__objects_6)
 loop_evaluate_OBJECTS = $(am_loop_evaluate_OBJECTS)
 loop_evaluate_LDADD = $(LDADD)
 loop_evaluate_DEPENDENCIES =
 am__loop_mpi_SOURCES_DIST = loop.C loop_config.h loop_factory.h \
-	loop_factory.C loop_model.C diag.C ising.C path_integral.C \
-	sse.C sse_qwl.C
+	loop_factory.C loop_custom.C loop_model.C diag.C ising.C \
+	path_integral.C sse.C sse_qwl.C
 am_loop_mpi_OBJECTS = loop.$(OBJEXT) $(am__objects_6)
 loop_mpi_OBJECTS = $(am_loop_mpi_OBJECTS)
 loop_mpi_DEPENDENCIES =
 am__loop_ns_SOURCES_DIST = loop_ns.C loop_config.h loop_factory.h \
-	loop_factory.C loop_model.C diag.C ising.C path_integral.C \
-	sse.C sse_qwl.C
+	loop_factory.C loop_custom.C loop_model.C diag.C ising.C \
+	path_integral.C sse.C sse_qwl.C
 am_loop_ns_OBJECTS = loop_ns.$(OBJEXT) $(am__objects_6)
 loop_ns_OBJECTS = $(am_loop_ns_OBJECTS)
 loop_ns_LDADD = $(LDADD)
 loop_ns_DEPENDENCIES =
 am__loop_pevaluate_SOURCES_DIST = loop_pevaluate.C qwl_evaluate.C \
-	loop_config.h loop_factory.h loop_factory.C loop_model.C \
-	diag.C ising.C path_integral.C sse.C sse_qwl.C
+	loop_config.h loop_factory.h loop_factory.C loop_custom.C \
+	loop_model.C diag.C ising.C path_integral.C sse.C sse_qwl.C
 am_loop_pevaluate_OBJECTS = loop_pevaluate.$(OBJEXT) \
 	qwl_evaluate.$(OBJEXT) $(am__objects_6)
 loop_pevaluate_OBJECTS = $(am_loop_pevaluate_OBJECTS)
 loop_pevaluate_DEPENDENCIES =
 am__loop_pp_SOURCES_DIST = loop_pp.C loop_config.h loop_factory.h \
-	loop_factory.C loop_model.C diag.C ising.C path_integral.C \
-	sse.C sse_qwl.C
+	loop_factory.C loop_custom.C loop_model.C diag.C ising.C \
+	path_integral.C sse.C sse_qwl.C
 am_loop_pp_OBJECTS = loop_pp.$(OBJEXT) $(am__objects_6)
 loop_pp_OBJECTS = $(am_loop_pp_OBJECTS)
 loop_pp_DEPENDENCIES =
 am__loop_ps_SOURCES_DIST = loop_pp.C loop_config.h loop_factory.h \
-	loop_factory.C loop_model.C diag.C ising.C path_integral.C \
-	sse.C sse_qwl.C
+	loop_factory.C loop_custom.C loop_model.C diag.C ising.C \
+	path_integral.C sse.C sse_qwl.C
 am_loop_ps_OBJECTS = loop_pp.$(OBJEXT) $(am__objects_6)
 loop_ps_OBJECTS = $(am_loop_ps_OBJECTS)
 loop_ps_DEPENDENCIES =
@@ -329,6 +329,8 @@ dist_noinst_HEADERS = \
 	looper/alternating_tensor.h \
 	looper/cluster.h \
 	looper/correlation.h \
+	looper/custom.h \
+	looper/custom_impl.h \
 	looper/crop.h \
 	looper/divide_if_positive.h \
 	looper/evaluator.h \
@@ -346,7 +348,6 @@ dist_noinst_HEADERS = \
 	looper/location.h \
 	looper/matrix.h \
 	looper/measurement.h \
-	looper/measurement_operators.h \
 	looper/model.h \
 	looper/model_impl.h \
 	looper/model_parameter.h \
@@ -372,8 +373,8 @@ dist_noinst_SCRIPTS = config/run-test config/update_preamble
 # tests
 #
 dist_noinst_DATA = CITATIONS.txt LICENSE.txt loop_ns.ip loop_ns.op
-SRC = loop_config.h loop_factory.h loop_factory.C loop_model.C \
-	$(am__append_8) $(am__append_9) $(am__append_10) \
+SRC = loop_config.h loop_factory.h loop_factory.C loop_custom.C \
+	loop_model.C $(am__append_8) $(am__append_9) $(am__append_10) \
 	$(am__append_11) $(am__append_12)
 loop_SOURCES = loop.C $(SRC)
 loop_evaluate_SOURCES = loop_evaluate.C qwl_evaluate.C $(SRC)
@@ -482,6 +483,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/diag.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ising.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_custom.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_evaluate.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_factory.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_model.Po@am__quote@

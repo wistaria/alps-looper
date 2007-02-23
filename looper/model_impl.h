@@ -26,7 +26,6 @@
 #define LOOPER_MODEL_IMPL_H
 
 #include "model.h"
-#include "measurement_operators.h"
 #include "model_parameter.h"
 #include "weight.h"
 
@@ -46,9 +45,6 @@ void spinmodel_helper<RG, LG>::init(alps::Parameters const& p, lattice_helper<RG
 
   // virtual graph
   lat.generate_virtual_graph(mp, mp.has_d_term());
-
-  // custom measurements
-  measurement_operators mops(p, lat, mh);
 
   // weight table
   weight_table wt(mp, lat, p.value_or_default("FORCE_SCATTER", frustrated_ ? 0.1 : 0.));

@@ -58,4 +58,6 @@ MEASURE[Correlations] = true
 MEASURE[Green Function] = true
 MEASURE[Structure Factor] = true
 MEASURE[Local Susceptibility] = true
+MEASURE_AVERAGE[Sz Correlation] = Sz;
+DISABLE_IMPROVED_ESTIMATOR = true
 }

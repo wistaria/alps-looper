@@ -30,13 +30,11 @@
 
 namespace looper {
 
-struct correlation
-{
+struct correlation {
   typedef dumb_measurement<correlation> dumb;
 
   template<typename MC, typename LAT, typename TIME>
-  struct estimator
-  {
+  struct estimator {
     typedef MC   mc_type;
     typedef LAT  lattice_t;
     typedef TIME time_t;
@@ -64,10 +62,8 @@ struct correlation
     std::valarray<double> ucorr, scorr, gucorr, gscorr, gfunc, sfac;
 
     template<typename M>
-    void initialize(M& m, alps::Parameters const& params,
-                    lattice_t const& lat,
-                    bool is_signed, bool use_improved_estimator)
-    {
+    void initialize(M& m, alps::Parameters const& params, lattice_t const& lat,
+      bool is_signed, bool use_improved_estimator) {
       measure_correlation =
         params.value_or_default("MEASURE[Correlations]", false);
       measure_green_function =
@@ -97,14 +93,12 @@ struct correlation
           mltplcty.resize(m.size());
           for (int i = 0; i < mltplcty.size(); ++i) mltplcty[i] = 1. / m[i];
         }
-        if (measure_correlation || measure_green_function) {
-          ucorr.resize(label.size());
-          scorr.resize(label.size());
-          if (improved) {
-            gucorr.resize(label.size());
-            gscorr.resize(label.size());
-            gfunc.resize(label.size());
-          }
+        ucorr.resize(label.size());
+        scorr.resize(label.size());
+        if (improved) {
+          gucorr.resize(label.size());
+          gscorr.resize(label.size());
+          gfunc.resize(label.size());
         }
         if (measure_correlation) {
           add_vector_obs(m, "Spin Correlations", label, is_signed);
@@ -131,12 +125,10 @@ struct correlation
 
     // improved estimator
 
-    typedef typename dumb::template estimator<MC, LAT, TIME>::estimate
-      estimate;
+    typedef typename dumb::template estimator<MC, LAT, TIME>::estimate estimate;
     void init_estimate(estimate const&) const {}
 
-    typedef typename dumb::template estimator<MC, LAT, TIME>::collector
-      collector;
+    typedef typename dumb::template estimator<MC, LAT, TIME>::collector collector;
     void init_collector(collector const&) const {}
 
     template<typename M, typename OP, typename FRAGMENT>
@@ -147,8 +139,7 @@ struct correlation
                               std::vector<OP> const& /* operators */,
                               std::vector<int> const& /* spins_c */,
                               std::vector<FRAGMENT> const& fragments,
-                              collector const& /* coll */)
-    {
+                              collector const& /* coll */) {
       if ((measure_correlation || measure_green_function) && improved) {
         ucorr = 0;
         scorr = 0;
@@ -219,8 +210,7 @@ struct correlation
                             double /* beta */, double sign,
                             std::vector<int> const& spins,
                             std::vector<OP> const& /* operators */,
-                            std::vector<int>& /* spins_c */)
-    {
+                            std::vector<int>& /* spins_c */) {
       if (measure_correlation && !improved) {
         ucorr = 0;
         scorr = 0;

@@ -26,6 +26,8 @@ dist_noinst_HEADERS = \
 	looper/alternating_tensor.h \
 	looper/cluster.h \
 	looper/correlation.h \
+	looper/custom.h \
+	looper/custom_impl.h \
 	looper/crop.h \
 	looper/divide_if_positive.h \
 	looper/evaluator.h \
@@ -43,7 +45,6 @@ dist_noinst_HEADERS = \
 	looper/location.h \
 	looper/matrix.h \
 	looper/measurement.h \
-	looper/measurement_operators.h \
 	looper/model.h \
 	looper/model_impl.h \
 	looper/model_parameter.h \
@@ -81,7 +82,7 @@ noinst_PROGRAMS += loop_pp
 endif
 endif
 
-SRC = loop_config.h loop_factory.h loop_factory.C loop_model.C
+SRC = loop_config.h loop_factory.h loop_factory.C loop_custom.C loop_model.C
 if ENABLE_DIAG
 SRC += diag.C
 endif

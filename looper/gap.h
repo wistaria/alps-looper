@@ -22,10 +22,11 @@
 *
 *****************************************************************************/
 
-#ifndef LOOPER_GAP_MEASUREMENT_H
-#define LOOPER_GAP_MEASUREMENT_H
+#ifndef LOOPER_GAP_H
+#define LOOPER_GAP_H
 
 #include "measurement.h"
+#include "time.h"
 #include "type.h"
 #include <complex>
 
@@ -222,4 +223,4 @@ struct gap
 
 } // end namespace looper
 
-#endif // LOOPER_GAP_MEASUREMENT_H
+#endif // LOOPER_GAP_H
