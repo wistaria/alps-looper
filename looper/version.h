@@ -43,7 +43,7 @@ std::ostream& print_copyright(std::ostream& os = std::cout) {
   os << "ALPS/looper version " LOOPER_VERSION " (" LOOPER_DATE ")\n"
      << "  multi-cluster quantum Monte Carlo algorithms for spin systems\n"
      << "  available from http://wistaria.comp-phys.org/alps-looper/\n"
-     << "  copyright (c) 1997-2006 by Synge Todo <wistaria@comp-phys.org>\n"
+     << "  copyright (c) 1997-2007 by Synge Todo <wistaria@comp-phys.org>\n"
      << "\n";
   return os;
 }
