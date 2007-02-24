@@ -1,5 +1,18 @@
 2007-02-24  Synge Todo <wistaria@comp-phys.org>
 
+	* version 3.2b3
+
+	- prerequisites: boost-1.31.1, alps-1.3b3, lapack
+
+	- Implemented all the feasures planed for alps-application release 1.3
+
+	- Support for ALPS/parapack
+	
+	- ToDo: fixed for negative signs, external field for SSE, QWL,
+	more tests, documentation
+	
+2007-02-24  Synge Todo <wistaria@comp-phys.org>
+	
 	* Added custom measurements (average, local, correlations,
 	structure factor)
 	
