@@ -205,9 +205,6 @@ release snapshot :
 	  tar zcf alps-looper-$$date.tar.gz alps-looper-$$date; \
 	  mv -f alps-looper-$$date $(distdir); \
 	else \
-	  rm -rf $(distdir); \
-	  mv -f $(distdir) $(distdir); \
 	  tar zcf $(distdir).tar.gz $(distdir); \
-	  mv -f $(distdir) $(distdir); \
 	fi
 	rm -rf $(distdir)

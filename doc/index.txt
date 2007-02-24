@@ -1,7 +1,7 @@
 .. -*- mode: rst -*-
 
-ALPS/looper Library
-===================
+ALPS/looper
+===========
 
 The `ALPS/looper`_ package is one of the applications of the `ALPS
 Project`_.  The `ALPS/looper`_ is the successor of the `Looper Library
@@ -22,13 +22,13 @@ Since it supports so-called *freezing graphs*, models with easy-axis
 
 A stripped version of the `ALPS/looper`_ is distributed as a part of
 `ALPS Applications`_ Package.  The full version of `ALPS/looper`_
-library (including tests, more measurements, etc) is available from
+library (including test suites, etc) is available from
 http://wistaria.comp-phys.org/alps-looper/.
 
 Latest News
 ===========
 
-* September XX, 2006: Release of 3.2b2
+* February 24, 2007: Release of 3.2b3
 * January 20, 2006: Release of 3.2b1
 * October 8, 2004: Release of 3.1.2
 * October 6, 2004: Release of 3.1.1
@@ -45,7 +45,7 @@ Prerequisites
 -------------
 
 * `Boost C++ Library <http://www.boost.org/>`__ -- version 1.33.1 or higher
-* `ALPS Library`_ -- version 1.3b2 or higher
+* `ALPS Library`_ -- version 1.3b3 or higher
 * `LAPACK Library <http://www.netlib.org/lapack/>`__
   
 Download
@@ -293,7 +293,7 @@ References
 
 -------------------------------------
 
-Copyright (c) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
+Copyright (c) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
 
 .. _`ALPS Project`: http://alps.comp-phys.org/
 
