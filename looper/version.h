@@ -28,7 +28,7 @@
 #include <iostream>
 
 /* Define the version of ALPS/looper */
-#define LOOPER_VERSION "3.2b3"
+#define LOOPER_VERSION "3.2b4-20070224"
 
 /* Define the published date of ALPS/looper */
 #define LOOPER_DATE "2007/02/24"
