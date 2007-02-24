@@ -26,7 +26,13 @@ AM_INIT_AUTOMAKE
 AC_PREFIX_DEFAULT([$HOME/ALPS])
 AM_MAINTAINER_MODE
 
-AC_MSG_NOTICE([starting configuration for ALPS/looper version package_version (package_date)])
+if test -f "$srcdir/looper/gap.h"; then
+  looper_pro=yes
+  AC_MSG_NOTICE([starting configuration for ALPS/looper professional version package_version (package_date)])
+else
+  AC_MSG_NOTICE([starting configuration for ALPS/looper version package_version (package_date)])
+fi
+AM_CONDITIONAL(LOOPER_PRO, test "$looper_pro" = "yes")
 
 undefine([package_name])
 undefine([package_version])

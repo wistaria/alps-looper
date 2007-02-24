@@ -25,6 +25,10 @@
 #ifndef LOOPER_GAP_H
 #define LOOPER_GAP_H
 
+#ifndef LOOPER_ONLY_PATH_INTEGRAL
+# define LOOPER_ONLY_PATH_INTEGRAL
+#endif
+
 #include "measurement.h"
 #include "time.h"
 #include "type.h"

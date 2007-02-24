@@ -32,6 +32,8 @@
 #include <looper/temperature.h>
 #include <looper/type.h>
 
+#ifndef LOOPER_ONLY_PATH_INTEGRAL
+
 namespace {
 
 class loop_worker {
@@ -381,3 +383,5 @@ const bool evaluator_registered = evaluator_factory::instance()->
   register_evaluator<looper::evaluator<loop_config::measurement_set> >("SSE");
 
 } // end namespace
+
+#endif // LOOPER_ONLY_PATH_INTEGRAL

@@ -33,6 +33,8 @@
 #include <alps/plot.h>
 #include <boost/regex.hpp>
 
+#ifndef LOOPER_ONLY_PATH_INTEGRAL
+
 namespace {
 
 class loop_worker {
@@ -439,3 +441,5 @@ const bool worker_registered =
   loop_factory::instance()->register_worker<loop_worker>("SSE QWL");
 
 } // end namespace
+
+#endif // LOOPER_ONLY_PATH_INTEGRAL

@@ -23,9 +23,7 @@
 *****************************************************************************/
 
 #ifdef LOOP_CONFIG_HEADER
-
-#include LOOP_CONFIG_HEADER
-
+# include LOOP_CONFIG_HEADER
 #else
 
 #ifndef LOOP_CONFIG_H
@@ -35,9 +33,9 @@
 #include <looper/graph.h>
 #include <looper/model.h>
 
+// measurements
 #include <looper/correlation.h>
 #include <looper/custom.h>
-#include <looper/localsus.h>
 #include <looper/stiffness.h>
 #include <looper/susceptibility.h>
 
@@ -57,10 +55,9 @@ struct loop_config {
   // measurements
   typedef looper::measurement_set<
     looper::correlation,
-    looper::local_susceptibility,
+    looper::custom_measurement,
     looper::stiffness<3>,
-    looper::susceptibility,
-    looper::custom_measurement
+    looper::susceptibility
   > measurement_set;
 };
 

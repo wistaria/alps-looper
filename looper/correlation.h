@@ -73,7 +73,7 @@ struct correlation {
       improved = use_improved_estimator;
 
       if (measure_green_function && !improved) {
-        std::cerr << "Warning: Green funciton measurement is disabled\n";
+        std::cerr << "WARNING: Green funciton measurement is disabled\n";
         measure_green_function = false;
       }
 

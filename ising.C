@@ -30,6 +30,8 @@
 #include <looper/permutation.h>
 #include <looper/temperature.h>
 
+#ifndef LOOPER_ONLY_PATH_INTEGRAL
+
 namespace {
 
 struct dummy_operator {
@@ -277,3 +279,5 @@ const bool evaluator_registered = evaluator_factory::instance()->
   register_evaluator<looper::evaluator<loop_config::measurement_set> >("Ising");
 
 } // end namespace
+
+#endif // LOOPER_ONLY_PATH_INTEGRAL

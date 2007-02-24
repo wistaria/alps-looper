@@ -34,14 +34,12 @@ dist_noinst_HEADERS = \
 	looper/evaluator_impl.h \
 	looper/find_bridge.h \
 	looper/flatten_matrix.h \
-	looper/gap.h \
 	looper/generate_seed.h \
 	looper/graph.h \
 	looper/histogram.h \
 	looper/integer_range.h \
 	looper/lapack.h \
 	looper/lattice.h \
-	looper/localsus.h \
 	looper/location.h \
 	looper/matrix.h \
 	looper/measurement.h \
@@ -57,12 +55,19 @@ dist_noinst_HEADERS = \
 	looper/susceptibility.h \
 	looper/temperature.h \
 	looper/time.h \
-	looper/top.h \
-	looper/transmag.h \
 	looper/type.h \
 	looper/union_find.h \
 	looper/version.h \
 	looper/weight.h
+
+HEADERS_PRO = looper/gap.h \
+	looper/localsus.h \
+	looper/top.h \
+	looper/transmag.h
+
+if LOOPER_PRO
+dist_noinst_HEADERS += $(HEADERS_PRO)
+endif
 
 dist_noinst_SCRIPTS = config/run-test config/update_preamble
 dist_noinst_DATA = CITATIONS.txt LICENSE.txt
@@ -101,7 +106,10 @@ endif
 
 loop_SOURCES = loop.C $(SRC)
 
-loop_evaluate_SOURCES = loop_evaluate.C qwl_evaluate.C $(SRC)
+loop_evaluate_SOURCES = loop_evaluate.C $(SRC)
+if ENABLE_SSE_QWL
+loop_evaluate_SOURCES += qwl_evaluate.C
+endif
 
 loop_mpi_SOURCES = loop.C $(SRC)
 loop_mpi_LDFLAGS = @LDFLAGS_MPI@
@@ -115,7 +123,10 @@ loop_pp_SOURCES = loop_pp.C $(SRC)
 loop_pp_LDFLAGS = @LDFLAGS_PP@
 loop_pp_LDADD = @LIBS_PP@
 
-loop_pevaluate_SOURCES = loop_pevaluate.C qwl_evaluate.C $(SRC)
+loop_pevaluate_SOURCES = loop_pevaluate.C $(SRC)
+if ENABLE_SSE_QWL
+loop_pevaluate_SOURCES += qwl_evaluate.C
+endif
 loop_pevaluate_LDFLAGS = @LDFLAGS_PS@
 loop_pevaluate_LDADD = @LIBS_PS@
 
@@ -161,8 +172,8 @@ update-preamble:
 # release and snapshot
 #
 
-REMOVE_FOR_STANDARD = check extras looper/extras test
-REMOVE_FOR_PRO = check
+REMOVE_FOR_STANDARD = check extras looper/extras test sse_qwl.C qwl_evaluate.C $(HEADERS_PRO)
+REMOVE_FOR_PRO =
 
 distdir = alps-looper-$(VERSION)
 distdir_pro = alps-looper-pro-$(VERSION)

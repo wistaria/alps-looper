@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2004-2006 by Stefan Wessel <wessel@comp-phys.org>,
+* Copyright (C) 2004-2007 by Stefan Wessel <wessel@comp-phys.org>,
 *                            Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
@@ -36,8 +36,7 @@
 
 namespace looper {
 
-class wl_histogram
-{
+class wl_histogram {
 public:
   wl_histogram() : offset_(0) {}
   template<class T>
@@ -50,8 +49,7 @@ public:
   void subtract() { double g = logg_[0]; logg_ -= g; }
   void clear() { hist_ = 0; }
 
-  void visit(int pos, double logf, bool update_weight)
-  {
+  void visit(int pos, double logf, bool update_weight) {
     int i = pos - offset_;
     if (i >= 0 && i < logg_.size()) {
       hist_[i] += 1;
@@ -59,8 +57,7 @@ public:
     }
   }
 
-  bool check_flatness(double thresh) const
-  {
+  bool check_flatness(double thresh) const {
     if (thresh < 0) return true;
     double av = hist_.sum() / hist_.size();
     double var = thresh * av;
@@ -68,11 +65,9 @@ public:
       if (std::abs(hist_[i] - av) > var) return false;
     return true;
   }
-  bool check_visit(int thresh) const
-  { return (thresh == 0) || (hist_.min() >= thresh); }
+  bool check_visit(int thresh) const { return (thresh == 0) || (hist_.min() >= thresh); }
 
-  double accept_rate(int prev, int next) const
-  {
+  double accept_rate(int prev, int next) const {
     int ip = prev - offset_;
     int in = next - offset_;
     if (ip >= 0 || ip < logg_.size()) {
@@ -82,23 +77,20 @@ public:
     } else {
       return (in <= ip  && in >= 0) ? 1 : 0;
     }
-
   }
 
   void save(alps::ODump& dp) const { dp << offset_ << logg_ << hist_; }
   void load(alps::IDump& dp) { dp >> offset_ >> logg_ >> hist_; }
 
   void store(alps::ObservableSet& m, std::string const& gname,
-             std::string const& hname, bool /* multicanonical */) const
-  {
+             std::string const& hname, bool /* multicanonical */) const {
     std::valarray<double> h = hist_;
     h *= (h.size() / h.sum());
     m[gname] << logg_;
     m[hname] << h;
   }
 
-  void output(std::ostream& os = std::cout) const
-  {
+  void output(std::ostream& os = std::cout) const {
     for (int i = 0; i < logg_.size(); ++i)
       os << (offset_+i) << ' ' << logg_[i] << ' ' << hist_[i] << std::endl;
   }
@@ -111,17 +103,14 @@ private:
 
 
 template<typename T>
-class histogram_descriptor
-{
+class histogram_descriptor {
 public:
   typedef T                                   histogram_type;
   typedef typename histogram_type::value_type value_type;
   histogram_descriptor(value_type *p) : ptr_(p) {}
-  histogram_descriptor& operator<<(value_type const& x)
-  { *ptr_ += x; return *this; }
+  histogram_descriptor& operator<<(value_type const& x) { *ptr_ += x; return *this; }
   template<typename U>
-  histogram_descriptor& operator<<(std::valarray<U> const&)
-  {
+  histogram_descriptor& operator<<(std::valarray<U> const&) {
     // ignore vector observable
     return *this;
   }
@@ -130,8 +119,7 @@ private:
 };
 
 template<typename T>
-class histogram_set
-{
+class histogram_set {
 public:
   typedef std::valarray<T>                      histogram_type;
   typedef std::map<std::string, histogram_type> map_type;
@@ -145,20 +133,19 @@ public:
     offset_(h.offset_), size_(h.size_), map_(h.map_), pos_(h.pos_) {}
 
   template<typename U>
-  void initialize(integer_range<U> const& r)
-  {
+  void initialize(integer_range<U> const& r) {
     offset_ = r.min();
     size_ = r.size();
     map_.clear();
   }
 
   void add_histogram(std::string const& name) { map_[name].resize(size_, 0); }
-  bool has(std::string const& name) const
-  { return map_.find(name) != map_.end(); }
+  bool has(std::string const& name) const { return map_.find(name) != map_.end(); }
 
   void set_position(unsigned int p) { pos_ = p; }
-  descriptor_type operator[](std::string const& name)
-  { return descriptor_type(&map_[name][pos_ - offset_]); }
+  descriptor_type operator[](std::string const& name) {
+    return descriptor_type(&map_[name][pos_ - offset_]);
+  }
 
   void save(alps::ODump& dp) const { dp << offset_ << size_ << map_; }
   void load(alps::IDump& dp) { dp >> offset_ >> size_ >> map_; }
@@ -171,23 +158,19 @@ private:
 };
 
 template<typename T>
-void add_scalar_obs(histogram_set<T>& h, std::string const& name,
-                    bool = false)
-{ if (!h.has(name)) h.add_histogram(name); }
+void add_scalar_obs(histogram_set<T>& h, std::string const& name, bool = false) {
+  if (!h.has(name)) h.add_histogram(name);
+}
 
 template<typename T>
-void add_vector_obs(histogram_set<T>&, std::string const&,
-                    bool = false)
-{
-  std::cerr << "Warning: vector observable is not supported in quantum Wang Langau\n";
+void add_vector_obs(histogram_set<T>&, std::string const&, bool = false) {
+  std::cerr << "WARNING: vector observable is not supported in quantum Wang Langau\n";
 }
 
 template<typename T>
 void add_vector_obs(histogram_set<T>&, std::string const&,
-                    alps::RealVectorObservable::label_type const&,
-                    bool = false)
-{
-  std::cerr << "Warning: vector observable is not supported in quantum Wang Langau\n";
+  alps::RealVectorObservable::label_type const&, bool = false) {
+  std::cerr << "WARNING: vector observable is not supported in quantum Wang Langau\n";
 }
 
 } // end namespace looper

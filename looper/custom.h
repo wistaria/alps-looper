@@ -179,7 +179,7 @@ struct custom_measurement {
             BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type const& vs1,
               sites(lat, rs1))
               st1 += (1 - spins[vs1]);
-            double v1 = elms.get<1>()[get(site_type_t(), lat.rg(), rs1)][st1];
+            double v1 = elms.get<2>()[get(site_type_t(), lat.rg(), rs1)][st1];
             corr[rs1] = sign * v0 * v1;
           }
         } else {
@@ -196,7 +196,7 @@ struct custom_measurement {
               BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type const& vs1,
                 sites(lat, rs1))
                 st1 += (1 - spins[vs1]);
-              double v1 = elms.get<1>()[get(site_type_t(), lat.rg(), rs1)][st1];
+              double v1 = elms.get<2>()[get(site_type_t(), lat.rg(), rs1)][st1];
               int d = distance(lat, rs0, rs1);
               corr[d] += v0 * v1;
             }

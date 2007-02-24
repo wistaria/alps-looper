@@ -22,8 +22,12 @@
 *
 *****************************************************************************/
 
-#ifndef LOOPER_TRANSMAG_MEASUREMENT_H
-#define LOOPER_TRANSMAG_MEASUREMENT_H
+#ifndef LOOPER_TRANSMAG_H
+#define LOOPER_TRANSMAG_H
+
+#ifndef LOOPER_ONLY_PATH_INTEGRAL
+# define LOOPER_ONLY_PATH_INTEGRAL
+#endif
 
 #include "measurement.h"
 
@@ -111,4 +115,4 @@ struct transverse_magnetization {
 
 } // end namespace looper
 
-#endif // TRANSMAG_MEASUREMENT_H
+#endif // TRANSMAG_H

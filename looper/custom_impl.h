@@ -95,7 +95,7 @@ init(lattice_t const& lat,
       BOOST_FOREACH(unsigned int t, types)
         valid &= build_diagonal_matrix(ex.second, params_, mh, t, elms.get<1>()[t]);
       if (!valid) {
-        std::clog << "Warning: \"" << ex.first
+        std::cerr << "WARNING: \"" << ex.first
                   << "\" will not be measured since it is off-diagonal\n";
         average_elements.pop_back();
       }
@@ -109,7 +109,7 @@ init(lattice_t const& lat,
       BOOST_FOREACH(unsigned int t, types)
         valid &= build_diagonal_matrix(ex.second, params_, mh, t, elms.get<1>()[t]);
       if (!valid) {
-        std::clog << "Warning: \"" << ex.first
+        std::cerr << "WARNING: \"" << ex.first
                   << "\" will not be measured since it is off-diagonal\n";
         local_elements.pop_back();
       }
@@ -126,7 +126,7 @@ init(lattice_t const& lat,
         valid &= build_diagonal_matrix(ex.second.second, params_, mh, t, elms.get<2>()[t]);
       }
       if (!valid) {
-        std::clog << "Warning: \"" << ex.first
+        std::cerr << "WARNING: \"" << ex.first
                   << "\" will not be measured since it is off-diagonal\n";
         correlation_elements.pop_back();
       }
@@ -143,7 +143,7 @@ init(lattice_t const& lat,
         valid &= build_diagonal_matrix(ex.second.second, params_, mh, t, elms.get<2>()[t]);
       }
       if (!valid) {
-        std::clog << "Warning: \"" << ex.first
+        std::cerr << "WARNING: \"" << ex.first
                   << "\" will not be measured since it is off-diagonal\n";
         strfactor_elements.pop_back();
       }

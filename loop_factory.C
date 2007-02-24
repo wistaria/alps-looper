@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -41,7 +41,7 @@ loop_factory::make_worker(const alps::ProcessList& w, const alps::Parameters& p,
   if (p.defined("REPRESENTATION")) {
     map_type::const_iterator itr = creators_.find(p["REPRESENTATION"]);
     if (itr == creators_.end() || itr->second == 0)
-      boost::throw_exception(std::runtime_error("unknown representation"));
+      boost::throw_exception(std::runtime_error("Unknown representation: " + p["REPRESENTATION"]));
     return itr->second->create(w, p, n);
   } else if (creators_.size() == 1 && creators_.begin()->second) {
     return creators_.begin()->second->create(w, p, n);

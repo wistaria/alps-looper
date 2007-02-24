@@ -302,7 +302,7 @@ protected:
               f += alternating_tensor(i,j,k) * vecs[0][i] * vecs[1][j] * vecs[2][k];
         break;
       default :
-        std::cerr << "Warning: can not calculate unit lattice volume.  Assume 1.\n";
+        std::cerr << "WARNING: can not calculate unit lattice volume.  Assume 1.\n";
         f = 1;
       }
       vol *= std::abs(f);
