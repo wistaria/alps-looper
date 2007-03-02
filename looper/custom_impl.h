@@ -40,16 +40,20 @@ bool build_diagonal_matrix(std::string const& op, alps::Parameters const& p,
   alps::model_helper<I> const& mh, unsigned int t, std::vector<double>& mat) {
   alps::SiteOperator term(op);
   bool valid = true;
-  boost::multi_array<double, 2> m =
-    get_matrix(double(), term, mh.model().basis().site_basis(t), p);
+  boost::multi_array<alps::Expression, 2> m =
+    get_matrix(alps::Expression(), term, mh.model().basis().site_basis(t), p);
   std::size_t dim = m.shape()[0];
   mat.resize(dim);
   for (std::size_t i = 0; i < dim; ++i) {
     for (std::size_t j = 0; j < dim; ++j) {
-      if (i == j) {
-        mat[i] = m[i][j];
+      if (m[i][j].can_evaluate()) {
+        if (i == j) {
+          mat[i] = alps::evaluate<double>(m[i][j]);
+        } else {
+          if (alps::is_nonzero(alps::evaluate<double>(m[i][j]))) valid = false;
+        }
       } else {
-        if (alps::is_nonzero(m[i][j])) valid = false;
+        valid = false;
       }
     }
   }
@@ -96,7 +100,8 @@ init(lattice_t const& lat,
         valid &= build_diagonal_matrix(ex.second, params_, mh, t, elms.get<1>()[t]);
       if (!valid) {
         std::cerr << "WARNING: \"" << ex.first
-                  << "\" will not be measured since it is off-diagonal\n";
+                  << "\" will not be measured since it contains an off-diagonal or "
+                  << "multi-site operator\n";
         average_elements.pop_back();
       }
     }
@@ -110,7 +115,8 @@ init(lattice_t const& lat,
         valid &= build_diagonal_matrix(ex.second, params_, mh, t, elms.get<1>()[t]);
       if (!valid) {
         std::cerr << "WARNING: \"" << ex.first
-                  << "\" will not be measured since it is off-diagonal\n";
+                  << "\" will not be measured since it contains an off-diagonal or "
+                  << "multi-site operator\n";
         local_elements.pop_back();
       }
     }
@@ -127,7 +133,8 @@ init(lattice_t const& lat,
       }
       if (!valid) {
         std::cerr << "WARNING: \"" << ex.first
-                  << "\" will not be measured since it is off-diagonal\n";
+                  << "\" will not be measured since it contains an off-diagonal or "
+                  << "multi-site operator\n";
         correlation_elements.pop_back();
       }
     }
@@ -144,7 +151,8 @@ init(lattice_t const& lat,
       }
       if (!valid) {
         std::cerr << "WARNING: \"" << ex.first
-                  << "\" will not be measured since it is off-diagonal\n";
+                  << "\" will not be measured since it contains an off-diagonal or "
+                  << "multi-site operator\n";
         strfactor_elements.pop_back();
       }
     }

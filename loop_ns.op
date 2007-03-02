@@ -3186,6 +3186,7 @@ MEASURE[Correlations] = true;
 MEASURE[Green Function] = true;
 MEASURE[Structure Factor] = true;
 MEASURE_AVERAGE[Sz Average] = Sz;
+MEASURE_AVERAGE[Exchange] = exchange;
 MEASURE_LOCAL[Sz Local] = Sz;
 MEASURE_CORRELATIONS[Sz Correlations] = Sz:Sz;
 MEASURE_STRUCTURE_FACTOR[Sz Structure Factor] = Sz:Sz;
