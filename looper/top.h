@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -22,8 +22,8 @@
 *
 *****************************************************************************/
 
-#ifndef LOOPER_TWIST_ORDER_PARAMETER_H
-#define LOOPER_TWIST_ORDER_PARAMETER_H
+#ifndef LOOPER_TOP_H
+#define LOOPER_TOP_H
 
 #include "measurement.h"
 #include <boost/foreach.hpp>
@@ -43,8 +43,6 @@ struct twist_order_parameter_n {
     typedef MC   mc_type;
     typedef LAT lattice_t;
     typedef TIME time_t;
-    typedef typename alps::property_map<gauge_t, const typename lattice_t::virtual_graph_type,
-      double>::type gauge_map_t;
 
     bool improved;
     std::vector<double> phase;
@@ -175,4 +173,4 @@ typedef twist_order_parameter_n<1> twist_order_parameter;
 
 } // end namespace looper
 
-#endif // LOOPER_TWIST_ORDER_PARAMTER_H
+#endif // LOOPER_TOP_H

@@ -62,6 +62,7 @@ dist_noinst_HEADERS = \
 
 HEADERS_PRO = looper/gap.h \
 	looper/localsus.h \
+	looper/sop.h \
 	looper/top.h \
 	looper/transmag.h
 
