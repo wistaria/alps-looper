@@ -40,10 +40,7 @@ struct string_order_parameter {
     typedef MC   mc_type;
     typedef LAT lattice_t;
     typedef TIME time_t;
-    typedef typename alps::property_map<gauge_t, const typename lattice_t::virtual_graph_type,
-      double>::type gauge_map_t;
 
-    gauge_map_t gauge;
     int p_left;
     int p_right;
     std::string label;
@@ -51,8 +48,6 @@ struct string_order_parameter {
     template<typename M>
     void initialize(M& m, alps::Parameters const& params, lattice_t const& lat,
       bool is_signed, bool /* use_improved_estimator */) {
-
-      gauge = alps::get_or_default(gauge_t(), lat.vg(), 0);
 
       // check basis vector
       int i = 0;
@@ -113,7 +108,7 @@ struct string_order_parameter {
       std::vector<int> const& spins, std::vector<OP> const& /* operators */,
       std::vector<int>& /* spins_c */) {
 
-      using std::pow;
+      using std::cos; using std::pow;
 
       int left = 0;
       int right = num_sites(lat.rg()) / 2 - 1;
@@ -132,19 +127,13 @@ struct string_order_parameter {
         int rsz2 = 0;
         BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type v, sites(lat, right))
           rsz2 += 1 - 2 * spins[v];
-        int p;
-        if (regsz2 >= 0) {
-          p = (regsz2 & 3 == 0) ? 1 : -1;
-        } else {
-          p = ((-regsz2) & 3 == 0) ? 1 : -1;
-        }
-        sum += pow(0.5 * lsz2, (double)p_left) * p * pow(0.5 * rsz2, (double)p_right);
+        sum += pow(0.5 * lsz2, (double)p_left) * cos(0.5 * M_PI * regsz2) * pow(0.5 * rsz2, (double)p_right);
         ++left;
         regsz2 += rsz2;
         ++right;
         if (right == num_sites(lat.rg())) right = 0;
       }
-      m[label] << 0.25 * sign * sum / num_sites(lat.rg());
+      m[label] << sign * sum / num_sites(lat.rg());
     }
   };
 
