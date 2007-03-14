@@ -8,10 +8,13 @@ REPRESENTATION = "path integral"
 
 { local_S = 1/2 }
 { local_S = 1 }
+
+SOP_M = 2
+SOP_N = 1
+
 { local_S = 3/2 }
 
 DISABLE_IMPROVED_ESTIMATOR = 1
 
 { local_S = 1/2 }
 { local_S = 1 }
-{ local_S = 3/2 }
