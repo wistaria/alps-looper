@@ -60,7 +60,8 @@ dist_noinst_HEADERS = \
 	looper/version.h \
 	looper/weight.h
 
-HEADERS_PRO = looper/gap.h \
+HEADERS_PRO = \
+	looper/gap.h \
 	looper/localsus.h \
 	looper/sop.h \
 	looper/top.h \

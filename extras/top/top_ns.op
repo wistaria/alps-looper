@@ -7,6 +7,8 @@ T = 0.25;
 L = 4;
 REPRESENTATION = "path integral";
 local_S = 1/2;
+SOP_M = 1;
+SOP_N = 0;
 [results]
 Binder Ratio of Generalized Magnetization: 0.666269 +/- 0.0094 WARNING: ERRORS NOT CONVERGED!!!
 Binder Ratio of Generalized Staggered Magnetization: 0.027832 +/- 0.00558 WARNING: ERRORS NOT CONVERGED!!!
@@ -146,11 +148,11 @@ Staggered Susceptibility: 1.25919 +/- 0.0263; tau = 0.461 WARNING: ERRORS NOT CO
     bin #2   : 512      entries: error = 0.0220714
     bin #3   : 256      entries: error = 0.0248066
     bin #4   : 128      entries: error = 0.0263148
-String Order Parameter: -0.164795 +/- 0.0046; tau = 0.269 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00370663
-    bin #2   : 512      entries: error = 0.00415725
-    bin #3   : 256      entries: error = 0.00433135
-    bin #4   : 128      entries: error = 0.004597
+String Order Parameter (M,N)=(1,0): 0.335938 +/- 0.0156; tau = 0.456 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0112918
+    bin #2   : 512      entries: error = 0.012933
+    bin #3   : 256      entries: error = 0.0143292
+    bin #4   : 128      entries: error = 0.0156172
 Susceptibility: 0.027832 +/- 0.00558; tau = 0.712 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0.00358587
     bin #2   : 512      entries: error = 0.00433679
@@ -197,6 +199,8 @@ T = 0.25;
 L = 4;
 REPRESENTATION = "path integral";
 local_S = 1;
+SOP_M = 1;
+SOP_N = 1;
 [results]
 Binder Ratio of Generalized Magnetization: 0.591759 +/- 0.00723 WARNING: ERRORS NOT CONVERGED!!!
 Binder Ratio of Generalized Staggered Magnetization: 0.0371094 +/- 0.00652 WARNING: ERRORS NOT CONVERGED!!!
@@ -336,11 +340,11 @@ Staggered Susceptibility: 3.69824 +/- 0.0721; tau = 0.296 WARNING: ERRORS NOT CO
     bin #2   : 512      entries: error = 0.0646283
     bin #3   : 256      entries: error = 0.0665965
     bin #4   : 128      entries: error = 0.0720927
-String Order Parameter: -0.52124 +/- 0.0177; tau = 0.394 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0132363
-    bin #2   : 512      entries: error = 0.0151633
-    bin #3   : 256      entries: error = 0.0172596
-    bin #4   : 128      entries: error = 0.0177032
+String Order Parameter (M,N)=(1,1): 0.454102 +/- 0.0222; tau = 0.374 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0168134
+    bin #2   : 512      entries: error = 0.0192316
+    bin #3   : 256      entries: error = 0.0213666
+    bin #4   : 128      entries: error = 0.0222325
 Susceptibility: 0.0371094 +/- 0.00652; tau = 0.766 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0.00409973
     bin #2   : 512      entries: error = 0.00505158
@@ -386,9 +390,9 @@ MODEL = spin;
 T = 0.25;
 L = 4;
 REPRESENTATION = "path integral";
+local_S = 3/2;
 SOP_M = 2;
 SOP_N = 1;
-local_S = 3/2;
 [results]
 Binder Ratio of Generalized Magnetization: 0.584757 +/- 0.00719 WARNING: ERRORS NOT CONVERGED!!!
 Binder Ratio of Generalized Staggered Magnetization: 0.03125 +/- 0.00584 WARNING: ERRORS NOT CONVERGED!!!
@@ -528,11 +532,11 @@ Staggered Susceptibility: 7.62298 +/- 0.151; tau = 0.292 WARNING: ERRORS NOT CON
     bin #2   : 512      entries: error = 0.136677
     bin #3   : 256      entries: error = 0.150146
     bin #4   : 128      entries: error = 0.151358
-String Order Parameter (M,N)=(2,1): 0.00598145 +/- 0.0108; tau = -0.00389
-    bin #1   : 1024     entries: error = 0.0108016
-    bin #2   : 512      entries: error = 0.0107443
-    bin #3   : 256      entries: error = 0.0107856
-    bin #4   : 128      entries: error = 0.0107595
+String Order Parameter (M,N)=(2,1): 0.944336 +/- 0.0685; tau = 0.443 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0499194
+    bin #2   : 512      entries: error = 0.0558167
+    bin #3   : 256      entries: error = 0.0630447
+    bin #4   : 128      entries: error = 0.0685442
 Susceptibility: 0.03125 +/- 0.00584; tau = 0.691 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0.00378591
     bin #2   : 512      entries: error = 0.00474101
@@ -578,10 +582,10 @@ MODEL = spin;
 T = 0.25;
 L = 4;
 REPRESENTATION = "path integral";
-SOP_M = 2;
-SOP_N = 1;
 DISABLE_IMPROVED_ESTIMATOR = 1;
 local_S = 1/2;
+SOP_M = 1;
+SOP_N = 0;
 [results]
 Binder Ratio of Magnetization: 0.0273438 +/- 0.0082 WARNING: ERRORS NOT CONVERGED!!!
 Binder Ratio of Staggered Magnetization: 0.671179 +/- 0.0177 WARNING: ERRORS NOT CONVERGED!!!
@@ -669,11 +673,11 @@ Staggered Susceptibility: 1.25603 +/- 0.0501; tau = 0.354 WARNING: ERRORS NOT CO
     bin #2   : 512      entries: error = 0.0429724
     bin #3   : 256      entries: error = 0.0470767
     bin #4   : 128      entries: error = 0.0501077
-String Order Parameter (M,N)=(2,1): 0.00012207 +/- 0.000324; tau = 0.00295 WARNING: check error convergence
-    bin #1   : 1024     entries: error = 0.000323261
-    bin #2   : 512      entries: error = 0.0002994
-    bin #3   : 256      entries: error = 0.000286879
-    bin #4   : 128      entries: error = 0.000324214
+String Order Parameter (M,N)=(1,0): 0.335938 +/- 0.0156; tau = 0.456 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0112918
+    bin #2   : 512      entries: error = 0.012933
+    bin #3   : 256      entries: error = 0.0143292
+    bin #4   : 128      entries: error = 0.0156172
 Susceptibility: 0.0273438 +/- 0.0082; tau = 0.792 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0.00510133
     bin #2   : 512      entries: error = 0.0063734
@@ -719,10 +723,10 @@ MODEL = spin;
 T = 0.25;
 L = 4;
 REPRESENTATION = "path integral";
-SOP_M = 2;
-SOP_N = 1;
 DISABLE_IMPROVED_ESTIMATOR = 1;
 local_S = 1;
+SOP_M = 1;
+SOP_N = 1;
 [results]
 Binder Ratio of Magnetization: 0.0361328 +/- 0.00856 WARNING: ERRORS NOT CONVERGED!!!
 Binder Ratio of Staggered Magnetization: 0.606493 +/- 0.0153 WARNING: ERRORS NOT CONVERGED!!!
@@ -810,11 +814,11 @@ Staggered Susceptibility: 3.64117 +/- 0.14; tau = 0.229 WARNING: check error con
     bin #2   : 512      entries: error = 0.127669
     bin #3   : 256      entries: error = 0.135717
     bin #4   : 128      entries: error = 0.139721
-String Order Parameter (M,N)=(2,1): 0.00463867 +/- 0.00483; tau = 0.00807
-    bin #1   : 1024     entries: error = 0.00479287
-    bin #2   : 512      entries: error = 0.00471759
-    bin #3   : 256      entries: error = 0.0047808
-    bin #4   : 128      entries: error = 0.00483139
+String Order Parameter (M,N)=(1,1): 0.454102 +/- 0.0222; tau = 0.374 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0168134
+    bin #2   : 512      entries: error = 0.0192316
+    bin #3   : 256      entries: error = 0.0213666
+    bin #4   : 128      entries: error = 0.0222325
 Susceptibility: 0.0361328 +/- 0.00857; tau = 0.577 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0.00583759
     bin #2   : 512      entries: error = 0.00693799

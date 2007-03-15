@@ -49,6 +49,13 @@ struct string_order_parameter {
     void initialize(M& m, alps::Parameters const& params, lattice_t const& lat,
       bool is_signed, bool /* use_improved_estimator */) {
 
+      p_left = 1;
+      p_right = 1;
+      if (params.defined("SOP_M") && params.defined("SOP_N")) {
+        p_left = static_cast<int>(evaluate(params["SOP_M"], params));
+        p_right = static_cast<int>(evaluate(params["SOP_N"], params));
+      }
+
       // check basis vector
       int i = 0;
       BOOST_FOREACH(std::vector<double> const& v, lat.graph_helper().basis_vectors()) {
@@ -64,29 +71,23 @@ struct string_order_parameter {
       // check parity
       if (num_sites(lat.rg()) < 4)
         boost::throw_exception(std::runtime_error("sop: too small lattice"));
-      int left = 0;
-      int right = num_sites(lat.rg()) / 2 - 1;
-      int ns = 0; // number of spins between left and right
-      for (int r = left; r < right; ++r)
-        BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type v, sites(lat, r)) ++ns;
-      for (int s = 0; s < num_sites(lat.rg()); ++s) {
-        BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type v, sites(lat, left)) --ns;
-        if (ns & 1 == 1) boost::throw_exception(std::runtime_error("sop: parity error"));
-        ++left;
-        BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type v, sites(lat, right)) ++ns;
-        ++right;
-        if (right == num_sites(lat.rg())) right = 0;
+      if (num_sites(lat.rg()) % 1 != 0)
+        boost::throw_exception(std::runtime_error("sop: number of sites should be odd"));
+      int s2 = 0;
+      BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type v, sites(lat, 0)) ++s2;
+      for (int r = 1; r < num_sites(lat.rg()); ++r) {
+        int n = 0;
+        BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type v, sites(lat, r)) ++n;
+        if (n != s2)
+          boost::throw_exception(std::runtime_error("sop: only uniform spins supported"));
       }
+      if ((s2 + p_left + p_right) & 1 != 0)
+          boost::throw_exception(std::runtime_error("sop: parity error"));
 
-      p_left = 1;
-      p_right = 1;
       label = "String Order Parameter";
-      if (params.defined("SOP_M") && params.defined("SOP_N")) {
-        p_left = static_cast<int>(evaluate(params["SOP_M"], params));
-        p_right = static_cast<int>(evaluate(params["SOP_N"], params));
+      if (params.defined("SOP_M") && params.defined("SOP_N"))
         label += " (M,N)=(" + boost::lexical_cast<std::string>(p_left) + "," +
           boost::lexical_cast<std::string>(p_right) + ")";
-      }
       add_scalar_obs(m, label, is_signed);
     }
 
@@ -111,7 +112,7 @@ struct string_order_parameter {
       using std::cos; using std::pow;
 
       int left = 0;
-      int right = num_sites(lat.rg()) / 2 - 1;
+      int right = num_sites(lat.rg()) / 2;
       int regsz2 = 0; // sum of 2Sz in the region between left and right
       for (int r = left; r < right; ++r)
         BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type v, sites(lat, r))
@@ -120,20 +121,22 @@ struct string_order_parameter {
       double sum = 0;
       for (int s = 0; s < num_sites(lat.rg()); ++s) {
         int lsz2 = 0;
-        BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type v, sites(lat, left)) {
-          regsz2 -= 1 - 2 * spins[v];
+        BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type v, sites(lat, left))
           lsz2 += 1 - 2 * spins[v];
-        }
         int rsz2 = 0;
         BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type v, sites(lat, right))
           rsz2 += 1 - 2 * spins[v];
-        sum += pow(0.5 * lsz2, (double)p_left) * cos(0.5 * M_PI * regsz2) * pow(0.5 * rsz2, (double)p_right);
-        ++left;
+        regsz2 -= lsz2;
+        if ((left & 1) == 0) {
+          sum += pow(0.5 * lsz2, (double)p_left) * cos(0.5 * M_PI * (regsz2 + p_left + p_right)) *
+            pow(0.5 * rsz2, (double)p_right);
+        }
         regsz2 += rsz2;
+        ++left;
         ++right;
         if (right == num_sites(lat.rg())) right = 0;
       }
-      m[label] << sign * sum / num_sites(lat.rg());
+      m[label] << sign * sum / (num_sites(lat.rg()) / 2);
     }
   };
 
