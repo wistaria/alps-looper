@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2003-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 2003-2007 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -35,19 +35,23 @@ template<typename MEASUREMENT_SET>
 class evaluator : public abstract_evaluator {
 public:
   typedef typename measurement<MEASUREMENT_SET>::type measurement_t;
-  typedef typename measurement_t::evaluator evaluator_t;
+
+  void pre_evaluate(alps::ObservableSet& m, alps::Parameters const& p,
+    alps::ObservableSet const& m_in) const {
+    pre_evaluator_selector<measurement_t>::pre_evaluate(m, p, m_in);
+  }
   void evaluate(alps::scheduler::MCSimulation& sim, alps::Parameters const& p,
     boost::filesystem::path const&) const {
     alps::ObservableSet m;
-    evaluate(m, p, sim.get_measurements());
+    energy_evaluator::evaluate(m, sim.get_measurements());
+    evaluator_selector<measurement_t>::evaluate(m, p, sim.get_measurements());
     BOOST_FOREACH(alps::ObservableSet::iterator::value_type const& v, m)
       sim.addObservable(*(v.second));
   }
-
   void evaluate(alps::ObservableSet& m, alps::Parameters const& p,
     alps::ObservableSet const& m_in) const {
     energy_evaluator::evaluate(m, m_in);
-    evaluator_t::evaluate(m, p, m_in);
+    evaluator_selector<measurement_t>::evaluate(m, p, m_in);
   }
 };
 

@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2003-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 2003-2007 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -439,8 +439,10 @@ void diag_worker::run(ENGINE&, alps::ObservableSet& obs) {
 
 class dummy_evaluator : public looper::abstract_evaluator {
 public:
+  void pre_evaluate(alps::ObservableSet&, alps::Parameters const&,
+    alps::ObservableSet const&) const {}
   void evaluate(alps::scheduler::MCSimulation&, alps::Parameters const&,
-                boost::filesystem::path const&) const {}
+    boost::filesystem::path const&) const {}
   void evaluate(alps::ObservableSet&, alps::Parameters const&, alps::ObservableSet const&) const {}
 };
 

@@ -36,8 +36,8 @@
 
 namespace looper {
 
-struct gap
-{
+struct gap : public has_evaluator_tag {
+
   template<typename MC, typename LAT, typename TIME>
   struct estimator
   {

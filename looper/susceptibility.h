@@ -31,7 +31,8 @@
 
 namespace looper {
 
-struct susceptibility {
+struct susceptibility :
+  public has_evaluator_tag {
   template<typename MC, typename LAT, typename TIME>
   struct estimator {
     typedef MC   mc_type;
@@ -305,12 +306,9 @@ struct susceptibility {
     }
   };
 
-  struct evaluator
-  {
-    static void evaluate(alps::ObservableSet& m,
-                         alps::Parameters const& /* params */,
-                         alps::ObservableSet const& m_in)
-    {
+  struct evaluator {
+    static void evaluate(alps::ObservableSet& m, alps::Parameters const& /* params */,
+      alps::ObservableSet const& m_in) {
       if (m_in.has("Magnetization^2") && m_in.has("Magnetization^4")) {
         alps::RealObsevaluator obse_m2 = m_in["Magnetization^2"];
         alps::RealObsevaluator obse_m4 = m_in["Magnetization^4"];

@@ -106,11 +106,6 @@ struct transverse_magnetization {
       double /* sign */, std::vector<int> const& /* spins */,
       std::vector<OP> const& /* operators */, std::vector<int> const& /* spins_c */) {}
   };
-
-  struct evaluator {
-    static void evaluate(alps::ObservableSet& /* m */, alps::Parameters const& /* params */,
-      alps::ObservableSet const& /* m_in */) {}
-  };
 };
 
 } // end namespace looper

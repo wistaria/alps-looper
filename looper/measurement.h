@@ -30,10 +30,16 @@
 #include <alps/alea.h>
 #include <boost/call_traits.hpp>
 #include <boost/mpl/bool.hpp>
+#include <boost/type_traits/is_base_of.hpp>
 #include <string>
 #include <vector>
 
 namespace looper {
+
+struct has_improved_estimator_tag {};
+struct has_normal_estimator_tag {};
+struct has_pre_evaluator_tag {};
+struct has_evaluator_tag {};
 
 //
 // helper functions
@@ -188,6 +194,52 @@ struct estimate {
 template<typename ESTIMATOR>
 struct collector {
   typedef typename ESTIMATOR::collector type;
+};
+
+template<typename MEASUREMENT>
+struct pre_evaluator_selector {
+private:
+  template<bool, typename M>
+  struct impl {
+    static void pre_evaluate(alps::ObservableSet&, alps::Parameters const&,
+    alps::ObservableSet const&) {}
+  };
+  template<typename M>
+  struct impl<true, M> {
+    static void pre_evaluate(alps::ObservableSet& m, alps::Parameters const& params,
+      alps::ObservableSet const& m_in) {
+      M::pre_evaluator::pre_evaluate(m, params, m_in);
+    }
+  };
+public:
+  static void pre_evaluate(alps::ObservableSet& m, alps::Parameters const& params,
+    alps::ObservableSet const& m_in) {
+    impl<boost::is_base_of<has_pre_evaluator_tag, MEASUREMENT>::value, MEASUREMENT>::
+      pre_evaluate(m, params, m_in);
+  }
+};
+
+template<typename MEASUREMENT>
+struct evaluator_selector {
+private:
+  template<bool, typename M>
+  struct impl {
+    static void evaluate(alps::ObservableSet&, alps::Parameters const&,
+    alps::ObservableSet const&) {}
+  };
+  template<typename M>
+  struct impl<true, M> {
+    static void evaluate(alps::ObservableSet& m, alps::Parameters const& params,
+      alps::ObservableSet const& m_in) {
+      M::evaluator::evaluate(m, params, m_in);
+    }
+  };
+public:
+  static void evaluate(alps::ObservableSet& m, alps::Parameters const& params,
+    alps::ObservableSet const& m_in) {
+    impl<boost::is_base_of<has_evaluator_tag, MEASUREMENT>::value, MEASUREMENT>::
+      evaluate(m, params, m_in);
+  }
 };
 
 
@@ -356,10 +408,10 @@ struct dumb_measurement {
       std::vector<OP> const& /* operators */, std::vector<int> const& /* spins_c */) {}
   };
 
-  struct evaluator {
-    static void evaluate(alps::ObservableSet& /* m */, alps::Parameters const& /* params */,
-      alps::ObservableSet const& /* m_in */) {}
-  };
+//  struct evaluator {
+//    static void evaluate(alps::ObservableSet& /* m */, alps::Parameters const& /* params */,
+//      alps::ObservableSet const& /* m_in */) {}
+//  };
 };
 
 
@@ -368,7 +420,9 @@ struct dumb_measurement {
 //
 
 template<typename MEASUREMENT1, typename MEASUREMENT2>
-struct composite_measurement {
+struct composite_measurement :
+  public has_pre_evaluator_tag,
+  public has_evaluator_tag {
   template<typename MC, typename LAT, typename TIME>
   struct estimator {
     typedef MC   mc_type;
@@ -469,14 +523,18 @@ struct composite_measurement {
     }
   };
 
+  struct pre_evaluator {
+    static void pre_evaluate(alps::ObservableSet& m, alps::Parameters const& params,
+      alps::ObservableSet const& m_in) {
+      pre_evaluator_selector<MEASUREMENT1>::pre_evaluate(m, params, m_in);
+      pre_evaluator_selector<MEASUREMENT2>::pre_evaluate(m, params, m_in);
+    }
+  };
   struct evaluator {
-    typedef typename MEASUREMENT1::evaluator evaluator1;
-    typedef typename MEASUREMENT2::evaluator evaluator2;
-
     static void evaluate(alps::ObservableSet& m, alps::Parameters const& params,
       alps::ObservableSet const& m_in) {
-      evaluator1::evaluate(m, params, m_in);
-      evaluator2::evaluate(m, params, m_in);
+      evaluator_selector<MEASUREMENT1>::evaluate(m, params, m_in);
+      evaluator_selector<MEASUREMENT2>::evaluate(m, params, m_in);
     }
   };
 };

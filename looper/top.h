@@ -36,8 +36,6 @@ struct twist_order_parameter_n {
 
   BOOST_STATIC_ASSERT(N > 0);
 
-  typedef dumb_measurement<twist_order_parameter_n<N> > dumb;
-
   template<typename MC, typename LAT, typename TIME>
   struct estimator {
     typedef MC   mc_type;
@@ -85,6 +83,7 @@ struct twist_order_parameter_n {
 
       for (unsigned int i = 0; i < N; ++i) {
         add_scalar_obs(m, label[i], is_signed);
+        add_scalar_obs(m, label[i] + "^2", is_signed);
         add_scalar_obs(m, label[i] + " (Imaginary Part)", is_signed);
       }
     }
@@ -128,6 +127,7 @@ struct twist_order_parameter_n {
         double t = sign * top;
         for (int i = 0; i < N; ++i) {
           m[(*label_ptr)[i]] << t;
+          m[(*label_ptr)[i] + "^2"] << t * t;
           m[(*label_ptr)[i] + " (Imaginary Part)"] << 0.;
           t *= top;
         }
@@ -161,12 +161,11 @@ struct twist_order_parameter_n {
         total += phase[s] * (0.5-spins[s]);
       for (int i = 0; i < N; ++i) {
         m[label[i]] << sign * std::cos((i+1) * total);
+        m[label[i] + "^2"] << sign * power2(std::cos((i+1) * total));
         m[label[i] + " (Imaginary Part)"] << sign * std::sin((i+1) * total);
       }
     }
   };
-
-  typedef typename dumb::evaluator evaluator;
 };
 
 typedef twist_order_parameter_n<1> twist_order_parameter;

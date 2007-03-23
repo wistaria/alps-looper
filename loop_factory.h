@@ -176,6 +176,7 @@ class evaluator_factory :
 {
 public:
   looper::abstract_evaluator* make_evaluator(alps::Parameters const& p) const;
+  void pre_evaluate(alps::ObservableSet& obs, alps::Parameters const& p) const;
   void evaluate(alps::ObservableSet& obs, alps::Parameters const& p) const;
 
   void print_copyright(std::ostream& os) const;

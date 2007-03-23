@@ -268,8 +268,6 @@ struct correlation {
       }
     }
   };
-
-  typedef dumb::evaluator evaluator;
 };
 
 } // end namespace looper

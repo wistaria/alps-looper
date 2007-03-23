@@ -76,6 +76,11 @@ loop_factory::make_worker(alps::Parameters const& p, alps::ObservableSet& obs) c
 
 void loop_factory::print_copyright(std::ostream& os) const { looper::print_copyright(os); }
 
+void evaluator_factory::pre_evaluate(alps::ObservableSet& obs, const alps::Parameters& p) const {
+  looper::abstract_evaluator *eval = this->make_evaluator(p);
+  eval->pre_evaluate(obs, p, obs);
+}
+
 looper::abstract_evaluator* evaluator_factory::make_evaluator(const alps::Parameters& p) const {
   if (p.defined("REPRESENTATION")) {
     map_type::const_iterator itr = creators_.find(p["REPRESENTATION"]);

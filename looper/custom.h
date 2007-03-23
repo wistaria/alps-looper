@@ -230,8 +230,6 @@ struct custom_measurement {
       }
     }
   };
-
-  typedef dumb::evaluator evaluator;
 };
 
 } // end namespace looper
