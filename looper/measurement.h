@@ -421,8 +421,7 @@ struct dumb_measurement {
 
 template<typename MEASUREMENT1, typename MEASUREMENT2>
 struct composite_measurement :
-  public has_pre_evaluator_tag,
-  public has_evaluator_tag {
+  public has_pre_evaluator_tag, public has_evaluator_tag {
   template<typename MC, typename LAT, typename TIME>
   struct estimator {
     typedef MC   mc_type;
@@ -432,6 +431,10 @@ struct composite_measurement :
 
     typedef typename MEASUREMENT1::template estimator<MC, LAT, TIME> estimator1;
     typedef typename MEASUREMENT2::template estimator<MC, LAT, TIME> estimator2;
+    typedef typename estimator1::estimate estimate1;
+    typedef typename estimator2::estimate estimate2;
+    typedef typename estimator1::collector collector1;
+    typedef typename estimator2::collector collector2;
 
     estimator1 emt1;
     estimator2 emt2;
@@ -445,38 +448,38 @@ struct composite_measurement :
 
     // improved estimator
 
-    struct estimate : public estimator1::estimate, public estimator2::estimate {
+    struct estimate : public estimate1, public estimate2 {
       void start_s(lattice_t const& lat, time_pt t, int s, int c) {
-        estimator1::estimate::start_s(lat, t, s, c);
-        estimator2::estimate::start_s(lat, t, s, c);
+        estimate1::start_s(lat, t, s, c);
+        estimate2::start_s(lat, t, s, c);
       }
       void start_bs(lattice_t const& lat, time_pt t, int b, int s, int c) {
-        estimator1::estimate::start_bs(lat, t, b, s, c);
-        estimator2::estimate::start_bs(lat, t, b, s, c);
+        estimate1::start_bs(lat, t, b, s, c);
+        estimate2::start_bs(lat, t, b, s, c);
       }
       void start_bt(lattice_t const& lat, time_pt t, int b, int s, int c) {
-        estimator1::estimate::start_bt(lat, t, b, s, c);
-        estimator2::estimate::start_bt(lat, t, b, s, c);
+        estimate1::start_bt(lat, t, b, s, c);
+        estimate2::start_bt(lat, t, b, s, c);
       }
       void term_s(lattice_t const& lat, time_pt t, int s, int c) {
-        estimator1::estimate::term_s(lat, t, s, c);
-        estimator2::estimate::term_s(lat, t, s, c);
+        estimate1::term_s(lat, t, s, c);
+        estimate2::term_s(lat, t, s, c);
       }
       void term_bs(lattice_t const& lat, time_pt t, int b, int s, int c) {
-        estimator1::estimate::term_bs(lat, t, b, s, c);
-        estimator2::estimate::term_bs(lat, t, b, s, c);
+        estimate1::term_bs(lat, t, b, s, c);
+        estimate2::term_bs(lat, t, b, s, c);
       }
       void term_bt(lattice_t const& lat, time_pt t, int b, int s, int c) {
-        estimator1::estimate::term_bt(lat, t, b, s, c);
-        estimator2::estimate::term_bt(lat, t, b, s, c);
+        estimate1::term_bt(lat, t, b, s, c);
+        estimate2::term_bt(lat, t, b, s, c);
       }
       void at_bot(lattice_t const& lat, time_pt t, int s, int c) {
-        estimator1::estimate::at_bot(lat, t, s, c);
-        estimator2::estimate::at_bot(lat, t, s, c);
+        estimate1::at_bot(lat, t, s, c);
+        estimate2::at_bot(lat, t, s, c);
       }
       void at_top(lattice_t const& lat, time_pt t, int s, int c) {
-        estimator1::estimate::at_top(lat, t, s, c);
-        estimator2::estimate::at_top(lat, t, s, c);
+        estimate1::at_top(lat, t, s, c);
+        estimate2::at_top(lat, t, s, c);
       }
     };
     void init_estimate(estimate& est) const {
@@ -484,19 +487,17 @@ struct composite_measurement :
       emt2.init_estimate(est);
     }
 
-    struct collector : public estimator1::collector, public estimator2::collector {
-      typedef typename estimator1::collector base1;
-      typedef typename estimator2::collector base2;
+    struct collector : public collector1, public collector2 {
       template<typename EST>
       collector operator+(EST const& est) {
-        base1::operator+(est);
-        base2::operator+(est);
+        collector1::operator+(est);
+        collector2::operator+(est);
         return *this;
       }
       template<typename M>
       void commit(M& m, lattice_t const& lat, double beta, int nop, double sign) const {
-        base1::commit(m, lat, beta, nop, sign);
-        base2::commit(m, lat, beta, nop, sign);
+        collector1::commit(m, lat, beta, nop, sign);
+        collector2::commit(m, lat, beta, nop, sign);
       }
     };
     void init_collector(collector& coll) const {
