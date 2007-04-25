@@ -49,6 +49,7 @@ dist_noinst_HEADERS = \
 	looper/montecarlo.h \
 	looper/operator.h \
 	looper/permutation.h \
+	looper/poisson_distribution.h \
 	looper/power.h \
 	looper/random_choice.h \
 	looper/stiffness.h \

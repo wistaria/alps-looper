@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -25,72 +25,65 @@
 #ifndef LOOPER_RANDOM_CHOICE_H
 #define LOOPER_RANDOM_CHOICE_H
 
-#include <cmath>
-#include <cstdlib>
-#include <cassert>
-#include <cstddef>
-#include <iostream>
-#include <vector>
-#include <boost/config.hpp>
+#include <boost/foreach.hpp>
 #include <boost/static_assert.hpp>
-
-// Define the following macro if you want the original initialization
-// routine of O(N^2).
-// #define USE_INIT_WALKER1977
+#include <boost/throw_exception.hpp>
+#include <cmath>
+#include <stdexcept>
+#include <utility>
+#include <vector>
 
 namespace looper {
 
-template<class IntType = int, class RealType = double>
-class random_choice
-{
+//
+// double-based Walker algorithm
+//
+
+template<class IntType = unsigned int, class RealType = double>
+class random_choice_walker_d {
 public:
   typedef RealType input_type;
   typedef IntType result_type;
 
-  random_choice() : n_(0) {}
+  random_choice_walker_d() {}
   template<class CONT>
-  random_choice(const CONT& weights)
-  {
-#ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
-    BOOST_STATIC_ASSERT(std::numeric_limits<IntType>::is_integer);
-    BOOST_STATIC_ASSERT(!std::numeric_limits<RealType>::is_integer);
-#endif
-
-#ifndef USE_INIT_WALKER1977
-    init(weights);
-#else
-    init_walker1977(weights);
-#endif
-  }
-  // compiler-generated copy ctor and assignment operator are fine
+  random_choice_walker_d(const CONT& weights) { init(weights); }
 
   template<class Engine>
-  result_type operator()(Engine& eng) const
-  {
-    result_type x = result_type(RealType(n_) * eng());
+  result_type operator()(Engine& eng) const {
+    result_type x = result_type(RealType(size()) * eng());
     return (eng() < cutoff(x)) ? x : alias(x);
   }
 
   // Initialization routine with complexity O(N).
   template<class CONT>
-  void init(const CONT& weights)
-  {
-    assert(weights.size() != 0);
-
-    n_ = weights.size();
+  void init(const CONT& weights) {
+#ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
+    BOOST_STATIC_ASSERT(std::numeric_limits<IntType>::is_integer);
+    BOOST_STATIC_ASSERT(!std::numeric_limits<RealType>::is_integer);
+#endif
+    if (weights.size() == 0)
+      boost::throw_exception(std::invalid_argument("random_choice_walker_d::init"));
+    IntType n = weights.size();
     RealType norm = RealType(0);
-    for (result_type i = 0; i < n_; ++i) norm += weights[i];
-    norm = n_ / norm;
+    BOOST_FOREACH(RealType w, weights) {
+      if (w < RealType(0))
+        boost::throw_exception(std::invalid_argument("random_choice_walker_d::init"));
+      norm += w;
+    }
+    if (norm <= RealType(0))
+      boost::throw_exception(std::invalid_argument("random_choice_walker_d::init"));
+    norm = n / norm;
 
     // Initialize arrays.  We will reorder the elements in `array', so
     // that all the negative elements precede the positive ones.
-    table_.resize(n_);
-    std::vector<std::pair<RealType, result_type> > array(n_);
+    resize(n);
+    std::vector<std::pair<RealType, result_type> > array(n);
     typename std::vector<std::pair<RealType, result_type> >::iterator
       neg_p = array.begin();
     typename std::vector<std::pair<RealType, result_type> >::iterator
       pos_p = array.end();
-    for (result_type i = 0; i < n_; ++i) {
+    for (result_type i = 0; i < n; ++i) {
       RealType b = norm * weights[i] - RealType(1.);
       if (b < RealType(0.)) {
         *neg_p = std::make_pair(b, i);
@@ -122,30 +115,40 @@ public:
   // Trans. Math. Software, 3, 253 (1077).
   template<class CONT>
   void init_walker1977(const CONT& weights, RealType tol = 1.0e-10) {
-    assert(weights.size() > 0);
-
-    n_ = weights.size();
-    RealType norm = 0;
-    for (result_type i = 0; i < n_; ++i) norm += weights[i];
-    norm = n_ / norm;
+#ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
+    BOOST_STATIC_ASSERT(std::numeric_limits<IntType>::is_integer);
+    BOOST_STATIC_ASSERT(!std::numeric_limits<RealType>::is_integer);
+#endif
+    if (weights.size() == 0)
+      boost::throw_exception(std::invalid_argument("random_choice_walker_d::init_walker1977"));
+    IntType n = weights.size();
+    RealType norm = RealType(0);
+    BOOST_FOREACH(RealType w, weights) {
+      if (w < RealType(0))
+        boost::throw_exception(std::invalid_argument("random_choice_walker_d::init_walker1977"));
+      norm += w;
+    }
+    if (norm <= RealType(0))
+      boost::throw_exception(std::invalid_argument("random_choice_walker_d::init_walker1977"));
+    norm = n / norm;
 
     // Initialize arrays.
-    table_.assign(n_, std::make_pair(1, 0));
-    std::vector<RealType> b(n_);
-    for (result_type i = 0; i < n_; ++i) {
+    resize(n);
+    std::vector<RealType> b(n);
+    for (result_type i = 0; i < n; ++i) {
       cutoff(i) = 1;
       alias(i) = i;
       b[i] = norm * weights[i] - 1;
     }
 
-    for (result_type i = 0; i < n_; ++i) {
+    for (result_type i = 0; i < n; ++i) {
       // Find the largest positive and negative differences and their
       // positions.
       RealType sum = 0;
       RealType minval = 0;
       RealType maxval = 0;
       result_type minpos, maxpos;
-      for (result_type j = 0; j < n_; ++j) {
+      for (result_type j = 0; j < n; ++j) {
         sum += std::abs(b[j]);
         if (b[j] <= minval) {
           minval = b[j];
@@ -170,15 +173,15 @@ public:
   template<class CONT>
   bool check(const CONT& weights, RealType tol = 1.0e-10) const {
     bool r = true;
-    tol *= n_;
+    tol *= size();
 
-    RealType norm = 0;
-    for (result_type i = 0; i < n_; ++i) norm += weights[i];
-    norm = n_ / norm;
+    RealType norm = RealType(0);
+    BOOST_FOREACH(RealType w, weights) norm += w;
+    norm = weights.size() / norm;
 
-    for (result_type i = 0; i < n_; ++i) {
+    for (result_type i = 0; i < size(); ++i) {
       RealType p = cutoff(i);
-      for (result_type j = 0; j < n_; ++j)
+      for (result_type j = 0; j < size(); ++j)
         if (alias(j) == i) p += 1 - cutoff(j);
       if (std::abs(p - norm * weights[i]) > tol) r = false;
     }
@@ -186,72 +189,281 @@ public:
   }
 
 protected:
+  IntType size() const { return table_.size(); }
+  void resize(IntType n) {
+    table_.clear();
+    table_.resize(n);
+  }
+
   RealType& cutoff(result_type i) { return table_[i].first; }
-  const RealType& cutoff(result_type i) const { return table_[i].first; }
+  RealType cutoff(result_type i) const { return table_[i].first; }
 
   result_type& alias(result_type i) { return table_[i].second; }
-  const result_type& alias(result_type i) const { return table_[i].second; }
+  result_type alias(result_type i) const { return table_[i].second; }
 
 private:
-  result_type n_; // number of choices
-  std::vector<std::pair<RealType, result_type> > table_;
-                  // first element:  cutoff value
-                  // second element: alias
+  std::vector<std::pair<RealType, result_type> > table_; // first element:  cutoff value
+                                                         // second element: alias
 };
 
 
 //
-// optimized version for N=2
+// optimized integer-based version of Walker algorithm
 //
 
-template<class IntType = int, class RealType = double>
-class random_choice_2
-{
+template<class IntType = unsigned int, class RealType = double>
+class random_choice_walker_i {
+public:
+  typedef IntType input_type;
+  typedef IntType result_type;
+
+  random_choice_walker_i() {}
+  template<class CONT>
+  random_choice_walker_i(const CONT& weights) { init(weights); }
+
+  template<class Engine>
+  result_type operator()(Engine& eng) const {
+    result_type x = eng() >> bits_;
+    return (eng() <= cutoff(x)) ? x : alias(x);
+  }
+
+  template<class CONT>
+  void init(const CONT& weights) {
+#ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
+    BOOST_STATIC_ASSERT(std::numeric_limits<IntType>::is_integer);
+    BOOST_STATIC_ASSERT(std::numeric_limits<IntType>::digits == 32);
+    BOOST_STATIC_ASSERT(!std::numeric_limits<IntType>::is_signed);
+    BOOST_STATIC_ASSERT(!std::numeric_limits<RealType>::is_integer);
+#else
+    if (std::numeric_limits<IntType>::min() != 0 ||
+        std::numeric_limits<IntType>::max() != 4294967295ul)
+      boost::throw_exception(std::range_error("random_choice_walker_i::init"));
+#endif
+    if (weights.size() == 0)
+      boost::throw_exception(std::range_error("random_choice_walker_i::init"));
+    IntType n = 2;
+    bits_ = 31;
+    while (n < weights.size()) {
+      n <<= 1;
+      bits_ -= 1;
+    }
+
+    double norm = 0;
+    for (result_type i = 0; i < weights.size(); ++i) norm += weights[i];
+    norm = n / norm;
+
+    std::vector<double> w(n, 0);
+    std::copy(weights.begin(), weights.end(), w.begin());
+
+    // Initialize arrays.  We will reorder the elements in `array', so
+    // that all the negative elements precede the positive ones.
+    resize(n);
+    std::vector<std::pair<RealType, result_type> > array(n);
+    typename std::vector<std::pair<RealType, result_type> >::iterator
+      neg_p = array.begin();
+    typename std::vector<std::pair<RealType, result_type> >::iterator
+      pos_p = array.end();
+    for (result_type i = 0; i < n; ++i) {
+      RealType b = norm * w[i] - RealType(1.);
+      if (b < RealType(0.)) {
+        *neg_p = std::make_pair(b, i);
+        ++neg_p;
+      } else {
+        --pos_p;
+        *pos_p = std::make_pair(b, i);
+      }
+    }
+
+    // Note: now `pos_p' is pointing the first non-negative element in
+    // the array.
+
+    // Assign alias and cutoff values
+    const double nm = std::numeric_limits<IntType>::max();
+    for (neg_p = array.begin(); neg_p != array.end(); ++neg_p) {
+      if (pos_p != array.end()) {
+        cutoff(neg_p->second) = nm * (RealType(1.) + neg_p->first);
+        alias(neg_p->second) = pos_p->second;
+        pos_p->first += neg_p->first;
+        if (pos_p->first <= RealType(0.)) ++pos_p;
+      } else {
+        cutoff(neg_p->second) = nm;
+        alias(neg_p->second) = 0; // never referred
+      }
+    }
+  }
+
+  template<class CONT>
+  bool check(const CONT& weights, RealType tol = 1.0e-10) const {
+    bool r = true;
+    tol *= table_.size();
+
+    RealType norm = RealType(0);
+    BOOST_FOREACH(RealType w, weights) norm += w;
+    norm = weights.size() / norm;
+
+    const double nm = RealType(1) / std::numeric_limits<IntType>::max();
+    for (result_type i = 0; i < table_.size(); ++i) {
+      RealType p = nm * cutoff(i);
+      for (result_type j = 0; j < table_.size(); ++j)
+        if (alias(j) == i) p += 1 - nm * cutoff(j);
+      if (std::abs(p - norm * weights[i]) > tol) r = false;
+    }
+    return r;
+  }
+
+protected:
+  void resize(IntType n) { table_.resize(n); }
+
+  IntType& cutoff(IntType i) { return table_[i].first; }
+  IntType cutoff(IntType i) const { return table_[i].first; }
+
+  IntType& alias(IntType i) { return table_[i].second; }
+  IntType alias(IntType i) const { return table_[i].second; }
+
+private:
+  IntType bits_; // number of bits to be disposed
+  std::vector<std::pair<IntType, IntType> > table_;
+};
+
+
+//
+// random_choice_bsearch (O(log N) algorithm using binary search algorithm)
+//
+
+template<class IntType = unsigned int, class RealType = double>
+class random_choice_bsearch {
 public:
   typedef RealType input_type;
   typedef IntType result_type;
 
-#ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
-  BOOST_STATIC_ASSERT(std::numeric_limits<IntType>::is_integer);
-  BOOST_STATIC_ASSERT(!std::numeric_limits<RealType>::is_integer);
-#endif
-
-  random_choice_2() : prob_(0.5) {}
-  explicit random_choice_2(RealType w0, RealType w1) { init(w0, w1); }
+  random_choice_bsearch() : accum_(0) {}
   template<class CONT>
-  random_choice_2(const CONT& weights)
-  {
-    if (weights.size() >= 2)
-      init(weights[0], weights[1]);
-    else
-      init(0, 0);
-  }
-  // compiler-generated copy ctor and assignment operator are fine
+  random_choice_bsearch(CONT const& weights) { init(weights); }
 
-  template<class Engine>
-  result_type operator()(Engine& eng) const
-  {
-    return (eng() < prob_) ? 0 : 1;
-  }
-
-protected:
-  void init(RealType w0, RealType w1)
-  {
+  template<class CONT>
+  void init(CONT const& weights) {
 #ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
     BOOST_STATIC_ASSERT(std::numeric_limits<IntType>::is_integer);
     BOOST_STATIC_ASSERT(!std::numeric_limits<RealType>::is_integer);
 #endif
-    if (w0 < 0) w0 = 0;
-    if (w1 < 0) w1 = 0;
-    if (w0 + w1 > 0)
-      prob_ = w0 / (w0 + w1);
-    else
-      prob_ = 0.5;
+    if (weights.size() == 0)
+      boost::throw_exception(std::invalid_argument("random_choice_bsearch::init"));
+    RealType norm = 0;
+    BOOST_FOREACH(RealType w, weights) {
+      if (w < RealType(0))
+        boost::throw_exception(std::invalid_argument("random_choice_bsearch::init"));
+      norm += w;
+    }
+    if (norm <= RealType(0))
+      boost::throw_exception(std::invalid_argument("random_choice_bsearch::init"));
+    accum_.resize(0);
+    double a = 0;
+    BOOST_FOREACH(RealType w, weights) {
+      a += w / norm;
+      accum_.push_back(a);
+    }
+  }
+
+  template<class Engine>
+  result_type operator()(Engine& eng) const {
+    double p = eng();
+    int first = 0;
+    int last = accum_.size();  // pointing to the next of the last element
+    int current = first + ((last - first) >> 1);
+    if (last - first == 0) {
+      return first;
+    } else if (last - first == 1) {
+      if (p < accum_[first])
+        return first;
+      else
+        return first + 1;
+    }
+    while (true) {
+      if (last - first > 3) {
+        if (p < accum_[current]) {
+          last = current;
+          current = first + ((current - first) >> 1);
+        } else {
+          first = current;
+          current += ((last - current) >> 1);
+        }
+      } else if (last - first == 3) {
+        if (p < accum_[first])
+          return first;
+        else if  (p < accum_[first + 1])
+          return first + 1;
+        else if  (p < accum_[first + 2])
+          return first + 2;
+        else
+          return first + 3;
+      } else {
+        if (last - first == 2) {
+          if (p < accum_[first])
+            return first;
+          else if  (p < accum_[first + 1])
+            return first + 1;
+          else
+            return first + 2;
+        }
+      }
+    }
   }
 
 private:
-  RealType prob_; // probability of choosing 0
+  std::vector<RealType> accum_;
 };
+
+
+//
+// random_choice_lsearch (O(N) algorithm with naive linear search)
+//
+
+template<class IntType = unsigned int, class RealType = double>
+class random_choice_lsearch {
+public:
+  typedef RealType input_type;
+  typedef IntType result_type;
+
+  random_choice_lsearch() : accum_(0) {}
+  template<class CONT>
+  random_choice_lsearch(CONT const& weights) { init(weights); }
+
+  template<class CONT>
+  void init(CONT const& weights) {
+#ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
+    BOOST_STATIC_ASSERT(std::numeric_limits<IntType>::is_integer);
+    BOOST_STATIC_ASSERT(!std::numeric_limits<RealType>::is_integer);
+#endif
+    if (weights.size() == 0)
+      boost::throw_exception(std::invalid_argument("random_choice_lsearch::init"));
+    double norm = 0;
+    BOOST_FOREACH(RealType w, weights) {
+      if (w < RealType(0))
+        boost::throw_exception(std::invalid_argument("random_choice_lsearch::init"));
+      norm += w;
+    }
+    if (norm <= RealType(0))
+      boost::throw_exception(std::invalid_argument("random_choice_lsearch::init"));
+    accum_.resize(0);
+    double a = 0;
+    BOOST_FOREACH(RealType w, weights) {
+      a += w / norm;
+      accum_.push_back(a);
+    }
+  }
+
+  template<class Engine>
+  result_type operator()(Engine& eng) const {
+    RealType x = eng();
+    for (result_type r = 0; r < accum_.size(); ++r) if (accum_[r] > x) return r;
+    return result_type(0); // never reached
+  }
+
+private:
+  std::vector<RealType> accum_;
+};
+
+typedef random_choice_walker_i<unsigned int, double> random_choice;
 
 } // end namespace looper
 

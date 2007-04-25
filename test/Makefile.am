@@ -11,6 +11,7 @@ dist_noinst_DATA = \
 	model_parameter.ip model_parameter.op \
 	parse_vector.ip parse_vector.op \
 	permutation.op \
+	poisson_distribution.ip poisson_distribution.op \
 	postorder.ip postorder.op \
 	random_choice.op \
 	range.ip range.op \
@@ -37,6 +38,7 @@ check_PROGRAMS = \
 	model_parameter \
 	parse_vector \
 	permutation \
+	poisson_distribution \
 	postorder \
 	random_choice \
 	range \
@@ -62,6 +64,7 @@ llsp_SOURCES = llsp.C
 model_parameter_SOURCES = model_parameter.C
 parse_vector_SOURCES = parse_vector.C
 permutation_SOURCES = permutation.C
+poisson_distribution_SOURCES = poisson_distribution.C
 postorder_SOURCES = postorder.C
 random_choice_SOURCES = random_choice.C
 range_SOURCES = range.C

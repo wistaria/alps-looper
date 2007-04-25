@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2004 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -21,11 +21,6 @@
 * DEALINGS IN THE SOFTWARE.
 *
 *****************************************************************************/
-
-// Define the following macro if you want the original initialization
-// routine of O(N^2).
-
-/* #define USE_INIT_WALKER1977 */
 
 #include <looper/random_choice.h>
 #include <cmath>
@@ -46,54 +41,67 @@ try {
   std::vector<double> weights(n);
 
   // random number generator
-  boost::variate_generator<boost::mt19937, boost::uniform_real<> >
-    rng(boost::mt19937(29411), boost::uniform_real<>());
+  boost::mt19937 eng(29411);
+  boost::variate_generator<boost::mt19937&, boost::uniform_real<> >
+    rng(eng, boost::uniform_real<>());
 
   // generate weights
   std::generate(weights.begin(), weights.end(), rng);
   double tw = 0;
   for (unsigned int i = 0; i < n; ++i) tw += weights[i];
 
-  // random_choice
-  looper::random_choice<> rc(weights);
+  // double-base version
+  {
+    // random_choice
+    boost::variate_generator<boost::mt19937&, looper::random_choice_walker_d<> >
+      rc(eng, looper::random_choice_walker_d<>(weights));
 
-  // check
-  if (rc.check(weights)) {
-    std::cout << "check succeeded\n";
-  } else {
-    std::cout << "check failed\n";
-    std::exit(-1);
+    // check
+    if (rc.distribution().check(weights)) {
+      std::cout << "check succeeded\n";
+    } else {
+      std::cout << "check failed\n";
+      std::exit(-1);
+    }
+
+    std::vector<double> accum(n, 0);
+    for (unsigned int t = 0; t < samples; ++t) ++accum[rc()];
+
+    std::cout << "bin\tweight\t\tresult\t\tdiff\t\tsigma\t\tdiff/sigma\n";
+    for (unsigned int i = 0; i < n; ++i) {
+      double diff = std::abs((weights[i] / tw) - (accum[i] / samples));
+      double sigma = std::sqrt(accum[i]) / samples;
+      std::cout << i << "\t" << (weights[i] / tw) << "    \t"
+                << (accum[i] / samples) << "    \t" << diff << "    \t"
+                << sigma << "    \t" << (diff / sigma) << std::endl;
+    }
   }
 
-  std::vector<double> accum(n, 0);
-  for (unsigned int t = 0; t < samples; ++t) ++accum[rc(rng)];
+  // integer-base version
+  {
+    // random_choice
+    boost::variate_generator<boost::mt19937&, looper::random_choice_walker_i<> >
+      rc(eng, looper::random_choice_walker_i<> (weights));
 
-  std::cout << "bin\tweight\t\tresult\t\tdiff\t\tsigma\t\tdiff/sigma\n";
-  for (unsigned int i = 0; i < n; ++i) {
-    double diff = std::abs((weights[i] / tw) - (accum[i] / samples));
-    double sigma = std::sqrt(accum[i]) / samples;
-    std::cout << i << "\t" << (weights[i] / tw) << "    \t"
-              << (accum[i] / samples) << "    \t" << diff << "    \t"
-              << sigma << "    \t" << (diff / sigma) << std::endl;
-  }
+    // check
+    if (rc.distribution().check(weights)) {
+      std::cout << "check succeeded\n";
+    } else {
+      std::cout << "check failed\n";
+      std::exit(-1);
+    }
 
-  // random_choice_2
-  std::vector<double> weights2(2);
-  std::generate(weights2.begin(), weights2.end(), rng);
-  looper::random_choice_2<> rc2(weights2[0], weights2[1]);
-  tw = 0;
-  for (unsigned int i = 0; i < 2; ++i) tw += weights2[i];
+    std::vector<double> accum(n, 0);
+    for (unsigned int t = 0; t < samples; ++t) ++accum[rc()];
 
-  std::vector<double> accum2(2, 0);
-  for (unsigned int t = 0; t < samples; ++t) ++accum2[rc2(rng)];
-
-  std::cout << "bin\tweight\t\tresult\t\tdiff\t\tsigma\t\tdiff/sigma\n";
-  for (unsigned int i = 0; i < 2; ++i) {
-    double diff = std::abs((weights2[i] / tw) - (accum2[i] / samples));
-    double sigma = std::sqrt(accum2[i]) / samples;
-    std::cout << i << "\t" << (weights2[i] / tw) << "    \t"
-              << (accum2[i] / samples) << "    \t" << diff << "    \t"
-              << sigma << "    \t" << (diff / sigma) << std::endl;
+    std::cout << "bin\tweight\t\tresult\t\tdiff\t\tsigma\t\tdiff/sigma\n";
+    for (unsigned int i = 0; i < n; ++i) {
+      double diff = std::abs((weights[i] / tw) - (accum[i] / samples));
+      double sigma = std::sqrt(accum[i]) / samples;
+      std::cout << i << "\t" << (weights[i] / tw) << "    \t"
+                << (accum[i] / samples) << "    \t" << diff << "    \t"
+                << sigma << "    \t" << (diff / sigma) << std::endl;
+    }
   }
 
 #ifndef BOOST_NO_EXCEPTIONS

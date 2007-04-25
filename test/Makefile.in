@@ -41,10 +41,11 @@ check_PROGRAMS = alternating_tensor$(EXEEXT) bond_matrix$(EXEEXT) \
 	filtered_graph$(EXEEXT) find_bridge$(EXEEXT) \
 	generate_01$(EXEEXT) gesvd$(EXEEXT) lattice$(EXEEXT) \
 	llsp$(EXEEXT) model_parameter$(EXEEXT) parse_vector$(EXEEXT) \
-	permutation$(EXEEXT) postorder$(EXEEXT) random_choice$(EXEEXT) \
-	range$(EXEEXT) sign$(EXEEXT) site_matrix$(EXEEXT) \
-	spinmodel_helper$(EXEEXT) syev$(EXEEXT) temperature$(EXEEXT) \
-	union_find$(EXEEXT) virtual_lattice$(EXEEXT) weight$(EXEEXT)
+	permutation$(EXEEXT) poisson_distribution$(EXEEXT) \
+	postorder$(EXEEXT) random_choice$(EXEEXT) range$(EXEEXT) \
+	sign$(EXEEXT) site_matrix$(EXEEXT) spinmodel_helper$(EXEEXT) \
+	syev$(EXEEXT) temperature$(EXEEXT) union_find$(EXEEXT) \
+	virtual_lattice$(EXEEXT) weight$(EXEEXT)
 subdir = test
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
@@ -106,6 +107,10 @@ am_permutation_OBJECTS = permutation.$(OBJEXT)
 permutation_OBJECTS = $(am_permutation_OBJECTS)
 permutation_LDADD = $(LDADD)
 permutation_DEPENDENCIES =
+am_poisson_distribution_OBJECTS = poisson_distribution.$(OBJEXT)
+poisson_distribution_OBJECTS = $(am_poisson_distribution_OBJECTS)
+poisson_distribution_LDADD = $(LDADD)
+poisson_distribution_DEPENDENCIES =
 am_postorder_OBJECTS = postorder.$(OBJEXT)
 postorder_OBJECTS = $(am_postorder_OBJECTS)
 postorder_LDADD = $(LDADD)
@@ -166,10 +171,10 @@ SOURCES = $(alternating_tensor_SOURCES) $(bond_matrix_SOURCES) \
 	$(generate_01_SOURCES) $(gesvd_SOURCES) $(lattice_SOURCES) \
 	$(llsp_SOURCES) $(model_parameter_SOURCES) \
 	$(parse_vector_SOURCES) $(permutation_SOURCES) \
-	$(postorder_SOURCES) $(random_choice_SOURCES) $(range_SOURCES) \
-	$(sign_SOURCES) $(site_matrix_SOURCES) \
-	$(spinmodel_helper_SOURCES) $(syev_SOURCES) \
-	$(temperature_SOURCES) $(union_find_SOURCES) \
+	$(poisson_distribution_SOURCES) $(postorder_SOURCES) \
+	$(random_choice_SOURCES) $(range_SOURCES) $(sign_SOURCES) \
+	$(site_matrix_SOURCES) $(spinmodel_helper_SOURCES) \
+	$(syev_SOURCES) $(temperature_SOURCES) $(union_find_SOURCES) \
 	$(virtual_lattice_SOURCES) $(weight_SOURCES)
 DIST_SOURCES = $(alternating_tensor_SOURCES) $(bond_matrix_SOURCES) \
 	$(compatibility_SOURCES) $(edge_type_SOURCES) \
@@ -177,10 +182,10 @@ DIST_SOURCES = $(alternating_tensor_SOURCES) $(bond_matrix_SOURCES) \
 	$(generate_01_SOURCES) $(gesvd_SOURCES) $(lattice_SOURCES) \
 	$(llsp_SOURCES) $(model_parameter_SOURCES) \
 	$(parse_vector_SOURCES) $(permutation_SOURCES) \
-	$(postorder_SOURCES) $(random_choice_SOURCES) $(range_SOURCES) \
-	$(sign_SOURCES) $(site_matrix_SOURCES) \
-	$(spinmodel_helper_SOURCES) $(syev_SOURCES) \
-	$(temperature_SOURCES) $(union_find_SOURCES) \
+	$(poisson_distribution_SOURCES) $(postorder_SOURCES) \
+	$(random_choice_SOURCES) $(range_SOURCES) $(sign_SOURCES) \
+	$(site_matrix_SOURCES) $(spinmodel_helper_SOURCES) \
+	$(syev_SOURCES) $(temperature_SOURCES) $(union_find_SOURCES) \
 	$(virtual_lattice_SOURCES) $(weight_SOURCES)
 DATA = $(dist_noinst_DATA)
 ETAGS = etags
@@ -338,6 +343,7 @@ dist_noinst_DATA = \
 	model_parameter.ip model_parameter.op \
 	parse_vector.ip parse_vector.op \
 	permutation.op \
+	poisson_distribution.ip poisson_distribution.op \
 	postorder.ip postorder.op \
 	random_choice.op \
 	range.ip range.op \
@@ -363,6 +369,7 @@ llsp_SOURCES = llsp.C
 model_parameter_SOURCES = model_parameter.C
 parse_vector_SOURCES = parse_vector.C
 permutation_SOURCES = permutation.C
+poisson_distribution_SOURCES = poisson_distribution.C
 postorder_SOURCES = postorder.C
 random_choice_SOURCES = random_choice.C
 range_SOURCES = range.C
@@ -455,6 +462,9 @@ parse_vector$(EXEEXT): $(parse_vector_OBJECTS) $(parse_vector_DEPENDENCIES)
 permutation$(EXEEXT): $(permutation_OBJECTS) $(permutation_DEPENDENCIES) 
 	@rm -f permutation$(EXEEXT)
 	$(CXXLINK) $(permutation_LDFLAGS) $(permutation_OBJECTS) $(permutation_LDADD) $(LIBS)
+poisson_distribution$(EXEEXT): $(poisson_distribution_OBJECTS) $(poisson_distribution_DEPENDENCIES) 
+	@rm -f poisson_distribution$(EXEEXT)
+	$(CXXLINK) $(poisson_distribution_LDFLAGS) $(poisson_distribution_OBJECTS) $(poisson_distribution_LDADD) $(LIBS)
 postorder$(EXEEXT): $(postorder_OBJECTS) $(postorder_DEPENDENCIES) 
 	@rm -f postorder$(EXEEXT)
 	$(CXXLINK) $(postorder_LDFLAGS) $(postorder_OBJECTS) $(postorder_LDADD) $(LIBS)
@@ -508,6 +518,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/model_parameter.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parse_vector.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/permutation.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/poisson_distribution.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/postorder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/random_choice.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/range.Po@am__quote@
