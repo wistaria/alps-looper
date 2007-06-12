@@ -126,6 +126,46 @@ gauge(alps::graph_helper<G> const& g, typename graph_traits<G>::site_descriptor 
 
 
 //
+// helper class: linear_distance_helper
+//
+// for calculating 'real' linear distance between vertices
+
+template<typename G>
+class linear_distance_helper {
+public:
+  typedef typename alps::graph_helper<G>::vector_type vector_type;
+  typedef typename alps::graph_helper<G>::site_descriptor site_descriptor;
+
+  linear_distance_helper(alps::graph_helper<G> const& lattice) : lattice_(lattice), span_(lattice.dimension(), 0) {
+    int d = 0;
+    BOOST_FOREACH(vector_type const& vec, lattice.basis_vectors()) {
+      int ext = lattice.lattice().extent(d);
+      for (int i = 0; i < lattice.dimension(); ++i) {
+        span_[i] += ext * vec[i];
+      }
+      ++d;
+    }
+    for (int i = 0; i < lattice.dimension(); ++i) span_[i] = std::abs(span_[i]);
+  }
+
+  double distance(site_descriptor const& s, site_descriptor const& t) const {
+    vector_type cs = lattice_.coordinate(s);
+    vector_type ct = lattice_.coordinate(t);
+    double distance = 0;
+    for (int i = 0; i < lattice_.dimension(); ++i) {
+      double x = std::abs(ct[i] - cs[i]);
+      distance += std::pow(std::min(x, span_[i] - x), 2.);
+    }
+    return std::sqrt(distance);
+  }
+
+private:
+  alps::graph_helper<G> const& lattice_;
+  vector_type span_;
+};
+
+
+//
 // class template virtual_mapping
 //
 // for describing a mapping from a real site/bond to virtual ones

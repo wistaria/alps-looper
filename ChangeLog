@@ -1,3 +1,8 @@
+2007-05-30  Synge Todo <wistaria@comp-phys.org>
+
+	* Added linear_distance_helper in looper/lattice.h for calculating
+	the 'real' linear distance between the vertices
+
 2007-03-23  Synge Todo <wistaria@comp-phys.org>
 
 	* Added pre_evaluator.
