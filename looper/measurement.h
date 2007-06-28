@@ -293,8 +293,10 @@ struct accumulator<ESTIMATOR, FRAGMENT, boost::mpl::true_> {
   accumulator(std::vector<estimate_t>& es, int nc, lattice_t const& lt, estimator_t const& emt,
     std::vector<fragment_t> const& fr) :
     estimates(es), lat(lt), estimator(emt), fragments(fr) {
-    estimates.resize(0);
-    estimates.resize(nc, get_estimate(emt));
+    estimates.resize(nc);
+    for (int i = 0; i < nc; ++i) emt.init_estimate(estimates[i]);
+    // estimates.resize(0);
+    // estimates.resize(nc, get_estimate(emt));
   }
   void start_s(int p, time_pt t, int s, int c) { estimates[fragments[p].id].start_s(lat, t, s, c); }
   void start_b(int p0, int p1, time_pt t, int b, int s0, int s1, int c0, int c1) {

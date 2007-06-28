@@ -225,8 +225,10 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
     accum(estimates, nc, lattice, estimator, fragments);
   for (unsigned int s = 0; s < nvs; ++s) {
     weight.at_bot(s, time_t(0), s, spins[s]);
-    weight.at_top(s, time_t(1), s, spins[s]);
     accum.at_bot(s, time_t(0), s, spins[s]);
+  }
+  for (unsigned int s = 0; s < nvs; ++s) {
+    weight.at_top(s, time_t(1), s, spins[s]);
     accum.at_top(s, time_t(1), s, spins[s]);
   }
 

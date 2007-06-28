@@ -349,6 +349,10 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& /* obs */) {
     weight(clusters, fragments, model.field(), model.bond_sign(), model.site_sign());
   looper::accumulator<estimator_t, cluster_fragment_t, IMPROVE>
     accum(estimates, nc, lattice, estimator, fragments);
+  for (unsigned int s = 0; s < nvs; ++s) {
+    weight.at_bot(s, 0, s, spins_c[s]);
+    accum.at_bot(s, 0, s, spins_c[s]);
+  }
   double t = 0;
   BOOST_FOREACH(local_operator_t& op, operators) {
     if (op.is_bond()) {
@@ -375,9 +379,7 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& /* obs */) {
     ++t;
   }
   for (unsigned int s = 0; s < nvs; ++s) {
-    weight.at_bot(s,          0,   s, spins[s]);
     weight.at_top(current[s], nop, s, spins_c[s]);
-    accum.at_bot(s,          0,   s, spins[s]);
     accum.at_top(current[s], nop, s, spins_c[s]);
   }
 

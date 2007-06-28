@@ -12,3 +12,8 @@ MEASURE[Site Type Susceptibility] = 1
 
 {}
 { local_S = 1 }
+
+DISABLE_IMPROVED_ESTIMATOR = 1
+
+{}
+{ local_S = 1 }

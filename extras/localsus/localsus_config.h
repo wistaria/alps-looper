@@ -47,8 +47,7 @@ struct loop_config
 
   // measurements
   typedef looper::measurement_set<
-    looper::local_susceptibility,
-    looper::site_type_susceptibility
+    looper::local_susceptibility
   > measurement_set;
 };
 
