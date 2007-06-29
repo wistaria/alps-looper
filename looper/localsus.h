@@ -423,8 +423,7 @@ struct local_susceptibility {
               tsmag[p0] += gauge[s0] * (1-2*spins_c[s0]);
               tsmag[p1] += gauge[s1] * (1-2*spins_c[s1]);
               umag += (1-2*spins_c[s0]) + (1-2*spins_c[s1]);
-              smag += (gauge[s0] * (1-2*spins_c[s0])) +
-                (gauge[s1] * (1-2*spins_c[s1]));
+              smag += (gauge[s0] * (1-2*spins_c[s0])) + (gauge[s1] * (1-2*spins_c[s1]));
               if (p0 == p1) {
                 tumag_a[p0] -= t * tumag[p0];
                 tsmag_a[p0] -= t * tsmag[p0];
