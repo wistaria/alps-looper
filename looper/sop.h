@@ -139,8 +139,6 @@ struct string_order_parameter {
       m[label] << sign * sum / (num_sites(lat.rg()) / 2);
     }
   };
-
-  typedef dumb::evaluator evaluator;
 };
 
 } // end namespace looper
