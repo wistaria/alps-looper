@@ -64,7 +64,7 @@ struct local_susceptibility {
     mutable std::vector<double> ssize;
     mutable std::vector<double> smag;
 
-    std::valarray<double> tlmag, tlmag_a; // temporary
+    std::valarray<double> tlumag, tlumag_a, tlsmag, tlsmag_a; // temporary
     std::valarray<double> tumag, tumag_a, tsmag, tsmag_a; // temporary
 
     template<typename M>
@@ -99,8 +99,10 @@ struct local_susceptibility {
       smag.resize(num_sites(lat.vg()));
 
       if (measure_local) {
-        tlmag.resize(num_sites(lat.rg()));
-        tlmag_a.resize(num_sites(lat.rg()));
+        tlumag.resize(num_sites(lat.rg()));
+        tlumag_a.resize(num_sites(lat.rg()));
+        tlsmag.resize(num_sites(lat.rg()));
+        tlsmag_a.resize(num_sites(lat.rg()));
 
         add_vector_obs(m, "Local Magnetization", is_signed);
         add_vector_obs(m, "Local Susceptibility", is_signed);
@@ -216,27 +218,23 @@ struct local_susceptibility {
       if (measure_local) {
         m["Local Magnetization"] << std::valarray<double>(0., nrs);
 
-        tlmag = 0;
-        tlmag_a = 0;
+        tlumag = 0;
+        tlumag_a = 0;
+        tlsmag = 0;
+        tlsmag_a = 0;
         BOOST_FOREACH(int s, sites(lat.vg())) {
           int r = real_site[s];
-          tlmag[r] += umag[vs2c[s]] * (0.5 - spins[s]);
-          tlmag_a[r] += usize[vs2c[s]] * 0.5;
+          tlumag[r] += umag[vs2c[s]] * (0.5 - spins[s]);
+          tlumag_a[r] += usize[vs2c[s]] * 0.5;
+          tlsmag[r] += gauge[s] * smag[vs2c[s]] * (0.5 - spins[s]);
+          tlsmag_a[r] += gauge[s] * ssize[vs2c[s]] * 0.5;
         }
-        m["Local Susceptibility"] << std::valarray<double>(sign * beta * tlmag);
-        m["Generalized Local Susceptibility"] << std::valarray<double>(sign * beta * tlmag_a);
-
+        m["Local Susceptibility"] << std::valarray<double>(sign * beta * tlumag);
+        m["Generalized Local Susceptibility"] << std::valarray<double>(sign * beta * tlumag_a);
         if (is_bipartite(lat)) {
-          tlmag = 0;
-          tlmag_a = 0;
-          BOOST_FOREACH(int s, sites(lat.vg())) {
-            int r = real_site[s];
-            tlmag[r] += gauge[s] * smag[vs2c[s]] * (0.5 - spins[s]);
-            tlmag_a[r] += gauge[s] * ssize[vs2c[s]] * 0.5;
-          }
-          m["Staggered Local Susceptibility"] << std::valarray<double>(sign * beta * tlmag);
+          m["Staggered Local Susceptibility"] << std::valarray<double>(sign * beta * tlsmag);
           m["Generalized Staggered Local Susceptibility"]
-            << std::valarray<double>(sign * beta * tlmag_a);
+            << std::valarray<double>(sign * beta * tlsmag_a);
         }
       }
 
@@ -245,23 +243,19 @@ struct local_susceptibility {
 
         tumag = 0;
         tumag_a = 0;
+        tsmag = 0;
+        tsmag_a = 0;
         BOOST_FOREACH(int s, sites(lat.vg())) {
           int p = get(site_type_t(), lat.rg(), real_site[s]);
           tumag[p] += umag[vs2c[s]] * (0.5 - spins[s]);
           tumag_a[p] += usize[vs2c[s]] * 0.5;
+          tsmag[p] += gauge[s] * smag[vs2c[s]] * (0.5 - spins[s]);
+          tsmag_a[p] += gauge[s] * ssize[vs2c[s]] * 0.5;
         }
         m["Site Type Susceptibility"] << std::valarray<double>(sign * beta * tumag / type_nrs);
         m["Generalized Site Type Susceptibility"]
           << std::valarray<double>(sign * beta * tumag_a / type_nrs);
-
         if (is_bipartite(lat)) {
-          tsmag = 0;
-          tsmag_a = 0;
-          BOOST_FOREACH(int s, sites(lat.vg())) {
-            int p = get(site_type_t(), lat.rg(), real_site[s]);
-            tsmag[p] += gauge[s] * smag[vs2c[s]] * (0.5 - spins[s]);
-            tsmag_a[p] += gauge[s] * ssize[vs2c[s]] * 0.5;
-          }
           m["Staggered Site Type Susceptibility"]
             << std::valarray<double>(sign * beta * tsmag / type_nrs);
           m["Generalized Staggered Site Type Susceptibility"]
@@ -282,17 +276,20 @@ struct local_susceptibility {
       int nrs = num_vertices(lat.rg());
 
       if (measure_local) {
-        tlmag = 0;
+        tlumag = 0;
+        tlsmag = 0;
         double umag = 0;
         double smag = 0;
         BOOST_FOREACH(int s, sites(lat.vg())) {
           int r = real_site[s];
-          tlmag[r] += 0.5-spins[s];
+          tlumag[r] += 0.5-spins[s];
+          tlsmag[r] += gauge(s) * (0.5-spins[s]);
           umag += 0.5-spins[s];
           smag += gauge[s] * (0.5-spins[s]);
         }
 
-        tlmag_a = 0; /* 0 * tlmag; */
+        tlumag_a = 0; /* 0 * tlumag; */
+        tlsmag_a = 0; /* 0 * tlsmag; */
         double umag_a = 0; /* 0 * umag; */
         double smag_a = 0; /* 0 * smag; */
         std::copy(spins.begin(), spins.end(), spins_c.begin());
@@ -303,14 +300,17 @@ struct local_susceptibility {
             if (op.is_site()) {
               int s = op.pos();
               int r = real_site[s];
-              tlmag_a[r] += t * tlmag[r];
+              tlumag_a[r] += t * tlumag[r];
+              tlsmag_a[r] += t * tlsmag[r];
               umag_a += t * umag;
               smag_a += t * smag;
               spins_c[s] ^= 1;
-              tlmag[r] += 1-2*spins_c[s];
+              tlumag[r] += 1-2*spins_c[s];
+              tlsmag[r] += gauge[s] * (1-2*spins_c[s]);
               umag += 1-2*spins_c[s];
               smag += gauge[s] * (1-2*spins_c[s]);
-              tlmag_a[r] -= t * tlmag[r];
+              tlumag_a[r] -= t * tlumag[r];
+              tlsmag_a[r] -= t * tlsmag[r];
               umag_a -= t * umag;
               smag_a -= t * smag;
             } else {
@@ -318,38 +318,47 @@ struct local_susceptibility {
               int s1 = target(op.pos(), lat.vg());
               int r0 = real_site[s0];
               int r1 = real_site[s1];
-              tlmag_a[r0] += t * tlmag[r0];
-              tlmag_a[r1] += t * tlmag[r1];
+              tlumag_a[r0] += t * tlumag[r0];
+              tlumag_a[r1] += t * tlumag[r1];
+              tlsmag_a[r0] += t * tlsmag[r0];
+              tlsmag_a[r1] += t * tlsmag[r1];
               umag_a += t * umag;
               smag_a += t * smag;
               spins_c[s0] ^= 1;
               spins_c[s1] ^= 1;
-              tlmag[r0] += 1-2*spins_c[s0];
-              tlmag[r1] += 1-2*spins_c[s1];
+              tlumag[r0] += 1-2*spins_c[s0];
+              tlumag[r1] += 1-2*spins_c[s1];
+              tlsmag[r0] += gauge[s0] * (1-2*spins_c[s0]);
+              tlsmag[r1] += gauge[s1] * (1-2*spins_c[s1]);
               umag += (1-2*spins_c[s0]) + (1-2*spins_c[s1]);
               smag += (gauge[s0] * (1-2*spins_c[s0])) + (gauge[s1] * (1-2*spins_c[s1]));
-              tlmag_a[r0] -= t * tlmag[r0];
-              tlmag_a[r1] -= t * tlmag[r1];
+              tlumag_a[r0] -= t * tlumag[r0];
+              tlumag_a[r1] -= t * tlumag[r1];
+              tlsmag_a[r0] -= t * tlsmag[r0];
+              tlsmag_a[r1] -= t * tlsmag[r1];
               umag_a -= t * umag;
               smag_a -= t * smag;
             }
           }
           proceed(typename is_sse<mc_type>::type(), t);
         }
-        for (int r = 0; r < nrs; ++r) tlmag_a[r] += tlmag[r];
+        for (int r = 0; r < nrs; ++r) {
+          tlumag_a[r] += tlumag[r];
+          tlsmag_a[r] += tlsmag[r];
+        }
         umag_a += umag;
         smag_a += smag;
 
-        m["Local Magnetization"] << std::valarray<double>(sign * tlmag_a);
+        m["Local Magnetization"] << std::valarray<double>(sign * tlumag_a);
         m["Local Field Susceptibility"]
-          << std::valarray<double>(sign * beta * power2(tlmag_a));
+          << std::valarray<double>(sign * beta * power2(tlumag_a));
 
         if (!improved) {
           m["Local Susceptibility"]
-            << std::valarray<double>(sign * beta * umag_a * tlmag_a);
+            << std::valarray<double>(sign * beta * umag_a * tlumag_a);
           if (is_bipartite(lat))
             m["Staggered Local Susceptibility"]
-              << std::valarray<double>(sign * beta * smag_a * tlmag_a);
+              << std::valarray<double>(sign * beta * smag_a * tlsmag_a);
         }
       }
 
