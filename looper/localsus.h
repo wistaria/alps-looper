@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2006-2007 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -63,10 +63,10 @@ struct local_susceptibility {
     mutable std::vector<double> umag;
     mutable std::vector<double> ssize;
     mutable std::vector<double> smag;
-    
+
     std::valarray<double> tlmag, tlmag_a; // temporary
     std::valarray<double> tumag, tumag_a, tsmag, tsmag_a; // temporary
-    
+
     template<typename M>
     void initialize(M& m, alps::Parameters const& params, lattice_t const& lat,
       bool is_signed, bool use_improved_estimator) {
@@ -91,7 +91,7 @@ struct local_susceptibility {
       }
 
       next_id = 0;
-      
+
       vs2c.resize(num_sites(lat.vg()));
       usize.resize(num_sites(lat.vg()));
       umag.resize(num_sites(lat.vg()));
@@ -139,7 +139,7 @@ struct local_susceptibility {
         }
       }
     }
-    
+
     // improved estimator
 
     struct estimate {
@@ -197,8 +197,7 @@ struct local_susceptibility {
       est.init(gauge, &next_id, &vs2c, &usize, &umag, &ssize, &smag);
     }
 
-    typedef typename dumb::template estimator<MC, LAT, TIME>::collector
-      collector;
+    typedef typename dumb::template estimator<MC, LAT, TIME>::collector collector;
     void init_collector(collector const&) const {}
 
     template<typename M, typename OP, typename FRAGMENT>
@@ -206,64 +205,64 @@ struct local_susceptibility {
       std::vector<int> const& spins, std::vector<OP> const& /* operators */,
       std::vector<int> const& /* spins_c */, std::vector<FRAGMENT> const& /* fragments */,
       collector const& /* coll */) {
-      
+
       if (!typename looper::is_path_integral<mc_type>::type()) return;
       if (!measure) return;
       if (!improved) return;
 
       int nrs = num_vertices(lat.rg());
       next_id = 0;
-      
+
       if (measure_local) {
         m["Local Magnetization"] << std::valarray<double>(0., nrs);
-        
+
         tlmag = 0;
         tlmag_a = 0;
         BOOST_FOREACH(int s, sites(lat.vg())) {
           int r = real_site[s];
           tlmag[r] += umag[vs2c[s]] * (0.5 - spins[s]);
-          tlmag_a[r] += usize[vs2c[s]];
+          tlmag_a[r] += usize[vs2c[s]] * 0.5;
         }
         m["Local Susceptibility"] << std::valarray<double>(sign * beta * tlmag);
         m["Generalized Local Susceptibility"] << std::valarray<double>(sign * beta * tlmag_a);
-        
+
         if (is_bipartite(lat)) {
           tlmag = 0;
           tlmag_a = 0;
           BOOST_FOREACH(int s, sites(lat.vg())) {
             int r = real_site[s];
             tlmag[r] += gauge[s] * smag[vs2c[s]] * (0.5 - spins[s]);
-            tlmag_a[r] += gauge[s] * ssize[s];
+            tlmag_a[r] += gauge[s] * ssize[vs2c[s]] * 0.5;
           }
           m["Staggered Local Susceptibility"] << std::valarray<double>(sign * beta * tlmag);
           m["Generalized Staggered Local Susceptibility"]
             << std::valarray<double>(sign * beta * tlmag_a);
         }
       }
-      
+
       if (measure_type) {
         m["Number of Sites of Each Type"] << type_nrs;
-        
+
         tumag = 0;
         tumag_a = 0;
         BOOST_FOREACH(int s, sites(lat.vg())) {
           int p = get(site_type_t(), lat.rg(), real_site[s]);
           tumag[p] += umag[vs2c[s]] * (0.5 - spins[s]);
-          tumag_a[p] += usize[vs2c[s]];
+          tumag_a[p] += usize[vs2c[s]] * 0.5;
         }
         m["Site Type Susceptibility"] << std::valarray<double>(sign * beta * tumag / type_nrs);
         m["Generalized Site Type Susceptibility"]
           << std::valarray<double>(sign * beta * tumag_a / type_nrs);
-        
+
         if (is_bipartite(lat)) {
           tsmag = 0;
           tsmag_a = 0;
           BOOST_FOREACH(int s, sites(lat.vg())) {
             int p = get(site_type_t(), lat.rg(), real_site[s]);
             tsmag[p] += gauge[s] * smag[vs2c[s]] * (0.5 - spins[s]);
-            tsmag_a[p] += gauge[s] * ssize[s];
+            tsmag_a[p] += gauge[s] * ssize[vs2c[s]] * 0.5;
           }
-          m["Staggered Sitie Type Susceptibility"]
+          m["Staggered Site Type Susceptibility"]
             << std::valarray<double>(sign * beta * tsmag / type_nrs);
           m["Generalized Staggered Site Type Susceptibility"]
             << std::valarray<double>(sign * beta * tsmag_a / type_nrs);
@@ -292,8 +291,8 @@ struct local_susceptibility {
           umag += 0.5-spins[s];
           smag += gauge[s] * (0.5-spins[s]);
         }
-        
-        tlmag_a = 0; /* 0 * mag; */
+
+        tlmag_a = 0; /* 0 * tlmag; */
         double umag_a = 0; /* 0 * umag; */
         double smag_a = 0; /* 0 * smag; */
         std::copy(spins.begin(), spins.end(), spins_c.begin());
@@ -340,11 +339,11 @@ struct local_susceptibility {
         for (int r = 0; r < nrs; ++r) tlmag_a[r] += tlmag[r];
         umag_a += umag;
         smag_a += smag;
-        
+
         m["Local Magnetization"] << std::valarray<double>(sign * tlmag_a);
         m["Local Field Susceptibility"]
           << std::valarray<double>(sign * beta * power2(tlmag_a));
-        
+
         if (!improved) {
           m["Local Susceptibility"]
             << std::valarray<double>(sign * beta * umag_a * tlmag_a);
@@ -438,7 +437,7 @@ struct local_susceptibility {
         }
         umag_a += umag;
         smag_a += smag;
-        
+
         m["Site Type Magnetization"] << std::valarray<double>(sign * tumag_a);
         m["Site Type Magnetization Density"] << std::valarray<double>(sign * tumag_a / type_nrs);
         m["Site Type Field Susceptibility"]

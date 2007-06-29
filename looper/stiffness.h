@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -80,56 +80,48 @@ struct stiffness
 
     // improved estimator
 
-    struct estimate
-    {
+    struct estimate {
       real_bond_map_t real_bond;
       bond_vector_relative_map_t bond_vector_relative;
       alps::fixed_capacity_vector<double, MAX_DIM> winding;
-      void init(real_bond_map_t rb_map, bond_vector_relative_map_t bvr_map,
-                int dim)
-      {
+      void init(real_bond_map_t rb_map, bond_vector_relative_map_t bvr_map, int dim) {
         real_bond = rb_map;
         bond_vector_relative = bvr_map;
         winding.resize(dim);
+        std::fill(winding.begin(), winding.end(), 0.);
       }
       void start_s(lattice_t const&, double, int, int) const {}
-      void start_bs(lattice_t const& lat, double, int b, int, int c)
-      {
-        alps::coordinate_type const& vr =
-          bond_vector_relative[real_bond[bond(lat.vg(), b)]];
+      void start_bs(lattice_t const& lat, double, int b, int, int c) {
+        alps::coordinate_type const& vr = bond_vector_relative[real_bond[bond(lat.vg(), b)]];
         for (int i = 0; i < winding.size(); ++i) winding[i] -= (1-2*c) * vr[i];
       }
       void start_bt(lattice_t const&, double, int, int, int) {}
       void term_s(lattice_t const&, double, int, int) const {}
-      void term_bs(lattice_t const& lat, double, int b, int,
-                   int c)
-      {
-        alps::coordinate_type const& vr =
-          bond_vector_relative[real_bond[bond(lat.vg(), b)]];
+      void term_bs(lattice_t const& lat, double, int b, int, int c) {
+        alps::coordinate_type const& vr = bond_vector_relative[real_bond[bond(lat.vg(), b)]];
         for (int i = 0; i < winding.size(); ++i) winding[i] += (1-2*c) * vr[i];
       }
       void term_bt(lattice_t const&, double, int, int, int) {}
       void at_bot(lattice_t const&, double, int, int) const {}
       void at_top(lattice_t const&, double, int, int) const {}
     };
-    void init_estimate(estimate& est) const
-    { est.init(real_bond, bond_vector_relative, dim); }
+    void init_estimate(estimate& est) const {
+      est.init(real_bond, bond_vector_relative, dim);
+    }
 
-    struct collector
-    {
+    struct collector {
       unsigned int dim;
       double w2;
       void init(unsigned int d) { dim = d; w2 = 0; }
       template<typename EST>
-      collector operator+(EST const& est)
-      {
+      collector operator+(EST const& est) {
         for (int i = 0; i < dim; ++i) w2 += power2(0.5 * est.winding[i]);
         return *this;
       }
       template<typename M>
-      void commit(M& m, lattice_t const&, double beta, int,
-                  double sign) const
-      { if (dim > 0) m["Stiffness"] << sign * w2 / (beta * dim); }
+      void commit(M& m, lattice_t const&, double beta, int, double sign) const {
+        if (dim > 0) m["Stiffness"] << sign * w2 / (beta * dim);
+      }
     };
     void init_collector(collector& coll) const { coll.init(dim); }
 
@@ -177,13 +169,6 @@ struct stiffness
       for (int i = 0; i < dim; ++i) w2 += power2(winding[i]);
       m["Stiffness"] << sign * w2 / (beta * dim);
     }
-  };
-
-  struct evaluator
-  {
-    static void evaluate(alps::ObservableSet& /* m */,
-                         alps::Parameters const& /* params */,
-                         alps::ObservableSet const& /* m_in */) {}
   };
 };
 
