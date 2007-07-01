@@ -302,7 +302,7 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
   // determine whether clusters are flipped or not
   double improved_sign = 1;
   BOOST_FOREACH(cluster_info_t& ci, clusters) {
-    ci.to_flip = ((2*r_uniform()-1) < (FIELD() ? std::tanh(ci.weight) : 0));
+    ci.to_flip = ((2*r_uniform()-1) < (FIELD() ? std::tanh(beta * ci.weight) : 0));
     if (SIGN() && IMPROVE() && (ci.sign & 1 == 1)) improved_sign = 0;
   }
 

@@ -23,6 +23,10 @@ Gamma = 1
 { REPRESENTATION = "path integral" }
 { REPRESENTATION = "SSE" }
 
+Gamma = 0
+{ REPRESENTATION = "diagonalization"; h = 0.3 }
+{ REPRESENTATION = "path integral"; h = 0.3 }
+
 LATTICE = "chain lattice"
 Jz = -1
 Jxy = 0

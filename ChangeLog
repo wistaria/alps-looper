@@ -1,3 +1,7 @@
+2007-07-01  Synge Todo <wistaria@comp-phys.org>
+
+	* Fixed a bug in calculating weights for longitudinal external field.
+
 2007-05-30  Synge Todo <wistaria@comp-phys.org>
 
 	* Added linear_distance_helper in looper/lattice.h for calculating
