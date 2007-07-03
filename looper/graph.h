@@ -73,15 +73,17 @@ public:
 
   const location_t& loc() const { return loc_; }
   int pos() const { return loc_.pos(); }
+  int source() const { return loc_.source(); }
+  int target() const { return loc_.target(); }
   bool is_bond() const { return loc_.is_bond(); }
   bool is_site() const { return loc_.is_site(); }
 
-  static local_graph bond_graph(int type, int pos) {
-    return local_graph(type, location_t::bond_location(pos));
-  }
-  static local_graph site_graph(int type, int pos) {
-    return local_graph(type, location_t::site_location(pos));
-  }
+  // static local_graph bond_graph(int type, int pos) {
+  //   return local_graph(type, location_t::bond_location(pos));
+  // }
+  // static local_graph site_graph(int type, int pos) {
+  //   return local_graph(type, location_t::site_location(pos));
+  // }
 
   template<class T>
   boost::tuple<int /* curr */, int /* loop0 */, int /* loop1 */>
@@ -171,14 +173,14 @@ public:
   static bool is_bond() { return true; }
   static bool is_site() { return false; }
 
-  static local_graph_haf bond_graph(int type, int pos) {
-    assert(type == 0);
-    return local_graph_haf(0, location_t::bond_location(pos));
-  }
-  static local_graph_haf site_graph(int /* type */, int /* pos */) {
-    boost::throw_exception(std::logic_error("local_graph_haf::site_graph"));
-    return local_graph_haf();
-  }
+  // static local_graph_haf bond_graph(int type, int pos) {
+  //   assert(type == 0);
+  //   return local_graph_haf(0, location_t::bond_location(pos));
+  // }
+  // static local_graph_haf site_graph(int /* type */, int /* pos */) {
+  //   boost::throw_exception(std::logic_error("local_graph_haf::site_graph"));
+  //   return local_graph_haf();
+  // }
 
   template<class T>
   boost::tuple<int /* curr */, int /* loop0 */, int /* loop1 */>
@@ -270,7 +272,7 @@ public:
          itr != wt.site_weights().second; ++itr) {
       for (int g = 0; g <= 0; ++g) {
         if (alps::is_nonzero<1>(itr->second.v[g])) {
-          graph_.push_back(local_graph_t::site_graph(g, itr->first));
+          graph_.push_back(local_graph_t(g, location_t::site_location(itr->first)));
           w.push_back(itr->second.v[g]);
           weight_ += itr->second.v[g];
         }
@@ -281,7 +283,7 @@ public:
          itr != wt.bond_weights().second; ++itr) {
       for (int g = 0; g <= 3; ++g) {
         if (alps::is_nonzero<1>(itr->second.v[g])) {
-          graph_.push_back(local_graph_t::bond_graph(g, itr->first));
+          graph_.push_back(local_graph_t(g, location_t::bond_location(itr->first)));
           w.push_back(itr->second.v[g]);
           weight_ += itr->second.v[g];
         }

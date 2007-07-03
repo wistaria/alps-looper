@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -34,8 +34,7 @@
 
 namespace looper {
 
-struct local_operator_type
-{
+struct local_operator_type {
   BOOST_STATIC_CONSTANT(int, diagonal    = 0 /* 00 */);
   BOOST_STATIC_CONSTANT(int, offdiagonal = 1 /* 01 */);
   BOOST_STATIC_CONSTANT(int, identity    = 2 /* 10 */);
@@ -46,8 +45,7 @@ template<class QMC, class LOC_G, class TIME = imaginary_time<> >
 class local_operator;
 
 template<class LOC_G, class TIME>
-class local_operator<sse, LOC_G, TIME>
-{
+class local_operator<sse, LOC_G, TIME> {
 public:
   typedef LOC_G                              local_graph_t;
   typedef typename local_graph_t::location_t location_t;
@@ -91,6 +89,8 @@ public:
 
   const location_t& loc() const { return loc_; }
   int pos() const { return loc_.pos(); }
+  int source() const { return loc_.source(); }
+  int target() const { return loc_.target(); }
   bool is_site() const { return loc_.is_site(); }
   bool is_bond() const { return loc_.is_bond(); }
 
@@ -106,9 +106,7 @@ public:
 };
 
 template<class LOC_G, class TIME>
-class local_operator<path_integral, LOC_G, TIME>
-  : public local_operator<sse, LOC_G, TIME>
-{
+class local_operator<path_integral, LOC_G, TIME> : public local_operator<sse, LOC_G, TIME> {
 public:
   typedef local_operator<sse, LOC_G, TIME>   super_type;
   typedef typename super_type::local_graph_t local_graph_t;
@@ -124,8 +122,7 @@ public:
     : super_type(g), time_(time) {}
 
   bool is_identity() const; // not defined
-  typename boost::call_traits<time_t>::param_type time() const
-  { return time_; }
+  typename boost::call_traits<time_t>::param_type time() const { return time_; }
 
   void save(alps::ODump& dump) const { super_type::save(dump); dump << time_; }
   void load(alps::IDump& dump) { super_type::load(dump); dump >> time_; }
@@ -137,23 +134,22 @@ private:
 template<class QMC, class LOC_G, class TIME>
 int type(const local_operator<QMC, LOC_G, TIME>& op) { return op.type(); }
 template<class QMC, class LOC_G, class TIME>
-bool is_diagonal(const local_operator<QMC, LOC_G, TIME>& op)
-{ return op.is_diagonal(); }
+bool is_diagonal(const local_operator<QMC, LOC_G, TIME>& op) { return op.is_diagonal(); }
 template<class QMC, class LOC_G, class TIME>
-bool is_offdiagonal(const local_operator<QMC, LOC_G, TIME>& op)
-{ return op.is_offdiagonal(); }
+bool is_offdiagonal(const local_operator<QMC, LOC_G, TIME>& op) { return op.is_offdiagonal(); }
 template<class LOC_G, class TIME>
-bool is_identity(const local_operator<sse, LOC_G, TIME>& op)
-{ return op.is_identity(); }
+bool is_identity(const local_operator<sse, LOC_G, TIME>& op) { return op.is_identity(); }
 
 template<class QMC, class LOC_G, class TIME>
 int pos(const local_operator<QMC, LOC_G, TIME>& op) { return op.pos(); }
 template<class QMC, class LOC_G, class TIME>
-bool is_site(const local_operator<QMC, LOC_G, TIME>& op)
-{ return op.is_site(); }
+int source(const local_operator<QMC, LOC_G, TIME>& op) { return op.source(); }
 template<class QMC, class LOC_G, class TIME>
-bool is_bond(const local_operator<QMC, LOC_G, TIME>& op)
-{ return op.is_bond(); }
+int target(const local_operator<QMC, LOC_G, TIME>& op) { return op.target(); }
+template<class QMC, class LOC_G, class TIME>
+bool is_site(const local_operator<QMC, LOC_G, TIME>& op) { return op.is_site(); }
+template<class QMC, class LOC_G, class TIME>
+bool is_bond(const local_operator<QMC, LOC_G, TIME>& op) { return op.is_bond(); }
 
 } // end namespace looper
 

@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2005 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -35,7 +35,7 @@ try {
   std::cout << "[bond graph (general location + general graph)]\n";
   for (int g = 0; g <= 3; ++g) {
     looper::local_graph<looper::location> lg =
-      looper::local_graph<looper::location>::bond_graph(g, 0);
+      looper::local_graph<looper::location>(g, looper::location::bond_location(0));
     for (int c0 = 0; c0 <= 1; ++c0)
       for (int c1 = 0; c1 <= 1; ++c1)
         std::cout << "Delta(g=" << type(lg)
@@ -48,7 +48,7 @@ try {
   std::cout << "[site graph (general location + general graph)]\n";
   for (int g = 0; g <= 0; ++g) {
     looper::local_graph<looper::location> lg =
-      looper::local_graph<looper::location>::site_graph(g, 0);
+      looper::local_graph<looper::location>(g, looper::location::site_location(0));
     for (int c = 0; c <= 1; ++c)
       std::cout << "Delta(g=" << type(lg)
                 << ", c=" << (c == 0 ? '+' : '-')
@@ -59,7 +59,7 @@ try {
   std::cout << "[bond graph (bond location + general graph)]\n";
   for (int g = 0; g <= 3; ++g) {
     looper::local_graph<looper::location_bond> lg =
-      looper::local_graph<looper::location_bond>::bond_graph(g, 0);
+      looper::local_graph<looper::location_bond>(g, looper::location_bond::bond_location(0));
     for (int c0 = 0; c0 <= 1; ++c0)
       for (int c1 = 0; c1 <= 1; ++c1)
         std::cout << "Delta(g=" << type(lg)
@@ -72,7 +72,35 @@ try {
   std::cout << "[bond graph (bond location + haf graph)]\n";
   {
     looper::local_graph_haf<looper::location_bond> lg =
-      looper::local_graph_haf<looper::location_bond>::bond_graph(0, 0);
+      looper::local_graph_haf<looper::location_bond>(0, looper::location_bond::bond_location(0));
+    for (int c0 = 0; c0 <= 1; ++c0)
+      for (int c1 = 0; c1 <= 1; ++c1)
+        std::cout << "Delta(g=" << type(lg)
+                  << ", c0=" << (c0 == 0 ? '+' : '-')
+                  << ", c1=" << (c1 == 0 ? '+' : '-')
+                  << ") = "
+                  << (is_compatible(lg, c0, c1) ? 1 : 0)
+                  << std::endl;
+  }
+  std::cout << "[bond graph (longrange location + general graph)]\n";
+  for (int g = 0; g <= 3; ++g) {
+    looper::local_graph<looper::location_longrange> lg =
+      looper::local_graph<looper::location_longrange>(g,
+        looper::location_longrange::bond_location(0, 1));
+    for (int c0 = 0; c0 <= 1; ++c0)
+      for (int c1 = 0; c1 <= 1; ++c1)
+        std::cout << "Delta(g=" << type(lg)
+                  << ", c0=" << (c0 == 0 ? '+' : '-')
+                  << ", c1=" << (c1 == 0 ? '+' : '-')
+                  << ") = "
+                  << (is_compatible(lg, c0, c1) ? 1 : 0)
+                  << std::endl;
+  }
+  std::cout << "[bond graph (longrange location + haf graph)]\n";
+  {
+    looper::local_graph_haf<looper::location_longrange> lg =
+      looper::local_graph_haf<looper::location_longrange>(0,
+        looper::location_longrange::bond_location(0, 1));
     for (int c0 = 0; c0 <= 1; ++c0)
       for (int c1 = 0; c1 <= 1; ++c1)
         std::cout << "Delta(g=" << type(lg)

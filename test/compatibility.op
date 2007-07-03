@@ -40,3 +40,25 @@ Delta(g=0, c0=+, c1=+) = 0
 Delta(g=0, c0=+, c1=-) = 1
 Delta(g=0, c0=-, c1=+) = 1
 Delta(g=0, c0=-, c1=-) = 0
+[bond graph (longrange location + general graph)]
+Delta(g=0, c0=+, c1=+) = 0
+Delta(g=0, c0=+, c1=-) = 1
+Delta(g=0, c0=-, c1=+) = 1
+Delta(g=0, c0=-, c1=-) = 0
+Delta(g=1, c0=+, c1=+) = 0
+Delta(g=1, c0=+, c1=-) = 1
+Delta(g=1, c0=-, c1=+) = 1
+Delta(g=1, c0=-, c1=-) = 0
+Delta(g=2, c0=+, c1=+) = 1
+Delta(g=2, c0=+, c1=-) = 0
+Delta(g=2, c0=-, c1=+) = 0
+Delta(g=2, c0=-, c1=-) = 1
+Delta(g=3, c0=+, c1=+) = 1
+Delta(g=3, c0=+, c1=-) = 0
+Delta(g=3, c0=-, c1=+) = 0
+Delta(g=3, c0=-, c1=-) = 1
+[bond graph (longrange location + haf graph)]
+Delta(g=0, c0=+, c1=+) = 0
+Delta(g=0, c0=+, c1=-) = 1
+Delta(g=0, c0=-, c1=+) = 1
+Delta(g=0, c0=-, c1=-) = 0
