@@ -95,6 +95,21 @@ public:
 #endif // HAVE_PARAPACK
 };
 
+class abstract_evaluator_creator {
+public:
+  virtual ~abstract_evaluator_creator() {}
+  virtual looper::abstract_evaluator* create() const = 0;
+};
+
+template <typename EVALUATOR>
+class evaluator_creator : public abstract_evaluator_creator {
+public:
+  typedef EVALUATOR evaluator_type;
+  virtual ~evaluator_creator() {}
+  looper::abstract_evaluator* create() const { return new evaluator_type(); }
+};
+
+
 class loop_factory :
   public alps::scheduler::Factory,
 #ifdef HAVE_PARAPACK
@@ -117,19 +132,37 @@ public:
     alps::ObservableSet& obs) const;
 #endif // HAVE_PARAPACK
 
+  looper::abstract_evaluator* make_evaluator(alps::Parameters const& p) const;
+  void pre_evaluate(alps::ObservableSet& obs, alps::Parameters const& p) const;
+  void evaluate(alps::ObservableSet& obs, alps::Parameters const& p) const;
+
   void print_copyright(std::ostream& os) const;
 
   template<typename WORKER>
   bool register_worker(std::string const& name) {
-    bool isnew = (creators_.find(name) == creators_.end());
-    creators_[name] = pointer_type(new worker_creator<WORKER>());
+    bool isnew = (worker_creators_.find(name) == worker_creators_.end());
+    worker_creators_[name] = worker_pointer_type(new worker_creator<WORKER>());
     return isnew;
   }
 
   bool unregister_worker(std::string const& name) {
-    map_type::iterator itr = creators_.find(name);
-    if (itr == creators_.end()) return false;
-    creators_.erase(itr);
+    worker_map_type::iterator itr = worker_creators_.find(name);
+    if (itr == worker_creators_.end()) return false;
+    worker_creators_.erase(itr);
+    return true;
+  }
+
+  template<typename EVALUATOR>
+  bool register_evaluator(std::string const& name) {
+    bool isnew = (evaluator_creators_.find(name) == evaluator_creators_.end());
+    evaluator_creators_[name] = evaluator_pointer_type(new evaluator_creator<EVALUATOR>());
+    return isnew;
+  }
+
+  bool unregister_evaluator(std::string const& name) {
+    evaluator_map_type::iterator itr = evaluator_creators_.find(name);
+    if (itr == evaluator_creators_.end()) return false;
+    evaluator_creators_.erase(itr);
     return true;
   }
 
@@ -144,69 +177,11 @@ private:
 
   static loop_factory* instance_;
 
-  typedef boost::shared_ptr<abstract_worker_creator> pointer_type;
-  typedef std::map<std::string, pointer_type> map_type;
-  map_type creators_;
-};
+  typedef boost::shared_ptr<abstract_worker_creator> worker_pointer_type;
+  typedef std::map<std::string, worker_pointer_type> worker_map_type;
+  worker_map_type worker_creators_;
 
-
-//
-// evaluator factory
-//
-
-class abstract_evaluator_creator {
-public:
-  virtual ~abstract_evaluator_creator() {}
-  virtual looper::abstract_evaluator* create() const = 0;
-};
-
-template <typename EVALUATOR>
-class evaluator_creator : public abstract_evaluator_creator {
-public:
-  typedef EVALUATOR evaluator_type;
-  virtual ~evaluator_creator() {}
-  looper::abstract_evaluator* create() const { return new evaluator_type(); }
-};
-
-class evaluator_factory :
-  private boost::noncopyable
-#ifdef HAVE_PARAPACK
-  , public alps::parapack::abstract_evaluator
-#endif
-{
-public:
-  looper::abstract_evaluator* make_evaluator(alps::Parameters const& p) const;
-  void pre_evaluate(alps::ObservableSet& obs, alps::Parameters const& p) const;
-  void evaluate(alps::ObservableSet& obs, alps::Parameters const& p) const;
-
-  void print_copyright(std::ostream& os) const;
-
-  template<typename EVALUATOR>
-  bool register_evaluator(std::string const& name) {
-    bool isnew = (creators_.find(name) == creators_.end());
-    creators_[name] = pointer_type(new evaluator_creator<EVALUATOR>());
-    return isnew;
-  }
-
-  bool unregister_evaluator(std::string const& name) {
-    map_type::iterator itr = creators_.find(name);
-    if (itr == creators_.end()) return false;
-    creators_.erase(itr);
-    return true;
-  }
-
-  static evaluator_factory* instance() {
-    if (!instance_) instance_ = new evaluator_factory;
-    return instance_;
-  }
-
-private:
-  evaluator_factory() {}
-  ~evaluator_factory() {}
-
-  static evaluator_factory* instance_;
-
-  typedef boost::shared_ptr<abstract_evaluator_creator> pointer_type;
-  typedef std::map<std::string, pointer_type> map_type;
-  map_type creators_;
+  typedef boost::shared_ptr<abstract_evaluator_creator> evaluator_pointer_type;
+  typedef std::map<std::string, evaluator_pointer_type> evaluator_map_type;
+  evaluator_map_type evaluator_creators_;
 };

@@ -277,7 +277,7 @@ void loop_worker::measure(alps::ObservableSet& obs) {
 
 const bool loop_registered =
   loop_factory::instance()->register_worker<loop_worker>("Ising");
-const bool evaluator_registered = evaluator_factory::instance()->
+const bool evaluator_registered = loop_factory::instance()->
   register_evaluator<looper::evaluator<loop_config::measurement_set> >("Ising");
 
 } // end namespace

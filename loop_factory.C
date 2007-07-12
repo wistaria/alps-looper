@@ -39,15 +39,15 @@ loop_factory::make_task(const alps::ProcessList& w, const boost::filesystem::pat
 alps::scheduler::MCRun*
 loop_factory::make_worker(const alps::ProcessList& w, const alps::Parameters& p, int n) const {
   if (p.defined("REPRESENTATION")) {
-    map_type::const_iterator itr = creators_.find(p["REPRESENTATION"]);
-    if (itr == creators_.end() || itr->second == 0)
+    worker_map_type::const_iterator itr = worker_creators_.find(p["REPRESENTATION"]);
+    if (itr == worker_creators_.end() || itr->second == 0)
       boost::throw_exception(std::runtime_error("Unknown representation: " + p["REPRESENTATION"]));
     return itr->second->create(w, p, n);
-  } else if (creators_.size() == 1 && creators_.begin()->second) {
-    return creators_.begin()->second->create(w, p, n);
+  } else if (worker_creators_.size() == 1 && worker_creators_.begin()->second) {
+    return worker_creators_.begin()->second->create(w, p, n);
   } else {
-    map_type::const_iterator itr = creators_.find("path integral");
-    if (itr == creators_.end() || itr->second == 0)
+    worker_map_type::const_iterator itr = worker_creators_.find("path integral");
+    if (itr == worker_creators_.end() || itr->second == 0)
       boost::throw_exception(std::runtime_error("representation is not specified"));
     return itr->second->create(w, p, n);
   }
@@ -58,15 +58,15 @@ loop_factory::make_worker(const alps::ProcessList& w, const alps::Parameters& p,
 alps::parapack::abstract_worker*
 loop_factory::make_worker(alps::Parameters const& p, alps::ObservableSet& obs) const {
   if (p.defined("REPRESENTATION")) {
-    map_type::const_iterator itr = creators_.find(p["REPRESENTATION"]);
-    if (itr == creators_.end() || itr->second == 0)
+    worker_map_type::const_iterator itr = worker_creators_.find(p["REPRESENTATION"]);
+    if (itr == worker_creators_.end() || itr->second == 0)
       boost::throw_exception(std::runtime_error("unknown representation"));
     return itr->second->create(p, obs);
-  } else if (creators_.size() == 1 && creators_.begin()->second) {
-    return creators_.begin()->second->create(p, obs);
+  } else if (worker_creators_.size() == 1 && worker_creators_.begin()->second) {
+    return worker_creators_.begin()->second->create(p, obs);
   } else {
-    map_type::const_iterator itr = creators_.find("path integral");
-    if (itr == creators_.end() || itr->second == 0)
+    worker_map_type::const_iterator itr = worker_creators_.find("path integral");
+    if (itr == worker_creators_.end() || itr->second == 0)
       boost::throw_exception(std::runtime_error("representation is not specified"));
     return itr->second->create(p, obs);
   }
@@ -76,37 +76,33 @@ loop_factory::make_worker(alps::Parameters const& p, alps::ObservableSet& obs) c
 
 void loop_factory::print_copyright(std::ostream& os) const { looper::print_copyright(os); }
 
-void evaluator_factory::pre_evaluate(alps::ObservableSet& obs, const alps::Parameters& p) const {
-  looper::abstract_evaluator *eval = this->make_evaluator(p);
-  eval->pre_evaluate(obs, p, obs);
-}
-
-looper::abstract_evaluator* evaluator_factory::make_evaluator(const alps::Parameters& p) const {
+looper::abstract_evaluator* loop_factory::make_evaluator(const alps::Parameters& p) const {
   if (p.defined("REPRESENTATION")) {
-    map_type::const_iterator itr = creators_.find(p["REPRESENTATION"]);
-    if (itr == creators_.end() || itr->second == 0)
+    evaluator_map_type::const_iterator itr = evaluator_creators_.find(p["REPRESENTATION"]);
+    if (itr == evaluator_creators_.end() || itr->second == 0)
       boost::throw_exception(std::runtime_error("unknown representation"));
     return itr->second->create();
   } else {
-    if (creators_.size() == 1 && creators_.begin()->second)
-      return creators_.begin()->second->create();
+    if (evaluator_creators_.size() == 1 && evaluator_creators_.begin()->second)
+      return evaluator_creators_.begin()->second->create();
     else
       boost::throw_exception(std::runtime_error("representation is not specified"));
   }
   return 0;
 }
 
-void evaluator_factory::evaluate(alps::ObservableSet& obs, const alps::Parameters& p) const {
+void loop_factory::pre_evaluate(alps::ObservableSet& obs, const alps::Parameters& p) const {
+  looper::abstract_evaluator *eval = this->make_evaluator(p);
+  eval->pre_evaluate(obs, p, obs);
+}
+
+void loop_factory::evaluate(alps::ObservableSet& obs, const alps::Parameters& p) const {
   looper::abstract_evaluator *eval = this->make_evaluator(p);
   eval->evaluate(obs, p, obs);
 }
-
-void evaluator_factory::print_copyright(std::ostream& os) const { looper::print_copyright(os); }
 
 //
 // initialization of static member pointer of factories
 //
 
 loop_factory* loop_factory::instance_ = 0;
-
-evaluator_factory* evaluator_factory::instance_ = 0;

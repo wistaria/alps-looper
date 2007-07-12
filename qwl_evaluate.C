@@ -137,10 +137,10 @@ void evaluator::evaluate(alps::scheduler::MCSimulation& sim,
 //
 
 const bool pi_registered =
-  evaluator_factory::instance()->register_evaluator<evaluator>
+  loop_factory::instance()->register_evaluator<evaluator>
   ("path integral QWL");
 const bool sse_registered =
-  evaluator_factory::instance()->register_evaluator<evaluator>
+  loop_factory::instance()->register_evaluator<evaluator>
   ("SSE QWL");
 
 } // end namespace

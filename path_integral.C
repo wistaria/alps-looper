@@ -365,7 +365,7 @@ void loop_worker::measure(alps::ObservableSet& obs) {
 
 const bool worker_registered =
   loop_factory::instance()->register_worker<loop_worker>("path integral");
-const bool evaluator_registered = evaluator_factory::instance()->
+const bool evaluator_registered = loop_factory::instance()->
   register_evaluator<looper::evaluator<loop_config::measurement_set> >("path integral");
 
 } // end namespace

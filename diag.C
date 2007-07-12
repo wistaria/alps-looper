@@ -453,7 +453,7 @@ public:
 
 const bool worker_registered = loop_factory::instance()->
   register_worker<diag_worker>("diagonalization");
-const bool evaluator_registered = evaluator_factory::instance()->
+const bool evaluator_registered = loop_factory::instance()->
   register_evaluator<dummy_evaluator>("diagonalization");
 
 } // end namespace

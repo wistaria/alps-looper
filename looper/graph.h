@@ -159,7 +159,9 @@ public:
   typedef LOC location_t;
 
   local_graph_haf() {}
-  local_graph_haf(int type, const location_t& loc) : loc_(loc) { assert(type == 0); }
+  local_graph_haf(int type, const location_t& loc) : loc_(loc) {
+    assert(type == 0); static_cast<void>(type);
+  }
 
   static int type() { return 0; }
   bool is_compatible(int c) const {

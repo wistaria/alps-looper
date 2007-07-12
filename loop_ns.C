@@ -68,8 +68,7 @@ int main(int argc, char** argv)
     alps::ObservableSet m = worker->get_measurements();
     delete worker;
 
-    looper::abstract_evaluator* evaluator =
-      evaluator_factory::instance()->make_evaluator(*p);
+    looper::abstract_evaluator* evaluator = loop_factory::instance()->make_evaluator(*p);
     evaluator->pre_evaluate(m, *p, m);
     evaluator->evaluate(m, *p, m);
     delete evaluator;

@@ -26,5 +26,5 @@
 #include <parapack/scheduler.h>
 
 int main(int argc, char** argv) {
-  return alps::parapack::evaluate(argc, argv, *evaluator_factory::instance());
+  return alps::parapack::evaluate(argc, argv, *loop_factory::instance());
 }
