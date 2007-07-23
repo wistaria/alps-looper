@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -38,7 +38,7 @@ void output(const looper::site_parameter& p, const looper::site_weight& w)
   w.check(p);
 }
 
-void output(const looper::bond_parameter& p, const looper::bond_weight& w)
+void output(const looper::bond_parameter_xxz& p, const looper::bond_weight& w)
 {
   std::cout << "C = " << p.c
             << ", Jxy = " << p.jxy
@@ -65,11 +65,9 @@ try {
 
   for (alps::ParameterList::const_iterator p = params.begin();
        p != params.end(); ++p) {
-    looper::site_parameter site(0.5, 0,
-                                p->value_or_default("Hx",0), 0);
-    looper::bond_parameter bond(p->value_or_default("C",0),
-                                p->value_or_default("Jxy",0),
-                                p->value_or_default("Jz",0));
+    looper::site_parameter site(0.5, 0, p->value_or_default("Hx",0), 0, 0);
+    looper::bond_parameter_xxz bond(p->value_or_default("C",0),
+      p->value_or_default("Jxy",0), p->value_or_default("Jz",0));
 
     std::cout << "site weight (standard): ";
     output(site, looper::site_weight(site));
@@ -93,11 +91,11 @@ try {
     // looper::site_parameter site(0.5, rng(), rng(), rng());
     double sc = rng();
     double hx = rng();
-    looper::site_parameter site(0.5, sc, hx, 0);
+    looper::site_parameter site(0.5, sc, hx, 0, 0);
     double bc = rng();
     double jxy = rng();
     double jz = rng();
-    looper::bond_parameter bond(bc, jxy, jz);
+    looper::bond_parameter_xxz bond(bc, jxy, jz);
 
     std::cout << "site weight (standard): ";
     output(site, looper::site_weight(site));

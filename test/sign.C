@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2004-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 2004-2007 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -37,29 +37,29 @@ try {
 
   alps::ParameterList params(std::cin);
 
-  for (int jxy = -1; jxy <= 1; ++jxy) {
-    for (int jz = -1; jz <= 1; ++jz) {
-      std::cout << "[Jxy = " << jxy << "; Jz = " << jz << "]\n";
+  for (int jx = -1; jx <= 1; ++jx) {
+    for (int jy = -1; jy <= 1; ++jy) {
+      for (int jz = -1; jz <= 1; ++jz) {
+        std::cout << "[Jx = " << jx << "; Jy = " << jy << "; Jz = " << jz << "]\n";
 
-      for (alps::ParameterList::const_iterator itr = params.begin();
-           itr != params.end(); ++itr) {
-        for (alps::Parameters::const_iterator p = itr->begin();
-             p != itr->end(); ++p) {
-          if (p->key() != "LATTICE_LIBRARY")
-            std::cout << p->key() << " = " << p->value() << std::endl;
+        for (alps::ParameterList::const_iterator itr = params.begin(); itr != params.end(); ++itr) {
+          for (alps::Parameters::const_iterator p = itr->begin(); p != itr->end(); ++p) {
+            if (p->key() != "LATTICE_LIBRARY")
+              std::cout << p->key() << " = " << p->value() << std::endl;
+          }
+
+          alps::graph_helper<> gh(*itr);
+          looper::model_parameter model;
+          model.set_parameters(gh.graph(), looper::site_parameter(0.5),
+            looper::bond_parameter_xyz(0, jx, jy, jz));
+
+          std::cout << "model has "
+                    << (model.is_signed() ? "" : "no ")
+                    << "sign problem.\n";
+          std::cout << "model is "
+                    << (model.is_frustrated() ? "" : "not ")
+                    << "classically frustrated.\n";
         }
-
-        alps::graph_helper<> gh(*itr);
-        looper::model_parameter model;
-        model.set_parameters(gh.graph(), looper::site_parameter(0.5),
-          looper::bond_parameter(0, jxy, jz));
-
-        std::cout << "model has "
-                  << (model.is_signed() ? "" : "no ")
-                  << "sign problem.\n";
-        std::cout << "model is "
-                  << (model.is_frustrated() ? "" : "not ")
-                  << "classically frustrated.\n";
       }
     }
   }

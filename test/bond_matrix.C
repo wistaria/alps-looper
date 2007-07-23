@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -28,31 +28,52 @@
 #include <boost/numeric/ublas/io.hpp>
 #include <iostream>
 
-std::ostream& operator<<(std::ostream& os, const looper::bond_matrix& m)
-{
+std::ostream& operator<<(std::ostream& os, const looper::bond_matrix_xxz& m) {
   boost::numeric::ublas::matrix<double> mat;
   looper::flatten_matrix(m.matrix(), mat);
   os << mat;
   return os;
 }
 
-int main()
-{
+std::ostream& operator<<(std::ostream& os, const looper::bond_matrix_xyz& m) {
+  boost::numeric::ublas::matrix<double> mat;
+  looper::flatten_matrix(m.matrix(), mat);
+  os << mat;
+  return os;
+}
+
+int main() {
   while (true) {
-    double s0_in, s1_in, c, jxy, jz;
-    std::cin >> s0_in >> s1_in >> c >> jxy >> jz;
+    double s0_in, s1_in, c, jx, jy, jz;
+    std::cin >> s0_in >> s1_in >> c >> jx >> jy >> jz;
     if (!std::cin) break;
 
     alps::half_integer<int> s0(s0_in);
     alps::half_integer<int> s1(s1_in);
-    looper::bond_parameter pi(c, jxy, jz);
-    looper::bond_matrix m(s0, s1, pi);
-    std::cout << "input parameters: S0 = " << s0 << ", S1 = " << s1 << ", "
-              << pi << std::endl << m << std::endl;
+    if (alps::is_equal(jx, jy)) {
+      looper::bond_parameter_xxz pi(c, jx, jz);
+      looper::bond_matrix_xxz m(s0, s1, pi);
+      std::cout << "[bond_matrix_xxz]\n";
+      std::cout << "input parameters: S0 = " << s0 << ", S1 = " << s1 << ", "
+                << pi << std::endl << m << std::endl;
 
-    looper::bond_parameter pr(m.matrix());
-    if (pi != pr) std::cerr << "Error: fitting failed\n";
+      looper::bond_parameter_xxz pr(m.matrix());
+      if (pi != pr) std::cerr << "Error: fitting failed\n";
 
-    std::cout << "fitting result: " << pr << std::endl;
+      std::cout << "fitting result: " << pr << std::endl;
+    }
+
+    {
+      std::cout << "[bond_matrix_xyz]\n";
+      looper::bond_parameter_xyz pi(c, jx, jy, jz);
+      looper::bond_matrix_xyz m(s0, s1, pi);
+      std::cout << "input parameters: S0 = " << s0 << ", S1 = " << s1 << ", "
+                << pi << std::endl << m << std::endl;
+
+      looper::bond_parameter_xyz pr(m.matrix());
+      if (pi != pr) std::cerr << "Error: fitting failed\n";
+
+      std::cout << "fitting result: " << pr << std::endl;
+    }
   }
 }

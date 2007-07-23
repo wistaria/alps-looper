@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -45,15 +45,14 @@ struct site_parameter {
   double hz;   // longitudinal field:     - hz * Sz
   double d;    // single-ion anisotropy:  + d * (Sz)^2
 
-  site_parameter(double s_in = 0.5, double c_in = 0, double hx_in = 0,
-    double hz_in = 0, double d_in = 0) :
-    s(s_in), c(c_in), hx(hx_in), hz(hz_in), d(d_in) {
-  }
+  site_parameter(double s_in = 0.5) : s(s_in), c(0), hx(0), hz(0), d(0) {}
+  site_parameter(double s_in, double c_in, double hx_in, double hz_in, double d_in) :
+    s(s_in), c(c_in), hx(hx_in), hz(hz_in), d(d_in) {}
   template<typename J>
-  site_parameter(const alps::half_integer<J>& s_in, double c_in = 0,
-    double hx_in = 0, double hz_in = 0, double d_in = 0) :
-    s(s_in), c(c_in), hx(hx_in), hz(hz_in), d(d_in) {
-  }
+  site_parameter(const alps::half_integer<J>& s_in) : s(s_in), c(0), hx(0), hz(0), d(0) {}
+  template<typename J>
+  site_parameter(const alps::half_integer<J>& s_in, double c_in, double hx_in, double hz_in,
+    double d_in) : s(s_in), c(c_in), hx(hx_in), hz(hz_in), d(d_in) {}
   site_parameter(const boost::multi_array<double, 2>& mat) { do_fit(mat); }
 
   bool operator==(const site_parameter& rhs) const {
@@ -95,25 +94,51 @@ namespace looper {
 // bond_paraemter
 //
 
-struct bond_parameter {
+struct bond_parameter_xxz {
   double c;   // constant energy offset:   + c
   double jxy; // off-diagonal interaction: + jxy/2 * (s1+ s2- + hc)
   double jz;  // diagonal interaction:     + jz s1z s2z
 
-  bond_parameter(double c_in = 0, double jxy_in = 0, double jz_in = 0) :
-    c(c_in), jxy(jxy_in), jz(jz_in) {
-  }
-  bond_parameter(const boost::multi_array<double, 4>& mat) { do_fit(mat); }
+  bond_parameter_xxz() : c(0), jxy(0), jz(0) {}
+  bond_parameter_xxz(double c_in, double jxy_in, double jz_in) : c(c_in), jxy(jxy_in), jz(jz_in) {}
+  bond_parameter_xxz(const boost::multi_array<double, 4>& mat) { do_fit(mat); }
 
-  bool operator==(const bond_parameter& rhs) const {
+  bool operator==(const bond_parameter_xxz& rhs) const {
     return alps::is_equal<1>(c, rhs.c) && alps::is_equal<1>(jxy, rhs.jxy) &&
       alps::is_equal<1>(jz, rhs.jz);
   }
-  bool operator!=(const bond_parameter& rhs) const { return !operator==(rhs); }
+  bool operator!=(const bond_parameter_xxz& rhs) const { return !operator==(rhs); }
 
   bool is_quantal() const { return alps::is_nonzero<1>(jxy); }
 
   void print(std::ostream& os) const { os << '(' << c << ", " << jxy << ", " << jz << ')'; }
+
+protected:
+  void do_fit(const boost::multi_array<double, 4>& mat);
+};
+
+struct bond_parameter_xyz {
+  double c;   // constant energy offset:   + c
+  double jx;  // off-diagonal interaction: + jx S1x S2x
+  double jy;  // off-diagonal interaction: + jy S1y S2y
+  double jz;  // diagonal interaction:     + jz S1z S2z
+
+  bond_parameter_xyz() : c(0), jx(0), jy(0), jz(0) {}
+  bond_parameter_xyz(double c_in, double jx_in, double jy_in, double jz_in) :
+    c(c_in), jx(jx_in), jy(jy_in), jz(jz_in) {}
+  bond_parameter_xyz(const boost::multi_array<double, 4>& mat) { do_fit(mat); }
+
+  bool operator==(const bond_parameter_xyz& rhs) const {
+    return alps::is_equal<1>(c, rhs.c) && alps::is_equal<1>(jx, rhs.jx) &&
+      alps::is_equal<1>(jy, rhs.jy) && alps::is_equal<1>(jz, rhs.jz);
+  }
+  bool operator!=(const bond_parameter_xyz& rhs) const { return !operator==(rhs); }
+
+  bool is_quantal() const { return alps::is_nonzero<1>(jx) || alps::is_nonzero<1>(jy); }
+
+  void print(std::ostream& os) const {
+    os << '(' << c << ", " << jx << ", " << jy << ", " << jz << ')';
+  }
 
 protected:
   void do_fit(const boost::multi_array<double, 4>& mat);
@@ -125,7 +150,12 @@ protected:
 namespace looper {
 #endif
 
-inline std::ostream& operator<<(std::ostream& os, looper::bond_parameter const& p) {
+inline std::ostream& operator<<(std::ostream& os, looper::bond_parameter_xxz const& p) {
+  p.print(os);
+  return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, looper::bond_parameter_xyz const& p) {
   p.print(os);
   return os;
 }
@@ -144,12 +174,22 @@ site_parameter get_site_parameter(alps::Parameters const& param, G const& graph,
 }
 
 template<typename G, typename I>
-bond_parameter get_bond_parameter(alps::Parameters const& param, G const& graph,
+bond_parameter_xxz get_bond_parameter_xxz(alps::Parameters const& param, G const& graph,
   alps::HamiltonianDescriptor<I> const& hd, typename alps::graph_traits<G>::bond_descriptor b) {
   int t = get(bond_type_t(), graph, b);
   int ts = get(site_type_t(), graph, source(b, graph));
   int tt = get(site_type_t(), graph, target(b, graph));
-  return bond_parameter(get_matrix(double(), hd.bond_term(t),
+  return bond_parameter_xxz(get_matrix(double(), hd.bond_term(t),
+    hd.basis().site_basis(ts), hd.basis().site_basis(tt), param));
+}
+
+template<typename G, typename I>
+bond_parameter_xyz get_bond_parameter_xyz(alps::Parameters const& param, G const& graph,
+  alps::HamiltonianDescriptor<I> const& hd, typename alps::graph_traits<G>::bond_descriptor b) {
+  int t = get(bond_type_t(), graph, b);
+  int ts = get(site_type_t(), graph, source(b, graph));
+  int tt = get(site_type_t(), graph, target(b, graph));
+  return bond_parameter_xyz(get_matrix(double(), hd.bond_term(t),
     hd.basis().site_basis(ts), hd.basis().site_basis(tt), param));
 }
 
@@ -175,7 +215,7 @@ public:
   // set_parameters
 
   template<typename G>
-  void set_parameters(G const& g, site_parameter const& sp, bond_parameter const& bp) {
+  void set_parameters(G const& g, site_parameter const& sp, bond_parameter_xyz const& bp) {
     set_parameters_impl(g, sp, bp);
     signed_ = check_sign(g);
     frustrated_ = check_frustration(g);
@@ -210,7 +250,7 @@ public:
     return use_bond_indices_;
   }
   template<class G>
-  const bond_parameter& bond(const typename alps::graph_traits<G>::bond_descriptor& e,
+  const bond_parameter_xyz& bond(const typename alps::graph_traits<G>::bond_descriptor& e,
     const G& g) const {
     return inhomogeneous_bond() ? bonds_[get(bond_index_t(), g, e)] :
       bonds_map_.find(boost::make_tuple(get(bond_type_t(), g, e),
@@ -229,8 +269,7 @@ public:
 
 protected:
   template<typename G>
-  void set_parameters_impl(G const& g, site_parameter const& sp, bond_parameter const&
- bp);
+  void set_parameters_impl(G const& g, site_parameter const& sp, bond_parameter_xyz const& bp);
 
   template<typename G, typename I>
   void set_parameters_impl(alps::Parameters params, const G& g, bool inhomogeneous_sites,
@@ -245,8 +284,8 @@ protected:
 private:
   std::vector<site_parameter> sites_;
   std::map<int, site_parameter> sites_map_;
-  std::vector<bond_parameter> bonds_;
-  std::map<boost::tuple<int, int, int>, bond_parameter> bonds_map_;
+  std::vector<bond_parameter_xyz> bonds_;
+  std::map<boost::tuple<int, int, int>, bond_parameter_xyz> bonds_map_;
   bool use_site_indices_;
   bool use_bond_indices_;
   bool quantal_;
@@ -307,7 +346,7 @@ inline void site_parameter::do_fit(const boost::multi_array<double, 2>& mat) {
 // implementation of bond_paraemter
 //
 
-inline void bond_parameter::do_fit(const boost::multi_array<double, 4>& mat) {
+inline void bond_parameter_xxz::do_fit(const boost::multi_array<double, 4>& mat) {
   int d0 = mat.shape()[0];
   int d1 = mat.shape()[1];
   int dim = d0 * d1;
@@ -318,12 +357,12 @@ inline void bond_parameter::do_fit(const boost::multi_array<double, 4>& mat) {
 
   if (!(mat.shape()[0] == mat.shape()[2] && mat.shape()[1] == mat.shape()[3] &&
         s0.get_twice() + 1 == d0 && s1.get_twice() + 1 == d1))
-    boost::throw_exception(std::runtime_error("Error: fitting to bond_parameter failed.  "
+    boost::throw_exception(std::runtime_error("Error: fitting to bond_parameter_xxz failed.  "
       "This model is not supported by the current version of looper."));
 
-  bond_matrix mat_c(s0, s1, bond_parameter(1, 0, 0));
-  bond_matrix mat_jxy(s0, s1, bond_parameter(0, 1, 0));
-  bond_matrix mat_jz(s0, s1, bond_parameter(0, 0, 1));
+  bond_matrix_xxz mat_c(s0, s1, bond_parameter_xxz(1, 0, 0));
+  bond_matrix_xxz mat_jxy(s0, s1, bond_parameter_xxz(0, 1, 0));
+  bond_matrix_xxz mat_jz(s0, s1, bond_parameter_xxz(0, 0, 1));
 
   boost::numeric::ublas::matrix<double, boost::numeric::ublas::column_major> a(m, n);
   boost::numeric::ublas::vector<double> b(m);
@@ -342,7 +381,7 @@ inline void bond_parameter::do_fit(const boost::multi_array<double, 4>& mat) {
   // call linear least squaure problem solver
   bool success = alps::is_zero<1>(solve_llsp(a, b, x));
   if (!success)
-    boost::throw_exception(std::runtime_error("Error: fitting to bond_parameter failed.  "
+    boost::throw_exception(std::runtime_error("Error: fitting to bond_parameter_xxz failed.  "
       "This model is not supported by the current version of looper."));
 
   for (int i = 0; i < n; ++i) x(i) = alps::round<1>(x(i));
@@ -351,13 +390,60 @@ inline void bond_parameter::do_fit(const boost::multi_array<double, 4>& mat) {
   jz = x(2);
 }
 
+inline void bond_parameter_xyz::do_fit(const boost::multi_array<double, 4>& mat) {
+  int d0 = mat.shape()[0];
+  int d1 = mat.shape()[1];
+  int dim = d0 * d1;
+  int m = dim * dim;
+  int n = 4;
+  alps::half_integer<int> s0((double)(d0-1)/2);
+  alps::half_integer<int> s1((double)(d1-1)/2);
+
+  if (!(mat.shape()[0] == mat.shape()[2] && mat.shape()[1] == mat.shape()[3] &&
+        s0.get_twice() + 1 == d0 && s1.get_twice() + 1 == d1))
+    boost::throw_exception(std::runtime_error("Error: fitting to bond_parameter_xyz failed.  "
+      "This model is not supported by the current version of looper."));
+
+  bond_matrix_xyz mat_c(s0, s1, bond_parameter_xyz(1, 0, 0, 0));
+  bond_matrix_xyz mat_jx(s0, s1, bond_parameter_xyz(0, 1, 0, 0));
+  bond_matrix_xyz mat_jy(s0, s1, bond_parameter_xyz(0, 0, 1, 0));
+  bond_matrix_xyz mat_jz(s0, s1, bond_parameter_xyz(0, 0, 0, 1));
+
+  boost::numeric::ublas::matrix<double, boost::numeric::ublas::column_major> a(m, n);
+  boost::numeric::ublas::vector<double> b(m);
+  boost::numeric::ublas::vector<double> x(n);
+  for (int i0 = 0; i0 < d0; ++i0)
+    for (int i1 = 0; i1 < d1; ++i1)
+      for (int j0 = 0; j0 < d0; ++j0)
+        for (int j1 = 0; j1 < d1; ++j1) {
+          int k = dim * (i0 * d1 + i1) + (j0 * d1 + j1);
+          b(k) = mat[i0][i1][j0][j1];
+          a(k, 0) = mat_c(i0,i1,j0,j1);
+          a(k, 1) = mat_jx(i0,i1,j0,j1);
+          a(k, 2) = mat_jy(i0,i1,j0,j1);
+          a(k, 3) = mat_jz(i0,i1,j0,j1);
+        }
+
+  // call linear least squaure problem solver
+  bool success = alps::is_zero<1>(solve_llsp(a, b, x));
+  if (!success)
+    boost::throw_exception(std::runtime_error("Error: fitting to bond_parameter_xyz failed.  "
+      "This model is not supported by the current version of looper."));
+
+  for (int i = 0; i < n; ++i) x(i) = alps::round<1>(x(i));
+  c = x(0);
+  jx = x(1);
+  jy = x(2);
+  jz = x(3);
+}
+
 //
 // implementation of model_parameter
 //
 
 template<typename G>
 void model_parameter::set_parameters_impl(G const& g, site_parameter const& sp,
-  bond_parameter const& bp) {
+  bond_parameter_xyz const& bp) {
 
   use_site_indices_ = false;
   sites_.clear();
@@ -455,7 +541,7 @@ void model_parameter::set_parameters_impl(alps::Parameters params, const G& g,
       if (inhomogeneous_bonds)
         p << alps::coordinate_as_parameter(g, b);
       int i = get(bond_index_t(), g, b);
-      bonds_[i] = get_bond_parameter(p, g, hd, b);
+      bonds_[i] = get_bond_parameter_xyz(p, g, hd, b);
       quantal_ |= bonds_[i].is_quantal();
     }
   } else {
@@ -464,7 +550,7 @@ void model_parameter::set_parameters_impl(alps::Parameters params, const G& g,
         t(get(bond_type_t(), g, b), get(site_type_t(), g, source(b, g)),
         get(site_type_t(), g, target(b, g)));
       if (bonds_map_.find(t) == bonds_map_.end()) {
-        bonds_map_[t] = get_bond_parameter(params, g, hd, b);
+        bonds_map_[t] = get_bond_parameter_xyz(params, g, hd, b);
         quantal_ |= bonds_map_[t].is_quantal();
       }
     }
@@ -495,14 +581,32 @@ void model_parameter::output(std::ostream& os, G const& g) const {
     os << "  site " << s << ": (S, C, Hx, Hz, D) = " << site(s, g) << std::endl;
   os << "bond terms: number of bonds = " << num_bonds(g) << std::endl;
   BOOST_FOREACH(typename alps::graph_helper<G>::bond_descriptor b, bonds(g))
-    os << "  bond " << b << ": (C, Jxy, Jz) = " << bond(b, g) << std::endl;
+    os << "  bond " << b << ": (C, Jx, Jy, Jz) = " << bond(b, g) << std::endl;
 }
 
 template<typename G>
 bool model_parameter::check_sign(const G& g) const {
   std::vector<double> wb, ws;
-  BOOST_FOREACH(typename alps::graph_traits<G>::bond_descriptor b, bonds(g))
-    wb.push_back(alps::is_zero<1>(bond(b, g).jxy) ? 0 : (bond(b, g).jxy < 0 ? 1 : -1));
+  BOOST_FOREACH(typename alps::graph_traits<G>::bond_descriptor b, bonds(g)) {
+    double w = 1;
+    if (alps::is_zero<1>(bond(b, g).jx + bond(b, g).jy)) {
+      if (alps::is_zero<1>(bond(b, g).jx - bond(b, g).jy))
+        w = 0;
+      else
+        w = (bond(b, g).jx - bond(b, g).jy < 0 ? 1 : -1);
+    } else if (bond(b, g).jx + bond(b, g).jy < 0) {
+      if (bond(b, g).jx - bond(b, g).jy > 0)
+        return true;
+      else
+        w = 1;
+    } else {
+      if (bond(b, g).jx - bond(b, g).jy < 0)
+        return true;
+      else
+        w = -1;
+    }
+    wb.push_back(w);
+  }
   BOOST_FOREACH(typename alps::graph_traits<G>::site_descriptor s, sites(g))
     ws.push_back(alps::is_zero<1>(site(s, g).hx) ? 0 : (site(s, g).hx > 0 ? 1 : -1));
   return alps::is_frustrated(g,

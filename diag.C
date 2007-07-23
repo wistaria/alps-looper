@@ -427,6 +427,18 @@ void diag_worker::run(ENGINE&, alps::ObservableSet& obs) {
     m["Staggered Susceptibility"] =
       dynamic_average2(beta, gs_ene, evals, hamiltonian, staggered_sz) / part / nsite;
     m["Binder Ratio of Staggered Magnetization"] = looper::power2(smag2 / part) / (smag4 / part);
+
+    // local Sz
+    diagonal_matrix_type local_sz(dim);
+    BOOST_FOREACH(site_descriptor v, sites()) {
+      local_sz.clear();
+      add_to_diagonal_matrix(local_sz, alps::SiteTermDescriptor("Sz(i)", "i"),
+                             model().basis(), basis_set, v, graph(), params);
+      double mag, mag2, mag4;
+      boost::tie(mag, mag2, mag4) = static_average4(beta, gs_ene, evals, hamiltonian, local_sz);
+      mag = alps::round<1>(mag);
+      m["Local Magnetization at Site " + boost::lexical_cast<std::string>(v)] = mag / part;
+    }
   }
 
   // store measurements

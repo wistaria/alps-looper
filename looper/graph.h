@@ -39,12 +39,22 @@
 namespace looper {
 
 struct bond_graph_type {
-  // g = 0 (g3 in textbook)
-  //     1 (g4)
-  //     2 (g1)
-  //     3 (g2)
-  static bool is_compatible(int g, int c0, int c1)
-  { return (g >> 1) ^ c0 ^ c1; }
+  // g = 0 (doc/loop-g3.eps)
+  //     1 (doc/loop-g4.eps)
+  //     2 (doc/loop-g1.eps)
+  //     3 (doc/loop-g2.eps)
+  static bool is_compatible(int g, int c0, int c1) { return (g >> 1) ^ c0 ^ c1; }
+};
+
+struct xyz_bond_graph_type {
+  // g = 0 (doc/loop-g3.eps)
+  //     1 (doc/loop-g4.eps)
+  //     2 (doc/loop-g1.eps)
+  //     3 (doc/loop-g2.eps)
+  //     4 (doc/loop-gd.eps)
+  static bool is_compatible(int g, int c0, int c1) {
+    return (g != 4) ? (g >> 1) ^ c0 ^ c1 : 1 ^ c0 ^ c1;
+  }
 };
 
 struct site_graph_type {

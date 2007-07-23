@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -32,7 +32,7 @@ void output(const alps::graph_helper<G>& gh, const looper::model_parameter& m) {
               << ": (S, C, Hx, Hz, D) = " << m.site(s, gh.graph()) << std::endl;
   BOOST_FOREACH(typename alps::graph_helper<G>::bond_descriptor b, gh.bonds())
     std::cout << "bond " << b << ": type = " << gh.bond_type(b)
-              << ": (C, Jxy, Jz) = " << m.bond(b, gh.graph()) << std::endl;
+              << ": (C, Jx, Jy, Jz) = " << m.bond(b, gh.graph()) << std::endl;
 }
 
 int main() {
@@ -59,7 +59,8 @@ try {
   mp.set_parameters(params, gh.graph(), true, true, mh.model());
 
   // construct from parameters
-  mp.set_parameters(gh.graph(), looper::site_parameter(1.5), looper::bond_parameter(0, -2, -1));
+  mp.set_parameters(gh.graph(), looper::site_parameter(1.5),
+    looper::bond_parameter_xyz(0, -2, -2, -1));
   output(gh, mp);
 
 #ifndef BOOST_NO_EXCEPTIONS

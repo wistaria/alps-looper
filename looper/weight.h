@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -121,13 +121,11 @@ struct bond_weight {
   //      same as ii-2)
 
   bond_weight() : sign(1), offset(0) { v[0] = v[1] = v[2] = v[3] = 0; }
-  bond_weight(const site_parameter& p, double force_scatter = 0)
-  { init(p, force_scatter); }
-  bond_weight(const bond_parameter& p, double force_scatter = 0)
-  { init(p, force_scatter); }
+  bond_weight(const site_parameter& p, double force_scatter = 0) { init(p, force_scatter); }
+  bond_weight(const bond_parameter_xxz& p, double force_scatter = 0) { init(p, force_scatter); }
+  bond_weight(const bond_parameter_xyz& p, double force_scatter = 0) { init(p, force_scatter); }
 
-  void init(const bond_parameter& p, double force_scatter = 0)
-  {
+  void init(const bond_parameter_xxz& p, double force_scatter = 0) {
     sign = (p.jxy <= 0 ? 1 : -1);
     double jxy = std::abs(p.jxy);
     double jz = p.jz;
@@ -151,9 +149,13 @@ struct bond_weight {
     }
     offset = weight()/2;
   }
-  void init(const site_parameter& p, double force_scatter = 0)
-  {
-    bond_parameter bp(0, 0, p.d);
+  void init(const bond_parameter_xyz& p, double force_scatter = 0) {
+    if (!alps::is_equal<>(p.jx, p.jy))
+      boost::throw_exception(std::runtime_error("not an XXZ model"));
+    init(bond_parameter_xxz(p.c, p.jx, p.jz), force_scatter);
+  }
+  void init(const site_parameter& p, double force_scatter = 0) {
+    bond_parameter_xyz bp(0, 0, 0, p.d);
     init(bp, force_scatter);
   }
 
@@ -161,7 +163,7 @@ struct bond_weight {
   bool has_weight() const
   { return alps::is_positive<1>(weight()); }
 
-  void check(const bond_parameter& p) const;
+  void check(const bond_parameter_xxz& p) const;
 };
 
 class weight_table
@@ -259,9 +261,7 @@ inline void site_weight::check(const site_parameter& p) const
       !alps::is_zero<1>(-offset+v[0]) ||
       !alps::is_equal<1>(v[0], sign * p.hx/2))
     boost::throw_exception(std::logic_error("site_parameter::check 1"));
-  site_parameter pp(p.s,
-                    p.c,
-                    2 * v[0] * sign);
+  site_parameter pp(p.s, p.c, 2 * v[0] * sign, 0, 0);
   if (pp != p) {
     std::cerr << p.c << ' ' << p.hx << ' ' << pp.hz << std::endl;
     std::cerr << pp.c << ' ' << pp.hx << ' ' << pp.hz << std::endl;
@@ -269,19 +269,17 @@ inline void site_weight::check(const site_parameter& p) const
   }
 }
 
-inline void bond_weight::check(const bond_parameter& p) const
+inline void bond_weight::check(const bond_parameter_xxz& p) const
 {
   if (!alps::is_equal<1>(-offset+v[0]+v[1],  p.jz/4) ||
       !alps::is_equal<1>(-offset+v[2]+v[3], -p.jz/4) ||
       !alps::is_equal<1>(v[0]+v[2], -sign * p.jxy/2))
-    boost::throw_exception(std::logic_error("bond_parameter::check 1"));
-  bond_parameter pp(p.c,
-                    -2 * (v[0] + v[2]) * sign,
-                     2 * (v[0] + v[1] - v[2] - v[3]));
+    boost::throw_exception(std::logic_error("bond_parameter_xxz::check 1"));
+  bond_parameter_xxz pp(p.c, -2 * (v[0] + v[2]) * sign, 2 * (v[0] + v[1] - v[2] - v[3]));
   if (pp != p) {
     std::cerr << p.c << ' ' << p.jxy << ' ' << p.jz << std::endl;
     std::cerr << pp.c << ' ' << pp.jxy << ' ' << pp.jz << std::endl;
-    boost::throw_exception(std::logic_error("bond_parameter::check 2"));
+    boost::throw_exception(std::logic_error("bond_parameter_xxz::check 2"));
   }
 }
 
