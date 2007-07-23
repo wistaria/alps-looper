@@ -137,8 +137,8 @@ AC_SUBST([LDADD], "$ac_cv_alps_libs")
 AC_SUBST([LDFLAGS_MPI], "$ac_cv_alps_ldflags_mpi")
 AC_SUBST([LIBS_MPI], "$ac_cv_alps_libs_mpi")
 
-AC_SUBST([LDFLAGS_PS], "$ac_cv_alps_ldflags_mpi")
-AC_SUBST([LIBS_PS], "-lparapack_sgl $ac_cv_alps_libs_mpi")
+AC_SUBST([LDFLAGS_PS], "$ac_cv_alps_ldflags")
+AC_SUBST([LIBS_PS], "-lparapack_sgl $ac_cv_alps_libs")
 
 AC_SUBST([LDFLAGS_PP], "$ac_cv_alps_ldflags_mpi")
 AC_SUBST([LIBS_PP], "-lparapack_mpi $ac_cv_alps_libs_mpi")

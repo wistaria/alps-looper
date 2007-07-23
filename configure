@@ -18834,9 +18834,9 @@ LDFLAGS_MPI="$ac_cv_alps_ldflags_mpi"
 LIBS_MPI="$ac_cv_alps_libs_mpi"
 
 
-LDFLAGS_PS="$ac_cv_alps_ldflags_mpi"
+LDFLAGS_PS="$ac_cv_alps_ldflags"
 
-LIBS_PS="-lparapack_sgl $ac_cv_alps_libs_mpi"
+LIBS_PS="-lparapack_sgl $ac_cv_alps_libs"
 
 
 LDFLAGS_PP="$ac_cv_alps_ldflags_mpi"
