@@ -28,6 +28,7 @@
 #include <looper/evaluator_impl.h>
 #include <looper/montecarlo.h>
 #include <looper/permutation.h>
+#include <looper/union_find.h>
 #include <looper/temperature.h>
 
 #ifndef LOOPER_ONLY_PATH_INTEGRAL

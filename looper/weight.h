@@ -29,6 +29,7 @@
 #include "model_parameter.h"
 
 #include <alps/math.hpp>
+#include <boost/array.hpp>
 #include <algorithm> // for std::min std::max
 #include <cmath>     // for std::abs
 
@@ -40,9 +41,11 @@ namespace looper {
 
 struct site_weight {
 
+  BOOST_STATIC_CONSTANT(int, num_graphs = 1);
+
   int sign;
   double offset;
-  double v[1];
+  boost::array<double, num_graphs> v;
 
   // loop equations:
   //
@@ -55,11 +58,9 @@ struct site_weight {
   //   v0 = |Hx|/2
 
   site_weight() : sign(1), offset(0) { v[0] = 0; }
-  site_weight(const site_parameter& p, double /* force_scatter */ = 0)
-  { init(p); }
+  site_weight(const site_parameter& p, double /* force_scatter */ = 0) { init(p); }
 
-  void init(const site_parameter& p, double /* force_scatter */ = 0)
-  {
+  void init(const site_parameter& p, double /* force_scatter */ = 0) {
     sign = (p.hx >= 0 ? 1 : -1);
     v[0] = std::abs(p.hx) / 2;
     offset = v[0];
@@ -71,39 +72,37 @@ struct site_weight {
   void check(const site_parameter& p) const;
 };
 
-struct bond_weight {
+struct xxz_bond_weight {
+
+  BOOST_STATIC_CONSTANT(int, num_graphs = 4);
 
   int sign;
   double offset;
-  double v[4];
-
-  // correspondence with notation in textbook
-  //        textbook
-  // v0     g3
-  // v1     g4
-  // v2     g1
-  // v3     g2
+  boost::array<double, num_graphs> v;
 
   // loop equations:
   //
-  //   - offset + v2 + v3 = - Jz/4
-  //   - offset + v0 + v1 = + Jz/4
-  //              v0 + v2 =   |Jxy|/2
+  //   - offset + v1 + v3 = - Jz/4
+  //   - offset + v0 + v2 = + Jz/4
+  //              v0 + v1 =   |Jxy|/2
 
   // standard solution:
   //
   // i) Jz <= -|Jxy|  (ferro-Ising)
-  //      v2 = |Jxy|/2
+  //      v1 = |Jxy|/2
   //      v3 = -(|Jxy| + Jz)/2
-  //      v0 = v1 = 0
+  //      v0 = v2 = 0
+  //      offset = -Jz/4
   // ii) -|Jxy| <= Jz <= |Jxy|  (XY)
   //      v0 = (|Jxy| + Jz)/4
-  //      v2 = (|Jxy| - Jz)/4
-  //      v1 = v3 = 0
+  //      v1 = (|Jxy| - Jz)/4
+  //      v2 = v3 = 0
+  //      offset = |Jxy|/4
   // iii) Jz >= |Jxy|  (antiferro-Ising)
   //      v0 = |Jxy|/2
-  //      v1 = -(|Jxy| - Jz)/2
-  //      v2 = v3 = 0
+  //      v2 = -(|Jxy| - Jz)/2
+  //      v1 = v3 = 0
+  //      offset = Jz/4
 
   // "ergodic" solutions (with additional parameter 0 < a < 1)
   //
@@ -114,16 +113,17 @@ struct bond_weight {
   //      same as the standard solution
   //   ii-2) |Jxy| - Jz <= 2 a |Jxy|
   //      v0 = (1-a) |Jxy| / 2
-  //      v1 = -((1-2a) |Jxy| - Jz)/2
-  //      v2 = a |Jxy| / 2
+  //      v1 = a |Jxy| / 2
+  //      v2 = -((1-2a) |Jxy| - Jz)/2
   //      v3 = 0
+  //      offset = Jz/4 + a |Jxy| / 2
   // iii) Jz >= |Jxy|  (antiferro-Ising)
   //      same as ii-2)
 
-  bond_weight() : sign(1), offset(0) { v[0] = v[1] = v[2] = v[3] = 0; }
-  bond_weight(const site_parameter& p, double force_scatter = 0) { init(p, force_scatter); }
-  bond_weight(const bond_parameter_xxz& p, double force_scatter = 0) { init(p, force_scatter); }
-  bond_weight(const bond_parameter_xyz& p, double force_scatter = 0) { init(p, force_scatter); }
+  xxz_bond_weight() : sign(1), offset(0) { v[0] = v[1] = v[2] = v[3] = 0; }
+  xxz_bond_weight(const site_parameter& p, double force_scatter = 0) { init(p, force_scatter); }
+  xxz_bond_weight(const bond_parameter_xxz& p, double force_scatter = 0) { init(p, force_scatter); }
+  xxz_bond_weight(const bond_parameter_xyz& p, double force_scatter = 0) { init(p, force_scatter); }
 
   void init(const bond_parameter_xxz& p, double force_scatter = 0) {
     sign = (p.jxy <= 0 ? 1 : -1);
@@ -134,14 +134,14 @@ struct bond_weight {
       if (jxy - jz > 2 * a * jxy) {
         // standard solutions
         v[0] = crop_0(std::min(jxy/2, (jxy + jz)/4));
-        v[1] = crop_0(-(jxy - jz)/2.0);
-        v[2] = crop_0(std::min(jxy/2, (jxy - jz)/4));
+        v[1] = crop_0(std::min(jxy/2, (jxy - jz)/4));
+        v[2] = crop_0(-(jxy - jz)/2.0);
         v[3] = crop_0(-(jxy + jz)/2);
       } else {
         // "ergodic" solutions
         v[0] = (1-a)*jxy/2;
-        v[1] = -((1-2*a)*jxy-jz)/2;
-        v[2] = a*jxy/2;
+        v[1] = a*jxy/2;
+        v[2] = -((1-2*a)*jxy-jz)/2;
         v[3] = 0;
       }
     } else {
@@ -166,23 +166,129 @@ struct bond_weight {
   void check(const bond_parameter_xxz& p) const;
 };
 
-class weight_table
-{
+struct xyz_bond_weight {
+
+  BOOST_STATIC_CONSTANT(int, num_graphs = 6);
+
+  int sign;
+  double offset;
+  boost::array<double, num_graphs> v;
+
+  // loop equations:
+  //
+  //   - offset + v1 + v3 + v5 = - Jz/4
+  //   - offset + v0 + v2 + v4 = + Jz/4
+  //              v0 + v1      = |Jx+Jy|/4 = Jp/2
+  //              v4 + v5      = |Jx-Jy|/4 = Jm/2
+
+  // standard solution:
+  //
+  // i) Jz <= -Jp  (ferro-Ising)
+  //      v1 = Jp/2
+  //      v3 = -(Jp + Jz)/2
+  //      v4 = v5 = Jm/4
+  //      v0 = v2 = 0
+  //      offset = (Jm-Jz)/4
+  // ii) -Jp <= Jz <= Jp  (XY)
+  //      v0 = (Jp + Jz)/4
+  //      v1 = (Jp - Jz)/4
+  //      v4 = v5 = Jm/4
+  //      v2 = v3 = 0
+  //      offset = (Jm+Jp)/4
+  // iii) Jz >= Jp  (antiferro-Ising)
+  //      v0 = Jp/2
+  //      v2 = -(Jp - Jz)/2
+  //      v4 = v5 = Jm/4
+  //      v1 = v3 = 0
+  //      offset = (Jm+Jz)/4
+
+  // "ergodic" solutions (with additional parameter 0 < a < 1)
+  //
+  // i) Jz <= -Jp  (ferro-Ising)
+  //      same as the standard solution
+  // ii) -Jp <= Jz <= Jp  (XY)
+  //   ii-1) Jp - Jz >= 2 a Jp
+  //      same as the standard solution
+  //   ii-2) Jp - Jz <=  2 a Jp
+  //      v0 = (1-a) Jp / 2
+  //      v1 = a Jp / 2
+  //      v2 = -((1-2a) Jp + Jz)/2
+  //      v4 = v5 = Jm/4
+  //      v3 = 0
+  //      offset = (Jm + 2a Jp + Jz)/4
+  // iii) Jz >= Jp  (antiferro-Ising)
+  //      same as ii-2)
+
+  xyz_bond_weight() : sign(1), offset(0) { v[0] = v[1] = v[2] = v[3] = v[4] = v[5] = 0; }
+  xyz_bond_weight(const site_parameter& p, double force_scatter = 0) { init(p, force_scatter); }
+  xyz_bond_weight(const bond_parameter_xxz& p, double force_scatter = 0) { init(p, force_scatter); }
+  xyz_bond_weight(const bond_parameter_xyz& p, double force_scatter = 0) { init(p, force_scatter); }
+
+  void init(const bond_parameter_xyz& p, double force_scatter = 0) {
+    if ((p.jx + p.jy) * (p.jx - p.jy) < 0)
+      boost::throw_exception(std::runtime_error("(Jx+Jy) and (Jx-Jy) may not have opposite signs"));
+    sign = ((p.jx + p.jy) <= 0 ? 1 : -1);
+    double jp = std::abs((p.jx + p.jy)) / 2;
+    double jm = std::abs((p.jx - p.jy)) / 2;
+    double jz = p.jz;
+    double a = crop_01(force_scatter);
+    if (alps::is_nonzero<1>(jp + std::abs(jz))) {
+      if (jp - jz > 2 * a * jp) {
+        // standard solutions
+        v[0] = crop_0(std::min(jp/2, (jp + jz)/4));
+        v[1] = crop_0(std::min(jp/2, (jp - jz)/4));
+        v[2] = crop_0(-(jp - jz)/2.0);
+        v[3] = crop_0(-(jp + jz)/2);
+      } else {
+        // "ergodic" solutions
+        v[0] = (1-a)*jp/2;
+        v[1] = a*jp/2;
+        v[2] = -((1-2*a)*jp-jz)/2;
+        v[3] = 0;
+      }
+    } else {
+      v[0] = v[1] = v[2] = v[3] = 0;
+    }
+    if (alps::is_nonzero<1>(jm)) {
+      v[4] = v[5] = jm / 2;
+    } else {
+      v[4] = v[5] = 0;
+    }
+    offset = weight()/2;
+  }
+  void init(const bond_parameter_xxz& p, double force_scatter = 0) {
+    init(bond_parameter_xyz(p.c, p.jxy, p.jxy, p.jz), force_scatter);
+  }
+  void init(const site_parameter& p, double force_scatter = 0) {
+    bond_parameter_xyz bp(0, 0, 0, p.d);
+    init(bp, force_scatter);
+  }
+
+  double weight() const { return v[0] + v[1] + v[2] + v[3] + v[4] + v[5]; }
+  bool has_weight() const { return alps::is_positive<1>(weight()); }
+
+  void check(const bond_parameter_xyz& p) const;
+};
+
+class weight_table {
 public:
   typedef std::pair<int, site_weight> site_weight_t;
-  typedef std::pair<int, bond_weight> bond_weight_t;
+  typedef std::pair<int, xxz_bond_weight> bond_weight_t;
   typedef std::vector<std::pair<int, site_weight> >::const_iterator
     site_weight_iterator;
-  typedef std::vector<std::pair<int, bond_weight> >::const_iterator
+  typedef std::vector<std::pair<int, xxz_bond_weight> >::const_iterator
     bond_weight_iterator;
 
-  template<class M, class LAT>
-  weight_table(M const& m, const LAT& lat, double force_scatter = 0)
-  { init(m, lat, force_scatter); }
+  BOOST_STATIC_CONSTANT(int, num_site_graphs = site_weight::num_graphs);
+  BOOST_STATIC_CONSTANT(int, num_bond_graphs = xxz_bond_weight::num_graphs);
 
   template<class M, class LAT>
-  void init(M const& m, const LAT& lat, double force_scatter = 0)
-  {
+  weight_table(M const& m, const LAT& lat, double force_scatter = 0) {
+    init(m, lat, force_scatter);
+  }
+
+  template<class M, class LAT>
+  void init(M const& m, const LAT& lat, double force_scatter = 0) {
     weight_ = 0;
     site_weights_.clear();
     bond_weights_.clear();
@@ -201,7 +307,7 @@ public:
     typename real_bond_iterator<LAT>::type rbi, rbi_end;
     for (boost::tie(rbi, rbi_end) = bonds(lat.rg());
          rbi != rbi_end; ++rbi) {
-      bond_weight bw(m.bond(*rbi, lat.rg()), force_scatter);
+      xxz_bond_weight bw(m.bond(*rbi, lat.rg()), force_scatter);
       typename virtual_bond_iterator<LAT>::type vbi, vbi_end;
       for (boost::tie(vbi, vbi_end) = bonds(lat, *rbi);
            vbi != vbi_end; ++vbi) {
@@ -213,7 +319,7 @@ public:
     if (m.has_d_term()) {
       for (boost::tie(rsi, rsi_end) = sites(lat.rg());
            rsi != rsi_end; ++rsi) {
-        bond_weight bw(m.site(*rsi, lat.rg()), force_scatter);
+        xxz_bond_weight bw(m.site(*rsi, lat.rg()), force_scatter);
         typename virtual_bond_iterator<LAT>::type vbi, vbi_end;
         for (boost::tie(vbi, vbi_end) = bonds(lat, *rsi);
              vbi != vbi_end; ++vbi) {
@@ -234,11 +340,9 @@ public:
   }
 
   std::pair<site_weight_iterator, site_weight_iterator>
-  site_weights() const
-  { return std::make_pair(site_weights_.begin(), site_weights_.end()); }
+  site_weights() const { return std::make_pair(site_weights_.begin(), site_weights_.end()); }
   std::pair<bond_weight_iterator, bond_weight_iterator>
-  bond_weights() const
-  { return std::make_pair(bond_weights_.begin(), bond_weights_.end()); }
+  bond_weights() const { return std::make_pair(bond_weights_.begin(), bond_weights_.end()); }
 
   double weight() const { return weight_; }
   double rho() const { return weight(); }
@@ -248,15 +352,14 @@ private:
   double weight_;
   double energy_offset_;
   std::vector<std::pair<int, site_weight> > site_weights_;
-  std::vector<std::pair<int, bond_weight> > bond_weights_;
+  std::vector<std::pair<int, xxz_bond_weight> > bond_weights_;
 };
 
 //
 // Implementations
 //
 
-inline void site_weight::check(const site_parameter& p) const
-{
+inline void site_weight::check(const site_parameter& p) const {
   if (!alps::is_zero<1>(-offset+v[0]) ||
       !alps::is_zero<1>(-offset+v[0]) ||
       !alps::is_equal<1>(v[0], sign * p.hx/2))
@@ -269,17 +372,31 @@ inline void site_weight::check(const site_parameter& p) const
   }
 }
 
-inline void bond_weight::check(const bond_parameter_xxz& p) const
-{
-  if (!alps::is_equal<1>(-offset+v[0]+v[1],  p.jz/4) ||
-      !alps::is_equal<1>(-offset+v[2]+v[3], -p.jz/4) ||
-      !alps::is_equal<1>(v[0]+v[2], -sign * p.jxy/2))
+inline void xxz_bond_weight::check(const bond_parameter_xxz& p) const {
+  if (!alps::is_equal<1>(-offset+v[0]+v[2],  p.jz/4) ||
+      !alps::is_equal<1>(-offset+v[1]+v[3], -p.jz/4) ||
+      !alps::is_equal<1>(v[0]+v[1], -sign * p.jxy/2))
     boost::throw_exception(std::logic_error("bond_parameter_xxz::check 1"));
-  bond_parameter_xxz pp(p.c, -2 * (v[0] + v[2]) * sign, 2 * (v[0] + v[1] - v[2] - v[3]));
+  bond_parameter_xxz pp(p.c, -2 * (v[0] + v[1]) * sign, 2 * (v[0] - v[1] + v[2] - v[3]));
   if (pp != p) {
     std::cerr << p.c << ' ' << p.jxy << ' ' << p.jz << std::endl;
     std::cerr << pp.c << ' ' << pp.jxy << ' ' << pp.jz << std::endl;
     boost::throw_exception(std::logic_error("bond_parameter_xxz::check 2"));
+  }
+}
+
+inline void xyz_bond_weight::check(const bond_parameter_xyz& p) const {
+  if (!alps::is_equal<1>(-offset+v[0]+v[2]+v[4],  p.jz/4) ||
+      !alps::is_equal<1>(-offset+v[1]+v[3]+v[5], -p.jz/4) ||
+      !alps::is_equal<1>(v[0]+v[1], -sign * (p.jx+p.jy)/4) ||
+      !alps::is_equal<1>(v[4]+v[5], -sign * (p.jx-p.jy)/4))
+    boost::throw_exception(std::logic_error("bond_parameter_xyz::check 1"));
+  bond_parameter_xyz pp(p.c, -2 * (v[0] + v[1] + v[4] + v[5]) * sign,
+    -2 * (v[0] + v[1] - v[4] - v[5]) * sign, 2 * (v[0] - v[1] + v[2] - v[3]));
+  if (pp != p) {
+    std::cerr << p.c << ' ' << p.jx << ' ' << p.jy << ' ' << p.jz << std::endl;
+    std::cerr << pp.c << ' ' << pp.jx << ' ' << pp.jy << ' ' << pp.jz << std::endl;
+    boost::throw_exception(std::logic_error("bond_parameter_xyz::check 2"));
   }
 }
 

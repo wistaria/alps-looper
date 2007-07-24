@@ -27,45 +27,207 @@
 
 #include "location.h"
 #include "random_choice.h"
-#include "union_find.h"
 
 #include <alps/math.hpp>
-#include <alps/osiris.h>
-#include <boost/random.hpp>
+#include <boost/array.hpp>
 #include <boost/throw_exception.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <stdexcept>
 
 namespace looper {
 
-struct bond_graph_type {
-  // g = 0 (doc/loop-g3.eps)
-  //     1 (doc/loop-g4.eps)
-  //     2 (doc/loop-g1.eps)
-  //     3 (doc/loop-g2.eps)
-  static bool is_compatible(int g, int c0, int c1) { return (g >> 1) ^ c0 ^ c1; }
-};
+//
+// site graph type
+//
+//   g = 0 (vertically disconnected)
+//
 
-struct xyz_bond_graph_type {
-  // g = 0 (doc/loop-g3.eps)
-  //     1 (doc/loop-g4.eps)
-  //     2 (doc/loop-g1.eps)
-  //     3 (doc/loop-g2.eps)
-  //     4 (doc/loop-gd.eps)
-  static bool is_compatible(int g, int c0, int c1) {
-    return (g != 4) ? (g >> 1) ^ c0 ^ c1 : 1 ^ c0 ^ c1;
+struct site_graph_type {
+  static bool is_valid_gid(int g) { return g == 0; }
+  static bool is_compatible(int /* g */, int /* c */) { return true; }
+  template<class T>
+  static boost::tuple<int /* curr */, int /* loop0 */, int /* loop1 */>
+  reconnect(int /* g */, std::vector<T>& fragments, int curr) {
+    int loop1 = add(fragments);
+    return boost::make_tuple(loop1, curr, loop1);
   }
 };
 
-struct site_graph_type {
-  // g = 0 (g1 in textbook)
-  static bool is_compatible(int /* g */, int /* c */) { return true; }
+
+//
+// bond graph types
+//
+//   g = 0   o.o    g = 1   o o
+//                           X
+//           o.o            o o
+//
+//   g = 2   o.o    g = 3   o-o
+//           |*|            |X|
+//           o.o            o-o
+//
+//   g = 4   o o    g = 5   o-o
+//            *
+//           o o            o-o
+
+// optimized bond_graph_type for Heisenberg Antiferromagnet
+
+struct haf_bond_graph_type {
+  static bool is_valid_gid(int g) { return g == 0; }
+  static bool is_compatible(int /* g */, int c0, int c1) { return c0 != c1; }
+  template<class T>
+  static boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
+  reconnect(int g, std::vector<T>& fragments, int curr0, int curr1) {
+    int loop0 = unify(fragments, curr0, curr1);
+    int loop1 = curr0 = curr1 = add(fragments);
+    return boost::make_tuple(curr0, curr1, loop0, loop1);
+  }
+
+  static bool has_nontrivial_diagonal_choice_helper() { return false; }
+  struct diagonal_choice_helper {
+    diagonal_choice_helper() {}
+    template<std::size_t N>
+    diagonal_choice_helper(boost::array<double, N> const&) {}
+  };
+  template<typename RNG>
+  static int choose_diagonal(RNG&, std::vector<diagonal_choice_helper> const&, int, int, int) {
+    return 0;
+  }
+
+  static bool has_nontrivial_offdiagonal_choice_helper() { return false; }
+  struct offdiagonal_choice_helper {
+    offdiagonal_choice_helper() {}
+    template<std::size_t N>
+    offdiagonal_choice_helper(boost::array<double, N> const&) {}
+  };
+  template<typename RNG>
+  static int choose_offdiagonal(RNG&, std::vector<offdiagonal_choice_helper> const&, int, int,
+    int) {
+    return 0;
+  }
 };
 
-template<class LOC = location>
-class local_graph
-{
+// optimized bond_graph_type for Heisenberg Ferromagnet
+
+struct hf_bond_graph_type {
+  static bool is_valid_gid(int g) { return g == 1; }
+  static bool is_compatible(int c0, int c1) { return c0 == c1; }
+  template<class T>
+  static boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
+  reconnect(int g, std::vector<T>& fragments, int curr0, int curr1) {
+    int loop0 = curr0;
+    int loop1 = curr1;
+    std::swap(curr0, curr1);
+    return boost::make_tuple(curr0, curr1, loop0, loop1);
+  }
+
+  static bool has_nontrivial_diagonal_choice_helper() { return false; }
+  struct diagonal_choice_helper {
+    diagonal_choice_helper() {}
+    template<std::size_t N>
+    diagonal_choice_helper(boost::array<double, N> const&) {}
+  };
+  template<typename RNG>
+  static int choose_diagonal(RNG&, std::vector<diagonal_choice_helper> const&, int, int, int) {
+    return 1;
+  }
+
+  static bool has_nontrivial_offdiagonal_choice_helper() { return false; }
+  struct offdiagonal_choice_helper {
+    offdiagonal_choice_helper() {}
+    template<std::size_t N>
+    offdiagonal_choice_helper(boost::array<double, N> const&) {}
+  };
+  template<typename RNG>
+  static int choose_offdiagonal(RNG&, std::vector<offdiagonal_choice_helper> const&, int, int,
+    int) {
+    return 1;
+  }
+};
+
+// bond_graph_type for XXZ interaction
+
+struct xxz_bond_graph_type {
+  static bool is_valid_gid(int g) { return g >= 0 && g <= 3; }
+  static bool is_compatible(int g, int c0, int c1) { return (g & 1) ^ c0 ^ c1; }
+  template<class T>
+  static boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
+  reconnect(int g, std::vector<T>& fragments, int curr0, int curr1) {
+    int loop0, loop1;
+    if (g & 2 == 2) {
+      loop0 = loop1 = curr0 = curr1 = unify(fragments, curr0, curr1);
+    } else if (g == 0) {
+      loop0 = unify(fragments, curr0, curr1);
+      loop1 = curr0 = curr1 = add(fragments);
+    } else {
+      loop0 = curr0;
+      loop1 = curr1;
+      std::swap(curr0, curr1);
+    }
+    return boost::make_tuple(curr0, curr1, loop0, loop1);
+  }
+
+  static bool has_nontrivial_diagonal_choice_helper() { return true; }
+  struct diagonal_choice_helper {
+    diagonal_choice_helper() {}
+    template<std::size_t N>
+    diagonal_choice_helper(boost::array<double, N> const& v) {
+      p[0] = alps::is_nonzero<1>(v[0] + v[2]) ? v[0] / (v[0] + v[2]) : 1; // for antiparallel
+      p[1] = alps::is_nonzero<1>(v[1] + v[3]) ? v[1] / (v[1] + v[3]) : 1; // for parallel
+    }
+    boost::array<double, 2> p;
+  };
+  template<typename RNG>
+  static int choose_diagonal(RNG& rng, std::vector<diagonal_choice_helper> const& helpers, int b,
+    int c0, int c1) {
+    int c = 1 ^ c0 ^ c1; // 0 for antiparallel, 1 for parallel,
+    return (rng() < helpers[b].p[c] ? 0 : 2) ^ c;
+  }
+
+  static bool has_nontrivial_offdiagonal_choice_helper() { return true; }
+  struct offdiagonal_choice_helper {
+    offdiagonal_choice_helper() {}
+    template<std::size_t N>
+    offdiagonal_choice_helper(boost::array<double, N> const& v) {
+      p = alps::is_nonzero<1>(v[0] + v[1]) ? v[0] / (v[0] + v[1]) : 1;
+    }
+    double p;
+  };
+  template<typename RNG>
+  static int choose_offdiagonal(RNG& rng, std::vector<offdiagonal_choice_helper> const& helpers,
+    int b, int /* c0 */, int /* c1 */) {
+    return rng() < helpers[b].p ? 0 : 1;
+  }
+};
+
+// bond_graph_type for XYZ interaction
+
+struct xyz_bond_graph_type {
+  static bool is_valid_gid(int g) { return g >= 0 && g <= 5; }
+  static bool is_compatible(int g, int c0, int c1) { return (g & 1) ^ c0 ^ c1; }
+  template<typename T>
+  static boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
+  reconnect(int g, std::vector<T>& fragments, int curr0, int curr1) {
+    int loop0, loop1;
+    if (g & 2 == 2) {
+      loop0 = loop1 = curr0 = curr1 = unify(fragments, curr0, curr1);
+    } else if (g == 0 || g == 5) {
+      loop0 = unify(fragments, curr0, curr1);
+      loop1 = curr0 = curr1 = add(fragments);
+    } else {
+      loop0 = curr0;
+      loop1 = curr1;
+      std::swap(curr0, curr1);
+    }
+    return boost::make_tuple(curr0, curr1, loop0, loop1);
+  }
+};
+
+template<typename SITE = site_graph_type, typename BOND = xxz_bond_graph_type,
+  typename LOC = location>
+class local_graph {
 public:
+  typedef SITE site_graph_t;
+  typedef BOND bond_graph_t;
   typedef LOC location_t;
 
   local_graph() {}
@@ -73,12 +235,18 @@ public:
 
   int type() const { return type_; }
   bool is_compatible(int c) const {
-    assert(is_site());
-    return site_graph_type::is_compatible(type_, c);
+#ifndef NDEBUG
+    if (!is_site())
+      boost::throw_exception(std::logic_error("local_graph<>::is_compatible"));
+#endif
+    return site_graph_t::is_compatible(type_, c);
   }
   bool is_compatible(int c0, int c1) const {
-    assert(is_bond());
-    return bond_graph_type::is_compatible(type_, c0, c1);
+#ifndef NDEBUG
+    if (!is_bond())
+      boost::throw_exception(std::logic_error("local_graph<>::is_compatible"));
+#endif
+    return bond_graph_t::is_compatible(type_, c0, c1);
   }
 
   const location_t& loc() const { return loc_; }
@@ -88,37 +256,24 @@ public:
   bool is_bond() const { return loc_.is_bond(); }
   bool is_site() const { return loc_.is_site(); }
 
-  // static local_graph bond_graph(int type, int pos) {
-  //   return local_graph(type, location_t::bond_location(pos));
-  // }
-  // static local_graph site_graph(int type, int pos) {
-  //   return local_graph(type, location_t::site_location(pos));
-  // }
-
   template<class T>
   boost::tuple<int /* curr */, int /* loop0 */, int /* loop1 */>
   reconnect(std::vector<T>& fragments, int curr) const {
-    assert(is_site());
-    int loop1 = add(fragments);
-    return boost::make_tuple(loop1, curr, loop1);
+#ifndef NDEBUG
+    if (!is_site())
+      boost::throw_exception(std::logic_error("local_graph<>::reconnect"));
+#endif
+    return site_graph_t::reconnect(type_, fragments, curr);
   }
 
   template<class T>
   boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
   reconnect(std::vector<T>& fragments, int curr0, int curr1) const {
-    assert(is_bond());
-    int loop0, loop1;
-    if (type_ == 0) {
-      loop0 = unify(fragments, curr0, curr1);
-      loop1 = curr0 = curr1 = add(fragments);
-    } else if (type_ == 2) {
-      loop0 = curr0;
-      loop1 = curr1;
-      std::swap(curr0, curr1);
-    } else {
-      loop0 = loop1 = curr0 = curr1 = unify(fragments, curr0, curr1);
-    }
-    return boost::make_tuple(curr0, curr1, loop0, loop1);
+#ifndef NDEBUG
+    if (!is_bond())
+      boost::throw_exception(std::logic_error("local_graph<>::reconnect"));
+#endif
+    return bond_graph_t::reconnect(type_, fragments, curr0, curr1);
   }
 
   static int loop_l(int /* t */, int loop0, int /* loop1 */) { return loop0; }
@@ -133,142 +288,54 @@ private:
   location_t loc_;
 };
 
-template<class LOC>
-inline int type(const local_graph<LOC>& g) { return g.type(); }
-template<class LOC>
-inline bool is_compatible(const local_graph<LOC>& g, int c) { return g.is_compatible(c); }
-template<class LOC>
-inline bool is_compatible(const local_graph<LOC>& g, int c0, int c1) {
+template<typename SITE, typename BOND, typename LOC>
+inline int type(const local_graph<SITE, BOND, LOC>& g) { return g.type(); }
+template<typename SITE, typename BOND, typename LOC>
+inline bool is_compatible(const local_graph<SITE, BOND, LOC>& g, int c) {
+  return g.is_compatible(c);
+}
+template<typename SITE, typename BOND, typename LOC>
+inline bool is_compatible(const local_graph<SITE, BOND, LOC>& g, int c0, int c1) {
   return g.is_compatible(c0, c1);
 }
 
-template<class LOC>
-inline int pos(const local_graph<LOC>& g) { return g.pos(); }
-template<class LOC>
-inline bool is_site(const local_graph<LOC>& g) { return g.is_site(); }
-template<class LOC>
-inline bool is_bond(const local_graph<LOC>& g) { return g.is_bond(); }
+template<typename SITE, typename BOND, typename LOC>
+inline int pos(const local_graph<SITE, BOND, LOC>& g) { return g.pos(); }
+template<typename SITE, typename BOND, typename LOC>
+inline bool is_site(const local_graph<SITE, BOND, LOC>& g) { return g.is_site(); }
+template<typename SITE, typename BOND, typename LOC>
+inline bool is_bond(const local_graph<SITE, BOND, LOC>& g) { return g.is_bond(); }
 
-template<class T, class LOC>
+template<typename T, typename SITE, typename BOND, typename LOC>
 boost::tuple<int /* curr */, int /* loop0 */, int /* loop1 */>
-reconnect(std::vector<T>& fragments, const local_graph<LOC>& g, int curr) {
+reconnect(std::vector<T>& fragments, const local_graph<SITE, BOND, LOC>& g, int curr) {
   return g.reconnect(fragments, curr);
 }
 
-template<class T, class LOC>
+template<typename T, typename SITE, typename BOND, typename LOC>
 boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
-reconnect(std::vector<T>& fragments, const local_graph<LOC>& g, int curr0, int curr1) {
+reconnect(std::vector<T>& fragments, const local_graph<SITE, BOND, LOC>& g, int curr0, int curr1) {
   return g.reconnect(fragments, curr0, curr1);
 }
 
-// optimized version for antiferromagnetic Heisenberg interaction
-
-template<class LOC>
-class local_graph_haf {
-public:
-  typedef LOC location_t;
-
-  local_graph_haf() {}
-  local_graph_haf(int type, const location_t& loc) : loc_(loc) {
-    assert(type == 0); static_cast<void>(type);
-  }
-
-  static int type() { return 0; }
-  bool is_compatible(int c) const {
-    boost::throw_exception(std::logic_error("local_graph_haf::is_compatible"));
-    return false;
-  }
-  bool is_compatible(int c0, int c1) const { return c0 ^ c1; }
-
-  const location_t& loc() const { return loc_; }
-  int pos() const { return loc_.pos(); }
-  static bool is_bond() { return true; }
-  static bool is_site() { return false; }
-
-  // static local_graph_haf bond_graph(int type, int pos) {
-  //   assert(type == 0);
-  //   return local_graph_haf(0, location_t::bond_location(pos));
-  // }
-  // static local_graph_haf site_graph(int /* type */, int /* pos */) {
-  //   boost::throw_exception(std::logic_error("local_graph_haf::site_graph"));
-  //   return local_graph_haf();
-  // }
-
-  template<class T>
-  boost::tuple<int /* curr */, int /* loop0 */, int /* loop1 */>
-  reconnect(std::vector<T>& /* fragments */, int /* curr */) const {
-    boost::throw_exception(std::logic_error("local_graph_haf::reconnect"));
-    return boost::make_tuple(0, 0, 0);
-  }
-
-  template<class T>
-  boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
-  reconnect(std::vector<T>& fragments, int curr0, int curr1) const {
-    curr0 = unify(fragments, curr0, curr1);
-    curr1 = add(fragments);
-    return boost::make_tuple(curr1, curr1, curr0, curr1);
-  }
-
-  static int loop_l(int, int, int) {
-    boost::throw_exception(std::logic_error("local_graph_haf::loop_u0"));
-    return 0;
-  }
-  static int loop_u(int, int, int) {
-    boost::throw_exception(std::logic_error("local_graph_haf::loop_u1"));
-    return 0;
-  }
-  static int loop_l0(int, int loop0, int /* loop1 */) { return loop0; }
-  static int loop_l1(int, int loop0, int /* loop1 */) { return loop0; }
-  static int loop_u0(int, int /* loop0 */, int loop1) { return loop1; }
-  static int loop_u1(int, int /* loop0 */, int loop1) { return loop1; }
-
-private:
-  location_t loc_;
-};
-
-template<class LOC>
-inline int type(const local_graph_haf<LOC>& g) { return g.type(); }
-template<class LOC>
-inline bool is_compatible(const local_graph_haf<LOC>& g, int c)
-{ return g.is_compatible(c); }
-template<class LOC>
-inline bool is_compatible(const local_graph_haf<LOC>& g, int c0, int c1)
-{ return g.is_compatible(c0, c1); }
-
-template<class LOC>
-inline int pos(const local_graph_haf<LOC>& g) { return g.pos(); }
-template<class LOC>
-inline bool is_site(const local_graph_haf<LOC>& g) { return g.is_site(); }
-template<class LOC>
-inline bool is_bond(const local_graph_haf<LOC>& g) { return g.is_bond(); }
-
-template<class T, class LOC>
-boost::tuple<int /* curr */, int /* loop0 */, int /* loop1 */>
-reconnect(std::vector<T>& fragments, const local_graph_haf<LOC>& g, int curr)
-{ return g.reconnect(fragments, curr); }
-
-template<class T, class LOC>
-boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
-reconnect(std::vector<T>& fragments, const local_graph_haf<LOC>& g,
-          int curr0, int curr1)
-{ return g.reconnect(fragments, curr0, curr1); }
 
 //
 // graph_chooser
 //
 
-template<class LOCAL_GRAPH> class graph_chooser;
+template<typename LOCAL_GRAPH> class graph_chooser;
 
-template<class LOC>
-class graph_chooser<local_graph<LOC> > {
+template<typename SITE, typename BOND, typename LOC>
+class graph_chooser<local_graph<SITE, BOND, LOC> > {
 public:
+  typedef SITE site_graph_t;
+  typedef BOND bond_graph_t;
   typedef LOC location_t;
-  typedef local_graph<location_t> local_graph_t;
+  typedef local_graph<site_graph_t, bond_graph_t, location_t> local_graph_t;
 
-  graph_chooser() : dist_uniform_(0, 1), dist_graph_() {}
+  graph_chooser() : dist_graph_() {}
   template<class WEIGHT_TABLE>
-  graph_chooser(const WEIGHT_TABLE& wt, bool is_path_integral) :
-    dist_uniform_(0, 1), dist_graph_() {
+  graph_chooser(const WEIGHT_TABLE& wt, bool is_path_integral) : dist_graph_() {
     init(wt, is_path_integral);
   }
 
@@ -279,123 +346,62 @@ public:
     offdiag_.resize(0);
     std::vector<double> w;
     weight_ = 0;
-    for (typename WEIGHT_TABLE::site_weight_iterator
-           itr = wt.site_weights().first;
-         itr != wt.site_weights().second; ++itr) {
-      for (int g = 0; g <= 0; ++g) {
-        if (alps::is_nonzero<1>(itr->second.v[g])) {
-          graph_.push_back(local_graph_t(g, location_t::site_location(itr->first)));
-          w.push_back(itr->second.v[g]);
-          weight_ += itr->second.v[g];
+    BOOST_FOREACH(typename WEIGHT_TABLE::site_weight_t const& sw, wt.site_weights()) {
+      for (int g = 0; g < WEIGHT_TABLE::num_site_graphs; ++g) {
+        if (alps::is_nonzero<1>(sw.second.v[g])) {
+          if (site_graph_t::is_valid_gid(g)) {
+            graph_.push_back(local_graph_t(g, location_t::site_location(sw.first)));
+            w.push_back(sw.second.v[g]);
+            weight_ += sw.second.v[g];
+          } else {
+            boost::throw_exception(std::runtime_error("graph_chooser::init"));
+          }
         }
       }
     }
-    for (typename WEIGHT_TABLE::bond_weight_iterator
-           itr = wt.bond_weights().first;
-         itr != wt.bond_weights().second; ++itr) {
-      for (int g = 0; g <= 3; ++g) {
-        if (alps::is_nonzero<1>(itr->second.v[g])) {
-          graph_.push_back(local_graph_t(g, location_t::bond_location(itr->first)));
-          w.push_back(itr->second.v[g]);
-          weight_ += itr->second.v[g];
+    BOOST_FOREACH(typename WEIGHT_TABLE::bond_weight_t const& bw, wt.bond_weights()) {
+      for (int g = 0; g < WEIGHT_TABLE::num_bond_graphs; ++g) {
+        if (alps::is_nonzero<1>(bw.second.v[g])) {
+          if (bond_graph_t::is_valid_gid(g)) {
+            graph_.push_back(local_graph_t(g, location_t::bond_location(bw.first)));
+            w.push_back(bw.second.v[g]);
+            weight_ += bw.second.v[g];
+          } else {
+            boost::throw_exception(std::runtime_error("graph_chooser::init"));
+          }
         }
       }
-      offdiag_.push_back(
-        alps::is_nonzero<1>(itr->second.v[0] + itr->second.v[2]) ?
-        itr->second.v[0] / (itr->second.v[0] + itr->second.v[2]) : 1);
-    }
-    if (!is_path_integral) {
-      for (typename WEIGHT_TABLE::bond_weight_iterator
-             itr = wt.bond_weights().first;
-           itr != wt.bond_weights().second; ++itr) {
-        diag_.push_back(
-          alps::is_nonzero<1>(itr->second.v[0] + itr->second.v[1]) ?
-            itr->second.v[0] / (itr->second.v[0] + itr->second.v[1]) : 1);
-        diag_.push_back(
-          alps::is_nonzero<1>(itr->second.v[2] + itr->second.v[3]) ?
-            itr->second.v[2] / (itr->second.v[2] + itr->second.v[3]) : 1);
-      }
+      if (!is_path_integral && bond_graph_t::has_nontrivial_offdiagonal_choice_helper())
+        diag_.push_back(typename bond_graph_t::diagonal_choice_helper(bw.second.v));
+      if (bond_graph_t::has_nontrivial_offdiagonal_choice_helper())
+        offdiag_.push_back(typename bond_graph_t::offdiagonal_choice_helper(bw.second.v));
     }
     if (w.size()) dist_graph_.init(w);
     if (alps::is_zero<2>(weight_)) weight_ = 1.0e-20;
   }
 
-  template<typename ENGINE>
-  const local_graph_t& graph(ENGINE& eng) const { return graph_[dist_graph_(eng)]; }
-  template<typename ENGINE>
-  local_graph_t diagonal(ENGINE& /* eng */, const location_t& loc, int /* c */) const {
+  template<typename RNG>
+  const local_graph_t& graph(RNG& rng) const { return graph_[dist_graph_(rng)]; }
+  template<typename RNG>
+  local_graph_t diagonal(RNG& /* rng */, const location_t& loc, int /* c */) const {
     return local_graph_t(0, loc);
   }
-  template<typename ENGINE>
-  local_graph_t diagonal(ENGINE& eng, const location_t& loc, int c0, int c1) const {
-    int c = 1 ^ c0 ^ c1; // 0 for antiparallel, 1 for parallel
-    int g = ((dist_uniform_(eng) < diag_[(pos(loc) << 1) | c]) ? 0 : 1) ^ (c << 1);
-    return local_graph_t(g, loc);
+  template<typename RNG>
+  local_graph_t diagonal(RNG& rng, const location_t& loc, int c0, int c1) const {
+    return local_graph_t(bond_graph_t::choose_diagonal(rng, diag_, pos(loc), c0, c1), loc);
   }
-  template<typename ENGINE>
-  local_graph_t offdiagonal(ENGINE& eng, const location_t& loc) const {
-    int g = (is_site(loc) || dist_uniform_(eng) < offdiag_[pos(loc)]) ? 0 : 2;
-    return local_graph_t(g, loc);
+  template<typename RNG>
+  local_graph_t offdiagonal(RNG& rng, const location_t& loc, int c0, int c1) const {
+    return local_graph_t(bond_graph_t::choose_offdiagonal(rng, offdiag_, pos(loc), c0, c1), loc);
   }
   double weight() const { return weight_; }
 
 private:
-  mutable boost::uniform_real<> dist_uniform_;
   random_choice_walker_d<> dist_graph_;
   double weight_;
   std::vector<local_graph_t> graph_;
-  std::vector<double> diag_;
-  std::vector<double> offdiag_;
-};
-
-template<class LOC>
-class graph_chooser<local_graph_haf<LOC> > {
-public:
-  typedef LOC location_t;
-  typedef local_graph_haf<location_t> local_graph_t;
-
-  template<class WEIGHT_TABLE>
-  graph_chooser(const WEIGHT_TABLE& wt, bool is_path_integral) : dist_graph_() {
-    init(wt, is_path_integral);
-  }
-
-  template<class WEIGHT_TABLE>
-  void init(const WEIGHT_TABLE& wt, bool is_path_integral) {
-    diag_.claer();
-    std::vector<double> w;
-    weight_ = 0;
-    for (typename WEIGHT_TABLE::bond_iterator itr = wt.bond_begin();
-         itr != wt.bond_end(); ++itr) {
-      if (alps::is_nonzero<1>(itr->second.v[0])) {
-        diag_.push_back(local_graph_t::bond_graph(0, itr->first));
-        w.push_back(itr->second.v[0]);
-        weight_ += itr->second.v[0];
-      }
-    }
-    if (w.size()) dist_graph_.init(w);
-    if (alps::is_zero<2>(weight_)) weight_ = 1.0e-20;
-  }
-
-  template<typename ENGINE>
-  const local_graph_t& graph(ENGINE& eng) const { return diag_[dist_graph_(eng)]; }
-  template<typename ENGINE>
-  static local_graph_t diagonal(ENGINE& /* eng */, const location_t& loc, int) {
-    return local_graph_t(0, loc);
-  }
-  template<typename ENGINE>
-  static local_graph_t diagonal(ENGINE& /* eng */, const location_t& loc, int, int) {
-    return local_graph_t(0, loc);
-  }
-  template<typename ENGINE>
-  static local_graph_t offdiagonal(ENGINE& /* eng */, const location_t& loc) {
-    return local_graph_t(0, loc);
-  }
-  double weight() const { return weight_; }
-
-private:
-  random_choice_walker_d<> dist_graph_;
-  double weight_;
-  std::vector<local_graph_t> diag_;
+  std::vector<typename bond_graph_t::diagonal_choice_helper> diag_;
+  std::vector<typename bond_graph_t::offdiagonal_choice_helper> offdiag_;
 };
 
 } // end namespace looper

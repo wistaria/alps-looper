@@ -20,6 +20,7 @@ Free Energy Density: -0.501343 +/- inf
 Ground State Energy: -0.5 +/- inf
 Ground State Energy Density: -0.5 +/- inf
 Inverse Temperature: 5 +/- inf
+Local Magnetization at Site 0: 0.493307 +/- inf
 Magnetization: 0.493307 +/- inf
 Magnetization Density: 0.493307 +/- inf
 Magnetization Density^2: 0.25 +/- inf
@@ -64,6 +65,7 @@ Free Energy Density: -0.563464 +/- inf
 Ground State Energy: -0.5 +/- inf
 Ground State Energy Density: -0.5 +/- inf
 Inverse Temperature: 2 +/- inf
+Local Magnetization at Site 0: 0.380797 +/- inf
 Magnetization: 0.380797 +/- inf
 Magnetization Density: 0.380797 +/- inf
 Magnetization Density^2: 0.25 +/- inf
@@ -194,6 +196,10 @@ Free Energy Density: -0.378772 +/- inf
 Ground State Energy: -1.5 +/- inf
 Ground State Energy Density: -0.375 +/- inf
 Inverse Temperature: 5 +/- inf
+Local Magnetization at Site 0: 0.0138159 +/- inf
+Local Magnetization at Site 1: 0.0138159 +/- inf
+Local Magnetization at Site 2: 0.0138159 +/- inf
+Local Magnetization at Site 3: 0.0138159 +/- inf
 Magnetization: 0.0552636 +/- inf
 Magnetization Density: 0.0138159 +/- inf
 Magnetization Density^2: 0.00391136 +/- inf
@@ -242,6 +248,10 @@ Free Energy Density: -0.468959 +/- inf
 Ground State Energy: -1.5 +/- inf
 Ground State Energy Density: -0.375 +/- inf
 Inverse Temperature: 2 +/- inf
+Local Magnetization at Site 0: 0.0591686 +/- inf
+Local Magnetization at Site 1: 0.0591686 +/- inf
+Local Magnetization at Site 2: 0.0591686 +/- inf
+Local Magnetization at Site 3: 0.0591686 +/- inf
 Magnetization: 0.236674 +/- inf
 Magnetization Density: 0.0591686 +/- inf
 Magnetization Density^2: 0.0292938 +/- inf

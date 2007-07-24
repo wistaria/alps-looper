@@ -38,7 +38,7 @@ void output(const looper::site_parameter& p, const looper::site_weight& w)
   w.check(p);
 }
 
-void output(const looper::bond_parameter_xxz& p, const looper::bond_weight& w)
+void output(const looper::bond_parameter_xxz& p, const looper::xxz_bond_weight& w)
 {
   std::cout << "C = " << p.c
             << ", Jxy = " << p.jxy
@@ -73,10 +73,10 @@ try {
     output(site, looper::site_weight(site));
 
     std::cout << "bond weight (standard): ";
-    output(bond, looper::bond_weight(bond));
+    output(bond, looper::xxz_bond_weight(bond));
 
     std::cout << "bond weight (ergodic): ";
-    output(bond, looper::bond_weight(bond, 0.1));
+    output(bond, looper::xxz_bond_weight(bond, 0.1));
   }
 
   std::cout << "[random check]\n";
@@ -101,10 +101,10 @@ try {
     output(site, looper::site_weight(site));
 
     std::cout << "bond weight (standard): ";
-    output(bond, looper::bond_weight(bond));
+    output(bond, looper::xxz_bond_weight(bond));
 
     std::cout << "bond weight (ergodic): ";
-    output(bond, looper::bond_weight(bond, 0.1));
+    output(bond, looper::xxz_bond_weight(bond, 0.1));
   }
 
 #ifndef BOOST_NO_EXCEPTIONS

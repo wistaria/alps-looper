@@ -30,6 +30,7 @@
 #include <looper/operator.h>
 #include <looper/permutation.h>
 #include <looper/temperature.h>
+#include <looper/union_find.h>
 #include <looper/type.h>
 
 #ifndef LOOPER_ONLY_PATH_INTEGRAL
@@ -216,7 +217,10 @@ void loop_worker::build(ENGINE& eng) {
           }
         }
       } else {
-        opi->assign_graph(model.choose_offdiagonal(r_uniform, opi->loc()));
+        if (opi->is_bond())
+          opi->assign_graph(model.choose_offdiagonal(r_uniform, opi->loc(),
+            spins_c[source(opi->pos(), lattice.vg())],
+            spins_c[target(opi->pos(), lattice.vg())]));
       }
       operators.push_back(*opi);
       ++opi;

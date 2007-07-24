@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -63,19 +63,19 @@ public:
   int bond_sign(int p) const { return bond_sign_[p]; }
 
   // from graph_chooser
-  template<typename ENGINE>
-  local_graph_t const& choose_graph(ENGINE& eng) const { return chooser_.graph(eng); }
-  template<typename ENGINE>
-  local_graph_t choose_diagonal(ENGINE& eng, location_t const& loc, int c) const {
-    return chooser_.diagonal(eng, loc, c);
+  template<typename RNG>
+  local_graph_t const& choose_graph(RNG& rng) const { return chooser_.graph(rng); }
+  template<typename RNG>
+  local_graph_t choose_diagonal(RNG& rng, location_t const& loc, int c) const {
+    return chooser_.diagonal(rng, loc, c);
   }
-  template<typename ENGINE>
-  local_graph_t choose_diagonal(ENGINE& eng, location_t const& loc, int c0, int c1) const {
-    return chooser_.diagonal(eng, loc, c0, c1);
+  template<typename RNG>
+  local_graph_t choose_diagonal(RNG& rng, location_t const& loc, int c0, int c1) const {
+    return chooser_.diagonal(rng, loc, c0, c1);
   }
-  template<typename ENGINE>
-  local_graph_t choose_offdiagonal(ENGINE& eng, const location_t& loc) const {
-    return chooser_.offdiagonal(eng, loc);
+  template<typename RNG>
+  local_graph_t choose_offdiagonal(RNG& rng, const location_t& loc, int c0, int c1) const {
+    return chooser_.offdiagonal(rng, loc, c0, c1);
   }
   double graph_weight() const { return chooser_.weight(); }
 

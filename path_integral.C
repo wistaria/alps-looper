@@ -29,6 +29,7 @@
 #include <looper/montecarlo.h>
 #include <looper/operator.h>
 #include <looper/permutation.h>
+#include <looper/union_find.h>
 #include <looper/temperature.h>
 #include <looper/type.h>
 
@@ -199,7 +200,6 @@ void loop_worker::build(ENGINE& eng) {
         ++opi;
         continue;
       } else {
-        opi->assign_graph(model.choose_offdiagonal(r_uniform, opi->loc()));
         operators.push_back(*opi);
         ++opi;
       }
@@ -209,16 +209,17 @@ void loop_worker::build(ENGINE& eng) {
     if (oi->is_bond()) {
       int s0 = source(oi->pos(), lattice.vg());
       int s1 = target(oi->pos(), lattice.vg());
-      boost::tie(current[s0], current[s1], oi->loop0, oi->loop1) =
-        reconnect(fragments, oi->graph(), current[s0], current[s1]);
       if (oi->is_offdiagonal()) {
+        oi->assign_graph(model.choose_offdiagonal(r_uniform, oi->loc(), spins_c[s0], spins_c[s1]));
         spins_c[s0] ^= 1;
         spins_c[s1] ^= 1;
       }
+      boost::tie(current[s0], current[s1], oi->loop0, oi->loop1) =
+        reconnect(fragments, oi->graph(), current[s0], current[s1]);
     } else {
       int s = oi->pos();
-      boost::tie(current[s], oi->loop0, oi->loop1) = reconnect(fragments, oi->graph(), current[s]);
       if (oi->is_offdiagonal()) spins_c[s] ^= 1;
+      boost::tie(current[s], oi->loop0, oi->loop1) = reconnect(fragments, oi->graph(), current[s]);
     }
   }
 

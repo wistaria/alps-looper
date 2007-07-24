@@ -33,9 +33,9 @@ try {
 #endif
 
   std::cout << "[bond graph (general location + general graph)]\n";
-  for (int g = 0; g <= 3; ++g) {
-    looper::local_graph<looper::location> lg =
-      looper::local_graph<looper::location>(g, looper::location::bond_location(0));
+  for (int g = 0; g < 4; ++g) {
+    looper::local_graph<looper::site_graph_type, looper::xxz_bond_graph_type, looper::location>
+      lg(g, looper::location::bond_location(0));
     for (int c0 = 0; c0 <= 1; ++c0)
       for (int c1 = 0; c1 <= 1; ++c1)
         std::cout << "Delta(g=" << type(lg)
@@ -46,9 +46,9 @@ try {
                   << std::endl;
   }
   std::cout << "[site graph (general location + general graph)]\n";
-  for (int g = 0; g <= 0; ++g) {
-    looper::local_graph<looper::location> lg =
-      looper::local_graph<looper::location>(g, looper::location::site_location(0));
+  for (int g = 0; g < 1; ++g) {
+    looper::local_graph<looper::site_graph_type, looper::xxz_bond_graph_type, looper::location>
+      lg(g, looper::location::site_location(0));
     for (int c = 0; c <= 1; ++c)
       std::cout << "Delta(g=" << type(lg)
                 << ", c=" << (c == 0 ? '+' : '-')
@@ -57,9 +57,9 @@ try {
                 << std::endl;
   }
   std::cout << "[bond graph (bond location + general graph)]\n";
-  for (int g = 0; g <= 3; ++g) {
-    looper::local_graph<looper::location_bond> lg =
-      looper::local_graph<looper::location_bond>(g, looper::location_bond::bond_location(0));
+  for (int g = 0; g < 4; ++g) {
+    looper::local_graph<looper::site_graph_type, looper::xxz_bond_graph_type,
+      looper::location_bond> lg(g, looper::location_bond::bond_location(0));
     for (int c0 = 0; c0 <= 1; ++c0)
       for (int c1 = 0; c1 <= 1; ++c1)
         std::cout << "Delta(g=" << type(lg)
@@ -71,8 +71,8 @@ try {
   }
   std::cout << "[bond graph (bond location + haf graph)]\n";
   {
-    looper::local_graph_haf<looper::location_bond> lg =
-      looper::local_graph_haf<looper::location_bond>(0, looper::location_bond::bond_location(0));
+    looper::local_graph<looper::site_graph_type, looper::haf_bond_graph_type,
+      looper::location_bond> lg(0, looper::location_bond::bond_location(0));
     for (int c0 = 0; c0 <= 1; ++c0)
       for (int c1 = 0; c1 <= 1; ++c1)
         std::cout << "Delta(g=" << type(lg)
@@ -83,10 +83,9 @@ try {
                   << std::endl;
   }
   std::cout << "[bond graph (longrange location + general graph)]\n";
-  for (int g = 0; g <= 3; ++g) {
-    looper::local_graph<looper::location_longrange> lg =
-      looper::local_graph<looper::location_longrange>(g,
-        looper::location_longrange::bond_location(0, 1));
+  for (int g = 0; g < 4; ++g) {
+    looper::local_graph<looper::site_graph_type, looper::xxz_bond_graph_type,
+      looper::location_longrange> lg(g, looper::location_longrange::bond_location(0, 1));
     for (int c0 = 0; c0 <= 1; ++c0)
       for (int c1 = 0; c1 <= 1; ++c1)
         std::cout << "Delta(g=" << type(lg)
@@ -98,9 +97,8 @@ try {
   }
   std::cout << "[bond graph (longrange location + haf graph)]\n";
   {
-    looper::local_graph_haf<looper::location_longrange> lg =
-      looper::local_graph_haf<looper::location_longrange>(0,
-        looper::location_longrange::bond_location(0, 1));
+    looper::local_graph<looper::site_graph_type, looper::haf_bond_graph_type,
+      looper::location_longrange> lg(0, looper::location_longrange::bond_location(0, 1));
     for (int c0 = 0; c0 <= 1; ++c0)
       for (int c1 = 0; c1 <= 1; ++c1)
         std::cout << "Delta(g=" << type(lg)
