@@ -233,9 +233,9 @@ if test "$exist_extras" = yes; then
   AC_CONFIG_FILES(extras/Makefile)
   AC_CONFIG_FILES(extras/gap/Makefile)
   AC_CONFIG_FILES(extras/localsus/Makefile)
-  AC_CONFIG_FILES(extras/nonstandard/Makefile extras/nonstandard/xyz_model.xml)
   AC_CONFIG_FILES(extras/top/Makefile)
   AC_CONFIG_FILES(extras/transmag/Makefile extras/transmag/alternating_chain.xml)
+  AC_CONFIG_FILES(extras/xyz/Makefile extras/xyz/xyz_model.xml)
 fi
 if test "$exist_test" = yes; then
   AC_CONFIG_FILES(test/Makefile)

@@ -1,8 +1,8 @@
 SUBDIRS =
 if BUILD_EXTRAS
-SUBDIRS += gap localsus nonstandard top transmag
+SUBDIRS += gap localsus top transmag xyz
 endif
-DIST_SUBDIRS = gap localsus nonstandard top transmag
+DIST_SUBDIRS = gap localsus top transmag xyz
 
 check-extras :
 	for d in $(DIST_SUBDIRS); do test -d $$d && make -C $$d check; done

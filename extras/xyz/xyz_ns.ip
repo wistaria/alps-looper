@@ -34,23 +34,22 @@ T = 0.5
 */
 
 LATTICE = "chain lattice"
-Jz = -1
+local_S = 1/2
+L = 4
+T = 0.2
+
+Jz = 1
 Jx = 0
 Jy = 0
-local_S = 1
-L = 4
-T = 2
+
 { REPRESENTATION = "diagonalization" }
 { REPRESENTATION = "path integral" }
 { REPRESENTATION = "SSE" }
 
-LATTICE = "chain lattice"
 Jz = 0
-Jx = -1
+Jx = 1
 Jy = 0
-local_S = 1
-L = 4
-T = 2
+
 { REPRESENTATION = "diagonalization" }
 { REPRESENTATION = "path integral" }
 { REPRESENTATION = "SSE" }
