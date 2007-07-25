@@ -274,25 +274,29 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
   BOOST_FOREACH(local_operator_t& op, operators) {
     time_t t = op.time();
     if (op.is_bond()) {
-      int b = op.pos();
-      int s0 = source(b, lattice.vg());
-      int s1 = target(b, lattice.vg());
-      weight.term_b(op.loop_l0(), op.loop_l1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
-      accum.term_b(op.loop_l0(), op.loop_l1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
-      if (op.is_offdiagonal()) {
-        spins_c[s0] ^= 1;
-        spins_c[s1] ^= 1;
+      if (!op.is_frozen_bond_graph()) {
+        int b = op.pos();
+        int s0 = source(b, lattice.vg());
+        int s1 = target(b, lattice.vg());
+        weight.term_b(op.loop_l0(), op.loop_l1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
+        accum.term_b(op.loop_l0(), op.loop_l1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
+        if (op.is_offdiagonal()) {
+          spins_c[s0] ^= 1;
+          spins_c[s1] ^= 1;
+        }
+        weight.start_b(op.loop_u0(), op.loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
+        accum.start_b(op.loop_u0(), op.loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
       }
-      weight.start_b(op.loop_u0(), op.loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
-      accum.start_b(op.loop_u0(), op.loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
     } else {
-      int s = op.pos();
-      weight.term_s(op.loop_l(), t, s, spins_c[s]);
-      accum.term_s(op.loop_l(), t, s, spins_c[s]);
-      if (op.is_offdiagonal())
-        spins_c[s] ^= 1;
-      weight.start_s(op.loop_u(), t, s, spins_c[s]);
-      accum.start_s(op.loop_u(), t, s, spins_c[s]);
+      if (!op.is_frozen_site_graph()) {
+        int s = op.pos();
+        weight.term_s(op.loop_l(), t, s, spins_c[s]);
+        accum.term_s(op.loop_l(), t, s, spins_c[s]);
+        if (op.is_offdiagonal())
+          spins_c[s] ^= 1;
+        weight.start_s(op.loop_u(), t, s, spins_c[s]);
+        accum.start_s(op.loop_u(), t, s, spins_c[s]);
+      }
     }
   }
   for (unsigned int s = 0; s < nvs; ++s) {

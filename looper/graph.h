@@ -45,6 +45,7 @@ namespace looper {
 struct site_graph_type {
   static bool is_valid_gid(int g) { return g == 0; }
   static bool is_compatible(int /* g */, int /* c */) { return true; }
+  static bool is_frozen(int /* g */) { return false; }
   template<class T>
   static boost::tuple<int /* curr */, int /* loop0 */, int /* loop1 */>
   reconnect(int /* g */, std::vector<T>& fragments, int curr) {
@@ -74,6 +75,7 @@ struct site_graph_type {
 struct ising_bond_graph_type {
   static bool is_valid_gid(int g) { return g == 2 || g == 3; }
   static bool is_compatible(int g, int c0, int c1) { return (g & 1) ^ c0 ^ c1; }
+  static bool is_frozen(int /* g */) { return true; }
   template<class T>
   static boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
   reconnect(int g, std::vector<T>& fragments, int curr0, int curr1) {
@@ -112,6 +114,7 @@ struct ising_bond_graph_type {
 struct haf_bond_graph_type {
   static bool is_valid_gid(int g) { return g == 0; }
   static bool is_compatible(int /* g */, int c0, int c1) { return c0 != c1; }
+  static bool is_frozen(int /* g */) { return false; }
   template<class T>
   static boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
   reconnect(int g, std::vector<T>& fragments, int curr0, int curr1) {
@@ -149,6 +152,7 @@ struct haf_bond_graph_type {
 struct hf_bond_graph_type {
   static bool is_valid_gid(int g) { return g == 1; }
   static bool is_compatible(int c0, int c1) { return c0 == c1; }
+  static bool is_frozen(int /* g */) { return false; }
   template<class T>
   static boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
   reconnect(int g, std::vector<T>& fragments, int curr0, int curr1) {
@@ -187,11 +191,12 @@ struct hf_bond_graph_type {
 struct xxz_bond_graph_type {
   static bool is_valid_gid(int g) { return g >= 0 && g <= 3; }
   static bool is_compatible(int g, int c0, int c1) { return (g & 1) ^ c0 ^ c1; }
+  static bool is_frozen(int g) { return ((g & 2) == 2); }
   template<class T>
   static boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
   reconnect(int g, std::vector<T>& fragments, int curr0, int curr1) {
     int loop0, loop1;
-    if (g & 2 == 2) {
+    if ((g & 2) == 2) {
       loop0 = loop1 = curr0 = curr1 = unify(fragments, curr0, curr1);
     } else if (g == 0) {
       loop0 = unify(fragments, curr0, curr1);
@@ -242,11 +247,12 @@ struct xxz_bond_graph_type {
 struct xyz_bond_graph_type {
   static bool is_valid_gid(int g) { return g >= 0 && g <= 5; }
   static bool is_compatible(int g, int c0, int c1) { return (g & 1) ^ c0 ^ c1; }
+  static bool is_frozen(int g) { return ((g & 2) == 2); }
   template<typename T>
   static boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
   reconnect(int g, std::vector<T>& fragments, int curr0, int curr1) {
     int loop0, loop1;
-    if (g & 2 == 2) {
+    if ((g & 2) == 2) {
       loop0 = loop1 = curr0 = curr1 = unify(fragments, curr0, curr1);
     } else if (g == 0 || g == 5) {
       loop0 = unify(fragments, curr0, curr1);

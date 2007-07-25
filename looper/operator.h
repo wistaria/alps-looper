@@ -58,20 +58,26 @@ public:
   void flip() { type_ ^= 1; }
   int type() const { return type_ & 3; }
   bool is_diagonal() const { return type() == local_operator_type::diagonal; }
-  bool is_offdiagonal() const
-  { return type() == local_operator_type::offdiagonal; }
+  bool is_offdiagonal() const { return type() == local_operator_type::offdiagonal; }
   bool is_identity() const { return type() == local_operator_type::identity; }
 
   void clear_graph() { type_ &= 3; }
   local_graph_t graph() const { return local_graph_t(graph_type(), loc_); }
-  void assign_graph(const local_graph_t& g)
-  {
+  void assign_graph(const local_graph_t& g) {
     assert(is_identity() || loc_ == g.loc());
     // if type==identity then type will be set to diagonal, otherwize unchanged
     type_ = (type_ & 1) | (g.type() << 2);
     loc_ = g.loc();
   }
   int graph_type() const { return type_ >> 2; }
+  bool is_frozen_site_graph() const {
+    return local_graph_t::site_graph_t::is_frozen(graph_type());
+  }
+  bool is_frozen_bond_graph() const {
+    return local_graph_t::bond_graph_t::is_frozen(graph_type());
+  }
+
+
   int loop_0() const { return loop0; }
   int loop_1() const { return loop1; }
   int loop_l() const

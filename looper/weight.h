@@ -42,7 +42,6 @@ namespace looper {
 struct site_weight {
 
   BOOST_STATIC_CONSTANT(int, num_graphs = 1);
-
   int sign;
   double offset;
   boost::array<double, num_graphs> v;
@@ -56,8 +55,9 @@ struct site_weight {
   // standard solution:
   //
   //   v0 = |Hx|/2
+  //   offset = |Hx|/2
 
-  site_weight() : sign(1), offset(0) { v[0] = 0; }
+  site_weight() : sign(1), offset(0) { v.assign(0); }
   site_weight(const site_parameter& p, double /* force_scatter */ = 0) { init(p); }
 
   void init(const site_parameter& p, double /* force_scatter */ = 0) {
@@ -69,13 +69,23 @@ struct site_weight {
   double weight() const { return v[0]; }
   bool has_weight() const { return alps::is_positive<1>(weight()); }
 
-  void check(const site_parameter& p) const;
+  void check(const site_parameter& p) const {
+    if (!alps::is_zero<1>(-offset+v[0]) ||
+        !alps::is_zero<1>(-offset+v[0]) ||
+        !alps::is_equal<1>(v[0], sign * p.hx/2))
+      boost::throw_exception(std::logic_error("site_parameter::check 1"));
+    site_parameter pp(p.s, p.c, 2 * v[0] * sign, 0, 0);
+    if (pp != p) {
+      std::cerr << p.c << ' ' << p.hx << ' ' << pp.hz << std::endl;
+      std::cerr << pp.c << ' ' << pp.hx << ' ' << pp.hz << std::endl;
+      boost::throw_exception(std::logic_error("site_parameter::check 2"));
+    }
+  }
 };
 
 struct xxz_bond_weight {
 
   BOOST_STATIC_CONSTANT(int, num_graphs = 4);
-
   int sign;
   double offset;
   boost::array<double, num_graphs> v;
@@ -120,7 +130,7 @@ struct xxz_bond_weight {
   // iii) Jz >= |Jxy|  (antiferro-Ising)
   //      same as ii-2)
 
-  xxz_bond_weight() : sign(1), offset(0) { v[0] = v[1] = v[2] = v[3] = 0; }
+  xxz_bond_weight() : sign(1), offset(0) { v.assign(0); }
   xxz_bond_weight(const site_parameter& p, double force_scatter = 0) { init(p, force_scatter); }
   xxz_bond_weight(const bond_parameter_xxz& p, double force_scatter = 0) { init(p, force_scatter); }
   xxz_bond_weight(const bond_parameter_xyz& p, double force_scatter = 0) { init(p, force_scatter); }
@@ -160,16 +170,25 @@ struct xxz_bond_weight {
   }
 
   double weight() const { return v[0] + v[1] + v[2] + v[3]; }
-  bool has_weight() const
-  { return alps::is_positive<1>(weight()); }
+  bool has_weight() const { return alps::is_positive<1>(weight()); }
 
-  void check(const bond_parameter_xxz& p) const;
+  void check(const bond_parameter_xxz& p) const {
+    if (!alps::is_equal<1>(-offset+v[0]+v[2],  p.jz/4) ||
+        !alps::is_equal<1>(-offset+v[1]+v[3], -p.jz/4) ||
+        !alps::is_equal<1>(v[0]+v[1], -sign * p.jxy/2))
+      boost::throw_exception(std::logic_error("bond_parameter_xxz::check 1"));
+    bond_parameter_xxz pp(p.c, -2 * (v[0] + v[1]) * sign, 2 * (v[0] - v[1] + v[2] - v[3]));
+    if (pp != p) {
+      std::cerr << p.c << ' ' << p.jxy << ' ' << p.jz << std::endl;
+      std::cerr << pp.c << ' ' << pp.jxy << ' ' << pp.jz << std::endl;
+      boost::throw_exception(std::logic_error("bond_parameter_xxz::check 2"));
+    }
+  }
 };
 
 struct xyz_bond_weight {
 
   BOOST_STATIC_CONSTANT(int, num_graphs = 6);
-
   int sign;
   double offset;
   boost::array<double, num_graphs> v;
@@ -219,7 +238,7 @@ struct xyz_bond_weight {
   // iii) Jz >= Jp  (antiferro-Ising)
   //      same as ii-2)
 
-  xyz_bond_weight() : sign(1), offset(0) { v[0] = v[1] = v[2] = v[3] = v[4] = v[5] = 0; }
+  xyz_bond_weight() : sign(1), offset(0) { v.assign(0); }
   xyz_bond_weight(const site_parameter& p, double force_scatter = 0) { init(p, force_scatter); }
   xyz_bond_weight(const bond_parameter_xxz& p, double force_scatter = 0) { init(p, force_scatter); }
   xyz_bond_weight(const bond_parameter_xyz& p, double force_scatter = 0) { init(p, force_scatter); }
@@ -267,7 +286,25 @@ struct xyz_bond_weight {
   double weight() const { return v[0] + v[1] + v[2] + v[3] + v[4] + v[5]; }
   bool has_weight() const { return alps::is_positive<1>(weight()); }
 
-  void check(const bond_parameter_xyz& p) const;
+  void check(const bond_parameter_xyz& p) const {
+    if (!alps::is_equal<1>(-offset+v[0]+v[2]+v[4],  p.jz/4) ||
+        !alps::is_equal<1>(-offset+v[1]+v[3]+v[5], -p.jz/4) ||
+        !alps::is_equal<1>(v[0]+v[1], -sign * (p.jx+p.jy)/4) ||
+        !alps::is_equal<1>(v[4]+v[5], -sign * (p.jx-p.jy)/4)) {
+      std::cerr << -offset+v[0]+v[2]+v[4] << '\t' << p.jz/4 << '\t'
+                << -offset+v[1]+v[3]+v[5] << '\t' << -p.jz/4 << '\t'
+                << v[0]+v[1] << '\t' << -sign * (p.jx+p.jy)/4 << '\t'
+                << v[4]+v[5] << '\t' << -sign * (p.jx-p.jy)/4 << std::endl;
+      boost::throw_exception(std::logic_error("bond_parameter_xyz::check 1"));
+    }
+    bond_parameter_xyz pp(p.c, -2 * (v[0] + v[1] + v[4] + v[5]) * sign,
+      -2 * (v[0] + v[1] - v[4] - v[5]) * sign, 2 * (v[0] - v[1] + v[2] - v[3]));
+    if (pp != p) {
+      std::cerr << p.c << ' ' << p.jx << ' ' << p.jy << ' ' << p.jz << std::endl;
+      std::cerr << pp.c << ' ' << pp.jx << ' ' << pp.jy << ' ' << pp.jz << std::endl;
+      boost::throw_exception(std::logic_error("bond_parameter_xyz::check 2"));
+    }
+  }
 };
 
 class weight_table {
@@ -293,51 +330,37 @@ public:
     weight_ = 0;
     site_weights_.clear();
     bond_weights_.clear();
-    typename real_site_iterator<LAT>::type rsi, rsi_end;
-    for (boost::tie(rsi, rsi_end) = sites(lat.rg());
-         rsi != rsi_end; ++rsi) {
-      site_t sw(m.site(*rsi, lat.rg()), force_scatter);
-      typename virtual_site_iterator<LAT>::type vsi, vsi_end;
-      for (boost::tie(vsi, vsi_end) = sites(lat, *rsi);
-           vsi != vsi_end; ++vsi) {
-        site_weights_.push_back(
-          std::make_pair(get(site_index_t(), lat.vg(), *vsi), sw));
+    BOOST_FOREACH(typename real_site_descriptor<LAT>::type rs, sites(lat.rg())) {
+      site_t sw(m.site(rs, lat.rg()), force_scatter);
+      BOOST_FOREACH(typename virtual_site_descriptor<LAT>::type vs, sites(lat, rs)) {
+        site_weights_.push_back(std::make_pair(get(site_index_t(), lat.vg(), vs), sw));
         weight_ += sw.weight();
       }
     }
-    typename real_bond_iterator<LAT>::type rbi, rbi_end;
-    for (boost::tie(rbi, rbi_end) = bonds(lat.rg());
-         rbi != rbi_end; ++rbi) {
-      bond_t bw(m.bond(*rbi, lat.rg()), force_scatter);
-      typename virtual_bond_iterator<LAT>::type vbi, vbi_end;
-      for (boost::tie(vbi, vbi_end) = bonds(lat, *rbi);
-           vbi != vbi_end; ++vbi) {
-        bond_weights_.push_back(
-          std::make_pair(get(bond_index_t(), lat.vg(), *vbi), bw));
+    BOOST_FOREACH(typename real_bond_descriptor<LAT>::type rb, bonds(lat.rg())) {
+      bond_t bw(m.bond(rb, lat.rg()), force_scatter);
+      BOOST_FOREACH(typename virtual_bond_descriptor<LAT>::type vb, bonds(lat, rb)) {
+        bond_weights_.push_back(std::make_pair(get(bond_index_t(), lat.vg(), vb), bw));
         weight_ += bw.weight();
       }
     }
     if (m.has_d_term()) {
-      for (boost::tie(rsi, rsi_end) = sites(lat.rg());
-           rsi != rsi_end; ++rsi) {
-        bond_t bw(m.site(*rsi, lat.rg()), force_scatter);
-        typename virtual_bond_iterator<LAT>::type vbi, vbi_end;
-        for (boost::tie(vbi, vbi_end) = bonds(lat, *rsi);
-             vbi != vbi_end; ++vbi) {
-          bond_weights_.push_back(
-             std::make_pair(get(bond_index_t(), lat.vg(), *vbi), bw));
+      BOOST_FOREACH(typename real_site_descriptor<LAT>::type rs, sites(lat.rg())) {
+        bond_t bw(m.site(rs, lat.rg()), force_scatter);
+        BOOST_FOREACH(typename virtual_bond_descriptor<LAT>::type vb, bonds(lat, rs)) {
+          bond_weights_.push_back(std::make_pair(get(bond_index_t(), lat.vg(), vb), bw));
           weight_ += bw.weight();
         }
       }
     }
 
     energy_offset_ = 0;
-    for (site_weight_iterator itr = site_weights_.begin();
-         itr != site_weights_.end(); ++itr)
-      energy_offset_ += itr->second.offset;
-    for (bond_weight_iterator itr = bond_weights_.begin();
-         itr != bond_weights_.end(); ++itr)
-      energy_offset_ += itr->second.offset;
+    BOOST_FOREACH(site_weight_t const& w, site_weights_) energy_offset_ += w.second.offset;
+    BOOST_FOREACH(bond_weight_t const& w, bond_weights_) energy_offset_ += w.second.offset;
+#warning "To be checked"
+    if (m.has_d_term())
+      BOOST_FOREACH(typename real_site_descriptor<LAT>::type rs, sites(lat.rg()))
+        energy_offset_ += 0.25 * m.site(rs, lat.rg()).s.get_twice() * m.site(rs, lat.rg()).d;
   }
 
   std::pair<site_weight_iterator, site_weight_iterator>
@@ -352,59 +375,9 @@ public:
 private:
   double weight_;
   double energy_offset_;
-  std::vector<std::pair<int, site_t> > site_weights_;
-  std::vector<std::pair<int, bond_t> > bond_weights_;
+  std::vector<site_weight_t> site_weights_;
+  std::vector<bond_weight_t> bond_weights_;
 };
-
-//
-// Implementations
-//
-
-inline void site_weight::check(const site_parameter& p) const {
-  if (!alps::is_zero<1>(-offset+v[0]) ||
-      !alps::is_zero<1>(-offset+v[0]) ||
-      !alps::is_equal<1>(v[0], sign * p.hx/2))
-    boost::throw_exception(std::logic_error("site_parameter::check 1"));
-  site_parameter pp(p.s, p.c, 2 * v[0] * sign, 0, 0);
-  if (pp != p) {
-    std::cerr << p.c << ' ' << p.hx << ' ' << pp.hz << std::endl;
-    std::cerr << pp.c << ' ' << pp.hx << ' ' << pp.hz << std::endl;
-    boost::throw_exception(std::logic_error("site_parameter::check 2"));
-  }
-}
-
-inline void xxz_bond_weight::check(const bond_parameter_xxz& p) const {
-  if (!alps::is_equal<1>(-offset+v[0]+v[2],  p.jz/4) ||
-      !alps::is_equal<1>(-offset+v[1]+v[3], -p.jz/4) ||
-      !alps::is_equal<1>(v[0]+v[1], -sign * p.jxy/2))
-    boost::throw_exception(std::logic_error("bond_parameter_xxz::check 1"));
-  bond_parameter_xxz pp(p.c, -2 * (v[0] + v[1]) * sign, 2 * (v[0] - v[1] + v[2] - v[3]));
-  if (pp != p) {
-    std::cerr << p.c << ' ' << p.jxy << ' ' << p.jz << std::endl;
-    std::cerr << pp.c << ' ' << pp.jxy << ' ' << pp.jz << std::endl;
-    boost::throw_exception(std::logic_error("bond_parameter_xxz::check 2"));
-  }
-}
-
-inline void xyz_bond_weight::check(const bond_parameter_xyz& p) const {
-  if (!alps::is_equal<1>(-offset+v[0]+v[2]+v[4],  p.jz/4) ||
-      !alps::is_equal<1>(-offset+v[1]+v[3]+v[5], -p.jz/4) ||
-      !alps::is_equal<1>(v[0]+v[1], -sign * (p.jx+p.jy)/4) ||
-      !alps::is_equal<1>(v[4]+v[5], -sign * (p.jx-p.jy)/4)) {
-    std::cerr << -offset+v[0]+v[2]+v[4] << '\t' << p.jz/4 << '\t'
-              << -offset+v[1]+v[3]+v[5] << '\t' << -p.jz/4 << '\t'
-              << v[0]+v[1] << '\t' << -sign * (p.jx+p.jy)/4 << '\t'
-              << v[4]+v[5] << '\t' << -sign * (p.jx-p.jy)/4 << std::endl;
-    boost::throw_exception(std::logic_error("bond_parameter_xyz::check 1"));
-  }
-  bond_parameter_xyz pp(p.c, -2 * (v[0] + v[1] + v[4] + v[5]) * sign,
-    -2 * (v[0] + v[1] - v[4] - v[5]) * sign, 2 * (v[0] - v[1] + v[2] - v[3]));
-  if (pp != p) {
-    std::cerr << p.c << ' ' << p.jx << ' ' << p.jy << ' ' << p.jz << std::endl;
-    std::cerr << pp.c << ' ' << pp.jx << ' ' << pp.jy << ' ' << pp.jz << std::endl;
-    boost::throw_exception(std::logic_error("bond_parameter_xyz::check 2"));
-  }
-}
 
 } // namespace looper
 

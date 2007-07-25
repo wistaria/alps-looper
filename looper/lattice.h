@@ -89,7 +89,7 @@ using alps::coordinate_type;
 
 struct real_vertex_t { typedef boost::vertex_property_tag kind; };
 typedef real_vertex_t real_site_t;
-struct real_edge_t {typedef boost::edge_property_tag kind; };
+struct real_edge_t { typedef boost::edge_property_tag kind; };
 typedef real_edge_t real_bond_t;
 
 template<typename RG>

@@ -43,6 +43,7 @@ LATTICE = "chain lattice"
 Jz = -1
 Jxy = 0
 local_S = 1
+D = -0.8
 L = 4
 T = 2
 { REPRESENTATION = "diagonalization" }
@@ -54,6 +55,7 @@ LATTICE = "chain lattice"
 Jz = 1
 Jxy = 1
 local_S = 1/2
+D = 0
 L = 4
 T = 0.5
 {

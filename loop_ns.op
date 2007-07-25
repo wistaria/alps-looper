@@ -19,6 +19,10 @@ Free Energy Density: -0.503484 +/- inf
 Ground State Energy: -2 +/- inf
 Ground State Energy Density: -0.5 +/- inf
 Inverse Temperature: 4 +/- inf
+Local Magnetization at Site 0: 0 +/- inf
+Local Magnetization at Site 1: 0 +/- inf
+Local Magnetization at Site 2: 0 +/- inf
+Local Magnetization at Site 3: 0 +/- inf
 Magnetization: 0 +/- inf
 Magnetization Density: 0 +/- inf
 Magnetization Density^2: 0.00224828 +/- inf
@@ -549,6 +553,10 @@ Free Energy Density: -1.50335 +/- inf
 Ground State Energy: -6 +/- inf
 Ground State Energy Density: -1.5 +/- inf
 Inverse Temperature: 4 +/- inf
+Local Magnetization at Site 0: 0 +/- inf
+Local Magnetization at Site 1: 0 +/- inf
+Local Magnetization at Site 2: 0 +/- inf
+Local Magnetization at Site 3: 0 +/- inf
 Magnetization: 0 +/- inf
 Magnetization Density: 0 +/- inf
 Magnetization Density^2: 0.00217517 +/- inf
@@ -1082,6 +1090,7 @@ Free Energy Density: -1.00462 +/- inf
 Ground State Energy: -1 +/- inf
 Ground State Energy Density: -1 +/- inf
 Inverse Temperature: 4 +/- inf
+Local Magnetization at Site 0: 0 +/- inf
 Magnetization: 0 +/- inf
 Magnetization Density: 0 +/- inf
 Magnetization Density^2: 0.50899 +/- inf
@@ -1618,6 +1627,7 @@ Free Energy Density: -0.38267 +/- inf
 Ground State Energy: -0.3 +/- inf
 Ground State Energy Density: -0.3 +/- inf
 Inverse Temperature: 4 +/- inf
+Local Magnetization at Site 0: 0.653261 +/- inf
 Magnetization: 0.653261 +/- inf
 Magnetization Density: 0.653261 +/- inf
 Magnetization Density^2: 0.783611 +/- inf
@@ -1839,6 +1849,10 @@ Free Energy Density: -0.412205 +/- inf
 Ground State Energy: -1 +/- inf
 Ground State Energy Density: -0.25 +/- inf
 Inverse Temperature: 2 +/- inf
+Local Magnetization at Site 0: 0 +/- inf
+Local Magnetization at Site 1: 0 +/- inf
+Local Magnetization at Site 2: 0 +/- inf
+Local Magnetization at Site 3: 0 +/- inf
 Magnetization: 0 +/- inf
 Magnetization Density: 0 +/- inf
 Magnetization Density^2: 0.0209868 +/- inf
@@ -2613,41 +2627,46 @@ local_S = 1;
 Gamma = 0;
 Jz = -1;
 Jxy = 0;
+D = -0.8;
 REPRESENTATION = diagonalization;
 [results]
-Binder Ratio of Magnetization: 0.510449 +/- inf
-Binder Ratio of Staggered Magnetization: 0.323687 +/- inf
+Binder Ratio of Magnetization: 0.553185 +/- inf
+Binder Ratio of Staggered Magnetization: 0.310169 +/- inf
 Dimension of Matrix: 81 +/- inf
-Energy: -1.01161 +/- inf
-Energy Density: -0.252903 +/- inf
-Entropy: 4.12678 +/- inf
-Entropy Density: 1.0317 +/- inf
-Free Energy: -9.26518 +/- inf
-Free Energy Density: -2.3163 +/- inf
-Ground State Energy: -4 +/- inf
-Ground State Energy Density: -1 +/- inf
+Energy: -3.78297 +/- inf
+Energy Density: -0.945743 +/- inf
+Entropy: 3.93734 +/- inf
+Entropy Density: 0.984335 +/- inf
+Free Energy: -11.6576 +/- inf
+Free Energy Density: -2.91441 +/- inf
+Ground State Energy: -7.2 +/- inf
+Ground State Energy Density: -1.8 +/- inf
 Inverse Temperature: 0.5 +/- inf
+Local Magnetization at Site 0: 0 +/- inf
+Local Magnetization at Site 1: 0 +/- inf
+Local Magnetization at Site 2: 0 +/- inf
+Local Magnetization at Site 3: 0 +/- inf
 Magnetization: 0 +/- inf
 Magnetization Density: 0 +/- inf
-Magnetization Density^2: 0.340453 +/- inf
-Magnetization Density^4: 0.227071 +/- inf
-Magnetization^2: 5.44724 +/- inf
-Magnetization^4: 58.1302 +/- inf
+Magnetization Density^2: 0.405802 +/- inf
+Magnetization Density^4: 0.297686 +/- inf
+Magnetization^2: 6.49283 +/- inf
+Magnetization^4: 76.2075 +/- inf
 Number of Sites: 4 +/- inf
 Partition Function Coefficient #0: 81 +/- inf
-Partition Function Coefficient #1: 0 +/- inf
-Partition Function Coefficient #2: 72 +/- inf
-Partition Function Coefficient #3: 0 +/- inf
-Partition Function Coefficient #4: 54 +/- inf
-Specific Heat: 0.153482 +/- inf
+Partition Function Coefficient #1: 172.8 +/- inf
+Partition Function Coefficient #2: 279.36 +/- inf
+Partition Function Coefficient #3: 370.176 +/- inf
+Partition Function Coefficient #4: 441.072 +/- inf
+Specific Heat: 0.275724 +/- inf
 Staggered Magnetization: 0 +/- inf
 Staggered Magnetization Density: 0 +/- inf
-Staggered Magnetization Density^2: 0.0875494 +/- inf
-Staggered Magnetization Density^4: 0.0236799 +/- inf
-Staggered Magnetization^2: 1.40079 +/- inf
-Staggered Magnetization^4: 6.06207 +/- inf
-Staggered Susceptibility: 0.175099 +/- inf
-Susceptibility: 0.680905 +/- inf
+Staggered Magnetization Density^2: 0.088972 +/- inf
+Staggered Magnetization Density^4: 0.0255216 +/- inf
+Staggered Magnetization^2: 1.42355 +/- inf
+Staggered Magnetization^4: 6.53354 +/- inf
+Staggered Susceptibility: 0.177944 +/- inf
+Susceptibility: 0.811604 +/- inf
 Temperature: 2 +/- inf
 [input parameters]
 SEED = 23125;
@@ -2660,103 +2679,104 @@ local_S = 1;
 Gamma = 0;
 Jz = -1;
 Jxy = 0;
+D = -0.8;
 REPRESENTATION = "path integral";
 [results]
-Binder Ratio of Generalized Magnetization: 0.508078 +/- 0.00298
-Binder Ratio of Generalized Staggered Magnetization: 0.323058 +/- 0.00181
-Binder Ratio of Magnetization: 0.508078 +/- 0.00298
-Binder Ratio of Staggered Magnetization: 0.323058 +/- 0.00181
-Energy: -0.954102 +/- 0.0703; tau = 0.324 WARNING: check error convergence
-    bin #1   : 4096     entries: error = 0.0547877
-    bin #2   : 2048     entries: error = 0.0588786
-    bin #3   : 1024     entries: error = 0.0614395
-    bin #4   : 512      entries: error = 0.0647251
-    bin #5   : 256      entries: error = 0.0661936
-    bin #6   : 128      entries: error = 0.0703193
-Energy Density: -0.238525 +/- 0.0176; tau = 0.324 WARNING: check error convergence
-    bin #1   : 4096     entries: error = 0.0136969
-    bin #2   : 2048     entries: error = 0.0147196
-    bin #3   : 1024     entries: error = 0.0153599
-    bin #4   : 512      entries: error = 0.0161813
-    bin #5   : 256      entries: error = 0.0165484
-    bin #6   : 128      entries: error = 0.0175798
-Energy^2: 3.29102 +/- 0.371; tau = 0.146
-    bin #1   : 4096     entries: error = 0.326093
-    bin #2   : 2048     entries: error = 0.329919
-    bin #3   : 1024     entries: error = 0.334196
-    bin #4   : 512      entries: error = 0.337281
-    bin #5   : 256      entries: error = 0.355543
-    bin #6   : 128      entries: error = 0.370556
-Generalized Magnetization Density^2: 0.338165 +/- 0.00385; tau = 0.395
-    bin #1   : 4096     entries: error = 0.00287686
-    bin #2   : 2048     entries: error = 0.00326749
-    bin #3   : 1024     entries: error = 0.00355739
-    bin #4   : 512      entries: error = 0.00370984
-    bin #5   : 256      entries: error = 0.00375955
-    bin #6   : 128      entries: error = 0.00384962
-Generalized Magnetization Density^4: 0.225066 +/- 0.00393; tau = 0.424
-    bin #1   : 4096     entries: error = 0.00289308
-    bin #2   : 2048     entries: error = 0.00328451
-    bin #3   : 1024     entries: error = 0.00359232
-    bin #4   : 512      entries: error = 0.0037578
-    bin #5   : 256      entries: error = 0.00383993
-    bin #6   : 128      entries: error = 0.00393348
-Generalized Magnetization^2: 5.41064 +/- 0.0616; tau = 0.395
-    bin #1   : 4096     entries: error = 0.0460298
-    bin #2   : 2048     entries: error = 0.0522798
-    bin #3   : 1024     entries: error = 0.0569183
-    bin #4   : 512      entries: error = 0.0593574
-    bin #5   : 256      entries: error = 0.0601529
-    bin #6   : 128      entries: error = 0.061594
-Generalized Magnetization^4: 57.6169 +/- 1.01; tau = 0.424
-    bin #1   : 4096     entries: error = 0.740628
-    bin #2   : 2048     entries: error = 0.840836
-    bin #3   : 1024     entries: error = 0.919635
-    bin #4   : 512      entries: error = 0.961997
-    bin #5   : 256      entries: error = 0.983022
-    bin #6   : 128      entries: error = 1.00697
-Generalized Staggered Magnetization Density^2: 0.0875397 +/- 0.000941; tau = 0.307 WARNING: check error convergence
-    bin #1   : 4096     entries: error = 0.000740595
-    bin #2   : 2048     entries: error = 0.000788759
-    bin #3   : 1024     entries: error = 0.000828249
-    bin #4   : 512      entries: error = 0.000866876
-    bin #5   : 256      entries: error = 0.000888884
-    bin #6   : 128      entries: error = 0.000940612
-Generalized Staggered Magnetization Density^4: 0.0237188 +/- 0.000453; tau = 0.241
-    bin #1   : 4096     entries: error = 0.000372226
-    bin #2   : 2048     entries: error = 0.000390762
-    bin #3   : 1024     entries: error = 0.000412411
-    bin #4   : 512      entries: error = 0.000425291
-    bin #5   : 256      entries: error = 0.000428888
-    bin #6   : 128      entries: error = 0.000453292
-Generalized Staggered Magnetization^2: 1.40063 +/- 0.015; tau = 0.307 WARNING: check error convergence
-    bin #1   : 4096     entries: error = 0.0118495
-    bin #2   : 2048     entries: error = 0.0126201
-    bin #3   : 1024     entries: error = 0.013252
-    bin #4   : 512      entries: error = 0.01387
-    bin #5   : 256      entries: error = 0.0142221
-    bin #6   : 128      entries: error = 0.0150498
-Generalized Staggered Magnetization^4: 6.07202 +/- 0.116; tau = 0.241
-    bin #1   : 4096     entries: error = 0.09529
-    bin #2   : 2048     entries: error = 0.100035
-    bin #3   : 1024     entries: error = 0.105577
-    bin #4   : 512      entries: error = 0.108874
-    bin #5   : 256      entries: error = 0.109795
-    bin #6   : 128      entries: error = 0.116043
-Generalized Staggered Susceptibility: 0.175079 +/- 0.00188; tau = 0.307 WARNING: check error convergence
-    bin #1   : 4096     entries: error = 0.00148119
-    bin #2   : 2048     entries: error = 0.00157752
-    bin #3   : 1024     entries: error = 0.0016565
-    bin #4   : 512      entries: error = 0.00173375
-    bin #5   : 256      entries: error = 0.00177777
-    bin #6   : 128      entries: error = 0.00188122
-Generalized Susceptibility: 0.676331 +/- 0.0077; tau = 0.395
-    bin #1   : 4096     entries: error = 0.00575373
-    bin #2   : 2048     entries: error = 0.00653498
-    bin #3   : 1024     entries: error = 0.00711479
-    bin #4   : 512      entries: error = 0.00741968
-    bin #5   : 256      entries: error = 0.00751911
-    bin #6   : 128      entries: error = 0.00769924
+Binder Ratio of Generalized Magnetization: 0.527129 +/- 0.00391 WARNING: check error convergence
+Binder Ratio of Generalized Staggered Magnetization: 0.316275 +/- 0.00246
+Binder Ratio of Magnetization: 0.527129 +/- 0.00391 WARNING: check error convergence
+Binder Ratio of Staggered Magnetization: 0.316275 +/- 0.00246
+Energy: -6.24268 +/- 0.0802; tau = 0.366
+    bin #1   : 4096     entries: error = 0.0609439
+    bin #2   : 2048     entries: error = 0.0669963
+    bin #3   : 1024     entries: error = 0.0724183
+    bin #4   : 512      entries: error = 0.0745485
+    bin #5   : 256      entries: error = 0.0756564
+    bin #6   : 128      entries: error = 0.0802099
+Energy Density: -1.56067 +/- 0.0201; tau = 0.366
+    bin #1   : 4096     entries: error = 0.015236
+    bin #2   : 2048     entries: error = 0.0167491
+    bin #3   : 1024     entries: error = 0.0181046
+    bin #4   : 512      entries: error = 0.0186371
+    bin #5   : 256      entries: error = 0.0189141
+    bin #6   : 128      entries: error = 0.0200525
+Energy^2: 41.6914 +/- 1.11; tau = 0.303
+    bin #1   : 4096     entries: error = 0.874893
+    bin #2   : 2048     entries: error = 0.945509
+    bin #3   : 1024     entries: error = 1.01591
+    bin #4   : 512      entries: error = 1.03046
+    bin #5   : 256      entries: error = 1.0521
+    bin #6   : 128      entries: error = 1.109
+Generalized Magnetization Density^2: 0.367783 +/- 0.00472; tau = 0.675 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.0030796
+    bin #2   : 2048     entries: error = 0.00359886
+    bin #3   : 1024     entries: error = 0.00409967
+    bin #4   : 512      entries: error = 0.00434524
+    bin #5   : 256      entries: error = 0.00455422
+    bin #6   : 128      entries: error = 0.00472099
+Generalized Magnetization Density^4: 0.256595 +/- 0.00485; tau = 0.66 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.0031831
+    bin #2   : 2048     entries: error = 0.00371958
+    bin #3   : 1024     entries: error = 0.00424111
+    bin #4   : 512      entries: error = 0.00448152
+    bin #5   : 256      entries: error = 0.00469965
+    bin #6   : 128      entries: error = 0.00484859
+Generalized Magnetization^2: 5.88452 +/- 0.0755; tau = 0.675 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.0492736
+    bin #2   : 2048     entries: error = 0.0575817
+    bin #3   : 1024     entries: error = 0.0655946
+    bin #4   : 512      entries: error = 0.0695238
+    bin #5   : 256      entries: error = 0.0728676
+    bin #6   : 128      entries: error = 0.0755358
+Generalized Magnetization^4: 65.6882 +/- 1.24; tau = 0.66 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.814874
+    bin #2   : 2048     entries: error = 0.952213
+    bin #3   : 1024     entries: error = 1.08572
+    bin #4   : 512      entries: error = 1.14727
+    bin #5   : 256      entries: error = 1.20311
+    bin #6   : 128      entries: error = 1.24124
+Generalized Staggered Magnetization Density^2: 0.0888519 +/- 0.000953; tau = 0.194
+    bin #1   : 4096     entries: error = 0.000808891
+    bin #2   : 2048     entries: error = 0.00089211
+    bin #3   : 1024     entries: error = 0.000937016
+    bin #4   : 512      entries: error = 0.000966504
+    bin #5   : 256      entries: error = 0.000917114
+    bin #6   : 128      entries: error = 0.000952715
+Generalized Staggered Magnetization Density^4: 0.0249596 +/- 0.000446; tau = 0.0587
+    bin #1   : 4096     entries: error = 0.000421478
+    bin #2   : 2048     entries: error = 0.000454904
+    bin #3   : 1024     entries: error = 0.00046881
+    bin #4   : 512      entries: error = 0.000475338
+    bin #5   : 256      entries: error = 0.000446149
+    bin #6   : 128      entries: error = 0.000445541
+Generalized Staggered Magnetization^2: 1.42163 +/- 0.0152; tau = 0.194
+    bin #1   : 4096     entries: error = 0.0129423
+    bin #2   : 2048     entries: error = 0.0142738
+    bin #3   : 1024     entries: error = 0.0149923
+    bin #4   : 512      entries: error = 0.0154641
+    bin #5   : 256      entries: error = 0.0146738
+    bin #6   : 128      entries: error = 0.0152434
+Generalized Staggered Magnetization^4: 6.38965 +/- 0.114; tau = 0.0587
+    bin #1   : 4096     entries: error = 0.107898
+    bin #2   : 2048     entries: error = 0.116455
+    bin #3   : 1024     entries: error = 0.120015
+    bin #4   : 512      entries: error = 0.121686
+    bin #5   : 256      entries: error = 0.114214
+    bin #6   : 128      entries: error = 0.114058
+Generalized Staggered Susceptibility: 0.177704 +/- 0.00191; tau = 0.194
+    bin #1   : 4096     entries: error = 0.00161778
+    bin #2   : 2048     entries: error = 0.00178422
+    bin #3   : 1024     entries: error = 0.00187403
+    bin #4   : 512      entries: error = 0.00193301
+    bin #5   : 256      entries: error = 0.00183423
+    bin #6   : 128      entries: error = 0.00190543
+Generalized Susceptibility: 0.735565 +/- 0.00944; tau = 0.675 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.00615921
+    bin #2   : 2048     entries: error = 0.00719772
+    bin #3   : 1024     entries: error = 0.00819933
+    bin #4   : 512      entries: error = 0.00869048
+    bin #5   : 256      entries: error = 0.00910845
+    bin #6   : 128      entries: error = 0.00944198
 Inverse Temperature: 0.5 +/- 0
 Magnetization: 0 +/- 0; tau = nan
     bin #1   : 4096     entries: error = 0
@@ -2772,37 +2792,37 @@ Magnetization Density: 0 +/- 0; tau = nan
     bin #4   : 512      entries: error = 0
     bin #5   : 256      entries: error = 0
     bin #6   : 128      entries: error = 0
-Magnetization Density^2: 0.338165 +/- 0.00385; tau = 0.395
-    bin #1   : 4096     entries: error = 0.00287686
-    bin #2   : 2048     entries: error = 0.00326749
-    bin #3   : 1024     entries: error = 0.00355739
-    bin #4   : 512      entries: error = 0.00370984
-    bin #5   : 256      entries: error = 0.00375955
-    bin #6   : 128      entries: error = 0.00384962
-Magnetization Density^4: 0.225066 +/- 0.00393; tau = 0.424
-    bin #1   : 4096     entries: error = 0.00289308
-    bin #2   : 2048     entries: error = 0.00328451
-    bin #3   : 1024     entries: error = 0.00359232
-    bin #4   : 512      entries: error = 0.0037578
-    bin #5   : 256      entries: error = 0.00383993
-    bin #6   : 128      entries: error = 0.00393348
-Magnetization^2: 5.41064 +/- 0.0616; tau = 0.395
-    bin #1   : 4096     entries: error = 0.0460298
-    bin #2   : 2048     entries: error = 0.0522798
-    bin #3   : 1024     entries: error = 0.0569183
-    bin #4   : 512      entries: error = 0.0593574
-    bin #5   : 256      entries: error = 0.0601529
-    bin #6   : 128      entries: error = 0.061594
-Magnetization^4: 57.6169 +/- 1.01; tau = 0.424
-    bin #1   : 4096     entries: error = 0.740628
-    bin #2   : 2048     entries: error = 0.840836
-    bin #3   : 1024     entries: error = 0.919635
-    bin #4   : 512      entries: error = 0.961997
-    bin #5   : 256      entries: error = 0.983022
-    bin #6   : 128      entries: error = 1.00697
-Number of Clusters: 4.6377 +/- 0.0242656
+Magnetization Density^2: 0.367783 +/- 0.00472; tau = 0.675 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.0030796
+    bin #2   : 2048     entries: error = 0.00359886
+    bin #3   : 1024     entries: error = 0.00409967
+    bin #4   : 512      entries: error = 0.00434524
+    bin #5   : 256      entries: error = 0.00455422
+    bin #6   : 128      entries: error = 0.00472099
+Magnetization Density^4: 0.256595 +/- 0.00485; tau = 0.66 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.0031831
+    bin #2   : 2048     entries: error = 0.00371958
+    bin #3   : 1024     entries: error = 0.00424111
+    bin #4   : 512      entries: error = 0.00448152
+    bin #5   : 256      entries: error = 0.00469965
+    bin #6   : 128      entries: error = 0.00484859
+Magnetization^2: 5.88452 +/- 0.0755; tau = 0.675 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.0492736
+    bin #2   : 2048     entries: error = 0.0575817
+    bin #3   : 1024     entries: error = 0.0655946
+    bin #4   : 512      entries: error = 0.0695238
+    bin #5   : 256      entries: error = 0.0728676
+    bin #6   : 128      entries: error = 0.0755358
+Magnetization^4: 65.6882 +/- 1.24; tau = 0.66 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.814874
+    bin #2   : 2048     entries: error = 0.952213
+    bin #3   : 1024     entries: error = 1.08572
+    bin #4   : 512      entries: error = 1.14727
+    bin #5   : 256      entries: error = 1.20311
+    bin #6   : 128      entries: error = 1.24124
+Number of Clusters: 4.30762 +/- 0.0238718
 Number of Sites: 4 +/- 0
-Specific Heat: 0.149103 +/- 0.0192
+Specific Heat: 0.170427 +/- 0.0221
 Staggered Magnetization: 0 +/- 0; tau = nan
     bin #1   : 4096     entries: error = 0
     bin #2   : 2048     entries: error = 0
@@ -2817,41 +2837,41 @@ Staggered Magnetization Density: 0 +/- 0; tau = nan
     bin #4   : 512      entries: error = 0
     bin #5   : 256      entries: error = 0
     bin #6   : 128      entries: error = 0
-Staggered Magnetization Density^2: 0.0875397 +/- 0.000941; tau = 0.307 WARNING: check error convergence
-    bin #1   : 4096     entries: error = 0.000740595
-    bin #2   : 2048     entries: error = 0.000788759
-    bin #3   : 1024     entries: error = 0.000828249
-    bin #4   : 512      entries: error = 0.000866876
-    bin #5   : 256      entries: error = 0.000888884
-    bin #6   : 128      entries: error = 0.000940612
-Staggered Magnetization Density^4: 0.0237188 +/- 0.000453; tau = 0.241
-    bin #1   : 4096     entries: error = 0.000372226
-    bin #2   : 2048     entries: error = 0.000390762
-    bin #3   : 1024     entries: error = 0.000412411
-    bin #4   : 512      entries: error = 0.000425291
-    bin #5   : 256      entries: error = 0.000428888
-    bin #6   : 128      entries: error = 0.000453292
-Staggered Magnetization^2: 1.40063 +/- 0.015; tau = 0.307 WARNING: check error convergence
-    bin #1   : 4096     entries: error = 0.0118495
-    bin #2   : 2048     entries: error = 0.0126201
-    bin #3   : 1024     entries: error = 0.013252
-    bin #4   : 512      entries: error = 0.01387
-    bin #5   : 256      entries: error = 0.0142221
-    bin #6   : 128      entries: error = 0.0150498
-Staggered Magnetization^4: 6.07202 +/- 0.116; tau = 0.241
-    bin #1   : 4096     entries: error = 0.09529
-    bin #2   : 2048     entries: error = 0.100035
-    bin #3   : 1024     entries: error = 0.105577
-    bin #4   : 512      entries: error = 0.108874
-    bin #5   : 256      entries: error = 0.109795
-    bin #6   : 128      entries: error = 0.116043
-Staggered Susceptibility: 0.175079 +/- 0.00188; tau = 0.307 WARNING: check error convergence
-    bin #1   : 4096     entries: error = 0.00148119
-    bin #2   : 2048     entries: error = 0.00157752
-    bin #3   : 1024     entries: error = 0.0016565
-    bin #4   : 512      entries: error = 0.00173375
-    bin #5   : 256      entries: error = 0.00177777
-    bin #6   : 128      entries: error = 0.00188122
+Staggered Magnetization Density^2: 0.0888519 +/- 0.000953; tau = 0.194
+    bin #1   : 4096     entries: error = 0.000808891
+    bin #2   : 2048     entries: error = 0.00089211
+    bin #3   : 1024     entries: error = 0.000937016
+    bin #4   : 512      entries: error = 0.000966504
+    bin #5   : 256      entries: error = 0.000917114
+    bin #6   : 128      entries: error = 0.000952715
+Staggered Magnetization Density^4: 0.0249596 +/- 0.000446; tau = 0.0587
+    bin #1   : 4096     entries: error = 0.000421478
+    bin #2   : 2048     entries: error = 0.000454904
+    bin #3   : 1024     entries: error = 0.00046881
+    bin #4   : 512      entries: error = 0.000475338
+    bin #5   : 256      entries: error = 0.000446149
+    bin #6   : 128      entries: error = 0.000445541
+Staggered Magnetization^2: 1.42163 +/- 0.0152; tau = 0.194
+    bin #1   : 4096     entries: error = 0.0129423
+    bin #2   : 2048     entries: error = 0.0142738
+    bin #3   : 1024     entries: error = 0.0149923
+    bin #4   : 512      entries: error = 0.0154641
+    bin #5   : 256      entries: error = 0.0146738
+    bin #6   : 128      entries: error = 0.0152434
+Staggered Magnetization^4: 6.38965 +/- 0.114; tau = 0.0587
+    bin #1   : 4096     entries: error = 0.107898
+    bin #2   : 2048     entries: error = 0.116455
+    bin #3   : 1024     entries: error = 0.120015
+    bin #4   : 512      entries: error = 0.121686
+    bin #5   : 256      entries: error = 0.114214
+    bin #6   : 128      entries: error = 0.114058
+Staggered Susceptibility: 0.177704 +/- 0.00191; tau = 0.194
+    bin #1   : 4096     entries: error = 0.00161778
+    bin #2   : 2048     entries: error = 0.00178422
+    bin #3   : 1024     entries: error = 0.00187403
+    bin #4   : 512      entries: error = 0.00193301
+    bin #5   : 256      entries: error = 0.00183423
+    bin #6   : 128      entries: error = 0.00190543
 Stiffness: 0 +/- 0; tau = nan
     bin #1   : 4096     entries: error = 0
     bin #2   : 2048     entries: error = 0
@@ -2859,13 +2879,13 @@ Stiffness: 0 +/- 0; tau = nan
     bin #4   : 512      entries: error = 0
     bin #5   : 256      entries: error = 0
     bin #6   : 128      entries: error = 0
-Susceptibility: 0.676331 +/- 0.0077; tau = 0.395
-    bin #1   : 4096     entries: error = 0.00575373
-    bin #2   : 2048     entries: error = 0.00653498
-    bin #3   : 1024     entries: error = 0.00711479
-    bin #4   : 512      entries: error = 0.00741968
-    bin #5   : 256      entries: error = 0.00751911
-    bin #6   : 128      entries: error = 0.00769924
+Susceptibility: 0.735565 +/- 0.00944; tau = 0.675 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.00615921
+    bin #2   : 2048     entries: error = 0.00719772
+    bin #3   : 1024     entries: error = 0.00819933
+    bin #4   : 512      entries: error = 0.00869048
+    bin #5   : 256      entries: error = 0.00910845
+    bin #6   : 128      entries: error = 0.00944198
 Temperature: 2 +/- 0
 Volume: 4 +/- 0
 |Magnetization Density|: 0 +/- 0; tau = nan
@@ -2907,103 +2927,104 @@ local_S = 1;
 Gamma = 0;
 Jz = -1;
 Jxy = 0;
+D = -0.8;
 REPRESENTATION = SSE;
 [results]
-Binder Ratio of Generalized Magnetization: 0.504119 +/- 0.00304
-Binder Ratio of Generalized Staggered Magnetization: 0.324077 +/- 0.0019
-Binder Ratio of Magnetization: 0.504119 +/- 0.00304
-Binder Ratio of Staggered Magnetization: 0.324077 +/- 0.0019
-Energy: -0.955566 +/- 0.0719; tau = 0.328
-    bin #1   : 4096     entries: error = 0.0558999
-    bin #2   : 2048     entries: error = 0.0626848
-    bin #3   : 1024     entries: error = 0.0683189
-    bin #4   : 512      entries: error = 0.0707434
-    bin #5   : 256      entries: error = 0.0759541
-    bin #6   : 128      entries: error = 0.0719235
-Energy Density: -0.238892 +/- 0.018; tau = 0.328
-    bin #1   : 4096     entries: error = 0.013975
-    bin #2   : 2048     entries: error = 0.0156712
-    bin #3   : 1024     entries: error = 0.0170797
-    bin #4   : 512      entries: error = 0.0176859
-    bin #5   : 256      entries: error = 0.0189885
-    bin #6   : 128      entries: error = 0.0179809
-Energy^2: 3.79492 +/- 0.373; tau = 0.127
-    bin #1   : 4096     entries: error = 0.332591
-    bin #2   : 2048     entries: error = 0.358473
-    bin #3   : 1024     entries: error = 0.37925
-    bin #4   : 512      entries: error = 0.385588
-    bin #5   : 256      entries: error = 0.378613
-    bin #6   : 128      entries: error = 0.37254
-Generalized Magnetization Density^2: 0.334694 +/- 0.0036; tau = 0.289
-    bin #1   : 4096     entries: error = 0.0028679
-    bin #2   : 2048     entries: error = 0.00332074
-    bin #3   : 1024     entries: error = 0.00365225
-    bin #4   : 512      entries: error = 0.00386704
-    bin #5   : 256      entries: error = 0.00406249
-    bin #6   : 128      entries: error = 0.00360274
-Generalized Magnetization Density^4: 0.222201 +/- 0.00363; tau = 0.284
-    bin #1   : 4096     entries: error = 0.00289521
-    bin #2   : 2048     entries: error = 0.0033476
-    bin #3   : 1024     entries: error = 0.00367959
-    bin #4   : 512      entries: error = 0.0038679
-    bin #5   : 256      entries: error = 0.00407743
-    bin #6   : 128      entries: error = 0.00362652
-Generalized Magnetization^2: 5.3551 +/- 0.0576; tau = 0.289
-    bin #1   : 4096     entries: error = 0.0458864
-    bin #2   : 2048     entries: error = 0.0531318
-    bin #3   : 1024     entries: error = 0.058436
-    bin #4   : 512      entries: error = 0.0618726
-    bin #5   : 256      entries: error = 0.0649999
-    bin #6   : 128      entries: error = 0.0576438
-Generalized Magnetization^4: 56.8835 +/- 0.928; tau = 0.284
-    bin #1   : 4096     entries: error = 0.741173
-    bin #2   : 2048     entries: error = 0.856987
-    bin #3   : 1024     entries: error = 0.941976
-    bin #4   : 512      entries: error = 0.990182
-    bin #5   : 256      entries: error = 1.04382
-    bin #6   : 128      entries: error = 0.928388
-Generalized Staggered Magnetization Density^2: 0.0886154 +/- 0.00094; tau = 0.304
-    bin #1   : 4096     entries: error = 0.000741074
-    bin #2   : 2048     entries: error = 0.000841891
-    bin #3   : 1024     entries: error = 0.000920361
-    bin #4   : 512      entries: error = 0.000974361
-    bin #5   : 256      entries: error = 0.00104915
-    bin #6   : 128      entries: error = 0.00093952
-Generalized Staggered Magnetization Density^4: 0.0242281 +/- 0.000498; tau = 0.38
-    bin #1   : 4096     entries: error = 0.000375515
-    bin #2   : 2048     entries: error = 0.000436003
-    bin #3   : 1024     entries: error = 0.000482433
-    bin #4   : 512      entries: error = 0.000520634
-    bin #5   : 256      entries: error = 0.000555457
-    bin #6   : 128      entries: error = 0.000498168
-Generalized Staggered Magnetization^2: 1.41785 +/- 0.015; tau = 0.304
-    bin #1   : 4096     entries: error = 0.0118572
-    bin #2   : 2048     entries: error = 0.0134703
-    bin #3   : 1024     entries: error = 0.0147258
-    bin #4   : 512      entries: error = 0.0155898
-    bin #5   : 256      entries: error = 0.0167864
-    bin #6   : 128      entries: error = 0.0150323
-Generalized Staggered Magnetization^4: 6.20239 +/- 0.128; tau = 0.38
-    bin #1   : 4096     entries: error = 0.0961317
-    bin #2   : 2048     entries: error = 0.111617
-    bin #3   : 1024     entries: error = 0.123503
-    bin #4   : 512      entries: error = 0.133282
-    bin #5   : 256      entries: error = 0.142197
-    bin #6   : 128      entries: error = 0.127531
-Generalized Staggered Susceptibility: 0.177231 +/- 0.00188; tau = 0.304
-    bin #1   : 4096     entries: error = 0.00148215
-    bin #2   : 2048     entries: error = 0.00168378
-    bin #3   : 1024     entries: error = 0.00184072
-    bin #4   : 512      entries: error = 0.00194872
-    bin #5   : 256      entries: error = 0.0020983
-    bin #6   : 128      entries: error = 0.00187904
-Generalized Susceptibility: 0.669388 +/- 0.00721; tau = 0.289
-    bin #1   : 4096     entries: error = 0.0057358
-    bin #2   : 2048     entries: error = 0.00664148
-    bin #3   : 1024     entries: error = 0.00730449
-    bin #4   : 512      entries: error = 0.00773408
-    bin #5   : 256      entries: error = 0.00812498
-    bin #6   : 128      entries: error = 0.00720547
+Binder Ratio of Generalized Magnetization: 0.532832 +/- 0.00362 WARNING: check error convergence
+Binder Ratio of Generalized Staggered Magnetization: 0.317742 +/- 0.00218
+Binder Ratio of Magnetization: 0.532832 +/- 0.00362 WARNING: check error convergence
+Binder Ratio of Staggered Magnetization: 0.317742 +/- 0.00218
+Energy: -6.32031 +/- 0.0839; tau = 0.409
+    bin #1   : 4096     entries: error = 0.0622571
+    bin #2   : 2048     entries: error = 0.0703652
+    bin #3   : 1024     entries: error = 0.0766895
+    bin #4   : 512      entries: error = 0.0807209
+    bin #5   : 256      entries: error = 0.0842487
+    bin #6   : 128      entries: error = 0.083939
+Energy Density: -1.58008 +/- 0.021; tau = 0.409
+    bin #1   : 4096     entries: error = 0.0155643
+    bin #2   : 2048     entries: error = 0.0175913
+    bin #3   : 1024     entries: error = 0.0191724
+    bin #4   : 512      entries: error = 0.0201802
+    bin #5   : 256      entries: error = 0.0210622
+    bin #6   : 128      entries: error = 0.0209847
+Energy^2: 43.1738 +/- 1.16; tau = 0.28
+    bin #1   : 4096     entries: error = 0.930691
+    bin #2   : 2048     entries: error = 1.01057
+    bin #3   : 1024     entries: error = 1.06699
+    bin #4   : 512      entries: error = 1.10548
+    bin #5   : 256      entries: error = 1.14204
+    bin #6   : 128      entries: error = 1.16231
+Generalized Magnetization Density^2: 0.373718 +/- 0.00462; tau = 0.564 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.003165
+    bin #2   : 2048     entries: error = 0.00368052
+    bin #3   : 1024     entries: error = 0.00410663
+    bin #4   : 512      entries: error = 0.00444259
+    bin #5   : 256      entries: error = 0.00449526
+    bin #6   : 128      entries: error = 0.0046163
+Generalized Magnetization Density^4: 0.262108 +/- 0.00483; tau = 0.59 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.00327532
+    bin #2   : 2048     entries: error = 0.00379845
+    bin #3   : 1024     entries: error = 0.00425179
+    bin #4   : 512      entries: error = 0.00458775
+    bin #5   : 256      entries: error = 0.00463558
+    bin #6   : 128      entries: error = 0.004835
+Generalized Magnetization^2: 5.97949 +/- 0.0739; tau = 0.564 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.0506401
+    bin #2   : 2048     entries: error = 0.0588883
+    bin #3   : 1024     entries: error = 0.065706
+    bin #4   : 512      entries: error = 0.0710814
+    bin #5   : 256      entries: error = 0.0719242
+    bin #6   : 128      entries: error = 0.0738607
+Generalized Magnetization^4: 67.0997 +/- 1.24; tau = 0.59 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.838483
+    bin #2   : 2048     entries: error = 0.972402
+    bin #3   : 1024     entries: error = 1.08846
+    bin #4   : 512      entries: error = 1.17447
+    bin #5   : 256      entries: error = 1.18671
+    bin #6   : 128      entries: error = 1.23776
+Generalized Staggered Magnetization Density^2: 0.0880432 +/- 0.00106; tau = 0.379
+    bin #1   : 4096     entries: error = 0.000796778
+    bin #2   : 2048     entries: error = 0.000916651
+    bin #3   : 1024     entries: error = 0.00100305
+    bin #4   : 512      entries: error = 0.00106166
+    bin #5   : 256      entries: error = 0.00111003
+    bin #6   : 128      entries: error = 0.00105665
+Generalized Staggered Magnetization Density^4: 0.0243926 +/- 0.000553; tau = 0.446
+    bin #1   : 4096     entries: error = 0.000402325
+    bin #2   : 2048     entries: error = 0.000467337
+    bin #3   : 1024     entries: error = 0.000509901
+    bin #4   : 512      entries: error = 0.000542878
+    bin #5   : 256      entries: error = 0.000571711
+    bin #6   : 128      entries: error = 0.000553479
+Generalized Staggered Magnetization^2: 1.40869 +/- 0.0169; tau = 0.379
+    bin #1   : 4096     entries: error = 0.0127484
+    bin #2   : 2048     entries: error = 0.0146664
+    bin #3   : 1024     entries: error = 0.0160487
+    bin #4   : 512      entries: error = 0.0169865
+    bin #5   : 256      entries: error = 0.0177604
+    bin #6   : 128      entries: error = 0.0169064
+Generalized Staggered Magnetization^4: 6.24451 +/- 0.142; tau = 0.446
+    bin #1   : 4096     entries: error = 0.102995
+    bin #2   : 2048     entries: error = 0.119638
+    bin #3   : 1024     entries: error = 0.130535
+    bin #4   : 512      entries: error = 0.138977
+    bin #5   : 256      entries: error = 0.146358
+    bin #6   : 128      entries: error = 0.141691
+Generalized Staggered Susceptibility: 0.176086 +/- 0.00211; tau = 0.379
+    bin #1   : 4096     entries: error = 0.00159356
+    bin #2   : 2048     entries: error = 0.0018333
+    bin #3   : 1024     entries: error = 0.00200609
+    bin #4   : 512      entries: error = 0.00212332
+    bin #5   : 256      entries: error = 0.00222005
+    bin #6   : 128      entries: error = 0.00211329
+Generalized Susceptibility: 0.747437 +/- 0.00923; tau = 0.564 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.00633001
+    bin #2   : 2048     entries: error = 0.00736104
+    bin #3   : 1024     entries: error = 0.00821326
+    bin #4   : 512      entries: error = 0.00888517
+    bin #5   : 256      entries: error = 0.00899053
+    bin #6   : 128      entries: error = 0.00923259
 Inverse Temperature: 0.5 +/- 0
 Magnetization: 0 +/- 0; tau = nan
     bin #1   : 4096     entries: error = 0
@@ -3019,37 +3040,37 @@ Magnetization Density: 0 +/- 0; tau = nan
     bin #4   : 512      entries: error = 0
     bin #5   : 256      entries: error = 0
     bin #6   : 128      entries: error = 0
-Magnetization Density^2: 0.334694 +/- 0.0036; tau = 0.289
-    bin #1   : 4096     entries: error = 0.0028679
-    bin #2   : 2048     entries: error = 0.00332074
-    bin #3   : 1024     entries: error = 0.00365225
-    bin #4   : 512      entries: error = 0.00386704
-    bin #5   : 256      entries: error = 0.00406249
-    bin #6   : 128      entries: error = 0.00360274
-Magnetization Density^4: 0.222201 +/- 0.00363; tau = 0.284
-    bin #1   : 4096     entries: error = 0.00289521
-    bin #2   : 2048     entries: error = 0.0033476
-    bin #3   : 1024     entries: error = 0.00367959
-    bin #4   : 512      entries: error = 0.0038679
-    bin #5   : 256      entries: error = 0.00407743
-    bin #6   : 128      entries: error = 0.00362652
-Magnetization^2: 5.3551 +/- 0.0576; tau = 0.289
-    bin #1   : 4096     entries: error = 0.0458864
-    bin #2   : 2048     entries: error = 0.0531318
-    bin #3   : 1024     entries: error = 0.058436
-    bin #4   : 512      entries: error = 0.0618726
-    bin #5   : 256      entries: error = 0.0649999
-    bin #6   : 128      entries: error = 0.0576438
-Magnetization^4: 56.8835 +/- 0.928; tau = 0.284
-    bin #1   : 4096     entries: error = 0.741173
-    bin #2   : 2048     entries: error = 0.856987
-    bin #3   : 1024     entries: error = 0.941976
-    bin #4   : 512      entries: error = 0.990182
-    bin #5   : 256      entries: error = 1.04382
-    bin #6   : 128      entries: error = 0.928388
-Number of Clusters: 4.6626 +/- 0.0241861
+Magnetization Density^2: 0.373718 +/- 0.00462; tau = 0.564 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.003165
+    bin #2   : 2048     entries: error = 0.00368052
+    bin #3   : 1024     entries: error = 0.00410663
+    bin #4   : 512      entries: error = 0.00444259
+    bin #5   : 256      entries: error = 0.00449526
+    bin #6   : 128      entries: error = 0.0046163
+Magnetization Density^4: 0.262108 +/- 0.00483; tau = 0.59 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.00327532
+    bin #2   : 2048     entries: error = 0.00379845
+    bin #3   : 1024     entries: error = 0.00425179
+    bin #4   : 512      entries: error = 0.00458775
+    bin #5   : 256      entries: error = 0.00463558
+    bin #6   : 128      entries: error = 0.004835
+Magnetization^2: 5.97949 +/- 0.0739; tau = 0.564 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.0506401
+    bin #2   : 2048     entries: error = 0.0588883
+    bin #3   : 1024     entries: error = 0.065706
+    bin #4   : 512      entries: error = 0.0710814
+    bin #5   : 256      entries: error = 0.0719242
+    bin #6   : 128      entries: error = 0.0738607
+Magnetization^4: 67.0997 +/- 1.24; tau = 0.59 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.838483
+    bin #2   : 2048     entries: error = 0.972402
+    bin #3   : 1024     entries: error = 1.08846
+    bin #4   : 512      entries: error = 1.17447
+    bin #5   : 256      entries: error = 1.18671
+    bin #6   : 128      entries: error = 1.23776
+Number of Clusters: 4.29053 +/- 0.0244174
 Number of Sites: 4 +/- 0
-Specific Heat: 0.180437 +/- 0.0213
+Specific Heat: 0.202158 +/- 0.028
 Staggered Magnetization: 0 +/- 0; tau = nan
     bin #1   : 4096     entries: error = 0
     bin #2   : 2048     entries: error = 0
@@ -3064,41 +3085,41 @@ Staggered Magnetization Density: 0 +/- 0; tau = nan
     bin #4   : 512      entries: error = 0
     bin #5   : 256      entries: error = 0
     bin #6   : 128      entries: error = 0
-Staggered Magnetization Density^2: 0.0886154 +/- 0.00094; tau = 0.304
-    bin #1   : 4096     entries: error = 0.000741074
-    bin #2   : 2048     entries: error = 0.000841891
-    bin #3   : 1024     entries: error = 0.000920361
-    bin #4   : 512      entries: error = 0.000974361
-    bin #5   : 256      entries: error = 0.00104915
-    bin #6   : 128      entries: error = 0.00093952
-Staggered Magnetization Density^4: 0.0242281 +/- 0.000498; tau = 0.38
-    bin #1   : 4096     entries: error = 0.000375515
-    bin #2   : 2048     entries: error = 0.000436003
-    bin #3   : 1024     entries: error = 0.000482433
-    bin #4   : 512      entries: error = 0.000520634
-    bin #5   : 256      entries: error = 0.000555457
-    bin #6   : 128      entries: error = 0.000498168
-Staggered Magnetization^2: 1.41785 +/- 0.015; tau = 0.304
-    bin #1   : 4096     entries: error = 0.0118572
-    bin #2   : 2048     entries: error = 0.0134703
-    bin #3   : 1024     entries: error = 0.0147258
-    bin #4   : 512      entries: error = 0.0155898
-    bin #5   : 256      entries: error = 0.0167864
-    bin #6   : 128      entries: error = 0.0150323
-Staggered Magnetization^4: 6.20239 +/- 0.128; tau = 0.38
-    bin #1   : 4096     entries: error = 0.0961317
-    bin #2   : 2048     entries: error = 0.111617
-    bin #3   : 1024     entries: error = 0.123503
-    bin #4   : 512      entries: error = 0.133282
-    bin #5   : 256      entries: error = 0.142197
-    bin #6   : 128      entries: error = 0.127531
-Staggered Susceptibility: 0.177231 +/- 0.00188; tau = 0.304
-    bin #1   : 4096     entries: error = 0.00148215
-    bin #2   : 2048     entries: error = 0.00168378
-    bin #3   : 1024     entries: error = 0.00184072
-    bin #4   : 512      entries: error = 0.00194872
-    bin #5   : 256      entries: error = 0.0020983
-    bin #6   : 128      entries: error = 0.00187904
+Staggered Magnetization Density^2: 0.0880432 +/- 0.00106; tau = 0.379
+    bin #1   : 4096     entries: error = 0.000796778
+    bin #2   : 2048     entries: error = 0.000916651
+    bin #3   : 1024     entries: error = 0.00100305
+    bin #4   : 512      entries: error = 0.00106166
+    bin #5   : 256      entries: error = 0.00111003
+    bin #6   : 128      entries: error = 0.00105665
+Staggered Magnetization Density^4: 0.0243926 +/- 0.000553; tau = 0.446
+    bin #1   : 4096     entries: error = 0.000402325
+    bin #2   : 2048     entries: error = 0.000467337
+    bin #3   : 1024     entries: error = 0.000509901
+    bin #4   : 512      entries: error = 0.000542878
+    bin #5   : 256      entries: error = 0.000571711
+    bin #6   : 128      entries: error = 0.000553479
+Staggered Magnetization^2: 1.40869 +/- 0.0169; tau = 0.379
+    bin #1   : 4096     entries: error = 0.0127484
+    bin #2   : 2048     entries: error = 0.0146664
+    bin #3   : 1024     entries: error = 0.0160487
+    bin #4   : 512      entries: error = 0.0169865
+    bin #5   : 256      entries: error = 0.0177604
+    bin #6   : 128      entries: error = 0.0169064
+Staggered Magnetization^4: 6.24451 +/- 0.142; tau = 0.446
+    bin #1   : 4096     entries: error = 0.102995
+    bin #2   : 2048     entries: error = 0.119638
+    bin #3   : 1024     entries: error = 0.130535
+    bin #4   : 512      entries: error = 0.138977
+    bin #5   : 256      entries: error = 0.146358
+    bin #6   : 128      entries: error = 0.141691
+Staggered Susceptibility: 0.176086 +/- 0.00211; tau = 0.379
+    bin #1   : 4096     entries: error = 0.00159356
+    bin #2   : 2048     entries: error = 0.0018333
+    bin #3   : 1024     entries: error = 0.00200609
+    bin #4   : 512      entries: error = 0.00212332
+    bin #5   : 256      entries: error = 0.00222005
+    bin #6   : 128      entries: error = 0.00211329
 Stiffness: 0 +/- 0; tau = nan
     bin #1   : 4096     entries: error = 0
     bin #2   : 2048     entries: error = 0
@@ -3106,13 +3127,13 @@ Stiffness: 0 +/- 0; tau = nan
     bin #4   : 512      entries: error = 0
     bin #5   : 256      entries: error = 0
     bin #6   : 128      entries: error = 0
-Susceptibility: 0.669388 +/- 0.00721; tau = 0.289
-    bin #1   : 4096     entries: error = 0.0057358
-    bin #2   : 2048     entries: error = 0.00664148
-    bin #3   : 1024     entries: error = 0.00730449
-    bin #4   : 512      entries: error = 0.00773408
-    bin #5   : 256      entries: error = 0.00812498
-    bin #6   : 128      entries: error = 0.00720547
+Susceptibility: 0.747437 +/- 0.00923; tau = 0.564 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.00633001
+    bin #2   : 2048     entries: error = 0.00736104
+    bin #3   : 1024     entries: error = 0.00821326
+    bin #4   : 512      entries: error = 0.00888517
+    bin #5   : 256      entries: error = 0.00899053
+    bin #6   : 128      entries: error = 0.00923259
 Temperature: 2 +/- 0
 Volume: 4 +/- 0
 |Magnetization Density|: 0 +/- 0; tau = nan
@@ -3154,103 +3175,104 @@ local_S = 1;
 Gamma = 0;
 Jz = -1;
 Jxy = 0;
+D = -0.8;
 REPRESENTATION = Ising;
 [results]
-Binder Ratio of Generalized Magnetization: 0.508078 +/- 0.00298
-Binder Ratio of Generalized Staggered Magnetization: 0.323058 +/- 0.00181
-Binder Ratio of Magnetization: 0.508078 +/- 0.00298
-Binder Ratio of Staggered Magnetization: 0.323058 +/- 0.00181
-Energy: -0.954102 +/- 0.0703; tau = 0.324 WARNING: check error convergence
-    bin #1   : 4096     entries: error = 0.0547877
-    bin #2   : 2048     entries: error = 0.0588786
-    bin #3   : 1024     entries: error = 0.0614395
-    bin #4   : 512      entries: error = 0.0647251
-    bin #5   : 256      entries: error = 0.0661936
-    bin #6   : 128      entries: error = 0.0703193
-Energy Density: -0.238525 +/- 0.0176; tau = 0.324 WARNING: check error convergence
-    bin #1   : 4096     entries: error = 0.0136969
-    bin #2   : 2048     entries: error = 0.0147196
-    bin #3   : 1024     entries: error = 0.0153599
-    bin #4   : 512      entries: error = 0.0161813
-    bin #5   : 256      entries: error = 0.0165484
-    bin #6   : 128      entries: error = 0.0175798
-Energy^2: 3.29102 +/- 0.371; tau = 0.146
-    bin #1   : 4096     entries: error = 0.326093
-    bin #2   : 2048     entries: error = 0.329919
-    bin #3   : 1024     entries: error = 0.334196
-    bin #4   : 512      entries: error = 0.337281
-    bin #5   : 256      entries: error = 0.355543
-    bin #6   : 128      entries: error = 0.370556
-Generalized Magnetization Density^2: 0.338165 +/- 0.00385; tau = 0.395
-    bin #1   : 4096     entries: error = 0.00287686
-    bin #2   : 2048     entries: error = 0.00326749
-    bin #3   : 1024     entries: error = 0.00355739
-    bin #4   : 512      entries: error = 0.00370984
-    bin #5   : 256      entries: error = 0.00375955
-    bin #6   : 128      entries: error = 0.00384962
-Generalized Magnetization Density^4: 0.225066 +/- 0.00393; tau = 0.424
-    bin #1   : 4096     entries: error = 0.00289308
-    bin #2   : 2048     entries: error = 0.00328451
-    bin #3   : 1024     entries: error = 0.00359232
-    bin #4   : 512      entries: error = 0.0037578
-    bin #5   : 256      entries: error = 0.00383993
-    bin #6   : 128      entries: error = 0.00393348
-Generalized Magnetization^2: 5.41064 +/- 0.0616; tau = 0.395
-    bin #1   : 4096     entries: error = 0.0460298
-    bin #2   : 2048     entries: error = 0.0522798
-    bin #3   : 1024     entries: error = 0.0569183
-    bin #4   : 512      entries: error = 0.0593574
-    bin #5   : 256      entries: error = 0.0601529
-    bin #6   : 128      entries: error = 0.061594
-Generalized Magnetization^4: 57.6169 +/- 1.01; tau = 0.424
-    bin #1   : 4096     entries: error = 0.740628
-    bin #2   : 2048     entries: error = 0.840836
-    bin #3   : 1024     entries: error = 0.919635
-    bin #4   : 512      entries: error = 0.961997
-    bin #5   : 256      entries: error = 0.983022
-    bin #6   : 128      entries: error = 1.00697
-Generalized Staggered Magnetization Density^2: 0.0875397 +/- 0.000941; tau = 0.307 WARNING: check error convergence
-    bin #1   : 4096     entries: error = 0.000740595
-    bin #2   : 2048     entries: error = 0.000788759
-    bin #3   : 1024     entries: error = 0.000828249
-    bin #4   : 512      entries: error = 0.000866876
-    bin #5   : 256      entries: error = 0.000888884
-    bin #6   : 128      entries: error = 0.000940612
-Generalized Staggered Magnetization Density^4: 0.0237188 +/- 0.000453; tau = 0.241
-    bin #1   : 4096     entries: error = 0.000372226
-    bin #2   : 2048     entries: error = 0.000390762
-    bin #3   : 1024     entries: error = 0.000412411
-    bin #4   : 512      entries: error = 0.000425291
-    bin #5   : 256      entries: error = 0.000428888
-    bin #6   : 128      entries: error = 0.000453292
-Generalized Staggered Magnetization^2: 1.40063 +/- 0.015; tau = 0.307 WARNING: check error convergence
-    bin #1   : 4096     entries: error = 0.0118495
-    bin #2   : 2048     entries: error = 0.0126201
-    bin #3   : 1024     entries: error = 0.013252
-    bin #4   : 512      entries: error = 0.01387
-    bin #5   : 256      entries: error = 0.0142221
-    bin #6   : 128      entries: error = 0.0150498
-Generalized Staggered Magnetization^4: 6.07202 +/- 0.116; tau = 0.241
-    bin #1   : 4096     entries: error = 0.09529
-    bin #2   : 2048     entries: error = 0.100035
-    bin #3   : 1024     entries: error = 0.105577
-    bin #4   : 512      entries: error = 0.108874
-    bin #5   : 256      entries: error = 0.109795
-    bin #6   : 128      entries: error = 0.116043
-Generalized Staggered Susceptibility: 0.175079 +/- 0.00188; tau = 0.307 WARNING: check error convergence
-    bin #1   : 4096     entries: error = 0.00148119
-    bin #2   : 2048     entries: error = 0.00157752
-    bin #3   : 1024     entries: error = 0.0016565
-    bin #4   : 512      entries: error = 0.00173375
-    bin #5   : 256      entries: error = 0.00177777
-    bin #6   : 128      entries: error = 0.00188122
-Generalized Susceptibility: 0.676331 +/- 0.0077; tau = 0.395
-    bin #1   : 4096     entries: error = 0.00575373
-    bin #2   : 2048     entries: error = 0.00653498
-    bin #3   : 1024     entries: error = 0.00711479
-    bin #4   : 512      entries: error = 0.00741968
-    bin #5   : 256      entries: error = 0.00751911
-    bin #6   : 128      entries: error = 0.00769924
+Binder Ratio of Generalized Magnetization: 0.527129 +/- 0.00391 WARNING: check error convergence
+Binder Ratio of Generalized Staggered Magnetization: 0.316275 +/- 0.00246
+Binder Ratio of Magnetization: 0.527129 +/- 0.00391 WARNING: check error convergence
+Binder Ratio of Staggered Magnetization: 0.316275 +/- 0.00246
+Energy: -6.24268 +/- 0.0802; tau = 0.366
+    bin #1   : 4096     entries: error = 0.0609439
+    bin #2   : 2048     entries: error = 0.0669963
+    bin #3   : 1024     entries: error = 0.0724183
+    bin #4   : 512      entries: error = 0.0745485
+    bin #5   : 256      entries: error = 0.0756564
+    bin #6   : 128      entries: error = 0.0802099
+Energy Density: -1.56067 +/- 0.0201; tau = 0.366
+    bin #1   : 4096     entries: error = 0.015236
+    bin #2   : 2048     entries: error = 0.0167491
+    bin #3   : 1024     entries: error = 0.0181046
+    bin #4   : 512      entries: error = 0.0186371
+    bin #5   : 256      entries: error = 0.0189141
+    bin #6   : 128      entries: error = 0.0200525
+Energy^2: 41.6914 +/- 1.11; tau = 0.303
+    bin #1   : 4096     entries: error = 0.874893
+    bin #2   : 2048     entries: error = 0.945509
+    bin #3   : 1024     entries: error = 1.01591
+    bin #4   : 512      entries: error = 1.03046
+    bin #5   : 256      entries: error = 1.0521
+    bin #6   : 128      entries: error = 1.109
+Generalized Magnetization Density^2: 0.367783 +/- 0.00472; tau = 0.675 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.0030796
+    bin #2   : 2048     entries: error = 0.00359886
+    bin #3   : 1024     entries: error = 0.00409967
+    bin #4   : 512      entries: error = 0.00434524
+    bin #5   : 256      entries: error = 0.00455422
+    bin #6   : 128      entries: error = 0.00472099
+Generalized Magnetization Density^4: 0.256595 +/- 0.00485; tau = 0.66 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.0031831
+    bin #2   : 2048     entries: error = 0.00371958
+    bin #3   : 1024     entries: error = 0.00424111
+    bin #4   : 512      entries: error = 0.00448152
+    bin #5   : 256      entries: error = 0.00469965
+    bin #6   : 128      entries: error = 0.00484859
+Generalized Magnetization^2: 5.88452 +/- 0.0755; tau = 0.675 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.0492736
+    bin #2   : 2048     entries: error = 0.0575817
+    bin #3   : 1024     entries: error = 0.0655946
+    bin #4   : 512      entries: error = 0.0695238
+    bin #5   : 256      entries: error = 0.0728676
+    bin #6   : 128      entries: error = 0.0755358
+Generalized Magnetization^4: 65.6882 +/- 1.24; tau = 0.66 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.814874
+    bin #2   : 2048     entries: error = 0.952213
+    bin #3   : 1024     entries: error = 1.08572
+    bin #4   : 512      entries: error = 1.14727
+    bin #5   : 256      entries: error = 1.20311
+    bin #6   : 128      entries: error = 1.24124
+Generalized Staggered Magnetization Density^2: 0.0888519 +/- 0.000953; tau = 0.194
+    bin #1   : 4096     entries: error = 0.000808891
+    bin #2   : 2048     entries: error = 0.00089211
+    bin #3   : 1024     entries: error = 0.000937016
+    bin #4   : 512      entries: error = 0.000966504
+    bin #5   : 256      entries: error = 0.000917114
+    bin #6   : 128      entries: error = 0.000952715
+Generalized Staggered Magnetization Density^4: 0.0249596 +/- 0.000446; tau = 0.0587
+    bin #1   : 4096     entries: error = 0.000421478
+    bin #2   : 2048     entries: error = 0.000454904
+    bin #3   : 1024     entries: error = 0.00046881
+    bin #4   : 512      entries: error = 0.000475338
+    bin #5   : 256      entries: error = 0.000446149
+    bin #6   : 128      entries: error = 0.000445541
+Generalized Staggered Magnetization^2: 1.42163 +/- 0.0152; tau = 0.194
+    bin #1   : 4096     entries: error = 0.0129423
+    bin #2   : 2048     entries: error = 0.0142738
+    bin #3   : 1024     entries: error = 0.0149923
+    bin #4   : 512      entries: error = 0.0154641
+    bin #5   : 256      entries: error = 0.0146738
+    bin #6   : 128      entries: error = 0.0152434
+Generalized Staggered Magnetization^4: 6.38965 +/- 0.114; tau = 0.0587
+    bin #1   : 4096     entries: error = 0.107898
+    bin #2   : 2048     entries: error = 0.116455
+    bin #3   : 1024     entries: error = 0.120015
+    bin #4   : 512      entries: error = 0.121686
+    bin #5   : 256      entries: error = 0.114214
+    bin #6   : 128      entries: error = 0.114058
+Generalized Staggered Susceptibility: 0.177704 +/- 0.00191; tau = 0.194
+    bin #1   : 4096     entries: error = 0.00161778
+    bin #2   : 2048     entries: error = 0.00178422
+    bin #3   : 1024     entries: error = 0.00187403
+    bin #4   : 512      entries: error = 0.00193301
+    bin #5   : 256      entries: error = 0.00183423
+    bin #6   : 128      entries: error = 0.00190543
+Generalized Susceptibility: 0.735565 +/- 0.00944; tau = 0.675 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.00615921
+    bin #2   : 2048     entries: error = 0.00719772
+    bin #3   : 1024     entries: error = 0.00819933
+    bin #4   : 512      entries: error = 0.00869048
+    bin #5   : 256      entries: error = 0.00910845
+    bin #6   : 128      entries: error = 0.00944198
 Inverse Temperature: 0.5 +/- 0
 Magnetization: 0 +/- 0; tau = nan
     bin #1   : 4096     entries: error = 0
@@ -3266,37 +3288,37 @@ Magnetization Density: 0 +/- 0; tau = nan
     bin #4   : 512      entries: error = 0
     bin #5   : 256      entries: error = 0
     bin #6   : 128      entries: error = 0
-Magnetization Density^2: 0.338165 +/- 0.00385; tau = 0.395
-    bin #1   : 4096     entries: error = 0.00287686
-    bin #2   : 2048     entries: error = 0.00326749
-    bin #3   : 1024     entries: error = 0.00355739
-    bin #4   : 512      entries: error = 0.00370984
-    bin #5   : 256      entries: error = 0.00375955
-    bin #6   : 128      entries: error = 0.00384962
-Magnetization Density^4: 0.225066 +/- 0.00393; tau = 0.424
-    bin #1   : 4096     entries: error = 0.00289308
-    bin #2   : 2048     entries: error = 0.00328451
-    bin #3   : 1024     entries: error = 0.00359232
-    bin #4   : 512      entries: error = 0.0037578
-    bin #5   : 256      entries: error = 0.00383993
-    bin #6   : 128      entries: error = 0.00393348
-Magnetization^2: 5.41064 +/- 0.0616; tau = 0.395
-    bin #1   : 4096     entries: error = 0.0460298
-    bin #2   : 2048     entries: error = 0.0522798
-    bin #3   : 1024     entries: error = 0.0569183
-    bin #4   : 512      entries: error = 0.0593574
-    bin #5   : 256      entries: error = 0.0601529
-    bin #6   : 128      entries: error = 0.061594
-Magnetization^4: 57.6169 +/- 1.01; tau = 0.424
-    bin #1   : 4096     entries: error = 0.740628
-    bin #2   : 2048     entries: error = 0.840836
-    bin #3   : 1024     entries: error = 0.919635
-    bin #4   : 512      entries: error = 0.961997
-    bin #5   : 256      entries: error = 0.983022
-    bin #6   : 128      entries: error = 1.00697
-Number of Clusters: 4.6377 +/- 0.0242656
+Magnetization Density^2: 0.367783 +/- 0.00472; tau = 0.675 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.0030796
+    bin #2   : 2048     entries: error = 0.00359886
+    bin #3   : 1024     entries: error = 0.00409967
+    bin #4   : 512      entries: error = 0.00434524
+    bin #5   : 256      entries: error = 0.00455422
+    bin #6   : 128      entries: error = 0.00472099
+Magnetization Density^4: 0.256595 +/- 0.00485; tau = 0.66 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.0031831
+    bin #2   : 2048     entries: error = 0.00371958
+    bin #3   : 1024     entries: error = 0.00424111
+    bin #4   : 512      entries: error = 0.00448152
+    bin #5   : 256      entries: error = 0.00469965
+    bin #6   : 128      entries: error = 0.00484859
+Magnetization^2: 5.88452 +/- 0.0755; tau = 0.675 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.0492736
+    bin #2   : 2048     entries: error = 0.0575817
+    bin #3   : 1024     entries: error = 0.0655946
+    bin #4   : 512      entries: error = 0.0695238
+    bin #5   : 256      entries: error = 0.0728676
+    bin #6   : 128      entries: error = 0.0755358
+Magnetization^4: 65.6882 +/- 1.24; tau = 0.66 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.814874
+    bin #2   : 2048     entries: error = 0.952213
+    bin #3   : 1024     entries: error = 1.08572
+    bin #4   : 512      entries: error = 1.14727
+    bin #5   : 256      entries: error = 1.20311
+    bin #6   : 128      entries: error = 1.24124
+Number of Clusters: 4.30762 +/- 0.0238718
 Number of Sites: 4 +/- 0
-Specific Heat: 0.149103 +/- 0.0192
+Specific Heat: 0.170427 +/- 0.0221
 Staggered Magnetization: 0 +/- 0; tau = nan
     bin #1   : 4096     entries: error = 0
     bin #2   : 2048     entries: error = 0
@@ -3311,41 +3333,41 @@ Staggered Magnetization Density: 0 +/- 0; tau = nan
     bin #4   : 512      entries: error = 0
     bin #5   : 256      entries: error = 0
     bin #6   : 128      entries: error = 0
-Staggered Magnetization Density^2: 0.0875397 +/- 0.000941; tau = 0.307 WARNING: check error convergence
-    bin #1   : 4096     entries: error = 0.000740595
-    bin #2   : 2048     entries: error = 0.000788759
-    bin #3   : 1024     entries: error = 0.000828249
-    bin #4   : 512      entries: error = 0.000866876
-    bin #5   : 256      entries: error = 0.000888884
-    bin #6   : 128      entries: error = 0.000940612
-Staggered Magnetization Density^4: 0.0237188 +/- 0.000453; tau = 0.241
-    bin #1   : 4096     entries: error = 0.000372226
-    bin #2   : 2048     entries: error = 0.000390762
-    bin #3   : 1024     entries: error = 0.000412411
-    bin #4   : 512      entries: error = 0.000425291
-    bin #5   : 256      entries: error = 0.000428888
-    bin #6   : 128      entries: error = 0.000453292
-Staggered Magnetization^2: 1.40063 +/- 0.015; tau = 0.307 WARNING: check error convergence
-    bin #1   : 4096     entries: error = 0.0118495
-    bin #2   : 2048     entries: error = 0.0126201
-    bin #3   : 1024     entries: error = 0.013252
-    bin #4   : 512      entries: error = 0.01387
-    bin #5   : 256      entries: error = 0.0142221
-    bin #6   : 128      entries: error = 0.0150498
-Staggered Magnetization^4: 6.07202 +/- 0.116; tau = 0.241
-    bin #1   : 4096     entries: error = 0.09529
-    bin #2   : 2048     entries: error = 0.100035
-    bin #3   : 1024     entries: error = 0.105577
-    bin #4   : 512      entries: error = 0.108874
-    bin #5   : 256      entries: error = 0.109795
-    bin #6   : 128      entries: error = 0.116043
-Staggered Susceptibility: 0.175079 +/- 0.00188; tau = 0.307 WARNING: check error convergence
-    bin #1   : 4096     entries: error = 0.00148119
-    bin #2   : 2048     entries: error = 0.00157752
-    bin #3   : 1024     entries: error = 0.0016565
-    bin #4   : 512      entries: error = 0.00173375
-    bin #5   : 256      entries: error = 0.00177777
-    bin #6   : 128      entries: error = 0.00188122
+Staggered Magnetization Density^2: 0.0888519 +/- 0.000953; tau = 0.194
+    bin #1   : 4096     entries: error = 0.000808891
+    bin #2   : 2048     entries: error = 0.00089211
+    bin #3   : 1024     entries: error = 0.000937016
+    bin #4   : 512      entries: error = 0.000966504
+    bin #5   : 256      entries: error = 0.000917114
+    bin #6   : 128      entries: error = 0.000952715
+Staggered Magnetization Density^4: 0.0249596 +/- 0.000446; tau = 0.0587
+    bin #1   : 4096     entries: error = 0.000421478
+    bin #2   : 2048     entries: error = 0.000454904
+    bin #3   : 1024     entries: error = 0.00046881
+    bin #4   : 512      entries: error = 0.000475338
+    bin #5   : 256      entries: error = 0.000446149
+    bin #6   : 128      entries: error = 0.000445541
+Staggered Magnetization^2: 1.42163 +/- 0.0152; tau = 0.194
+    bin #1   : 4096     entries: error = 0.0129423
+    bin #2   : 2048     entries: error = 0.0142738
+    bin #3   : 1024     entries: error = 0.0149923
+    bin #4   : 512      entries: error = 0.0154641
+    bin #5   : 256      entries: error = 0.0146738
+    bin #6   : 128      entries: error = 0.0152434
+Staggered Magnetization^4: 6.38965 +/- 0.114; tau = 0.0587
+    bin #1   : 4096     entries: error = 0.107898
+    bin #2   : 2048     entries: error = 0.116455
+    bin #3   : 1024     entries: error = 0.120015
+    bin #4   : 512      entries: error = 0.121686
+    bin #5   : 256      entries: error = 0.114214
+    bin #6   : 128      entries: error = 0.114058
+Staggered Susceptibility: 0.177704 +/- 0.00191; tau = 0.194
+    bin #1   : 4096     entries: error = 0.00161778
+    bin #2   : 2048     entries: error = 0.00178422
+    bin #3   : 1024     entries: error = 0.00187403
+    bin #4   : 512      entries: error = 0.00193301
+    bin #5   : 256      entries: error = 0.00183423
+    bin #6   : 128      entries: error = 0.00190543
 Stiffness: 0 +/- 0; tau = nan
     bin #1   : 4096     entries: error = 0
     bin #2   : 2048     entries: error = 0
@@ -3353,13 +3375,13 @@ Stiffness: 0 +/- 0; tau = nan
     bin #4   : 512      entries: error = 0
     bin #5   : 256      entries: error = 0
     bin #6   : 128      entries: error = 0
-Susceptibility: 0.676331 +/- 0.0077; tau = 0.395
-    bin #1   : 4096     entries: error = 0.00575373
-    bin #2   : 2048     entries: error = 0.00653498
-    bin #3   : 1024     entries: error = 0.00711479
-    bin #4   : 512      entries: error = 0.00741968
-    bin #5   : 256      entries: error = 0.00751911
-    bin #6   : 128      entries: error = 0.00769924
+Susceptibility: 0.735565 +/- 0.00944; tau = 0.675 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.00615921
+    bin #2   : 2048     entries: error = 0.00719772
+    bin #3   : 1024     entries: error = 0.00819933
+    bin #4   : 512      entries: error = 0.00869048
+    bin #5   : 256      entries: error = 0.00910845
+    bin #6   : 128      entries: error = 0.00944198
 Temperature: 2 +/- 0
 Volume: 4 +/- 0
 |Magnetization Density|: 0 +/- 0; tau = nan
@@ -3401,6 +3423,7 @@ local_S = 1/2;
 Gamma = 0;
 Jz = 1;
 Jxy = 1;
+D = 0;
 REPRESENTATION = "path integral";
 MEASURE[Correlations] = true;
 MEASURE[Green Function] = true;
