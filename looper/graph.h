@@ -69,6 +69,44 @@ struct site_graph_type {
 //            *
 //           o o            o-o
 
+// optimized bond_graph_type for Ising model
+
+struct ising_bond_graph_type {
+  static bool is_valid_gid(int g) { return g == 2 || g == 3; }
+  static bool is_compatible(int g, int c0, int c1) { return (g & 1) ^ c0 ^ c1; }
+  template<class T>
+  static boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
+  reconnect(int g, std::vector<T>& fragments, int curr0, int curr1) {
+    int loop = unify(fragments, curr0, curr1);
+    return boost::make_tuple(loop, loop, loop, loop);
+  }
+
+  static bool has_nontrivial_diagonal_choice_helper() { return false; }
+  struct diagonal_choice_helper {
+    diagonal_choice_helper() {}
+    template<std::size_t N>
+    diagonal_choice_helper(boost::array<double, N> const&) {}
+  };
+  template<typename RNG>
+  static int choose_diagonal(RNG& rng, std::vector<diagonal_choice_helper> const&, int,
+    int c0, int c1) {
+    return (c0 == c1) ? 3 : 2;
+  }
+
+  static bool has_nontrivial_offdiagonal_choice_helper() { return false; }
+  struct offdiagonal_choice_helper {
+    offdiagonal_choice_helper() {}
+    template<std::size_t N>
+    offdiagonal_choice_helper(boost::array<double, N> const&) {}
+  };
+  template<typename RNG>
+  static int choose_offdiagonal(RNG&, std::vector<offdiagonal_choice_helper> const&, int, int,
+    int) {
+    boost::throw_exception(std::logic_error("ising_bond_graph_type::choose_offdiagonal"));
+    return 0;
+  }
+};
+
 // optimized bond_graph_type for Heisenberg Antiferromagnet
 
 struct haf_bond_graph_type {
