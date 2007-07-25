@@ -52,6 +52,23 @@ void output(const looper::bond_parameter_xxz& p, const looper::xxz_bond_weight& 
   w.check(p);
 }
 
+void output(const looper::bond_parameter_xyz& p, const looper::xyz_bond_weight& w)
+{
+  std::cout << "C = " << p.c
+            << ", Jx = " << p.jx
+            << ", Jy = " << p.jy
+            << ", Jz = " << p.jz
+            << " : v[0] = " << alps::round<1>(w.v[0])
+            << ", v[1] = " << alps::round<1>(w.v[1])
+            << ", v[2] = " << alps::round<1>(w.v[2])
+            << ", v[3] = " << alps::round<1>(w.v[3])
+            << ", v[4] = " << alps::round<1>(w.v[4])
+            << ", v[5] = " << alps::round<1>(w.v[5])
+            << ", offset = " << w.offset
+            << ", sign = " << w.sign << std::endl;
+  w.check(p);
+}
+
 int main()
 {
 #ifndef BOOST_NO_EXCEPTIONS
@@ -79,7 +96,7 @@ try {
     output(bond, looper::xxz_bond_weight(bond, 0.1));
   }
 
-  std::cout << "[random check]\n";
+  std::cout << "[random check for xxz_bond_weight]\n";
 
   // random number generator
   boost::mt19937 eng(29833u);
@@ -105,6 +122,30 @@ try {
 
     std::cout << "bond weight (ergodic): ";
     output(bond, looper::xxz_bond_weight(bond, 0.1));
+  }
+
+  std::cout << "[random check for xyz_bond_weight]\n";
+
+  for (int i = 0; i < 10; ++i) {
+    // NOTE: gnu4 does not compile correctly the following code
+    // looper::site_parameter site(0.5, rng(), rng(), rng());
+    double sc = rng();
+    double hx = rng();
+    looper::site_parameter site(0.5, sc, hx, 0, 0);
+    double bc = rng();
+    double jx = rng();
+    double jy = std::abs(jx) * rng(); // |jy| should be smaller than |jx|
+    double jz = rng();
+    looper::bond_parameter_xyz bond(bc, jx, jy, jz);
+
+    std::cout << "site weight (standard): ";
+    output(site, looper::site_weight(site));
+
+    std::cout << "bond weight (standard): ";
+    output(bond, looper::xyz_bond_weight(bond));
+
+    std::cout << "bond weight (ergodic): ";
+    output(bond, looper::xyz_bond_weight(bond, 0.1));
   }
 
 #ifndef BOOST_NO_EXCEPTIONS

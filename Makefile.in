@@ -735,7 +735,7 @@ check-TESTS: $(TESTS)
 distdir: $(DISTFILES)
 	$(am__remove_distdir)
 	mkdir $(distdir)
-	$(mkdir_p) $(distdir)/check $(distdir)/config $(distdir)/extras/transmag $(distdir)/looper
+	$(mkdir_p) $(distdir)/check $(distdir)/config $(distdir)/extras/nonstandard $(distdir)/extras/transmag $(distdir)/looper
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \

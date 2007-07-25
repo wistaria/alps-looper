@@ -1043,7 +1043,7 @@ Optional Features:
                           model
   --disable-path-integral disable path integral method
   --disable-sse           disable SSE method
-  --disable-sse-qwl       disable SSE quantum Wang-Landau method
+  --enable-sse-qwl        enable SSE quantum Wang-Landau method
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -18924,11 +18924,11 @@ fi
 # Check whether --enable-sse-qwl or --disable-sse-qwl was given.
 if test "${enable_sse_qwl+set}" = set; then
   enableval="$enable_sse_qwl"
-  test "x$enableval" != "xyes" && enable_sse_qwl=no
+  test "x$enableval" != "xno" && enable_sse_qwl=yes
 
 fi;
 test -f "$srcdir/sse_qwl.C" || enable_sse_qwl=no
-test -z "$enable_sse_qwl" && enable_sse_qwl=yes
+test -z "$enable_sse_qwl" && enable_sse_qwl=no
 
 
 if test "$enable_sse_qwl" = yes; then
@@ -19051,6 +19051,8 @@ if test "$exist_extras" = yes; then
             ac_config_files="$ac_config_files extras/gap/Makefile"
 
             ac_config_files="$ac_config_files extras/localsus/Makefile"
+
+                      ac_config_files="$ac_config_files extras/nonstandard/Makefile extras/nonstandard/xyz_model.xml"
 
             ac_config_files="$ac_config_files extras/top/Makefile"
 
@@ -19723,6 +19725,8 @@ do
   "extras/Makefile" ) CONFIG_FILES="$CONFIG_FILES extras/Makefile" ;;
   "extras/gap/Makefile" ) CONFIG_FILES="$CONFIG_FILES extras/gap/Makefile" ;;
   "extras/localsus/Makefile" ) CONFIG_FILES="$CONFIG_FILES extras/localsus/Makefile" ;;
+  "extras/nonstandard/Makefile" ) CONFIG_FILES="$CONFIG_FILES extras/nonstandard/Makefile" ;;
+  "extras/nonstandard/xyz_model.xml" ) CONFIG_FILES="$CONFIG_FILES extras/nonstandard/xyz_model.xml" ;;
   "extras/top/Makefile" ) CONFIG_FILES="$CONFIG_FILES extras/top/Makefile" ;;
   "extras/transmag/Makefile" ) CONFIG_FILES="$CONFIG_FILES extras/transmag/Makefile" ;;
   "extras/transmag/alternating_chain.xml" ) CONFIG_FILES="$CONFIG_FILES extras/transmag/alternating_chain.xml" ;;

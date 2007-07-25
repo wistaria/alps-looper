@@ -250,7 +250,7 @@ struct xyz_bond_weight {
       v[0] = v[1] = v[2] = v[3] = 0;
     }
     if (alps::is_nonzero<1>(jm)) {
-      v[4] = v[5] = jm / 2;
+      v[4] = v[5] = jm / 4;
     } else {
       v[4] = v[5] = 0;
     }
@@ -272,15 +272,16 @@ struct xyz_bond_weight {
 
 class weight_table {
 public:
-  typedef std::pair<int, site_weight> site_weight_t;
-  typedef std::pair<int, xxz_bond_weight> bond_weight_t;
-  typedef std::vector<std::pair<int, site_weight> >::const_iterator
-    site_weight_iterator;
-  typedef std::vector<std::pair<int, xxz_bond_weight> >::const_iterator
-    bond_weight_iterator;
+  typedef site_weight site_t;
+  typedef xyz_bond_weight bond_t;
 
-  BOOST_STATIC_CONSTANT(int, num_site_graphs = site_weight::num_graphs);
-  BOOST_STATIC_CONSTANT(int, num_bond_graphs = xxz_bond_weight::num_graphs);
+  typedef std::pair<int, site_t> site_weight_t;
+  typedef std::pair<int, bond_t> bond_weight_t;
+  typedef std::vector<std::pair<int, site_t> >::const_iterator site_weight_iterator;
+  typedef std::vector<std::pair<int, bond_t> >::const_iterator bond_weight_iterator;
+
+  BOOST_STATIC_CONSTANT(int, num_site_graphs = site_t::num_graphs);
+  BOOST_STATIC_CONSTANT(int, num_bond_graphs = bond_t::num_graphs);
 
   template<class M, class LAT>
   weight_table(M const& m, const LAT& lat, double force_scatter = 0) {
@@ -295,7 +296,7 @@ public:
     typename real_site_iterator<LAT>::type rsi, rsi_end;
     for (boost::tie(rsi, rsi_end) = sites(lat.rg());
          rsi != rsi_end; ++rsi) {
-      site_weight sw(m.site(*rsi, lat.rg()), force_scatter);
+      site_t sw(m.site(*rsi, lat.rg()), force_scatter);
       typename virtual_site_iterator<LAT>::type vsi, vsi_end;
       for (boost::tie(vsi, vsi_end) = sites(lat, *rsi);
            vsi != vsi_end; ++vsi) {
@@ -307,7 +308,7 @@ public:
     typename real_bond_iterator<LAT>::type rbi, rbi_end;
     for (boost::tie(rbi, rbi_end) = bonds(lat.rg());
          rbi != rbi_end; ++rbi) {
-      xxz_bond_weight bw(m.bond(*rbi, lat.rg()), force_scatter);
+      bond_t bw(m.bond(*rbi, lat.rg()), force_scatter);
       typename virtual_bond_iterator<LAT>::type vbi, vbi_end;
       for (boost::tie(vbi, vbi_end) = bonds(lat, *rbi);
            vbi != vbi_end; ++vbi) {
@@ -319,7 +320,7 @@ public:
     if (m.has_d_term()) {
       for (boost::tie(rsi, rsi_end) = sites(lat.rg());
            rsi != rsi_end; ++rsi) {
-        xxz_bond_weight bw(m.site(*rsi, lat.rg()), force_scatter);
+        bond_t bw(m.site(*rsi, lat.rg()), force_scatter);
         typename virtual_bond_iterator<LAT>::type vbi, vbi_end;
         for (boost::tie(vbi, vbi_end) = bonds(lat, *rsi);
              vbi != vbi_end; ++vbi) {
@@ -351,8 +352,8 @@ public:
 private:
   double weight_;
   double energy_offset_;
-  std::vector<std::pair<int, site_weight> > site_weights_;
-  std::vector<std::pair<int, xxz_bond_weight> > bond_weights_;
+  std::vector<std::pair<int, site_t> > site_weights_;
+  std::vector<std::pair<int, bond_t> > bond_weights_;
 };
 
 //
@@ -389,8 +390,13 @@ inline void xyz_bond_weight::check(const bond_parameter_xyz& p) const {
   if (!alps::is_equal<1>(-offset+v[0]+v[2]+v[4],  p.jz/4) ||
       !alps::is_equal<1>(-offset+v[1]+v[3]+v[5], -p.jz/4) ||
       !alps::is_equal<1>(v[0]+v[1], -sign * (p.jx+p.jy)/4) ||
-      !alps::is_equal<1>(v[4]+v[5], -sign * (p.jx-p.jy)/4))
+      !alps::is_equal<1>(v[4]+v[5], -sign * (p.jx-p.jy)/4)) {
+    std::cerr << -offset+v[0]+v[2]+v[4] << '\t' << p.jz/4 << '\t'
+              << -offset+v[1]+v[3]+v[5] << '\t' << -p.jz/4 << '\t'
+              << v[0]+v[1] << '\t' << -sign * (p.jx+p.jy)/4 << '\t'
+              << v[4]+v[5] << '\t' << -sign * (p.jx-p.jy)/4 << std::endl;
     boost::throw_exception(std::logic_error("bond_parameter_xyz::check 1"));
+  }
   bond_parameter_xyz pp(p.c, -2 * (v[0] + v[1] + v[4] + v[5]) * sign,
     -2 * (v[0] + v[1] - v[4] - v[5]) * sign, 2 * (v[0] - v[1] + v[2] - v[3]));
   if (pp != p) {

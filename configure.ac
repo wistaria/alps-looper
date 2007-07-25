@@ -184,12 +184,12 @@ test -z "$enable_sse" && enable_sse=yes
 AM_CONDITIONAL(ENABLE_SSE, test "$enable_sse" = yes)
 
 AC_ARG_ENABLE(sse-qwl,
-  AC_HELP_STRING([--disable-sse-qwl],
-    [disable SSE quantum Wang-Landau method]),
-  [test "x$enableval" != "xyes" && enable_sse_qwl=no]
+  AC_HELP_STRING([--enable-sse-qwl],
+    [enable SSE quantum Wang-Landau method]),
+  [test "x$enableval" != "xno" && enable_sse_qwl=yes]
 )
 test -f "$srcdir/sse_qwl.C" || enable_sse_qwl=no
-test -z "$enable_sse_qwl" && enable_sse_qwl=yes
+test -z "$enable_sse_qwl" && enable_sse_qwl=no
 AM_CONDITIONAL(ENABLE_SSE_QWL, test "$enable_sse_qwl" = yes)
 
 dnl
@@ -233,6 +233,7 @@ if test "$exist_extras" = yes; then
   AC_CONFIG_FILES(extras/Makefile)
   AC_CONFIG_FILES(extras/gap/Makefile)
   AC_CONFIG_FILES(extras/localsus/Makefile)
+  AC_CONFIG_FILES(extras/nonstandard/Makefile extras/nonstandard/xyz_model.xml)
   AC_CONFIG_FILES(extras/top/Makefile)
   AC_CONFIG_FILES(extras/transmag/Makefile extras/transmag/alternating_chain.xml)
 fi

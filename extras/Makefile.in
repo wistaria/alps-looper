@@ -35,7 +35,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@BUILD_EXTRAS_TRUE@am__append_1 = gap localsus top transmag
+@BUILD_EXTRAS_TRUE@am__append_1 = gap localsus nonstandard top transmag
 subdir = extras
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -195,7 +195,7 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 SUBDIRS = $(am__append_1)
-DIST_SUBDIRS = gap localsus top transmag
+DIST_SUBDIRS = gap localsus nonstandard top transmag
 all: all-recursive
 
 .SUFFIXES:

@@ -258,6 +258,61 @@ struct xyz_bond_graph_type {
     }
     return boost::make_tuple(curr0, curr1, loop0, loop1);
   }
+
+  static bool has_nontrivial_diagonal_choice_helper() { return true; }
+  struct diagonal_choice_helper {
+    diagonal_choice_helper() {}
+    template<std::size_t N>
+    diagonal_choice_helper(boost::array<double, N> const& v) {
+      // for antiparallel
+      p[0] = alps::is_nonzero<1>(v[0] + v[2] + v[4]) ? v[0] / (v[0] + v[2] + v[4]) : 1;
+      p[2] = alps::is_nonzero<1>(v[0] + v[2] + v[4]) ? (v[0] + v[2])/ (v[0] + v[2] + v[4]) : 1;
+      // for parallel
+      p[1] = alps::is_nonzero<1>(v[1] + v[3] + v[5]) ? v[1] / (v[1] + v[3] + v[5]) : 1;
+      p[3] = alps::is_nonzero<1>(v[1] + v[3] + v[5]) ? (v[1] + v[3]) / (v[1] + v[3] + v[5]) : 1;
+    }
+    boost::array<double, 4> p;
+  };
+  template<typename RNG>
+  static int choose_diagonal(RNG& rng, std::vector<diagonal_choice_helper> const& helpers, int b,
+    int c0, int c1) {
+    double r = rng();
+    if (c0 != c1) {
+      if (r < helpers[b].p[0])
+        return 0;
+      else if (r < helpers[b].p[2])
+        return 2;
+      else
+        return 4;
+    } else {
+      if (r < helpers[b].p[1])
+        return 1;
+      else if (r < helpers[b].p[3])
+        return 3;
+      else
+        return 5;
+    }
+  }
+
+  static bool has_nontrivial_offdiagonal_choice_helper() { return true; }
+  struct offdiagonal_choice_helper {
+    offdiagonal_choice_helper() {}
+    template<std::size_t N>
+    offdiagonal_choice_helper(boost::array<double, N> const& v) {
+      p[0] = alps::is_nonzero<1>(v[0] + v[1]) ? v[0] / (v[0] + v[1]) : 1;
+      p[1] = alps::is_nonzero<1>(v[4] + v[5]) ? v[4] / (v[4] + v[5]) : 1;
+    }
+    boost::array<double, 2> p;
+  };
+  template<typename RNG>
+  static int choose_offdiagonal(RNG& rng, std::vector<offdiagonal_choice_helper> const& helpers,
+    int b, int c0, int c1) {
+    double r = rng();
+    if (c0 != c1)
+      return (r < helpers[b].p[0] ? 0 : 1);
+    else
+      return (r < helpers[b].p[1] ? 4 : 5);
+  }
 };
 
 template<typename SITE = site_graph_type, typename BOND = xxz_bond_graph_type,
@@ -409,7 +464,7 @@ public:
           }
         }
       }
-      if (!is_path_integral && bond_graph_t::has_nontrivial_offdiagonal_choice_helper())
+      if (!is_path_integral && bond_graph_t::has_nontrivial_diagonal_choice_helper())
         diag_.push_back(typename bond_graph_t::diagonal_choice_helper(bw.second.v));
       if (bond_graph_t::has_nontrivial_offdiagonal_choice_helper())
         offdiag_.push_back(typename bond_graph_t::offdiagonal_choice_helper(bw.second.v));
