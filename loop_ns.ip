@@ -28,7 +28,7 @@ Gamma = 0
 { REPRESENTATION = "path integral"; h = 0.3 }
 
 LATTICE = "chain lattice"
-Jz = -1
+Jz = 1
 Jxy = 0
 local_S = 1/2
 Gamma = 0
