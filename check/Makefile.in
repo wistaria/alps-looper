@@ -41,13 +41,13 @@ subdir = check
 DIST_COMMON = $(dist_noinst_DATA) $(dist_noinst_SCRIPTS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(srcdir)/chain.gp.in $(srcdir)/dterm.gp.in \
-	$(srcdir)/plot.gp.in
+	$(srcdir)/plot.gp.in $(srcdir)/xyz.gp.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
-CONFIG_CLEAN_FILES = chain.gp dterm.gp plot.gp
+CONFIG_CLEAN_FILES = chain.gp dterm.gp plot.gp xyz.gp
 SCRIPTS = $(dist_noinst_SCRIPTS)
 SOURCES =
 DIST_SOURCES =
@@ -197,8 +197,11 @@ dist_noinst_SCRIPTS = run-test.sh
 #
 
 #
+
+#
 dist_noinst_DATA = plot-energy plot-m2 plot-sheat plot-sus chain-1 \
-	chain-2 chain-3 chain-4 chain-5 dterm-1 dterm-2 dterm-3
+	chain-2 chain-3 chain-4 chain-5 dterm-1 dterm-2 dterm-3 xyz-1 \
+	xyz-2 xyz-3
 all: all-am
 
 .SUFFIXES:
@@ -236,6 +239,8 @@ chain.gp: $(top_builddir)/config.status $(srcdir)/chain.gp.in
 dterm.gp: $(top_builddir)/config.status $(srcdir)/dterm.gp.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 plot.gp: $(top_builddir)/config.status $(srcdir)/plot.gp.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+xyz.gp: $(top_builddir)/config.status $(srcdir)/xyz.gp.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 mostlyclean-libtool:
@@ -368,7 +373,7 @@ uninstall-am: uninstall-info-am
 
 .PHONY : run
 
-run: chain dterm
+run: chain dterm xyz
 .PHONY : chain
 chain:
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp chain-1 plot-energy plot-sheat plot-sus plot-ssus plot-m2
@@ -383,6 +388,13 @@ dterm:
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp dterm-1 plot-energy plot-sheat plot-sus plot-m2
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp dterm-2 plot-energy plot-sheat plot-sus plot-m2
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp dterm-3 plot-energy plot-sheat plot-sus plot-m2
+
+.PHONY : xyz
+
+xyz:
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_pp xyz-1 plot-energy plot-sheat plot-sus plot-ssus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_pp xyz-2 plot-energy plot-sheat plot-sus plot-ssus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_pp xyz-3 plot-energy plot-sheat plot-sus plot-ssus plot-m2
 
 #
 

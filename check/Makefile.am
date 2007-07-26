@@ -3,7 +3,7 @@ dist_noinst_DATA = plot-energy plot-m2 plot-sheat plot-sus
 
 .PHONY : run
 
-run: chain dterm
+run: chain dterm xyz
 
 #
 
@@ -26,6 +26,17 @@ dterm:
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp dterm-1 plot-energy plot-sheat plot-sus plot-m2
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp dterm-2 plot-energy plot-sheat plot-sus plot-m2
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp dterm-3 plot-energy plot-sheat plot-sus plot-m2
+
+#
+
+dist_noinst_DATA += xyz-1 xyz-2 xyz-3
+
+.PHONY : xyz
+
+xyz:
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_pp xyz-1 plot-energy plot-sheat plot-sus plot-ssus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_pp xyz-2 plot-energy plot-sheat plot-sus plot-ssus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_pp xyz-3 plot-energy plot-sheat plot-sus plot-ssus plot-m2
 
 #
 

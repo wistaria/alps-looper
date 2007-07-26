@@ -1,2 +1,3 @@
 load "chain.gp"
 load "dterm.gp"
+load "xyz.gp"
