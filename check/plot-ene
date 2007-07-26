@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plot SYSTEM "conf/plot.dtd">
-<plot name="" output="text">
-  <xaxis name="T" type="parameter" />
-  <yaxis name="Energy Density" type="mean" error="true"/>
-</plot>

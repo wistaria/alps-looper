@@ -19042,7 +19042,7 @@ fi
 
 
 if test "$exist_check" = yes; then
-                                          ac_config_files="$ac_config_files check/Makefile check/site.gp check/chain.gp check/triangle.gp"
+                                          ac_config_files="$ac_config_files check/Makefile check/chain.gp check/dterm.gp check/plot.gp"
 
 fi
 if test "$exist_extras" = yes; then
@@ -19719,9 +19719,9 @@ do
   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
   "doc/Makefile" ) CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
   "check/Makefile" ) CONFIG_FILES="$CONFIG_FILES check/Makefile" ;;
-  "check/site.gp" ) CONFIG_FILES="$CONFIG_FILES check/site.gp" ;;
   "check/chain.gp" ) CONFIG_FILES="$CONFIG_FILES check/chain.gp" ;;
-  "check/triangle.gp" ) CONFIG_FILES="$CONFIG_FILES check/triangle.gp" ;;
+  "check/dterm.gp" ) CONFIG_FILES="$CONFIG_FILES check/dterm.gp" ;;
+  "check/plot.gp" ) CONFIG_FILES="$CONFIG_FILES check/plot.gp" ;;
   "extras/Makefile" ) CONFIG_FILES="$CONFIG_FILES extras/Makefile" ;;
   "extras/gap/Makefile" ) CONFIG_FILES="$CONFIG_FILES extras/gap/Makefile" ;;
   "extras/localsus/Makefile" ) CONFIG_FILES="$CONFIG_FILES extras/localsus/Makefile" ;;

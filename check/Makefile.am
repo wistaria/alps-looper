@@ -1,16 +1,34 @@
-dist_noinst_SCRIPTS = evaluate-chain.sh evaluate-site.sh evaluate-triangle.sh
-dist_noinst_DATA = chain site triangle
+dist_noinst_SCRIPTS = run-test.sh
+dist_noinst_DATA = plot-energy plot-m2 plot-sheat plot-sus
 
-run: run-site run-chain run-triangle
+.PHONY : run
 
-run-site: site-d.db site-p.db site-s.db
-site-d.db:
-	$(SHELL) $(srcdir)/run.sh site-d
-site-p.db:
-	$(SHELL) $(srcdir)/run.sh site-p
-site-s.db:
-	$(SHELL) $(srcdir)/run.sh site-s
+run: chain dterm
+
+#
+
+dist_noinst_DATA += chain-1 chain-2 chain-3 chain-4 chain-5
+.PHONY : chain
+chain:
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp chain-1 plot-energy plot-sheat plot-sus plot-ssus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp chain-2 plot-energy plot-sheat plot-sus plot-ssus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp chain-3 plot-energy plot-sheat plot-sus plot-ssus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp chain-4 plot-energy plot-sheat plot-sus plot-ssus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp chain-5 plot-energy plot-sheat plot-sus plot-ssus plot-m2
+
+#
+
+dist_noinst_DATA += dterm-1 dterm-2 dterm-3
+
+.PHONY : dterm
+
+dterm:
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp dterm-1 plot-energy plot-sheat plot-sus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp dterm-2 plot-energy plot-sheat plot-sus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp dterm-3 plot-energy plot-sheat plot-sus plot-m2
+
+#
 
 clean-local :
 	rm -rf *.run
-	rm -f *.xml *.run* *.out *.dat
+	rm -f *.dat *.db *.text

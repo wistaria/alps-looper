@@ -40,14 +40,14 @@ host_triplet = @host@
 subdir = check
 DIST_COMMON = $(dist_noinst_DATA) $(dist_noinst_SCRIPTS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(srcdir)/chain.gp.in $(srcdir)/site.gp.in \
-	$(srcdir)/triangle.gp.in
+	$(srcdir)/chain.gp.in $(srcdir)/dterm.gp.in \
+	$(srcdir)/plot.gp.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
-CONFIG_CLEAN_FILES = site.gp chain.gp triangle.gp
+CONFIG_CLEAN_FILES = chain.gp dterm.gp plot.gp
 SCRIPTS = $(dist_noinst_SCRIPTS)
 SOURCES =
 DIST_SOURCES =
@@ -192,8 +192,13 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-dist_noinst_SCRIPTS = evaluate-chain.sh evaluate-site.sh evaluate-triangle.sh
-dist_noinst_DATA = chain site triangle
+dist_noinst_SCRIPTS = run-test.sh
+
+#
+
+#
+dist_noinst_DATA = plot-energy plot-m2 plot-sheat plot-sus chain-1 \
+	chain-2 chain-3 chain-4 chain-5 dterm-1 dterm-2 dterm-3
 all: all-am
 
 .SUFFIXES:
@@ -226,11 +231,11 @@ $(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
-site.gp: $(top_builddir)/config.status $(srcdir)/site.gp.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 chain.gp: $(top_builddir)/config.status $(srcdir)/chain.gp.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-triangle.gp: $(top_builddir)/config.status $(srcdir)/triangle.gp.in
+dterm.gp: $(top_builddir)/config.status $(srcdir)/dterm.gp.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+plot.gp: $(top_builddir)/config.status $(srcdir)/plot.gp.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 mostlyclean-libtool:
@@ -361,19 +366,29 @@ uninstall-am: uninstall-info-am
 	uninstall uninstall-am uninstall-info-am
 
 
-run: run-site run-chain run-triangle
+.PHONY : run
 
-run-site: site-d.db site-p.db site-s.db
-site-d.db:
-	$(SHELL) $(srcdir)/run.sh site-d
-site-p.db:
-	$(SHELL) $(srcdir)/run.sh site-p
-site-s.db:
-	$(SHELL) $(srcdir)/run.sh site-s
+run: chain dterm
+.PHONY : chain
+chain:
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp chain-1 plot-energy plot-sheat plot-sus plot-ssus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp chain-2 plot-energy plot-sheat plot-sus plot-ssus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp chain-3 plot-energy plot-sheat plot-sus plot-ssus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp chain-4 plot-energy plot-sheat plot-sus plot-ssus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp chain-5 plot-energy plot-sheat plot-sus plot-ssus plot-m2
+
+.PHONY : dterm
+
+dterm:
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp dterm-1 plot-energy plot-sheat plot-sus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp dterm-2 plot-energy plot-sheat plot-sus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp dterm-3 plot-energy plot-sheat plot-sus plot-m2
+
+#
 
 clean-local :
 	rm -rf *.run
-	rm -f *.xml *.run* *.out *.dat
+	rm -f *.dat *.db *.text
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

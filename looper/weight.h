@@ -165,7 +165,7 @@ struct xxz_bond_weight {
     init(bond_parameter_xxz(p.c, p.jx, p.jz), force_scatter);
   }
   void init(const site_parameter& p, double force_scatter = 0) {
-    bond_parameter_xyz bp(0, 0, 0, p.d);
+    bond_parameter_xyz bp(0, 0, 0, 2 * p.d);
     init(bp, force_scatter);
   }
 
@@ -279,7 +279,7 @@ struct xyz_bond_weight {
     init(bond_parameter_xyz(p.c, p.jxy, p.jxy, p.jz), force_scatter);
   }
   void init(const site_parameter& p, double force_scatter = 0) {
-    bond_parameter_xyz bp(0, 0, 0, p.d);
+    bond_parameter_xyz bp(0, 0, 0, 2 * p.d);
     init(bp, force_scatter);
   }
 
@@ -360,7 +360,7 @@ public:
 #warning "To be checked"
     if (m.has_d_term())
       BOOST_FOREACH(typename real_site_descriptor<LAT>::type rs, sites(lat.rg()))
-        energy_offset_ += 0.25 * m.site(rs, lat.rg()).s.get_twice() * m.site(rs, lat.rg()).d;
+        energy_offset_ -= 0.25 * m.site(rs, lat.rg()).s.get_twice() * m.site(rs, lat.rg()).d;
   }
 
   std::pair<site_weight_iterator, site_weight_iterator>

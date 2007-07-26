@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plot SYSTEM "conf/plot.dtd">
+<plot name="" output="text">
+  <for-each name="REPRESENTATION">
+    <xaxis name="T" type="parameter" />
+    <yaxis name="Magnetization Density^2" type="mean" error="true"/>
+  </for-each>
+</plot>
