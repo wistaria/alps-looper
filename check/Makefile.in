@@ -208,8 +208,8 @@ dist_noinst_SCRIPTS = run-test.sh
 dist_noinst_DATA = plot-energy plot-sheat plot-m plot-m2 plot-sus \
 	plot-sm plot-sm2 plot-ssus chain-1 chain-2 chain-3 chain-4 \
 	chain-5 dterm-1 dterm-2 dterm-3 site-1 site-2 site-3 site-4 \
-	site-5 triangle-1 triangle-2 triangle-3 triangle-4 triangle-5 \
-	xyz-1 xyz-2 xyz-3
+	site-5 triangle-1 triangle-2 triangle-3 triangle-4 xyz-1 xyz-2 \
+	xyz-3
 all: all-am
 
 .SUFFIXES:

@@ -43,7 +43,7 @@ site:
 
 #
 
-dist_noinst_DATA += triangle-1 triangle-2 triangle-3 triangle-4 triangle-5
+dist_noinst_DATA += triangle-1 triangle-2 triangle-3 triangle-4
 .PHONY : triangle
 triangle:
 	(cd $(top_builddir) && $(MAKE) loop_pp)
