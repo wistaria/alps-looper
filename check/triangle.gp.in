@@ -1,178 +1,113 @@
-set xlabel 'temperature'
+set xlabel 'T'
 
-set title 'test 1'
-
-set ylabel 'Energy'
+set ylabel 'Energy Density'
 plot \
-  'triangle-g-1.dat' u 1:2 title 'exact diagonalization' w lp, \
-  'triangle-e-1.dat' u 1:2:(2*$3) title 'SSE' w e, \
-  'triangle-p-1.dat' u 1:2:(2*$3) title 'path integral' w e
+  "< choose REPRESENTATION diagonalization triangle-1-plot-energy.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path triangle-1-plot-energy.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE triangle-1-plot-energy.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Specific Heat'
 plot \
-  'triangle-g-1.dat' u 1:3 title 'exact diagonalization' w lp, \
-  'triangle-e-1.dat' u 1:4:(2*$5) title 'SSE' w e, \
-  'triangle-p-1.dat' u 1:4:(2*$5) title 'path integral' w e
+  "< choose REPRESENTATION diagonalization triangle-1-plot-sheat.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path triangle-1-plot-sheat.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE triangle-1-plot-sheat.dat" u 1:2:3 w e
 pause -1
 
-set ylabel 'Magnetization'
+set ylabel 'Magnetization Density^2'
 plot \
-  'triangle-g-1.dat' u 1:4 title 'exact diagonalization' w lp, \
-  'triangle-e-1.dat' u 1:6:(2*$7) title 'SSE' w e, \
-  'triangle-p-1.dat' u 1:6:(2*$7) title 'path integral' w e
-pause -1
-
-set ylabel 'Magnetization^2'
-plot \
-  'triangle-g-1.dat' u 1:5 title 'exact diagonalization' w lp, \
-  'triangle-e-1.dat' u 1:8:(2*$9) title 'SSE' w e, \
-  'triangle-p-1.dat' u 1:8:(2*$9) title 'path integral' w e
-pause -1
-
-set ylabel 'Magnetization^4'
-plot \
-  'triangle-g-1.dat' u 1:6 title 'exact diagonalization' w lp, \
-  'triangle-e-1.dat' u 1:10:(2*$11) title 'SSE' w e, \
-  'triangle-p-1.dat' u 1:10:(2*$11) title 'path integral' w e
+  "< choose REPRESENTATION diagonalization triangle-1-plot-m2.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path triangle-1-plot-m2.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE triangle-1-plot-m2.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Susceptibility'
 plot \
-  'triangle-g-1.dat' u 1:7 title 'exact diagonalization' w lp, \
-  'triangle-e-1.dat' u 1:12:(2*$13) title 'SSE' w e, \
-  'triangle-p-1.dat' u 1:12:(2*$13) title 'path integral' w e
+  "< choose REPRESENTATION diagonalization triangle-1-plot-sus.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path triangle-1-plot-sus.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE triangle-1-plot-sus.dat" u 1:2:3 w e
 pause -1
 
-set title 'test 2'
-
-set ylabel 'Energy'
+set ylabel 'Energy Density'
 plot \
-  'triangle-g-2.dat' u 1:2 title 'exact diagonalization' w lp, \
-  'triangle-e-2.dat' u 1:2:(2*$3) title 'SSE' w e, \
-  'triangle-p-2.dat' u 1:2:(2*$3) title 'path integral' w e
+  "< choose REPRESENTATION diagonalization triangle-2-plot-energy.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path triangle-2-plot-energy.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE triangle-2-plot-energy.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Specific Heat'
 plot \
-  'triangle-g-2.dat' u 1:3 title 'exact diagonalization' w lp, \
-  'triangle-e-2.dat' u 1:4:(2*$5) title 'SSE' w e, \
-  'triangle-p-2.dat' u 1:4:(2*$5) title 'path integral' w e
+  "< choose REPRESENTATION diagonalization triangle-2-plot-sheat.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path triangle-2-plot-sheat.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE triangle-2-plot-sheat.dat" u 1:2:3 w e
 pause -1
 
-set ylabel 'Magnetization'
+set ylabel 'Magnetization Density^2'
 plot \
-  'triangle-g-2.dat' u 1:4 title 'exact diagonalization' w lp, \
-  'triangle-e-2.dat' u 1:6:(2*$7) title 'SSE' w e, \
-  'triangle-p-2.dat' u 1:6:(2*$7) title 'path integral' w e
-pause -1
-
-set ylabel 'Magnetization^2'
-plot \
-  'triangle-g-2.dat' u 1:5 title 'exact diagonalization' w lp, \
-  'triangle-e-2.dat' u 1:8:(2*$9) title 'SSE' w e, \
-  'triangle-p-2.dat' u 1:8:(2*$9) title 'path integral' w e
-pause -1
-
-set ylabel 'Magnetization^4'
-plot \
-  'triangle-g-2.dat' u 1:6 title 'exact diagonalization' w lp, \
-  'triangle-e-2.dat' u 1:10:(2*$11) title 'SSE' w e, \
-  'triangle-p-2.dat' u 1:10:(2*$11) title 'path integral' w e
+  "< choose REPRESENTATION diagonalization triangle-2-plot-m2.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path triangle-2-plot-m2.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE triangle-2-plot-m2.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Susceptibility'
 plot \
-  'triangle-g-2.dat' u 1:7 title 'exact diagonalization' w lp, \
-  'triangle-e-2.dat' u 1:12:(2*$13) title 'SSE' w e, \
-  'triangle-p-2.dat' u 1:12:(2*$13) title 'path integral' w e
+  "< choose REPRESENTATION diagonalization triangle-2-plot-sus.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path triangle-2-plot-sus.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE triangle-2-plot-sus.dat" u 1:2:3 w e
 pause -1
 
-set title 'test 3'
-
-set ylabel 'Energy'
+set ylabel 'Energy Density'
 plot \
-  'triangle-g-3.dat' u 1:2 title 'exact diagonalization' w lp, \
-  'triangle-e-3.dat' u 1:2:(2*$3) title 'SSE' w e, \
-  'triangle-p-3.dat' u 1:2:(2*$3) title 'path integral' w e
+  "< choose REPRESENTATION diagonalization triangle-3-plot-energy.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path triangle-3-plot-energy.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE triangle-3-plot-energy.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Specific Heat'
 plot \
-  'triangle-g-3.dat' u 1:3 title 'exact diagonalization' w lp, \
-  'triangle-e-3.dat' u 1:4:(2*$5) title 'SSE' w e, \
-  'triangle-p-3.dat' u 1:4:(2*$5) title 'path integral' w e
+  "< choose REPRESENTATION diagonalization triangle-3-plot-sheat.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path triangle-3-plot-sheat.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE triangle-3-plot-sheat.dat" u 1:2:3 w e
 pause -1
 
-set ylabel 'Magnetization'
+set ylabel 'Magnetization Density^2'
 plot \
-  'triangle-g-3.dat' u 1:4 title 'exact diagonalization' w lp, \
-  'triangle-e-3.dat' u 1:6:(2*$7) title 'SSE' w e, \
-  'triangle-p-3.dat' u 1:6:(2*$7) title 'path integral' w e
-pause -1
-
-set ylabel 'Magnetization^2'
-plot \
-  'triangle-g-3.dat' u 1:5 title 'exact diagonalization' w lp, \
-  'triangle-e-3.dat' u 1:8:(2*$9) title 'SSE' w e, \
-  'triangle-p-3.dat' u 1:8:(2*$9) title 'path integral' w e
-pause -1
-
-set ylabel 'Magnetization^4'
-plot \
-  'triangle-g-3.dat' u 1:6 title 'exact diagonalization' w lp, \
-  'triangle-e-3.dat' u 1:10:(2*$11) title 'SSE' w e, \
-  'triangle-p-3.dat' u 1:10:(2*$11) title 'path integral' w e
+  "< choose REPRESENTATION diagonalization triangle-3-plot-m2.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path triangle-3-plot-m2.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE triangle-3-plot-m2.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Susceptibility'
 plot \
-  'triangle-g-3.dat' u 1:7 title 'exact diagonalization' w lp, \
-  'triangle-e-3.dat' u 1:12:(2*$13) title 'SSE' w e, \
-  'triangle-p-3.dat' u 1:12:(2*$13) title 'path integral' w e
+  "< choose REPRESENTATION diagonalization triangle-3-plot-sus.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path triangle-3-plot-sus.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE triangle-3-plot-sus.dat" u 1:2:3 w e
 pause -1
 
-set title 'test 4'
-
-set ylabel 'Energy'
+set ylabel 'Energy Density'
 plot \
-  'triangle-g-4.dat' u 1:2 title 'exact diagonalization' w lp, \
-  'triangle-e-4.dat' u 1:2:(2*$3) title 'SSE' w e, \
-  'triangle-p-4.dat' u 1:2:(2*$3) title 'path integral' w e
+  "< choose REPRESENTATION diagonalization triangle-4-plot-energy.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path triangle-4-plot-energy.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE triangle-4-plot-energy.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Specific Heat'
 plot \
-  'triangle-g-4.dat' u 1:3 title 'exact diagonalization' w lp, \
-  'triangle-e-4.dat' u 1:4:(2*$5) title 'SSE' w e, \
-  'triangle-p-4.dat' u 1:4:(2*$5) title 'path integral' w e
+  "< choose REPRESENTATION diagonalization triangle-4-plot-sheat.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path triangle-4-plot-sheat.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE triangle-4-plot-sheat.dat" u 1:2:3 w e
 pause -1
 
-set ylabel 'Magnetization'
+set ylabel 'Magnetization Density^2'
 plot \
-  'triangle-g-4.dat' u 1:4 title 'exact diagonalization' w lp, \
-  'triangle-e-4.dat' u 1:6:(2*$7) title 'SSE' w e, \
-  'triangle-p-4.dat' u 1:6:(2*$7) title 'path integral' w e
-pause -1
-
-set ylabel 'Magnetization^2'
-plot \
-  'triangle-g-4.dat' u 1:5 title 'exact diagonalization' w lp, \
-  'triangle-e-4.dat' u 1:8:(2*$9) title 'SSE' w e, \
-  'triangle-p-4.dat' u 1:8:(2*$9) title 'path integral' w e
-pause -1
-
-set ylabel 'Magnetization^4'
-plot \
-  'triangle-g-4.dat' u 1:6 title 'exact diagonalization' w lp, \
-  'triangle-e-4.dat' u 1:10:(2*$11) title 'SSE' w e, \
-  'triangle-p-4.dat' u 1:10:(2*$11) title 'path integral' w e
+  "< choose REPRESENTATION diagonalization triangle-4-plot-m2.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path triangle-4-plot-m2.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE triangle-4-plot-m2.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Susceptibility'
 plot \
-  'triangle-g-4.dat' u 1:7 title 'exact diagonalization' w lp, \
-  'triangle-e-4.dat' u 1:12:(2*$13) title 'SSE' w e, \
-  'triangle-p-4.dat' u 1:12:(2*$13) title 'path integral' w e
+  "< choose REPRESENTATION diagonalization triangle-4-plot-sus.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path triangle-4-plot-sus.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE triangle-4-plot-sus.dat" u 1:2:3 w e
 pause -1
-

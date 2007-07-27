@@ -21,11 +21,32 @@ plot \
   "< choose REPRESENTATION SSE chain-1-plot-m2.dat" u 1:2:3 w e
 pause -1
 
+set ylabel 'Magnetization Density^4'
+plot \
+  "< choose REPRESENTATION diagonalization chain-1-plot-m4.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path chain-1-plot-m4.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE chain-1-plot-m4.dat" u 1:2:3 w e
+pause -1
+
 set ylabel 'Susceptibility'
 plot \
   "< choose REPRESENTATION diagonalization chain-1-plot-sus.dat" u 1:2 w lp, \
   "< choose REPRESENTATION path chain-1-plot-sus.dat" u 1:2:3 w e, \
   "< choose REPRESENTATION SSE chain-1-plot-sus.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Staggered Magnetization Density^2'
+plot \
+  "< choose REPRESENTATION diagonalization chain-1-plot-m2.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path chain-1-plot-m2.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE chain-1-plot-m2.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Staggered Magnetization Density^4'
+plot \
+  "< choose REPRESENTATION diagonalization chain-1-plot-m4.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path chain-1-plot-m4.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE chain-1-plot-m4.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Staggered Susceptibility'
@@ -34,6 +55,8 @@ plot \
   "< choose REPRESENTATION path chain-1-plot-ssus.dat" u 1:2:3 w e, \
   "< choose REPRESENTATION SSE chain-1-plot-ssus.dat" u 1:2:3 w e
 pause -1
+
+set xlabel 'T'
 
 set ylabel 'Energy Density'
 plot \
@@ -56,11 +79,32 @@ plot \
   "< choose REPRESENTATION SSE chain-2-plot-m2.dat" u 1:2:3 w e
 pause -1
 
+set ylabel 'Magnetization Density^4'
+plot \
+  "< choose REPRESENTATION diagonalization chain-2-plot-m4.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path chain-2-plot-m4.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE chain-2-plot-m4.dat" u 1:2:3 w e
+pause -1
+
 set ylabel 'Susceptibility'
 plot \
   "< choose REPRESENTATION diagonalization chain-2-plot-sus.dat" u 1:2 w lp, \
   "< choose REPRESENTATION path chain-2-plot-sus.dat" u 1:2:3 w e, \
   "< choose REPRESENTATION SSE chain-2-plot-sus.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Staggered Magnetization Density^2'
+plot \
+  "< choose REPRESENTATION diagonalization chain-2-plot-m2.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path chain-2-plot-m2.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE chain-2-plot-m2.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Staggered Magnetization Density^4'
+plot \
+  "< choose REPRESENTATION diagonalization chain-2-plot-m4.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path chain-2-plot-m4.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE chain-2-plot-m4.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Staggered Susceptibility'
@@ -69,6 +113,8 @@ plot \
   "< choose REPRESENTATION path chain-2-plot-ssus.dat" u 1:2:3 w e, \
   "< choose REPRESENTATION SSE chain-2-plot-ssus.dat" u 1:2:3 w e
 pause -1
+
+set xlabel 'T'
 
 set ylabel 'Energy Density'
 plot \
@@ -91,11 +137,32 @@ plot \
   "< choose REPRESENTATION SSE chain-3-plot-m2.dat" u 1:2:3 w e
 pause -1
 
+set ylabel 'Magnetization Density^4'
+plot \
+  "< choose REPRESENTATION diagonalization chain-3-plot-m4.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path chain-3-plot-m4.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE chain-3-plot-m4.dat" u 1:2:3 w e
+pause -1
+
 set ylabel 'Susceptibility'
 plot \
   "< choose REPRESENTATION diagonalization chain-3-plot-sus.dat" u 1:2 w lp, \
   "< choose REPRESENTATION path chain-3-plot-sus.dat" u 1:2:3 w e, \
   "< choose REPRESENTATION SSE chain-3-plot-sus.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Staggered Magnetization Density^2'
+plot \
+  "< choose REPRESENTATION diagonalization chain-3-plot-m2.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path chain-3-plot-m2.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE chain-3-plot-m2.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Staggered Magnetization Density^4'
+plot \
+  "< choose REPRESENTATION diagonalization chain-3-plot-m4.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path chain-3-plot-m4.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE chain-3-plot-m4.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Staggered Susceptibility'
@@ -104,6 +171,8 @@ plot \
   "< choose REPRESENTATION path chain-3-plot-ssus.dat" u 1:2:3 w e, \
   "< choose REPRESENTATION SSE chain-3-plot-ssus.dat" u 1:2:3 w e
 pause -1
+
+set xlabel 'T'
 
 set ylabel 'Energy Density'
 plot \
@@ -126,11 +195,32 @@ plot \
   "< choose REPRESENTATION SSE chain-4-plot-m2.dat" u 1:2:3 w e
 pause -1
 
+set ylabel 'Magnetization Density^4'
+plot \
+  "< choose REPRESENTATION diagonalization chain-4-plot-m4.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path chain-4-plot-m4.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE chain-4-plot-m4.dat" u 1:2:3 w e
+pause -1
+
 set ylabel 'Susceptibility'
 plot \
   "< choose REPRESENTATION diagonalization chain-4-plot-sus.dat" u 1:2 w lp, \
   "< choose REPRESENTATION path chain-4-plot-sus.dat" u 1:2:3 w e, \
   "< choose REPRESENTATION SSE chain-4-plot-sus.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Staggered Magnetization Density^2'
+plot \
+  "< choose REPRESENTATION diagonalization chain-4-plot-m2.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path chain-4-plot-m2.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE chain-4-plot-m2.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Staggered Magnetization Density^4'
+plot \
+  "< choose REPRESENTATION diagonalization chain-4-plot-m4.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path chain-4-plot-m4.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE chain-4-plot-m4.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Staggered Susceptibility'
@@ -139,6 +229,8 @@ plot \
   "< choose REPRESENTATION path chain-4-plot-ssus.dat" u 1:2:3 w e, \
   "< choose REPRESENTATION SSE chain-4-plot-ssus.dat" u 1:2:3 w e
 pause -1
+
+set xlabel 'T'
 
 set ylabel 'Energy Density'
 plot \
@@ -161,11 +253,32 @@ plot \
   "< choose REPRESENTATION SSE chain-5-plot-m2.dat" u 1:2:3 w e
 pause -1
 
+set ylabel 'Magnetization Density^4'
+plot \
+  "< choose REPRESENTATION diagonalization chain-5-plot-m4.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path chain-5-plot-m4.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE chain-5-plot-m4.dat" u 1:2:3 w e
+pause -1
+
 set ylabel 'Susceptibility'
 plot \
   "< choose REPRESENTATION diagonalization chain-5-plot-sus.dat" u 1:2 w lp, \
   "< choose REPRESENTATION path chain-5-plot-sus.dat" u 1:2:3 w e, \
   "< choose REPRESENTATION SSE chain-5-plot-sus.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Staggered Magnetization Density^2'
+plot \
+  "< choose REPRESENTATION diagonalization chain-5-plot-m2.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path chain-5-plot-m2.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE chain-5-plot-m2.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Staggered Magnetization Density^4'
+plot \
+  "< choose REPRESENTATION diagonalization chain-5-plot-m4.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION path chain-5-plot-m4.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE chain-5-plot-m4.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Staggered Susceptibility'

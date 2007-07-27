@@ -1,3 +1,5 @@
 load "chain.gp"
 load "dterm.gp"
+load "site.gp"
+load "triangle.gp"
 load "xyz.gp"
