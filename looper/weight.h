@@ -357,7 +357,6 @@ public:
     energy_offset_ = 0;
     BOOST_FOREACH(site_weight_t const& w, site_weights_) energy_offset_ += w.second.offset;
     BOOST_FOREACH(bond_weight_t const& w, bond_weights_) energy_offset_ += w.second.offset;
-#warning "To be checked"
     if (m.has_d_term())
       BOOST_FOREACH(typename real_site_descriptor<LAT>::type rs, sites(lat.rg()))
         energy_offset_ -= 0.25 * m.site(rs, lat.rg()).s.get_twice() * m.site(rs, lat.rg()).d;
