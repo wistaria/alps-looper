@@ -46,7 +46,7 @@ int main() {
   // test
   //
 
-  std::vector<int> bins(5 * mean, 0);
+  std::vector<int> bins(int(5 * mean), 0);
   boost::posix_time::ptime start = boost::posix_time::microsec_clock::universal_time();
   for (int c = 0; c < count; ++c) {
     int r = rng();

@@ -281,12 +281,12 @@ public:
     const double nm = std::numeric_limits<IntType>::max();
     for (neg_p = array.begin(); neg_p != array.end(); ++neg_p) {
       if (pos_p != array.end()) {
-        cutoff(neg_p->second) = nm * (RealType(1.) + neg_p->first);
+        cutoff(neg_p->second) = IntType(nm * (RealType(1.) + neg_p->first));
         alias(neg_p->second) = pos_p->second;
         pos_p->first += neg_p->first;
         if (pos_p->first <= RealType(0.)) ++pos_p;
       } else {
-        cutoff(neg_p->second) = nm;
+        cutoff(neg_p->second) = IntType(nm);
         alias(neg_p->second) = 0; // never referred
       }
     }

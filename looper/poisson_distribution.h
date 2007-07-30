@@ -98,7 +98,7 @@ public:
         em = floor(em);
         t = 0.9 * (RealType(1) + y * y) * exp(em * alxm_ - lgamma(em + RealType(1)) - gm_);
       } while (eng() > t);
-      return em;
+      return result_type(em);
     }
   }
 
