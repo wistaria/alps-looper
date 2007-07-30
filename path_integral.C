@@ -29,9 +29,9 @@
 #include <looper/montecarlo.h>
 #include <looper/operator.h>
 #include <looper/permutation.h>
-#include <looper/union_find.h>
 #include <looper/temperature.h>
 #include <looper/type.h>
+#include <looper/union_find.h>
 
 namespace {
 
@@ -87,6 +87,8 @@ private:
   std::vector<int> spins;
   std::vector<local_operator_t> operators;
 
+  // observables
+  double sign;
   estimator_t estimator;
 
   // working vectors
@@ -268,9 +270,10 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
   looper::accumulator<estimator_t, cluster_fragment_t, IMPROVE>
     accum(estimates, nc, lattice, estimator, fragments);
   for (unsigned int s = 0; s < nvs; ++s) {
-    weight.at_bot(s, time_t(0.), s, spins_c[s]);
-    accum.at_bot(s, time_t(0.), s, spins_c[s]);
+    weight.at_bot(s, time_t(0), s, spins_c[s]);
+    accum.at_bot(s, time_t(0), s, spins_c[s]);
   }
+  int negop = 0; // number of operators with negative weights
   BOOST_FOREACH(local_operator_t& op, operators) {
     time_t t = op.time();
     if (op.is_bond()) {
@@ -283,6 +286,7 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
         if (op.is_offdiagonal()) {
           spins_c[s0] ^= 1;
           spins_c[s1] ^= 1;
+          if (SIGN()) negop += model.bond_sign(op.pos());
         }
         weight.start_b(op.loop_u0(), op.loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
         accum.start_b(op.loop_u0(), op.loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
@@ -292,20 +296,23 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
         int s = op.pos();
         weight.term_s(op.loop_l(), t, s, spins_c[s]);
         accum.term_s(op.loop_l(), t, s, spins_c[s]);
-        if (op.is_offdiagonal())
+        if (op.is_offdiagonal()) {
           spins_c[s] ^= 1;
+          if (SIGN()) negop += model.site_sign(op.pos());
+        }
         weight.start_s(op.loop_u(), t, s, spins_c[s]);
         accum.start_s(op.loop_u(), t, s, spins_c[s]);
       }
     }
   }
   for (unsigned int s = 0; s < nvs; ++s) {
-    weight.at_top(current[s], time_t(1.), s, spins_c[s]);
-    accum.at_top(current[s], time_t(1.), s, spins_c[s]);
+    weight.at_top(current[s], time_t(1), s, spins_c[s]);
+    accum.at_top(current[s], time_t(1), s, spins_c[s]);
   }
+  sign = ((negop & 1) == 1) ? -1 : 1;
 
   // determine whether clusters are flipped or not
-  double improved_sign = 1;
+  double improved_sign = sign;
   BOOST_FOREACH(cluster_info_t& ci, clusters) {
     ci.to_flip = ((2*r_uniform()-1) < (FIELD() ? std::tanh(beta * ci.weight) : 0));
     if (SIGN() && IMPROVE() && (ci.sign & 1 == 1)) improved_sign = 0;
@@ -341,15 +348,7 @@ void loop_worker::measure(alps::ObservableSet& obs) {
   obs["Number of Sites"] << (double)num_sites(lattice.rg());
 
   // sign
-  double sign = 1;
-  if (model.is_signed()) {
-    int n = 0;
-    BOOST_FOREACH(const local_operator_t& op, operators)
-      if (op.is_offdiagonal())
-        n += (op.is_bond()) ? model.bond_sign(op.pos()) : model.site_sign(op.pos());
-    if (n & 1 == 1) sign = -1;
-    if (!use_improved_estimator) obs["Sign"] << sign;
-  }
+  if (model.is_signed() && !use_improved_estimator) obs["Sign"] << sign;
 
   // energy
   int nop = operators.size();

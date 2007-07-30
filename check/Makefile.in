@@ -42,14 +42,15 @@ DIST_COMMON = $(dist_noinst_DATA) $(dist_noinst_SCRIPTS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(srcdir)/chain.gp.in $(srcdir)/dterm.gp.in \
 	$(srcdir)/plot.gp.in $(srcdir)/site.gp.in \
-	$(srcdir)/triangle.gp.in $(srcdir)/xyz.gp.in
+	$(srcdir)/transmag.gp.in $(srcdir)/triangle.gp.in \
+	$(srcdir)/xyz.gp.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
-CONFIG_CLEAN_FILES = chain.gp dterm.gp plot.gp site.gp triangle.gp \
-	xyz.gp
+CONFIG_CLEAN_FILES = chain.gp dterm.gp plot.gp site.gp transmag.gp \
+	triangle.gp xyz.gp
 SCRIPTS = $(dist_noinst_SCRIPTS)
 SOURCES =
 DIST_SOURCES =
@@ -205,11 +206,14 @@ dist_noinst_SCRIPTS = run-test.sh
 #
 
 #
+
+#
 dist_noinst_DATA = plot-energy plot-sheat plot-m plot-m2 plot-sus \
-	plot-sm plot-sm2 plot-ssus chain-1 chain-2 chain-3 chain-4 \
-	chain-5 dterm-1 dterm-2 dterm-3 site-1 site-2 site-3 site-4 \
-	site-5 triangle-1 triangle-2 triangle-3 triangle-4 xyz-1 xyz-2 \
-	xyz-3
+	plot-sm plot-sm2 plot-ssus plot-tm plot-sign chain-1 chain-2 \
+	chain-3 chain-4 chain-5 dterm-1 dterm-2 dterm-3 site-1 site-2 \
+	site-3 site-4 site-5 transmag-1 transmag-2 transmag-3 \
+	transmag-4 triangle-1 triangle-2 triangle-3 triangle-4 xyz-1 \
+	xyz-2 xyz-3
 all: all-am
 
 .SUFFIXES:
@@ -249,6 +253,8 @@ dterm.gp: $(top_builddir)/config.status $(srcdir)/dterm.gp.in
 plot.gp: $(top_builddir)/config.status $(srcdir)/plot.gp.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 site.gp: $(top_builddir)/config.status $(srcdir)/site.gp.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+transmag.gp: $(top_builddir)/config.status $(srcdir)/transmag.gp.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 triangle.gp: $(top_builddir)/config.status $(srcdir)/triangle.gp.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
@@ -385,7 +391,7 @@ uninstall-am: uninstall-info-am
 
 .PHONY : run
 
-run: chain dterm site triangle xyz
+run: chain dterm site transmag triangle xyz
 .PHONY : chain
 chain:
 	(cd $(top_builddir) && $(MAKE) loop_pp)
@@ -410,13 +416,20 @@ site:
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp site-3 plot-energy plot-sheat plot-m plot-sus
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp site-4 plot-energy plot-sheat plot-m plot-sus
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp site-5 plot-energy plot-sheat plot-m plot-sus
+.PHONY : transmag
+transmag:
+	(cd $(top_builddir)/extras/transmag && $(MAKE) transmag_pp)
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/transmag/transmag_pp transmag-1 plot-energy plot-sheat plot-tm
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/transmag/transmag_pp transmag-2 plot-energy plot-sheat plot-m
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/transmag/transmag_pp transmag-3 plot-energy plot-sheat plot-tm
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/transmag/transmag_pp transmag-4 plot-energy plot-sheat plot-sm
 .PHONY : triangle
 triangle:
 	(cd $(top_builddir) && $(MAKE) loop_pp)
-	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp triangle-1 plot-energy plot-sheat plot-sus plot-m2
-	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp triangle-2 plot-energy plot-sheat plot-sus plot-m2
-	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp triangle-3 plot-energy plot-sheat plot-sus plot-m2
-	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp triangle-4 plot-energy plot-sheat plot-sus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp triangle-1 plot-energy plot-sheat plot-sus plot-m2 plot-sign
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp triangle-2 plot-energy plot-sheat plot-sus plot-m2 plot-sign
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp triangle-3 plot-energy plot-sheat plot-sus plot-m2 plot-sign
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp triangle-4 plot-energy plot-sheat plot-sus plot-m2 plot-sign
 
 .PHONY : xyz
 

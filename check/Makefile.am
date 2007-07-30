@@ -1,9 +1,9 @@
 dist_noinst_SCRIPTS = run-test.sh
-dist_noinst_DATA = plot-energy plot-sheat plot-m plot-m2 plot-sus plot-sm plot-sm2 plot-ssus
+dist_noinst_DATA = plot-energy plot-sheat plot-m plot-m2 plot-sus plot-sm plot-sm2 plot-ssus plot-tm plot-sign
 
 .PHONY : run
 
-run: chain dterm site triangle xyz
+run: chain dterm site transmag triangle xyz
 
 #
 
@@ -43,14 +43,25 @@ site:
 
 #
 
+dist_noinst_DATA += transmag-1 transmag-2 transmag-3 transmag-4
+.PHONY : transmag
+transmag:
+	(cd $(top_builddir)/extras/transmag && $(MAKE) transmag_pp)
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/transmag/transmag_pp transmag-1 plot-energy plot-sheat plot-tm
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/transmag/transmag_pp transmag-2 plot-energy plot-sheat plot-m
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/transmag/transmag_pp transmag-3 plot-energy plot-sheat plot-tm
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/transmag/transmag_pp transmag-4 plot-energy plot-sheat plot-sm
+
+#
+
 dist_noinst_DATA += triangle-1 triangle-2 triangle-3 triangle-4
 .PHONY : triangle
 triangle:
 	(cd $(top_builddir) && $(MAKE) loop_pp)
-	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp triangle-1 plot-energy plot-sheat plot-sus plot-m2
-	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp triangle-2 plot-energy plot-sheat plot-sus plot-m2
-	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp triangle-3 plot-energy plot-sheat plot-sus plot-m2
-	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp triangle-4 plot-energy plot-sheat plot-sus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp triangle-1 plot-energy plot-sheat plot-sus plot-m2 plot-sign
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp triangle-2 plot-energy plot-sheat plot-sus plot-m2 plot-sign
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp triangle-3 plot-energy plot-sheat plot-sus plot-m2 plot-sign
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp triangle-4 plot-energy plot-sheat plot-sus plot-m2 plot-sign
 
 #
 

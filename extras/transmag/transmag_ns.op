@@ -3,131 +3,40 @@ SEED = 23125;
 SWEEPS = 1024;
 MODEL = spin;
 LATTICE = site;
-REPRESENTATION = diagonalization;
-h = 1;
-Gamma = 0;
-T = 0.2;
-[results]
-Binder Ratio of Magnetization: 1 +/- inf
-Binder Ratio of Staggered Magnetization: 1 +/- inf
-Dimension of Matrix: 2 +/- inf
-Energy: -0.493307 +/- inf
-Energy Density: -0.493307 +/- inf
-Entropy: 0.0401796 +/- inf
-Entropy Density: 0.0401796 +/- inf
-Free Energy: -0.501343 +/- inf
-Free Energy Density: -0.501343 +/- inf
-Ground State Energy: -0.5 +/- inf
-Ground State Energy Density: -0.5 +/- inf
-Inverse Temperature: 5 +/- inf
-Local Magnetization at Site 0: 0.493307 +/- inf
-Magnetization: 0.493307 +/- inf
-Magnetization Density: 0.493307 +/- inf
-Magnetization Density^2: 0.25 +/- inf
-Magnetization Density^4: 0.0625 +/- inf
-Magnetization^2: 0.25 +/- inf
-Magnetization^4: 0.0625 +/- inf
-Number of Sites: 1 +/- inf
-Partition Function Coefficient #0: 2 +/- inf
-Partition Function Coefficient #1: 0 +/- inf
-Partition Function Coefficient #2: 0.25 +/- inf
-Partition Function Coefficient #3: 0 +/- inf
-Partition Function Coefficient #4: 0.00520833 +/- inf
-Specific Heat: 0.166201 +/- inf
-Staggered Magnetization: 0.493307 +/- inf
-Staggered Magnetization Density: 0.493307 +/- inf
-Staggered Magnetization Density^2: 0.25 +/- inf
-Staggered Magnetization Density^4: 0.0625 +/- inf
-Staggered Magnetization^2: 0.25 +/- inf
-Staggered Magnetization^4: 0.0625 +/- inf
-Staggered Susceptibility: 1.25 +/- inf
-Susceptibility: 1.25 +/- inf
-Temperature: 0.2 +/- inf
-[input parameters]
-SEED = 23125;
-SWEEPS = 1024;
-MODEL = spin;
-LATTICE = site;
-REPRESENTATION = diagonalization;
-h = 1;
-Gamma = 0;
-T = 0.5;
-[results]
-Binder Ratio of Magnetization: 1 +/- inf
-Binder Ratio of Staggered Magnetization: 1 +/- inf
-Dimension of Matrix: 2 +/- inf
-Energy: -0.380797 +/- inf
-Energy Density: -0.380797 +/- inf
-Entropy: 0.365334 +/- inf
-Entropy Density: 0.365334 +/- inf
-Free Energy: -0.563464 +/- inf
-Free Energy Density: -0.563464 +/- inf
-Ground State Energy: -0.5 +/- inf
-Ground State Energy Density: -0.5 +/- inf
-Inverse Temperature: 2 +/- inf
-Local Magnetization at Site 0: 0.380797 +/- inf
-Magnetization: 0.380797 +/- inf
-Magnetization Density: 0.380797 +/- inf
-Magnetization Density^2: 0.25 +/- inf
-Magnetization Density^4: 0.0625 +/- inf
-Magnetization^2: 0.25 +/- inf
-Magnetization^4: 0.0625 +/- inf
-Number of Sites: 1 +/- inf
-Partition Function Coefficient #0: 2 +/- inf
-Partition Function Coefficient #1: 0 +/- inf
-Partition Function Coefficient #2: 0.25 +/- inf
-Partition Function Coefficient #3: 0 +/- inf
-Partition Function Coefficient #4: 0.00520833 +/- inf
-Specific Heat: 0.419974 +/- inf
-Staggered Magnetization: 0.380797 +/- inf
-Staggered Magnetization Density: 0.380797 +/- inf
-Staggered Magnetization Density^2: 0.25 +/- inf
-Staggered Magnetization Density^4: 0.0625 +/- inf
-Staggered Magnetization^2: 0.25 +/- inf
-Staggered Magnetization^4: 0.0625 +/- inf
-Staggered Susceptibility: 0.5 +/- inf
-Susceptibility: 0.5 +/- inf
-Temperature: 0.5 +/- inf
-[input parameters]
-SEED = 23125;
-SWEEPS = 1024;
-MODEL = spin;
-LATTICE = site;
 REPRESENTATION = "path integral";
-h = 0;
-Gamma = 1;
+Gamma = 0.7;
 T = 0.2;
 [results]
-Energy: -0.498633 +/- 0.026; tau = 1.02 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0149492
-    bin #2   : 512      entries: error = 0.0185199
-    bin #3   : 256      entries: error = 0.0224031
-    bin #4   : 128      entries: error = 0.0260438
-Energy Density: -0.498633 +/- 0.026; tau = 1.02 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0149492
-    bin #2   : 512      entries: error = 0.0185199
-    bin #3   : 256      entries: error = 0.0224031
-    bin #4   : 128      entries: error = 0.0260438
-Energy^2: 0.277305 +/- 0.0284; tau = 0.707 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0182956
-    bin #2   : 512      entries: error = 0.0214697
-    bin #3   : 256      entries: error = 0.0253182
-    bin #4   : 128      entries: error = 0.028421
+Energy: -0.331055 +/- 0.0198; tau = 0.747 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0125561
+    bin #2   : 512      entries: error = 0.015365
+    bin #3   : 256      entries: error = 0.017829
+    bin #4   : 128      entries: error = 0.0198259
+Energy Density: -0.331055 +/- 0.0198; tau = 0.747 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0125561
+    bin #2   : 512      entries: error = 0.015365
+    bin #3   : 256      entries: error = 0.017829
+    bin #4   : 128      entries: error = 0.0198259
+Energy^2: 0.134512 +/- 0.0139; tau = 0.433 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0101827
+    bin #2   : 512      entries: error = 0.0121054
+    bin #3   : 256      entries: error = 0.0132223
+    bin #4   : 128      entries: error = 0.013907
 Inverse Temperature: 5 +/- 0
-Number of Clusters: 5.00781 +/- 0.0738421
+Number of Clusters: 3.47754 +/- 0.0593465
 Number of Sites: 1 +/- 0
-Specific Heat: 0.733691 +/- 0.342 WARNING: ERRORS NOT CONVERGED!!!
+Specific Heat: 0.63268 +/- 0.193 WARNING: ERRORS NOT CONVERGED!!!
 Temperature: 0.2 +/- 7.17983e-10 Warning: potential error underflow. Errors might be smaller
-Transverse Magnetization: 0.492676 +/- 0.00204; tau = 0.0873
-    bin #1   : 1024     entries: error = 0.00187904
-    bin #2   : 512      entries: error = 0.00186593
-    bin #3   : 256      entries: error = 0.00208365
-    bin #4   : 128      entries: error = 0.00203649
-Transverse Magnetization Density: 0.492676 +/- 0.00204; tau = 0.0873
-    bin #1   : 1024     entries: error = 0.00187904
-    bin #2   : 512      entries: error = 0.00186593
-    bin #3   : 256      entries: error = 0.00208365
-    bin #4   : 128      entries: error = 0.00203649
+Transverse Magnetization: 0.463867 +/- 0.00468; tau = 0.169 WARNING: check error convergence
+    bin #1   : 1024     entries: error = 0.00404969
+    bin #2   : 512      entries: error = 0.00435468
+    bin #3   : 256      entries: error = 0.00455527
+    bin #4   : 128      entries: error = 0.00468411
+Transverse Magnetization Density: 0.463867 +/- 0.00468; tau = 0.169 WARNING: check error convergence
+    bin #1   : 1024     entries: error = 0.00404969
+    bin #2   : 512      entries: error = 0.00435468
+    bin #3   : 256      entries: error = 0.00455527
+    bin #4   : 128      entries: error = 0.00468411
 Volume: 1 +/- 0
 [input parameters]
 SEED = 23125;
@@ -135,199 +44,87 @@ SWEEPS = 1024;
 MODEL = spin;
 LATTICE = site;
 REPRESENTATION = "path integral";
-h = 0;
-Gamma = 1;
+Gamma = 0.7;
 T = 0.5;
 [results]
-Energy: -0.357422 +/- 0.0425; tau = 1.08 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0239578
-    bin #2   : 512      entries: error = 0.0298628
-    bin #3   : 256      entries: error = 0.0371904
-    bin #4   : 128      entries: error = 0.0425295
-Energy Density: -0.357422 +/- 0.0425; tau = 1.08 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0239578
-    bin #2   : 512      entries: error = 0.0298628
-    bin #3   : 256      entries: error = 0.0371904
-    bin #4   : 128      entries: error = 0.0425295
-Energy^2: 0.285645 +/- 0.0488; tau = 0.639 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0323239
-    bin #2   : 512      entries: error = 0.0386357
-    bin #3   : 256      entries: error = 0.0456926
-    bin #4   : 128      entries: error = 0.0487867
+Energy: -0.242285 +/- 0.0313; tau = 0.782 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0195266
+    bin #2   : 512      entries: error = 0.0242694
+    bin #3   : 256      entries: error = 0.0282351
+    bin #4   : 128      entries: error = 0.031265
+Energy Density: -0.242285 +/- 0.0313; tau = 0.782 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0195266
+    bin #2   : 512      entries: error = 0.0242694
+    bin #3   : 256      entries: error = 0.0282351
+    bin #4   : 128      entries: error = 0.031265
+Energy^2: 0.152236 +/- 0.0336; tau = 0.74 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0213557
+    bin #2   : 512      entries: error = 0.0260167
+    bin #3   : 256      entries: error = 0.029649
+    bin #4   : 128      entries: error = 0.0336298
 Inverse Temperature: 2 +/- 0
-Number of Clusters: 1.97266 +/- 0.0402041
+Number of Clusters: 1.55957 +/- 0.0297374
 Number of Sites: 1 +/- 0
-Specific Heat: 0.638805 +/- 0.126 WARNING: ERRORS NOT CONVERGED!!!
+Specific Heat: 0.378043 +/- 0.0961 WARNING: ERRORS NOT CONVERGED!!!
 Temperature: 0.5 +/- 0
-Transverse Magnetization: 0.371094 +/- 0.00849; tau = 0.27 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00684153
-    bin #2   : 512      entries: error = 0.00718469
-    bin #3   : 256      entries: error = 0.00794929
-    bin #4   : 128      entries: error = 0.00848758
-Transverse Magnetization Density: 0.371094 +/- 0.00849; tau = 0.27 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00684153
-    bin #2   : 512      entries: error = 0.00718469
-    bin #3   : 256      entries: error = 0.00794929
-    bin #4   : 128      entries: error = 0.00848758
+Transverse Magnetization: 0.3125 +/- 0.00852; tau = 0.134 WARNING: check error convergence
+    bin #1   : 1024     entries: error = 0.00757181
+    bin #2   : 512      entries: error = 0.0081825
+    bin #3   : 256      entries: error = 0.00844968
+    bin #4   : 128      entries: error = 0.00852293
+Transverse Magnetization Density: 0.3125 +/- 0.00852; tau = 0.134 WARNING: check error convergence
+    bin #1   : 1024     entries: error = 0.00757181
+    bin #2   : 512      entries: error = 0.0081825
+    bin #3   : 256      entries: error = 0.00844968
+    bin #4   : 128      entries: error = 0.00852293
 Volume: 1 +/- 0
 [input parameters]
 SEED = 23125;
 SWEEPS = 1024;
 MODEL = spin;
 LATTICE = "alternating chain lattice";
-REPRESENTATION = diagonalization;
-h = .3;
-Gamma = 0;
-LATTICE_LIBRARY = alternating_chain.xml;
-L = 4;
-h' = -h;
-Gamma' = -Gamma;
-T = 0.2;
-[results]
-Binder Ratio of Magnetization: 0.0538315 +/- inf
-Binder Ratio of Staggered Magnetization: 0.496095 +/- inf
-Dimension of Matrix: 16 +/- inf
-Energy: -1.44255 +/- inf
-Energy Density: -0.360637 +/- inf
-Entropy: 0.362701 +/- inf
-Entropy Density: 0.0906752 +/- inf
-Free Energy: -1.51509 +/- inf
-Free Energy Density: -0.378772 +/- inf
-Ground State Energy: -1.5 +/- inf
-Ground State Energy Density: -0.375 +/- inf
-Inverse Temperature: 5 +/- inf
-Local Magnetization at Site 0: 0.0138159 +/- inf
-Local Magnetization at Site 1: 0.0138159 +/- inf
-Local Magnetization at Site 2: 0.0138159 +/- inf
-Local Magnetization at Site 3: 0.0138159 +/- inf
-Magnetization: 0.0552636 +/- inf
-Magnetization Density: 0.0138159 +/- inf
-Magnetization Density^2: 0.00391136 +/- inf
-Magnetization Density^4: 0.000284197 +/- inf
-Magnetization^2: 0.0625818 +/- inf
-Magnetization^4: 0.0727544 +/- inf
-Number of Sites: 4 +/- inf
-Partition Function Coefficient #0: 16 +/- inf
-Partition Function Coefficient #1: -5.55112e-17 +/- inf
-Partition Function Coefficient #2: 3.72 +/- inf
-Partition Function Coefficient #3: 0.32 +/- inf
-Partition Function Coefficient #4: 0.3535 +/- inf
-Specific Heat: 0.279489 +/- inf
-Staggered Magnetization: 0 +/- inf
-Staggered Magnetization Density: 0 +/- inf
-Staggered Magnetization Density^2: 0.121184 +/- inf
-Staggered Magnetization Density^4: 0.0296024 +/- inf
-Staggered Magnetization^2: 1.93895 +/- inf
-Staggered Magnetization^4: 7.57821 +/- inf
-Staggered Susceptibility: 0.956496 +/- inf
-Susceptibility: 0.0782273 +/- inf
-Temperature: 0.2 +/- inf
-[input parameters]
-SEED = 23125;
-SWEEPS = 1024;
-MODEL = spin;
-LATTICE = "alternating chain lattice";
-REPRESENTATION = diagonalization;
-h = .3;
-Gamma = 0;
-LATTICE_LIBRARY = alternating_chain.xml;
-L = 4;
-h' = -h;
-Gamma' = -Gamma;
-T = 0.5;
-[results]
-Binder Ratio of Magnetization: 0.260273 +/- inf
-Binder Ratio of Staggered Magnetization: 0.467004 +/- inf
-Dimension of Matrix: 16 +/- inf
-Energy: -0.944435 +/- inf
-Energy Density: -0.236109 +/- inf
-Entropy: 1.8628 +/- inf
-Entropy Density: 0.4657 +/- inf
-Free Energy: -1.87583 +/- inf
-Free Energy Density: -0.468959 +/- inf
-Ground State Energy: -1.5 +/- inf
-Ground State Energy Density: -0.375 +/- inf
-Inverse Temperature: 2 +/- inf
-Local Magnetization at Site 0: 0.0591686 +/- inf
-Local Magnetization at Site 1: 0.0591686 +/- inf
-Local Magnetization at Site 2: 0.0591686 +/- inf
-Local Magnetization at Site 3: 0.0591686 +/- inf
-Magnetization: 0.236674 +/- inf
-Magnetization Density: 0.0591686 +/- inf
-Magnetization Density^2: 0.0292938 +/- inf
-Magnetization Density^4: 0.00329703 +/- inf
-Magnetization^2: 0.468701 +/- inf
-Magnetization^4: 0.84404 +/- inf
-Number of Sites: 4 +/- inf
-Partition Function Coefficient #0: 16 +/- inf
-Partition Function Coefficient #1: -5.55112e-17 +/- inf
-Partition Function Coefficient #2: 3.72 +/- inf
-Partition Function Coefficient #3: 0.32 +/- inf
-Partition Function Coefficient #4: 0.3535 +/- inf
-Specific Heat: 0.369899 +/- inf
-Staggered Magnetization: 0 +/- inf
-Staggered Magnetization Density: 0 +/- inf
-Staggered Magnetization Density^2: 0.0974566 +/- inf
-Staggered Magnetization Density^4: 0.0203377 +/- inf
-Staggered Magnetization^2: 1.55931 +/- inf
-Staggered Magnetization^4: 5.20646 +/- inf
-Staggered Susceptibility: 0.593779 +/- inf
-Susceptibility: 0.234351 +/- inf
-Temperature: 0.5 +/- inf
-[input parameters]
-SEED = 23125;
-SWEEPS = 1024;
-MODEL = spin;
-LATTICE = "alternating chain lattice";
 REPRESENTATION = "path integral";
-h = 0;
-Gamma = .3;
+Gamma = 0.7;
 LATTICE_LIBRARY = alternating_chain.xml;
 L = 4;
-h' = -h;
-Gamma' = -Gamma;
+Jz0 = 1;
+Jxy0 = 1;
+Jz1 = 1;
+Jxy1 = 1;
+Gamma0 = 0.3;
+Gamma1 = -0.3;
 T = 0.2;
 [results]
-Energy: -1.67197 +/- 0.115017; sign in observable "Sign" WARNING: ERRORS NOT CONVERGED!!!
-Sign * Energy: -0.77168 +/- 0.0726; tau = 0.458 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0524931
-    bin #2   : 512      entries: error = 0.0594067
-    bin #3   : 256      entries: error = 0.066
-    bin #4   : 128      entries: error = 0.072643
-Energy Density: -0.417991 +/- 0.0287543; sign in observable "Sign" WARNING: ERRORS NOT CONVERGED!!!
-Sign * Energy Density: -0.19292 +/- 0.0182; tau = 0.458 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0131233
-    bin #2   : 512      entries: error = 0.0148517
-    bin #3   : 256      entries: error = 0.0165
-    bin #4   : 128      entries: error = 0.0181607
-Energy^2: 2.67482 +/- 0.273732; sign in observable "Sign" WARNING: ERRORS NOT CONVERGED!!!
-Sign * Energy^2: 1.2343 +/- 0.151; tau = 0.354 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.115694
-    bin #2   : 512      entries: error = 0.127683
-    bin #3   : 256      entries: error = 0.140376
-    bin #4   : 128      entries: error = 0.151233
+Energy: -2.24785 +/- 0.0449; tau = 0.795 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0279128
+    bin #2   : 512      entries: error = 0.0337983
+    bin #3   : 256      entries: error = 0.0394627
+    bin #4   : 128      entries: error = 0.0449204
+Energy Density: -0.561963 +/- 0.0112; tau = 0.795 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0069782
+    bin #2   : 512      entries: error = 0.00844958
+    bin #3   : 256      entries: error = 0.00986566
+    bin #4   : 128      entries: error = 0.0112301
+Energy^2: 5.07953 +/- 0.203; tau = 0.746 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.128672
+    bin #2   : 512      entries: error = 0.154282
+    bin #3   : 256      entries: error = 0.179245
+    bin #4   : 128      entries: error = 0.203155
 Inverse Temperature: 5 +/- 0
-Number of Clusters: 11.3652 +/- 0.102031
+Number of Clusters: 11.7734 +/- 0.0980718
 Number of Sites: 4 +/- 0
-Sign: 0.461914 +/- 0.023; tau = 0.586 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0155948
-    bin #2   : 512      entries: error = 0.0183496
-    bin #3   : 256      entries: error = 0.0205127
-    bin #4   : 128      entries: error = 0.0229852
-Specific Heat: -0.671388 +/- 0.932 WARNING: ERRORS NOT CONVERGED!!!
+Specific Heat: 0.17944 +/- 0.27 WARNING: ERRORS NOT CONVERGED!!!
 Temperature: 0.2 +/- 7.17983e-10 Warning: potential error underflow. Errors might be smaller
-Transverse Magnetization: 0.847003 +/- 0.0236577; sign in observable "Sign" WARNING: ERRORS NOT CONVERGED!!!
-Sign * Transverse Magnetization: 0.391326 +/- 0.0208; tau = 0.309 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0163571
-    bin #2   : 512      entries: error = 0.018257
-    bin #3   : 256      entries: error = 0.0193824
-    bin #4   : 128      entries: error = 0.0208086
-Transverse Magnetization Density: 0.211751 +/- 0.00591442; sign in observable "Sign" WARNING: ERRORS NOT CONVERGED!!!
-Sign * Transverse Magnetization Density: 0.0978315 +/- 0.0052; tau = 0.309 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00408927
-    bin #2   : 512      entries: error = 0.00456426
-    bin #3   : 256      entries: error = 0.00484561
-    bin #4   : 128      entries: error = 0.00520216
+Transverse Magnetization: 1.18047 +/- 0.0219; tau = 0.541 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0151629
+    bin #2   : 512      entries: error = 0.0178786
+    bin #3   : 256      entries: error = 0.0206531
+    bin #4   : 128      entries: error = 0.0218741
+Transverse Magnetization Density: 0.295117 +/- 0.00547; tau = 0.541 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00379073
+    bin #2   : 512      entries: error = 0.00446966
+    bin #3   : 256      entries: error = 0.00516327
+    bin #4   : 128      entries: error = 0.00546853
 Volume: 4 +/- 0
 [input parameters]
 SEED = 23125;
@@ -335,52 +132,45 @@ SWEEPS = 1024;
 MODEL = spin;
 LATTICE = "alternating chain lattice";
 REPRESENTATION = "path integral";
-h = 0;
-Gamma = .3;
+Gamma = 0.7;
 LATTICE_LIBRARY = alternating_chain.xml;
 L = 4;
-h' = -h;
-Gamma' = -Gamma;
+Jz0 = 1;
+Jxy0 = 1;
+Jz1 = 1;
+Jxy1 = 1;
+Gamma0 = 0.3;
+Gamma1 = -0.3;
 T = 0.5;
 [results]
-Energy: -0.981438 +/- 0.074905; sign in observable "Sign" WARNING: ERRORS NOT CONVERGED!!!
-Sign * Energy: -0.80498 +/- 0.0651; tau = 0.348 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.050026
-    bin #2   : 512      entries: error = 0.0598838
-    bin #3   : 256      entries: error = 0.0624017
-    bin #4   : 128      entries: error = 0.0651441
-Energy Density: -0.245359 +/- 0.0187262; sign in observable "Sign" WARNING: ERRORS NOT CONVERGED!!!
-Sign * Energy Density: -0.201245 +/- 0.0163; tau = 0.348 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0125065
-    bin #2   : 512      entries: error = 0.014971
-    bin #3   : 256      entries: error = 0.0156004
-    bin #4   : 128      entries: error = 0.016286
-Energy^2: 1.11448 +/- 0.172305; sign in observable "Sign"
-Sign * Energy^2: 0.913789 +/- 0.146; tau = 0.0224
-    bin #1   : 1024     entries: error = 0.142432
-    bin #2   : 512      entries: error = 0.159581
-    bin #3   : 256      entries: error = 0.146313
-    bin #4   : 128      entries: error = 0.145582
+Energy: -1.87754 +/- 0.078; tau = 0.841 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0476532
+    bin #2   : 512      entries: error = 0.0589153
+    bin #3   : 256      entries: error = 0.0714162
+    bin #4   : 128      entries: error = 0.0780361
+Energy Density: -0.469385 +/- 0.0195; tau = 0.841 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0119133
+    bin #2   : 512      entries: error = 0.0147288
+    bin #3   : 256      entries: error = 0.0178541
+    bin #4   : 128      entries: error = 0.019509
+Energy^2: 4.10717 +/- 0.3; tau = 0.638 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.198592
+    bin #2   : 512      entries: error = 0.236265
+    bin #3   : 256      entries: error = 0.27932
+    bin #4   : 128      entries: error = 0.299549
 Inverse Temperature: 2 +/- 0
-Number of Clusters: 4.92676 +/- 0.0505943
+Number of Clusters: 4.89844 +/- 0.0549531
 Number of Sites: 4 +/- 0
-Sign: 0.820312 +/- 0.0174; tau = 0.546 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0120094
-    bin #2   : 512      entries: error = 0.0143027
-    bin #3   : 256      entries: error = 0.0165484
-    bin #4   : 128      entries: error = 0.0173674
-Specific Heat: 0.156868 +/- 0.0895
+Specific Heat: 0.588099 +/- 0.117 WARNING: ERRORS NOT CONVERGED!!!
 Temperature: 0.5 +/- 0
-Transverse Magnetization: 0.633867 +/- 0.0205279; sign in observable "Sign" WARNING: check error convergence
-Sign * Transverse Magnetization: 0.519967 +/- 0.0202; tau = 0.181 WARNING: check error convergence
-    bin #1   : 1024     entries: error = 0.0172946
-    bin #2   : 512      entries: error = 0.0187741
-    bin #3   : 256      entries: error = 0.0198739
-    bin #4   : 128      entries: error = 0.0201779
-Transverse Magnetization Density: 0.158467 +/- 0.00513198; sign in observable "Sign" WARNING: check error convergence
-Sign * Transverse Magnetization Density: 0.129992 +/- 0.00504; tau = 0.181 WARNING: check error convergence
-    bin #1   : 1024     entries: error = 0.00432365
-    bin #2   : 512      entries: error = 0.00469353
-    bin #3   : 256      entries: error = 0.00496848
-    bin #4   : 128      entries: error = 0.00504447
+Transverse Magnetization: 0.924677 +/- 0.0275; tau = 0.361 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0209398
+    bin #2   : 512      entries: error = 0.0233564
+    bin #3   : 256      entries: error = 0.0255856
+    bin #4   : 128      entries: error = 0.0274753
+Transverse Magnetization Density: 0.231169 +/- 0.00687; tau = 0.361 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00523496
+    bin #2   : 512      entries: error = 0.0058391
+    bin #3   : 256      entries: error = 0.00639639
+    bin #4   : 128      entries: error = 0.00686882
 Volume: 4 +/- 0

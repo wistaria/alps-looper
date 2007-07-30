@@ -3,19 +3,9 @@ SWEEPS  = 1024
 MODEL   = "spin"
 
 LATTICE = "site"
-REPRESENTATION = "diagonalization"
-h = 1
-Gamma = 0
-{
-T = 0.2
-}
-{
-T = 0.5
-}
 
 REPRESENTATION = "path integral"
-h = 0
-Gamma = 1
+Gamma = 0.7
 {
 T = 0.2
 }
@@ -26,23 +16,14 @@ T = 0.5
 LATTICE_LIBRARY = "alternating_chain.xml"
 LATTICE = "alternating chain lattice"
 L=4
-REPRESENTATION = "diagonalization"
-h = .3
-h' = -h
-Gamma = 0
-Gamma' = -Gamma
-{
-T = 0.2
-}
-{
-T = 0.5
-}
 
 REPRESENTATION = "path integral"
-h = 0
-h' = -h
-Gamma = .3
-Gamma' = -Gamma
+Jz0 = 1
+Jxy0 = 1
+Jz1 = 1
+Jxy1 = 1
+Gamma0 = 0.3
+Gamma1 = -0.3
 {
 T = 0.2
 }

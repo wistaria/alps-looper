@@ -43,7 +43,7 @@ public:
   typedef looper::sse mc_type;
 
   typedef looper::lattice_helper<loop_config::lattice_graph_t> lattice_t;
-  typedef loop_config::time_t time_t;
+  typedef int time_t;
   typedef loop_config::loop_graph_t loop_graph_t;
   typedef loop_config::model_t model_t;
   typedef looper::local_operator<mc_type, loop_graph_t, time_t> local_operator_t;
@@ -100,6 +100,7 @@ private:
   double logf;
 
   // observables
+  double sign;
   looper::wl_histogram histogram;
   looper::histogram_set<double> histobs;
   estimator_t estimator;
@@ -124,7 +125,7 @@ loop_worker::loop_worker(alps::Parameters const& p, alps::ObservableSet& obs) :
   exp_range(p.value_or_default("EXPANSION_RANGE", "[0:500]")),
   mcs(p, exp_range), histogram(exp_range), histobs(exp_range) {
 
-  use_improved_estimator = !p.defined("DISABLE_IMPROVED_ESTIMATOR");
+  use_improved_estimator = !model.has_field() && !p.defined("DISABLE_IMPROVED_ESTIMATOR");
 
   if (model.has_field())
     boost::throw_exception(std::logic_error("longitudinal field is currently not supported "
@@ -191,6 +192,10 @@ void loop_worker::run(ENGINE& eng, alps::ObservableSet& obs) {
   build(eng);
 
   //           FIELD               SIGN                IMPROVE
+  flip<ENGINE, boost::mpl::true_,  boost::mpl::true_,  boost::mpl::true_ >(eng, obs);
+  flip<ENGINE, boost::mpl::true_,  boost::mpl::true_,  boost::mpl::false_>(eng, obs);
+  flip<ENGINE, boost::mpl::true_,  boost::mpl::false_, boost::mpl::true_ >(eng, obs);
+  flip<ENGINE, boost::mpl::true_,  boost::mpl::false_, boost::mpl::false_>(eng, obs);
   flip<ENGINE, boost::mpl::false_, boost::mpl::true_,  boost::mpl::true_ >(eng, obs);
   flip<ENGINE, boost::mpl::false_, boost::mpl::true_,  boost::mpl::false_>(eng, obs);
   flip<ENGINE, boost::mpl::false_, boost::mpl::false_, boost::mpl::true_ >(eng, obs);
@@ -296,16 +301,16 @@ void loop_worker::build(ENGINE& eng) {
     if (oi->is_bond()) {
       int s0 = source(oi->pos(), lattice.vg());
       int s1 = target(oi->pos(), lattice.vg());
-      boost::tie(current[s0], current[s1], oi->loop0, oi->loop1) =
-        reconnect(fragments, oi->graph(), current[s0], current[s1]);
       if (oi->is_offdiagonal()) {
         spins_c[s0] ^= 1;
         spins_c[s1] ^= 1;
       }
+      boost::tie(current[s0], current[s1], oi->loop0, oi->loop1) =
+        reconnect(fragments, oi->graph(), current[s0], current[s1]);
     } else {
       int s = oi->pos();
-      boost::tie(current[s], oi->loop0, oi->loop1) = reconnect(fragments, oi->graph(), current[s]);
       if (oi->is_offdiagonal()) spins_c[s] ^= 1;
+      boost::tie(current[s], oi->loop0, oi->loop1) = reconnect(fragments, oi->graph(), current[s]);
     }
   }
 
@@ -354,10 +359,11 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& /* obs */) {
   looper::accumulator<estimator_t, cluster_fragment_t, IMPROVE>
     accum(estimates, nc, lattice, estimator, fragments);
   for (unsigned int s = 0; s < nvs; ++s) {
-    weight.at_bot(s, 0, s, spins_c[s]);
-    accum.at_bot(s, 0, s, spins_c[s]);
+    weight.at_bot(s, time_t(0), s, spins_c[s]);
+    accum.at_bot(s, time_t(0), s, spins_c[s]);
   }
-  double t = 0;
+  int t = 0;
+  int negop = 0; // number of operators with negative weights
   BOOST_FOREACH(local_operator_t& op, operators) {
     if (op.is_bond()) {
       if (!op.is_frozen_bond_graph()) {
@@ -369,6 +375,7 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& /* obs */) {
         if (op.is_offdiagonal()) {
           spins_c[s0] ^= 1;
           spins_c[s1] ^= 1;
+          if (SIGN()) negop += model.bond_sign(op.pos());
         }
         weight.start_b(op.loop_u0(), op.loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
         accum.start_b(op.loop_u0(), op.loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
@@ -378,8 +385,10 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& /* obs */) {
         int s = op.pos();
         weight.term_s(op.loop_l(), t, s, spins_c[s]);
         accum.term_s(op.loop_l(), t, s, spins_c[s]);
-        if (op.is_offdiagonal())
+        if (op.is_offdiagonal()) {
           spins_c[s] ^= 1;
+          if (SIGN()) negop += model.site_sign(op.pos());
+        }
         weight.start_s(op.loop_u(), t, s, spins_c[s]);
         accum.start_s(op.loop_u(), t, s, spins_c[s]);
       }
@@ -387,14 +396,15 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& /* obs */) {
     ++t;
   }
   for (unsigned int s = 0; s < nvs; ++s) {
-    weight.at_top(current[s], nop, s, spins_c[s]);
-    accum.at_top(current[s], nop, s, spins_c[s]);
+    weight.at_top(current[s], time_t(nop), s, spins_c[s]);
+    accum.at_top(current[s], time_t(nop), s, spins_c[s]);
   }
+  sign = ((negop & 1) == 1) ? -1 : 1;
 
   // determine whether clusters are flipped or not
-  double improved_sign = 1;
+  double improved_sign = sign;
   BOOST_FOREACH(cluster_info_t& ci, clusters) {
-    ci.to_flip = ((2*r_uniform()-1) < (FIELD() ? std::tanh(ci.weight) : 0));
+    ci.to_flip = ((2*r_uniform()-1) < 0);
     if (SIGN() && IMPROVE() && (ci.sign & 1 == 1)) improved_sign = 0;
   }
 
@@ -428,15 +438,7 @@ void loop_worker::measure(alps::ObservableSet& obs) {
   histobs.set_position(operators.size());
 
   // sign
-  double sign = 1;
-  if (model.is_signed()) {
-    int n = 0;
-    BOOST_FOREACH(const local_operator_t& op, operators)
-      if (op.is_offdiagonal())
-        n += (op.is_bond()) ? model.bond_sign(op.pos()) : model.site_sign(op.pos());
-    if (n & 1 == 1) sign = -1;
-    if (!use_improved_estimator) histobs["Sign"] << sign;
-  }
+  if (model.is_signed() && !use_improved_estimator) obs["Sign"] << sign;
 
   // other quantities
   estimator.normal_measurement(histobs, lattice, 1, sign, spins, operators, spins_c);
