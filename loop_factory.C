@@ -60,7 +60,7 @@ loop_factory::make_worker(alps::Parameters const& p, alps::ObservableSet& obs) c
   if (p.defined("REPRESENTATION")) {
     worker_map_type::const_iterator itr = worker_creators_.find(p["REPRESENTATION"]);
     if (itr == worker_creators_.end() || itr->second == 0)
-      boost::throw_exception(std::runtime_error("unknown representation"));
+      boost::throw_exception(std::runtime_error("Unknown representation: " + p["REPRESENTATION"]));
     return itr->second->create(p, obs);
   } else if (worker_creators_.size() == 1 && worker_creators_.begin()->second) {
     return worker_creators_.begin()->second->create(p, obs);
@@ -80,7 +80,7 @@ looper::abstract_evaluator* loop_factory::make_evaluator(const alps::Parameters&
   if (p.defined("REPRESENTATION")) {
     evaluator_map_type::const_iterator itr = evaluator_creators_.find(p["REPRESENTATION"]);
     if (itr == evaluator_creators_.end() || itr->second == 0)
-      boost::throw_exception(std::runtime_error("unknown representation"));
+      boost::throw_exception(std::runtime_error("Unknown representation: " + p["REPRESENTATION"]));
     return itr->second->create();
   } else {
     if (evaluator_creators_.size() == 1 && evaluator_creators_.begin()->second)

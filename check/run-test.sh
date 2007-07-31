@@ -21,7 +21,7 @@ set -x
 
 if test ! -f "$BASE.run/$BASE.out.xml"; then
   mkdir -p $BASE.run
-  (cd $BASE.run && parameter2xml $SRCDIR/$BASE $BASE)
+  (cd $BASE.run && parameter2xml ../$BASE $BASE)
 fi
 
 if test `type lamnodes 1>&- 2>&-; echo $?` == 0; then

@@ -378,9 +378,9 @@ public:
   static int loop_l(int /* t */, int loop0, int /* loop1 */) { return loop0; }
   static int loop_u(int /* t */, int /* loop0 */, int loop1) { return loop1; }
   static int loop_l0(int /* t */, int loop0, int /* loop1 */) { return loop0; }
-  static int loop_l1(int t, int loop0, int loop1) { return t ? loop1 : loop0; }
+  static int loop_l1(int t, int loop0, int loop1) { return (t ==0 || t == 5) ? loop0 : loop1; }
   static int loop_u0(int /* t */, int /* loop0 */, int loop1) { return loop1; }
-  static int loop_u1(int t, int loop0, int loop1) { return t ? loop0 : loop1; }
+  static int loop_u1(int t, int loop0, int loop1) { return (t ==0 || t == 5) ? loop1 : loop0; }
 
 private:
   int type_;

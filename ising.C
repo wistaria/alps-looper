@@ -116,7 +116,7 @@ loop_worker::loop_worker(alps::Parameters const& p, alps::ObservableSet& obs) :
   if (model.is_quantal())
     boost::throw_exception(std::invalid_argument("not classical Ising model"));
   if (model.has_field())
-    std::cerr << "WARNING: model has magnetic field\n";
+    std::cerr << "WARNING: model has a magnetic field\n";
   if (model.is_frustrated())
     std::cerr << "WARNING: model is classically frustrated\n";
   if (!use_improved_estimator)

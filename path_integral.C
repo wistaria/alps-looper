@@ -115,7 +115,7 @@ loop_worker::loop_worker(alps::Parameters const& p, alps::ObservableSet& obs) :
   use_improved_estimator = !model.has_field() && !p.defined("DISABLE_IMPROVED_ESTIMATOR");
 
   if (model.has_field())
-    std::cerr << "WARNING: model has magnetic field\n";
+    std::cerr << "WARNING: model has a magnetic field\n";
   if (model.is_frustrated())
     std::cerr << "WARNING: model is classically frustrated\n";
   if (model.is_signed())
