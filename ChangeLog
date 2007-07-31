@@ -1,3 +1,7 @@
+2007-07-31  Synge Todo <wistaria@comp-phys.org>
+
+	* Added support for XYZ interaction.
+
 2007-07-30  Synge Todo <wistaria@comp-phys.org>
 
 	* Fixed (improved) negative sign estimator.
