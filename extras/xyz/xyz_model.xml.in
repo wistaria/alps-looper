@@ -66,4 +66,20 @@
     Jx#*exchange_x(i,j)+Jy#*exchange_y(i,j)+Jz#*Sz(i)*Sz(j)
   </BONDTERM>
 </HAMILTONIAN>
+
+<HAMILTONIAN name="anisotropic spin">
+  <PARAMETER name="Jz" default="J"/>
+  <PARAMETER name="Jx" default="J"/>
+  <PARAMETER name="J" default="1"/>
+  <BASIS ref="spin"/>
+  <SITETERM site="i">
+    0
+  </SITETERM> 
+  <BONDTERM type="0" source="i" target="j">
+    Jz*Sz(i)*Sz(j)
+  </BONDTERM>
+  <BONDTERM type="1" source="i" target="j">
+    Jx*Sx(i)*Sx(j)
+  </BONDTERM>
+</HAMILTONIAN>
 </MODELS>
