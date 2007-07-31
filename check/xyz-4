@@ -1,12 +1,11 @@
-LATTICE = "chain lattice"
+LATTICE = "anisotropic square lattice"
 MODEL_LIBRARY = "../extras/xyz/xyz_model.xml"
-MODEL   = "XYZ spin"
+MODEL   = "anisotropic spin"
 
-local_S = 1/2; L = 4
+local_S = 1/2; L = 2
 
-Jx = 1
-Jy = 0
-Jz = 0
+Jx = -0.8
+Jz = -1
 
 REPRESENTATION = "diagonalization"
 { T = 0.1 } { T = 0.2 } { T = 0.3 } { T = 0.4 } { T = 0.5 }
