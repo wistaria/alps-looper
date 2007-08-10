@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -27,47 +27,39 @@
 
 #include "integer_range.h"
 
+#include <alps/expression.h>
 #include <alps/osiris.h>
 #include <boost/throw_exception.hpp>
 #include <stdexcept>
 
 namespace looper {
 
-class mc_steps
-{
+class mc_steps {
 public:
   mc_steps() : mcs_(0), sweep_("[0:]"), therm_(0) {}
-  mc_steps(alps::Parameters const& p)
-    : mcs_(0),
-      sweep_(p.value_or_default("SWEEPS", "[65536:]"), p),
-      therm_(p.defined("THERMALIZATION") ?
-             static_cast<int>(alps::evaluate("THERMALIZATION", p)) :
-             (sweep_.min() >> 3))
-  {}
-
-  mc_steps& operator++() { ++mcs_; return *this; }
-  mc_steps operator++(int)
-  { mc_steps tmp = *this; this->operator++(); return tmp; }
-
-  unsigned int operator()() const { return mcs_; }
-  bool can_work() const
-  { return mcs_ < therm_ || mcs_ - therm_ < sweep_.max(); }
-  bool is_thermalized() const { return mcs_ >= therm_; }
-  double progress() const
-  {
-    return is_thermalized() ?
-      static_cast<double>(mcs_ - therm_) / sweep_.min() : 0;
+  mc_steps(alps::Parameters const& p) : mcs_(0),
+    sweep_(p.value_or_default("SWEEPS", "[65536:]"), p),
+    therm_(p.defined("THERMALIZATION") ? static_cast<int>(alps::evaluate("THERMALIZATION", p)) :
+      (sweep_.min() >> 3)) {
   }
 
+  mc_steps& operator++() { ++mcs_; return *this; }
+  mc_steps operator++(int) { mc_steps tmp = *this; this->operator++(); return tmp; }
+
+  unsigned int operator()() const { return mcs_; }
+  bool can_work() const { return mcs_ < therm_ || mcs_ - therm_ < sweep_.max(); }
+  bool is_thermalized() const { return mcs_ >= therm_; }
+  double progress() const { return static_cast<double>(mcs_) / (therm_ + sweep_.min()); }
+
   int thermalization() const { return therm_; }
-  looper::integer_range<unsigned int> sweeps() const { return sweep_; }
+  integer_range<unsigned int> sweeps() const { return sweep_; }
 
   void save(alps::ODump& dp) const { dp << mcs_ << sweep_ << therm_; }
   void load(alps::IDump& dp) { dp >> mcs_ >> sweep_ >> therm_; }
 
 private:
   unsigned int mcs_;
-  looper::integer_range<unsigned int> sweep_;
+  integer_range<unsigned int> sweep_;
   unsigned int therm_;
 };
 
@@ -77,11 +69,15 @@ private:
 namespace looper {
 #endif
 
-inline alps::ODump& operator<<(alps::ODump& dp, looper::mc_steps const& mcs)
-{ mcs.save(dp); return dp; }
+inline alps::ODump& operator<<(alps::ODump& dp, looper::mc_steps const& mcs) {
+  mcs.save(dp);
+  return dp;
+}
 
-inline alps::IDump& operator>>(alps::IDump& dp, looper::mc_steps& mcs)
-{ mcs.load(dp); return dp; }
+inline alps::IDump& operator>>(alps::IDump& dp, looper::mc_steps& mcs) {
+  mcs.load(dp);
+  return dp;
+}
 
 #ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
 } // end namespace looper
@@ -89,26 +85,23 @@ inline alps::IDump& operator>>(alps::IDump& dp, looper::mc_steps& mcs)
 
 namespace looper {
 
-class wl_steps
-{
+class wl_steps {
 public:
   wl_steps() : mcs_(0), stage_(0) {}
   template<class T>
-  wl_steps(alps::Parameters const& p, integer_range<T> const& exp_range)
-    : mcs_(0), stage_(0),
-      multicanonical_(!p.defined("DISABLE_MULTICANONICAL_MEASUREMENT")),
-      zhou_bhatt_(!p.defined("DISABLE_ZHOU_BHATT")),
-      block_(zhou_bhatt_ ? exp_range.size() : static_cast<int>(
-        p.value_or_default("BLOCK_SWEEPS", 65536))),
-      sweep_(p.value_or_default("SWEEPS", 65536)),
-      iteration_(p.value_or_default("WANG_LANDAU_ITERATIONS", 16)) {}
+  wl_steps(alps::Parameters const& p, integer_range<T> const& exp_range) : mcs_(0), stage_(0),
+    multicanonical_(!p.defined("DISABLE_MULTICANONICAL_MEASUREMENT")),
+    zhou_bhatt_(!p.defined("DISABLE_ZHOU_BHATT")),
+    block_(zhou_bhatt_ ? exp_range.size() : static_cast<int>(
+      p.value_or_default("BLOCK_SWEEPS", 65536))),
+    sweep_(p.value_or_default("SWEEPS", 65536)),
+    iteration_(p.value_or_default("WANG_LANDAU_ITERATIONS", 16)) {
+  }
 
   wl_steps& operator++() { ++mcs_; return *this; }
-  wl_steps operator++(int)
-  { wl_steps tmp = *this; this->operator++(); return tmp; }
+  wl_steps operator++(int) { wl_steps tmp = *this; this->operator++(); return tmp; }
   void reset_stage() { mcs_ = 0; }
-  void next_stage()
-  {
+  void next_stage() {
     ++stage_;
     mcs_ = 0;
     if (use_zhou_bhatt()) block_ = static_cast<int>(1.41 * block_);
@@ -116,16 +109,14 @@ public:
 
   int operator()() const { return mcs_; }
   int stage() const { return stage_; }
-  bool can_work() const
-  {
+  bool can_work() const {
     if (perform_multicanonical_measurement())
       return !doing_multicanonical() || mcs_ < sweep_;
     else
       return stage_ < iteration_;
   }
   bool doing_multicanonical() const { return stage_ == iteration_; }
-  double progress() const
-  {
+  double progress() const {
     if (perform_multicanonical_measurement())
       return (doing_multicanonical() && mcs_ >= sweep_) ? 1 : 0;
     else
@@ -138,15 +129,11 @@ public:
   int sweeps() const { return sweep_; }
   int iterations() const { return iteration_; }
 
-  void save(alps::ODump& dp) const
-  {
-    dp << mcs_ << stage_ << multicanonical_ << zhou_bhatt_ << block_
-       << sweep_ << iteration_;
+  void save(alps::ODump& dp) const {
+    dp << mcs_ << stage_ << multicanonical_ << zhou_bhatt_ << block_ << sweep_ << iteration_;
   }
-  void load(alps::IDump& dp)
-  {
-    dp >> mcs_ >> stage_ >> multicanonical_ >> zhou_bhatt_ >> block_
-       >> sweep_ >> iteration_;
+  void load(alps::IDump& dp) {
+    dp >> mcs_ >> stage_ >> multicanonical_ >> zhou_bhatt_ >> block_ >> sweep_ >> iteration_;
   }
 
 private:
@@ -165,11 +152,15 @@ private:
 namespace looper {
 #endif
 
-inline alps::ODump& operator<<(alps::ODump& dp, looper::wl_steps const& mcs)
-{ mcs.save(dp); return dp; }
+inline alps::ODump& operator<<(alps::ODump& dp, looper::wl_steps const& mcs) {
+  mcs.save(dp);
+  return dp;
+}
 
-inline alps::IDump& operator>>(alps::IDump& dp, looper::wl_steps& mcs)
-{ mcs.load(dp); return dp; }
+inline alps::IDump& operator>>(alps::IDump& dp, looper::wl_steps& mcs) {
+  mcs.load(dp);
+  return dp;
+}
 
 #ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
 } // end namespace looper
