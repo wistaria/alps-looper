@@ -56,7 +56,7 @@ loop_factory::make_worker(const alps::ProcessList& w, const alps::Parameters& p,
 
 #ifdef HAVE_PARAPACK
 alps::parapack::abstract_worker*
-loop_factory::make_worker(alps::Parameters const& p, alps::ObservableSet& obs) const {
+loop_factory::make_worker(alps::Parameters const& p, std::vector<alps::ObservableSet>& obs) const {
   if (p.defined("REPRESENTATION")) {
     worker_map_type::const_iterator itr = worker_creators_.find(p["REPRESENTATION"]);
     if (itr == worker_creators_.end() || itr->second == 0)
@@ -91,14 +91,16 @@ looper::abstract_evaluator* loop_factory::make_evaluator(const alps::Parameters&
   return 0;
 }
 
-void loop_factory::pre_evaluate(alps::ObservableSet& obs, const alps::Parameters& p) const {
+void loop_factory::pre_evaluate(std::vector<alps::ObservableSet>& obs,
+  alps::Parameters const& p) const {
   looper::abstract_evaluator *eval = this->make_evaluator(p);
-  eval->pre_evaluate(obs, p, obs);
+  BOOST_FOREACH(alps::ObservableSet& m, obs) eval->pre_evaluate(m, p, m);
 }
 
-void loop_factory::evaluate(alps::ObservableSet& obs, const alps::Parameters& p) const {
+void loop_factory::evaluate(std::vector<alps::ObservableSet>& obs,
+  alps::Parameters const& p) const {
   looper::abstract_evaluator *eval = this->make_evaluator(p);
-  eval->evaluate(obs, p, obs);
+  BOOST_FOREACH(alps::ObservableSet& m, obs) eval->evaluate(m, p, m);
 }
 
 //

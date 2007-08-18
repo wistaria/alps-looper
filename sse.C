@@ -59,6 +59,11 @@ public:
   template<typename ENGINE>
   void run(ENGINE& eng, alps::ObservableSet& obs);
 
+  void set_beta(double beta) { temperature.set_beta(beta); }
+  double dlogw(double beta0, double beta1) const {
+    return operators.size() * std::log(beta1 / beta0);
+  }
+
   bool is_thermalized() const { return mcs.is_thermalized(); }
   double progress() const { return mcs.progress(); }
 

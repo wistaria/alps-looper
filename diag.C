@@ -290,6 +290,8 @@ public:
     alps::model_helper<>(*this, p), done(false), params(p) {}
   template<typename ENGINE>
   void run(ENGINE&, alps::ObservableSet& obs);
+  void set_beta(double) const { boost::throw_exception(std::logic_error("diag")); }
+  double dlogw(double, double) const { boost::throw_exception(std::logic_error("diag")); return 0; }
   bool is_thermalized() const { return true; }
   double progress() const { return done ? 1 : 0; }
   void save(alps::ODump& dp) const { dp << done; }

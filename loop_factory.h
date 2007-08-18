@@ -24,6 +24,7 @@
 
 #include <looper/evaluator.h>
 #ifdef HAVE_PARAPACK
+# include <parapack/exchange.h>
 # include <parapack/worker.h>
 #endif
 #include <boost/noncopyable.hpp>
@@ -59,6 +60,8 @@ public:
   virtual void run(alps::ObservableSet& obs) { worker_.run(*engine_ptr, obs); }
   virtual void load(alps::IDump& dump) { worker_.load(dump); }
   virtual void save(alps::ODump& dump) const { worker_.save(dump); }
+  virtual void set_beta(double beta) { worker_.set_beta(beta); }
+  virtual double dlogw(double beta0, double beta1) const { return worker_.dlogw(beta0, beta1); }
   virtual bool is_thermalized() const { return worker_.is_thermalized(); }
   virtual double progress() const { return worker_.progress(); }
 private:
@@ -74,7 +77,7 @@ public:
     alps::Parameters const& p, int n) const = 0;
 #ifdef HAVE_PARAPACK
   virtual alps::parapack::abstract_worker* create(const alps::Parameters& p,
-    alps::ObservableSet& obs) const = 0;
+    std::vector<alps::ObservableSet>& obs) const = 0;
 #endif // HAVE_PARAPACK
 };
 
@@ -89,8 +92,14 @@ public:
   }
 #ifdef HAVE_PARAPACK
   virtual alps::parapack::abstract_worker* create(const alps::Parameters& p,
-    alps::ObservableSet& obs) const {
-    return new parapack_worker_wrapper<worker_type>(p, obs);
+    std::vector<alps::ObservableSet>& obs) const {
+    if (p.defined("EXCHANGE_MONTE_CARLO") && static_cast<bool>(p["EXCHANGE_MONTE_CARLO"])) {
+      return new alps::parapack::single_exchange_worker<parapack_worker_wrapper<worker_type> >
+        (p, obs);
+    } else {
+      obs.resize(1);
+      return new parapack_worker_wrapper<worker_type>(p, obs[0]);
+    }
   }
 #endif // HAVE_PARAPACK
 };
@@ -129,12 +138,12 @@ public:
     int n) const;
 #ifdef HAVE_PARAPACK
   alps::parapack::abstract_worker* make_worker(alps::Parameters const& params,
-    alps::ObservableSet& obs) const;
+    std::vector<alps::ObservableSet>& obs) const;
 #endif // HAVE_PARAPACK
 
   looper::abstract_evaluator* make_evaluator(alps::Parameters const& p) const;
-  void pre_evaluate(alps::ObservableSet& obs, alps::Parameters const& p) const;
-  void evaluate(alps::ObservableSet& obs, alps::Parameters const& p) const;
+  void pre_evaluate(std::vector<alps::ObservableSet>& obs, alps::Parameters const& p) const;
+  void evaluate(std::vector<alps::ObservableSet>& obs, alps::Parameters const& p) const;
 
   void print_copyright(std::ostream& os) const;
 

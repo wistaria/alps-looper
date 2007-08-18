@@ -38,7 +38,7 @@ public:
 
   void init(alps::Parameters const& p) {
     seq_.clear();
-    final_ = 0;
+    final_ = -1;
 
     if (p.defined("T")) {
       final_ = alps::evaluate("T", p);
@@ -49,10 +49,9 @@ public:
     } else if (p.defined("INVERSE_TEMPERATURE")) {
       final_ = 1 / alps::evaluate("INVERSE_TEMPERATURE", p);
     } else {
-      boost::throw_exception(std::invalid_argument("temperature not defined"));
+      seq_.push_back(std::make_pair(1, final_));
+      return;
     }
-    if (final_ <= 0)
-      boost::throw_exception(std::invalid_argument("non-positive temperature"));
 
     int s_prev = 1;
     for (int i = 0;; ++i) {
@@ -80,10 +79,20 @@ public:
     seq_.push_back(std::make_pair(s_prev, final_));
   }
 
+  void set_beta(double beta) {
+    if (seq_.size() == 1) {
+      final_ = beta;
+    } else {
+      boost::throw_exception(std::invalid_argument("can not reset inverse temperature"));
+    }
+  }
+
   double initial() const { return seq_.front().second; }
   double final() const { return final_; }
   int annealing_steps() const { return seq_.back().first - 1; }
   double operator()(int step = 0) const {
+    if (final_ < 0)
+      boost::throw_exception(std::logic_error("temperature is not initialized"));
     if (step <= 0) {
       if (seq_.size() == 1) {
         return final_;
