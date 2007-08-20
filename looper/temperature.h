@@ -81,7 +81,7 @@ public:
 
   void set_beta(double beta) {
     if (seq_.size() == 1) {
-      final_ = beta;
+      final_ = 1 / beta;
     } else {
       boost::throw_exception(std::invalid_argument("can not reset inverse temperature"));
     }

@@ -1002,28 +1002,12 @@ release snapshot :
 	tar zxf $(distdir).tar.gz
 	rm -f $(distdir).tar.gz
 	cd $(distdir); rm -rf $(REMOVE_FOR_PRO)
-	if test "$@" = "snapshot"; then \
-	  date=`date +%Y%m%d`; \
-	  rm -rf alps-looper-pro-$$date; \
-	  mv -f $(distdir) alps-looper-pro-$$date; \
-	  tar zcf alps-looper-pro-$$date.tar.gz alps-looper-pro-$$date; \
-	  mv -f alps-looper-pro-$$date $(distdir); \
-	else \
-	  rm -rf $(distdir_pro); \
-	  mv -f $(distdir) $(distdir_pro); \
-	  tar zcf $(distdir_pro).tar.gz $(distdir_pro); \
-	  mv -f $(distdir_pro) $(distdir); \
-	fi
+	rm -rf $(distdir_pro)
+	mv -f $(distdir) $(distdir_pro)
+	tar zcf $(distdir_pro).tar.gz $(distdir_pro)
+	mv -f $(distdir_pro) $(distdir)
 	cd $(distdir); rm -rf $(REMOVE_FOR_STANDARD)
-	if test "$@" = "snapshot"; then \
-	  date=`date +%Y%m%d`; \
-	  rm -rf alps-looper-$$date; \
-	  mv -f $(distdir) alps-looper-$$date; \
-	  tar zcf alps-looper-$$date.tar.gz alps-looper-$$date; \
-	  mv -f alps-looper-$$date $(distdir); \
-	else \
-	  tar zcf $(distdir).tar.gz $(distdir); \
-	fi
+	tar zcf $(distdir).tar.gz $(distdir)
 	rm -rf $(distdir)
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
