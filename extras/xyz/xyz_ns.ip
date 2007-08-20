@@ -45,3 +45,11 @@ Jy = 0
 
 { REPRESENTATION = "diagonalization" }
 { REPRESENTATION = "path integral" }
+
+DISABLE_IMPROVED_ESTIMATOR = 1
+
+Jz = 0
+Jx = 1
+Jy = 0
+
+{ REPRESENTATION = "path integral" }

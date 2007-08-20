@@ -30,6 +30,7 @@
 #include <looper/model.h>
 
 // measurements
+#include <looper/gap.h>
 #include <looper/susceptibility.h>
 
 struct loop_config {
@@ -47,6 +48,7 @@ struct loop_config {
 
   // measurements
   typedef looper::measurement_set<
+    looper::gap,
     looper::susceptibility
   > measurement_set;
 };

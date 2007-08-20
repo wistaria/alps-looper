@@ -18,6 +18,13 @@ local_S = 1
 LATTICE = "site"
 Gamma = 1
 }
+{
+LATTICE = "chain lattice"
+L = 4
+Jz = 0.8
+Jxy = 0
+Gamma = 1
+}
 
 DISABLE_IMPROVED_ESTIMATOR = 1
 
@@ -32,5 +39,12 @@ local_S = 1
 }
 {
 LATTICE = "site"
+Gamma = 1
+}
+{
+LATTICE = "chain lattice"
+L = 4
+Jz = 0.8
+Jxy = 0
 Gamma = 1
 }

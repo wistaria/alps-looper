@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -33,36 +33,33 @@
 
 namespace looper {
 
-inline std::complex<double> ctime(double t)
-{ return std::exp(std::complex<double>(0, 2*M_PI*t)); }
+inline std::complex<double> ctime(double t) { return std::exp(std::complex<double>(0, 2*M_PI*t)); }
 
 template<typename FOURIER = boost::mpl::false_>
 struct imaginary_time;
 
 template<typename FOURIER>
-struct imaginary_time
-{
+struct imaginary_time {
   imaginary_time(double t) : time_(t) {}
   operator double() const { return time_; }
   double time_;
 };
 
 template<>
-struct imaginary_time<boost::mpl::true_>
-{
+struct imaginary_time<boost::mpl::true_> {
   imaginary_time(double t) : time_(t), ctime_(ctime(t)) {}
   operator double() const { return time_; }
   double time_;
   std::complex<double> ctime_;
 };
 
-inline
-std::complex<double> ctime(imaginary_time<boost::mpl::false_> const& t)
-{ return ctime(t.time_); }
+inline std::complex<double> ctime(imaginary_time<boost::mpl::false_> const& t) {
+  return ctime(t.time_);
+}
 
-inline
-std::complex<double> ctime(imaginary_time<boost::mpl::true_> const& t)
-{ return t.ctime_; }
+inline std::complex<double> const& ctime(imaginary_time<boost::mpl::true_> const& t) {
+  return t.ctime_;
+}
 
 } // end namespace looper
 
@@ -71,12 +68,16 @@ namespace looper {
 #endif
 
 template<typename F>
-alps::ODump& operator<<(alps::ODump& dp, looper::imaginary_time<F> const& t)
-{ dp << t.time_; return dp; }
+alps::ODump& operator<<(alps::ODump& dp, looper::imaginary_time<F> const& t) {
+  dp << t.time_; return dp;
+}
 
 template<typename F>
-alps::IDump& operator>>(alps::IDump& dp, looper::imaginary_time<F>& t)
-{ double t_in; dp >> t_in; t = looper::imaginary_time<F>(t_in); return dp; }
+alps::IDump& operator>>(alps::IDump& dp, looper::imaginary_time<F>& t) {
+  double t_in;
+  dp >> t_in; t = looper::imaginary_time<F>(t_in);
+  return dp;
+}
 
 #ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
 } // end namespace looper

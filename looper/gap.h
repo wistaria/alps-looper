@@ -76,9 +76,7 @@ struct gap : public has_evaluator_tag {
         spsize = std::complex<double>(0,0);
         spmag = std::complex<double>(0,0);
       }
-      void start_s(lattice_t const& lat, double t, int s, int c) {
-        term_s(lat, -t, s, c);
-      }
+      void start_s(lattice_t const& lat, double t, int s, int c) { term_s(lat, -ctime(t), s, c); }
       template<typename T>
       void start_s(lattice_t const& lat, imaginary_time<T> const& t, int s, int c) {
         term_s(lat, -ctime(t), s, c);
@@ -93,9 +91,7 @@ struct gap : public has_evaluator_tag {
       void start_bt(lattice_t const& lat, imaginary_time<T> const& t, int, int s, int c) {
         start_s(lat, t, s, c);
       }
-      void term_s(lattice_t const& lat, double t, int s, int c) {
-        term_s(lat, ctime(t), s, c);
-      }
+      void term_s(lattice_t const& lat, double t, int s, int c) { term_s(lat, ctime(t), s, c); }
       template<typename T>
       void term_s(lattice_t const& lat, imaginary_time<T> const& t, int s, int c) {
         term_s(lat, ctime(t), s, c);
