@@ -43,6 +43,9 @@ public:
       (sweep_.min() >> 3)) {
   }
 
+  void set_thermalization(int c) { therm_ = c; }
+  void set_sweeps(integer_range<unsigned int> const& c) { sweep_ = c; }
+
   mc_steps& operator++() { ++mcs_; return *this; }
   mc_steps operator++(int) { mc_steps tmp = *this; this->operator++(); return tmp; }
 
