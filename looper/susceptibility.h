@@ -312,26 +312,31 @@ struct susceptibility :
       if (m_in.has("Magnetization^2") && m_in.has("Magnetization^4")) {
         alps::RealObsevaluator obse_m2 = m_in["Magnetization^2"];
         alps::RealObsevaluator obse_m4 = m_in["Magnetization^4"];
-        alps::RealObsevaluator eval("Binder Ratio of Magnetization");
-        eval = power2(obse_m2) / obse_m4;
-        m.addObservable(eval);
+        if (obse_m2.count() && obse_m4.count()) {
+          alps::RealObsevaluator eval("Binder Ratio of Magnetization");
+          eval = power2(obse_m2) / obse_m4;
+          m.addObservable(eval);
+        }
       }
       if (m_in.has("Staggered Magnetization^2") &&
           m_in.has("Staggered Magnetization^4")) {
         alps::RealObsevaluator obse_m2 = m_in["Staggered Magnetization^2"];
         alps::RealObsevaluator obse_m4 = m_in["Staggered Magnetization^4"];
-        alps::RealObsevaluator eval("Binder Ratio of Staggered Magnetization");
-        eval = power2(obse_m2) / obse_m4;
-        m.addObservable(eval);
+        if (obse_m2.count() && obse_m4.count()) {
+          alps::RealObsevaluator eval("Binder Ratio of Staggered Magnetization");
+          eval = power2(obse_m2) / obse_m4;
+          m.addObservable(eval);
+        }
       }
       if (m_in.has("Generalized Magnetization^2") &&
           m_in.has("Generalized Magnetization^4")) {
         alps::RealObsevaluator obse_m2 = m_in["Generalized Magnetization^2"];
         alps::RealObsevaluator obse_m4 = m_in["Generalized Magnetization^4"];
-        alps::RealObsevaluator
-          eval("Binder Ratio of Generalized Magnetization");
-        eval = power2(obse_m2) / obse_m4;
-        m.addObservable(eval);
+        if (obse_m2.count() && obse_m4.count()) {
+          alps::RealObsevaluator eval("Binder Ratio of Generalized Magnetization");
+          eval = power2(obse_m2) / obse_m4;
+          m.addObservable(eval);
+        }
       }
       if (m_in.has("Generalized Staggered Magnetization^2") &&
           m_in.has("Generalized Staggered Magnetization^4")) {
@@ -339,10 +344,11 @@ struct susceptibility :
           m_in["Generalized Staggered Magnetization^2"];
         alps::RealObsevaluator obse_m4 =
           m_in["Generalized Staggered Magnetization^4"];
-        alps::RealObsevaluator
-          eval("Binder Ratio of Generalized Staggered Magnetization");
-        eval = power2(obse_m2) / obse_m4;
-        m.addObservable(eval);
+        if (obse_m2.count() && obse_m4.count()) {
+          alps::RealObsevaluator eval("Binder Ratio of Generalized Staggered Magnetization");
+          eval = power2(obse_m2) / obse_m4;
+          m.addObservable(eval);
+        }
       }
     }
   };

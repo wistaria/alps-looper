@@ -217,51 +217,61 @@ struct gap : public has_evaluator_tag {
     static void evaluate(alps::ObservableSet& m, alps::Parameters const& /* params */,
       alps::ObservableSet const& m_in) {
       if (m_in.has("Inverse Temperature")) {
-        double beta = alps::RealObsevaluator(m_in["Inverse Temperature"]).mean();
+        alps::RealObsevaluator beta_eval(m_in["Inverse Temperature"]);
+        if (beta_eval.count() == 0) return;
+        double beta = beta_eval.mean();
         if (m_in.has("Susceptibility") &&
             m_in.has("Susceptibility [w=2pi/beta]")) {
           alps::RealObsevaluator obse_s0 = m_in["Susceptibility"];
           alps::RealObsevaluator obse_s2 = m_in["Susceptibility [w=2pi/beta]"];
-          alps::RealObsevaluator eval0("Inverse Gap [k=0]");
-          alps::RealObsevaluator eval1("Gap [k=0]");
-          eval0 = sqrt(obse_s0/obse_s2 - 1) / (2*M_PI/beta);
-          eval1 = 1.0 / eval0;
-          m.addObservable(eval0);
-          m.addObservable(eval1);
+          if (obse_s0.count() && obse_s2.count()) {
+            alps::RealObsevaluator eval0("Inverse Gap [k=0]");
+            alps::RealObsevaluator eval1("Gap [k=0]");
+            eval0 = sqrt(obse_s0/obse_s2 - 1) / (2*M_PI/beta);
+            eval1 = 1.0 / eval0;
+            m.addObservable(eval0);
+            m.addObservable(eval1);
+          }
         }
         if (m_in.has("Staggered Susceptibility") &&
             m_in.has("Staggered Susceptibility [w=2pi/beta]")) {
           alps::RealObsevaluator obse_s0 = m_in["Staggered Susceptibility"];
           alps::RealObsevaluator obse_s2 = m_in["Staggered Susceptibility [w=2pi/beta]"];
-          alps::RealObsevaluator eval0("Inverse Gap [k=pi]");
-          alps::RealObsevaluator eval1("Gap [k=pi]");
-          eval0 = sqrt(obse_s0/obse_s2 - 1) / (2*M_PI/beta);
-          eval1 = 1.0 / eval0;
-          m.addObservable(eval0);
-          m.addObservable(eval1);
+          if (obse_s0.count() && obse_s2.count()) {
+            alps::RealObsevaluator eval0("Inverse Gap [k=pi]");
+            alps::RealObsevaluator eval1("Gap [k=pi]");
+            eval0 = sqrt(obse_s0/obse_s2 - 1) / (2*M_PI/beta);
+            eval1 = 1.0 / eval0;
+            m.addObservable(eval0);
+            m.addObservable(eval1);
+          }
         }
         if (m_in.has("Generalized Susceptibility") &&
             m_in.has("Generalized Susceptibility [w=2pi/beta]")) {
           alps::RealObsevaluator obse_s0 = m_in["Generalized Susceptibility"];
           alps::RealObsevaluator obse_s2 = m_in["Generalized Susceptibility [w=2pi/beta]"];
-          alps::RealObsevaluator eval0("Inverse Generalized Gap");
-          alps::RealObsevaluator eval1("Generalized Gap");
-          eval0 = sqrt(obse_s0/obse_s2 - 1) / (2*M_PI/beta);
-          eval1 = 1.0 / eval0;
-          m.addObservable(eval0);
-          m.addObservable(eval1);
+          if (obse_s0.count() && obse_s2.count()) {
+            alps::RealObsevaluator eval0("Inverse Generalized Gap");
+            alps::RealObsevaluator eval1("Generalized Gap");
+            eval0 = sqrt(obse_s0/obse_s2 - 1) / (2*M_PI/beta);
+            eval1 = 1.0 / eval0;
+            m.addObservable(eval0);
+            m.addObservable(eval1);
+          }
         }
         if (m_in.has("Generalized Staggered Susceptibility") &&
             m_in.has("Generalized Staggered Susceptibility [w=2pi/beta]")) {
           alps::RealObsevaluator obse_s0 = m_in["Generalized Staggered Susceptibility"];
           alps::RealObsevaluator obse_s2 =
             m_in["Generalized Staggered Susceptibility [w=2pi/beta]"];
-          alps::RealObsevaluator eval0("Inverse Generalized Staggered Gap");
-          alps::RealObsevaluator eval1("Generalized Staggered Gap");
-          eval0 = sqrt(obse_s0/obse_s2 - 1) / (2*M_PI/beta);
-          eval1 = 1.0 / eval0;
-          m.addObservable(eval0);
-          m.addObservable(eval1);
+          if (obse_s0.count() && obse_s2.count()) {
+            alps::RealObsevaluator eval0("Inverse Generalized Staggered Gap");
+            alps::RealObsevaluator eval1("Generalized Staggered Gap");
+            eval0 = sqrt(obse_s0/obse_s2 - 1) / (2*M_PI/beta);
+            eval1 = 1.0 / eval0;
+            m.addObservable(eval0);
+            m.addObservable(eval1);
+          }
         }
       }
     }

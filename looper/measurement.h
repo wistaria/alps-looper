@@ -343,13 +343,15 @@ struct energy_evaluator {
   static void evaluate(alps::ObservableSet& m, alps::ObservableSet const& m_in) {
     if (m_in.has("Inverse Temperature") && m_in.has("Volume") &&
         m_in.has("Energy") && m_in.has("Energy^2")) {
-      double beta = alps::RealObsevaluator(m_in["Inverse Temperature"]).mean();
-      double vol = alps::RealObsevaluator(m_in["Volume"]).mean();
-      alps::RealObsevaluator obse_e = m_in["Energy"];
-      alps::RealObsevaluator obse_e2 = m_in["Energy^2"];
-      alps::RealObsevaluator eval("Specific Heat");
-      eval = power2(beta) * (obse_e2 - power2(obse_e)) / vol;
-      m.addObservable(eval);
+      alps::RealObsevaluator beta = m_in["Inverse Temperature"];
+      alps::RealObsevaluator vol = m_in["Volume"];
+      alps::RealObsevaluator ene = m_in["Energy"];
+      alps::RealObsevaluator ene2 = m_in["Energy^2"];
+      if (beta.count() && vol.count() && ene.count() && ene2.count()) {
+        alps::RealObsevaluator c("Specific Heat");
+        c = beta.mean() * beta.mean() * (ene2 - ene * ene) / vol.mean();
+        m.addObservable(c);
+      }
     }
   }
 };
