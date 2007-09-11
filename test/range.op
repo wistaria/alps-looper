@@ -4,7 +4,7 @@ T = 0.5;
 Test for integer_range<int>:
 parse [0:3]: result [0:3]
 parse [3:9]: result [3:9]
-parse [3:9:0]: integer_range: parse error
+parse [3:9:0]: integer_range: parse error: [3:9:0]
 parse [:3]: result [-2147483648:3]
 parse [-1:]: result [-1:2147483647]
 parse [3]: result [3:3]
@@ -20,7 +20,7 @@ parse [0:3]: result [0:3]
 parse [3:9]: result [3:9]
 parse [:3]: result [0:3]
 parse [1:]: result [1:4294967295]
-parse [-3:9]: integer_range: negative minimum value not allowed
+parse [-3:9]: integer_range: range error
 parse 6: result [6:6]
 initial: [0:5]
 7 is included? 0
