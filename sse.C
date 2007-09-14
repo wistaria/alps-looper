@@ -60,8 +60,8 @@ public:
   void run(ENGINE& eng, alps::ObservableSet& obs);
 
   void set_beta(double b) { temperature.set_beta(b); }
-  double dlogw(double beta0, double beta1) const {
-    return operators.size() * std::log(beta1 / beta0);
+  double dlogw(double newbeta) const {
+    return operators.size() * std::log(newbeta / beta);
   }
 
   bool is_thermalized() const { return mcs.is_thermalized(); }

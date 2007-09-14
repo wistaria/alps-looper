@@ -61,7 +61,7 @@ public:
   void run(ENGINE& eng, alps::ObservableSet& obs);
 
   void set_beta(double) const { boost::throw_exception(std::logic_error("sse_qwl")); }
-  double dlogw(double, double) const {
+  double dlogw(double) const {
     boost::throw_exception(std::logic_error("sse_qwl"));
     return 0;
   }

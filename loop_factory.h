@@ -61,7 +61,7 @@ public:
   virtual void load(alps::IDump& dump) { worker_.load(dump); }
   virtual void save(alps::ODump& dump) const { worker_.save(dump); }
   virtual void set_beta(double beta) { worker_.set_beta(beta); }
-  virtual double dlogw(double beta0, double beta1) const { return worker_.dlogw(beta0, beta1); }
+  virtual double dlogw(double newbeta) const { return worker_.dlogw(newbeta); }
   virtual bool is_thermalized() const { return worker_.is_thermalized(); }
   virtual double progress() const { return worker_.progress(); }
 private:
