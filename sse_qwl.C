@@ -192,7 +192,7 @@ loop_worker::loop_worker(alps::Parameters const& p, alps::ObservableSet& obs) :
 
 template<typename ENGINE>
 void loop_worker::run(ENGINE& eng, alps::ObservableSet& obs) {
-  if (!mcs.can_work()) return;
+  // if (!mcs.can_work()) return;
   ++mcs;
 
   build(eng);
