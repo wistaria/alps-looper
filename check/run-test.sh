@@ -5,6 +5,10 @@ PROG=$1; shift
 BASE=$1; shift
 PLOTS="$*"
 
+if test "$SRCDIR" = "."; then
+  SRCDIR="$PWD"
+fi
+
 if test -z "$NUM_PROCS"; then
   if test -f "/proc/cpuinfo"; then
     NUM_PROCS=`cat /proc/cpuinfo | grep processor | wc -l`
@@ -26,7 +30,7 @@ if test `type lamnodes 1>&- 2>&-; echo $?` == 0; then
   fi
 fi
 
-mpirun -x LD_LIBRARY_PATH -np $NUM_PROCS $PROG $BASE.run/$BASE.in.xml
+mpirun -x LD_LIBRARY_PATH -np $NUM_PROCS $PROG --evaluate $BASE.run/$BASE.in.xml
 
 rm -f $BASE.db
 archive --db-file=$BASE.db --command=install

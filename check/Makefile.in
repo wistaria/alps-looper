@@ -208,12 +208,14 @@ dist_noinst_SCRIPTS = run-test.sh
 #
 
 #
+
+#
 dist_noinst_DATA = plot-energy plot-sheat plot-m plot-m2 plot-sus \
 	plot-sm plot-sm2 plot-ssus plot-tm plot-sign chain-1 chain-2 \
-	chain-3 chain-4 chain-5 dterm-1 dterm-2 dterm-3 site-1 site-2 \
-	site-3 site-4 site-5 transmag-1 transmag-2 transmag-3 \
-	transmag-4 triangle-1 triangle-2 triangle-3 triangle-4 xyz-1 \
-	xyz-2 xyz-3 xyz-4
+	chain-3 chain-4 chain-5 dterm-1 dterm-2 dterm-3 kagome-1 \
+	kagome-2 kagome-3 kagome-4 site-1 site-2 site-3 site-4 site-5 \
+	transmag-1 transmag-2 transmag-3 transmag-4 triangle-1 \
+	triangle-2 triangle-3 triangle-4 xyz-1 xyz-2 xyz-3 xyz-4
 all: all-am
 
 .SUFFIXES:
@@ -391,7 +393,7 @@ uninstall-am: uninstall-info-am
 
 .PHONY : run
 
-run: chain dterm site transmag triangle xyz
+run: chain dterm kagome site transmag triangle xyz
 .PHONY : chain
 chain:
 	(cd $(top_builddir) && $(MAKE) loop_pp)
@@ -408,6 +410,13 @@ dterm:
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp dterm-1 plot-energy plot-sheat plot-m2 plot-m4 plot-sus
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp dterm-2 plot-energy plot-sheat plot-m2 plot-m4 plot-sus
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp dterm-3 plot-energy plot-sheat plot-m2 plot-m4 plot-sus
+.PHONY : kagome
+kagome:
+	(cd $(top_builddir) && $(MAKE) loop_pp)
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp kagome-1 plot-energy plot-sheat plot-sus plot-m2 plot-sign
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp kagome-2 plot-energy plot-sheat plot-sus plot-m2 plot-sign
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp kagome-3 plot-energy plot-sheat plot-sus plot-m2 plot-sign
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp kagome-4 plot-energy plot-sheat plot-sus plot-m2 plot-sign
 .PHONY : site
 site:
 	(cd $(top_builddir) && $(MAKE) loop_pp)

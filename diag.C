@@ -281,13 +281,12 @@ double dynamic_average2(double beta, double offset, const VEC& evals, const MAT&
 
 
 class diag_worker :
-  protected alps::graph_helper<loop_config::lattice_graph_t>,
-  protected alps::model_helper<>
-{
+  protected looper::lattice_helper<loop_config::lattice_graph_t>,
+  protected alps::model_helper<> {
 public:
   diag_worker(alps::Parameters const& p, alps::ObservableSet&) :
-    alps::graph_helper<loop_config::lattice_graph_t>(p),
-    alps::model_helper<>(*this, p), done(false), params(p) {}
+    looper::lattice_helper<loop_config::lattice_graph_t>(p),
+    alps::model_helper<>(this->graph_helper(), p), done(false), params(p) {}
   template<typename ENGINE>
   void run(ENGINE&, alps::ObservableSet& obs);
   void set_beta(double) const { boost::throw_exception(std::logic_error("diag")); }
@@ -304,6 +303,11 @@ private:
 
 template<typename ENGINE>
 void diag_worker::run(ENGINE&, alps::ObservableSet& obs) {
+  typedef typename looper::real_site_descriptor<
+    typename looper::lattice_helper<loop_config::lattice_graph_t> >::type site_descriptor;
+  typedef typename looper::real_bond_descriptor<
+    typename looper::lattice_helper<loop_config::lattice_graph_t> >::type bond_descriptor;
+
   typedef boost::numeric::ublas::vector<double> vector_type;
   typedef boost::numeric::ublas::matrix<double, boost::numeric::ublas::column_major> matrix_type;
   typedef boost::numeric::ublas::vector<double> diagonal_matrix_type;
@@ -315,28 +319,30 @@ void diag_worker::run(ENGINE&, alps::ObservableSet& obs) {
   double beta = 1.0 / alps::evaluate("T", params);
   if (beta < 0)
     boost::throw_exception(std::invalid_argument("negative temperature"));
-  double nsite = num_sites();
+  double nsite = this->graph_helper().num_sites();
+  double volume = this->volume();
 
   // measurements
   std::map<std::string, double> m;
   m["Temperature"] = 1/beta;
   m["Inverse Temperature"] = beta;
   m["Number of Sites"] = nsite;
+  m["Volume"] = volume;
 
   // generate basis set
   alps::basis_states<short>
-    basis_set(alps::basis_states_descriptor<short>(model().basis(), graph()));
+    basis_set(alps::basis_states_descriptor<short>(model().basis(), this->graph_helper().graph()));
   int dim = basis_set.size();
   m["Dimension of Matrix"] = dim;
 
   // generate Hamiltonian matrix
   matrix_type hamiltonian(dim, dim);
   hamiltonian.clear();
-  BOOST_FOREACH(site_descriptor v, sites())
-    add_to_matrix(hamiltonian, model(), model().basis(), basis_set, v, graph(), params);
-  BOOST_FOREACH(bond_descriptor e, bonds())
-    add_to_matrix(hamiltonian, model(), model().basis(), basis_set, e, source(e), target(e),
-                  graph(), params);
+  BOOST_FOREACH(site_descriptor v, this->graph_helper().sites())
+    add_to_matrix(hamiltonian, model(), model().basis(), basis_set, v, this->rg(), params);
+  BOOST_FOREACH(bond_descriptor e, this->graph_helper().bonds())
+    add_to_matrix(hamiltonian, model(), model().basis(), basis_set, e, source(e, this->rg()),
+    target(e, this->rg()), this->rg(), params);
   diagonal_matrix_type diagonal_energy(dim);
   for (int i = 0; i < dim; ++i) diagonal_energy(i) = hamiltonian(i,i);
 
@@ -373,47 +379,47 @@ void diag_worker::run(ENGINE&, alps::ObservableSet& obs) {
   double ene, ene2;
   boost::tie(ene, ene2) = static_average2(beta, gs_ene, evals);
   ene = ene / part;
-  ene2 = ene2 / part / looper::power2(nsite);
+  ene2 = ene2 / part / looper::power2(volume);
   double fe = gs_ene - std::log(part) / beta;
   m["Ground State Energy"] = gs_ene;
-  m["Ground State Energy Density"] = gs_ene / nsite;
+  m["Ground State Energy Density"] = gs_ene / volume;
   m["Energy"] = ene;
-  m["Energy Density"] = ene / nsite;
-  m["Specific Heat"] = looper::power2(beta) * nsite * (ene2 - looper::power2(ene/nsite));
+  m["Energy Density"] = ene / volume;
+  m["Specific Heat"] = looper::power2(beta) * volume * (ene2 - looper::power2(ene/volume));
   m["Free Energy"] = fe;
-  m["Free Energy Density"] = fe / nsite;
+  m["Free Energy Density"] = fe / volume;
   m["Entropy"] = beta * (ene - fe);
-  m["Entropy Density"] = beta * (ene - fe) / nsite;
+  m["Entropy Density"] = beta * (ene - fe) / volume;
 
   // generate uniform/staggered Sz matrix
   diagonal_matrix_type uniform_sz(dim);
   uniform_sz.clear();
-  BOOST_FOREACH(site_descriptor v, sites())
+  BOOST_FOREACH(site_descriptor v, this->graph_helper().sites())
     add_to_diagonal_matrix(uniform_sz, alps::SiteTermDescriptor("Sz(i)", "i"),
-                           model().basis(), basis_set, v, graph(), params);
+                           model().basis(), basis_set, v, this->rg(), params);
   double umag, umag2, umag4;
   boost::tie(umag, umag2, umag4) = static_average4(beta, gs_ene, evals, hamiltonian, uniform_sz);
   umag = alps::round<1>(umag);
   m["Magnetization"] = umag / part;
-  m["Magnetization Density"] = umag / part / nsite;
+  m["Magnetization Density"] = umag / part / volume;
   m["Magnetization^2"] = umag2 / part;
-  m["Magnetization Density^2"] = umag2 / part / looper::power2(nsite);
+  m["Magnetization Density^2"] = umag2 / part / looper::power2(volume);
   m["Magnetization^4"] = umag4 / part;
-  m["Magnetization Density^4"] = umag4 / part / looper::power4(nsite);
+  m["Magnetization Density^4"] = umag4 / part / looper::power4(volume);
   m["Susceptibility"] =
-    dynamic_average2(beta, gs_ene, evals, hamiltonian, uniform_sz) / part / nsite;
+    dynamic_average2(beta, gs_ene, evals, hamiltonian, uniform_sz) / part / volume;
   m["Binder Ratio of Magnetization"] = looper::power2(umag2 / part) / (umag4 / part);
-  if (is_bipartite()) {
+  if (this->graph_helper().is_bipartite()) {
     diagonal_matrix_type staggered_sz(dim);
     staggered_sz.clear();
-    BOOST_FOREACH(site_descriptor v, sites()) {
-      int g = 2 * get(alps::parity_t(), graph(), v) - 1;
+    BOOST_FOREACH(site_descriptor v, this->graph_helper().sites()) {
+      int g = 2 * get(alps::parity_t(), this->rg(), v) - 1;
       if (g == 1) {
         add_to_diagonal_matrix(staggered_sz, alps::SiteTermDescriptor("Sz(i)", "i"),
-                               model().basis(), basis_set, v, graph(), params);
+                               model().basis(), basis_set, v, this->rg(), params);
       } else {
         add_to_diagonal_matrix(staggered_sz, alps::SiteTermDescriptor("-Sz(i)", "i"),
-                               model().basis(), basis_set, v, graph(), params);
+                               model().basis(), basis_set, v, this->rg(), params);
       }
     }
     double smag, smag2, smag4;
@@ -421,21 +427,21 @@ void diag_worker::run(ENGINE&, alps::ObservableSet& obs) {
       static_average4(beta, gs_ene, evals, hamiltonian, staggered_sz);
     smag = alps::round<1>(smag);
     m["Staggered Magnetization"] = smag / part;
-    m["Staggered Magnetization Density"] = smag / part / nsite;
+    m["Staggered Magnetization Density"] = smag / part / volume;
     m["Staggered Magnetization^2"] = smag2 / part;
-    m["Staggered Magnetization Density^2"] = smag2 / part / looper::power2(nsite);
+    m["Staggered Magnetization Density^2"] = smag2 / part / looper::power2(volume);
     m["Staggered Magnetization^4"] = smag4 / part;
-    m["Staggered Magnetization Density^4"] = smag4 / part / looper::power4(nsite);
+    m["Staggered Magnetization Density^4"] = smag4 / part / looper::power4(volume);
     m["Staggered Susceptibility"] =
-      dynamic_average2(beta, gs_ene, evals, hamiltonian, staggered_sz) / part / nsite;
+      dynamic_average2(beta, gs_ene, evals, hamiltonian, staggered_sz) / part / volume;
     m["Binder Ratio of Staggered Magnetization"] = looper::power2(smag2 / part) / (smag4 / part);
 
     // local Sz
     diagonal_matrix_type local_sz(dim);
-    BOOST_FOREACH(site_descriptor v, sites()) {
+    BOOST_FOREACH(site_descriptor v, this->graph_helper().sites()) {
       local_sz.clear();
       add_to_diagonal_matrix(local_sz, alps::SiteTermDescriptor("Sz(i)", "i"),
-                             model().basis(), basis_set, v, graph(), params);
+                             model().basis(), basis_set, v, this->rg(), params);
       double mag, mag2, mag4;
       boost::tie(mag, mag2, mag4) = static_average4(beta, gs_ene, evals, hamiltonian, local_sz);
       mag = alps::round<1>(mag);

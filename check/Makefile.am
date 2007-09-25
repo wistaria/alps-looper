@@ -3,7 +3,7 @@ dist_noinst_DATA = plot-energy plot-sheat plot-m plot-m2 plot-sus plot-sm plot-s
 
 .PHONY : run
 
-run: chain dterm site transmag triangle xyz
+run: chain dterm kagome site transmag triangle xyz
 
 #
 
@@ -28,6 +28,17 @@ dterm:
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp dterm-1 plot-energy plot-sheat plot-m2 plot-m4 plot-sus
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp dterm-2 plot-energy plot-sheat plot-m2 plot-m4 plot-sus
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp dterm-3 plot-energy plot-sheat plot-m2 plot-m4 plot-sus
+
+#
+
+dist_noinst_DATA += kagome-1 kagome-2 kagome-3 kagome-4
+.PHONY : kagome
+kagome:
+	(cd $(top_builddir) && $(MAKE) loop_pp)
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp kagome-1 plot-energy plot-sheat plot-sus plot-m2 plot-sign
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp kagome-2 plot-energy plot-sheat plot-sus plot-m2 plot-sign
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp kagome-3 plot-energy plot-sheat plot-sus plot-m2 plot-sign
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp kagome-4 plot-energy plot-sheat plot-sus plot-m2 plot-sign
 
 #
 

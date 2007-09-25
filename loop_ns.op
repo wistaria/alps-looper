@@ -45,6 +45,7 @@ Staggered Magnetization^4: 10.4015 +/- inf
 Staggered Susceptibility: 1.25365 +/- inf
 Susceptibility: 0.0359724 +/- inf
 Temperature: 0.25 +/- inf
+Volume: 4 +/- inf
 [input parameters]
 SEED = 23125;
 SWEEPS = 4096;
@@ -579,6 +580,7 @@ Staggered Magnetization^4: 107.886 +/- inf
 Staggered Susceptibility: 3.78284 +/- inf
 Susceptibility: 0.0348027 +/- inf
 Temperature: 0.25 +/- inf
+Volume: 4 +/- inf
 [input parameters]
 SEED = 23125;
 SWEEPS = 4096;
@@ -1113,6 +1115,7 @@ Staggered Magnetization^4: 0.50899 +/- inf
 Staggered Susceptibility: 0.981361 +/- inf
 Susceptibility: 0.981361 +/- inf
 Temperature: 0.25 +/- inf
+Volume: 1 +/- inf
 [input parameters]
 SEED = 23125;
 SWEEPS = 4096;
@@ -1650,6 +1653,7 @@ Staggered Magnetization^4: 0.783611 +/- inf
 Staggered Susceptibility: 3.13444 +/- inf
 Susceptibility: 3.13444 +/- inf
 Temperature: 0.25 +/- inf
+Volume: 1 +/- inf
 [input parameters]
 SEED = 23125;
 SWEEPS = 4096;
@@ -1875,6 +1879,7 @@ Staggered Magnetization^4: 9.03737 +/- inf
 Staggered Susceptibility: 1.24058 +/- inf
 Susceptibility: 0.167894 +/- inf
 Temperature: 0.5 +/- inf
+Volume: 4 +/- inf
 [input parameters]
 SEED = 23125;
 SWEEPS = 4096;
@@ -2668,6 +2673,7 @@ Staggered Magnetization^4: 6.53354 +/- inf
 Staggered Susceptibility: 0.177944 +/- inf
 Susceptibility: 0.811604 +/- inf
 Temperature: 2 +/- inf
+Volume: 4 +/- inf
 [input parameters]
 SEED = 23125;
 SWEEPS = 4096;
