@@ -145,7 +145,13 @@ loop_worker::loop_worker(alps::Parameters const& p, alps::ObservableSet& obs) :
   obs << make_observable(alps::SimpleRealObservable("Volume"));
   obs << make_observable(alps::SimpleRealObservable("Number of Sites"));
   obs << make_observable(alps::SimpleRealObservable("Number of Clusters"));
-  if (model.is_signed()) obs << alps::RealObservable("Sign");
+  if (model.is_signed()) {
+    obs << alps::RealObservable("Sign");
+    if (use_improved_estimator) {
+      obs << alps::RealObservable("Weight of Zero-Meron Sector");
+      obs << alps::RealObservable("Sign in Zero-Meron Sector");
+    }
+  }
   looper::energy_estimator::initialize(obs, model.is_signed());
   estimator.initialize(obs, p, lattice, model.is_signed(), use_improved_estimator);
 }
@@ -355,7 +361,15 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
     coll = std::accumulate(estimates.begin(), estimates.end(), coll);
     estimator.improved_measurement(obs, lattice, beta, improved_sign, spins, operators,
       spins_c, fragments, coll);
-    if (SIGN()) obs["Sign"] << improved_sign;
+    if (SIGN()) {
+      obs["Sign"] << improved_sign;
+      if (alps::is_zero(improved_sign)) {
+        obs["Weight of Zero-Meron Sector"] << 0.;
+      } else {
+        obs["Weight of Zero-Meron Sector"] << 1.;
+        obs["Sign in Zero-Meron Sector"] << improved_sign;
+      }
+    }
   }
   obs["Number of Clusters"] << (double)clusters.size();
 

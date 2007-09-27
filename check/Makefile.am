@@ -35,10 +35,10 @@ dist_noinst_DATA += kagome-1 kagome-2 kagome-3 kagome-4
 .PHONY : kagome
 kagome:
 	(cd $(top_builddir) && $(MAKE) loop_pp)
-	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp kagome-1 plot-energy plot-sheat plot-sus plot-m2 plot-sign
-	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp kagome-2 plot-energy plot-sheat plot-sus plot-m2 plot-sign
-	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp kagome-3 plot-energy plot-sheat plot-sus plot-m2 plot-sign
-	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp kagome-4 plot-energy plot-sheat plot-sus plot-m2 plot-sign
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp kagome-1 plot-energy plot-sheat plot-sus plot-m2 plot-sign plot-zeromeron plot-signmeron
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp kagome-2 plot-energy plot-sheat plot-sus plot-m2 plot-sign plot-zeromeron plot-signmeron
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp kagome-3 plot-energy plot-sheat plot-sus plot-m2 plot-sign plot-zeromeron plot-signmeron
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp kagome-4 plot-energy plot-sheat plot-sus plot-m2 plot-sign plot-zeromeron plot-signmeron
 
 #
 
@@ -69,10 +69,10 @@ dist_noinst_DATA += triangle-1 triangle-2 triangle-3 triangle-4
 .PHONY : triangle
 triangle:
 	(cd $(top_builddir) && $(MAKE) loop_pp)
-	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp triangle-1 plot-energy plot-sheat plot-sus plot-m2 plot-sign
-	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp triangle-2 plot-energy plot-sheat plot-sus plot-m2 plot-sign
-	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp triangle-3 plot-energy plot-sheat plot-sus plot-m2 plot-sign
-	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp triangle-4 plot-energy plot-sheat plot-sus plot-m2 plot-sign
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp triangle-1 plot-energy plot-sheat plot-sus plot-m2 plot-sign plot-zeromeron plot-signmeron
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp triangle-2 plot-energy plot-sheat plot-sus plot-m2 plot-sign plot-zeromeron plot-signmeron
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp triangle-3 plot-energy plot-sheat plot-sus plot-m2 plot-sign plot-zeromeron plot-signmeron
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_pp triangle-4 plot-energy plot-sheat plot-sus plot-m2 plot-sign plot-zeromeron plot-signmeron
 
 #
 

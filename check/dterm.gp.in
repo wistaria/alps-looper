@@ -3,104 +3,104 @@ set xlabel 'T'
 set ylabel 'Energy Density'
 plot \
   "< choose REPRESENTATION diagonalization dterm-1-plot-energy.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path dterm-1-plot-energy.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION 'path integral' dterm-1-plot-energy.dat" u 1:2:3 w e, \
   "< choose REPRESENTATION SSE dterm-1-plot-energy.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Specific Heat'
 plot \
   "< choose REPRESENTATION diagonalization dterm-1-plot-sheat.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path dterm-1-plot-sheat.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION 'path integral' dterm-1-plot-sheat.dat" u 1:2:3 w e, \
   "< choose REPRESENTATION SSE dterm-1-plot-sheat.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Magnetization Density^2'
 plot \
   "< choose REPRESENTATION diagonalization dterm-1-plot-m2.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path dterm-1-plot-m2.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION 'path integral' dterm-1-plot-m2.dat" u 1:2:3 w e, \
   "< choose REPRESENTATION SSE dterm-1-plot-m2.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Magnetization Density^4'
 plot \
   "< choose REPRESENTATION diagonalization dterm-1-plot-m4.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path dterm-1-plot-m4.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION 'path integral' dterm-1-plot-m4.dat" u 1:2:3 w e, \
   "< choose REPRESENTATION SSE dterm-1-plot-m4.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Susceptibility'
 plot \
   "< choose REPRESENTATION diagonalization dterm-1-plot-sus.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path dterm-1-plot-sus.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION 'path integral' dterm-1-plot-sus.dat" u 1:2:3 w e, \
   "< choose REPRESENTATION SSE dterm-1-plot-sus.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Energy Density'
 plot \
   "< choose REPRESENTATION diagonalization dterm-2-plot-energy.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path dterm-2-plot-energy.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION 'path integral' dterm-2-plot-energy.dat" u 1:2:3 w e, \
   "< choose REPRESENTATION SSE dterm-2-plot-energy.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Specific Heat'
 plot \
   "< choose REPRESENTATION diagonalization dterm-2-plot-sheat.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path dterm-2-plot-sheat.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION 'path integral' dterm-2-plot-sheat.dat" u 1:2:3 w e, \
   "< choose REPRESENTATION SSE dterm-2-plot-sheat.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Magnetization Density^2'
 plot \
   "< choose REPRESENTATION diagonalization dterm-2-plot-m2.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path dterm-2-plot-m2.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION 'path integral' dterm-2-plot-m2.dat" u 1:2:3 w e, \
   "< choose REPRESENTATION SSE dterm-2-plot-m2.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Magnetization Density^4'
 plot \
   "< choose REPRESENTATION diagonalization dterm-2-plot-m4.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path dterm-2-plot-m4.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION 'path integral' dterm-2-plot-m4.dat" u 1:2:3 w e, \
   "< choose REPRESENTATION SSE dterm-2-plot-m4.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Susceptibility'
 plot \
   "< choose REPRESENTATION diagonalization dterm-2-plot-sus.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path dterm-2-plot-sus.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION 'path integral' dterm-2-plot-sus.dat" u 1:2:3 w e, \
   "< choose REPRESENTATION SSE dterm-2-plot-sus.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Energy Density'
 plot \
   "< choose REPRESENTATION diagonalization dterm-3-plot-energy.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path dterm-3-plot-energy.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION 'path integral' dterm-3-plot-energy.dat" u 1:2:3 w e, \
   "< choose REPRESENTATION SSE dterm-3-plot-energy.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Specific Heat'
 plot \
   "< choose REPRESENTATION diagonalization dterm-3-plot-sheat.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path dterm-3-plot-sheat.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION 'path integral' dterm-3-plot-sheat.dat" u 1:2:3 w e, \
   "< choose REPRESENTATION SSE dterm-3-plot-sheat.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Magnetization Density^2'
 plot \
   "< choose REPRESENTATION diagonalization dterm-3-plot-m2.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path dterm-3-plot-m2.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION 'path integral' dterm-3-plot-m2.dat" u 1:2:3 w e, \
   "< choose REPRESENTATION SSE dterm-3-plot-m2.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Magnetization Density^4'
 plot \
   "< choose REPRESENTATION diagonalization dterm-3-plot-m4.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path dterm-3-plot-m4.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION 'path integral' dterm-3-plot-m4.dat" u 1:2:3 w e, \
   "< choose REPRESENTATION SSE dterm-3-plot-m4.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Susceptibility'
 plot \
   "< choose REPRESENTATION diagonalization dterm-3-plot-sus.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path dterm-3-plot-sus.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION 'path integral' dterm-3-plot-sus.dat" u 1:2:3 w e, \
   "< choose REPRESENTATION SSE dterm-3-plot-sus.dat" u 1:2:3 w e
 pause -1

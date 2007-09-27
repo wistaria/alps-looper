@@ -3,119 +3,119 @@ set xlabel 'T'
 set ylabel 'Energy Density'
 plot \
   "< choose REPRESENTATION diagonalization site-1-plot-energy.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path site-1-plot-energy.dat" u 1:2:3 w e
+  "< choose REPRESENTATION 'path integral' site-1-plot-energy.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Specific Heat'
 plot \
   "< choose REPRESENTATION diagonalization site-1-plot-sheat.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path site-1-plot-sheat.dat" u 1:2:3 w e
+  "< choose REPRESENTATION 'path integral' site-1-plot-sheat.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Magnetization Density'
 plot \
   "< choose REPRESENTATION diagonalization site-1-plot-m.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path site-1-plot-m.dat" u 1:2:3 w e
+  "< choose REPRESENTATION 'path integral' site-1-plot-m.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Susceptibility'
 plot \
   "< choose REPRESENTATION diagonalization site-1-plot-sus.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path site-1-plot-sus.dat" u 1:2:3 w e
+  "< choose REPRESENTATION 'path integral' site-1-plot-sus.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Energy Density'
 plot \
   "< choose REPRESENTATION diagonalization site-2-plot-energy.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path site-2-plot-energy.dat" u 1:2:3 w e
+  "< choose REPRESENTATION 'path integral' site-2-plot-energy.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Specific Heat'
 plot \
   "< choose REPRESENTATION diagonalization site-2-plot-sheat.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path site-2-plot-sheat.dat" u 1:2:3 w e
+  "< choose REPRESENTATION 'path integral' site-2-plot-sheat.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Magnetization Density'
 plot \
   "< choose REPRESENTATION diagonalization site-2-plot-m.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path site-2-plot-m.dat" u 1:2:3 w e
+  "< choose REPRESENTATION 'path integral' site-2-plot-m.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Susceptibility'
 plot \
   "< choose REPRESENTATION diagonalization site-2-plot-sus.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path site-2-plot-sus.dat" u 1:2:3 w e
+  "< choose REPRESENTATION 'path integral' site-2-plot-sus.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Energy Density'
 plot \
   "< choose REPRESENTATION diagonalization site-3-plot-energy.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path site-3-plot-energy.dat" u 1:2:3 w e
+  "< choose REPRESENTATION 'path integral' site-3-plot-energy.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Specific Heat'
 plot \
   "< choose REPRESENTATION diagonalization site-3-plot-sheat.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path site-3-plot-sheat.dat" u 1:2:3 w e
+  "< choose REPRESENTATION 'path integral' site-3-plot-sheat.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Magnetization Density'
 plot \
   "< choose REPRESENTATION diagonalization site-3-plot-m.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path site-3-plot-m.dat" u 1:2:3 w e
+  "< choose REPRESENTATION 'path integral' site-3-plot-m.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Susceptibility'
 plot \
   "< choose REPRESENTATION diagonalization site-3-plot-sus.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path site-3-plot-sus.dat" u 1:2:3 w e
+  "< choose REPRESENTATION 'path integral' site-3-plot-sus.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Energy Density'
 plot \
   "< choose REPRESENTATION diagonalization site-4-plot-energy.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path site-4-plot-energy.dat" u 1:2:3 w e
+  "< choose REPRESENTATION 'path integral' site-4-plot-energy.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Specific Heat'
 plot \
   "< choose REPRESENTATION diagonalization site-4-plot-sheat.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path site-4-plot-sheat.dat" u 1:2:3 w e
+  "< choose REPRESENTATION 'path integral' site-4-plot-sheat.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Magnetization Density'
 plot \
   "< choose REPRESENTATION diagonalization site-4-plot-m.dat" u 1:2 w lp ,\
-  "< choose REPRESENTATION path site-4-plot-m.dat" u 1:2:3 w e
+  "< choose REPRESENTATION 'path integral' site-4-plot-m.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Susceptibility'
 plot \
   "< choose REPRESENTATION diagonalization site-4-plot-sus.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path site-4-plot-sus.dat" u 1:2:3 w e
+  "< choose REPRESENTATION 'path integral' site-4-plot-sus.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Energy Density'
 plot \
   "< choose REPRESENTATION diagonalization site-5-plot-energy.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path site-5-plot-energy.dat" u 1:2:3 w e
+  "< choose REPRESENTATION 'path integral' site-5-plot-energy.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Specific Heat'
 plot \
   "< choose REPRESENTATION diagonalization site-5-plot-sheat.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path site-5-plot-sheat.dat" u 1:2:3 w e
+  "< choose REPRESENTATION 'path integral' site-5-plot-sheat.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Magnetization Density'
 plot \
   "< choose REPRESENTATION diagonalization site-5-plot-m.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path site-5-plot-m.dat" u 1:2:3 w e
+  "< choose REPRESENTATION 'path integral' site-5-plot-m.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Susceptibility'
 plot \
   "< choose REPRESENTATION diagonalization site-5-plot-sus.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION path site-5-plot-sus.dat" u 1:2:3 w e
+  "< choose REPRESENTATION 'path integral' site-5-plot-sus.dat" u 1:2:3 w e
 pause -1

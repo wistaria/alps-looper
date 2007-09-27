@@ -227,7 +227,7 @@ dnl
 AC_CONFIG_FILES(Makefile doc/Makefile)
 
 if test "$exist_check" = yes; then
-  AC_CONFIG_FILES(check/Makefile check/chain.gp check/dterm.gp check/plot.gp check/site.gp check/transmag.gp check/triangle.gp check/xyz.gp)
+  AC_CONFIG_FILES(check/Makefile check/chain.gp check/dterm.gp check/kagome.gp check/plot.gp check/site.gp check/transmag.gp check/triangle.gp check/xyz.gp)
 fi
 if test "$exist_extras" = yes; then
   AC_CONFIG_FILES(extras/Makefile)
