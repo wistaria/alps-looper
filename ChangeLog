@@ -1,3 +1,8 @@
+2007-10-03  Synge Todo <wistaria@comp-phys.org>
+
+	* Fixed unimproved estimator of correlation functions for S>1/2 in
+	looper/correlation.h
+	
 2007-07-31  Synge Todo <wistaria@comp-phys.org>
 
 	* Added support for XYZ interaction.

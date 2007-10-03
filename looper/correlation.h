@@ -221,8 +221,7 @@ struct correlation {
             double us = 1-2*spins[*si0];
             double ss = gauge[*si0] * (1-2*spins[*si0]);
             typename virtual_site_iterator<lattice_t>::type si1, si1_end;
-            for (boost::tie(si1, si1_end) = sites(lat.rg()); si1 != si1_end;
-                 ++si1) {
+            for (boost::tie(si1, si1_end) = sites(lat.vg()); si1 != si1_end; ++si1) {
               int r1 = real_site[*si1];
               ucorr[r1] += us * (1-2*spins[*si1]);
               scorr[r1] += ss * gauge[*si1] * (1-2*spins[*si1]);
