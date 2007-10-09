@@ -22,8 +22,8 @@
 *
 *****************************************************************************/
 
-#include <looper/graph.h>
-#include <looper/location.h>
+#include <looper/graph_impl.h>
+#include <looper/location_impl.h>
 #include <iostream>
 
 int main() {

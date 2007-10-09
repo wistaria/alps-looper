@@ -25,8 +25,9 @@
 #ifndef LOOPER_MODEL_H
 #define LOOPER_MODEL_H
 
-#include "graph.h"
+#include "graph_impl.h"
 #include "lattice.h"
+#include "weight.h"
 
 #include <alps/parameter.h>
 #include <alps/random/buffered_rng.h>
@@ -34,11 +35,12 @@
 
 namespace looper {
 
-template<typename RG, typename LG>
+template<typename RG, typename LG, typename WH = weight_helper<> >
 class spinmodel_helper {
 public:
   typedef RG real_graph_t;
   typedef LG local_graph_t;
+  typedef WH weight_helper_t;
 
   typedef lattice_helper<real_graph_t> lattice_t;
   typedef typename local_graph_t::location_t location_t;

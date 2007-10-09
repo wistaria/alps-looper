@@ -23,12 +23,12 @@
 *****************************************************************************/
 
 #include <looper/model_parameter.h>
-#include <looper/weight.h>
+#include <looper/weight_impl.h>
 #include <alps/math.hpp>
 #include <boost/random.hpp>
 #include <iostream>
 
-void output(const looper::site_parameter& p, const looper::site_weight& w)
+void output(const looper::site_parameter& p, const looper::site_weight_helper& w)
 {
   std::cout << "C = " << p.c
             << ", Hx = " << p.hx
@@ -38,7 +38,7 @@ void output(const looper::site_parameter& p, const looper::site_weight& w)
   w.check(p);
 }
 
-void output(const looper::bond_parameter_xxz& p, const looper::xxz_bond_weight& w)
+void output(const looper::bond_parameter_xxz& p, const looper::xxz_bond_weight_helper& w)
 {
   std::cout << "C = " << p.c
             << ", Jxy = " << p.jxy
@@ -52,7 +52,7 @@ void output(const looper::bond_parameter_xxz& p, const looper::xxz_bond_weight& 
   w.check(p);
 }
 
-void output(const looper::bond_parameter_xyz& p, const looper::xyz_bond_weight& w)
+void output(const looper::bond_parameter_xyz& p, const looper::xyz_bond_weight_helper& w)
 {
   std::cout << "C = " << p.c
             << ", Jx = " << p.jx
@@ -80,6 +80,15 @@ try {
   alps::ParameterList params;
   std::cin >> params;
 
+  alps::Parameters p0;
+  alps::Parameters p1;
+  alps::Parameters p2;
+  alps::Parameters p3;
+  p1["FORCE_SCATTER"] = 0.1;
+  p3["FORCE_SCATTER"] = 0.1;
+  p2["SCATTERING_RATIO"] = 1.0;
+  p3["SCATTERING_RATIO"] = 1.0;
+
   for (alps::ParameterList::const_iterator p = params.begin();
        p != params.end(); ++p) {
     looper::site_parameter site(0.5, 0, p->value_or_default("Hx",0), 0, 0);
@@ -87,13 +96,13 @@ try {
       p->value_or_default("Jxy",0), p->value_or_default("Jz",0));
 
     std::cout << "site weight (standard): ";
-    output(site, looper::site_weight(site));
+    output(site, looper::site_weight_helper(site, p0));
 
     std::cout << "bond weight (standard): ";
-    output(bond, looper::xxz_bond_weight(bond));
+    output(bond, looper::xxz_bond_weight_helper(bond, p0));
 
     std::cout << "bond weight (ergodic): ";
-    output(bond, looper::xxz_bond_weight(bond, 0.1));
+    output(bond, looper::xxz_bond_weight_helper(bond, p1));
   }
 
   std::cout << "[random check for xxz_bond_weight]\n";
@@ -104,8 +113,6 @@ try {
     rng(eng, boost::uniform_real<>(-1,1));
 
   for (int i = 0; i < 10; ++i) {
-    // NOTE: gnu4 does not compile correctly the following code
-    // looper::site_parameter site(0.5, rng(), rng(), rng());
     double sc = rng();
     double hx = rng();
     looper::site_parameter site(0.5, sc, hx, 0, 0);
@@ -115,20 +122,18 @@ try {
     looper::bond_parameter_xxz bond(bc, jxy, jz);
 
     std::cout << "site weight (standard): ";
-    output(site, looper::site_weight(site));
+    output(site, looper::site_weight_helper(site, p0));
 
     std::cout << "bond weight (standard): ";
-    output(bond, looper::xxz_bond_weight(bond));
+    output(bond, looper::xxz_bond_weight_helper(bond, p0));
 
     std::cout << "bond weight (ergodic): ";
-    output(bond, looper::xxz_bond_weight(bond, 0.1));
+    output(bond, looper::xxz_bond_weight_helper(bond, p1));
   }
 
   std::cout << "[random check for xyz_bond_weight]\n";
 
   for (int i = 0; i < 10; ++i) {
-    // NOTE: gnu4 does not compile correctly the following code
-    // looper::site_parameter site(0.5, rng(), rng(), rng());
     double sc = rng();
     double hx = rng();
     looper::site_parameter site(0.5, sc, hx, 0, 0);
@@ -139,13 +144,19 @@ try {
     looper::bond_parameter_xyz bond(bc, jx, jy, jz);
 
     std::cout << "site weight (standard): ";
-    output(site, looper::site_weight(site));
+    output(site, looper::site_weight_helper(site, p0));
 
     std::cout << "bond weight (standard): ";
-    output(bond, looper::xyz_bond_weight(bond));
+    output(bond, looper::xyz_bond_weight_helper(bond, p0));
 
     std::cout << "bond weight (ergodic): ";
-    output(bond, looper::xyz_bond_weight(bond, 0.1));
+    output(bond, looper::xyz_bond_weight_helper(bond, p1));
+
+    std::cout << "bond weight (scattering): ";
+    output(bond, looper::xyz_bond_weight_helper(bond, p2));
+
+    std::cout << "bond weight (ergodic + scattering): ";
+    output(bond, looper::xyz_bond_weight_helper(bond, p3));
   }
 
 #ifndef BOOST_NO_EXCEPTIONS

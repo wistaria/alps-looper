@@ -36,11 +36,13 @@ dist_noinst_HEADERS = \
 	looper/flatten_matrix.h \
 	looper/generate_seed.h \
 	looper/graph.h \
+	looper/graph_impl.h \
 	looper/histogram.h \
 	looper/integer_range.h \
 	looper/lapack.h \
 	looper/lattice.h \
 	looper/location.h \
+	looper/location_impl.h \
 	looper/matrix.h \
 	looper/measurement.h \
 	looper/model.h \
@@ -59,7 +61,8 @@ dist_noinst_HEADERS = \
 	looper/type.h \
 	looper/union_find.h \
 	looper/version.h \
-	looper/weight.h
+	looper/weight.h \
+	looper/weight_impl.h
 
 HEADERS_PRO = \
 	looper/gap.h \

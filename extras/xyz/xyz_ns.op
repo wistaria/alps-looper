@@ -46,6 +46,7 @@ Staggered Magnetization^4: 10.4015 +/- inf
 Staggered Susceptibility: 1.25365 +/- inf
 Susceptibility: 0.0359724 +/- inf
 Temperature: 0.25 +/- inf
+Volume: 4 +/- inf
 [input parameters]
 MODEL_LIBRARY = xyz_model.xml;
 MODEL = "XYZ spin";
@@ -332,6 +333,7 @@ Staggered Magnetization^4: 107.886 +/- inf
 Staggered Susceptibility: 3.78284 +/- inf
 Susceptibility: 0.0348027 +/- inf
 Temperature: 0.25 +/- inf
+Volume: 4 +/- inf
 [input parameters]
 MODEL_LIBRARY = xyz_model.xml;
 MODEL = "XYZ spin";
@@ -622,6 +624,7 @@ Staggered Magnetization^4: 0.45587 +/- inf
 Staggered Susceptibility: 0.167894 +/- inf
 Susceptibility: 1.24058 +/- inf
 Temperature: 0.5 +/- inf
+Volume: 4 +/- inf
 [input parameters]
 MODEL_LIBRARY = xyz_model.xml;
 MODEL = "XYZ spin";
@@ -915,6 +918,7 @@ Staggered Magnetization^4: 15.4035 +/- inf
 Staggered Susceptibility: 4.83789 +/- inf
 Susceptibility: 0.0325974 +/- inf
 Temperature: 0.2 +/- inf
+Volume: 4 +/- inf
 [input parameters]
 MODEL_LIBRARY = xyz_model.xml;
 MODEL = "XYZ spin";
@@ -1208,6 +1212,7 @@ Staggered Magnetization^4: 2.5 +/- inf
 Staggered Susceptibility: 0.512908 +/- inf
 Susceptibility: 0.512908 +/- inf
 Temperature: 0.2 +/- inf
+Volume: 4 +/- inf
 [input parameters]
 MODEL_LIBRARY = xyz_model.xml;
 MODEL = "XYZ spin";

@@ -27,15 +27,15 @@
 
 #include "model.h"
 #include "model_parameter.h"
-#include "weight.h"
+#include "weight_impl.h"
 
 #include <alps/model.h>
 #include <boost/foreach.hpp>
 
 namespace looper {
 
-template<typename RG, typename LG>
-void spinmodel_helper<RG, LG>::init(alps::Parameters const& p, lattice_helper<RG>& lat,
+template<typename RG, typename LG, typename WH>
+void spinmodel_helper<RG, LG, WH>::init(alps::Parameters const& p, lattice_helper<RG>& lat,
   bool is_path_integral) {
   typedef lattice_helper<RG> lattice_t;
   alps::model_helper<short> mh(lat.graph_helper(), p);
@@ -47,7 +47,9 @@ void spinmodel_helper<RG, LG>::init(alps::Parameters const& p, lattice_helper<RG
   lat.generate_virtual_graph(mp, mp.has_d_term());
 
   // weight table
-  weight_table wt(mp, lat, p.value_or_default("FORCE_SCATTER", frustrated_ ? 0.1 : 0.));
+  alps::Parameters params(p);
+  if (frustrated_ && !params.defined("FORCE_SCATTER")) params["FORCE_SCATTER"] = 0.1;
+  weight_helper_t wt(mp, lat, params);
   chooser_.init(wt, is_path_integral);
 
   // signs
@@ -56,10 +58,10 @@ void spinmodel_helper<RG, LG>::init(alps::Parameters const& p, lattice_helper<RG
   signed_ = mp.is_signed();
   if (signed_) {
     site_sign_.resize(num_sites(lat.vg()));
-    BOOST_FOREACH(weight_table::site_weight_t const& s, wt.site_weights())
+    BOOST_FOREACH(typename weight_helper_t::site_weight_t const& s, wt.site_weights())
       site_sign_[s.first] = (s.second.sign < 0) ? 1 : 0;
     bond_sign_.resize(num_bonds(lat.vg()));
-    BOOST_FOREACH(weight_table::bond_weight_t const& b, wt.bond_weights())
+    BOOST_FOREACH(typename weight_helper_t::bond_weight_t const& b, wt.bond_weights())
       bond_sign_[b.first] = (b.second.sign < 0) ? 1 : 0;
   }
 

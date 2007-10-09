@@ -1,3 +1,8 @@
+2007-10-09  Synge Todo <wistaria@comp-phys.org>
+
+	* Introduced SCATTERING_RATIO parameter to xyz_bond_weight_helper
+	class
+	
 2007-10-03  Synge Todo <wistaria@comp-phys.org>
 
 	* Fixed unimproved estimator of correlation functions for S>1/2 in
