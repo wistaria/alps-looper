@@ -76,7 +76,7 @@ triangle:
 
 #
 
-dist_noinst_DATA += xyz-1 xyz-2 xyz-3 xyz-4
+dist_noinst_DATA += xyz-1 xyz-2 xyz-3 xyz-4 xyz-5
 
 .PHONY : xyz
 
@@ -86,6 +86,7 @@ xyz:
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_pp xyz-2 plot-energy plot-sheat plot-sus plot-ssus plot-m2
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_pp xyz-3 plot-energy plot-sheat plot-sus plot-ssus plot-m2
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_pp xyz-4 plot-energy plot-sheat plot-sus plot-ssus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_pp xyz-5 plot-energy plot-sheat plot-sus plot-ssus plot-m2
 
 #
 

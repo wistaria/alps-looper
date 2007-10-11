@@ -215,7 +215,7 @@ dist_noinst_DATA = plot-energy plot-sheat plot-m plot-m2 plot-sus \
 	chain-3 chain-4 chain-5 dterm-1 dterm-2 dterm-3 kagome-1 \
 	kagome-2 kagome-3 kagome-4 site-1 site-2 site-3 site-4 site-5 \
 	transmag-1 transmag-2 transmag-3 transmag-4 triangle-1 \
-	triangle-2 triangle-3 triangle-4 xyz-1 xyz-2 xyz-3 xyz-4
+	triangle-2 triangle-3 triangle-4 xyz-1 xyz-2 xyz-3 xyz-4 xyz-5
 all: all-am
 
 .SUFFIXES:
@@ -450,6 +450,7 @@ xyz:
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_pp xyz-2 plot-energy plot-sheat plot-sus plot-ssus plot-m2
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_pp xyz-3 plot-energy plot-sheat plot-sus plot-ssus plot-m2
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_pp xyz-4 plot-energy plot-sheat plot-sus plot-ssus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_pp xyz-5 plot-energy plot-sheat plot-sus plot-ssus plot-m2
 
 #
 

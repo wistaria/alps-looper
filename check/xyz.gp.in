@@ -139,3 +139,38 @@ plot \
   "< choose REPRESENTATION 'path integral' xyz-4-plot-ssus.dat" u 1:2:3 w e, \
   "< choose REPRESENTATION SSE xyz-4-plot-ssus.dat" u 1:2:3 w e
 pause -1
+
+set ylabel 'Energy Density'
+plot \
+  "< choose REPRESENTATION diagonalization xyz-5-plot-energy.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION 'path integral' xyz-5-plot-energy.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE xyz-5-plot-energy.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Specific Heat'
+plot \
+  "< choose REPRESENTATION diagonalization xyz-5-plot-sheat.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION 'path integral' xyz-5-plot-sheat.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE xyz-5-plot-sheat.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Magnetization Density^2'
+plot \
+  "< choose REPRESENTATION diagonalization xyz-5-plot-m2.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION 'path integral' xyz-5-plot-m2.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE xyz-5-plot-m2.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Susceptibility'
+plot \
+  "< choose REPRESENTATION diagonalization xyz-5-plot-sus.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION 'path integral' xyz-5-plot-sus.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE xyz-5-plot-sus.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Staggered Susceptibility'
+plot \
+  "< choose REPRESENTATION diagonalization xyz-5-plot-ssus.dat" u 1:2 w lp, \
+  "< choose REPRESENTATION 'path integral' xyz-5-plot-ssus.dat" u 1:2:3 w e, \
+  "< choose REPRESENTATION SSE xyz-5-plot-ssus.dat" u 1:2:3 w e
+pause -1
