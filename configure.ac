@@ -231,6 +231,7 @@ if test "$exist_check" = yes; then
 fi
 if test "$exist_extras" = yes; then
   AC_CONFIG_FILES(extras/Makefile)
+  AC_CONFIG_FILES(extras/corrlen/Makefile)
   AC_CONFIG_FILES(extras/gap/Makefile)
   AC_CONFIG_FILES(extras/localsus/Makefile)
   AC_CONFIG_FILES(extras/top/Makefile)

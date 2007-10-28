@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 2007 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -22,38 +22,36 @@
 *
 *****************************************************************************/
 
-#ifndef LOOPER_VERSION_H
-#define LOOPER_VERSION_H
+#ifndef CORRLEN_CONFIG_H
+#define CORRLEN_CONFIG_H
 
-#include <iostream>
+#include <alps/lattice.h>
+#include <looper/graph.h>
+#include <looper/model.h>
+#include <looper/time.h>
 
-/* Define the version of ALPS/looper */
-#define LOOPER_VERSION "3.2b4-20071028"
+#include <looper/correlation.h>
+#include <looper/correlation_length.h>
 
-/* Define the published date of ALPS/looper */
-#define LOOPER_DATE "2007/10/28"
+struct loop_config
+{
+  // lattice structure
+  typedef alps::coordinate_graph_type lattice_graph_t;
 
-#include <alps/copyright.h>
-#include <iostream>
+  // imaginary time
+  typedef double time_t;
 
-namespace looper {
+  // graph for loops
+  typedef looper::local_graph<> loop_graph_t;
 
-inline
-std::ostream& print_copyright(std::ostream& os = std::cout) {
-  os << "ALPS/looper version " LOOPER_VERSION " (" LOOPER_DATE ")\n"
-     << "  multi-cluster quantum Monte Carlo algorithms for spin systems\n"
-     << "  available from http://wistaria.comp-phys.org/alps-looper/\n"
-     << "  copyright (c) 1997-2007 by Synge Todo <wistaria@comp-phys.org>\n"
-     << "\n";
-  return os;
-}
+  // model
+  typedef looper::spinmodel_helper<lattice_graph_t, loop_graph_t> model_t;
 
-inline
-std::ostream& print_license(std::ostream& os = std::cout) {
-  os << "Please look at the file LICENSE for the license conditions.\n";
-  return os;
-}
+  // measurements
+  typedef looper::measurement_set<
+    looper::correlation,
+    looper::correlation_length
+  > measurement_set;
+};
 
-} // end namespace looper
-
-#endif // LOOPER_VERSION_H
+#endif // CORRLEN_CONFIG_H

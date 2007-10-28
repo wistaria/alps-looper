@@ -1,3 +1,7 @@
+2007-10-28  Synge Todo <wistaria@comp-phys.org>
+	
+	* [pro] Added correlation length estimator.
+	
 2007-10-09  Synge Todo <wistaria@comp-phys.org>
 
 	* Introduced SCATTERING_RATIO parameter to xyz_bond_weight_helper

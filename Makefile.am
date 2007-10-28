@@ -65,6 +65,7 @@ dist_noinst_HEADERS = \
 	looper/weight_impl.h
 
 HEADERS_PRO = \
+	looper/correlation_length.h \
 	looper/gap.h \
 	looper/localsus.h \
 	looper/sop.h \
