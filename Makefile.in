@@ -187,8 +187,9 @@ am__dist_noinst_HEADERS_DIST = looper/alternating_tensor.h \
 	looper/random_choice.h looper/stiffness.h \
 	looper/susceptibility.h looper/temperature.h looper/time.h \
 	looper/type.h looper/union_find.h looper/version.h \
-	looper/weight.h looper/weight_impl.h looper/gap.h \
-	looper/localsus.h looper/sop.h looper/top.h looper/transmag.h
+	looper/weight.h looper/weight_impl.h \
+	looper/correlation_length.h looper/gap.h looper/localsus.h \
+	looper/sop.h looper/top.h looper/transmag.h
 HEADERS = $(dist_noinst_HEADERS)
 ETAGS = etags
 CTAGS = ctags
@@ -364,6 +365,7 @@ dist_noinst_HEADERS = looper/alternating_tensor.h looper/cluster.h \
 	looper/type.h looper/union_find.h looper/version.h \
 	looper/weight.h looper/weight_impl.h $(am__append_5)
 HEADERS_PRO = \
+	looper/correlation_length.h \
 	looper/gap.h \
 	looper/localsus.h \
 	looper/sop.h \

@@ -9,13 +9,13 @@ if test -f "$FILE"; then
   awk '$2=="LOOPER_VERSION" {$3=v} $2=="LOOPER_DATE" {$3=d} {print}' v="\"$VER\"" d="\"$DATE\"" "$FILE" > "$FILE.new"
   diff "$FILE" "$FILE.new" > /dev/null 2>&1
   if test "$?" != 0; then
-    cp -f "$FILE.new" "$FILE"
-    echo "$FILE is updated"
-    echo -n "running bootstrap... "
-    sh bootstrap > /dev/null || exit $?
-    echo "done"
-    echo "date    = $DATE"
-    echo "version = $VER"
+    /bin/cp -f "$FILE.new" "$FILE"
+    /bin/echo "$FILE is updated"
+    /bin/echo -n "running bootstrap... "
+    /bin/sh bootstrap > /dev/null || exit $?
+    /bin/echo "done"
+    /bin/echo "date    = $DATE"
+    /bin/echo "version = $VER"
   fi
   rm -f "$FILE.new"
 fi
