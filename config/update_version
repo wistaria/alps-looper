@@ -10,12 +10,12 @@ if test -f "$FILE"; then
   diff "$FILE" "$FILE.new" > /dev/null 2>&1
   if test "$?" != 0; then
     /bin/cp -f "$FILE.new" "$FILE"
-    /bin/echo "$FILE is updated"
-    /bin/echo -n "running bootstrap... "
+    echo "$FILE is updated"
+    echo "running bootstrap... "
     /bin/sh bootstrap > /dev/null || exit $?
-    /bin/echo "done"
-    /bin/echo "date    = $DATE"
-    /bin/echo "version = $VER"
+    echo "done"
+    echo "date    = $DATE"
+    echo "version = $VER"
   fi
   rm -f "$FILE.new"
 fi
