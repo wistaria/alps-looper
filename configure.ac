@@ -52,7 +52,7 @@ dnl
 
 AC_PROG_CC
 AC_PROG_CXX
-F77=no
+AC_PROG_LIBTOOL
 
 dnl
 dnl config file
@@ -151,6 +151,12 @@ if test -f "$srcdir/v3.1/Makefile.in"; then
 fi
 AM_CONDITIONAL(EXIST_V31, test "$exist_v31" = yes)
 AM_CONDITIONAL(BUILD_V31, false)
+
+dnl
+dnl compiler options
+dnl
+
+CPPFLAGS="$CPPFLAGS -DBOOST_NUMERIC_BINDINGS_POOR_MANS_TRAITS"
 
 dnl
 dnl generate files
