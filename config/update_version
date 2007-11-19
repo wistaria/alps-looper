@@ -1,21 +1,21 @@
 #!/bin/sh
 
-FILE="looper/version.h"
+VERSION_H=`find . -name version.h`
 
-if test -f "$FILE"; then
-  DATE=`date +%Y/%m/%d`
-  # VER="3.2b5"
-  VER="3.2b4-`date +%Y%m%d`"
-  awk '$2=="LOOPER_VERSION" {$3=v} $2=="LOOPER_DATE" {$3=d} {print}' v="\"$VER\"" d="\"$DATE\"" "$FILE" > "$FILE.new"
-  diff "$FILE" "$FILE.new" > /dev/null 2>&1
-  if test "$?" != 0; then
-    /bin/cp -f "$FILE.new" "$FILE"
-    echo "$FILE is updated"
-    echo "running bootstrap... "
-    /bin/sh bootstrap > /dev/null || exit $?
-    echo "done"
-    echo "date    = $DATE"
-    echo "version = $VER"
-  fi
-  rm -f "$FILE.new"
+. config/version.in
+
+awk '$2 ~ /_VERSION$/ {$3=v} $2 ~ /_DATE$/ {$3=d} {print}' v="\"$VER\"" d="\"$DATE\"" "$VERSION_H" > "$VERSION_H.new"
+
+diff "$VERSION_H" "$VERSION_H.new" > /dev/null 2>&1
+if test "$?" != 0; then
+  cp -f "$VERSION_H.new" "$VERSION_H"
+  echo "$VERSION_H is updated"
+  echo "running bootstrap... "
+  sh bootstrap > /dev/null || exit $?
+  echo "new date    = $DATE"
+  echo "new version = $VER"
+else
+  echo "$VERSION_H is up-to-date"
 fi
+
+rm -f "$VERSION_H.new"

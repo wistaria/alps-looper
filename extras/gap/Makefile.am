@@ -29,15 +29,10 @@ nodist_gap_mpi_SOURCES = $(top_srcdir)/loop.C $(SRC)
 nodist_gap_evaluate_SOURCES = $(top_srcdir)/loop_evaluate.C $(SRC)
 
 nodist_gap_ps_SOURCES = $(top_srcdir)/loop_pp.C $(SRC)
-       gap_ps_LDFLAGS = @LDFLAGS_PS@
-       gap_ps_LDADD = @LIBS_PS@
 nodist_gap_pp_SOURCES = $(top_srcdir)/loop_pp.C $(SRC)
-       gap_pp_LDFLAGS = @LDFLAGS_PP@
-       gap_pp_LDADD = @LIBS_PP@
+       gap_pp_LDFLAGS = @LDFLAGS_MPI@
+       gap_pp_LDADD = @LIBS_MPI@
 nodist_gap_pevaluate_SOURCES = $(top_srcdir)/loop_pevaluate.C $(SRC)
-       gap_pevaluate_LDFLAGS = @LDFLAGS_PP@
-       gap_pevaluate_LDADD = @LIBS_PP@
-
 
 #
 # tests

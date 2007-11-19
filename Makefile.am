@@ -76,8 +76,8 @@ if LOOPER_PRO
 dist_noinst_HEADERS += $(HEADERS_PRO)
 endif
 
-dist_noinst_SCRIPTS = config/run-test config/update_preamble
-dist_noinst_DATA = CITATIONS.txt LICENSE.txt
+dist_noinst_SCRIPTS = bootstrap setup.sh config/extract_date.sh config/extract_version.sh config/run-test config/update_preamble config/update_version
+dist_noinst_DATA = CITATIONS.txt LICENSE.txt README config/preamble.in config/version.in
 
 #
 # programs
@@ -123,19 +123,15 @@ loop_mpi_LDFLAGS = @LDFLAGS_MPI@
 loop_mpi_LDADD = @LIBS_MPI@
 
 loop_ps_SOURCES = loop_pp.C $(SRC)
-loop_ps_LDFLAGS = @LDFLAGS_PS@
-loop_ps_LDADD = @LIBS_PS@
 
 loop_pp_SOURCES = loop_pp.C $(SRC)
-loop_pp_LDFLAGS = @LDFLAGS_PP@
-loop_pp_LDADD = @LIBS_PP@
+loop_pp_LDFLAGS = @LDFLAGS_MPI@
+loop_pp_LDADD = @LIBS_MPI@
 
 loop_pevaluate_SOURCES = loop_pevaluate.C $(SRC)
 if ENABLE_SSE_QWL
 loop_pevaluate_SOURCES += qwl_evaluate.C
 endif
-loop_pevaluate_LDFLAGS = @LDFLAGS_PS@
-loop_pevaluate_LDADD = @LIBS_PS@
 
 #
 # tests

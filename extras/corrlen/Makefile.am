@@ -29,15 +29,10 @@ nodist_corrlen_mpi_SOURCES = $(top_srcdir)/loop.C $(SRC)
 nodist_corrlen_evaluate_SOURCES = $(top_srcdir)/loop_evaluate.C $(SRC)
 
 nodist_corrlen_ps_SOURCES = $(top_srcdir)/loop_pp.C $(SRC)
-       corrlen_ps_LDFLAGS = @LDFLAGS_PS@
-       corrlen_ps_LDADD = @LIBS_PS@
 nodist_corrlen_pp_SOURCES = $(top_srcdir)/loop_pp.C $(SRC)
-       corrlen_pp_LDFLAGS = @LDFLAGS_PP@
-       corrlen_pp_LDADD = @LIBS_PP@
+       corrlen_pp_LDFLAGS = @LDFLAGS_MPI@
+       corrlen_pp_LDADD = @LIBS_MPI@
 nodist_corrlen_pevaluate_SOURCES = $(top_srcdir)/loop_pevaluate.C $(SRC)
-       corrlen_pevaluate_LDFLAGS = @LDFLAGS_PP@
-       corrlen_pevaluate_LDADD = @LIBS_PP@
-
 
 #
 # tests

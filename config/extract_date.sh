@@ -8,5 +8,6 @@ case `echo "testing\c"; echo 1,2,3`,`echo -n testing; echo 1,2,3` in
   *)       ECHO_N= ECHO_C='\c' ;;
 esac
 
-basedir=`dirname $0`
-echo $ECHO_N `awk '$2=="LOOPER_DATE" {print $3}' $basedir/../looper/version.h | sed s/\"//g`$ECHO_C
+VERSION_H=`find . -name version.h`
+
+echo $ECHO_N `awk 'NF==3 && $2 ~ /_DATE$/ {print $3}' $VERSION_H | sed s/\"//g`$ECHO_C

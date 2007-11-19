@@ -29,15 +29,10 @@ nodist_transmag_mpi_SOURCES = $(top_srcdir)/loop.C $(SRC)
 nodist_transmag_evaluate_SOURCES = $(top_srcdir)/loop_evaluate.C $(SRC)
 
 nodist_transmag_ps_SOURCES = $(top_srcdir)/loop_pp.C $(SRC)
-       transmag_ps_LDFLAGS = @LDFLAGS_PS@
-       transmag_ps_LDADD = @LIBS_PS@
 nodist_transmag_pp_SOURCES = $(top_srcdir)/loop_pp.C $(SRC)
-       transmag_pp_LDFLAGS = @LDFLAGS_PP@
-       transmag_pp_LDADD = @LIBS_PP@
+       transmag_pp_LDFLAGS = @LDFLAGS_MPI@
+       transmag_pp_LDADD = @LIBS_MPI@
 nodist_transmag_pevaluate_SOURCES = $(top_srcdir)/loop_pevaluate.C $(SRC)
-       transmag_pevaluate_LDFLAGS = @LDFLAGS_PP@
-       transmag_pevaluate_LDADD = @LIBS_PP@
-
 
 #
 # tests

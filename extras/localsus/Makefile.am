@@ -29,15 +29,10 @@ nodist_localsus_mpi_SOURCES = $(top_srcdir)/loop.C $(SRC)
 nodist_localsus_evaluate_SOURCES = $(top_srcdir)/loop_evaluate.C $(SRC)
 
 nodist_localsus_ps_SOURCES = $(top_srcdir)/loop_pp.C $(SRC)
-       localsus_ps_LDFLAGS = @LDFLAGS_PS@
-       localsus_ps_LDADD = @LIBS_PS@
 nodist_localsus_pp_SOURCES = $(top_srcdir)/loop_pp.C $(SRC)
-       localsus_pp_LDFLAGS = @LDFLAGS_PP@
-       localsus_pp_LDADD = @LIBS_PP@
+       localsus_pp_LDFLAGS = @LDFLAGS_MPI@
+       localsus_pp_LDADD = @LIBS_MPI@
 nodist_localsus_pevaluate_SOURCES = $(top_srcdir)/loop_pevaluate.C $(SRC)
-       localsus_pevaluate_LDFLAGS = @LDFLAGS_PP@
-       localsus_pevaluate_LDADD = @LIBS_PP@
-
 
 #
 # tests

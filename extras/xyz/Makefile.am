@@ -29,14 +29,10 @@ nodist_xyz_mpi_SOURCES = $(top_srcdir)/loop.C $(SRC)
 nodist_xyz_evaluate_SOURCES = $(top_srcdir)/loop_evaluate.C $(SRC)
 
 nodist_xyz_ps_SOURCES = $(top_srcdir)/loop_pp.C $(SRC)
-       xyz_ps_LDFLAGS = @LDFLAGS_PS@
-       xyz_ps_LDADD = @LIBS_PS@
 nodist_xyz_pp_SOURCES = $(top_srcdir)/loop_pp.C $(SRC)
-       xyz_pp_LDFLAGS = @LDFLAGS_PP@
-       xyz_pp_LDADD = @LIBS_PP@
+       xyz_pp_LDFLAGS = @LDFLAGS_MPI@
+       xyz_pp_LDADD = @LIBS_MPI@
 nodist_xyz_pevaluate_SOURCES = $(top_srcdir)/loop_pevaluate.C $(SRC)
-       xyz_pevaluate_LDFLAGS = @LDFLAGS_PP@
-       xyz_pevaluate_LDADD = @LIBS_PP@
 
 #
 # tests

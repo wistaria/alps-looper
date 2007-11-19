@@ -29,15 +29,10 @@ nodist_top_mpi_SOURCES = $(top_srcdir)/loop.C $(SRC)
 nodist_top_evaluate_SOURCES = $(top_srcdir)/loop_evaluate.C $(SRC)
 
 nodist_top_ps_SOURCES = $(top_srcdir)/loop_pp.C $(SRC)
-       top_ps_LDFLAGS = @LDFLAGS_PS@
-       top_ps_LDADD = @LIBS_PS@
 nodist_top_pp_SOURCES = $(top_srcdir)/loop_pp.C $(SRC)
-       top_pp_LDFLAGS = @LDFLAGS_PP@
-       top_pp_LDADD = @LIBS_PP@
+       top_pp_LDFLAGS = @LDFLAGS_MPI@
+       top_pp_LDADD = @LIBS_MPI@
 nodist_top_pevaluate_SOURCES = $(top_srcdir)/loop_pevaluate.C $(SRC)
-       top_pevaluate_LDFLAGS = @LDFLAGS_PP@
-       top_pevaluate_LDADD = @LIBS_PP@
-
 
 #
 # tests
