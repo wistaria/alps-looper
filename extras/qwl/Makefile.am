@@ -11,9 +11,9 @@ DEFAULT_INCLUDES = -I$(srcdir) -I$(top_srcdir)
 noinst_PROGRAMS =
 if HAVE_PARAPACK
 #noinst_PROGRAMS += pi_ns sse_ns
-noinst_PROGRAMS += sse_ns
+noinst_PROGRAMS += sse_ns sse_ps
 if HAVE_MPI
-noinst_PROGRAMS +=
+noinst_PROGRAMS += sse_pp
 endif
 endif
 
@@ -23,12 +23,16 @@ SRC = $(top_srcdir)/loop_custom.C $(top_srcdir)/loop_factory.C $(top_srcdir)/loo
 #nodist_pi_ns_SOURCES = $(SRC)
   dist_sse_ns_SOURCES = sse_ns.C sse.h
 nodist_sse_ns_SOURCES = $(SRC)
+  dist_sse_ps_SOURCES = sse.C sse.h
+nodist_sse_ps_SOURCES = $(SRC)
+  dist_sse_pp_SOURCES = sse.C sse.h
+nodist_sse_pp_SOURCES = $(SRC)
 
 #
 # tests
 #
 
-dist_noinst_DATA =
+dist_noinst_DATA = sse_ns.ip sse_ns.op
 check_PROGRAMS =
 if HAVE_PARAPACK
 #check_PROGRAMS += pi_ns sse_ns

@@ -24,9 +24,8 @@
 
 #include "sse.h"
 
-//typedef alps::parapack::single_worker_factory<loop_worker,
-//  looper::evaluator<loop_config::measurement_set> > factory;
-typedef alps::parapack::single_worker_factory<loop_worker, alps::parapack::default_evaluator> factory;
+typedef alps::parapack::single_worker_factory<loop_worker,
+  alps::parapack::default_evaluator> factory;
 
 int main(int argc, char** argv) {
   return alps::parapack::start(argc, argv, factory());

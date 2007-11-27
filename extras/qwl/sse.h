@@ -41,6 +41,11 @@ inline int log2(int n) {
   return r;
 }
 
+struct walker_direc {
+  enum walker_direc_t { up, down, unlabeled };
+};
+typedef walker_direc::walker_direc_t walker_direc_t;
+
 class loop_worker :
   public alps::parapack::mc_worker, public alps::parapack::need_multiple_observableset_tag {
 public:
@@ -70,8 +75,15 @@ public:
   bool is_thermalized() const { return mcs.is_thermalized(); }
   double progress() const { return mcs.progress(); }
 
-  void save(alps::ODump& dp) const { dp << mcs << spins << operators; }
-  void load(alps::IDump& dp) { dp >> mcs >> spins >> operators; }
+  void save(alps::ODump& dp) const {
+    uint32_t direc_tmp = (direc == walker_direc::up ? 0 : 1);
+    dp << mcs << spins << operators << logg << direc_tmp;
+  }
+  void load(alps::IDump& dp) {
+    uint32_t direc_tmp;
+    dp >> mcs >> spins >> operators >> logg >> direc_tmp;
+    direc = (direc_tmp == 0 ? walker_direc::up : walker_direc::down);
+  }
 
 protected:
   void build(std::vector<alps::ObservableSet>& obs);
@@ -96,6 +108,7 @@ private:
   std::vector<int> spins;
   std::vector<local_operator_t> operators;
   std::vector<double> logg;
+  walker_direc_t direc;
 
   // observables
   double sign;
@@ -143,12 +156,15 @@ loop_worker::loop_worker(alps::Parameters const& p, std::vector<alps::Observable
   spins_c.resize(nvs);
   current.resize(nvs);
   logg.resize(0); logg.resize(max_order, 0);
+  direc = walker_direc::down;
 
   int num_part = log2(max_order) + 1;
   obs.resize(num_part);
   obs[0] << alps::HistogramObservable<int>("Global Histogram", 0, max_order);
+  obs[0] << alps::HistogramObservable<int>("Histogram of Upward-moving Walker", 0, max_order);
   obs[0] << alps::HistogramObservable<int>("Partition Histogram", 0, num_part);
   obs[0] << alps::HistogramObservable<int>("Local Histogram", 0, max_order);
+  obs[0] << make_observable(alps::RealObservable("Inverse Round-trip Time"));
   BOOST_FOREACH(alps::ObservableSet& o, obs) {
     o << make_observable(alps::SimpleRealObservable("Volume"));
     o << make_observable(alps::SimpleRealObservable("Number of Sites"));
@@ -202,6 +218,8 @@ void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
   fragments.resize(0); fragments.resize(nvs);
   for (int s = 0; s < nvs; ++s) current[s] = s;
 
+  bool touch = false;
+
   bool try_gap = true;
   for (operator_iterator opi = operators_p.begin(); try_gap || opi != operators_p.end();) {
 
@@ -217,14 +235,12 @@ void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
         } else {
           hist << nop;
           logg[nop] += factor;
-          // std::cerr << nop << std::endl;
           try_gap = false;
           continue;
         }
       } else {
         hist << nop;
         logg[nop] += factor;
-        // std::cerr << nop << std::endl;
         try_gap = false;
         continue;
       }
@@ -235,7 +251,7 @@ void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
           ++opi;
           hist << nop;
           logg[nop] += factor;
-          // std::cerr << nop << std::endl;
+          if (direc == walker_direc::up && nop == 0) touch = true;
           continue;
         } else {
           if (opi->is_site()) {
@@ -258,7 +274,9 @@ void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
     }
     hist << nop;
     logg[nop] += factor;
-    // std::cerr << nop << std::endl;
+    if ((direc == walker_direc::up && nop == 0) ||
+        (direc == walker_direc::down && nop == max_order - 1))
+      touch = true;
 
     operator_iterator oi = operators.end() - 1;
     if (oi->is_bond()) {
@@ -292,6 +310,20 @@ void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
       for (int i = 0; i < s2; ++i) unify(fragments, offset+i, current[offset+perm[i]]);
     }
   }
+
+  if (touch && direc == walker_direc::up) {
+    obs[0]["Inverse Round-trip Time"] << 1.;
+  } else {
+    obs[0]["Inverse Round-trip Time"] << 0.;
+  }
+  if (touch) {
+    if (direc == walker_direc::up)
+      direc = walker_direc::down;
+    else
+      direc = walker_direc::up;
+  }
+  if (direc == walker_direc::up)
+    obs[0]["Histogram of Upward-moving Walker"] << nop;
 }
 
 

@@ -41,10 +41,10 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-noinst_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2)
+noinst_PROGRAMS = $(am__EXEEXT_2) $(am__EXEEXT_3)
 #noinst_PROGRAMS += pi_ns sse_ns
-@HAVE_PARAPACK_TRUE@am__append_1 = sse_ns
-@HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__append_2 = 
+@HAVE_PARAPACK_TRUE@am__append_1 = sse_ns sse_ps
+@HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__append_2 = sse_pp
 check_PROGRAMS = $(am__EXEEXT_1)
 #check_PROGRAMS += pi_ns sse_ns
 @HAVE_PARAPACK_TRUE@am__append_3 = sse_ns
@@ -60,7 +60,8 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
 @HAVE_PARAPACK_TRUE@am__EXEEXT_1 = sse_ns$(EXEEXT)
-am__EXEEXT_2 =
+@HAVE_PARAPACK_TRUE@am__EXEEXT_2 = sse_ns$(EXEEXT) sse_ps$(EXEEXT)
+@HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__EXEEXT_3 = sse_pp$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 dist_sse_ns_OBJECTS = sse_ns.$(OBJEXT)
 am__objects_1 = loop_custom.$(OBJEXT) loop_factory.$(OBJEXT) \
@@ -69,6 +70,16 @@ nodist_sse_ns_OBJECTS = $(am__objects_1)
 sse_ns_OBJECTS = $(dist_sse_ns_OBJECTS) $(nodist_sse_ns_OBJECTS)
 sse_ns_LDADD = $(LDADD)
 sse_ns_DEPENDENCIES =
+dist_sse_pp_OBJECTS = sse.$(OBJEXT)
+nodist_sse_pp_OBJECTS = $(am__objects_1)
+sse_pp_OBJECTS = $(dist_sse_pp_OBJECTS) $(nodist_sse_pp_OBJECTS)
+sse_pp_LDADD = $(LDADD)
+sse_pp_DEPENDENCIES =
+dist_sse_ps_OBJECTS = sse.$(OBJEXT)
+nodist_sse_ps_OBJECTS = $(am__objects_1)
+sse_ps_OBJECTS = $(dist_sse_ps_OBJECTS) $(nodist_sse_ps_OBJECTS)
+sse_ps_LDADD = $(LDADD)
+sse_ps_DEPENDENCIES =
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -87,8 +98,11 @@ LTCOMPILE = $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(dist_sse_ns_SOURCES) $(nodist_sse_ns_SOURCES)
-DIST_SOURCES = $(dist_sse_ns_SOURCES)
+SOURCES = $(dist_sse_ns_SOURCES) $(nodist_sse_ns_SOURCES) \
+	$(dist_sse_pp_SOURCES) $(nodist_sse_pp_SOURCES) \
+	$(dist_sse_ps_SOURCES) $(nodist_sse_ps_SOURCES)
+DIST_SOURCES = $(dist_sse_ns_SOURCES) $(dist_sse_pp_SOURCES) \
+	$(dist_sse_ps_SOURCES)
 DATA = $(dist_noinst_DATA)
 ETAGS = etags
 CTAGS = ctags
@@ -236,11 +250,15 @@ SRC = $(top_srcdir)/loop_custom.C $(top_srcdir)/loop_factory.C $(top_srcdir)/loo
 #nodist_pi_ns_SOURCES = $(SRC)
 dist_sse_ns_SOURCES = sse_ns.C sse.h
 nodist_sse_ns_SOURCES = $(SRC)
+dist_sse_ps_SOURCES = sse.C sse.h
+nodist_sse_ps_SOURCES = $(SRC)
+dist_sse_pp_SOURCES = sse.C sse.h
+nodist_sse_pp_SOURCES = $(SRC)
 
 #
 # tests
 #
-dist_noinst_DATA = 
+dist_noinst_DATA = sse_ns.ip sse_ns.op
 TESTS = $(check_PROGRAMS)
 TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
 all: all-am
@@ -293,6 +311,12 @@ clean-noinstPROGRAMS:
 sse_ns$(EXEEXT): $(sse_ns_OBJECTS) $(sse_ns_DEPENDENCIES) 
 	@rm -f sse_ns$(EXEEXT)
 	$(CXXLINK) $(sse_ns_LDFLAGS) $(sse_ns_OBJECTS) $(sse_ns_LDADD) $(LIBS)
+sse_pp$(EXEEXT): $(sse_pp_OBJECTS) $(sse_pp_DEPENDENCIES) 
+	@rm -f sse_pp$(EXEEXT)
+	$(CXXLINK) $(sse_pp_LDFLAGS) $(sse_pp_OBJECTS) $(sse_pp_LDADD) $(LIBS)
+sse_ps$(EXEEXT): $(sse_ps_OBJECTS) $(sse_ps_DEPENDENCIES) 
+	@rm -f sse_ps$(EXEEXT)
+	$(CXXLINK) $(sse_ps_LDFLAGS) $(sse_ps_OBJECTS) $(sse_ps_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -303,6 +327,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_custom.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_factory.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_model.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sse.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sse_ns.Po@am__quote@
 
 .C.o:
