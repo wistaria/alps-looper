@@ -1,0 +1,10 @@
+SEED    = 23125
+SWEEPS  = 8192
+MODEL   = "spin"
+
+LATTICE = "chain lattice"
+L = 32
+MAX_EXPANSION_ORDER = 512
+NUMBER_OF_PARTITIONS = 16
+FACTOR = exp(2)
+{}

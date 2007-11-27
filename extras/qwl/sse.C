@@ -22,38 +22,12 @@
 *
 *****************************************************************************/
 
-#ifndef LOOPER_VERSION_H
-#define LOOPER_VERSION_H
+#include "sse.h"
 
-#include <iostream>
+//typedef alps::parapack::single_worker_factory<loop_worker,
+//  looper::evaluator<loop_config::measurement_set> > factory;
+typedef alps::parapack::single_worker_factory<loop_worker, alps::parapack::default_evaluator> factory;
 
-/* Define the version of ALPS/looper */
-#define LOOPER_VERSION "3.2b4-20071127"
-
-/* Define the published date of ALPS/looper */
-#define LOOPER_DATE "2007/11/27"
-
-#include <alps/copyright.h>
-#include <iostream>
-
-namespace looper {
-
-inline
-std::ostream& print_copyright(std::ostream& os = std::cout) {
-  os << "ALPS/looper version " LOOPER_VERSION " (" LOOPER_DATE ")\n"
-     << "  multi-cluster quantum Monte Carlo algorithms for spin systems\n"
-     << "  available from http://wistaria.comp-phys.org/alps-looper/\n"
-     << "  copyright (c) 1997-2007 by Synge Todo <wistaria@comp-phys.org>\n"
-     << "\n";
-  return os;
+int main(int argc, char** argv) {
+  return alps::parapack::start(argc, argv, factory());
 }
-
-inline
-std::ostream& print_license(std::ostream& os = std::cout) {
-  os << "Please look at the file LICENSE for the license conditions.\n";
-  return os;
-}
-
-} // end namespace looper
-
-#endif // LOOPER_VERSION_H
