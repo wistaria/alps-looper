@@ -35,6 +35,12 @@
 
 #include <parapack/worker.h>
 
+inline int log2(int n) {
+  int r = -1;
+  for (; n > 0; n = (n >> 1)) ++r;
+  return r;
+}
+
 class loop_worker :
   public alps::parapack::mc_worker, public alps::parapack::need_multiple_observableset_tag {
 public:
@@ -68,7 +74,7 @@ public:
   void load(alps::IDump& dp) { dp >> mcs >> spins >> operators; }
 
 protected:
-  void build();
+  void build(std::vector<alps::ObservableSet>& obs);
 
   template<typename FIELD, typename SIGN, typename IMPROVE>
   void flip(std::vector<alps::ObservableSet>& obs);
@@ -83,7 +89,6 @@ private:
   // parameters
   bool use_improved_estimator;
   int max_order;
-  int num_part;
   double factor;
 
   // configuration (checkpoint)
@@ -91,7 +96,6 @@ private:
   std::vector<int> spins;
   std::vector<local_operator_t> operators;
   std::vector<double> logg;
-  std::vector<int> hist;
 
   // observables
   double sign;
@@ -131,7 +135,6 @@ loop_worker::loop_worker(alps::Parameters const& p, std::vector<alps::Observable
   perm.resize(max_virtual_sites(lattice));
 
   max_order = evaluate("MAX_EXPANSION_ORDER", p);
-  num_part = evaluate("NUMBER_OF_PARTITIONS", p);
   factor = std::log(evaluate("FACTOR", p));
 
   // configuration
@@ -140,9 +143,12 @@ loop_worker::loop_worker(alps::Parameters const& p, std::vector<alps::Observable
   spins_c.resize(nvs);
   current.resize(nvs);
   logg.resize(0); logg.resize(max_order, 0);
-  hist.resize(0); hist.resize(max_order, 0);
 
+  int num_part = log2(max_order) + 1;
   obs.resize(num_part);
+  obs[0] << alps::HistogramObservable<int>("Global Histogram", 0, max_order);
+  obs[0] << alps::HistogramObservable<int>("Partition Histogram", 0, num_part);
+  obs[0] << alps::HistogramObservable<int>("Local Histogram", 0, max_order);
   BOOST_FOREACH(alps::ObservableSet& o, obs) {
     o << make_observable(alps::SimpleRealObservable("Volume"));
     o << make_observable(alps::SimpleRealObservable("Number of Sites"));
@@ -161,7 +167,7 @@ loop_worker::loop_worker(alps::Parameters const& p, std::vector<alps::Observable
 void loop_worker::run(std::vector<alps::ObservableSet>& obs) {
   ++mcs;
 
-  build();
+  build(obs);
 
   //   FIELD               SIGN                IMPROVE
   flip<boost::mpl::true_,  boost::mpl::true_,  boost::mpl::true_ >(obs);
@@ -181,7 +187,11 @@ void loop_worker::run(std::vector<alps::ObservableSet>& obs) {
 // diagonal update and cluster construction
 //
 
-void loop_worker::build() {
+void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
+
+  alps::HistogramObservable<int>& hist =
+    dynamic_cast<alps::HistogramObservable<int>&>(obs[0]["Local Histogram"]);
+
   // initialize spin & operator information
   int nop = operators.size();
   std::copy(spins.begin(), spins.end(), spins_c.begin());
@@ -205,16 +215,16 @@ void loop_worker::build() {
           operators.push_back(local_operator_t(g));
           ++nop;
         } else {
-          ++hist[nop];
+          hist << nop;
           logg[nop] += factor;
-          std::cerr << nop << std::endl;
+          // std::cerr << nop << std::endl;
           try_gap = false;
           continue;
         }
       } else {
-        ++hist[nop];
+        hist << nop;
         logg[nop] += factor;
-        std::cerr << nop << std::endl;
+        // std::cerr << nop << std::endl;
         try_gap = false;
         continue;
       }
@@ -223,9 +233,9 @@ void loop_worker::build() {
         if (uniform_01() < std::exp(logg[nop] - logg[nop-1])) {
           --nop;
           ++opi;
-          ++hist[nop];
+          hist << nop;
           logg[nop] += factor;
-          std::cerr << nop << std::endl;
+          // std::cerr << nop << std::endl;
           continue;
         } else {
           if (opi->is_site()) {
@@ -246,9 +256,9 @@ void loop_worker::build() {
       ++opi;
       try_gap = true;
     }
-    ++hist[nop];
+    hist << nop;
     logg[nop] += factor;
-    std::cerr << nop << std::endl;
+    // std::cerr << nop << std::endl;
 
     operator_iterator oi = operators.end() - 1;
     if (oi->is_bond()) {
@@ -297,8 +307,7 @@ void loop_worker::flip(std::vector<alps::ObservableSet>& obs) {
 
   int nvs = num_sites(lattice.vg());
   int nop = operators.size();
-
-  int part = (int)((1.0 * nop / max_order) * num_part);
+  int part = log2(nop) + 1;
 
   // assign cluster id
   int nc = 0;
@@ -365,7 +374,7 @@ void loop_worker::flip(std::vector<alps::ObservableSet>& obs) {
   if (IMPROVE()) {
     typename looper::collector<estimator_t>::type coll = get_collector(estimator);
     coll = std::accumulate(estimates.begin(), estimates.end(), coll);
-    estimator.improved_measurement(obs[part], lattice, 0, improved_sign, spins, operators,
+    estimator.improved_measurement(obs[part], lattice, 1, improved_sign, spins, operators,
       spins_c, fragments, coll);
     if (SIGN()) {
       obs[part]["Sign"] << improved_sign;
@@ -395,14 +404,17 @@ void loop_worker::flip(std::vector<alps::ObservableSet>& obs) {
 void loop_worker::measure(std::vector<alps::ObservableSet>& obs) {
 
   int nop = operators.size();
-  int part = (int)((1.0 * nop / max_order) * num_part);
+  int part = log2(nop) + 1;
 
   obs[part]["Volume"] << (double)lattice.volume();
   obs[part]["Number of Sites"] << (double)num_sites(lattice.rg());
+
+  obs[0]["Global Histogram"] << nop;
+  obs[0]["Partition Histogram"] << part;
 
   // sign
   if (model.is_signed() && !use_improved_estimator) obs[part]["Sign"] << sign;
 
   // other quantities
-  estimator.normal_measurement(obs[part], lattice, 0, sign, spins, operators, spins_c);
+  estimator.normal_measurement(obs[part], lattice, 1, sign, spins, operators, spins_c);
 }
