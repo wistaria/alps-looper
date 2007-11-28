@@ -73,7 +73,6 @@ sse_ns_DEPENDENCIES =
 dist_sse_pp_OBJECTS = sse.$(OBJEXT)
 nodist_sse_pp_OBJECTS = $(am__objects_1)
 sse_pp_OBJECTS = $(dist_sse_pp_OBJECTS) $(nodist_sse_pp_OBJECTS)
-sse_pp_LDADD = $(LDADD)
 sse_pp_DEPENDENCIES =
 dist_sse_ps_OBJECTS = sse.$(OBJEXT)
 nodist_sse_ps_OBJECTS = $(am__objects_1)
@@ -254,6 +253,8 @@ dist_sse_ps_SOURCES = sse.C sse.h
 nodist_sse_ps_SOURCES = $(SRC)
 dist_sse_pp_SOURCES = sse.C sse.h
 nodist_sse_pp_SOURCES = $(SRC)
+sse_pp_LDFLAGS = @LDFLAGS_MPI@
+sse_pp_LDADD = @LIBS_MPI@
 
 #
 # tests

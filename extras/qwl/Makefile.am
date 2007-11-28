@@ -27,6 +27,8 @@ nodist_sse_ns_SOURCES = $(SRC)
 nodist_sse_ps_SOURCES = $(SRC)
   dist_sse_pp_SOURCES = sse.C sse.h
 nodist_sse_pp_SOURCES = $(SRC)
+       sse_pp_LDFLAGS = @LDFLAGS_MPI@
+       sse_pp_LDADD = @LIBS_MPI@
 
 #
 # tests
