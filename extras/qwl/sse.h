@@ -102,6 +102,7 @@ private:
   bool use_improved_estimator;
   int max_order;
   double factor;
+  bool measure_histogram;
 
   // configuration (checkpoint)
   looper::mc_steps mcs;
@@ -148,7 +149,8 @@ loop_worker::loop_worker(alps::Parameters const& p, std::vector<alps::Observable
   perm.resize(max_virtual_sites(lattice));
 
   max_order = static_cast<int>(evaluate("MAX_EXPANSION_ORDER", p));
-  factor = p.defined("FACTOR") ? std::log(evaluate("FACTOR", p)) : 1;
+  factor = p.defined("UPDATE_FACTOR") ? std::log(evaluate("UPDATE_FACTOR", p)) : 1;
+  measure_histogram = p.value_or_default("MEASURE_QWL_HISTOGRAM", false);
 
   // configuration
   int nvs = num_sites(lattice.vg());
@@ -158,12 +160,14 @@ loop_worker::loop_worker(alps::Parameters const& p, std::vector<alps::Observable
   logg.resize(0); logg.resize(max_order, 0);
   direc = walker_direc::down;
 
-  int num_part = log2(max_order) + 1;
+  int num_part = log2(max_order-1) + 2;
   obs.resize(num_part);
-  obs[0] << alps::HistogramObservable<int>("Global Histogram", 0, max_order);
-  obs[0] << alps::HistogramObservable<int>("Histogram of Upward-moving Walker", 0, max_order);
+  if (measure_histogram) {
+    obs[0] << alps::HistogramObservable<int>("Global Histogram", 0, max_order);
+    obs[0] << alps::HistogramObservable<int>("Histogram of Upward-moving Walker", 0, max_order);
+    obs[0] << alps::HistogramObservable<int>("Local Histogram", 0, max_order);
+  }
   obs[0] << alps::HistogramObservable<int>("Partition Histogram", 0, num_part);
-  obs[0] << alps::HistogramObservable<int>("Local Histogram", 0, max_order);
   obs[0] << make_observable(alps::RealObservable("Inverse Round-trip Time"));
   BOOST_FOREACH(alps::ObservableSet& o, obs) {
     o << make_observable(alps::SimpleRealObservable("Volume"));
@@ -205,8 +209,9 @@ void loop_worker::run(std::vector<alps::ObservableSet>& obs) {
 
 void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
 
-  alps::HistogramObservable<int>& hist =
-    dynamic_cast<alps::HistogramObservable<int>&>(obs[0]["Local Histogram"]);
+  alps::HistogramObservable<int> *hist = 0;
+  if (measure_histogram)
+    hist = dynamic_cast<alps::HistogramObservable<int>*>(&obs[0]["Local Histogram"]);
 
   // initialize spin & operator information
   int nop = operators.size();
@@ -233,13 +238,13 @@ void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
           operators.push_back(local_operator_t(g));
           ++nop;
         } else {
-          hist << nop;
+          if (hist) *hist << nop;
           logg[nop] += factor;
           try_gap = false;
           continue;
         }
       } else {
-        hist << nop;
+        if (hist) *hist << nop;
         logg[nop] += factor;
         try_gap = false;
         continue;
@@ -249,7 +254,7 @@ void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
         if (uniform_01() < std::exp(logg[nop] - logg[nop-1])) {
           --nop;
           ++opi;
-          hist << nop;
+          if (hist) *hist << nop;
           logg[nop] += factor;
           if (direc == walker_direc::up && nop == 0) touch = true;
           continue;
@@ -272,7 +277,7 @@ void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
       ++opi;
       try_gap = true;
     }
-    hist << nop;
+    if (hist) *hist << nop;
     logg[nop] += factor;
     if ((direc == walker_direc::up && nop == 0) ||
         (direc == walker_direc::down && nop == max_order - 1))
@@ -322,7 +327,7 @@ void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
     else
       direc = walker_direc::up;
   }
-  if (direc == walker_direc::up)
+  if (measure_histogram && direc == walker_direc::up)
     obs[0]["Histogram of Upward-moving Walker"] << nop;
 }
 
@@ -441,7 +446,7 @@ void loop_worker::measure(std::vector<alps::ObservableSet>& obs) {
   obs[part]["Volume"] << (double)lattice.volume();
   obs[part]["Number of Sites"] << (double)num_sites(lattice.rg());
 
-  obs[0]["Global Histogram"] << nop;
+  if (measure_histogram) obs[0]["Global Histogram"] << nop;
   obs[0]["Partition Histogram"] << part;
 
   // sign
