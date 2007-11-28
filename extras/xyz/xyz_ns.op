@@ -1130,7 +1130,7 @@ Susceptibility: 0.0360107 +/- 0.00403; tau = 1.05 WARNING: ERRORS NOT CONVERGED!
     bin #4   : 512      entries: error = 0.00351411
     bin #5   : 256      entries: error = 0.0037902
     bin #6   : 128      entries: error = 0.00402695
-Temperature: 0.2 +/- nan
+Temperature: 0.2 +/- 0
 Volume: 4 +/- 0
 |Magnetization Density|: 0 +/- 0; tau = nan
     bin #1   : 4096     entries: error = 0
@@ -1424,7 +1424,7 @@ Susceptibility: 0.518378 +/- 0.026; tau = 2.66 WARNING: ERRORS NOT CONVERGED!!!
     bin #4   : 512      entries: error = 0.0218362
     bin #5   : 256      entries: error = 0.025391
     bin #6   : 128      entries: error = 0.0260242
-Temperature: 0.2 +/- nan
+Temperature: 0.2 +/- 0
 Volume: 4 +/- 0
 |Magnetization Density|: 0 +/- 0; tau = nan
     bin #1   : 4096     entries: error = 0
@@ -1594,7 +1594,7 @@ Susceptibility: 0.526331 +/- 0.0318; tau = 2.73 WARNING: ERRORS NOT CONVERGED!!!
     bin #4   : 512      entries: error = 0.0261371
     bin #5   : 256      entries: error = 0.0301517
     bin #6   : 128      entries: error = 0.0317945
-Temperature: 0.2 +/- nan
+Temperature: 0.2 +/- 0
 Volume: 4 +/- 0
 |Magnetization Density|: 0.191406 +/- 0.00677; tau = 2.69 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 4096     entries: error = 0.00267856
