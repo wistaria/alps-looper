@@ -147,8 +147,8 @@ loop_worker::loop_worker(alps::Parameters const& p, std::vector<alps::Observable
 
   perm.resize(max_virtual_sites(lattice));
 
-  max_order = evaluate("MAX_EXPANSION_ORDER", p);
-  factor = std::log(evaluate("FACTOR", p));
+  max_order = static_cast<int>(evaluate("MAX_EXPANSION_ORDER", p));
+  factor = p.defined("FACTOR") ? std::log(evaluate("FACTOR", p)) : 1;
 
   // configuration
   int nvs = num_sites(lattice.vg());

@@ -1,9 +1,12 @@
 SEED    = 23125
+WORKER_SEED = 23125
+DISORDER_SEED = 23125
+
 SWEEPS  = 65536
 MODEL   = "spin"
 
 LATTICE = "chain lattice"
 L = 8
 MAX_EXPANSION_ORDER = 256
-FACTOR = exp(2)
+
 {}

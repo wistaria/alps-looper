@@ -52,7 +52,7 @@ int main(int argc, char** argv)
       "Usage: " + std::string(argv[0]) + " [paramfile]"));
   }
 
-  BOOST_FOREACH(alps::Parameters p, parameterlist) {
+  BOOST_FOREACH(alps::Parameters& p, parameterlist) {
     boost::timer tm;
     if (!p.defined("SEED")) p["SEED"] = static_cast<unsigned int>(time(0));
     if (!p.defined("WORKER_SEED")) p["WORKER_SEED"] = p["SEED"];
