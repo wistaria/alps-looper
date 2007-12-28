@@ -60,9 +60,9 @@ public:
   virtual bool is_thermalized() const { return worker_.is_thermalized(); }
   virtual double progress() const { return worker_.progress(); }
   virtual void run(alps::ObservableSet& obs) { worker_.run(*engine_ptr, obs); }
-  virtual void set_beta(double beta) { worker_.set_beta(beta); }
-  virtual double g_weight() const { return worker_.g_weight(); }
-  static double lambda(double beta) { return WORKER::lambda(beta); }
+  void set_beta(double beta) { worker_.set_beta(beta); }
+  double g_weight() const { return worker_.g_weight(); }
+  double lambda(double beta) const { return worker_.lambda(beta); }
   virtual void load(alps::IDump& dump) { worker_.load(dump); }
   virtual void save(alps::ODump& dump) const { worker_.save(dump); }
 private:
