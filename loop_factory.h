@@ -57,13 +57,14 @@ public:
   parapack_worker_wrapper(alps::Parameters const& p, alps::ObservableSet& obs) :
     alps::parapack::mc_worker(p),  worker_(p, obs) {}
   virtual ~parapack_worker_wrapper() {}
-  virtual void run(alps::ObservableSet& obs) { worker_.run(*engine_ptr, obs); }
-  virtual void load(alps::IDump& dump) { worker_.load(dump); }
-  virtual void save(alps::ODump& dump) const { worker_.save(dump); }
-  virtual void set_beta(double beta) { worker_.set_beta(beta); }
-  virtual double dlogw(double newbeta) const { return worker_.dlogw(newbeta); }
   virtual bool is_thermalized() const { return worker_.is_thermalized(); }
   virtual double progress() const { return worker_.progress(); }
+  virtual void run(alps::ObservableSet& obs) { worker_.run(*engine_ptr, obs); }
+  virtual void set_beta(double beta) { worker_.set_beta(beta); }
+  virtual double g_weight() const { return worker_.g_weight(); }
+  static double lambda(double beta) { return WORKER::lambda(beta); }
+  virtual void load(alps::IDump& dump) { worker_.load(dump); }
+  virtual void save(alps::ODump& dump) const { worker_.save(dump); }
 private:
   WORKER worker_;
 };

@@ -58,14 +58,17 @@ public:
     estimator_t;
 
   loop_worker(alps::Parameters const& p, alps::ObservableSet& obs);
-  template<typename ENGINE>
-  void run(ENGINE& eng, alps::ObservableSet& obs);
-
-  void set_beta(double b) { temperature.set_beta(b); }
-  double dlogw(double newbeta) const { return nop * std::log(newbeta / beta); }
 
   bool is_thermalized() const { return mcs.is_thermalized(); }
   double progress() const { return mcs.progress(); }
+
+  template<typename ENGINE>
+  void run(ENGINE& eng, alps::ObservableSet& obs);
+
+  // for exchange Monte Carlo
+  void set_beta(double b) { temperature.set_beta(b); }
+  double g_weight() const { return nop; }
+  double lambda(double beta) const { return std::log(beta); }
 
   void save(alps::ODump& dp) const { dp << mcs << spins; }
   void load(alps::IDump& dp) { dp >> mcs >> spins; }

@@ -103,12 +103,14 @@ private:
   int max_order;
   double factor;
   bool measure_histogram;
+  bool measure_weight;
+  bool fixed_weight;
 
   // configuration (checkpoint)
   looper::mc_steps mcs;
   std::vector<int> spins;
   std::vector<local_operator_t> operators;
-  std::vector<double> logg;
+  std::valarray<double> logg;
   walker_direc_t direc;
 
   // observables
@@ -151,13 +153,16 @@ loop_worker::loop_worker(alps::Parameters const& p, std::vector<alps::Observable
   max_order = static_cast<int>(evaluate("MAX_EXPANSION_ORDER", p));
   factor = p.defined("UPDATE_FACTOR") ? std::log(evaluate("UPDATE_FACTOR", p)) : 1;
   measure_histogram = p.value_or_default("MEASURE_QWL_HISTOGRAM", false);
+  measure_weight = p.value_or_default("MEASURE_QWL_WEIGHT", false);
+  fixed_weight = p.value_or_default("FIXED_WEIGHT_AFTER_THERMALIZATION", false);
 
   // configuration
   int nvs = num_sites(lattice.vg());
   spins.resize(nvs); std::fill(spins.begin(), spins.end(), 0 /* all up */);
   spins_c.resize(nvs);
   current.resize(nvs);
-  logg.resize(0); logg.resize(max_order, 0);
+  logg.resize(max_order);
+  for (int i = 0; i < max_order; ++i) logg[i] = 0;
   direc = walker_direc::down;
 
   int num_part = log2(max_order-1) + 2;
@@ -169,6 +174,8 @@ loop_worker::loop_worker(alps::Parameters const& p, std::vector<alps::Observable
   }
   obs[0] << alps::HistogramObservable<int>("Partition Histogram", 0, num_part);
   obs[0] << make_observable(alps::RealObservable("Inverse Round-trip Time"));
+  if (measure_weight) obs[0] << alps::SimpleRealVectorObservable("Log(g)");
+
   BOOST_FOREACH(alps::ObservableSet& o, obs) {
     o << make_observable(alps::SimpleRealObservable("Volume"));
     o << make_observable(alps::SimpleRealObservable("Number of Sites"));
@@ -212,6 +219,8 @@ void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
   alps::HistogramObservable<int> *hist = 0;
   if (measure_histogram)
     hist = dynamic_cast<alps::HistogramObservable<int>*>(&obs[0]["Local Histogram"]);
+
+  if (fixed_weight && is_thermalized()) factor = 0;
 
   // initialize spin & operator information
   int nop = operators.size();
@@ -448,6 +457,7 @@ void loop_worker::measure(std::vector<alps::ObservableSet>& obs) {
 
   if (measure_histogram) obs[0]["Global Histogram"] << nop;
   obs[0]["Partition Histogram"] << part;
+  if (measure_weight && progress() >= 1) obs[0]["Log(g)"] << logg;
 
   // sign
   if (model.is_signed() && !use_improved_estimator) obs[part]["Sign"] << sign;

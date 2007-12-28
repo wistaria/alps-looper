@@ -58,16 +58,18 @@ public:
 
   loop_worker(alps::Parameters const& p, alps::ObservableSet& obs);
   template<typename ENGINE>
-  void run(ENGINE& eng, alps::ObservableSet& obs);
-
-  void set_beta(double) const { boost::throw_exception(std::logic_error("sse_qwl")); }
-  double dlogw(double) const {
-    boost::throw_exception(std::logic_error("sse_qwl"));
-    return 0;
-  }
 
   bool is_thermalized() const { return true; }
   double progress() const { return mcs.progress(); }
+
+  void run(ENGINE& eng, alps::ObservableSet& obs);
+
+  void set_beta(double) const { boost::throw_exception(std::logic_error("sse_qwl")); }
+  double g_weight() const { boost::throw_exception(std::logic_error("sse_qwl")); }
+  double lambda(double) const {
+    boost::throw_exception(std::logic_error("sse_qwl"));
+    return 0;
+  }
 
   void save(alps::ODump& dp) const {
     dp << mcs << spins << operators << logf << histogram << histobs;

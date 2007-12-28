@@ -287,12 +287,13 @@ public:
   diag_worker(alps::Parameters const& p, alps::ObservableSet&) :
     looper::lattice_helper<loop_config::lattice_graph_t>(p),
     alps::model_helper<>(this->graph_helper(), p), done(false), params(p) {}
+  bool is_thermalized() const { return true; }
+  double progress() const { return done ? 1 : 0; }
   template<typename ENGINE>
   void run(ENGINE&, alps::ObservableSet& obs);
   void set_beta(double) const { boost::throw_exception(std::logic_error("diag")); }
-  double dlogw(double) const { boost::throw_exception(std::logic_error("diag")); return 0; }
-  bool is_thermalized() const { return true; }
-  double progress() const { return done ? 1 : 0; }
+  double g_weight() const { boost::throw_exception(std::logic_error("diag")); return 0; }
+  double lambda(double) const { boost::throw_exception(std::logic_error("diag")); return 0; }
   void save(alps::ODump& dp) const { dp << done; }
   void load(alps::IDump& dp) { dp >> done; }
 private:
