@@ -8,6 +8,7 @@ LATTICE = "chain lattice";
 L = 8;
 MAX_EXPANSION_ORDER = 64;
 MEASURE_QWL_HISTOGRAM = 1;
+MEASURE_QWL_WEIGHT = 1;
 [results]
 [[parition 0]]
 Generalized Magnetization Density^2: 0.03125 +/- 0; tau = nan
@@ -273,6 +274,71 @@ Local Histogram:
 61: 2688 entries.
 62: 2689 entries.
 63: 2700 entries.
+Log(g):
+Entry[0]: 3038 +/- inf
+Entry[1]: 3040 +/- inf
+Entry[2]: 3040 +/- inf
+Entry[3]: 3038 +/- inf
+Entry[4]: 3038 +/- inf
+Entry[5]: 3037 +/- inf
+Entry[6]: 3036 +/- inf
+Entry[7]: 3036 +/- inf
+Entry[8]: 3033 +/- inf
+Entry[9]: 3034 +/- inf
+Entry[10]: 3031 +/- inf
+Entry[11]: 3031 +/- inf
+Entry[12]: 3032 +/- inf
+Entry[13]: 3034 +/- inf
+Entry[14]: 3035 +/- inf
+Entry[15]: 3041 +/- inf
+Entry[16]: 3046 +/- inf
+Entry[17]: 3046 +/- inf
+Entry[18]: 3048 +/- inf
+Entry[19]: 3049 +/- inf
+Entry[20]: 3048 +/- inf
+Entry[21]: 3049 +/- inf
+Entry[22]: 3049 +/- inf
+Entry[23]: 3049 +/- inf
+Entry[24]: 3045 +/- inf
+Entry[25]: 3047 +/- inf
+Entry[26]: 3047 +/- inf
+Entry[27]: 3052 +/- inf
+Entry[28]: 3053 +/- inf
+Entry[29]: 3051 +/- inf
+Entry[30]: 3053 +/- inf
+Entry[31]: 3055 +/- inf
+Entry[32]: 3055 +/- inf
+Entry[33]: 3056 +/- inf
+Entry[34]: 3055 +/- inf
+Entry[35]: 3055 +/- inf
+Entry[36]: 3056 +/- inf
+Entry[37]: 3056 +/- inf
+Entry[38]: 3060 +/- inf
+Entry[39]: 3062 +/- inf
+Entry[40]: 3063 +/- inf
+Entry[41]: 3063 +/- inf
+Entry[42]: 3064 +/- inf
+Entry[43]: 3063 +/- inf
+Entry[44]: 3063 +/- inf
+Entry[45]: 3065 +/- inf
+Entry[46]: 3067 +/- inf
+Entry[47]: 3068 +/- inf
+Entry[48]: 3069 +/- inf
+Entry[49]: 3077 +/- inf
+Entry[50]: 3077 +/- inf
+Entry[51]: 3077 +/- inf
+Entry[52]: 3077 +/- inf
+Entry[53]: 3079 +/- inf
+Entry[54]: 3078 +/- inf
+Entry[55]: 3080 +/- inf
+Entry[56]: 3080 +/- inf
+Entry[57]: 3081 +/- inf
+Entry[58]: 3085 +/- inf
+Entry[59]: 3085 +/- inf
+Entry[60]: 3086 +/- inf
+Entry[61]: 3086 +/- inf
+Entry[62]: 3088 +/- inf
+Entry[63]: 3100 +/- inf
 Magnetization: 0 +/- 0; tau = nan
     bin #1   : 2711     entries: error = 0
     bin #2   : 1355     entries: error = 0
