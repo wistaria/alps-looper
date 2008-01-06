@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -357,8 +357,8 @@ void loop_worker::flip(std::vector<alps::ObservableSet>& obs) {
 
   // assign cluster id
   int nc = 0;
-  BOOST_FOREACH(cluster_fragment_t& f, fragments) if (f.is_root()) f.id = nc++;
-  BOOST_FOREACH(cluster_fragment_t& f, fragments) f.id = cluster_id(fragments, f);
+  BOOST_FOREACH(cluster_fragment_t& f, fragments) if (f.is_root()) f.set_id(nc++);
+  BOOST_FOREACH(cluster_fragment_t& f, fragments) f.set_id(cluster_id(fragments, f));
   clusters.resize(0); clusters.resize(nc);
 
   std::copy(spins.begin(), spins.end(), spins_c.begin());
@@ -436,10 +436,11 @@ void loop_worker::flip(std::vector<alps::ObservableSet>& obs) {
 
   // flip operators & spins
   BOOST_FOREACH(local_operator_t& op, operators)
-    if (clusters[fragments[op.loop_0()].id].to_flip ^ clusters[fragments[op.loop_1()].id].to_flip)
+    if (clusters[fragments[op.loop_0()].id()].to_flip ^
+        clusters[fragments[op.loop_1()].id()].to_flip)
       op.flip();
   for (int s = 0; s < nvs; ++s)
-    if (clusters[fragments[s].id].to_flip) spins[s] ^= 1;
+    if (clusters[fragments[s].id()].to_flip) spins[s] ^= 1;
 }
 
 

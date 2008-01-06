@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2007 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 2007-2008 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -153,8 +153,8 @@ struct correlation_length : public has_evaluator_tag {
         std::fill(sq0.begin(), sq0.end(), complex_type(0));
         std::fill(sq1.begin(), sq1.end(), complex_type(0));
         for (int s = 0; s < nvs; ++s) {
-          sq0[fragments[s].id] += phase0[s] * (0.5-spins[s]);
-          sq1[fragments[s].id] += phase1[s] * (0.5-spins[s]);
+          sq0[fragments[s].id()] += phase0[s] * (0.5-spins[s]);
+          sq1[fragments[s].id()] += phase1[s] * (0.5-spins[s]);
         }
         double str0 = 0;
         double str1 = 0;

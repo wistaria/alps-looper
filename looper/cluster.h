@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -49,10 +49,10 @@ struct cluster_info {
     field_accumulator(std::vector<cluster_info>& cl, std::vector<cluster_fragment_t> const& fr,
       std::vector<double> const& fd) : clusters(cl), fragments(fr), field(fd) {}
     void start(int p, double t, int s, int c) {
-      clusters[fragments[p].id].weight -= - field[s] * (0.5-c) * t;
+      clusters[fragments[p].id()].weight -= - field[s] * (0.5-c) * t;
     }
     void term(int p, double t, int s, int c) {
-      clusters[fragments[p].id].weight += - field[s] * (0.5-c) * t;
+      clusters[fragments[p].id()].weight += - field[s] * (0.5-c) * t;
     }
     std::vector<cluster_info>& clusters;
     std::vector<cluster_fragment_t> const& fragments;
@@ -73,8 +73,8 @@ struct cluster_info {
     sign_accumulator(std::vector<cluster_info>& cl, std::vector<cluster_fragment_t> const& fr,
       std::vector<int> const& bs, std::vector<int> const& ss) :
       clusters(cl), fragments(fr), bond_s(bs), site_s(ss) {}
-    void bond_sign(int p, int b) { clusters[fragments[p].id].sign += bond_s[b]; }
-    void site_sign(int p, int s) { clusters[fragments[p].id].sign += site_s[s]; }
+    void bond_sign(int p, int b) { clusters[fragments[p].id()].sign += bond_s[b]; }
+    void site_sign(int p, int s) { clusters[fragments[p].id()].sign += site_s[s]; }
     std::vector<cluster_info>& clusters;
     std::vector<cluster_fragment_t> const& fragments;
     std::vector<int> const& bond_s;

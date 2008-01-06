@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -296,18 +296,26 @@ struct accumulator<ESTIMATOR, FRAGMENT, boost::mpl::true_> {
     estimates.resize(nc);
     for (int i = 0; i < nc; ++i) emt.init_estimate(estimates[i]);
   }
-  void start_s(int p, time_pt t, int s, int c) { estimates[fragments[p].id].start_s(lat, t, s, c); }
+  void start_s(int p, time_pt t, int s, int c) {
+    estimates[fragments[p].id()].start_s(lat, t, s, c);
+  }
   void start_b(int p0, int p1, time_pt t, int b, int s0, int s1, int c0, int c1) {
-    estimates[fragments[p0].id].start_bs(lat, t, b, s0, c0);
-    estimates[fragments[p1].id].start_bt(lat, t, b, s1, c1);
+    estimates[fragments[p0].id()].start_bs(lat, t, b, s0, c0);
+    estimates[fragments[p1].id()].start_bt(lat, t, b, s1, c1);
   }
-  void term_s(int p, time_pt t, int s, int c) { estimates[fragments[p].id].term_s(lat, t, s, c); }
+  void term_s(int p, time_pt t, int s, int c) {
+    estimates[fragments[p].id()].term_s(lat, t, s, c);
+  }
   void term_b(int p0, int p1, time_pt t, int b, int s0, int s1, int c0, int c1) {
-    estimates[fragments[p0].id].term_bs(lat, t, b, s0, c0);
-    estimates[fragments[p1].id].term_bt(lat, t, b, s1, c1);
+    estimates[fragments[p0].id()].term_bs(lat, t, b, s0, c0);
+    estimates[fragments[p1].id()].term_bt(lat, t, b, s1, c1);
   }
-  void at_bot(int p, time_pt t, int s, int c) { estimates[fragments[p].id].at_bot(lat, t, s, c); }
-  void at_top(int p, time_pt t, int s, int c) { estimates[fragments[p].id].at_top(lat, t, s, c); }
+  void at_bot(int p, time_pt t, int s, int c) {
+    estimates[fragments[p].id()].at_bot(lat, t, s, c);
+  }
+  void at_top(int p, time_pt t, int s, int c) {
+    estimates[fragments[p].id()].at_top(lat, t, s, c);
+  }
 
   std::vector<estimate_t>& estimates;
   lattice_t const& lat;

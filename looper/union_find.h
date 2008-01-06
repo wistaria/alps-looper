@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -37,60 +37,101 @@
 namespace looper {
 namespace union_find {
 
-struct node {
-  node() : parent(-1), id() {}
-  bool is_root() const { return parent < 0; }
-  int weight() const { return -parent; }
-  int add_weight(node const& n) { return parent += n.parent; }
-  int parent;  // negative for root fragment
-  int id;
+class node {
+public:
+  node() : parent_(-1) {}
+  void set_as_root(int weight) { parent_ = -weight; }
+  bool is_root() const { return parent_ < 0; }
+  void set_parent(int parent) { parent_ = parent; }
+  int parent() const { return parent_; }
+  int add_weight(node const& n) { return parent_ += n.parent_; }
+  int weight() const { return -parent_; }
+  void set_id(int id) { id_ = id; }
+  int id() const { return id_; }
+private:
+  int parent_; // negative for root fragment
+  int id_;
+};
+
+class node_noweight {
+public:
+  node_noweight() : parent_(id_mask) {}
+  void set_as_root() { parent_ = id_mask; }
+  bool is_root() const { return parent_ < 0; }
+  void set_parent(int parent) { parent_ = parent; }
+  int parent() const { return parent_; }
+  void set_id(int id) { parent_ = id ^ id_mask; }
+  int id() const { return parent_ & id_mask; }
+private:
+  static const int id_mask = -1;
+  int parent_; // negative for root fragment
 };
 
 template<class T>
-inline int add(std::vector<T>& v)
-{
+inline int add(std::vector<T>& v) {
   v.push_back(T());
   return v.size() - 1; // return index of new node
 }
 
 template<class T>
-inline int root_index(std::vector<T> const& v, int g)
-{ while (!v[g].is_root()) g = v[g].parent; return g; }
+inline int root_index(std::vector<T> const& v, int g) {
+  while (!v[g].is_root()) g = v[g].parent(); return g;
+}
 
 template<class T>
-inline T const& root(std::vector<T> const& v, int g)
-{ return v[root_index(v, g)]; }
+inline T const& root(std::vector<T> const& v, int g) { return v[root_index(v, g)]; }
 
 template<class T>
-inline T const& root(std::vector<T> const& v, T const& n)
-{ return n.is_root() ? n : root(v, n.parent); }
+inline T const& root(std::vector<T> const& v, T const& n) {
+  return n.is_root() ? n : root(v, n.parent());
+}
 
 template<class T>
-inline int cluster_id(std::vector<T> const& v, int g)
-{ return root(v, g).id; }
+inline int cluster_id(std::vector<T> const& v, int g) { return root(v, g).id(); }
 
 template<class T>
-inline int cluster_id(std::vector<T> const& v, T const& n)
-{ return root(v, n).id; }
+inline int cluster_id(std::vector<T> const& v, T const& n) { return root(v, n).id(); }
 
 template<class T>
-inline void update_link(std::vector<T>& v, int g, int r)
-{ while (g != r) { int p = v[g].parent; v[g].parent = r; g = p; } }
+inline void update_link(std::vector<T>& v, int g, int r) {
+  while (g != r) {
+    int p = v[g].parent();
+    v[g].set_parent(r);
+    g = p;
+  }
+}
 
 template<class T>
-inline int unify(std::vector<T>& v, int g0, int g1)
-{
+inline int unify_weight(std::vector<T>& v, int g0, int g1) {
   using std::swap;
   int r0 = root_index(v, g0);
   int r1 = root_index(v, g1);
   if (r0 != r1) {
     if (v[r0].weight() < v[r1].weight()) swap(r0, r1);
     v[r0].add_weight(v[r1]);
-    v[r1].parent = r0;
+    v[r1].set_parent(r0);
   }
   update_link(v, g0, r0);
   update_link(v, g1, r0);
   return r0; // return (new) root node
+}
+
+template<class T>
+inline int unify_noweight(std::vector<T>& v, int g0, int g1) {
+  int r0 = root_index(v, g0);
+  int r1 = root_index(v, g1);
+  if (r0 != r1) v[r1].set_parent(r0);
+  update_link(v, g0, r0);
+  update_link(v, g1, r0);
+  return r0; // return (new) root node
+}
+
+inline int unify(std::vector<node>& v, int g0, int g1) {
+  return unify_weight(v, g0, g1);
+}
+
+inline int unify(std::vector<node_noweight>& v, int g0, int g1) {
+  return unify_noweight(v, g0, g1);
 }
 
 } // end namespace union_find

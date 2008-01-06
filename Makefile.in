@@ -54,14 +54,20 @@ noinst_PROGRAMS = loop$(EXEEXT) loop_evaluate$(EXEEXT) $(am__EXEEXT_2) \
 @HAVE_PARAPACK_TRUE@am__append_7 = loop_ps loop_pevaluate
 @HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__append_8 = loop_pp
 @ENABLE_DIAG_TRUE@am__append_9 = diag.C
-@ENABLE_ISING_TRUE@am__append_10 = ising.C
-@ENABLE_PI_TRUE@am__append_11 = path_integral.C
-@ENABLE_SSE_TRUE@am__append_12 = sse.C
-@ENABLE_SSE_QWL_TRUE@am__append_13 = sse_qwl.C
-@ENABLE_SSE_QWL_TRUE@am__append_14 = qwl_evaluate.C
-@ENABLE_SSE_QWL_TRUE@am__append_15 = qwl_evaluate.C
+@ENABLE_DIAG_TRUE@am__append_10 = diag.C
+@ENABLE_ISING_TRUE@am__append_11 = ising.C
+@ENABLE_ISING_TRUE@am__append_12 = ising.C
+@ENABLE_PI_TRUE@am__append_13 = path_integral.C
+@ENABLE_PI_TRUE@am__append_14 = path_integral.C
+@ENABLE_PI_TRUE@@HAVE_PARAPACK_TRUE@am__append_15 = path_integral_mpi.C
+@ENABLE_SSE_TRUE@am__append_16 = sse.C
+@ENABLE_SSE_TRUE@am__append_17 = sse.C
+@ENABLE_SSE_QWL_TRUE@am__append_18 = sse_qwl.C
+@ENABLE_SSE_QWL_TRUE@am__append_19 = sse_qwl.C
+@ENABLE_SSE_QWL_TRUE@am__append_20 = qwl_evaluate.C
+@ENABLE_SSE_QWL_TRUE@am__append_21 = qwl_evaluate.C
 check_PROGRAMS = $(am__EXEEXT_1)
-@ENABLE_DIAG_TRUE@@ENABLE_ISING_TRUE@@ENABLE_PI_TRUE@@ENABLE_SSE_TRUE@am__append_16 = loop_ns
+@ENABLE_DIAG_TRUE@@ENABLE_ISING_TRUE@@ENABLE_PI_TRUE@@ENABLE_SSE_TRUE@am__append_22 = loop_ns
 DIST_COMMON = README $(am__configure_deps) \
 	$(am__dist_noinst_HEADERS_DIST) $(dist_noinst_DATA) \
 	$(dist_noinst_SCRIPTS) $(srcdir)/Makefile.am \
@@ -132,8 +138,13 @@ loop_pevaluate_LDADD = $(LDADD)
 loop_pevaluate_DEPENDENCIES =
 am__loop_pp_SOURCES_DIST = loop_pp.C loop_config.h loop_factory.h \
 	loop_factory.C loop_custom.C loop_model.C diag.C ising.C \
-	path_integral.C sse.C sse_qwl.C
-am_loop_pp_OBJECTS = loop_pp.$(OBJEXT) $(am__objects_6)
+	path_integral.C path_integral_mpi.C sse.C sse_qwl.C
+@ENABLE_PI_TRUE@@HAVE_PARAPACK_TRUE@am__objects_8 = path_integral_mpi.$(OBJEXT)
+am__objects_9 = loop_factory.$(OBJEXT) loop_custom.$(OBJEXT) \
+	loop_model.$(OBJEXT) $(am__objects_1) $(am__objects_2) \
+	$(am__objects_3) $(am__objects_8) $(am__objects_4) \
+	$(am__objects_5)
+am_loop_pp_OBJECTS = loop_pp.$(OBJEXT) $(am__objects_9)
 loop_pp_OBJECTS = $(am_loop_pp_OBJECTS)
 loop_pp_DEPENDENCIES =
 am__loop_ps_SOURCES_DIST = loop_pp.C loop_config.h loop_factory.h \
@@ -193,7 +204,7 @@ am__dist_noinst_HEADERS_DIST = looper/alternating_tensor.h \
 	looper/type.h looper/union_find.h looper/version.h \
 	looper/weight.h looper/weight_impl.h \
 	looper/correlation_length.h looper/gap.h looper/localsus.h \
-	looper/sop.h looper/top.h looper/transmag.h
+	looper/parallel.h looper/sop.h looper/top.h looper/transmag.h
 HEADERS = $(dist_noinst_HEADERS)
 ETAGS = etags
 CTAGS = ctags
@@ -370,6 +381,7 @@ HEADERS_PRO = \
 	looper/correlation_length.h \
 	looper/gap.h \
 	looper/localsus.h \
+	looper/parallel.h \
 	looper/sop.h \
 	looper/top.h \
 	looper/transmag.h
@@ -382,18 +394,22 @@ dist_noinst_SCRIPTS = bootstrap setup.sh config/extract_date.sh config/extract_v
 dist_noinst_DATA = CITATIONS.txt LICENSE.txt README config/preamble.in \
 	config/version.in loop_ns.ip loop_ns.op
 SRC = loop_config.h loop_factory.h loop_factory.C loop_custom.C \
-	loop_model.C $(am__append_9) $(am__append_10) $(am__append_11) \
-	$(am__append_12) $(am__append_13)
+	loop_model.C $(am__append_9) $(am__append_11) $(am__append_13) \
+	$(am__append_16) $(am__append_18)
+SRC_PP = loop_config.h loop_factory.h loop_factory.C loop_custom.C \
+	loop_model.C $(am__append_10) $(am__append_12) \
+	$(am__append_14) $(am__append_15) $(am__append_17) \
+	$(am__append_19)
 loop_SOURCES = loop.C $(SRC)
-loop_evaluate_SOURCES = loop_evaluate.C $(SRC) $(am__append_14)
+loop_evaluate_SOURCES = loop_evaluate.C $(SRC) $(am__append_20)
 loop_mpi_SOURCES = loop.C $(SRC)
 loop_mpi_LDFLAGS = @LDFLAGS_MPI@
 loop_mpi_LDADD = @LIBS_MPI@
 loop_ps_SOURCES = loop_pp.C $(SRC)
-loop_pp_SOURCES = loop_pp.C $(SRC)
+loop_pp_SOURCES = loop_pp.C $(SRC_PP)
 loop_pp_LDFLAGS = @LDFLAGS_MPI@
 loop_pp_LDADD = @LIBS_MPI@
-loop_pevaluate_SOURCES = loop_pevaluate.C $(SRC) $(am__append_15)
+loop_pevaluate_SOURCES = loop_pevaluate.C $(SRC) $(am__append_21)
 loop_ns_SOURCES = loop_ns.C $(SRC)
 TESTS = $(check_PROGRAMS)
 TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
@@ -495,6 +511,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_pevaluate.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_pp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/path_integral.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/path_integral_mpi.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qwl_evaluate.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sse.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sse_qwl.Po@am__quote@

@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -156,7 +156,7 @@ struct correlation {
             typename virtual_site_iterator<lattice_t>::type si1, si1_end;
             for (boost::tie(si1, si1_end) = sites(lat.vg()); si1 != si1_end;
                  ++si1) {
-              if (fragments[*si0].id == fragments[*si1].id) {
+              if (fragments[*si0].id() == fragments[*si1].id()) {
                 int r1 = real_site[*si1];
                 ucorr[r1] += us * (1-2*spins[*si1]);
                 scorr[r1] += ss * gauge[*si1] * (1-2*spins[*si1]);
@@ -180,7 +180,7 @@ struct correlation {
             typename virtual_site_iterator<lattice_t>::type si1, si1_end;
             for (boost::tie(si1, si1_end) = sites(lat.vg()); si1 != si1_end;
                  ++si1) {
-              if (fragments[*si0].id == fragments[*si1].id) {
+              if (fragments[*si0].id() == fragments[*si1].id()) {
                 int d = distance(lat, r0, real_site[*si1]);
                 ucorr[d] += us * (1-2*spins[*si1]);
                 scorr[d] += ss * gauge[*si1] * (1-2*spins[*si1]);

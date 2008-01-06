@@ -68,6 +68,7 @@ HEADERS_PRO = \
 	looper/correlation_length.h \
 	looper/gap.h \
 	looper/localsus.h \
+	looper/parallel.h \
 	looper/sop.h \
 	looper/top.h \
 	looper/transmag.h
@@ -95,20 +96,29 @@ endif
 endif
 
 SRC = loop_config.h loop_factory.h loop_factory.C loop_custom.C loop_model.C
+SRC_PP = loop_config.h loop_factory.h loop_factory.C loop_custom.C loop_model.C
 if ENABLE_DIAG
 SRC += diag.C
+SRC_PP += diag.C
 endif
 if ENABLE_ISING
 SRC += ising.C
+SRC_PP += ising.C
 endif
 if ENABLE_PI
 SRC += path_integral.C
+SRC_PP += path_integral.C
+if HAVE_PARAPACK
+SRC_PP += path_integral_mpi.C
+endif
 endif
 if ENABLE_SSE
 SRC += sse.C
+SRC_PP += sse.C
 endif
 if ENABLE_SSE_QWL
 SRC += sse_qwl.C
+SRC_PP += sse_qwl.C
 endif
 
 loop_SOURCES = loop.C $(SRC)
@@ -124,7 +134,7 @@ loop_mpi_LDADD = @LIBS_MPI@
 
 loop_ps_SOURCES = loop_pp.C $(SRC)
 
-loop_pp_SOURCES = loop_pp.C $(SRC)
+loop_pp_SOURCES = loop_pp.C $(SRC_PP)
 loop_pp_LDFLAGS = @LDFLAGS_MPI@
 loop_pp_LDADD = @LIBS_MPI@
 
