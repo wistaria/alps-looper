@@ -33,6 +33,7 @@
 #include <looper/type.h>
 #include <looper/union_find.h>
 #include <looper/parallel.h>
+#include <parapack/parallel.h>
 
 namespace {
 
@@ -121,7 +122,7 @@ private:
 loop_worker::loop_worker(alps::communicator_helper const& c, alps::Parameters const& p,
   alps::ObservableSet& obs) :
   comm(c), lattice(p), model(p, lattice, looper::is_path_integral<mc_type>::type()),
-  unifier(c, num_sites(lattice.vg())), temperature(p), mcs(p) {
+  unifier(comm.comm, num_sites(lattice.vg())), temperature(p), mcs(p) {
   if (temperature.annealing_steps() > mcs.thermalization())
     boost::throw_exception(std::invalid_argument("longer annealing steps than thermalization"));
 
@@ -277,6 +278,14 @@ void loop_worker::build(ENGINE& eng) {
       }
     }
   }
+
+  for (int s = 0; s < 2 * nvs; ++s) {
+    int r = root_index(fragments, s);
+    if (r > s) {
+      fragments[s].set_as_root(fragments[r].weight());
+      fragments[r].set_parent(s);
+    }
+  }
 }
 
 
@@ -296,18 +305,11 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
   int nvs = num_sites(lattice.vg());
 
   // assign cluster id
-  for (int v = 0; v < 2*nvs; ++v) {
-    int r = root_index(fragments, v);
-    if (r > v) {
-      fragments[v].set_as_root(fragments[r].weight());
-      fragments[r].set_parent(v);
-    }
-  }
   int nc = 0;
-  for (int v = 0; v < 2*nvs; ++v) if (fragments[v].is_root()) fragments[v].set_id(nc++);
+  for (int s = 0; s < 2 * nvs; ++s) if (fragments[s].is_root()) fragments[s].set_id(nc++);
   int noc = nc;
-  for (int v = 2*nvs; v < fragments.size(); ++v)
-    if (fragments[v].is_root()) fragments[v].set_id(nc++);
+  for (int s = 2 * nvs; s < fragments.size(); ++s)
+    if (fragments[s].is_root()) fragments[s].set_id(nc++);
   BOOST_FOREACH(cluster_fragment_t& f, fragments) f.set_id(cluster_id(fragments, f));
   clusters.resize(0); clusters.resize(nc);
 

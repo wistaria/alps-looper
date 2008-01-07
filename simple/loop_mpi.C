@@ -22,12 +22,13 @@
 *
 *****************************************************************************/
 
-// Spin-1/2 Antiferromagnetic Heisenberg Chain
+// Spin-1/2 Antiferromagnetic Heisenberg Chain (parallel version)
 // [continuous time path integral; using std::vector<> for operator string]
 
 #include "observable.h"
 #include "options.h"
 #include <looper/union_find.h>
+#include <looper/parallel.h>
 #include <algorithm> // for std::swap
 #include <boost/foreach.hpp>
 #include <boost/random.hpp>
@@ -88,16 +89,24 @@ inline int right(int L, int b) { return (b == L-1) ? 0 : b+1; }
 template<typename T> inline T power2(T x) { return x * x; }
 
 int main(int argc, char* argv[]) {
+
+  MPI_Init(&argc, &argv);
+  int num_processes, process_id;
+  MPI_Comm_size(MPI_COMM_WORLD, &num_processes);
+  MPI_Comm_rank(MPI_COMM_WORLD, &process_id);
+
   // parameters
-  options p(argc, argv, true, false);
+  options p(argc, argv, true, false, process_id == 0);
   const unsigned int nsites = p.length;
   const unsigned int nbonds = nsites;
   const unsigned int sweeps = p.sweeps;
   const unsigned int therm = p.therm;
   const double beta = 1. / p.temperature;
+  const double tau0 = 1. * process_id / num_processes;
+  const double tau1 = 1. * (process_id+1) / num_processes;
 
   // random number generators
-  boost::mt19937 eng(29833u);
+  boost::mt19937 eng(29833u & (process_id << 8));
   boost::variate_generator<boost::mt19937&, boost::uniform_real<> >
     r_uniform(eng, boost::uniform_real<>());
   boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> >
@@ -106,7 +115,7 @@ int main(int argc, char* argv[]) {
   // vector of operators
   std::vector<local_operator_t> operators, operators_p;
 
-  // spin configuration at t = 0 (1 for down and 0 for up)
+  // spin configuration at t = tau0 (1 for down and 0 for up)
   std::vector<int> spins(nsites);
   std::fill(spins.begin(), spins.end(), 0 /* all up */);
   std::vector<int> spins_c(nsites);
@@ -123,10 +132,15 @@ int main(int argc, char* argv[]) {
   observable smag; // staggered magnetizetion^2
   observable ssus; // staggered susceptibility
 
+  // helper for parallelization
+  typedef looper::parallel_cluster_unifier<fragment_t, estimate_t, accumulate_t> unifier_t;
+  unifier_t unifier(MPI_COMM_WORLD, nsites);
+
   //
   // Monte Carlo steps
   //
 
+  MPI_Barrier(MPI_COMM_WORLD);
   boost::timer tm;
 
   for (unsigned int mcs = 0; mcs < therm + sweeps; ++mcs) {
@@ -140,12 +154,12 @@ int main(int argc, char* argv[]) {
     std::swap(operators, operators_p); operators.resize(0);
 
     // initialize cluster information (setup s cluster fragments)
-    fragments.resize(0); fragments.resize(nsites);
+    fragments.resize(0); fragments.resize(2 * nsites);
     for (int s = 0; s < nsites; ++s) current[s] = s;
 
-    double t = r_time();
+    double t = tau0 + r_time();
     for (std::vector<local_operator_t>::iterator opi = operators_p.begin();
-         t < 1 || opi != operators_p.end();) {
+         t < tau1 || opi != operators_p.end();) {
 
       // diagonal update
       if (opi == operators_p.end() || t < opi->time) {
@@ -178,7 +192,14 @@ int main(int argc, char* argv[]) {
       oi->upper_loop = current[s0] = current[s1] = add(fragments);
     }
 
-    for (int s = 0; s < nsites; ++s) unify(fragments, s, current[s]);
+    for (int s = 0; s < nsites; ++s) unify(fragments, current[s], nsites + s);
+    for (int s = 0; s < 2 * nsites; ++s) {
+      int r = root_index(fragments, s);
+      if (r > s) {
+        fragments[s].set_as_root(fragments[r].weight());
+        fragments[r].set_parent(s);
+      }
+    }
 
     //
     // cluster flip
@@ -186,7 +207,10 @@ int main(int argc, char* argv[]) {
 
     // assign cluster id
     int nc = 0;
-    BOOST_FOREACH(fragment_t& f, fragments) if (f.is_root()) f.set_id(nc++);
+    for (int s = 0; s < 2 * nsites; ++s) if (fragments[s].is_root()) fragments[s].set_id(nc++);
+    int noc = nc;
+    for (int s = 2 * nsites; s < fragments.size(); ++s)
+      if (fragments[s].is_root()) fragments[s].set_id(nc++);
     BOOST_FOREACH(fragment_t& f, fragments) f.set_id(cluster_id(fragments, f));
     clusters.resize(0); clusters.resize(nc);
     estimates.resize(0); estimates.resize(nc);
@@ -194,8 +218,8 @@ int main(int argc, char* argv[]) {
     for (unsigned int s = 0; s < nsites; ++s) {
       int id = fragments[s].id();
       estimates[id].mag += 1 - 2 * spins[s];
-      estimates[id].size -= 0;
-      estimates[id].length -= 0;
+      estimates[id].size -= tau0;
+      estimates[id].length -= tau0;
     }
     BOOST_FOREACH(local_operator_t& op, operators) {
       double t = op.time;
@@ -204,17 +228,22 @@ int main(int argc, char* argv[]) {
     }
     for (unsigned int s = 0; s < nsites; ++s) {
       int id = fragments[s].id();
-      estimates[id].size += 1;
-      estimates[id].length += 1;
+      estimates[id].size += tau1;
+      estimates[id].length += tau1;
     }
 
-    // accumurate loop length and magnetization
+    // accumulate loop length and magnetization
     accumulate_t accum;
     accum.nop = operators.size();
-    BOOST_FOREACH(estimate_t const& est, estimates) accum.add_cluster(est);
+    for (int c = noc; c < nc; ++c) accum.add_cluster(estimates[c]);
+
+    // global unification of open clusters
+    std::vector<unifier_t::flip_t> const& to_flip =
+      unifier.unify(noc, fragments, estimates, accum, r_uniform);
 
     // determine whether clusters are flipped or not
-    BOOST_FOREACH(cluster_t& ci, clusters) ci.to_flip = (r_uniform() < 0.5);
+    for (int c = 0; c < noc; ++c) clusters[c].to_flip = to_flip[c].flip();
+    for (int c = noc; c < nc; ++c) clusters[c].to_flip = (r_uniform() < 0.5);
 
     // flip operators & spins
     BOOST_FOREACH(local_operator_t& op, operators)
@@ -229,20 +258,29 @@ int main(int argc, char* argv[]) {
     // measurements
     //
 
-    energy << (0.25 * nbonds - accum.nop / beta) / nsites;
-    usus << 0.25 * beta * accum.usus / nsites;
-    smag << 0.25 * accum.smag / nsites;
-    ssus << 0.25 * beta * accum.ssus / nsites;
+    if (process_id == 0) {
+      energy << (0.25 * nbonds - accum.nop / beta) / nsites;
+      usus << 0.25 * beta * accum.usus / nsites;
+      smag << 0.25 * accum.smag / nsites;
+      ssus << 0.25 * beta * accum.ssus / nsites;
+    }
   }
 
-  std::cerr << "Speed = " << (therm + sweeps) / tm.elapsed()
-            << " MCS/sec\n";
-  std::cout << "Energy per Site           = "
-            << energy.mean() << " +- " << energy.error() << std::endl
-            << "Uniform Susceptibility    = "
-            << usus.mean() << " +- " << usus.error() << std::endl
-            << "Staggered Magnetization^2 = "
-            << smag.mean() << " +- " << smag.error() << std::endl
-            << "Staggered Susceptibility  = "
-            << ssus.mean() << " +- " << ssus.error() << std::endl;
+  MPI_Barrier(MPI_COMM_WORLD);
+
+  if (process_id == 0) {
+    std::cerr << "Speed = " << (therm + sweeps) / tm.elapsed()
+              << " MCS/sec\n";
+    std::cout << "Energy per Site           = "
+              << energy.mean() << " +- " << energy.error() << std::endl
+              << "Uniform Susceptibility    = "
+              << usus.mean() << " +- " << usus.error() << std::endl
+              << "Staggered Magnetization^2 = "
+              << smag.mean() << " +- " << smag.error() << std::endl
+              << "Staggered Susceptibility  = "
+              << ssus.mean() << " +- " << ssus.error() << std::endl;
+  }
+
+  MPI_Barrier(MPI_COMM_WORLD);
+  MPI_Finalize();
 }

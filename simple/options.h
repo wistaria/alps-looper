@@ -38,7 +38,7 @@ struct options
   bool has_length;
   bool has_gamma;
 
-  options(int argc, char *argv[], bool hl, bool hg)
+  options(int argc, char *argv[], bool hl, bool hg, bool print = true)
     // default parameters
     : length(8), gamma(3.0), temperature(0.2),
       sweeps(1 << 16), therm(sweeps >> 3),
@@ -62,27 +62,29 @@ struct options
           sweeps = boost::lexical_cast<unsigned int>(argv[i]);
           therm = sweeps >> 3; break;
         case 'h' :
-          usage(0, std::cout); break;
+          if (print) usage(0, std::cout); break;
         default :
-          usage(1); break;
+          if (print) usage(1); break;
         }
         break;
       default :
-        usage(1); break;
+        if (print) usage(1); break;
       }
     }
 
-    if (length % 2 == 1 || temperature <= 0. || sweeps == 0) {
-      std::cerr << "invalid parameter\n"; usage(1);
-    }
+    if (print) {
+      if (length % 2 == 1 || temperature <= 0. || sweeps == 0) {
+        std::cerr << "invalid parameter\n"; usage(1);
+      }
 
-    if (has_length)
-      std::cout << "System Length             = " << length << '\n';
-    if (has_gamma)
-      std::cout << "Gamma                     = " << gamma << '\n';
-    std::cout << "Temperature               = " << temperature << '\n'
-              << "MCS for Thermalization    = " << therm << '\n'
-              << "MCS for Measurement       = " << sweeps << '\n';
+      if (has_length)
+        std::cout << "System Length             = " << length << '\n';
+      if (has_gamma)
+        std::cout << "Gamma                     = " << gamma << '\n';
+      std::cout << "Temperature               = " << temperature << '\n'
+                << "MCS for Thermalization    = " << therm << '\n'
+                << "MCS for Measurement       = " << sweeps << '\n';
+    }
   }
 
   void usage(int status, std::ostream& os = std::cerr) const {
