@@ -9,6 +9,9 @@ endif
 if EXIST_EXTRAS
 SUBDIRS += extras
 endif
+if EXIST_SIMPLE
+SUBDIRS += simple
+endif
 if EXIST_TEST
 SUBDIRS += test
 endif

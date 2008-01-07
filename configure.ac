@@ -132,19 +132,21 @@ if test -f "$srcdir/check/Makefile.in"; then
   exist_check=yes
 fi
 AM_CONDITIONAL(EXIST_CHECK, test "$exist_check" = yes)
-AM_CONDITIONAL(BUILD_CHECK, false)
 
 if test -f "$srcdir/extras/Makefile.in"; then
   exist_extras=yes
 fi
 AM_CONDITIONAL(EXIST_EXTRAS, test "$exist_extras" = yes)
-AM_CONDITIONAL(BUILD_EXTRAS, false)
+
+if test -f "$srcdir/simple/Makefile.in"; then
+  exist_simple=yes
+fi
+AM_CONDITIONAL(EXIST_SIMPLE, test "$exist_simple" = yes)
 
 if test -f "$srcdir/test/Makefile.in"; then
   exist_test=yes
 fi
 AM_CONDITIONAL(EXIST_TEST, test "$exist_test" = yes)
-AM_CONDITIONAL(BUILD_TEST, false)
 
 if test -f "$srcdir/v3.1/Makefile.in"; then
   exist_v31=yes
@@ -176,6 +178,9 @@ if test "$exist_extras" = yes; then
   AC_CONFIG_FILES(extras/top/Makefile)
   AC_CONFIG_FILES(extras/transmag/Makefile extras/transmag/alternating_chain.xml)
   AC_CONFIG_FILES(extras/xyz/Makefile extras/xyz/xyz_model.xml)
+fi
+if test "$exist_simple" = yes; then
+  AC_CONFIG_FILES(simple/Makefile)
 fi
 if test "$exist_test" = yes; then
   AC_CONFIG_FILES(test/Makefile)

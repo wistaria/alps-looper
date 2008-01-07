@@ -1,7 +1,4 @@
 SUBDIRS =
-if BUILD_EXTRAS
-SUBDIRS += corrlen gap localsus qwl top transmag xyz
-endif
 DIST_SUBDIRS = corrlen gap localsus qwl top transmag xyz
 
 check-extras :

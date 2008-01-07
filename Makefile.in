@@ -45,29 +45,30 @@ build_triplet = @build@
 host_triplet = @host@
 @EXIST_CHECK_TRUE@am__append_1 = check
 @EXIST_EXTRAS_TRUE@am__append_2 = extras
-@EXIST_TEST_TRUE@am__append_3 = test
-@EXIST_V31_TRUE@am__append_4 = v3.1
-@LOOPER_PRO_TRUE@am__append_5 = $(HEADERS_PRO)
+@EXIST_SIMPLE_TRUE@am__append_3 = simple
+@EXIST_TEST_TRUE@am__append_4 = test
+@EXIST_V31_TRUE@am__append_5 = v3.1
+@LOOPER_PRO_TRUE@am__append_6 = $(HEADERS_PRO)
 noinst_PROGRAMS = loop$(EXEEXT) loop_evaluate$(EXEEXT) $(am__EXEEXT_2) \
 	$(am__EXEEXT_3) $(am__EXEEXT_4)
-@HAVE_MPI_TRUE@am__append_6 = loop_mpi
-@HAVE_PARAPACK_TRUE@am__append_7 = loop_ps loop_pevaluate
-@HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__append_8 = loop_pp
-@ENABLE_DIAG_TRUE@am__append_9 = diag.C
+@HAVE_MPI_TRUE@am__append_7 = loop_mpi
+@HAVE_PARAPACK_TRUE@am__append_8 = loop_ps loop_pevaluate
+@HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__append_9 = loop_pp
 @ENABLE_DIAG_TRUE@am__append_10 = diag.C
-@ENABLE_ISING_TRUE@am__append_11 = ising.C
+@ENABLE_DIAG_TRUE@am__append_11 = diag.C
 @ENABLE_ISING_TRUE@am__append_12 = ising.C
-@ENABLE_PI_TRUE@am__append_13 = path_integral.C
+@ENABLE_ISING_TRUE@am__append_13 = ising.C
 @ENABLE_PI_TRUE@am__append_14 = path_integral.C
-@ENABLE_PI_TRUE@@HAVE_PARAPACK_TRUE@am__append_15 = path_integral_mpi.C
-@ENABLE_SSE_TRUE@am__append_16 = sse.C
+@ENABLE_PI_TRUE@am__append_15 = path_integral.C
+@ENABLE_PI_TRUE@@HAVE_PARAPACK_TRUE@am__append_16 = path_integral_mpi.C
 @ENABLE_SSE_TRUE@am__append_17 = sse.C
-@ENABLE_SSE_QWL_TRUE@am__append_18 = sse_qwl.C
+@ENABLE_SSE_TRUE@am__append_18 = sse.C
 @ENABLE_SSE_QWL_TRUE@am__append_19 = sse_qwl.C
-@ENABLE_SSE_QWL_TRUE@am__append_20 = qwl_evaluate.C
+@ENABLE_SSE_QWL_TRUE@am__append_20 = sse_qwl.C
 @ENABLE_SSE_QWL_TRUE@am__append_21 = qwl_evaluate.C
+@ENABLE_SSE_QWL_TRUE@am__append_22 = qwl_evaluate.C
 check_PROGRAMS = $(am__EXEEXT_1)
-@ENABLE_DIAG_TRUE@@ENABLE_ISING_TRUE@@ENABLE_PI_TRUE@@ENABLE_SSE_TRUE@am__append_22 = loop_ns
+@ENABLE_DIAG_TRUE@@ENABLE_ISING_TRUE@@ENABLE_PI_TRUE@@ENABLE_SSE_TRUE@am__append_23 = loop_ns
 DIST_COMMON = README $(am__configure_deps) \
 	$(am__dist_noinst_HEADERS_DIST) $(dist_noinst_DATA) \
 	$(dist_noinst_SCRIPTS) $(srcdir)/Makefile.am \
@@ -227,12 +228,6 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
-BUILD_CHECK_FALSE = @BUILD_CHECK_FALSE@
-BUILD_CHECK_TRUE = @BUILD_CHECK_TRUE@
-BUILD_EXTRAS_FALSE = @BUILD_EXTRAS_FALSE@
-BUILD_EXTRAS_TRUE = @BUILD_EXTRAS_TRUE@
-BUILD_TEST_FALSE = @BUILD_TEST_FALSE@
-BUILD_TEST_TRUE = @BUILD_TEST_TRUE@
 BUILD_V31_FALSE = @BUILD_V31_FALSE@
 BUILD_V31_TRUE = @BUILD_V31_TRUE@
 CC = @CC@
@@ -268,6 +263,8 @@ EXIST_CHECK_FALSE = @EXIST_CHECK_FALSE@
 EXIST_CHECK_TRUE = @EXIST_CHECK_TRUE@
 EXIST_EXTRAS_FALSE = @EXIST_EXTRAS_FALSE@
 EXIST_EXTRAS_TRUE = @EXIST_EXTRAS_TRUE@
+EXIST_SIMPLE_FALSE = @EXIST_SIMPLE_FALSE@
+EXIST_SIMPLE_TRUE = @EXIST_SIMPLE_TRUE@
 EXIST_TEST_FALSE = @EXIST_TEST_FALSE@
 EXIST_TEST_TRUE = @EXIST_TEST_TRUE@
 EXIST_V31_FALSE = @EXIST_V31_FALSE@
@@ -356,7 +353,7 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 SUBDIRS = doc $(am__append_1) $(am__append_2) $(am__append_3) \
-	$(am__append_4) .
+	$(am__append_4) $(am__append_5) .
 DIST_SUBDIRS = $(SUBDIRS)
 
 #
@@ -376,7 +373,7 @@ dist_noinst_HEADERS = looper/alternating_tensor.h looper/cluster.h \
 	looper/random_choice.h looper/stiffness.h \
 	looper/susceptibility.h looper/temperature.h looper/time.h \
 	looper/type.h looper/union_find.h looper/version.h \
-	looper/weight.h looper/weight_impl.h $(am__append_5)
+	looper/weight.h looper/weight_impl.h $(am__append_6)
 HEADERS_PRO = \
 	looper/correlation_length.h \
 	looper/gap.h \
@@ -394,14 +391,14 @@ dist_noinst_SCRIPTS = bootstrap setup.sh config/extract_date.sh config/extract_v
 dist_noinst_DATA = CITATIONS.txt LICENSE.txt README config/preamble.in \
 	config/version.in loop_ns.ip loop_ns.op
 SRC = loop_config.h loop_factory.h loop_factory.C loop_custom.C \
-	loop_model.C $(am__append_9) $(am__append_11) $(am__append_13) \
-	$(am__append_16) $(am__append_18)
-SRC_PP = loop_config.h loop_factory.h loop_factory.C loop_custom.C \
 	loop_model.C $(am__append_10) $(am__append_12) \
-	$(am__append_14) $(am__append_15) $(am__append_17) \
-	$(am__append_19)
+	$(am__append_14) $(am__append_17) $(am__append_19)
+SRC_PP = loop_config.h loop_factory.h loop_factory.C loop_custom.C \
+	loop_model.C $(am__append_11) $(am__append_13) \
+	$(am__append_15) $(am__append_16) $(am__append_18) \
+	$(am__append_20)
 loop_SOURCES = loop.C $(SRC)
-loop_evaluate_SOURCES = loop_evaluate.C $(SRC) $(am__append_20)
+loop_evaluate_SOURCES = loop_evaluate.C $(SRC) $(am__append_21)
 loop_mpi_SOURCES = loop.C $(SRC)
 loop_mpi_LDFLAGS = @LDFLAGS_MPI@
 loop_mpi_LDADD = @LIBS_MPI@
@@ -409,7 +406,7 @@ loop_ps_SOURCES = loop_pp.C $(SRC)
 loop_pp_SOURCES = loop_pp.C $(SRC_PP)
 loop_pp_LDFLAGS = @LDFLAGS_MPI@
 loop_pp_LDADD = @LIBS_MPI@
-loop_pevaluate_SOURCES = loop_pevaluate.C $(SRC) $(am__append_21)
+loop_pevaluate_SOURCES = loop_pevaluate.C $(SRC) $(am__append_22)
 loop_ns_SOURCES = loop_ns.C $(SRC)
 TESTS = $(check_PROGRAMS)
 TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
