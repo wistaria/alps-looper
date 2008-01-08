@@ -25,68 +25,19 @@
 // Spin-1/2 Antiferromagnetic Heisenberg Chain (parallel version)
 // [continuous time path integral; using std::vector<> for operator string]
 
+#include "common.h"
 #include "observable.h"
 #include "options.h"
-#include <looper/union_find.h>
 #include <looper/parallel.h>
-#include <algorithm> // for std::swap
+
 #include <boost/foreach.hpp>
 #include <boost/random.hpp>
 #include <boost/timer.hpp>
+
+#include <algorithm> // for std::swap
+#include <cstdlib> // for std::exit
 #include <iostream>
 #include <vector>
-
-enum operator_type { diagonal, offdiagonal };
-
-struct local_operator_t {
-  local_operator_t() {}
-  local_operator_t(int b, double t) : type(diagonal), bond(b), time(t) {}
-  void flip() { type = (type == diagonal ? offdiagonal : diagonal); }
-  operator_type type;
-  unsigned int bond;
-  unsigned int upper_loop, lower_loop;
-  double time;
-};
-
-struct cluster_t {
-  cluster_t(bool t = false) : to_flip(t) {}
-  bool to_flip;
-};
-
-struct estimate_t {
-  estimate_t() : mag(0), size(0), length(0) {}
-  double mag;
-  double size;
-  double length;
-};
-
-struct accumulate_t {
-  accumulate_t() : nop(0), usus(0), smag(0), ssus(0) {}
-  void add(accumulate_t const& accum) {
-    nop += accum.nop;
-    usus += accum.usus;
-    smag += accum.smag;
-    ssus += accum.ssus;
-  }
-  void add_cluster(estimate_t const& est) {
-    usus += est.mag * est.mag;
-    smag += est.size * est.size;
-    ssus += est.length * est.length;
-  }
-  double nop;
-  double usus;
-  double smag;
-  double ssus;
-};
-
-typedef looper::union_find::node fragment_t;
-
-// lattice helper functions (returns site index at left/right end of a bond)
-inline int left(int /* L */, int b) { return b; }
-inline int right(int L, int b) { return (b == L-1) ? 0 : b+1; }
-
-// helper function, which returns x^2
-template<typename T> inline T power2(T x) { return x * x; }
 
 int main(int argc, char* argv[]) {
 
@@ -96,12 +47,13 @@ int main(int argc, char* argv[]) {
   MPI_Comm_rank(MPI_COMM_WORLD, &process_id);
 
   // parameters
-  options p(argc, argv, true, false, process_id == 0);
+  options p(argc, argv, process_id == 0);
+  if (!p.valid) { MPI_Finalize(); std::exit(-1); }
   const unsigned int nsites = p.length;
   const unsigned int nbonds = nsites;
   const unsigned int sweeps = p.sweeps;
   const unsigned int therm = p.therm;
-  const double beta = 1. / p.temperature;
+  const double beta = 1 / p.temperature;
   const double tau0 = 1. * process_id / num_processes;
   const double tau1 = 1. * (process_id+1) / num_processes;
 
@@ -133,7 +85,7 @@ int main(int argc, char* argv[]) {
   observable ssus; // staggered susceptibility
 
   // helper for parallelization
-  typedef looper::parallel_cluster_unifier<fragment_t, estimate_t, accumulate_t> unifier_t;
+  typedef looper::parallel_cluster_unifier<estimate_t, accumulate_t> unifier_t;
   unifier_t unifier(MPI_COMM_WORLD, nsites);
 
   //
@@ -193,13 +145,7 @@ int main(int argc, char* argv[]) {
     }
 
     for (int s = 0; s < nsites; ++s) unify(fragments, current[s], nsites + s);
-    for (int s = 0; s < 2 * nsites; ++s) {
-      int r = root_index(fragments, s);
-      if (r > s) {
-        fragments[s].set_as_root(fragments[r].weight());
-        fragments[r].set_parent(s);
-      }
-    }
+    for (int s = 2 * nsites - 1; s >= 0; --s) set_root(fragments, s);
 
     //
     // cluster flip

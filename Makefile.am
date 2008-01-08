@@ -111,9 +111,9 @@ endif
 if ENABLE_PI
 SRC += path_integral.C
 SRC_PP += path_integral.C
-if HAVE_PARAPACK
-SRC_PP += path_integral_mpi.C
-endif
+# if HAVE_PARAPACK
+# SRC_PP += path_integral_mpi.C
+# endif
 endif
 if ENABLE_SSE
 SRC += sse.C

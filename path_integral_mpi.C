@@ -279,13 +279,7 @@ void loop_worker::build(ENGINE& eng) {
     }
   }
 
-  for (int s = 0; s < 2 * nvs; ++s) {
-    int r = root_index(fragments, s);
-    if (r > s) {
-      fragments[s].set_as_root(fragments[r].weight());
-      fragments[r].set_parent(s);
-    }
-  }
+  for (int s = 2 * nvs - 1; s >= 0; --s) set_root(fragments, s);
 }
 
 

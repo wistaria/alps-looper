@@ -24,78 +24,64 @@
 
 // default & command line options
 
-#include <cstdlib> // for std::exit
 #include <iostream>
 #include <boost/lexical_cast.hpp>
 
-struct options
-{
+struct options {
   unsigned int length;
-  double       gamma;
   double       temperature;
   unsigned int sweeps;
   unsigned int therm;
-  bool has_length;
-  bool has_gamma;
+  bool valid;
 
-  options(int argc, char *argv[], bool hl, bool hg, bool print = true)
+  options(int argc, char *argv[], bool print = true) :
     // default parameters
-    : length(8), gamma(3.0), temperature(0.2),
-      sweeps(1 << 16), therm(sweeps >> 3),
-      has_length(hl), has_gamma(hg)
-  {
+    length(8), temperature(0.2), sweeps(1 << 16), therm(sweeps >> 3), valid(true) {
+
     for (int i = 1; i < argc; ++i) {
       switch (argv[i][0]) {
       case '-' :
         switch (argv[i][1]) {
         case 'l' :
-          if (++i == argc || !has_length) usage(1);
+          if (++i == argc) { usage(print); return; }
           length = boost::lexical_cast<unsigned int>(argv[i]); break;
-        case 'g' :
-          if (++i == argc || !has_gamma) usage(1);
-          gamma = boost::lexical_cast<double>(argv[i]); break;
         case 't' :
-          if (++i == argc) usage(1);
+          if (++i == argc) { usage(print); return; }
           temperature = boost::lexical_cast<double>(argv[i]); break;
         case 'n' :
-          if (++i == argc) usage(1);
+          if (++i == argc) { usage(print); return; }
           sweeps = boost::lexical_cast<unsigned int>(argv[i]);
           therm = sweeps >> 3; break;
         case 'h' :
-          if (print) usage(0, std::cout); break;
+          usage(print, std::cout); return;
         default :
-          if (print) usage(1); break;
+          usage(print); return;
         }
         break;
       default :
-        if (print) usage(1); break;
+        usage(print); return;
       }
     }
 
-    if (print) {
-      if (length % 2 == 1 || temperature <= 0. || sweeps == 0) {
-        std::cerr << "invalid parameter\n"; usage(1);
-      }
+    if (length % 2 == 1 || temperature <= 0. || sweeps == 0) {
+      std::cerr << "invalid parameter\n"; usage(print); return;
+    }
 
-      if (has_length)
-        std::cout << "System Length             = " << length << '\n';
-      if (has_gamma)
-        std::cout << "Gamma                     = " << gamma << '\n';
-      std::cout << "Temperature               = " << temperature << '\n'
+    if (print) {
+      std::cout << "System Length             = " << length << '\n'
+                << "Temperature               = " << temperature << '\n'
                 << "MCS for Thermalization    = " << therm << '\n'
                 << "MCS for Measurement       = " << sweeps << '\n';
     }
   }
 
-  void usage(int status, std::ostream& os = std::cerr) const {
-    os << "[command line options]\n\n";
-    if (has_length)
-      os << "  -l int     System Length\n";
-    if (has_gamma)
-      os << "  -g double  Gamma\n";
-    os << "  -t double  Temperature\n"
-       << "  -n int     MCS for Measurement\n"
-       << "  -h         this help\n\n";
-    std::exit(status);
+  void usage(bool print, std::ostream& os = std::cerr) {
+    if (print)
+      os << "[command line options]\n\n"
+         << "  -l int     System Length\n"
+         << "  -t double  Temperature\n"
+         << "  -n int     MCS for Measurement\n"
+         << "  -h         this help\n\n";
+    valid = false;
   }
 };

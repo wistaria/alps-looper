@@ -25,76 +25,28 @@
 // Spin-1/2 Antiferromagnetic Heisenberg Chain
 // [continuous time path integral; using std::vector<> for operator string]
 
+#include "common.h"
 #include "observable.h"
 #include "options.h"
-#include <looper/union_find.h>
-#include <algorithm> // for std::swap
+
 #include <boost/foreach.hpp>
 #include <boost/random.hpp>
 #include <boost/timer.hpp>
+
+#include <algorithm> // for std::swap
+#include <cstdlib> // for std::exit
 #include <iostream>
 #include <vector>
 
-enum operator_type { diagonal, offdiagonal };
-
-struct local_operator_t {
-  local_operator_t() {}
-  local_operator_t(int b, double t) : type(diagonal), bond(b), time(t) {}
-  void flip() { type = (type == diagonal ? offdiagonal : diagonal); }
-  operator_type type;
-  unsigned int bond;
-  unsigned int upper_loop, lower_loop;
-  double time;
-};
-
-struct cluster_t {
-  cluster_t(bool t = false) : to_flip(t) {}
-  bool to_flip;
-};
-
-struct estimate_t {
-  estimate_t() : mag(0), size(0), length(0) {}
-  double mag;
-  double size;
-  double length;
-};
-
-struct accumulate_t {
-  accumulate_t() : nop(0), usus(0), smag(0), ssus(0) {}
-  void add(accumulate_t const& accum) {
-    nop += accum.nop;
-    usus += accum.usus;
-    smag += accum.smag;
-    ssus += accum.ssus;
-  }
-  void add_cluster(estimate_t const& est) {
-    usus += est.mag * est.mag;
-    smag += est.size * est.size;
-    ssus += est.length * est.length;
-  }
-  double nop;
-  double usus;
-  double smag;
-  double ssus;
-};
-
-typedef looper::union_find::node fragment_t;
-
-// lattice helper functions (returns site index at left/right end of a bond)
-inline int left(int /* L */, int b) { return b; }
-inline int right(int L, int b) { return (b == L-1) ? 0 : b+1; }
-
-// helper function, which returns x^2
-template<typename T> inline T power2(T x) { return x * x; }
-
 int main(int argc, char* argv[]) {
   // parameters
-  options p(argc, argv, true, false);
+  options p(argc, argv);
+  if (!p.valid) std::exit(-1);
   const unsigned int nsites = p.length;
   const unsigned int nbonds = nsites;
   const unsigned int sweeps = p.sweeps;
   const unsigned int therm = p.therm;
-  const double beta = 1. / p.temperature;
+  const double beta = 1 / p.temperature;
 
   // random number generators
   boost::mt19937 eng(29833u);
@@ -109,7 +61,6 @@ int main(int argc, char* argv[]) {
   // spin configuration at t = 0 (1 for down and 0 for up)
   std::vector<int> spins(nsites);
   std::fill(spins.begin(), spins.end(), 0 /* all up */);
-  std::vector<int> spins_c(nsites);
   std::vector<int> current(nsites);
 
   // cluster information
@@ -135,8 +86,7 @@ int main(int argc, char* argv[]) {
     // diagonal update and cluster construction
     //
 
-    // initialize spin & operator information
-    std::copy(spins.begin(), spins.end(), spins_c.begin());
+    // initialize operator information
     std::swap(operators, operators_p); operators.resize(0);
 
     // initialize cluster information (setup s cluster fragments)
@@ -150,7 +100,7 @@ int main(int argc, char* argv[]) {
       // diagonal update
       if (opi == operators_p.end() || t < opi->time) {
         int b = static_cast<int>(nbonds * r_uniform());
-        if (spins_c[left(nbonds, b)] != spins_c[right(nbonds, b)]) {
+        if (spins[left(nbonds, b)] != spins[right(nbonds, b)]) {
           operators.push_back(local_operator_t(b, t));
           t += r_time();
         } else {
@@ -171,8 +121,8 @@ int main(int argc, char* argv[]) {
       int s0 = left(nbonds, oi->bond);
       int s1 = right(nbonds, oi->bond);
       if (oi->type == offdiagonal) {
-        spins_c[s0] ^= 1;
-        spins_c[s1] ^= 1;
+        spins[s0] ^= 1;
+        spins[s1] ^= 1;
       }
       oi->lower_loop = unify(fragments, current[s0], current[s1]);
       oi->upper_loop = current[s0] = current[s1] = add(fragments);
@@ -191,12 +141,6 @@ int main(int argc, char* argv[]) {
     clusters.resize(0); clusters.resize(nc);
     estimates.resize(0); estimates.resize(nc);
 
-    for (unsigned int s = 0; s < nsites; ++s) {
-      int id = fragments[s].id();
-      estimates[id].mag += 1 - 2 * spins[s];
-      estimates[id].size -= 0;
-      estimates[id].length -= 0;
-    }
     BOOST_FOREACH(local_operator_t& op, operators) {
       double t = op.time;
       estimates[fragments[op.lower_loop].id()].length += 2 * t;
@@ -204,11 +148,12 @@ int main(int argc, char* argv[]) {
     }
     for (unsigned int s = 0; s < nsites; ++s) {
       int id = fragments[s].id();
+      estimates[id].mag += 1 - 2 * spins[s];
       estimates[id].size += 1;
       estimates[id].length += 1;
     }
 
-    // accumurate loop length and magnetization
+    // accumulate loop length and magnetization
     accumulate_t accum;
     accum.nop = operators.size();
     BOOST_FOREACH(estimate_t const& est, estimates) accum.add_cluster(est);

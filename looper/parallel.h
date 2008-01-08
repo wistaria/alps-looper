@@ -33,12 +33,12 @@
 
 namespace looper {
 
-template<typename FRAGMENT, typename ESTIMATE, typename ACCUMULATE>
+template<typename ESTIMATE, typename ACCUMULATE>
 class parallel_cluster_unifier {
 public:
-  typedef FRAGMENT fragment_t;
   typedef ESTIMATE estimate_t;
   typedef ACCUMULATE accumulate_t;
+  typedef looper::union_find::node_noweight link_t;
 
   class flip_t {
   public:
@@ -53,10 +53,12 @@ public:
     int flip_; // negative if cluster is still open
   };
 
-  parallel_cluster_unifier(MPI_Comm comm, int num_sites)
-    : comm_(comm), num_sites_(num_sites), num_boundaries_(2 * num_sites),
-      flip_(num_boundaries_), flip_stage_(num_boundaries_),
-      links_(2 * num_boundaries_), linksD_(num_boundaries_), linksU_(num_boundaries_) {
+  parallel_cluster_unifier(MPI_Comm comm, int num_sites) :
+    comm_(comm), num_sites_(num_sites), num_boundaries_(2 * num_sites),
+    flip_(num_boundaries_), flip_stage_(num_boundaries_),
+    links_(2 * num_boundaries_), linksD_(num_boundaries_), linksU_(num_boundaries_),
+    estimates_(2 * num_boundaries_), estimatesD_(num_boundaries_), estimatesU_(num_boundaries_) {
+
     int info;
     if ((info = MPI_Comm_size(comm_, &num_processes_)) != 0)
       boost::throw_exception(std::runtime_error(("Error " +
@@ -68,13 +70,15 @@ public:
     for (int t = (num_processes_ - 1); t > 0; t = (t >> 1)) ++num_stages_;
   }
 
-  template<typename RNG>
-  std::vector<flip_t> const& unify(int num_clusters,
-    std::vector<fragment_t> const& fragments, std::vector<estimate_t> const& estimates,
-    accumulate_t& accum, RNG& r_uniform) {
+  template<typename FRAGMENT, typename RNG>
+  std::vector<flip_t> const& unify(int num_clusters, std::vector<FRAGMENT> const& fragments,
+    std::vector<estimate_t> const& estimates, accumulate_t& accum, RNG& r_uniform) {
 
     // initialize local tables
-    for (int c = 0; c < num_clusters; ++c) flip_[c].set_id(c);
+    for (int c = 0; c < num_clusters; ++c) {
+      flip_[c].set_id(c);
+      estimatesD_[c] = estimates[c];
+    }
     for (int v = 0; v < num_boundaries_; ++v) {
       if (fragments[v].is_root())
         linksD_[v].set_id(fragments[v].id()); // id = [0 ... num_clusters-1]
@@ -95,15 +99,18 @@ public:
         // construct link table
         for (int v = 0; v < num_boundaries_; ++v) {
           if (linksD_[v].is_root()) {
-            links_[v].set_as_root();
+            links_[v] = link_t();
           } else {
             links_[v].set_parent(linksD_[v].parent());
           }
         }
+        accumulate_t accumU;
+        MPI_Recv(&accumU, sizeof(accumulate_t), MPI_BYTE, slave, stage, comm_, &status);
+        accum.add(accumU);
         MPI_Recv(&linksU_[0], num_boundaries_, MPI_INT, slave, stage, comm_, &status);
         for (int v = 0; v < num_boundaries_; ++v) {
           if (linksU_[v].is_root()) {
-            links_[num_boundaries_ + v].set_as_root();
+            links_[num_boundaries_ + v] = link_t();
           } else {
             links_[num_boundaries_ + v].set_parent(num_boundaries_ + linksU_[v].parent());
           }
@@ -118,39 +125,23 @@ public:
           for (int v = 0; v < num_sites_; ++v)
             looper::union_find::unify(links_, v, num_boundaries_ + num_sites_ + v);
 
+        for (int v = 2 * num_boundaries_ - 1; v >= num_boundaries_ + num_sites_; --v)
+          set_root(links_, v);
+        for (int v = num_sites_ - 1; v >= 0; --v)
+          set_root(links_, v);
+
         // assign cluster ID
         int nc = 0; // total number of clusters
-        for (int v = 0; v < num_sites_; ++v) {
-          if (links_[v].is_root()) {
-            links_[v].set_id(nc++);
-          } else {
-            int r = root_index(links_, v);
-            if (r > v) {
-              links_[v].set_as_root();
-              links_[v].set_id(nc++);
-              links_[r].set_parent(v);
-            }
-          }
-        }
-        for (int v = num_boundaries_ + num_sites_; v < 2 * num_boundaries_; ++v) {
-          if (links_[v].is_root()) {
-            links_[v].set_id(nc++);
-          } else {
-            int r = root_index(links_, v);
-            if ((r >= num_sites_ && r < num_boundaries_ + num_sites_) || r > v) {
-              links_[v].set_as_root();
-              links_[v].set_id(nc++);
-              links_[r].set_parent(v);
-            }
-          }
-        }
+        for (int v = 0; v < num_sites_; ++v)
+          if (links_[v].is_root()) links_[v].set_id(nc++);
+        for (int v = num_boundaries_ + num_sites_; v < 2 * num_boundaries_; ++v)
+          if (links_[v].is_root()) links_[v].set_id(nc++);
         int noc = nc; // number of open clusters
         for (int v = num_sites_; v < num_boundaries_ + num_sites_; ++v)
           if (links_[v].is_root()) links_[v].set_id(nc++);
 
         // determine whether close clusters are flipped or not
-        for (int c = noc; c < nc; ++c)
-          flip_close_[c] = (r_uniform() < 0.5);
+        for (int c = noc; c < nc; ++c) flip_close_[c] = (r_uniform() < 0.5);
 
         // construct and send flip table for upper part
         for (int v = 0; v < num_boundaries_; ++v) {
@@ -177,6 +168,7 @@ public:
       } else if ((process_id_ & stage_mask) == target_mask) {
         // slave process
         const int master = process_id_ - target_mask;
+        MPI_Send(&accum, sizeof(accumulate_t), MPI_BYTE, master, stage, comm_);
         MPI_Send(&linksD_[0], num_boundaries_, MPI_INT, master, stage, comm_);
         MPI_Recv(&flip_stage_[0], num_boundaries_, MPI_INT, master, stage, comm_, &status);
       } else {
@@ -221,15 +213,12 @@ private:
   // working areas
   std::vector<bool> flip_close_;
   std::vector<flip_t> flip_stage_;
-  std::vector<looper::union_find::node_noweight> links_;
-  std::vector<looper::union_find::node_noweight> linksD_;
-  std::vector<looper::union_find::node_noweight> linksU_;
-  std::vector<estimate_t> estiamte_;
-  std::vector<estimate_t> estiamteD_;
-  std::vector<estimate_t> estiamteU_;
-  accumulate_t accum_;
-  accumulate_t accumD_;
-  accumulate_t accumU_;
+  std::vector<link_t> links_;
+  std::vector<link_t> linksD_;
+  std::vector<link_t> linksU_;
+  std::vector<estimate_t> estimates_;
+  std::vector<estimate_t> estimatesD_;
+  std::vector<estimate_t> estimatesU_;
 };
 
 } // end namespace looper
