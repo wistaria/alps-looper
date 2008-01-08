@@ -1,0 +1,24 @@
+このディレクトリには ALPS/looper の path_integra.C からループアルゴリズ
+ム量子モンテカルロ法のカーネル部分を抽出したコードが含まれている
+
+  loop.C        プログラム本体 (シリアル版)
+  common.h      クラス定義
+  obervable.h   統計平均のためのクラス (ALPS/alea の簡易版)
+  options.h     コマンドライン引数の処理を行なうクラス
+  union_find.h  リンクリストを操作する関数群
+  loop.op       loop を引数なしで実行した場合の出力結果 (確認用)
+
+必要とするライブラリ
+
+  Boost C++ Library
+    version 1.34.1 での動作を確認済
+    boost/foreach.hpp, boost/random.hpp, boost/timer.hpp,
+    boost/lexical_cast.hpp を使用
+
+コンパイル方法
+
+  c++ -I$(BOOST_SRCDIR) -O3 loop.C -o loop
+
+動作確認
+
+  ./loop | diff loop.op -

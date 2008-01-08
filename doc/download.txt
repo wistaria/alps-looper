@@ -13,8 +13,9 @@ ALPS/looper Download
 3.1.2	     2004/10/08	  390083               `alps-looper-3.1.2.tar.gz <alps-looper-3.1.2.tar.gz>`__
 3.2b1	     2006/01/20	  424401               `alps-looper-3.2b1.tar.gz <alps-looper-3.2b1.tar.gz>`__
 3.2b3	     2007/02/24	  618737               `alps-looper-3.2b3.tar.gz <alps-looper-3.2b3.tar.gz>`__
+3.2b5	     2008/01/08	  618737               `alps-looper-3.2b5.tar.gz <alps-looper-3.2b5.tar.gz>`__
 ===========  ===========  ===================  ========================================================================
 
 ------------------------------------------------------------------------------
 
-Copyright (c) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
+Copyright (c) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
