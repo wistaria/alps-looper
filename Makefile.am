@@ -188,7 +188,7 @@ update-preamble:
 # release and snapshot
 #
 
-REMOVE_FOR_STANDARD = check extras looper/extras test sse_qwl.C qwl_evaluate.C $(HEADERS_PRO)
+REMOVE_FOR_STANDARD = check extras looper/extras simple test sse_qwl.C qwl_evaluate.C v3.1 $(HEADERS_PRO)
 REMOVE_FOR_PRO =
 
 distdir = alps-looper-$(VERSION)

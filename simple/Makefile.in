@@ -36,7 +36,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-check_PROGRAMS = loop$(EXEEXT) loop_mpi$(EXEEXT)
+check_PROGRAMS = loop$(EXEEXT)
 subdir = simple
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
@@ -52,9 +52,6 @@ am_loop_OBJECTS = loop.$(OBJEXT)
 loop_OBJECTS = $(am_loop_OBJECTS)
 loop_LDADD = $(LDADD)
 loop_DEPENDENCIES =
-am_loop_mpi_OBJECTS = loop_mpi.$(OBJEXT)
-loop_mpi_OBJECTS = $(am_loop_mpi_OBJECTS)
-loop_mpi_DEPENDENCIES =
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -73,8 +70,8 @@ LTCOMPILE = $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(loop_SOURCES) $(loop_mpi_SOURCES)
-DIST_SOURCES = $(loop_SOURCES) $(loop_mpi_SOURCES)
+SOURCES = $(loop_SOURCES)
+DIST_SOURCES = $(loop_SOURCES)
 DATA = $(dist_noinst_DATA)
 ETAGS = etags
 CTAGS = ctags
@@ -213,10 +210,7 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 dist_noinst_DATA = loop.op
-loop_SOURCES = loop.C observable.h options.h
-loop_mpi_SOURCES = loop_mpi.C observable.h options.h
-loop_mpi_LDFLAGS = @LDFLAGS_MPI@
-loop_mpi_LDADD = @LIBS_MPI@
+loop_SOURCES = loop.C common.h observable.h options.h union_find.h
 TESTS = loop
 TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
 all: all-am
@@ -262,9 +256,6 @@ clean-checkPROGRAMS:
 loop$(EXEEXT): $(loop_OBJECTS) $(loop_DEPENDENCIES) 
 	@rm -f loop$(EXEEXT)
 	$(CXXLINK) $(loop_LDFLAGS) $(loop_OBJECTS) $(loop_LDADD) $(LIBS)
-loop_mpi$(EXEEXT): $(loop_mpi_OBJECTS) $(loop_mpi_DEPENDENCIES) 
-	@rm -f loop_mpi$(EXEEXT)
-	$(CXXLINK) $(loop_mpi_LDFLAGS) $(loop_mpi_OBJECTS) $(loop_mpi_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -273,7 +264,6 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_mpi.Po@am__quote@
 
 .C.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
