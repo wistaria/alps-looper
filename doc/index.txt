@@ -258,7 +258,7 @@ Applications Licence <http://alps.comp-phys.org/software/applications/LICENSE.tx
     P. Werner, S. Wessel (ALPS collaboration), *The ALPS project: open
     source software for strongly correlated systems*,
     `J. Phys. Soc. Jpn. Suppl. 74, 30 (2005)
-    <http://jpsj.ipap.jp/journal/supplement/74/pdf/030.pdf>`__.
+    <http://jpsj.ipap.jp/link?JPSJS/74S/30>`__.
 
   - A.F. Albuquerque, F. Alet, P. Corboz, P. Dayal, A. Feiguin,
     L. Gamper, E. Gull, S Gürtler, A. Honecker, R. Igarashi,
