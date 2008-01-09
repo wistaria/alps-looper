@@ -1,7 +1,10 @@
 dist_noinst_DATA = loop.op loop_mpi.op
-check_PROGRAMS = loop loop_mpi
-loop_SOURCES = loop.C common.h observable.h options.h union_find.h
-loop_mpi_SOURCES = loop_mpi.C common.h observable.h options.h parallel.h union_find.h
+check_PROGRAMS = loop
+if HAVE_MPI
+check_PROGRAMS += loop_mpi
+endif
+loop_SOURCES = loop.C common.h observable.h options.h
+loop_mpi_SOURCES = loop_mpi.C common.h observable.h options.h
 loop_mpi_LDFLAGS = @LDFLAGS_MPI@
 loop_mpi_LDADD = @LIBS_MPI@
 

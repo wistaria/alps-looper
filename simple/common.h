@@ -32,7 +32,7 @@ struct local_operator_t {
   void flip() { type = (type == diagonal ? offdiagonal : diagonal); }
   operator_type type;
   unsigned int bond;
-  unsigned int upper_loop, lower_loop;
+  unsigned int upper_cluster, lower_cluster;
   double time;
 };
 
@@ -43,6 +43,12 @@ struct cluster_t {
 
 struct estimate_t {
   estimate_t() : mag(0), size(0), length(0) {}
+  estimate_t& operator+=(estimate_t const& est) {
+    mag += est.mag;
+    size += est.size;
+    length += est.length;
+    return *this;
+  }
   double mag;
   double size;
   double length;
@@ -50,16 +56,18 @@ struct estimate_t {
 
 struct accumulate_t {
   accumulate_t() : nop(0), usus(0), smag(0), ssus(0) {}
-  void add(accumulate_t const& accum) {
+  accumulate_t& operator+=(accumulate_t const& accum) {
     nop += accum.nop;
     usus += accum.usus;
     smag += accum.smag;
     ssus += accum.ssus;
+    return *this;
   }
-  void add_cluster(estimate_t const& est) {
+  accumulate_t& operator+= (estimate_t const& est) {
     usus += est.mag * est.mag;
     smag += est.size * est.size;
     ssus += est.length * est.length;
+    return *this;
   }
   double nop;
   double usus;
@@ -67,7 +75,7 @@ struct accumulate_t {
   double ssus;
 };
 
-typedef union_find::node fragment_t;
+typedef looper::union_find::node fragment_t;
 
 // lattice helper functions (returns site index at left/right end of a bond)
 inline int left(int /* L */, int b) { return b; }

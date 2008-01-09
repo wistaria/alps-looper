@@ -33,6 +33,7 @@
 
 #include <algorithm> // for std::swap
 #include <vector>
+#include <iostream>
 
 namespace looper {
 namespace union_find {
@@ -59,7 +60,7 @@ public:
   void set_parent(int parent) { parent_ = parent; }
   int parent() const { return parent_; }
   void set_id(int id) { parent_ = id ^ id_mask; }
-  int id() const { return parent_ & id_mask; }
+  int id() const { return parent_ ^ id_mask; }
 private:
   static const int id_mask = -1;
   int parent_; // negative for root fragment
@@ -93,8 +94,10 @@ inline int cluster_id(std::vector<T> const& v, T const& n) { return root(v, n).i
 template<class T>
 inline void set_root(std::vector<T>& v, int g) {
   int r = root_index(v, g);
-  v[g] = v[r];
-  v[r].set_parent(g);
+  if (r != g) {
+    v[g] = v[r];
+    v[r].set_parent(g);
+  }
 }
 
 template<class T>
@@ -137,6 +140,23 @@ inline int unify(std::vector<node>& v, int g0, int g1) {
 
 inline int unify(std::vector<node_noweight>& v, int g0, int g1) {
   return unify_noweight(v, g0, g1);
+}
+
+template<class T>
+inline void output(std::vector<T> const& v, std::ostream& os = std::cout) {
+  for (int i = 0; i < v.size(); ++i) {
+    os << "node " << i << ": ";
+    int g = i;
+    while (true) {
+      if (v[g].is_root()) {
+        os << g << std::endl;
+        break;
+      } else {
+        os << g << " -> ";
+        g = v[g].parent();
+      }
+    }
+  }
 }
 
 } // end namespace union_find

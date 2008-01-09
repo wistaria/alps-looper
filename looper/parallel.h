@@ -55,7 +55,7 @@ public:
 
   parallel_cluster_unifier(MPI_Comm comm, int num_sites) :
     comm_(comm), num_sites_(num_sites), num_boundaries_(2 * num_sites),
-    flip_(num_boundaries_), flip_stage_(num_boundaries_),
+    flip_(num_boundaries_), flip_close_(num_boundaries_), flip_stage_(num_boundaries_),
     links_(2 * num_boundaries_), linksD_(num_boundaries_), linksU_(num_boundaries_),
     estimates_(2 * num_boundaries_), estimatesD_(num_boundaries_), estimatesU_(num_boundaries_) {
 
@@ -124,7 +124,6 @@ public:
         if (stage + 1 == num_stages_)
           for (int v = 0; v < num_sites_; ++v)
             looper::union_find::unify(links_, v, num_boundaries_ + num_sites_ + v);
-
         for (int v = 2 * num_boundaries_ - 1; v >= num_boundaries_ + num_sites_; --v)
           set_root(links_, v);
         for (int v = num_sites_ - 1; v >= 0; --v)

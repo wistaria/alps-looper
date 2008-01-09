@@ -124,8 +124,8 @@ int main(int argc, char* argv[]) {
         spins[s0] ^= 1;
         spins[s1] ^= 1;
       }
-      oi->lower_loop = unify(fragments, current[s0], current[s1]);
-      oi->upper_loop = current[s0] = current[s1] = add(fragments);
+      oi->lower_cluster = unify(fragments, current[s0], current[s1]);
+      oi->upper_cluster = current[s0] = current[s1] = add(fragments);
     }
 
     for (int s = 0; s < nsites; ++s) unify(fragments, s, current[s]);
@@ -143,8 +143,8 @@ int main(int argc, char* argv[]) {
 
     BOOST_FOREACH(local_operator_t& op, operators) {
       double t = op.time;
-      estimates[fragments[op.lower_loop].id()].length += 2 * t;
-      estimates[fragments[op.upper_loop].id()].length -= 2 * t;
+      estimates[fragments[op.lower_cluster].id()].length += 2 * t;
+      estimates[fragments[op.upper_cluster].id()].length -= 2 * t;
     }
     for (unsigned int s = 0; s < nsites; ++s) {
       int id = fragments[s].id();
@@ -153,31 +153,31 @@ int main(int argc, char* argv[]) {
       estimates[id].length += 1;
     }
 
-    // accumulate loop length and magnetization
+    // accumulate cluster properties
     accumulate_t accum;
     accum.nop = operators.size();
-    BOOST_FOREACH(estimate_t const& est, estimates) accum.add_cluster(est);
+    BOOST_FOREACH(estimate_t const& est, estimates) accum += est;
 
     // determine whether clusters are flipped or not
     BOOST_FOREACH(cluster_t& ci, clusters) ci.to_flip = (r_uniform() < 0.5);
 
     // flip operators & spins
     BOOST_FOREACH(local_operator_t& op, operators)
-      if (clusters[fragments[op.lower_loop].id()].to_flip ^
-          clusters[fragments[op.upper_loop].id()].to_flip) op.flip();
+      if (clusters[fragments[op.lower_cluster].id()].to_flip ^
+          clusters[fragments[op.upper_cluster].id()].to_flip) op.flip();
     for (int s = 0; s < nsites; ++s)
       if (clusters[fragments[s].id()].to_flip) spins[s] ^= 1;
-
-    if (mcs < therm) continue;
 
     //
     // measurements
     //
 
-    energy << (0.25 * nbonds - accum.nop / beta) / nsites;
-    usus << 0.25 * beta * accum.usus / nsites;
-    smag << 0.25 * accum.smag / nsites;
-    ssus << 0.25 * beta * accum.ssus / nsites;
+    if (mcs >= therm) {
+      energy << (0.25 * nbonds - accum.nop / beta) / nsites;
+      usus << 0.25 * beta * accum.usus / nsites;
+      smag << 0.25 * accum.smag / nsites;
+      ssus << 0.25 * beta * accum.ssus / nsites;
+    }
   }
 
   std::cerr << "Speed = " << (therm + sweeps) / tm.elapsed()
