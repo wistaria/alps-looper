@@ -28,7 +28,7 @@
 #include "common.h"
 #include "observable.h"
 #include "options.h"
-#include <looper/parallel.h>
+#include "parallel.h"
 
 #include <boost/foreach.hpp>
 #include <boost/random.hpp>
@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
   observable ssus; // staggered susceptibility
 
   // helper for parallelization
-  typedef looper::parallel_cluster_unifier<estimate_t, accumulate_t> unifier_t;
+  typedef parallel_cluster_unifier<estimate_t, accumulate_t> unifier_t;
   unifier_t unifier(MPI_COMM_WORLD, nsites);
 
   //

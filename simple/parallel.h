@@ -25,20 +25,18 @@
 #ifndef LOOPER_PARALLEL_H
 #define LOOPER_PARALLEL_H
 
-#include <looper/union_find.h>
+#include "union_find.h"
 #include <boost/static_assert.hpp>
 #include <boost/throw_exception.hpp>
 #include <stdexcept>
 #include <mpi.h>
-
-namespace looper {
 
 template<typename ESTIMATE, typename ACCUMULATE>
 class parallel_cluster_unifier {
 public:
   typedef ESTIMATE estimate_t;
   typedef ACCUMULATE accumulate_t;
-  typedef looper::union_find::node_noweight link_t;
+  typedef union_find::node_noweight link_t;
 
   class flip_t {
   public:
@@ -118,12 +116,12 @@ public:
 
         // connect between lower and upper
         for (int v = 0; v < num_sites_; ++v)
-          looper::union_find::unify(links_, num_sites_ + v, num_boundaries_ + v);
+          union_find::unify(links_, num_sites_ + v, num_boundaries_ + v);
 
         // at final stage bottom and top must be connected too
         if (stage + 1 == num_stages_)
           for (int v = 0; v < num_sites_; ++v)
-            looper::union_find::unify(links_, v, num_boundaries_ + num_sites_ + v);
+            union_find::unify(links_, v, num_boundaries_ + num_sites_ + v);
 
         for (int v = 2 * num_boundaries_ - 1; v >= num_boundaries_ + num_sites_; --v)
           set_root(links_, v);
@@ -200,7 +198,7 @@ public:
 
 private:
   BOOST_STATIC_ASSERT(sizeof(flip_t) == sizeof(int));
-  BOOST_STATIC_ASSERT(sizeof(looper::union_find::node_noweight) == sizeof(int));
+  BOOST_STATIC_ASSERT(sizeof(union_find::node_noweight) == sizeof(int));
 
   MPI_Comm comm_;
   int num_processes_;
@@ -221,7 +219,5 @@ private:
   std::vector<estimate_t> estimatesD_;
   std::vector<estimate_t> estimatesU_;
 };
-
-} // end namespace looper
 
 #endif // LOOPER_PARALLEL_H
