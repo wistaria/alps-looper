@@ -1,4 +1,4 @@
-Any publication for which one of the ALPS applications was used has to 
+Any publication for which the ALPS/looper Library was used has to 
 acknowledge the use of the ALPS libraries, and the papers listed below. 
 
 Since some of the references are to preprints we would like to ask you 
@@ -9,4 +9,4 @@ to check the ALPS web page http://alps.comp-phys.org/ for updates.
     http://wistaria.comp-phys.org/alps-looper/
 - publications:
     S. Todo and K. Kato, Phys. Rev. Lett. 87 047203 (2001).
-    F. Alet et al., J. Phys. Soc. Jpn. Suppl., Vol. 74, 30 (2005).
+    A.F. Albuquerque et al., J. of Magn. and Magn. Materials 310, 1187 (2007).
