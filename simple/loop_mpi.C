@@ -145,7 +145,7 @@ int main(int argc, char* argv[]) {
     }
 
     for (int s = 0; s < nsites; ++s) unify(fragments, current[s], nsites + s);
-    for (int s = 2 * nsites - 1; s >= 0; --s) set_root(fragments, s);
+    for (int s = 0; s < 2 * nsites; ++s) set_root(fragments, s);
 
     //
     // cluster flip
@@ -154,7 +154,7 @@ int main(int argc, char* argv[]) {
     // assign cluster id
     int nc = 0;
     for (int s = 0; s < 2 * nsites; ++s) if (fragments[s].is_root()) fragments[s].set_id(nc++);
-    int noc = nc;
+    const int noc = nc;
     for (int s = 2 * nsites; s < fragments.size(); ++s)
       if (fragments[s].is_root()) fragments[s].set_id(nc++);
     BOOST_FOREACH(fragment_t& f, fragments) f.set_id(cluster_id(fragments, f));
@@ -162,21 +162,28 @@ int main(int argc, char* argv[]) {
     estimates.resize(0); estimates.resize(nc);
 
     for (unsigned int s = 0; s < nsites; ++s) {
-      int id = fragments[s].id();
-      estimates[id].mag += 1 - 2 * spins[s];
-      estimates[id].size -= tau0;
-      estimates[id].length -= tau0;
+      const int id = fragments[s].id();
+      estimates[id].length -= tau1;
     }
     BOOST_FOREACH(local_operator_t& op, operators) {
-      double t = op.time;
+      const double t = op.time;
       estimates[fragments[op.lower_cluster].id()].length += 2 * t;
       estimates[fragments[op.upper_cluster].id()].length -= 2 * t;
     }
-    for (unsigned int s = 0; s < nsites; ++s) {
-      int id = fragments[s].id();
-      estimates[id].size += tau1;
-      estimates[id].length += tau1;
+    if (process_id == 0) {
+      for (unsigned int s = 0; s < nsites; ++s) {
+        const int id = fragments[s].id();
+        estimates[id].mag += 1 - 2 * spins[s];
+        estimates[id].size += 1;
+        estimates[id].length += tau1;
+      }
+    } else {
+      for (unsigned int s = 0; s < nsites; ++s) {
+        const int id = fragments[nsites+s].id();
+        estimates[id].length += tau1;
+      }
     }
+    
 
     // accumulate cluster properties
     accumulate_t accum;
@@ -189,7 +196,10 @@ int main(int argc, char* argv[]) {
     accum.usus /= (num_processes * num_processes);
 
     // determine whether clusters are flipped or not
-    for (int c = 0; c < noc; ++c) clusters[c].to_flip = to_flip[c].flip();
+    for (int c = 0; c < noc; ++c) {
+      if (to_flip[c].open()) std::cerr << "error\n";
+      clusters[c].to_flip = to_flip[c].flip();
+    }
     for (int c = noc; c < nc; ++c) clusters[c].to_flip = (r_uniform() < 0.5);
 
     // flip operators & spins
