@@ -28,7 +28,7 @@ enum operator_type { diagonal, offdiagonal };
 
 struct local_operator_t {
   local_operator_t() {}
-  local_operator_t(int b, double t) : type(diagonal), bond(b), time(t) {}
+  local_operator_t(unsigned int b, double t) : type(diagonal), bond(b), time(t) {}
   void flip() { type = (type == diagonal ? offdiagonal : diagonal); }
   operator_type type;
   unsigned int bond;
@@ -78,5 +78,5 @@ struct accumulate_t {
 typedef looper::union_find::node fragment_t;
 
 // lattice helper functions (returns site index at left/right end of a bond)
-inline int left(int /* L */, int b) { return b; }
-inline int right(int L, int b) { return (b == L-1) ? 0 : b+1; }
+inline int left(unsigned int /* L */, unsigned int b) { return b; }
+inline int right(unsigned int L, unsigned int b) { return (b == L-1) ? 0 : b+1; }

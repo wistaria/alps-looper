@@ -29,16 +29,16 @@
 
 struct options {
   unsigned int length;
-  double       temperature;
+  double temperature;
   unsigned int sweeps;
   unsigned int therm;
   bool valid;
 
-  options(int argc, char *argv[], bool print = true) :
+  options(unsigned int argc, char *argv[], bool print = true) :
     // default parameters
     length(8), temperature(0.2), sweeps(1 << 16), therm(sweeps >> 3), valid(true) {
 
-    for (int i = 1; i < argc; ++i) {
+    for (unsigned int i = 1; i < argc; ++i) {
       switch (argv[i][0]) {
       case '-' :
         switch (argv[i][1]) {
