@@ -2,11 +2,16 @@
 ム量子モンテカルロ法のカーネル部分を抽出したコードが含まれている
 
   loop.C        プログラム本体 (シリアル版)
+  loop_mpi.C    プログラム本体 (並列版)
   common.h      クラス定義
   obervable.h   統計平均のためのクラス (ALPS/alea の簡易版)
   options.h     コマンドライン引数の処理を行なうクラス
+  paralel.h     並列クラスター結合を行なうクラス
   union_find.h  リンクリストを操作する関数群
+
   loop.op       loop を引数なしで実行した場合の出力結果 (確認用)
+  loop_mpi.op-X loop_mpi を引数なしで実行した場合の出力結果 (確認用)
+                X (= 1,2,4) はプロセス数
 
 必要とするライブラリ
 
@@ -17,8 +22,17 @@
 
 コンパイル方法
 
-  c++ -I$(BOOST_SRCDIR) -O3 loop.C -o loop
+  シリアル版
+    c++ -I$(BOOST_SRCDIR) -O3 loop.C -o loop
+
+  並列版
+    mpiCC -I$(BOOST_SRCDIR) -O3 loop_mpi.C -o loop_mpi
 
 動作確認
 
-  ./loop | diff loop.op -
+  シリアル版
+    ./loop | diff loop.op -
+  並列版
+    mpirun -np 1 loop_mpi | diff loop_mpi.op-1 -
+    mpirun -np 2 loop_mpi | diff loop_mpi.op-2 -
+    mpirun -np 4 loop_mpi | diff loop_mpi.op-4 -

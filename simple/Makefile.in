@@ -214,7 +214,7 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-dist_noinst_DATA = loop.op loop_mpi.op
+dist_noinst_DATA = loop.op loop_mpi.op-1 loop_mpi.op-2 loop_mpi.op-4
 loop_SOURCES = loop.C common.h observable.h options.h
 loop_mpi_SOURCES = loop_mpi.C common.h observable.h options.h
 loop_mpi_LDFLAGS = @LDFLAGS_MPI@
@@ -552,6 +552,11 @@ uninstall-am: uninstall-info-am
 
 .PHONY : test tests
 test tests : check
+
+mpitest mpicheck : loop_mpi
+	mpirun -np 1 loop_mpi | diff $(srcdir)/loop_mpi.op-1 -
+	mpirun -np 2 loop_mpi | diff $(srcdir)/loop_mpi.op-2 -
+	mpirun -np 4 loop_mpi | diff $(srcdir)/loop_mpi.op-4 -
 
 archive:
 	rm -rf loop-$(PACKAGE_VERSION)

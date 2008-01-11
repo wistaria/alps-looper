@@ -92,17 +92,19 @@ public:
     for (int c = 0; c < num_clusters; ++c) flip_[c].set_id(c);
     for (int v = 0; v < num_boundaries_; ++v) {
       if (fragments[v].is_root())
-        linksD_[v].set_id(fragments[v].id()); // id = [0 ... num_clusters-1]
+        linksD_[v].set_id(fragments[v].id()); // id = [0 ... num_clusters)
       else
         linksD_[v].set_parent(root_index(fragments, v));
     }
     estimatesD_.resize(num_clusters);
     std::copy(estimates.begin(), estimates.begin() + num_clusters, estimatesD_.begin());
+
     info_.nc = num_clusters;
     info_.accum = accum;
 
     if (num_processes_ == 1) {
 
+      // connect bottom and top boundaries
       std::copy(linksD_.begin(), linksD_.end(), links_.begin());
       for (int v = 0; v < num_sites_; ++v) looper::union_find::unify(links_, v, num_sites_ + v);
 
@@ -113,13 +115,18 @@ public:
       estimates_.resize(nc);
       std::fill(estimates_.begin(), estimates_.end(), estimate_t());
       for (int v = 0; v < num_boundaries_; ++v)
-        estimates_[cluster_id(links_, v)] += estimatesD_[cluster_id(linksD_, v)];
+        if (linksD_[v].is_root())
+          estimates_[cluster_id(links_, v)] += estimatesD_[linksD_[v].id()];
 
       // accumulate cluster properties
       BOOST_FOREACH(estimate_t const& est, estimates_) accum += est;
 
       // determine whether clusters are flipped or not
-      BOOST_FOREACH(flip_t& f, flip_) f.set_flip(r_uniform() < 0.5);
+      flip_close_.resize(nc);
+      for (int c = 0; c < nc; ++c) flip_close_[c] = (r_uniform() < 0.5);
+      for (int v = 0; v < num_boundaries_; ++v)
+        if (linksD_[v].is_root())
+          flip_[linksD_[v].id()].set_flip(flip_close_[cluster_id(links_, v)]);
 
     } else {
 
@@ -128,24 +135,11 @@ public:
         const int stage_mask = (1 << (stage + 1)) - 1; // 000011111 for stage = 4
         const int target_mask = (1 << stage);          // 000010000
 
-        if ((process_id_ & stage_mask) == 0 &&
-            process_id_ + target_mask < num_processes_) {
+        if ((process_id_ & stage_mask) == 0 && process_id_ + target_mask < num_processes_) {
           // master process
           const int slave = process_id_ + target_mask;
 
-          // construct link table
-          for (int v = 0; v < num_boundaries_; ++v) {
-            if (linksD_[v].is_root()) {
-              links_[v] = link_t();
-            } else {
-              links_[v].set_parent(linksD_[v].parent());
-            }
-          }
-          if (stage != 0) {
-            estimatesD_.resize(info_.nc);
-            std::copy(estimates_.begin(), estimates_.begin() + info_.nc, estimatesD_.begin());
-          }
-            
+          std::copy(linksD_.begin(), linksD_.end(), links_.begin());
           MPI_Recv(&info_, sizeof(info_t), MPI_BYTE, slave, stage, comm_, &status);
           accum += info_.accum;
           estimatesU_.resize(info_.nc);
@@ -164,7 +158,7 @@ public:
           for (int v = 0; v < num_sites_; ++v)
             looper::union_find::unify(links_, num_sites_ + v, num_boundaries_ + v);
 
-          // at final stage bottom and top must be connected too
+          // at final stage bottom and top boundaries must be connected too
           if (stage + 1 == num_stages_) {
             for (int v = 0; v < num_sites_; ++v)
               looper::union_find::unify(links_, v, num_boundaries_ + num_sites_ + v);
@@ -196,12 +190,12 @@ public:
             const int new_id = cluster_id(links_, num_boundaries_ + v);
             const int old_id = cluster_id(linksU_, v);
             if (linksU_[v].is_root()) {
+              estimates_[new_id] += estimatesU_[old_id];
               if (new_id < noc)
                 flip_stage_[old_id].set_id(new_id);
               else
                 flip_stage_[old_id].set_flip(flip_close_[new_id]);
             }
-            estimates_[new_id] += estimatesU_[old_id];
           }
           MPI_Send(&flip_stage_[0], num_boundaries_, MPI_INT, slave, stage, comm_);
 
@@ -210,58 +204,81 @@ public:
             const int new_id = cluster_id(links_, v);
             const int old_id = cluster_id(linksD_, v);
             if (linksD_[v].is_root()) {
+              estimates_[new_id] += estimatesD_[old_id];
               if (new_id < noc)
                 flip_stage_[old_id].set_id(new_id);
               else
                 flip_stage_[old_id].set_flip(flip_close_[new_id]);
             }
-            estimates_[new_id] += estimatesD_[old_id];
           }
+
+          // distribute flip table to decendants
+          distribute(stage);
 
           // accumulate measurements of closed clusters
           for (int c = noc; c < nc; ++c) accum += estimates_[c];
           info_.nc = noc;
           info_.accum = accum;
 
+////          std::cerr << "p " << process_id_ << " accum ssus " << info_.accum.ssus << std::endl;
+////          for (int c = 0; c < noc; ++c)
+////            std::cerr << "p " << process_id_ << ' ' << c << " estimates length " << estimates_[c].length << std::endl;
+
+          // update links and estimates (linksD_ and estimatesD_)
+          if (stage + 1 != num_stages_) {
+            for (int vd = 0; vd < num_boundaries_; ++vd) {
+              const int v = (vd < num_sites_ ? vd : num_boundaries_ + vd);
+              if (links_[v].is_root()) {
+                linksD_[vd].set_id(links_[v].id());
+              } else {
+                int r = root_index(links_, v);
+                linksD_[vd].set_parent((r < num_sites_ ? r : r - num_boundaries_));
+              }
+            }
+            estimatesD_.resize(noc);
+            std::copy(estimates_.begin(), estimates_.begin() + noc, estimatesD_.begin());
+          }
+
         } else if ((process_id_ & stage_mask) == target_mask) {
           // slave process
           const int master = process_id_ - target_mask;
           MPI_Send(&info_, sizeof(info_t), MPI_BYTE, master, stage, comm_);
           MPI_Send(&linksD_[0], num_boundaries_, MPI_INT, master, stage, comm_);
-          if (stage == 0) {
-            MPI_Send(&estimatesD_[0], info_.nc * sizeof(estimate_t), MPI_BYTE, master, stage,
-              comm_);
-          } else {
-            MPI_Send(&estimates_[0], info_.nc * sizeof(estimate_t), MPI_BYTE, master, stage,
-              comm_);
-          }
+          MPI_Send(&estimatesD_[0], info_.nc * sizeof(estimate_t), MPI_BYTE, master, stage, comm_);
           MPI_Recv(&flip_stage_[0], num_boundaries_, MPI_INT, master, stage, comm_, &status);
+          // distribute flip table to decendants
+          distribute(stage);
         } else {
-          // nothing to do
+          // distribute flip table to decendants
+          distribute(stage);
         }
 
-        // distribute flip table to decendants
-        for (int s = stage - 2; s >= 0; --s) {
-          const int sm = (1 << (s + 1)) - 1;
-          const int tm = (1 << s);
-          if ((process_id_ & sm) == 0 && process_id_ + tm < num_processes_) {
-            const int slave = process_id_ + tm;
-            MPI_Send(&flip_stage_[0], num_boundaries_, MPI_INT, slave, s , comm_);
-          } else if ((process_id_ & sm) == tm) {
-            const int master = process_id_ - tm;
-            MPI_Recv(&flip_stage_[0], num_boundaries_, MPI_INT, master, s, comm_, &status);
-          } else {
-            // nothing to do
-          }
-        }
         // update flip table
         for (int c = 0; c < num_clusters; ++c)
           if (flip_[c].open()) flip_[c] = flip_stage_[flip_[c].id()];
       }
-
     }
 
     return flip_;
+  }
+
+protected:
+  // distribute flip table to decendants
+  void distribute(int stage) {
+    MPI_Status status;
+    for (int s = stage - 1; s >= 0; --s) {
+      const int sm = (1 << (s + 1)) - 1;
+      const int tm = (1 << s);
+      if ((process_id_ & sm) == 0 && process_id_ + tm < num_processes_) {
+        const int slave = process_id_ + tm;
+        MPI_Send(&flip_stage_[0], num_boundaries_, MPI_INT, slave, s , comm_);
+      } else if ((process_id_ & sm) == tm) {
+        const int master = process_id_ - tm;
+        MPI_Recv(&flip_stage_[0], num_boundaries_, MPI_INT, master, s, comm_, &status);
+      } else {
+        // nothing to do
+      }
+    }
   }
 
 private:

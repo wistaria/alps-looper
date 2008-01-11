@@ -1,4 +1,4 @@
-dist_noinst_DATA = loop.op loop_mpi.op
+dist_noinst_DATA = loop.op loop_mpi.op-1 loop_mpi.op-2 loop_mpi.op-4
 check_PROGRAMS = loop
 if HAVE_MPI
 check_PROGRAMS += loop_mpi
@@ -13,6 +13,11 @@ TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
 
 .PHONY : test tests
 test tests : check
+
+mpitest mpicheck : loop_mpi
+	mpirun -np 1 loop_mpi | diff $(srcdir)/loop_mpi.op-1 -
+	mpirun -np 2 loop_mpi | diff $(srcdir)/loop_mpi.op-2 -
+	mpirun -np 4 loop_mpi | diff $(srcdir)/loop_mpi.op-4 -
 
 archive:
 	rm -rf loop-$(PACKAGE_VERSION)

@@ -115,7 +115,7 @@ int main(int argc, char* argv[]) {
 
       // diagonal update
       if (opi == operators_p.end() || t < opi->time) {
-        int b = static_cast<int>(nbonds * r_uniform());
+        const int b = static_cast<int>(nbonds * r_uniform());
         if (spins_c[left(nbonds, b)] != spins_c[right(nbonds, b)]) {
           operators.push_back(local_operator_t(b, t));
           t += r_time();
@@ -134,8 +134,8 @@ int main(int argc, char* argv[]) {
       }
 
       std::vector<local_operator_t>::iterator oi = operators.end() - 1;
-      int s0 = left(nbonds, oi->bond);
-      int s1 = right(nbonds, oi->bond);
+      const int s0 = left(nbonds, oi->bond);
+      const int s1 = right(nbonds, oi->bond);
       if (oi->type == offdiagonal) {
         spins_c[s0] ^= 1;
         spins_c[s1] ^= 1;
@@ -161,29 +161,28 @@ int main(int argc, char* argv[]) {
     clusters.resize(0); clusters.resize(nc);
     estimates.resize(0); estimates.resize(nc);
 
-    for (unsigned int s = 0; s < nsites; ++s) {
-      const int id = fragments[s].id();
-      estimates[id].length -= tau1;
+    if (process_id == 0) {
+      for (unsigned int s = 0; s < nsites; ++s) {
+        const int id = fragments[s].id();
+        estimates[id].mag += 1 - 2 * spins[s];
+        estimates[id].size += 1;
+        estimates[id].length -= tau0;
+      }
+    } else {
+      for (unsigned int s = 0; s < nsites; ++s) {
+        const int id = fragments[s].id();
+        estimates[id].length -= tau0;
+      }
     }
     BOOST_FOREACH(local_operator_t& op, operators) {
       const double t = op.time;
       estimates[fragments[op.lower_cluster].id()].length += 2 * t;
       estimates[fragments[op.upper_cluster].id()].length -= 2 * t;
     }
-    if (process_id == 0) {
-      for (unsigned int s = 0; s < nsites; ++s) {
-        const int id = fragments[s].id();
-        estimates[id].mag += 1 - 2 * spins[s];
-        estimates[id].size += 1;
-        estimates[id].length += tau1;
-      }
-    } else {
-      for (unsigned int s = 0; s < nsites; ++s) {
-        const int id = fragments[nsites+s].id();
-        estimates[id].length += tau1;
-      }
+    for (unsigned int s = 0; s < nsites; ++s) {
+      const int id = fragments[nsites+s].id();
+      estimates[id].length += tau1;
     }
-    
 
     // accumulate cluster properties
     accumulate_t accum;
@@ -193,13 +192,9 @@ int main(int argc, char* argv[]) {
     // global unification of open clusters
     std::vector<unifier_t::flip_t> const&
       to_flip = unifier.unify(noc, fragments, estimates, accum, r_uniform);
-    accum.usus /= (num_processes * num_processes);
 
     // determine whether clusters are flipped or not
-    for (int c = 0; c < noc; ++c) {
-      if (to_flip[c].open()) std::cerr << "error\n";
-      clusters[c].to_flip = to_flip[c].flip();
-    }
+    for (int c = 0; c < noc; ++c) clusters[c].to_flip = to_flip[c].flip();
     for (int c = noc; c < nc; ++c) clusters[c].to_flip = (r_uniform() < 0.5);
 
     // flip operators & spins
@@ -216,7 +211,7 @@ int main(int argc, char* argv[]) {
     if (process_id == 0 && mcs >= therm) {
       energy << (0.25 * nbonds - accum.nop / beta) / nsites;
       usus << 0.25 * beta * accum.usus / nsites;
-      smag << 0.25 * accum.smag / nsites;
+      smag << 0.25 * accum.smag;
       ssus << 0.25 * beta * accum.ssus / nsites;
     }
   }
@@ -226,7 +221,7 @@ int main(int argc, char* argv[]) {
   if (process_id == 0) {
     std::cerr << "Speed = " << (therm + sweeps) / tm.elapsed()
               << " MCS/sec\n";
-    std::cout << "Energy per Site           = "
+    std::cout << "Energy Density            = "
               << energy.mean() << " +- " << energy.error() << std::endl
               << "Uniform Susceptibility    = "
               << usus.mean() << " +- " << usus.error() << std::endl
@@ -236,6 +231,5 @@ int main(int argc, char* argv[]) {
               << ssus.mean() << " +- " << ssus.error() << std::endl;
   }
 
-  MPI_Barrier(MPI_COMM_WORLD);
   MPI_Finalize();
 }

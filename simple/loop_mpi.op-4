@@ -1,0 +1,8 @@
+System Length             = 8
+Temperature               = 0.2
+MCS for Thermalization    = 8192
+MCS for Measurement       = 65536
+Energy Density            = -0.442155 +- 0.000526668
+Uniform Susceptibility    = 0.0818586 +- 0.000541506
+Staggered Magnetization^2 = 6.58222 +- 0.011392
+Staggered Susceptibility  = 2.39033 +- 0.00433809

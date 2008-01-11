@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
 
       // diagonal update
       if (opi == operators_p.end() || t < opi->time) {
-        int b = static_cast<int>(nbonds * r_uniform());
+        const int b = static_cast<int>(nbonds * r_uniform());
         if (spins[left(nbonds, b)] != spins[right(nbonds, b)]) {
           operators.push_back(local_operator_t(b, t));
           t += r_time();
@@ -118,8 +118,8 @@ int main(int argc, char* argv[]) {
       }
 
       std::vector<local_operator_t>::iterator oi = operators.end() - 1;
-      int s0 = left(nbonds, oi->bond);
-      int s1 = right(nbonds, oi->bond);
+      const int s0 = left(nbonds, oi->bond);
+      const int s1 = right(nbonds, oi->bond);
       if (oi->type == offdiagonal) {
         spins[s0] ^= 1;
         spins[s1] ^= 1;
@@ -142,12 +142,12 @@ int main(int argc, char* argv[]) {
     estimates.resize(0); estimates.resize(nc);
 
     BOOST_FOREACH(local_operator_t& op, operators) {
-      double t = op.time;
+      const double t = op.time;
       estimates[fragments[op.lower_cluster].id()].length += 2 * t;
       estimates[fragments[op.upper_cluster].id()].length -= 2 * t;
     }
     for (unsigned int s = 0; s < nsites; ++s) {
-      int id = fragments[s].id();
+      const int id = fragments[s].id();
       estimates[id].mag += 1 - 2 * spins[s];
       estimates[id].size += 1;
       estimates[id].length += 1;
@@ -175,14 +175,14 @@ int main(int argc, char* argv[]) {
     if (mcs >= therm) {
       energy << (0.25 * nbonds - accum.nop / beta) / nsites;
       usus << 0.25 * beta * accum.usus / nsites;
-      smag << 0.25 * accum.smag / nsites;
+      smag << 0.25 * accum.smag;
       ssus << 0.25 * beta * accum.ssus / nsites;
     }
   }
 
   std::cerr << "Speed = " << (therm + sweeps) / tm.elapsed()
             << " MCS/sec\n";
-  std::cout << "Energy per Site           = "
+  std::cout << "Energy Density            = "
             << energy.mean() << " +- " << energy.error() << std::endl
             << "Uniform Susceptibility    = "
             << usus.mean() << " +- " << usus.error() << std::endl

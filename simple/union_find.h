@@ -147,13 +147,17 @@ inline void output(std::vector<T> const& v, std::ostream& os = std::cout) {
   for (int i = 0; i < v.size(); ++i) {
     os << "node " << i << ": ";
     int g = i;
-    while (true) {
-      if (v[g].is_root()) {
-        os << g << std::endl;
-        break;
-      } else {
-        os << g << " -> ";
-        g = v[g].parent();
+    if (v[g].is_root()) {
+      os << "root (id = " << v[g].id() << ")" << std::endl;
+    } else {
+      while (true) {
+        if (v[g].is_root()) {
+          os << g << std::endl;
+          break;
+        } else {
+          os << g << " -> ";
+          g = v[g].parent();
+        }
       }
     }
   }
