@@ -25,7 +25,7 @@
 #ifndef LOOPER_PARALLEL_H
 #define LOOPER_PARALLEL_H
 
-#include <looper/union_find.h>
+#include "union_find.h"
 #include <boost/foreach.hpp>
 #include <boost/static_assert.hpp>
 #include <boost/throw_exception.hpp>
@@ -90,6 +90,7 @@ public:
     // initialize local tables
     flip_.resize(num_clusters);
     for (int c = 0; c < num_clusters; ++c) flip_[c].set_id(c);
+    for (int c = 0; c < num_boundaries_; ++c) flip_stage_[c].set_id(c);
     for (int v = 0; v < num_boundaries_; ++v) {
       if (fragments[v].is_root())
         linksD_[v].set_id(fragments[v].id()); // id = [0 ... num_clusters)
@@ -219,10 +220,6 @@ public:
           for (int c = noc; c < nc; ++c) accum += estimates_[c];
           info_.nc = noc;
           info_.accum = accum;
-
-////          std::cerr << "p " << process_id_ << " accum ssus " << info_.accum.ssus << std::endl;
-////          for (int c = 0; c < noc; ++c)
-////            std::cerr << "p " << process_id_ << ' ' << c << " estimates length " << estimates_[c].length << std::endl;
 
           // update links and estimates (linksD_ and estimatesD_)
           if (stage + 1 != num_stages_) {

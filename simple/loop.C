@@ -89,7 +89,7 @@ int main(int argc, char* argv[]) {
     // initialize operator information
     std::swap(operators, operators_p); operators.resize(0);
 
-    // initialize cluster information (setup s cluster fragments)
+    // initialize cluster information
     fragments.resize(0); fragments.resize(nsites);
     for (int s = 0; s < nsites; ++s) current[s] = s;
 

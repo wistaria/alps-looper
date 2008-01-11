@@ -556,6 +556,7 @@ test tests : check
 mpitest mpicheck : loop_mpi
 	mpirun -np 1 loop_mpi | diff $(srcdir)/loop_mpi.op-1 -
 	mpirun -np 2 loop_mpi | diff $(srcdir)/loop_mpi.op-2 -
+	mpirun -np 3 loop_mpi | diff $(srcdir)/loop_mpi.op-3 -
 	mpirun -np 4 loop_mpi | diff $(srcdir)/loop_mpi.op-4 -
 
 archive:

@@ -105,7 +105,7 @@ int main(int argc, char* argv[]) {
     std::copy(spins.begin(), spins.end(), spins_c.begin());
     std::swap(operators, operators_p); operators.resize(0);
 
-    // initialize cluster information (setup s cluster fragments)
+    // initialize cluster information
     fragments.resize(0); fragments.resize(2 * nsites);
     for (int s = 0; s < nsites; ++s) current[s] = s;
 
