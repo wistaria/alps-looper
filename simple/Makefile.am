@@ -1,3 +1,4 @@
+DEFAULT_INCLUDES = -I$(srcdir)
 dist_noinst_DATA = loop.op loop_mpi.op-1 loop_mpi.op-2 loop_mpi.op-4
 check_PROGRAMS = loop
 if HAVE_MPI
