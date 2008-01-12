@@ -38,7 +38,7 @@ build_triplet = @build@
 host_triplet = @host@
 check_PROGRAMS = loop$(EXEEXT) $(am__EXEEXT_1)
 @HAVE_MPI_TRUE@am__append_1 = loop_mpi
-subdir = simple
+subdir = standalone
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -125,8 +125,8 @@ EXIST_CHECK_FALSE = @EXIST_CHECK_FALSE@
 EXIST_CHECK_TRUE = @EXIST_CHECK_TRUE@
 EXIST_EXTRAS_FALSE = @EXIST_EXTRAS_FALSE@
 EXIST_EXTRAS_TRUE = @EXIST_EXTRAS_TRUE@
-EXIST_SIMPLE_FALSE = @EXIST_SIMPLE_FALSE@
-EXIST_SIMPLE_TRUE = @EXIST_SIMPLE_TRUE@
+EXIST_STANDALONE_FALSE = @EXIST_STANDALONE_FALSE@
+EXIST_STANDALONE_TRUE = @EXIST_STANDALONE_TRUE@
 EXIST_TEST_FALSE = @EXIST_TEST_FALSE@
 EXIST_TEST_TRUE = @EXIST_TEST_TRUE@
 EXIST_V31_FALSE = @EXIST_V31_FALSE@
@@ -234,9 +234,9 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__confi
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign  simple/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign  standalone/Makefile'; \
 	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign  simple/Makefile
+	  $(AUTOMAKE) --foreign  standalone/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \

@@ -45,7 +45,7 @@ build_triplet = @build@
 host_triplet = @host@
 @EXIST_CHECK_TRUE@am__append_1 = check
 @EXIST_EXTRAS_TRUE@am__append_2 = extras
-@EXIST_SIMPLE_TRUE@am__append_3 = simple
+@EXIST_STANDALONE_TRUE@am__append_3 = standalone
 @EXIST_TEST_TRUE@am__append_4 = test
 @EXIST_V31_TRUE@am__append_5 = v3.1
 @LOOPER_PRO_TRUE@am__append_6 = $(HEADERS_PRO)
@@ -260,8 +260,8 @@ EXIST_CHECK_FALSE = @EXIST_CHECK_FALSE@
 EXIST_CHECK_TRUE = @EXIST_CHECK_TRUE@
 EXIST_EXTRAS_FALSE = @EXIST_EXTRAS_FALSE@
 EXIST_EXTRAS_TRUE = @EXIST_EXTRAS_TRUE@
-EXIST_SIMPLE_FALSE = @EXIST_SIMPLE_FALSE@
-EXIST_SIMPLE_TRUE = @EXIST_SIMPLE_TRUE@
+EXIST_STANDALONE_FALSE = @EXIST_STANDALONE_FALSE@
+EXIST_STANDALONE_TRUE = @EXIST_STANDALONE_TRUE@
 EXIST_TEST_FALSE = @EXIST_TEST_FALSE@
 EXIST_TEST_TRUE = @EXIST_TEST_TRUE@
 EXIST_V31_FALSE = @EXIST_V31_FALSE@
@@ -410,7 +410,7 @@ TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
 #
 # release and snapshot
 #
-REMOVE_FOR_STANDARD = check extras looper/extras simple test sse_qwl.C qwl_evaluate.C v3.1 $(HEADERS_PRO)
+REMOVE_FOR_STANDARD = check extras looper/extras standalone test sse_qwl.C qwl_evaluate.C v3.1 $(HEADERS_PRO)
 REMOVE_FOR_PRO = 
 distdir = alps-looper-$(VERSION)
 distdir_pro = alps-looper-pro-$(VERSION)

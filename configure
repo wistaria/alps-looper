@@ -465,7 +465,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT LOOPER_PRO_TRUE LOOPER_PRO_FALSE LDADD LDFLAGS_MPI LIBS_MPI HAVE_MPI_TRUE HAVE_MPI_FALSE HAVE_LAPACK_TRUE HAVE_LAPACK_FALSE CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CPP EGREP HAVE_PARAPACK_TRUE HAVE_PARAPACK_FALSE CXX CXXFLAGS ac_ct_CXX CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE build build_cpu build_vendor build_os host host_cpu host_vendor host_os LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL DEFAULT_INCLUDES ENABLE_DIAG_TRUE ENABLE_DIAG_FALSE ENABLE_ISING_TRUE ENABLE_ISING_FALSE ENABLE_PI_TRUE ENABLE_PI_FALSE ENABLE_SSE_TRUE ENABLE_SSE_FALSE ENABLE_SSE_QWL_TRUE ENABLE_SSE_QWL_FALSE EXIST_CHECK_TRUE EXIST_CHECK_FALSE EXIST_EXTRAS_TRUE EXIST_EXTRAS_FALSE EXIST_SIMPLE_TRUE EXIST_SIMPLE_FALSE EXIST_TEST_TRUE EXIST_TEST_FALSE EXIST_V31_TRUE EXIST_V31_FALSE BUILD_V31_TRUE BUILD_V31_FALSE LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT LOOPER_PRO_TRUE LOOPER_PRO_FALSE LDADD LDFLAGS_MPI LIBS_MPI HAVE_MPI_TRUE HAVE_MPI_FALSE HAVE_LAPACK_TRUE HAVE_LAPACK_FALSE CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CPP EGREP HAVE_PARAPACK_TRUE HAVE_PARAPACK_FALSE CXX CXXFLAGS ac_ct_CXX CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE build build_cpu build_vendor build_os host host_cpu host_vendor host_os LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL DEFAULT_INCLUDES ENABLE_DIAG_TRUE ENABLE_DIAG_FALSE ENABLE_ISING_TRUE ENABLE_ISING_FALSE ENABLE_PI_TRUE ENABLE_PI_FALSE ENABLE_SSE_TRUE ENABLE_SSE_FALSE ENABLE_SSE_QWL_TRUE ENABLE_SSE_QWL_FALSE EXIST_CHECK_TRUE EXIST_CHECK_FALSE EXIST_EXTRAS_TRUE EXIST_EXTRAS_FALSE EXIST_STANDALONE_TRUE EXIST_STANDALONE_FALSE EXIST_TEST_TRUE EXIST_TEST_FALSE EXIST_V31_TRUE EXIST_V31_FALSE BUILD_V31_TRUE BUILD_V31_FALSE LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -19789,17 +19789,17 @@ else
 fi
 
 
-if test -f "$srcdir/simple/Makefile.in"; then
-  exist_simple=yes
+if test -f "$srcdir/standalone/Makefile.in"; then
+  exist_standalone=yes
 fi
 
 
-if test "$exist_simple" = yes; then
-  EXIST_SIMPLE_TRUE=
-  EXIST_SIMPLE_FALSE='#'
+if test "$exist_standalone" = yes; then
+  EXIST_STANDALONE_TRUE=
+  EXIST_STANDALONE_FALSE='#'
 else
-  EXIST_SIMPLE_TRUE='#'
-  EXIST_SIMPLE_FALSE=
+  EXIST_STANDALONE_TRUE='#'
+  EXIST_STANDALONE_FALSE=
 fi
 
 
@@ -19870,8 +19870,8 @@ if test "$exist_extras" = yes; then
                       ac_config_files="$ac_config_files extras/xyz/Makefile extras/xyz/xyz_model.xml"
 
 fi
-if test "$exist_simple" = yes; then
-            ac_config_files="$ac_config_files simple/Makefile"
+if test "$exist_standalone" = yes; then
+            ac_config_files="$ac_config_files standalone/Makefile"
 
 fi
 if test "$exist_test" = yes; then
@@ -20064,10 +20064,10 @@ echo "$as_me: error: conditional \"EXIST_EXTRAS\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
-if test -z "${EXIST_SIMPLE_TRUE}" && test -z "${EXIST_SIMPLE_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"EXIST_SIMPLE\" was never defined.
+if test -z "${EXIST_STANDALONE_TRUE}" && test -z "${EXIST_STANDALONE_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"EXIST_STANDALONE\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"EXIST_SIMPLE\" was never defined.
+echo "$as_me: error: conditional \"EXIST_STANDALONE\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -20552,7 +20552,7 @@ do
   "extras/transmag/alternating_chain.xml" ) CONFIG_FILES="$CONFIG_FILES extras/transmag/alternating_chain.xml" ;;
   "extras/xyz/Makefile" ) CONFIG_FILES="$CONFIG_FILES extras/xyz/Makefile" ;;
   "extras/xyz/xyz_model.xml" ) CONFIG_FILES="$CONFIG_FILES extras/xyz/xyz_model.xml" ;;
-  "simple/Makefile" ) CONFIG_FILES="$CONFIG_FILES simple/Makefile" ;;
+  "standalone/Makefile" ) CONFIG_FILES="$CONFIG_FILES standalone/Makefile" ;;
   "test/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
   "v3.1/Makefile" ) CONFIG_FILES="$CONFIG_FILES v3.1/Makefile" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
@@ -20734,8 +20734,8 @@ s,@EXIST_CHECK_TRUE@,$EXIST_CHECK_TRUE,;t t
 s,@EXIST_CHECK_FALSE@,$EXIST_CHECK_FALSE,;t t
 s,@EXIST_EXTRAS_TRUE@,$EXIST_EXTRAS_TRUE,;t t
 s,@EXIST_EXTRAS_FALSE@,$EXIST_EXTRAS_FALSE,;t t
-s,@EXIST_SIMPLE_TRUE@,$EXIST_SIMPLE_TRUE,;t t
-s,@EXIST_SIMPLE_FALSE@,$EXIST_SIMPLE_FALSE,;t t
+s,@EXIST_STANDALONE_TRUE@,$EXIST_STANDALONE_TRUE,;t t
+s,@EXIST_STANDALONE_FALSE@,$EXIST_STANDALONE_FALSE,;t t
 s,@EXIST_TEST_TRUE@,$EXIST_TEST_TRUE,;t t
 s,@EXIST_TEST_FALSE@,$EXIST_TEST_FALSE,;t t
 s,@EXIST_V31_TRUE@,$EXIST_V31_TRUE,;t t

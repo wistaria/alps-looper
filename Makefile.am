@@ -9,8 +9,8 @@ endif
 if EXIST_EXTRAS
 SUBDIRS += extras
 endif
-if EXIST_SIMPLE
-SUBDIRS += simple
+if EXIST_STANDALONE
+SUBDIRS += standalone
 endif
 if EXIST_TEST
 SUBDIRS += test
@@ -188,7 +188,7 @@ update-preamble:
 # release and snapshot
 #
 
-REMOVE_FOR_STANDARD = check extras looper/extras simple test sse_qwl.C qwl_evaluate.C v3.1 $(HEADERS_PRO)
+REMOVE_FOR_STANDARD = check extras looper/extras standalone test sse_qwl.C qwl_evaluate.C v3.1 $(HEADERS_PRO)
 REMOVE_FOR_PRO =
 
 distdir = alps-looper-$(VERSION)
