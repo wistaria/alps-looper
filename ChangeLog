@@ -1,7 +1,7 @@
 2008-01-12  Synge Todo <wistaria@comp-phys.org>
 	
 	* [pro] Added stand-alone reference implementations (serial and
-	parallel versions) in standalone directory.
+	parallel versions) in 'standalone' directory.
 	
 2008-01-08  Synge Todo <wistaria@comp-phys.org>
 
