@@ -1,5 +1,5 @@
 DEFAULT_INCLUDES = -I$(srcdir)
-dist_noinst_DATA = loop.op loop_mpi.op-1 loop_mpi.op-2 loop_mpi.op-4
+dist_noinst_DATA = loop.op loop_mpi.op-1 loop_mpi.op-2 loop_mpi.op-3 loop_mpi.op-4
 check_PROGRAMS = loop
 if HAVE_MPI
 check_PROGRAMS += loop_mpi
@@ -24,6 +24,6 @@ mpitest mpicheck : loop_mpi
 archive:
 	rm -rf loop-$(PACKAGE_VERSION)
 	mkdir loop-$(PACKAGE_VERSION)
-	cp -a $(top_srcdir)/LICENSE.txt $(top_srcdir)/CITATIONS.txt $(srcdir)/README.ja $(srcdir)/loop.C $(srcdir)/loop.op $(srcdir)/loop_mpi.C $(srcdir)/loop_mpi.op $(srcdir)/*.h loop-$(PACKAGE_VERSION)
+	cp -p $(top_srcdir)/LICENSE.txt $(top_srcdir)/CITATIONS.txt $(srcdir)/README.ja $(srcdir)/loop.C $(srcdir)/loop.op $(srcdir)/loop_mpi.C $(srcdir)/loop_mpi.op* $(srcdir)/*.h loop-$(PACKAGE_VERSION)
 	tar zcf loop-$(PACKAGE_VERSION).tar.gz loop-$(PACKAGE_VERSION)
 	rm -rf loop-$(PACKAGE_VERSION)

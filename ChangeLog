@@ -1,3 +1,8 @@
+2008-01-12  Synge Todo <wistaria@comp-phys.org>
+	
+	* [pro] Added stand-alone (serial and parallel) implementations
+	in standalone directory
+	
 2008-01-08  Synge Todo <wistaria@comp-phys.org>
 
 	* version 3.2b5 for ALPS Applications 1.3
