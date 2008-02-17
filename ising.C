@@ -66,9 +66,9 @@ public:
   void run(ENGINE& eng, alps::ObservableSet& obs);
 
   // for exchange Monte Carlo
-  void set_beta(double b) { temperature.set_beta(b); }
-  double g_weight() const { return nop; }
-  double lambda(double beta) const { return std::log(beta); }
+  void set_beta(double beta) { temperature.set_beta(beta); }
+  double weight_parameter() const { return nop; }
+  static double log_weight(double gw, double beta) { return std::log(beta) * gw; }
 
   void save(alps::ODump& dp) const { dp << mcs << spins; }
   void load(alps::IDump& dp) { dp >> mcs >> spins; }

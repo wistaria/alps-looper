@@ -64,9 +64,14 @@ public:
 
   void run(ENGINE& eng, alps::ObservableSet& obs);
 
-  void set_beta(double) const { boost::throw_exception(std::logic_error("sse_qwl")); }
-  double g_weight() const { boost::throw_exception(std::logic_error("sse_qwl")); }
-  double lambda(double) const {
+  void set_beta(double) const {
+    boost::throw_exception(std::logic_error("sse_qwl"));
+  }
+  double weight_parameter() const {
+    boost::throw_exception(std::logic_error("sse_qwl"));
+    return 0;
+  }
+  static double log_weight(double, double) const {
     boost::throw_exception(std::logic_error("sse_qwl"));
     return 0;
   }

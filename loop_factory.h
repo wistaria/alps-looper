@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -34,11 +34,11 @@
 #include <stdexcept>
 
 template<typename WORKER>
-class alps_worker_wrapper : public alps::scheduler::MCRun {
+class alps_worker : public alps::scheduler::MCRun {
 public:
-  alps_worker_wrapper(alps::ProcessList const& w, alps::Parameters const& p, int n) :
+  alps_worker(alps::ProcessList const& w, alps::Parameters const& p, int n) :
     alps::scheduler::MCRun(w, p, n),  worker_(p, measurements) {}
-  virtual ~alps_worker_wrapper() {}
+  virtual ~alps_worker() {}
   virtual void dostep() { worker_.run(*engine_ptr, measurements); }
   virtual void load(alps::IDump& dump) { worker_.load(dump); }
   virtual void save(alps::ODump& dump) const { worker_.save(dump); }
@@ -52,17 +52,18 @@ private:
 #ifdef HAVE_PARAPACK
 
 template<typename WORKER>
-class parapack_worker_wrapper : public alps::parapack::mc_worker {
+class parapack_single_worker : public alps::parapack::mc_worker {
 public:
-  parapack_worker_wrapper(alps::Parameters const& p, alps::ObservableSet& obs) :
+  typedef double weight_parameter_type;
+  parapack_single_worker(alps::Parameters const& p, alps::ObservableSet& obs) :
     alps::parapack::mc_worker(p),  worker_(p, obs) {}
-  virtual ~parapack_worker_wrapper() {}
+  virtual ~parapack_single_worker() {}
   virtual bool is_thermalized() const { return worker_.is_thermalized(); }
   virtual double progress() const { return worker_.progress(); }
   virtual void run(alps::ObservableSet& obs) { worker_.run(*engine_ptr, obs); }
   void set_beta(double beta) { worker_.set_beta(beta); }
-  double g_weight() const { return worker_.g_weight(); }
-  double lambda(double beta) const { return worker_.lambda(beta); }
+  double weight_parameter() const { return worker_.weight_parameter(); }
+  static double log_weight(double gw, double beta) { return WORKER::log_weight(gw, beta); }
   virtual void load(alps::IDump& dump) { worker_.load(dump); }
   virtual void save(alps::ODump& dump) const { worker_.save(dump); }
 private:
@@ -89,17 +90,17 @@ public:
   virtual ~worker_creator() {}
   alps::scheduler::MCRun* create(alps::ProcessList const& w, alps::Parameters const& p,
     int n) const {
-    return new alps_worker_wrapper<worker_type>(w, p, n);
+    return new alps_worker<worker_type>(w, p, n);
   }
 #ifdef HAVE_PARAPACK
   virtual alps::parapack::abstract_worker* create(const alps::Parameters& p,
     std::vector<alps::ObservableSet>& obs) const {
     if (p.defined("EXCHANGE_MONTE_CARLO") && static_cast<bool>(p["EXCHANGE_MONTE_CARLO"])) {
-      return new alps::parapack::single_exchange_worker<parapack_worker_wrapper<worker_type> >
+      return new alps::parapack::single_exchange_worker<parapack_single_worker<worker_type> >
         (p, obs);
     } else {
       obs.resize(1);
-      return new parapack_worker_wrapper<worker_type>(p, obs[0]);
+      return new parapack_single_worker<worker_type>(p, obs[0]);
     }
   }
 #endif // HAVE_PARAPACK
