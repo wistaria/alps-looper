@@ -77,11 +77,11 @@ public:
 
   void save(alps::ODump& dp) const {
     uint32_t direc_tmp = (direc == walker_direc::up ? 0 : 1);
-    dp << mcs << spins << operators << logg << direc_tmp;
+    dp << mcs << spins << operators << logg << direc_tmp << factor;
   }
   void load(alps::IDump& dp) {
     uint32_t direc_tmp;
-    dp >> mcs >> spins >> operators >> logg >> direc_tmp;
+    dp >> mcs >> spins >> operators >> logg >> direc_tmp >> factor;
     direc = (direc_tmp == 0 ? walker_direc::up : walker_direc::down);
   }
 
@@ -101,7 +101,7 @@ private:
   // parameters
   bool use_improved_estimator;
   int max_order;
-  double factor;
+  int mcs_iteration;
   bool measure_histogram;
   bool measure_weight;
   bool fixed_weight;
@@ -112,6 +112,7 @@ private:
   std::vector<local_operator_t> operators;
   std::valarray<double> logg;
   walker_direc_t direc;
+  double factor;
 
   // observables
   double sign;
@@ -151,10 +152,12 @@ loop_worker::loop_worker(alps::Parameters const& p, std::vector<alps::Observable
   perm.resize(max_virtual_sites(lattice));
 
   max_order = static_cast<int>(evaluate("MAX_EXPANSION_ORDER", p));
-  factor = p.defined("UPDATE_FACTOR") ? std::log(evaluate("UPDATE_FACTOR", p)) : 1;
+  factor = p.defined("INITIAL_UPDATE_FACTOR") ? std::log(evaluate("INITIAL_UPDATE_FACTOR", p)) : 1;
+  int iteration = p.defined("FACTOR_REDUCTION_ITERATION") ? static_cast<int>(evaluate("FACTOR_REDUCTION_ITERATION", p)) : 1;
+  mcs_iteration = mcs.thermalization() / iteration;
   measure_histogram = p.value_or_default("MEASURE_QWL_HISTOGRAM", false);
   measure_weight = p.value_or_default("MEASURE_QWL_WEIGHT", false);
-  fixed_weight = p.value_or_default("FIXED_WEIGHT_AFTER_THERMALIZATION", false);
+  fixed_weight = p.value_or_default("FIXED_WEIGHT_AFTER_THERMALIZATION", true);
 
   // configuration
   int nvs = num_sites(lattice.vg());
@@ -162,7 +165,8 @@ loop_worker::loop_worker(alps::Parameters const& p, std::vector<alps::Observable
   spins_c.resize(nvs);
   current.resize(nvs);
   logg.resize(max_order);
-  for (int i = 0; i < max_order; ++i) logg[i] = 0;
+  for (int i = 0; i < max_order; ++i) logg[i] = i;
+  // for (int i = 0; i < max_order; ++i) logg[i] = 0;
   direc = walker_direc::down;
 
   int num_part = log2(max_order-1) + 2;
@@ -194,6 +198,13 @@ loop_worker::loop_worker(alps::Parameters const& p, std::vector<alps::Observable
 void loop_worker::run(std::vector<alps::ObservableSet>& obs) {
   ++mcs;
 
+  if (!mcs.is_thermalized() && mcs() % mcs_iteration == 0) {
+    std::clog << mcs() << ": factor is reduced from " << std::exp(factor);
+    factor *= 0.5;
+    std::clog << " to " << std::exp(factor) << std::endl;
+  }
+  if (fixed_weight && is_thermalized()) factor = 0;
+
   build(obs);
 
   //   FIELD               SIGN                IMPROVE
@@ -220,8 +231,6 @@ void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
   if (measure_histogram)
     hist = dynamic_cast<alps::HistogramObservable<int>*>(&obs[0]["Local Histogram"]);
 
-  if (fixed_weight && is_thermalized()) factor = 0;
-
   // initialize spin & operator information
   int nop = operators.size();
   std::copy(spins.begin(), spins.end(), spins_c.begin());
@@ -232,41 +241,33 @@ void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
   fragments.resize(0); fragments.resize(nvs);
   for (int s = 0; s < nvs; ++s) current[s] = s;
 
-  bool touch = false;
-
+  double bw = model.graph_weight();
   bool try_gap = true;
   for (operator_iterator opi = operators_p.begin(); try_gap || opi != operators_p.end();) {
 
+    bool has_operator;
+
     // diagonal update & labeling
     if (try_gap) {
-      if (nop < max_order-1 && uniform_01() < std::exp(logg[nop] - logg[nop + 1])) {
+      has_operator = false;
+      if (nop < max_order-1 && (nop + 1) * uniform_01() < bw * std::exp(logg[nop] - logg[nop+1])) {
         loop_graph_t g = model.choose_graph(uniform_01);
         if ((is_bond(g) && is_compatible(g, spins_c[source(pos(g), lattice.vg())],
                                             spins_c[target(pos(g), lattice.vg())])) ||
             (is_site(g) && is_compatible(g, spins_c[pos(g)]))) {
           operators.push_back(local_operator_t(g));
           ++nop;
-        } else {
-          if (hist) *hist << nop;
-          logg[nop] += factor;
-          try_gap = false;
-          continue;
+          has_operator = true;
         }
-      } else {
-        if (hist) *hist << nop;
-        logg[nop] += factor;
-        try_gap = false;
-        continue;
       }
+      if (!has_operator) try_gap = false;
     } else {
+      has_operator = true;
       if (opi->is_diagonal()) {
-        if (uniform_01() < std::exp(logg[nop] - logg[nop-1])) {
+        if (bw * uniform_01() < nop * std::exp(logg[nop] - logg[nop-1])) {
           --nop;
           ++opi;
-          if (hist) *hist << nop;
-          logg[nop] += factor;
-          if (direc == walker_direc::up && nop == 0) touch = true;
-          continue;
+          has_operator = false;
         } else {
           if (opi->is_site()) {
             opi->assign_graph(model.choose_diagonal(uniform_01, opi->loc(), spins_c[opi->pos()]));
@@ -282,15 +283,26 @@ void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
             spins_c[source(opi->pos(), lattice.vg())],
             spins_c[target(opi->pos(), lattice.vg())]));
       }
-      operators.push_back(*opi);
-      ++opi;
-      try_gap = true;
+      if (has_operator) {
+        operators.push_back(*opi);
+        ++opi;
+        try_gap = true;
+      }
     }
     if (hist) *hist << nop;
     logg[nop] += factor;
-    if ((direc == walker_direc::up && nop == 0) ||
-        (direc == walker_direc::down && nop == max_order - 1))
-      touch = true;
+    if (measure_histogram && direc == walker_direc::up)
+      obs[0]["Histogram of Upward-moving Walker"] << nop;
+    if (direc == walker_direc::up && nop == 0) {
+      obs[0]["Inverse Round-trip Time"] << 1.;
+      direc = walker_direc::down;
+    } else {
+      obs[0]["Inverse Round-trip Time"] << 0.;
+    }
+    if (direc == walker_direc::down && nop == max_order - 1)
+      direc = walker_direc::up;
+
+    if (!has_operator) continue;
 
     operator_iterator oi = operators.end() - 1;
     if (oi->is_bond()) {
@@ -309,6 +321,10 @@ void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
     }
   }
 
+  // normalize extended weight
+  double logg0 = logg[0];
+  for (int i = 0; i < max_order; ++i) logg[i] -= logg0;
+
   // symmetrize spins
   if (max_virtual_sites(lattice) == 1) {
     for (int i = 0; i < nvs; ++i) unify(fragments, i, current[i]);
@@ -324,20 +340,6 @@ void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
       for (int i = 0; i < s2; ++i) unify(fragments, offset+i, current[offset+perm[i]]);
     }
   }
-
-  if (touch && direc == walker_direc::up) {
-    obs[0]["Inverse Round-trip Time"] << 1.;
-  } else {
-    obs[0]["Inverse Round-trip Time"] << 0.;
-  }
-  if (touch) {
-    if (direc == walker_direc::up)
-      direc = walker_direc::down;
-    else
-      direc = walker_direc::up;
-  }
-  if (measure_histogram && direc == walker_direc::up)
-    obs[0]["Histogram of Upward-moving Walker"] << nop;
 }
 
 
