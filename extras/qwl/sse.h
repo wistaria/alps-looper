@@ -100,11 +100,10 @@ private:
 
   // parameters
   bool use_improved_estimator;
+  bool conventional;
   int max_order;
-  int mcs_iteration;
-  bool measure_histogram;
-  bool measure_weight;
-  bool fixed_weight;
+  int interval;
+  double final, flatness;
 
   // configuration (checkpoint)
   looper::mc_steps mcs;
@@ -151,13 +150,15 @@ loop_worker::loop_worker(alps::Parameters const& p, std::vector<alps::Observable
 
   perm.resize(max_virtual_sites(lattice));
 
+  conventional = p.value_or_default("CONVENTIONAL_QUANTUM_WANG_LANDAU", true);
   max_order = static_cast<int>(evaluate("MAX_EXPANSION_ORDER", p));
   factor = p.defined("INITIAL_UPDATE_FACTOR") ? std::log(evaluate("INITIAL_UPDATE_FACTOR", p)) : 1;
-  int iteration = p.defined("FACTOR_REDUCTION_ITERATION") ? static_cast<int>(evaluate("FACTOR_REDUCTION_ITERATION", p)) : 1;
-  mcs_iteration = mcs.thermalization() / iteration;
-  measure_histogram = p.value_or_default("MEASURE_QWL_HISTOGRAM", false);
-  measure_weight = p.value_or_default("MEASURE_QWL_WEIGHT", false);
-  fixed_weight = p.value_or_default("FIXED_WEIGHT_AFTER_THERMALIZATION", true);
+  if (conventional) {
+    interval = p.defined("CHECK_INTERVAL") ? static_cast<int>(evaluate("CHECK_INTERVAL", p)) : 1024;
+    final = std::log(static_cast<double>(p.value_or_default("FINAL_UPDATE_FACTOR", 1.00000001)));
+    mcs.set_thermalization(interval);
+    flatness = p.value_or_default("FLATNESS_THRESHOLD", 0.95);
+  }
 
   // configuration
   int nvs = num_sites(lattice.vg());
@@ -165,20 +166,17 @@ loop_worker::loop_worker(alps::Parameters const& p, std::vector<alps::Observable
   spins_c.resize(nvs);
   current.resize(nvs);
   logg.resize(max_order);
-  for (int i = 0; i < max_order; ++i) logg[i] = i;
-  // for (int i = 0; i < max_order; ++i) logg[i] = 0;
+  for (int i = 0; i < max_order; ++i) logg[i] = -2 * i;
   direc = walker_direc::down;
 
   int num_part = log2(max_order-1) + 2;
   obs.resize(num_part);
-  if (measure_histogram) {
-    obs[0] << alps::HistogramObservable<int>("Global Histogram", 0, max_order);
-    obs[0] << alps::HistogramObservable<int>("Histogram of Upward-moving Walker", 0, max_order);
-    obs[0] << alps::HistogramObservable<int>("Local Histogram", 0, max_order);
-  }
+  obs[0] << alps::HistogramObservable<int>("Global Histogram", 0, max_order);
+  obs[0] << alps::HistogramObservable<int>("Histogram of Upward-moving Walker", 0, max_order);
+  obs[0] << alps::HistogramObservable<int>("Local Histogram", 0, max_order);
   obs[0] << alps::HistogramObservable<int>("Partition Histogram", 0, num_part);
   obs[0] << make_observable(alps::RealObservable("Inverse Round-trip Time"));
-  if (measure_weight) obs[0] << alps::SimpleRealVectorObservable("Log(g)");
+  obs[0] << alps::SimpleRealVectorObservable("Log(g)");
 
   BOOST_FOREACH(alps::ObservableSet& o, obs) {
     o << make_observable(alps::SimpleRealObservable("Volume"));
@@ -198,13 +196,6 @@ loop_worker::loop_worker(alps::Parameters const& p, std::vector<alps::Observable
 void loop_worker::run(std::vector<alps::ObservableSet>& obs) {
   ++mcs;
 
-  if (!mcs.is_thermalized() && mcs() % mcs_iteration == 0) {
-    std::clog << mcs() << ": factor is reduced from " << std::exp(factor);
-    factor *= 0.5;
-    std::clog << " to " << std::exp(factor) << std::endl;
-  }
-  if (fixed_weight && is_thermalized()) factor = 0;
-
   build(obs);
 
   //   FIELD               SIGN                IMPROVE
@@ -218,6 +209,35 @@ void loop_worker::run(std::vector<alps::ObservableSet>& obs) {
   flip<boost::mpl::false_, boost::mpl::false_, boost::mpl::false_>(obs);
 
   measure(obs);
+
+  if (conventional && mcs() == mcs.thermalization()) {
+    alps::HistogramObservable<int> *hist =
+      dynamic_cast<alps::HistogramObservable<int>*>(&obs[0]["Local Histogram"]);
+    double mean = 0;
+    unsigned int hist_min = mcs();
+    for (int i = 0; i < max_order; ++i) {
+      mean += (*hist)[i];
+      hist_min = std::min(hist_min, (*hist)[i]);
+    }
+    mean /= max_order;
+    if (hist_min > flatness * mean) {
+      std::clog << mcs() << ": flatness check succeeded (mean = " << mean << ", Hmin = "
+                << hist_min << ", ratio = " << hist_min / mean << ")\n";
+      factor *= 0.5;
+      if (factor > final) {
+        std::clog << mcs() << ": update factore is reduced to " << std::exp(factor) << std::endl;
+        mcs.set_thermalization(mcs.thermalization() + interval);
+        hist->reset(false);
+      } else {
+        std::clog << mcs() << ": thermalization done\n";
+        factor = 0;
+      }
+    } else {
+      std::clog << mcs() << ": flatness check failed (mean = " << mean << ", Hmin = "
+                << hist_min << ", ratio = " << hist_min / mean << ")\n";
+      mcs.set_thermalization(mcs.thermalization() + interval);
+    }
+  }
 }
 
 
@@ -227,9 +247,8 @@ void loop_worker::run(std::vector<alps::ObservableSet>& obs) {
 
 void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
 
-  alps::HistogramObservable<int> *hist = 0;
-  if (measure_histogram)
-    hist = dynamic_cast<alps::HistogramObservable<int>*>(&obs[0]["Local Histogram"]);
+  alps::HistogramObservable<int> *hist =
+    dynamic_cast<alps::HistogramObservable<int>*>(&obs[0]["Local Histogram"]);
 
   // initialize spin & operator information
   int nop = operators.size();
@@ -291,7 +310,7 @@ void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
     }
     if (hist) *hist << nop;
     logg[nop] += factor;
-    if (measure_histogram && direc == walker_direc::up)
+    if (direc == walker_direc::up)
       obs[0]["Histogram of Upward-moving Walker"] << nop;
     if (direc == walker_direc::up && nop == 0) {
       obs[0]["Inverse Round-trip Time"] << 1.;
@@ -458,9 +477,9 @@ void loop_worker::measure(std::vector<alps::ObservableSet>& obs) {
   obs[part]["Volume"] << (double)lattice.volume();
   obs[part]["Number of Sites"] << (double)num_sites(lattice.rg());
 
-  if (measure_histogram) obs[0]["Global Histogram"] << nop;
+  obs[0]["Global Histogram"] << nop;
   obs[0]["Partition Histogram"] << part;
-  if (measure_weight && progress() >= 1) obs[0]["Log(g)"] << logg;
+  if (progress() >= 1) obs[0]["Log(g)"] << logg;
 
   // sign
   if (model.is_signed() && !use_improved_estimator) obs[part]["Sign"] << sign;
