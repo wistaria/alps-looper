@@ -217,9 +217,11 @@ void loop_worker::run(std::vector<alps::ObservableSet>& obs) {
       dynamic_cast<alps::HistogramObservable<int>*>(&obs[0]["Local Histogram"]);
     double mean = 0;
     unsigned int hist_min = mcs();
+    int lower_bound = 0;
     for (int i = 0; i < max_order; ++i) {
       mean += (*hist)[i];
       hist_min = std::min(hist_min, (*hist)[i]);
+      if (lower_bound == 0 && (*hist)[i] == 0) lower_bound = i;
     }
     mean /= max_order;
     if (hist_min > flatness * mean) {
@@ -237,7 +239,10 @@ void loop_worker::run(std::vector<alps::ObservableSet>& obs) {
       }
     } else {
       std::clog << mcs() << ": flatness check failed (mean = " << mean << ", Hmin = "
-                << hist_min << ", ratio = " << hist_min / mean << ")\n";
+                << hist_min << ", ratio = " << hist_min / mean;
+      if (hist_min == 0)
+        std::clog << ", lower bound of zero = " << lower_bound;
+      std::clog << ")\n";
       mcs.set_thermalization(mcs.thermalization() + interval);
     }
   }
