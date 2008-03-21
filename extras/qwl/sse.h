@@ -104,6 +104,7 @@ private:
   int max_order;
   int interval;
   double final, flatness;
+  bool correct;
 
   // configuration (checkpoint)
   looper::mc_steps mcs;
@@ -159,6 +160,7 @@ loop_worker::loop_worker(alps::Parameters const& p, std::vector<alps::Observable
     mcs.set_thermalization(interval);
     flatness = p.value_or_default("FLATNESS_THRESHOLD", 0.95);
   }
+  correct = p.value_or_default("FACTOR_CORRECTION", false);
 
   // configuration
   int nvs = num_sites(lattice.vg());
@@ -262,6 +264,7 @@ void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
   for (int s = 0; s < nvs; ++s) current[s] = s;
 
   double bw = model.graph_weight();
+  double factor2 = correct ? 0.5 * factor : 0;
   bool try_gap = true;
   for (operator_iterator opi = operators_p.begin(); try_gap || opi != operators_p.end();) {
 
@@ -270,7 +273,8 @@ void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
     // diagonal update & labeling
     if (try_gap) {
       has_operator = false;
-      if (nop < max_order-1 && (nop + 1) * uniform_01() < bw * std::exp(logg[nop] - logg[nop+1])) {
+      if (nop < max_order-1 &&
+          (nop + 1) * uniform_01() < bw * std::exp(logg[nop] - (logg[nop+1] + factor2))) {
         loop_graph_t g = model.choose_graph(uniform_01);
         if ((is_bond(g) && is_compatible(g, spins_c[source(pos(g), lattice.vg())],
                                             spins_c[target(pos(g), lattice.vg())])) ||
@@ -284,7 +288,7 @@ void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
     } else {
       has_operator = true;
       if (opi->is_diagonal()) {
-        if (bw * uniform_01() < nop * std::exp(logg[nop] - logg[nop-1])) {
+        if (bw * uniform_01() < nop * std::exp(logg[nop] - (logg[nop-1] + factor2))) {
           --nop;
           ++opi;
           has_operator = false;
