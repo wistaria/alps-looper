@@ -225,7 +225,8 @@ void loop_worker::run(std::vector<alps::ObservableSet>& obs) {
                 << hist_min << ", ratio = " << hist_min / mean << ")\n";
       factor *= 0.5;
       if (factor > final) {
-        std::clog << mcs() << ": update factore is reduced to " << std::exp(factor) << std::endl;
+        std::clog << mcs() << ": update factor is reduced to exp(" << factor
+                  << ") (target = exp(" << final << "))\n";
         mcs.set_thermalization(mcs.thermalization() + interval);
         hist->reset(false);
       } else {
@@ -308,6 +309,7 @@ void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
         try_gap = true;
       }
     }
+    //// std::cerr << "visit " << nop << std::endl;
     if (hist) *hist << nop;
     logg[nop] += factor;
     if (direc == walker_direc::up)
