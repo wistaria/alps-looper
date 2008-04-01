@@ -77,11 +77,11 @@ public:
 
   void save(alps::ODump& dp) const {
     uint32_t direc_tmp = (direc == walker_direc::up ? 0 : 1);
-    dp << mcs << spins << operators << logg << direc_tmp << factor;
+    dp << mcs << spins << operators << logg << logg0 << set_logg0 << direc_tmp << factor << logw;
   }
   void load(alps::IDump& dp) {
     uint32_t direc_tmp;
-    dp >> mcs >> spins >> operators >> logg >> direc_tmp >> factor;
+    dp >> mcs >> spins >> operators >> logg >> logg0 >> set_logg0 >> direc_tmp >> factor >> logw;
     direc = (direc_tmp == 0 ? walker_direc::up : walker_direc::down);
   }
 
@@ -111,8 +111,11 @@ private:
   std::vector<int> spins;
   std::vector<local_operator_t> operators;
   std::valarray<double> logg;
+  std::valarray<double> logg0;
+  std::vector<int> set_logg0;
   walker_direc_t direc;
   double factor;
+  double logw;
 
   // observables
   double sign;
@@ -154,12 +157,10 @@ loop_worker::loop_worker(alps::Parameters const& p, std::vector<alps::Observable
   conventional = p.value_or_default("CONVENTIONAL_QUANTUM_WANG_LANDAU", true);
   max_order = static_cast<int>(evaluate("MAX_EXPANSION_ORDER", p));
   factor = p.defined("INITIAL_UPDATE_FACTOR") ? std::log(evaluate("INITIAL_UPDATE_FACTOR", p)) : 1;
-  if (conventional) {
-    interval = p.defined("CHECK_INTERVAL") ? static_cast<int>(evaluate("CHECK_INTERVAL", p)) : 1024;
-    final = std::log(static_cast<double>(p.value_or_default("FINAL_UPDATE_FACTOR", 1.00000001)));
-    mcs.set_thermalization(interval);
-    flatness = p.value_or_default("FLATNESS_THRESHOLD", 0.95);
-  }
+  interval = p.defined("CHECK_INTERVAL") ? static_cast<int>(evaluate("CHECK_INTERVAL", p)) : 1024;
+  mcs.set_thermalization(interval);
+  final = std::log(static_cast<double>(p.value_or_default("FINAL_UPDATE_FACTOR", 1.00000001)));
+  flatness = p.value_or_default("FLATNESS_THRESHOLD", 0.95);
   correct = p.value_or_default("FACTOR_CORRECTION", false);
 
   // configuration
@@ -169,7 +170,12 @@ loop_worker::loop_worker(alps::Parameters const& p, std::vector<alps::Observable
   current.resize(nvs);
   logg.resize(max_order);
   for (int i = 0; i < max_order; ++i) logg[i] = -2 * i;
+  logg0.resize(max_order);
+  for (int i = 0; i < max_order; ++i) logg0[i] = 0;
+  set_logg0.resize(max_order);
+  for (int i = 0; i < max_order; ++i) set_logg0[i] = 0;
   direc = walker_direc::down;
+  logw = 0;
 
   int num_part = log2(max_order-1) + 2;
   obs.resize(num_part);
@@ -184,20 +190,19 @@ loop_worker::loop_worker(alps::Parameters const& p, std::vector<alps::Observable
     o << make_observable(alps::SimpleRealObservable("Volume"));
     o << make_observable(alps::SimpleRealObservable("Number of Sites"));
     o << make_observable(alps::SimpleRealObservable("Number of Clusters"));
-    if (model.is_signed()) {
+    // if (model.is_signed()) {
       o << alps::RealObservable("Sign");
-      if (use_improved_estimator) {
-        o << alps::RealObservable("Weight of Zero-Meron Sector");
-        o << alps::RealObservable("Sign in Zero-Meron Sector");
-      }
-    }
-    estimator.initialize(o, p, lattice, model.is_signed(), use_improved_estimator);
+      // if (use_improved_estimator) {
+      //   o << alps::RealObservable("Weight of Zero-Meron Sector");
+      //   o << alps::RealObservable("Sign in Zero-Meron Sector");
+      // }
+    // }
+    // estimator.initialize(o, p, lattice, model.is_signed(), use_improved_estimator);
+    estimator.initialize(o, p, lattice, true, use_improved_estimator);
   }
 }
 
 void loop_worker::run(std::vector<alps::ObservableSet>& obs) {
-  ++mcs;
-
   build(obs);
 
   //   FIELD               SIGN                IMPROVE
@@ -212,7 +217,9 @@ void loop_worker::run(std::vector<alps::ObservableSet>& obs) {
 
   measure(obs);
 
-  if (conventional && mcs() == mcs.thermalization()) {
+  ++mcs;
+
+  if (mcs() == mcs.thermalization()) {
     alps::HistogramObservable<int> *hist =
       dynamic_cast<alps::HistogramObservable<int>*>(&obs[0]["Local Histogram"]);
     double mean = 0;
@@ -227,15 +234,25 @@ void loop_worker::run(std::vector<alps::ObservableSet>& obs) {
     if (hist_min > flatness * mean) {
       std::clog << mcs() << ": flatness check succeeded (mean = " << mean << ", Hmin = "
                 << hist_min << ", ratio = " << hist_min / mean << ")\n";
-      factor *= 0.5;
-      if (factor > final) {
-        std::clog << mcs() << ": update factor is reduced to exp(" << factor
-                  << ") (target = exp(" << final << "))\n";
-        mcs.set_thermalization(mcs.thermalization() + interval);
-        hist->reset(false);
+      if (conventional) {
+        factor *= 0.5;
+        if (factor > final) {
+          std::clog << mcs() << ": update factor is reduced to exp(" << factor
+                    << ") (target = exp(" << final << "))\n";
+          mcs.set_thermalization(mcs.thermalization() + interval);
+          hist->reset(false);
+        } else {
+          std::clog << mcs() << ": thermalization done\n";
+          factor = 0;
+          for (int i = 0; i < max_order; ++i) logg0[i] = logg[i];
+          for (int i = 0; i < max_order; ++i) set_logg0[i] = 0;
+          logw = 0;
+        }
       } else {
         std::clog << mcs() << ": thermalization done\n";
-        factor = 0;
+        for (int i = 0; i < max_order; ++i) logg0[i] = logg[i];
+        for (int i = 0; i < max_order; ++i) set_logg0[i] = 0;
+        logw = 0;
       }
     } else {
       std::clog << mcs() << ": flatness check failed (mean = " << mean << ", Hmin = "
@@ -247,6 +264,7 @@ void loop_worker::run(std::vector<alps::ObservableSet>& obs) {
     }
   }
 }
+
 
 
 //
@@ -269,17 +287,18 @@ void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
   for (int s = 0; s < nvs; ++s) current[s] = s;
 
   double bw = model.graph_weight();
-  double factor2 = correct ? 0.5 * factor : 0;
+  double factor2 = factor;
   bool try_gap = true;
   for (operator_iterator opi = operators_p.begin(); try_gap || opi != operators_p.end();) {
 
     bool has_operator;
-
+    int nop_old = nop;
+    
     // diagonal update & labeling
     if (try_gap) {
       has_operator = false;
       if (nop < max_order-1 &&
-          (nop + 1) * uniform_01() < bw * std::exp(logg[nop] - (logg[nop+1] + factor2))) {
+          (nop + 1) * uniform_01() < bw * std::exp(logg[nop] - logg[nop+1])) {
         loop_graph_t g = model.choose_graph(uniform_01);
         if ((is_bond(g) && is_compatible(g, spins_c[source(pos(g), lattice.vg())],
                                             spins_c[target(pos(g), lattice.vg())])) ||
@@ -293,7 +312,7 @@ void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
     } else {
       has_operator = true;
       if (opi->is_diagonal()) {
-        if (bw * uniform_01() < nop * std::exp(logg[nop] - (logg[nop-1] + factor2))) {
+        if (bw * uniform_01() < nop * std::exp(logg[nop] - logg[nop-1])) {
           --nop;
           ++opi;
           has_operator = false;
@@ -318,9 +337,19 @@ void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
         try_gap = true;
       }
     }
-    //// std::cerr << "visit " << nop << std::endl;
+    if (nop == nop_old) {
+      logw += factor;
+    } else {
+      logw += (logg[nop] - logg[nop_old]) + (1 - factor2);
+    }
+    // std::cerr << nop << ' ' << logw << ' ' << logw - (logg[nop] - logg0[nop]) << std::endl;
+    logg[nop] += (1 - factor2);
+    logg[nop_old] += factor2;
+    if (set_logg0[nop] == 0) {
+      logg0[nop] = logw;
+      set_logg0[nop] = 1;
+    }
     if (hist) *hist << nop;
-    logg[nop] += factor;
     if (direc == walker_direc::up)
       obs[0]["Histogram of Upward-moving Walker"] << nop;
     if (direc == walker_direc::up && nop == 0) {
@@ -351,9 +380,13 @@ void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
     }
   }
 
+  std::cerr << "weight: " << mcs() << ' ' << nop << ' ' << logw - logg[nop] << std::endl;
+    
   // normalize extended weight
-  double logg0 = logg[0];
-  for (int i = 0; i < max_order; ++i) logg[i] -= logg0;
+  double g0 = logg[0];
+  if (std::abs(g0) > 1e-20) {
+    for (int i = 0; i < max_order; ++i) logg[i] -= g0;
+  }
 
   // symmetrize spins
   if (max_virtual_sites(lattice) == 1) {
@@ -440,6 +473,7 @@ void loop_worker::flip(std::vector<alps::ObservableSet>& obs) {
     accum.at_top(current[s], time_t(nop), s, spins_c[s]);
   }
   sign = ((negop & 1) == 1) ? -1 : 1;
+  sign *= std::exp(logw - (logg[nop] - logg0[nop]));
 
   // determine whether clusters are flipped or not
   double improved_sign = sign;
@@ -454,15 +488,15 @@ void loop_worker::flip(std::vector<alps::ObservableSet>& obs) {
     coll = std::accumulate(estimates.begin(), estimates.end(), coll);
     estimator.improved_measurement(obs[part], lattice, 1, improved_sign, spins, operators,
       spins_c, fragments, coll);
-    if (SIGN()) {
+    // if (SIGN()) {
       obs[part]["Sign"] << improved_sign;
-      if (alps::is_zero(improved_sign)) {
-        obs[part]["Weight of Zero-Meron Sector"] << 0.;
-      } else {
-        obs[part]["Weight of Zero-Meron Sector"] << 1.;
-        obs[part]["Sign in Zero-Meron Sector"] << improved_sign;
-      }
-    }
+      // if (alps::is_zero(improved_sign)) {
+        // obs[part]["Weight of Zero-Meron Sector"] << 0.;
+      // } else {
+        // obs[part]["Weight of Zero-Meron Sector"] << 1.;
+        // obs[part]["Sign in Zero-Meron Sector"] << improved_sign;
+      // }
+    // }
   }
   obs[part]["Number of Clusters"] << (double)clusters.size();
 
@@ -493,7 +527,7 @@ void loop_worker::measure(std::vector<alps::ObservableSet>& obs) {
   if (progress() >= 1) obs[0]["Log(g)"] << logg;
 
   // sign
-  if (model.is_signed() && !use_improved_estimator) obs[part]["Sign"] << sign;
+  /* if (model.is_signed() && !use_improved_estimator) */ obs[part]["Sign"] << sign;
 
   // other quantities
   estimator.normal_measurement(obs[part], lattice, 1, sign, spins, operators, spins_c);
