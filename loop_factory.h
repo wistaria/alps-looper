@@ -147,6 +147,7 @@ public:
   void pre_evaluate(std::vector<alps::ObservableSet>& obs, alps::Parameters const& p) const;
   void evaluate(std::vector<alps::ObservableSet>& obs, alps::Parameters const& p) const;
 
+  std::string version() const;
   void print_copyright(std::ostream& os) const;
 
   template<typename WORKER>
