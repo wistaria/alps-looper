@@ -38,7 +38,7 @@ dist_noinst_DATA = sse_ns.ip sse_ns.op
 check_PROGRAMS =
 if HAVE_PARAPACK
 #check_PROGRAMS += pi_ns sse_ns
-check_PROGRAMS += sse_ns
+#check_PROGRAMS += sse_ns
 endif
 
 TESTS = $(check_PROGRAMS)

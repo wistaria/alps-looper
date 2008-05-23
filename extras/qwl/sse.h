@@ -68,7 +68,8 @@ public:
   loop_worker(alps::Parameters const& p, std::vector<alps::ObservableSet>& obs);
   virtual ~loop_worker() {}
 
-  static void print_copyright(std::ostream&) {}
+  static std::string version() { return looper::version(); }
+  static void print_copyright(std::ostream& os) { looper::print_copyright(os); }
 
   void run(std::vector<alps::ObservableSet>& obs);
 
