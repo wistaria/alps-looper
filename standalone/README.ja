@@ -17,7 +17,7 @@
 必要とするライブラリ
 
   Boost C++ Library (http://www.boost.org)
-    version 1.34.1 での動作を確認済
+    version 1.34.1, 1.35.0 での動作を確認済
     boost/foreach.hpp, boost/random.hpp, boost/timer.hpp,
     boost/lexical_cast.hpp, boost/static_assert.hpp,
     boost/throw_exception.hpp を使用
