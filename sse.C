@@ -37,14 +37,11 @@
 
 namespace {
 
-class loop_worker {
+class loop_worker : private loop_config {
 public:
   typedef looper::sse mc_type;
 
-  typedef looper::lattice_helper<loop_config::lattice_graph_t> lattice_t;
   typedef int time_t;
-  typedef loop_config::loop_graph_t loop_graph_t;
-  typedef loop_config::model_t model_t;
   typedef looper::local_operator<mc_type, loop_graph_t, time_t> local_operator_t;
   typedef std::vector<local_operator_t> operator_string_t;
   typedef operator_string_t::iterator operator_iterator;
@@ -52,8 +49,7 @@ public:
   typedef looper::union_find::node cluster_fragment_t;
   typedef looper::cluster_info cluster_info_t;
 
-  typedef looper::estimator<loop_config::measurement_set, mc_type, lattice_t, time_t>::type
-    estimator_t;
+  typedef looper::estimator<measurement_set, mc_type, lattice_t, time_t>::type estimator_t;
 
   loop_worker(alps::Parameters const& p, alps::ObservableSet& obs);
 
@@ -104,6 +100,7 @@ private:
   std::vector<local_operator_t> operators_p;
   std::vector<cluster_fragment_t> fragments;
   std::vector<int> current;
+  std::vector<bool> to_flip;
   std::vector<cluster_info_t> clusters;
   std::vector<looper::estimate<estimator_t>::type> estimates;
   std::vector<int> perm;
@@ -115,31 +112,22 @@ private:
 //
 
 loop_worker::loop_worker(alps::Parameters const& p, alps::ObservableSet& obs) :
-  lattice(p), model(p, lattice, looper::is_path_integral<mc_type>::type()), temperature(p),
-  mcs(p) {
+  lattice(p), model(p, lattice, /* is_path_integral = */ false), temperature(p), mcs(p) {
 
   if (temperature.annealing_steps() > mcs.thermalization())
     boost::throw_exception(std::invalid_argument("longer annealing steps than thermalization"));
 
-  use_improved_estimator = !model.has_field() && !p.defined("DISABLE_IMPROVED_ESTIMATOR");
+  model.check_parameter(/* support_longitudinal_field = */ false, support_negative_sign);
 
-  if (model.has_field())
-    boost::throw_exception(std::logic_error("longitudinal field is currently not supported "
-      "in SSE representation"));
-  if (model.is_frustrated())
-    std::cerr << "WARNING: model is classically frustrated\n";
-  if (model.is_signed())
-    std::cerr << "WARNING: model has negative signs\n";
-  if (!use_improved_estimator)
-    std::cerr << "WARNING: improved estimator is disabled\n";
-
-  perm.resize(max_virtual_sites(lattice));
+  use_improved_estimator = (!model.has_field()) && (!p.defined("DISABLE_IMPROVED_ESTIMATOR"));
+  if (!use_improved_estimator) std::cerr << "WARNING: improved estimator is disabled\n";
 
   // configuration
   int nvs = num_sites(lattice.vg());
   spins.resize(nvs); std::fill(spins.begin(), spins.end(), 0 /* all up */);
   spins_c.resize(nvs);
   current.resize(nvs);
+  perm.resize(max_virtual_sites(lattice));
 
   obs << make_observable(alps::SimpleRealObservable("Temperature"));
   obs << make_observable(alps::SimpleRealObservable("Inverse Temperature"));
@@ -299,6 +287,7 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
   int nc = 0;
   BOOST_FOREACH(cluster_fragment_t& f, fragments) if (f.is_root()) f.set_id(nc++);
   BOOST_FOREACH(cluster_fragment_t& f, fragments) f.set_id(cluster_id(fragments, f));
+  to_flip.resize(0); to_flip.resize(nc);
   clusters.resize(0); clusters.resize(nc);
 
   std::copy(spins.begin(), spins.end(), spins_c.begin());
@@ -351,9 +340,9 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
 
   // determine whether clusters are flipped or not
   double improved_sign = sign;
-  BOOST_FOREACH(cluster_info_t& ci, clusters) {
-    ci.to_flip = ((2*r_uniform()-1) < (FIELD() ? std::tanh(beta * ci.weight) : 0));
-    if (SIGN() && IMPROVE() && (ci.sign & 1 == 1)) improved_sign = 0;
+  for (unsigned int c = 0; c < clusters.size(); ++c) {
+    to_flip[c] = ((2*r_uniform()-1) < 0);
+    if (SIGN() && IMPROVE() && (clusters[c].sign & 1 == 1)) improved_sign = 0;
   }
 
   // improved measurement
@@ -376,11 +365,10 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
 
   // flip operators & spins
   BOOST_FOREACH(local_operator_t& op, operators)
-    if (clusters[fragments[op.loop_0()].id()].to_flip ^
-        clusters[fragments[op.loop_1()].id()].to_flip)
+    if (to_flip[fragments[op.loop_0()].id()] ^ to_flip[fragments[op.loop_1()].id()])
       op.flip();
   for (int s = 0; s < nvs; ++s)
-    if (clusters[fragments[s].id()].to_flip) spins[s] ^= 1;
+    if (to_flip[fragments[s].id()]) spins[s] ^= 1;
 }
 
 

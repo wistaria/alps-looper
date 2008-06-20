@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 2006-2008 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -31,10 +31,10 @@
 
 #include <looper/localsus.h>
 
-struct loop_config
-{
+struct loop_config {
   // lattice structure
   typedef alps::coordinate_graph_type lattice_graph_t;
+  typedef looper::lattice_helper<lattice_graph_t> lattice_t;
 
   // imaginary time
   typedef double time_t;
@@ -44,6 +44,12 @@ struct loop_config
 
   // model
   typedef looper::spinmodel_helper<lattice_graph_t, loop_graph_t> model_t;
+
+  // whether longitudinal external field is supported or not
+  static const bool support_longitudinal_field = true;
+
+  // whether systems with negative signs are supported or not
+  static const bool support_negative_sign = true;
 
   // measurements
   typedef looper::measurement_set<

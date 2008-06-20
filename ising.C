@@ -42,20 +42,16 @@ struct dummy_operator {
   static bool is_bond() { return false; }
 };
 
-class loop_worker {
+class loop_worker : private loop_config {
 public:
   typedef looper::classical mc_type;
 
-  typedef looper::lattice_helper<loop_config::lattice_graph_t> lattice_t;
-  typedef loop_config::loop_graph_t loop_graph_t;
-  typedef loop_config::model_t model_t;
   typedef std::vector<dummy_operator> operator_string_t;
 
   typedef looper::union_find::node cluster_fragment_t;
   typedef looper::cluster_info cluster_info_t;
 
-  typedef looper::estimator<loop_config::measurement_set, mc_type, lattice_t, time_t>::type
-    estimator_t;
+  typedef looper::estimator<measurement_set, mc_type, lattice_t, time_t>::type estimator_t;
 
   loop_worker(alps::Parameters const& p, alps::ObservableSet& obs);
 
@@ -101,6 +97,7 @@ private:
   // working vectors
   int nop;
   std::vector<cluster_fragment_t> fragments;
+  std::vector<bool> to_flip;
   std::vector<cluster_info_t> clusters;
   std::vector<looper::estimate<estimator_t>::type> estimates;
   std::vector<int> perm;
@@ -117,22 +114,18 @@ loop_worker::loop_worker(alps::Parameters const& p, alps::ObservableSet& obs) :
   if (temperature.annealing_steps() > mcs.thermalization())
     boost::throw_exception(std::invalid_argument("longer annealing steps than thermalization"));
 
-  use_improved_estimator = !model.has_field() && !p.defined("DISABLE_IMPROVED_ESTIMATOR");
-
+  model.check_parameter(support_longitudinal_field, /* support_negative_sign = */ false);
   if (model.is_quantal())
     boost::throw_exception(std::invalid_argument("not classical Ising model"));
-  if (model.has_field())
-    std::cerr << "WARNING: model has a magnetic field\n";
-  if (model.is_frustrated())
-    std::cerr << "WARNING: model is classically frustrated\n";
+
+  use_improved_estimator = !model.has_field() && !p.defined("DISABLE_IMPROVED_ESTIMATOR");
   if (!use_improved_estimator)
     std::cerr << "WARNING: improved estimator is disabled\n";
-
-  perm.resize(max_virtual_sites(lattice));
 
   // configuration
   int nvs = num_sites(lattice.vg());
   spins.resize(nvs); std::fill(spins.begin(), spins.end(), 0 /* all up */);
+  perm.resize(max_virtual_sites(lattice));
 
   // measurements
   obs << make_observable(alps::SimpleRealObservable("Temperature"));
@@ -223,7 +216,7 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
   int nc = 0;
   BOOST_FOREACH(cluster_fragment_t& f, fragments) if (f.is_root()) f.set_id(nc++);
   BOOST_FOREACH(cluster_fragment_t& f, fragments) f.set_id(cluster_id(fragments, f));
-
+  to_flip.resize(0); to_flip.resize(nc);
   clusters.resize(0); clusters.resize(nc);
 
   cluster_info_t::accumulator<cluster_fragment_t, FIELD,
@@ -240,8 +233,8 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
   }
 
   // determine whether clusters are flipped or not
-  BOOST_FOREACH(cluster_info_t& ci, clusters)
-    ci.to_flip = ((2*r_uniform()-1) < (FIELD() ? std::tanh(ci.weight) : 0));
+  for (unsigned int c = 0; c < clusters.size(); ++c)
+    to_flip[c] = ((2*r_uniform()-1) < (FIELD() ? std::tanh(clusters[c].weight) : 0));
 
   // improved measurement
   if (IMPROVE()) {
@@ -253,7 +246,7 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
   obs["Number of Clusters"] << (double)clusters.size();
 
   // flip spins
-  for (int s = 0; s < nvs; ++s) if (clusters[fragments[s].id()].to_flip) spins[s] ^= 1;
+  for (int s = 0; s < nvs; ++s) if (to_flip[fragments[s].id()]) spins[s] ^= 1;
 }
 
 
@@ -269,9 +262,11 @@ void loop_worker::measure(alps::ObservableSet& obs) {
 
   // energy
   double ene = model.energy_offset() - nop / beta;
-  if (model.has_field())
-    BOOST_FOREACH(const cluster_info_t& c, clusters)
-      ene += (c.to_flip ? -c.weight : c.weight);
+  if (model.has_field()) {
+    for (unsigned int c = 0; c < clusters.size(); ++c) {
+      ene += (to_flip[c] ? -clusters[c].weight : clusters[c].weight);
+    }
+  }
   looper::energy_estimator::measurement(obs, lattice, beta, nop, 1, ene);
 
   estimator.normal_measurement(obs, lattice, beta, 1, spins, operator_string_t(), spins);

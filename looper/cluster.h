@@ -30,8 +30,7 @@
 namespace looper {
 
 struct cluster_info {
-  cluster_info(bool t = false) : to_flip(t), weight(0), sign(0) {}
-  bool to_flip;
+  cluster_info() : weight(0), sign(0) {}
   double weight;
   int sign;
 

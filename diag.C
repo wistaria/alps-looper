@@ -280,12 +280,11 @@ double dynamic_average2(double beta, double offset, const VEC& evals, const MAT&
 }
 
 
-class diag_worker :
-  protected looper::lattice_helper<loop_config::lattice_graph_t>,
+class diag_worker : private loop_config, protected loop_config::lattice_t,
   protected alps::model_helper<> {
 public:
   diag_worker(alps::Parameters const& p, alps::ObservableSet&) :
-    looper::lattice_helper<loop_config::lattice_graph_t>(p),
+    loop_config::lattice_t(p),
     alps::model_helper<>(this->graph_helper(), p), done(false), params(p) {}
   bool is_thermalized() const { return true; }
   double progress() const { return done ? 1 : 0; }
@@ -304,10 +303,8 @@ private:
 
 template<typename ENGINE>
 void diag_worker::run(ENGINE&, alps::ObservableSet& obs) {
-  typedef typename looper::real_site_descriptor<
-    typename looper::lattice_helper<loop_config::lattice_graph_t> >::type site_descriptor;
-  typedef typename looper::real_bond_descriptor<
-    typename looper::lattice_helper<loop_config::lattice_graph_t> >::type bond_descriptor;
+  typedef typename looper::real_site_descriptor<lattice_t>::type site_descriptor;
+  typedef typename looper::real_bond_descriptor<lattice_t>::type bond_descriptor;
 
   typedef boost::numeric::ublas::vector<double> vector_type;
   typedef boost::numeric::ublas::matrix<double, boost::numeric::ublas::column_major> matrix_type;

@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -50,6 +50,26 @@ public:
   }
 
   void init(alps::Parameters const& p, lattice_t& lat, bool is_path_integral = true);
+
+  void check_parameter(bool support_longitudinal_field, bool support_negative_sign) const {
+    if (has_field()) {
+      if (support_longitudinal_field) {
+        std::cerr << "WARNING: model has a magnetic field\n";
+      } else {
+        boost::throw_exception(std::invalid_argument("longitudinal magnetic field not supported"));
+      }
+    }
+    if (is_frustrated()) {
+      std::cerr << "WARNING: model is classically frustrated\n";
+    }
+    if (is_signed()) {
+      if (support_negative_sign) {
+        std::cerr << "WARNING: model has negative signs\n";
+      } else {
+        boost::throw_exception(std::invalid_argument("negative signs not supported"));
+      }
+    }
+  }
 
   bool is_quantal() const { return quantal_; }
   bool is_frustrated() const { return frustrated_; }

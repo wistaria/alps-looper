@@ -46,15 +46,13 @@ struct walker_direc {
 };
 typedef walker_direc::walker_direc_t walker_direc_t;
 
-class loop_worker :
+class loop_worker : private loop_config,
   public alps::parapack::mc_worker, public alps::parapack::need_multiple_observableset_tag {
 public:
   typedef looper::sse mc_type;
 
-  typedef looper::lattice_helper<loop_config::lattice_graph_t> lattice_t;
+  typedef looper::lattice_helper<lattice_graph_t> lattice_t;
   typedef int time_t;
-  typedef loop_config::loop_graph_t loop_graph_t;
-  typedef loop_config::model_t model_t;
   typedef looper::local_operator<mc_type, loop_graph_t, time_t> local_operator_t;
   typedef std::vector<local_operator_t> operator_string_t;
   typedef operator_string_t::iterator operator_iterator;
@@ -62,8 +60,7 @@ public:
   typedef looper::union_find::node cluster_fragment_t;
   typedef looper::cluster_info cluster_info_t;
 
-  typedef looper::estimator<loop_config::measurement_set, mc_type, lattice_t, time_t>::type
-    estimator_t;
+  typedef looper::estimator<measurement_set, mc_type, lattice_t, time_t>::type estimator_t;
 
   loop_worker(alps::Parameters const& p, std::vector<alps::ObservableSet>& obs);
   virtual ~loop_worker() {}
@@ -127,6 +124,7 @@ private:
   std::vector<local_operator_t> operators_p;
   std::vector<cluster_fragment_t> fragments;
   std::vector<int> current;
+  std::vector<bool> to_flip;
   std::vector<cluster_info_t> clusters;
   std::vector<looper::estimate<estimator_t>::type> estimates;
   std::vector<int> perm;
@@ -139,21 +137,13 @@ private:
 
 loop_worker::loop_worker(alps::Parameters const& p, std::vector<alps::ObservableSet>& obs) :
   alps::parapack::mc_worker(p),
-  lattice(p), model(p, lattice, looper::is_path_integral<mc_type>::type()), mcs(p) {
+  lattice(p), model(p, lattice, /* is_path_integral = */ false), mcs(p) {
+
+  model.check_parameter(/* support_longitudinal_field = */ false, support_negative_sign);
 
   use_improved_estimator = !model.has_field() && !p.defined("DISABLE_IMPROVED_ESTIMATOR");
-
-  if (model.has_field())
-    boost::throw_exception(std::logic_error("longitudinal field is currently not supported "
-      "in SSE representation"));
-  if (model.is_frustrated())
-    std::cerr << "WARNING: model is classically frustrated\n";
-  if (model.is_signed())
-    std::cerr << "WARNING: model has negative signs\n";
   if (!use_improved_estimator)
     std::cerr << "WARNING: improved estimator is disabled\n";
-
-  perm.resize(max_virtual_sites(lattice));
 
   conventional = p.value_or_default("CONVENTIONAL_QUANTUM_WANG_LANDAU", true);
   max_order = static_cast<int>(evaluate("MAX_EXPANSION_ORDER", p));
@@ -169,6 +159,8 @@ loop_worker::loop_worker(alps::Parameters const& p, std::vector<alps::Observable
   spins.resize(nvs); std::fill(spins.begin(), spins.end(), 0 /* all up */);
   spins_c.resize(nvs);
   current.resize(nvs);
+  perm.resize(max_virtual_sites(lattice));
+
   logg.resize(max_order);
   for (int i = 0; i < max_order; ++i) logg[i] = -2 * i;
   logg0.resize(max_order);
@@ -294,7 +286,7 @@ void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
 
     bool has_operator;
     int nop_old = nop;
-    
+
     // diagonal update & labeling
     if (try_gap) {
       has_operator = false;
@@ -382,7 +374,7 @@ void loop_worker::build(std::vector<alps::ObservableSet>& obs) {
   }
 
   std::cerr << "weight: " << mcs() << ' ' << nop << ' ' << logw - logg[nop] << std::endl;
-    
+
   // normalize extended weight
   double g0 = logg[0];
   if (std::abs(g0) > 1e-20) {
@@ -425,6 +417,7 @@ void loop_worker::flip(std::vector<alps::ObservableSet>& obs) {
   int nc = 0;
   BOOST_FOREACH(cluster_fragment_t& f, fragments) if (f.is_root()) f.set_id(nc++);
   BOOST_FOREACH(cluster_fragment_t& f, fragments) f.set_id(cluster_id(fragments, f));
+  to_flip.resize(0); to_flip.resize(nc);
   clusters.resize(0); clusters.resize(nc);
 
   std::copy(spins.begin(), spins.end(), spins_c.begin());
@@ -478,9 +471,9 @@ void loop_worker::flip(std::vector<alps::ObservableSet>& obs) {
 
   // determine whether clusters are flipped or not
   double improved_sign = sign;
-  BOOST_FOREACH(cluster_info_t& ci, clusters) {
-    ci.to_flip = ((2*uniform_01()-1) < (FIELD() ? std::tanh(ci.weight) : 0));
-    if (SIGN() && IMPROVE() && (ci.sign & 1 == 1)) improved_sign = 0;
+  for (unsigned int c = 0; c < clusters.size(); ++c) {
+    to_flip[c] = ((2*uniform_01()-1) < 0);
+    if (SIGN() && IMPROVE() && (clusters[c].sign & 1 == 1)) improved_sign = 0;
   }
 
   // improved measurement
@@ -503,11 +496,10 @@ void loop_worker::flip(std::vector<alps::ObservableSet>& obs) {
 
   // flip operators & spins
   BOOST_FOREACH(local_operator_t& op, operators)
-    if (clusters[fragments[op.loop_0()].id()].to_flip ^
-        clusters[fragments[op.loop_1()].id()].to_flip)
+    if (to_flip[fragments[op.loop_0()].id()] ^ to_flip[fragments[op.loop_1()].id()])
       op.flip();
   for (int s = 0; s < nvs; ++s)
-    if (clusters[fragments[s].id()].to_flip) spins[s] ^= 1;
+    if (to_flip[fragments[s].id()]) spins[s] ^= 1;
 }
 
 
