@@ -550,7 +550,7 @@ mpitest mpicheck : loop_mpi
 archive:
 	rm -rf loop-$(PACKAGE_VERSION)
 	mkdir loop-$(PACKAGE_VERSION)
-	cp -p $(top_srcdir)/LICENSE.txt $(top_srcdir)/CITATIONS.txt $(srcdir)/README.ja $(srcdir)/loop.C $(srcdir)/loop.op $(srcdir)/loop_mpi.C $(srcdir)/loop_mpi.op* $(srcdir)/*.h loop-$(PACKAGE_VERSION)
+	cp -p $(top_srcdir)/LICENSE.txt $(top_srcdir)/CITATIONS.txt $(srcdir)/README.en $(srcdir)/loop.C $(srcdir)/loop.op $(srcdir)/loop_mpi.C $(srcdir)/loop_mpi.op* $(srcdir)/*.h loop-$(PACKAGE_VERSION)
 	tar zcf loop-$(PACKAGE_VERSION).tar.gz loop-$(PACKAGE_VERSION)
 	rm -rf loop-$(PACKAGE_VERSION)
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
