@@ -23,7 +23,7 @@
 *****************************************************************************/
 
 #include "loop_config.h"
-#include "loop_factory.h"
+#include "loop_factory_mpi.h"
 #include <looper/cluster.h>
 #include <looper/evaluator_impl.h>
 #include <looper/montecarlo.h>
@@ -33,7 +33,6 @@
 #include <looper/type.h>
 #include <looper/union_find.h>
 #include <looper/parallel.h>
-#include <parapack/parallel.h>
 
 namespace {
 
@@ -54,6 +53,9 @@ public:
 
   typedef looper::estimator<loop_config::measurement_set, mc_type, lattice_t, time_t>::type
     estimator_t;
+
+  typedef looper::parallel_cluster_unifier<looper::estimate<estimator_t>::type,
+    looper::collector<estimator_t>::type> unifier_t;
 
   loop_worker(alps::communicator_helper const& c, alps::Parameters const& p,
     alps::ObservableSet& obs);
@@ -86,7 +88,7 @@ private:
   alps::communicator_helper comm;
   lattice_t lattice;
   model_t model;
-  looper::parallel_cluster_unifier unifier;
+  unifier_t unifier;
 
   // parameters
   looper::temperature temperature;
@@ -354,11 +356,6 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
   }
   sign = ((negop & 1) == 1) ? -1 : 1;
 
-  // global unification of clusters
-  std::vector<looper::parallel_cluster_unifier::flip_t> const& to_flip =
-    unifier.unify(noc, fragments, r_uniform);
-  for (int c = 0; c < noc; ++c) clusters[c].to_flip = to_flip[c].flip();
-
   // determine whether clusters are flipped or not
   double improved_sign = sign;
   for (int c = noc; c < nc; ++c) {
@@ -368,11 +365,18 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
   }
 
   // improved measurement
+  typename looper::collector<estimator_t>::type coll = get_collector(estimator);
+  coll = std::accumulate(estimates.begin(), estimates.end(), coll);
+  estimator.improved_measurement(obs, lattice, beta, improved_sign, spins, operators,
+    spins_c, fragments, coll);
+
+  // global unification of clusters
+  std::vector<unifier_t::flip_t> const& to_flip = unifier.unify(noc, fragments, estimates, coll,
+    r_uniform);
+  for (int c = 0; c < noc; ++c) clusters[c].to_flip = to_flip[c].flip();
+
+  // improved measurement
   if (IMPROVE()) {
-    typename looper::collector<estimator_t>::type coll = get_collector(estimator);
-    coll = std::accumulate(estimates.begin(), estimates.end(), coll);
-    estimator.improved_measurement(obs, lattice, beta, improved_sign, spins, operators,
-      spins_c, fragments, coll);
     if (SIGN()) {
       obs["Sign"] << improved_sign;
       if (alps::is_zero(improved_sign)) {
@@ -427,9 +431,7 @@ void loop_worker::measure(alps::ObservableSet& obs) {
 // dynamic registration to the factories
 //
 
-// const bool worker_registered =
-//   loop_factory::instance()->register_worker<loop_worker>("path integral");
-// const bool evaluator_registered = loop_factory::instance()->
-//   register_evaluator<looper::evaluator<loop_config::measurement_set> >("path integral");
+const bool worker_registered =
+  parallel_worker_factory::instance()->register_worker<loop_worker>("path integral");
 
 } // end namespace
