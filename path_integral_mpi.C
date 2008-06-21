@@ -36,14 +36,10 @@
 
 namespace {
 
-class loop_worker {
+class loop_worker : private loop_config {
 public:
   typedef looper::path_integral mc_type;
 
-  typedef looper::lattice_helper<loop_config::lattice_graph_t> lattice_t;
-  typedef loop_config::time_t time_t;
-  typedef loop_config::loop_graph_t loop_graph_t;
-  typedef loop_config::model_t model_t;
   typedef looper::local_operator<mc_type, loop_graph_t, time_t> local_operator_t;
   typedef std::vector<local_operator_t> operator_string_t;
   typedef operator_string_t::iterator operator_iterator;
@@ -51,8 +47,7 @@ public:
   typedef looper::union_find::node cluster_fragment_t;
   typedef looper::cluster_info cluster_info_t;
 
-  typedef looper::estimator<loop_config::measurement_set, mc_type, lattice_t, time_t>::type
-    estimator_t;
+  typedef looper::estimator<measurement_set, mc_type, lattice_t, time_t>::type estimator_t;
 
   typedef looper::parallel_cluster_unifier<looper::estimate<estimator_t>::type,
     looper::collector<estimator_t>::type> unifier_t;
@@ -67,9 +62,9 @@ public:
   void run(ENGINE& eng, alps::ObservableSet& obs);
 
   // for exchange Monte Carlo
-  void set_beta(double b) { temperature.set_beta(b); }
-  double g_weight() const { return operators.size(); }
-  double lambda(double beta) const { return std::log(beta); }
+  void set_beta(double beta) { temperature.set_beta(beta); }
+  double weight_parameter() const { return operators.size(); }
+  static double log_weight(double gw, double beta) { return std::log(beta) * gw; }
 
   void save(alps::ODump& dp) const { dp << mcs << spins << spins_t << operators; }
   void load(alps::IDump& dp) { dp >> mcs >> spins >> spins_t >> operators; }
@@ -111,7 +106,7 @@ private:
   std::vector<local_operator_t> operators_p;
   std::vector<cluster_fragment_t> fragments;
   std::vector<int> current;
-  std::vector<cluster_info_t> clusters;
+  std::vector<bool> to_flip;
   std::vector<looper::estimate<estimator_t>::type> estimates;
   std::vector<int> perm;
 };
@@ -123,24 +118,16 @@ private:
 
 loop_worker::loop_worker(alps::communicator_helper const& c, alps::Parameters const& p,
   alps::ObservableSet& obs) :
-  comm(c), lattice(p), model(p, lattice, looper::is_path_integral<mc_type>::type()),
+  comm(c), lattice(p), model(p, lattice, /* is_path_integral = */ true),
   unifier(comm.comm, num_sites(lattice.vg())), temperature(p), mcs(p) {
   if (temperature.annealing_steps() > mcs.thermalization())
     boost::throw_exception(std::invalid_argument("longer annealing steps than thermalization"));
 
+  model.check_parameter(/* support_longitudinal_field = */ false,
+    /* support_negative_sign = */ false);
   use_improved_estimator = !model.has_field() && !p.defined("DISABLE_IMPROVED_ESTIMATOR");
-
-  if (model.has_field())
-    std::cerr << "WARNING: model has a magnetic field\n";
-  if (model.is_frustrated())
-    std::cerr << "WARNING: model is classically frustrated\n";
-  if (model.is_signed())
-    std::cerr << "WARNING: model has negative signs\n";
   if (!use_improved_estimator)
     std::cerr << "WARNING: improved estimator is disabled\n";
-
-  if (is_master(comm))
-    perm.resize(max_virtual_sites(lattice));
 
   tau0 = 1.0 * process_id(comm) / num_processes(comm);
   tau1 = 1.0 * (process_id(comm) + 1) / num_processes(comm);
@@ -151,6 +138,7 @@ loop_worker::loop_worker(alps::communicator_helper const& c, alps::Parameters co
   if (is_master(comm)) spins_t.resize(nvs); std::copy(spins.begin(), spins.end(), spins_t.begin());
   spins_c.resize(nvs);
   current.resize(nvs);
+  if (is_master(comm)) perm.resize(max_virtual_sites(lattice));
 
   if (is_master(comm)) {
     obs << make_observable(alps::SimpleRealObservable("Temperature"));
