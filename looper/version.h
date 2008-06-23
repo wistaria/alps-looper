@@ -28,10 +28,10 @@
 #include <iostream>
 
 /* Define the version of ALPS/looper */
-#define LOOPER_VERSION "3.2b6-20080621"
+#define LOOPER_VERSION "3.2b6-20080623"
 
 /* Define the published date of ALPS/looper */
-#define LOOPER_DATE "2008/06/21"
+#define LOOPER_DATE "2008/06/23"
 
 #include <alps/copyright.h>
 #include <iostream>

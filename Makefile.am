@@ -94,12 +94,13 @@ endif
 if HAVE_PARAPACK
 noinst_PROGRAMS += loop_ps loop_pevaluate
 if HAVE_MPI
-noinst_PROGRAMS += loop_pp
+noinst_PROGRAMS += loop_pp loop_pm
 endif
 endif
 
 SRC = loop_config.h loop_factory.h loop_factory.C loop_custom.C loop_model.C
 SRC_PP = loop_config.h loop_factory.h loop_factory.C loop_custom.C loop_model.C
+SRC_PM = loop_config.h loop_factory_mpi.h loop_factory_mpi.C loop_custom.C loop_model.C
 if ENABLE_DIAG
 SRC += diag.C
 SRC_PP += diag.C
@@ -111,9 +112,7 @@ endif
 if ENABLE_PI
 SRC += path_integral.C
 SRC_PP += path_integral.C
-# if HAVE_PARAPACK
-# SRC_PP += path_integral_mpi.C
-# endif
+SRC_PM += path_integral_mpi.C
 endif
 if ENABLE_SSE
 SRC += sse.C
@@ -140,6 +139,10 @@ loop_ps_SOURCES = loop_pp.C $(SRC)
 loop_pp_SOURCES = loop_pp.C $(SRC_PP)
 loop_pp_LDFLAGS = @LDFLAGS_MPI@
 loop_pp_LDADD = @LIBS_MPI@
+
+loop_pm_SOURCES = loop_pm.C $(SRC_PM)
+loop_pm_LDFLAGS = @LDFLAGS_MPI@
+loop_pm_LDADD = @LIBS_MPI@
 
 loop_pevaluate_SOURCES = loop_pevaluate.C $(SRC)
 if ENABLE_SSE_QWL

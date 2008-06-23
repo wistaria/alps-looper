@@ -49,24 +49,22 @@ noinst_PROGRAMS = loop$(EXEEXT) loop_evaluate$(EXEEXT) $(am__EXEEXT_2) \
 	$(am__EXEEXT_3) $(am__EXEEXT_4)
 @HAVE_MPI_TRUE@am__append_7 = loop_mpi
 @HAVE_PARAPACK_TRUE@am__append_8 = loop_ps loop_pevaluate
-@HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__append_9 = loop_pp
+@HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__append_9 = loop_pp loop_pm
 @ENABLE_DIAG_TRUE@am__append_10 = diag.C
 @ENABLE_DIAG_TRUE@am__append_11 = diag.C
 @ENABLE_ISING_TRUE@am__append_12 = ising.C
 @ENABLE_ISING_TRUE@am__append_13 = ising.C
 @ENABLE_PI_TRUE@am__append_14 = path_integral.C
 @ENABLE_PI_TRUE@am__append_15 = path_integral.C
-# if HAVE_PARAPACK
-# SRC_PP += path_integral_mpi.C
-# endif
-@ENABLE_SSE_TRUE@am__append_16 = sse.C
+@ENABLE_PI_TRUE@am__append_16 = path_integral_mpi.C
 @ENABLE_SSE_TRUE@am__append_17 = sse.C
-@ENABLE_SSE_QWL_TRUE@am__append_18 = sse_qwl.C
+@ENABLE_SSE_TRUE@am__append_18 = sse.C
 @ENABLE_SSE_QWL_TRUE@am__append_19 = sse_qwl.C
-@ENABLE_SSE_QWL_TRUE@am__append_20 = qwl_evaluate.C
+@ENABLE_SSE_QWL_TRUE@am__append_20 = sse_qwl.C
 @ENABLE_SSE_QWL_TRUE@am__append_21 = qwl_evaluate.C
+@ENABLE_SSE_QWL_TRUE@am__append_22 = qwl_evaluate.C
 check_PROGRAMS = $(am__EXEEXT_1)
-@ENABLE_DIAG_TRUE@@ENABLE_ISING_TRUE@@ENABLE_PI_TRUE@@ENABLE_SSE_TRUE@am__append_22 = loop_ns
+@ENABLE_DIAG_TRUE@@ENABLE_ISING_TRUE@@ENABLE_PI_TRUE@@ENABLE_SSE_TRUE@am__append_23 = loop_ns
 subdir = .
 DIST_COMMON = README $(am__configure_deps) \
 	$(am__dist_noinst_HEADERS_DIST) $(dist_noinst_DATA) \
@@ -88,7 +86,8 @@ CONFIG_CLEAN_FILES =
 @HAVE_MPI_TRUE@am__EXEEXT_2 = loop_mpi$(EXEEXT)
 @HAVE_PARAPACK_TRUE@am__EXEEXT_3 = loop_ps$(EXEEXT) \
 @HAVE_PARAPACK_TRUE@	loop_pevaluate$(EXEEXT)
-@HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__EXEEXT_4 = loop_pp$(EXEEXT)
+@HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__EXEEXT_4 = loop_pp$(EXEEXT) \
+@HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@	loop_pm$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 am__loop_SOURCES_DIST = loop.C loop_config.h loop_factory.h \
 	loop_factory.C loop_custom.C loop_model.C diag.C ising.C \
@@ -138,6 +137,18 @@ am_loop_pevaluate_OBJECTS = loop_pevaluate.$(OBJEXT) $(am__objects_6) \
 loop_pevaluate_OBJECTS = $(am_loop_pevaluate_OBJECTS)
 loop_pevaluate_LDADD = $(LDADD)
 loop_pevaluate_DEPENDENCIES =
+am__loop_pm_SOURCES_DIST = loop_pm.C loop_config.h loop_factory_mpi.h \
+	loop_factory_mpi.C loop_custom.C loop_model.C \
+	path_integral_mpi.C
+@ENABLE_PI_TRUE@am__objects_8 = path_integral_mpi.$(OBJEXT)
+am__objects_9 = loop_factory_mpi.$(OBJEXT) loop_custom.$(OBJEXT) \
+	loop_model.$(OBJEXT) $(am__objects_8)
+am_loop_pm_OBJECTS = loop_pm.$(OBJEXT) $(am__objects_9)
+loop_pm_OBJECTS = $(am_loop_pm_OBJECTS)
+loop_pm_DEPENDENCIES =
+loop_pm_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
+	$(loop_pm_LDFLAGS) $(LDFLAGS) -o $@
 am__loop_pp_SOURCES_DIST = loop_pp.C loop_config.h loop_factory.h \
 	loop_factory.C loop_custom.C loop_model.C diag.C ising.C \
 	path_integral.C sse.C sse_qwl.C
@@ -177,11 +188,12 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(loop_SOURCES) $(loop_evaluate_SOURCES) $(loop_mpi_SOURCES) \
 	$(loop_ns_SOURCES) $(loop_pevaluate_SOURCES) \
-	$(loop_pp_SOURCES) $(loop_ps_SOURCES)
+	$(loop_pm_SOURCES) $(loop_pp_SOURCES) $(loop_ps_SOURCES)
 DIST_SOURCES = $(am__loop_SOURCES_DIST) \
 	$(am__loop_evaluate_SOURCES_DIST) $(am__loop_mpi_SOURCES_DIST) \
 	$(am__loop_ns_SOURCES_DIST) $(am__loop_pevaluate_SOURCES_DIST) \
-	$(am__loop_pp_SOURCES_DIST) $(am__loop_ps_SOURCES_DIST)
+	$(am__loop_pm_SOURCES_DIST) $(am__loop_pp_SOURCES_DIST) \
+	$(am__loop_ps_SOURCES_DIST)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-dvi-recursive install-exec-recursive \
@@ -377,12 +389,14 @@ dist_noinst_DATA = CITATIONS.txt LICENSE.txt README config/preamble.in \
 	config/version.in loop_ns.ip loop_ns.op
 SRC = loop_config.h loop_factory.h loop_factory.C loop_custom.C \
 	loop_model.C $(am__append_10) $(am__append_12) \
-	$(am__append_14) $(am__append_16) $(am__append_18)
+	$(am__append_14) $(am__append_17) $(am__append_19)
 SRC_PP = loop_config.h loop_factory.h loop_factory.C loop_custom.C \
 	loop_model.C $(am__append_11) $(am__append_13) \
-	$(am__append_15) $(am__append_17) $(am__append_19)
+	$(am__append_15) $(am__append_18) $(am__append_20)
+SRC_PM = loop_config.h loop_factory_mpi.h loop_factory_mpi.C \
+	loop_custom.C loop_model.C $(am__append_16)
 loop_SOURCES = loop.C $(SRC)
-loop_evaluate_SOURCES = loop_evaluate.C $(SRC) $(am__append_20)
+loop_evaluate_SOURCES = loop_evaluate.C $(SRC) $(am__append_21)
 loop_mpi_SOURCES = loop.C $(SRC)
 loop_mpi_LDFLAGS = @LDFLAGS_MPI@
 loop_mpi_LDADD = @LIBS_MPI@
@@ -390,7 +404,10 @@ loop_ps_SOURCES = loop_pp.C $(SRC)
 loop_pp_SOURCES = loop_pp.C $(SRC_PP)
 loop_pp_LDFLAGS = @LDFLAGS_MPI@
 loop_pp_LDADD = @LIBS_MPI@
-loop_pevaluate_SOURCES = loop_pevaluate.C $(SRC) $(am__append_21)
+loop_pm_SOURCES = loop_pm.C $(SRC_PM)
+loop_pm_LDFLAGS = @LDFLAGS_MPI@
+loop_pm_LDADD = @LIBS_MPI@
+loop_pevaluate_SOURCES = loop_pevaluate.C $(SRC) $(am__append_22)
 loop_ns_SOURCES = loop_ns.C $(SRC)
 TESTS = $(check_PROGRAMS)
 TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
@@ -468,6 +485,9 @@ loop_ns$(EXEEXT): $(loop_ns_OBJECTS) $(loop_ns_DEPENDENCIES)
 loop_pevaluate$(EXEEXT): $(loop_pevaluate_OBJECTS) $(loop_pevaluate_DEPENDENCIES) 
 	@rm -f loop_pevaluate$(EXEEXT)
 	$(CXXLINK) $(loop_pevaluate_OBJECTS) $(loop_pevaluate_LDADD) $(LIBS)
+loop_pm$(EXEEXT): $(loop_pm_OBJECTS) $(loop_pm_DEPENDENCIES) 
+	@rm -f loop_pm$(EXEEXT)
+	$(loop_pm_LINK) $(loop_pm_OBJECTS) $(loop_pm_LDADD) $(LIBS)
 loop_pp$(EXEEXT): $(loop_pp_OBJECTS) $(loop_pp_DEPENDENCIES) 
 	@rm -f loop_pp$(EXEEXT)
 	$(loop_pp_LINK) $(loop_pp_OBJECTS) $(loop_pp_LDADD) $(LIBS)
@@ -487,11 +507,14 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_custom.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_evaluate.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_factory.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_factory_mpi.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_model.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_ns.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_pevaluate.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_pm.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_pp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/path_integral.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/path_integral_mpi.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qwl_evaluate.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sse.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sse_qwl.Po@am__quote@

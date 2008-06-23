@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -90,6 +90,10 @@ struct stiffness
         winding.resize(dim);
         std::fill(winding.begin(), winding.end(), 0.);
       }
+      estimate& operator+=(estimate const& rhs) {
+        for (int i = 0; i < winding.size(); ++i) winding[i] += rhs.winding[i];
+        return *this;
+      }
       void start_s(lattice_t const&, double, int, int) const {}
       void start_bs(lattice_t const& lat, double, int b, int, int c) {
         alps::coordinate_type const& vr = bond_vector_relative[real_bond[bond(lat.vg(), b)]];
@@ -113,8 +117,11 @@ struct stiffness
       unsigned int dim;
       double w2;
       void init(unsigned int d) { dim = d; w2 = 0; }
-      template<typename EST>
-      collector operator+(EST const& est) {
+      collector& operator+=(collector const& coll) {
+        for (int i = 0; i < dim; ++i) w2 += coll.w2;
+        return *this;
+      }
+      collector& operator+=(estimate const& est) {
         for (int i = 0; i < dim; ++i) w2 += power2(0.5 * est.winding[i]);
         return *this;
       }

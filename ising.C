@@ -239,7 +239,7 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
   // improved measurement
   if (IMPROVE()) {
     typename looper::collector<estimator_t>::type coll = get_collector(estimator);
-    coll = std::accumulate(estimates.begin(), estimates.end(), coll);
+    BOOST_FOREACH(looper::estimate<estimator_t>::type const& est, estimates) { coll += est; }
     estimator.improved_measurement(obs, lattice, beta, 1, spins, operator_string_t(),
       spins, fragments, coll);
   }

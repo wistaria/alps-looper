@@ -384,6 +384,7 @@ struct dumb_measurement {
     // improved estimator
 
     struct estimate {
+      estimate& operator+=(estimate const&) { return *this; }
       void start_s(lattice_t const&, double, int, int) const {}
       void start_bs(lattice_t const&, double, int, int, int) const {}
       void start_bt(lattice_t const&, double, int, int, int) const {}
@@ -397,7 +398,7 @@ struct dumb_measurement {
 
     struct collector {
       template<typename EST>
-      collector operator+(EST const& /* est */) const { return *this; }
+      collector& operator+=(EST const& /* est */) { return *this; }
       template<typename M>
       void commit(M& /* m */, lattice_t const& /* lat */, double /* beta */, int /* nop */,
         double /* sign */) const {}
@@ -459,6 +460,11 @@ struct composite_measurement :
     // improved estimator
 
     struct estimate : public estimate1, public estimate2 {
+      estimate& operator+=(estimate const& rhs) {
+        estimate1::operator+=(rhs);
+        estimate2::operator+=(rhs);
+        return *this;
+      }
       void start_s(lattice_t const& lat, time_pt t, int s, int c) {
         estimate1::start_s(lat, t, s, c);
         estimate2::start_s(lat, t, s, c);
@@ -499,9 +505,9 @@ struct composite_measurement :
 
     struct collector : public collector1, public collector2 {
       template<typename EST>
-      collector operator+(EST const& est) {
-        collector1::operator+(est);
-        collector2::operator+(est);
+      collector& operator+=(EST const& est) {
+        collector1::operator+=(est);
+        collector2::operator+=(est);
         return *this;
       }
       template<typename M>

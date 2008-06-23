@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2006-2007 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 2006-2008 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -134,12 +134,18 @@ struct gap : public has_evaluator_tag {
         spsize2 = 0;
         spmag2 = 0;
       }
-      template<typename EST>
-      collector operator+(EST const& cm) {
-        upsize2 += power2(cm.upsize);
-        upmag2 += power2(cm.upmag);
-        spsize2 += power2(cm.spsize);
-        spmag2 += power2(cm.spmag);
+      collector& operator+=(collector const& coll) {
+        upsize2 += coll.upsize2;
+        upmag2 += coll.upmag2;
+        spsize2 += coll.spsize2;
+        spmag2 += coll.spmag2;
+        return *this;
+      }
+      collector& operator+=(estimate const& est) {
+        upsize2 += power2(est.upsize);
+        upmag2 += power2(est.upmag);
+        spsize2 += power2(est.spsize);
+        spmag2 += power2(est.spmag);
         return *this;
       }
       template<typename M>

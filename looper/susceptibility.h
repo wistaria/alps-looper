@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -109,6 +109,17 @@ struct susceptibility :
         ssize = 0;
         smag = 0;
       }
+      estimate& operator+=(estimate const& rhs) {
+        usize0 += rhs.usize0;
+        umag0 += rhs.umag0;
+        usize += rhs.usize;
+        umag += rhs.umag;
+        ssize0 += rhs.ssize0;
+        smag0 += rhs.smag0;
+        ssize += rhs.ssize;
+        smag += rhs.smag;
+        return *this;
+      }
       void start_s(lattice_t const& lat, double t, int s, int c) { term_s(lat, -t, s, c); }
       void start_bs(lattice_t const& lat, double t, int, int s, int c) { start_s(lat, t, s, c); }
       void start_bt(lattice_t const& lat, double t, int, int s, int c) { start_s(lat, t, s, c); }
@@ -142,8 +153,22 @@ struct susceptibility :
         ssize2 = 0; smag2 = 0; ssize4 = 0; smag4 = 0;
         ssize = 0; smag = 0;
       }
-      template<typename EST>
-      collector operator+(EST const& est) {
+      collector& operator+=(collector const& coll) {
+        usize2 += coll.usize2;
+        umag2  += coll.umag2;
+        usize4 += coll.usize4;
+        umag4  += coll.umag4;
+        usize  += coll.usize;
+        umag   += coll.umag;
+        ssize2 += coll.ssize2;
+        smag2  += coll.smag2;
+        ssize4 += coll.ssize4;
+        smag4  += coll.smag4;
+        ssize  += coll.ssize;
+        smag   += coll.smag;
+        return *this;
+      }
+      collector& operator+=(estimate const& est) {
         usize2 += power2(est.usize0);
         umag2  += power2(est.umag0);
         usize4 += power4(est.usize0);
