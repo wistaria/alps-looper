@@ -193,7 +193,31 @@ struct estimate {
 
 template<typename ESTIMATOR>
 struct collector {
-  typedef typename ESTIMATOR::collector type;
+  template<typename BASE_ESTIMATOR>
+  class basic_collector : public  BASE_ESTIMATOR::collector {
+    typedef typename BASE_ESTIMATOR::collector collector;
+    typedef typename BASE_ESTIMATOR::estimate estimate;
+  public:
+    basic_collector() : collector(), nop_(0), nc_(0) {}
+    basic_collector& operator+=(basic_collector const& coll) {
+      collector::operator+=(coll);
+      nop_ += coll.nop_;
+      nc_ += coll.nc_;
+      return *this;
+    }
+    basic_collector& operator+=(estimate const& est) {
+      collector::operator+=(est);
+      return *this;
+    }
+    void increase_operators(unsigned int nop) { nop_ += nop; }
+    void increase_clusters(unsigned int nc) { nc_ += nc; }
+    double num_operators() const { return nop_; }
+    double num_clusters() const { return nc_; }
+  private:
+    double nop_;
+    double nc_;
+  };
+  typedef basic_collector<ESTIMATOR> type;
 };
 
 template<typename MEASUREMENT>

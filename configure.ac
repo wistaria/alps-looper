@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl disable saving cache
 define([AC_CACHE_SAVE], )dnl
-AC_PREREQ(2.59)
+AC_PREREQ(2.62)
 
 dnl
 dnl Version Section ---------------------------------------------------------
@@ -50,8 +50,16 @@ dnl
 dnl compiler
 dnl
 
+if test -z "${enable_shared+set}" && test -n "$ac_cv_enable_shared"; then
+  enable_shared="$ac_cv_enable_shared"
+fi
+if test -z "${enable_static+set}" && test -n "$ac_cv_enable_static"; then
+  enable_static="$ac_cv_enable_static"
+fi
+
 AC_PROG_CC
 AC_PROG_CXX
+F77=no
 AC_PROG_LIBTOOL
 
 dnl

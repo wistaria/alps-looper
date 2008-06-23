@@ -134,7 +134,10 @@ loop_worker::loop_worker(alps::communicator_helper const& c, alps::Parameters co
   // configuration
   int nvs = num_sites(lattice.vg());
   spins.resize(nvs); std::fill(spins.begin(), spins.end(), 0 /* all up */);
-  if (is_master(comm)) spins_t.resize(nvs); std::copy(spins.begin(), spins.end(), spins_t.begin());
+  if (is_master(comm)) {
+    spins_t.resize(nvs);
+    std::copy(spins.begin(), spins.end(), spins_t.begin());
+  }
   spins_c.resize(nvs);
   current.resize(nvs);
   if (is_master(comm)) perm.resize(max_virtual_sites(lattice));
@@ -161,7 +164,10 @@ template<typename ENGINE>
 void loop_worker::run(ENGINE& eng, alps::ObservableSet& obs) {
   // if (!mcs.can_work()) return;
   ++mcs;
+
   beta = 1.0 / temperature(mcs());
+  tau0 = 1.0 * process_id(comm) / num_processes(comm);
+  tau1 = 1.0 * (process_id(comm) + 1) / num_processes(comm);
 
   build(eng);
 
@@ -185,6 +191,8 @@ void loop_worker::run(ENGINE& eng, alps::ObservableSet& obs) {
 
 template<typename ENGINE>
 void loop_worker::build(ENGINE& eng) {
+  // std::cerr << "build start on process " << process_id(comm) << std::endl;
+
   // initialize spin & operator information
   std::copy(spins.begin(), spins.end(), spins_c.begin());
   std::swap(operators, operators_p); operators.resize(0);
@@ -269,6 +277,7 @@ void loop_worker::build(ENGINE& eng) {
   }
 
   for (int s = 2 * nvs - 1; s >= 0; --s) set_root(fragments, s);
+  // std::cerr << "build end on process " << process_id(comm) << std::endl;
 }
 
 
@@ -281,6 +290,8 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
   if (model.has_field() != FIELD() ||
       model.is_signed() != SIGN() ||
       use_improved_estimator != IMPROVE()) return;
+
+  // std::cerr << "flip start on process " << process_id(comm) << std::endl;
 
   boost::variate_generator<ENGINE&, boost::uniform_real<> >
     r_uniform(eng, boost::uniform_real<>());
@@ -305,7 +316,7 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
     // weight.at_bot(s, time_t(tau0), s, spins_c[s]);
     accum.at_bot(s, time_t(tau0), s, spins_c[s]);
   }
-  int negop = 0; // number of operators with negative weights
+  // int negop = 0; // number of operators with negative weights
   BOOST_FOREACH(local_operator_t& op, operators) {
     time_t t = op.time();
     if (op.is_bond()) {
@@ -318,7 +329,7 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
         if (op.is_offdiagonal()) {
           spins_c[s0] ^= 1;
           spins_c[s1] ^= 1;
-          if (SIGN()) negop += model.bond_sign(op.pos());
+          // if (SIGN()) negop += model.bond_sign(op.pos());
         }
         // weight.start_b(op.loop_u0(), op.loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
         accum.start_b(op.loop_u0(), op.loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
@@ -330,7 +341,7 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
         accum.term_s(op.loop_l(), t, s, spins_c[s]);
         if (op.is_offdiagonal()) {
           spins_c[s] ^= 1;
-          if (SIGN()) negop += model.site_sign(op.pos());
+          // if (SIGN()) negop += model.site_sign(op.pos());
         }
         // weight.start_s(op.loop_u(), t, s, spins_c[s]);
         accum.start_s(op.loop_u(), t, s, spins_c[s]);
@@ -341,10 +352,10 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
     // weight.at_top(current[s], time_t(tau1), s, spins_c[s]);
     accum.at_top(current[s], time_t(tau1), s, spins_c[s]);
   }
-  sign = ((negop & 1) == 1) ? -1 : 1;
+  // sign = ((negop & 1) == 1) ? -1 : 1;
 
   // determine whether clusters are flipped or not
-  double improved_sign = sign;
+  // double improved_sign = sign;
   for (int c = noc; c < nc; ++c) {
     to_flip[c] = ((2*r_uniform()-1) < 0);
     // if (SIGN() && IMPROVE() && (clusters[c].sign & 1 == 1)) improved_sign = 0;
@@ -352,25 +363,26 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
 
   // global unification of clusters
   typename looper::collector<estimator_t>::type coll = get_collector(estimator);
+  for (unsigned int c = noc; c < nc; ++c) coll += estimates[c];
   std::vector<unifier_t::flip_t> const& to_flip_global
     = unifier.unify(noc, fragments, estimates, coll, r_uniform);
   for (int c = 0; c < noc; ++c) to_flip[c] = to_flip_global[c].flip();
 
   // improved measurement
-  if (IMPROVE()) {
-    for (unsigned int c = noc; c < nc; ++c) coll += estimates[c];
-    estimator.improved_measurement(obs, lattice, beta, improved_sign, spins, operators,
-    spins_c, fragments, coll);
-    if (SIGN()) {
-      obs["Sign"] << improved_sign;
-      if (alps::is_zero(improved_sign)) {
-        obs["Weight of Zero-Meron Sector"] << 0.;
-      } else {
-        obs["Weight of Zero-Meron Sector"] << 1.;
-        obs["Sign in Zero-Meron Sector"] << improved_sign;
-      }
-    }
-  }
+  // if (IMPROVE()) {
+
+    estimator.improved_measurement(obs, lattice, beta, 1, spins, operators,
+      spins_c, fragments, coll);
+    // if (SIGN()) {
+    //   obs["Sign"] << improved_sign;
+    //   if (alps::is_zero(improved_sign)) {
+    //     obs["Weight of Zero-Meron Sector"] << 0.;
+    //   } else {
+    //     obs["Weight of Zero-Meron Sector"] << 1.;
+    //     obs["Sign in Zero-Meron Sector"] << improved_sign;
+    //   }
+    // }
+  // }
   // obs["Number of Clusters"] << (double)clusters.size();
 
   // flip operators & spins
@@ -382,6 +394,7 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
     for (int s = 0; s < nvs; ++s)
       if (to_flip[fragments[2*nvs + s].id()]) spins_t[s] ^= 1;
   }
+  // std::cerr << "flip end on process " << process_id(comm) << std::endl;
 }
 
 
@@ -390,24 +403,28 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
 //
 
 void loop_worker::measure(alps::ObservableSet& obs) {
-  obs["Temperature"] << 1/beta;
-  obs["Inverse Temperature"] << beta;
-  obs["Volume"] << (double)lattice.volume();
-  obs["Number of Sites"] << (double)num_sites(lattice.rg());
+  // std::cerr << "measure start on process " << process_id(comm) << std::endl;
+  if (is_master(comm)) {
+    obs["Temperature"] << 1/beta;
+    obs["Inverse Temperature"] << beta;
+    obs["Volume"] << (double)lattice.volume();
+    obs["Number of Sites"] << (double)num_sites(lattice.rg());
+  }
 
   // sign
-  if (model.is_signed() && !use_improved_estimator) obs["Sign"] << sign;
+  // if (model.is_signed() && !use_improved_estimator) obs["Sign"] << sign;
 
   // energy
-  int nop = operators.size();
-  double ene = model.energy_offset() - nop / beta;
+  // int nop = operators.size();
+  // double ene = model.energy_offset() - nop / beta;
   // if (model.has_field())
   //   BOOST_FOREACH(const cluster_info_t& c, clusters)
   //     ene += (c.to_flip ? -c.weight : c.weight);
-  looper::energy_estimator::measurement(obs, lattice, beta, nop, sign, ene);
+  // looper::energy_estimator::measurement(obs, lattice, beta, nop, sign, ene);
 
   // other quantities
-  estimator.normal_measurement(obs, lattice, beta, sign, spins, operators, spins_c);
+  // estimator.normal_measurement(obs, lattice, beta, sign, spins, operators, spins_c);
+  // std::cerr << "measure end on process " << process_id(comm) << std::endl;
 }
 
 
