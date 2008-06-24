@@ -69,6 +69,7 @@ int main(int argc, char* argv[]) {
   std::vector<estimate_t> estimates;
 
   // oservables
+  observable num_clusters;
   observable energy;
   observable usus; // uniform susceptibility
   observable smag; // staggered magnetizetion^2
@@ -154,9 +155,9 @@ int main(int argc, char* argv[]) {
     }
 
     // accumulate cluster properties
-    accumulate_t accum;
-    accum.nop = operators.size();
-    BOOST_FOREACH(estimate_t const& est, estimates) accum += est;
+    collector_t coll;
+    coll.set_num_operators(operators.size());
+    BOOST_FOREACH(estimate_t const& est, estimates) coll += est;
 
     // determine whether clusters are flipped or not
     BOOST_FOREACH(cluster_t& ci, clusters) ci.to_flip = (r_uniform() < 0.5);
@@ -173,16 +174,19 @@ int main(int argc, char* argv[]) {
     //
 
     if (mcs >= therm) {
-      energy << (0.25 * nbonds - accum.nop / beta) / nsites;
-      usus << 0.25 * beta * accum.usus / nsites;
-      smag << 0.25 * accum.smag;
-      ssus << 0.25 * beta * accum.ssus / nsites;
+      num_clusters << coll.num_clusters();
+      energy << (0.25 * nbonds - coll.num_operators() / beta) / nsites;
+      usus << 0.25 * beta * coll.usus / nsites;
+      smag << 0.25 * coll.smag;
+      ssus << 0.25 * beta * coll.ssus / nsites;
     }
   }
 
   std::cerr << "Speed = " << (therm + sweeps) / tm.elapsed()
             << " MCS/sec\n";
-  std::cout << "Energy Density            = "
+  std::cout << "Number of Clusters        = "
+            << num_clusters.mean() << " +- " << num_clusters.error() << std::endl
+            << "Energy Density            = "
             << energy.mean() << " +- " << energy.error() << std::endl
             << "Uniform Susceptibility    = "
             << usus.mean() << " +- " << usus.error() << std::endl

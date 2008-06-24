@@ -121,7 +121,8 @@ public:
           estimates_[cluster_id(links_, v)] += estimatesD_[linksD_[v].id()];
 
       // accumulate cluster properties
-      //// BOOST_FOREACH(estimate_t const& est, estimates_) accum += est;
+      BOOST_FOREACH(estimate_t const& est, estimates_) accum += est;
+      accum.increase_clusters(nc);
 
       // determine whether clusters are flipped or not
       flip_close_.resize(nc);
@@ -218,7 +219,8 @@ public:
           distribute(stage);
 
           // accumulate measurements of closed clusters
-          //// for (int c = noc; c < nc; ++c) accum += estimates_[c];
+          for (int c = noc; c < nc; ++c) accum += estimates_[c];
+          accum.increase_clusters(nc - noc);
           info_.nc = noc;
           info_.accum = accum;
 

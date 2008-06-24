@@ -54,22 +54,33 @@ struct estimate_t {
   double length;
 };
 
-struct accumulate_t {
-  accumulate_t() : nop(0), usus(0), smag(0), ssus(0) {}
-  accumulate_t& operator+=(accumulate_t const& accum) {
-    nop += accum.nop;
-    usus += accum.usus;
-    smag += accum.smag;
-    ssus += accum.ssus;
+struct collector_t {
+  collector_t() : noc(0), nc(0), nop(0), usus(0), smag(0), ssus(0) {}
+  collector_t& operator+=(collector_t const& coll) {
+    nc += coll.nc;
+    nop += coll.nop;
+    usus += coll.usus;
+    smag += coll.smag;
+    ssus += coll.ssus;
     return *this;
   }
-  accumulate_t& operator+= (estimate_t const& est) {
+  collector_t& operator+= (estimate_t const& est) {
     usus += est.mag * est.mag;
     smag += est.size * est.size;
     ssus += est.length * est.length;
     return *this;
   }
-  double nop;
+  void set_num_open_clusters(unsigned int n) { noc += n; }
+  unsigned int num_open_clusters() const { return noc; }
+  void set_num_clusters(unsigned int n) { nc = n; }
+  void inc_num_clusters(unsigned int n) { nc += n; }
+  double num_clusters() const { return nc; }
+  void set_num_operators(unsigned int n) { nop = n; }
+  double num_operators() const { return nop; }
+
+  unsigned int noc; // number of open clusters (for parallel QMC)
+  double nc;        // total number of (closed) clusters
+  double nop;       // total number of operators
   double usus;
   double smag;
   double ssus;

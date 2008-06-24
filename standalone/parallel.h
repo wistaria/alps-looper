@@ -34,11 +34,11 @@
 
 namespace looper {
 
-template<typename ESTIMATE, typename ACCUMULATE>
+template<typename ESTIMATE, typename COLLECTOR>
 class parallel_cluster_unifier {
 public:
   typedef ESTIMATE estimate_t;
-  typedef ACCUMULATE accumulate_t;
+  typedef COLLECTOR collector_t;
   typedef looper::union_find::node_noweight link_t;
 
   class flip_t {
@@ -52,11 +52,6 @@ public:
   private:
     static const int id_mask = -1;
     int flip_; // negative if cluster is still open
-  };
-
-  struct info_t {
-    accumulate_t accum;
-    int nc;
   };
 
   parallel_cluster_unifier(MPI_Comm comm, int num_sites) :
@@ -84,25 +79,23 @@ public:
   }
 
   template<typename FRAGMENT, typename RNG>
-  std::vector<flip_t> const& unify(int num_clusters, std::vector<FRAGMENT> const& fragments,
-    std::vector<estimate_t> const& estimates, accumulate_t& accum, RNG& r_uniform) {
+  std::vector<flip_t> const& unify(collector_t& coll, std::vector<FRAGMENT> const& fragments,
+    std::vector<estimate_t> const& estimates, RNG& r_uniform) {
 
     // initialize local tables
-    flip_.resize(num_clusters);
-    for (int c = 0; c < num_clusters; ++c) flip_[c].set_id(c);
+    flip_.resize(coll.num_open_clusters());
+    for (int c = 0; c < coll.num_open_clusters(); ++c) flip_[c].set_id(c);
     if (num_processes_ > 1)
       for (int c = 0; c < num_boundaries_; ++c) flip_stage_[c].set_id(c);
     for (int v = 0; v < num_boundaries_; ++v) {
       if (fragments[v].is_root())
-        linksD_[v].set_id(fragments[v].id()); // id = [0 ... num_clusters)
+        linksD_[v].set_id(fragments[v].id()); // id = [0 ... num_open_clusters)
       else
         linksD_[v].set_parent(root_index(fragments, v));
     }
-    estimatesD_.resize(num_clusters);
-    std::copy(estimates.begin(), estimates.begin() + num_clusters, estimatesD_.begin());
-
-    info_.nc = num_clusters;
-    info_.accum = accum;
+    estimatesD_.resize(coll.num_open_clusters());
+    std::copy(estimates.begin(), estimates.begin() + coll.num_open_clusters(),
+              estimatesD_.begin());
 
     if (num_processes_ == 1) {
 
@@ -121,7 +114,8 @@ public:
           estimates_[cluster_id(links_, v)] += estimatesD_[linksD_[v].id()];
 
       // accumulate cluster properties
-      BOOST_FOREACH(estimate_t const& est, estimates_) accum += est;
+      BOOST_FOREACH(estimate_t const& est, estimates_) coll += est;
+      coll.inc_num_clusters(nc);
 
       // determine whether clusters are flipped or not
       flip_close_.resize(nc);
@@ -142,12 +136,12 @@ public:
           const int slave = process_id_ + target_mask;
 
           std::copy(linksD_.begin(), linksD_.end(), links_.begin());
-          MPI_Recv(&info_, sizeof(info_t), MPI_BYTE, slave, stage, comm_, &status);
-          accum += info_.accum;
-          estimatesU_.resize(info_.nc);
+          MPI_Recv(&coll_buf_, sizeof(collector_t), MPI_BYTE, slave, stage, comm_, &status);
+          coll += coll_buf_;
+          estimatesU_.resize(coll_buf_.num_open_clusters());
           MPI_Recv(&linksU_[0], num_boundaries_, MPI_INT, slave, stage, comm_, &status);
-          MPI_Recv(&estimatesU_[0], sizeof(estimate_t) * info_.nc, MPI_BYTE, slave, stage, comm_,
-                   &status);
+          MPI_Recv(&estimatesU_[0], sizeof(estimate_t) * coll_buf_.num_open_clusters(), MPI_BYTE,
+                   slave, stage, comm_, &status);
           for (int v = 0; v < num_boundaries_; ++v) {
             if (linksU_[v].is_root()) {
               links_[num_boundaries_ + v] = link_t();
@@ -218,9 +212,9 @@ public:
           distribute(stage);
 
           // accumulate measurements of closed clusters
-          for (int c = noc; c < nc; ++c) accum += estimates_[c];
-          info_.nc = noc;
-          info_.accum = accum;
+          for (int c = noc; c < nc; ++c) coll += estimates_[c];
+          coll.set_num_open_clusters(noc);
+          coll.inc_num_clusters(nc - noc);
 
           // update links and estimates (linksD_ and estimatesD_)
           if (stage + 1 != num_stages_) {
@@ -240,9 +234,10 @@ public:
         } else if ((process_id_ & stage_mask) == target_mask) {
           // slave process
           const int master = process_id_ - target_mask;
-          MPI_Send(&info_, sizeof(info_t), MPI_BYTE, master, stage, comm_);
+          MPI_Send(&coll, sizeof(collector_t), MPI_BYTE, master, stage, comm_);
           MPI_Send(&linksD_[0], num_boundaries_, MPI_INT, master, stage, comm_);
-          MPI_Send(&estimatesD_[0], info_.nc * sizeof(estimate_t), MPI_BYTE, master, stage, comm_);
+          MPI_Send(&estimatesD_[0], coll.num_open_clusters() * sizeof(estimate_t), MPI_BYTE,
+                   master, stage, comm_);
           MPI_Recv(&flip_stage_[0], num_boundaries_, MPI_INT, master, stage, comm_, &status);
           // distribute flip table to decendants
           distribute(stage);
@@ -252,7 +247,7 @@ public:
         }
 
         // update flip table
-        for (int c = 0; c < num_clusters; ++c)
+        for (int c = 0; c < flip_.size(); ++c)
           if (flip_[c].open()) flip_[c] = flip_stage_[flip_[c].id()];
       }
     }
@@ -293,7 +288,7 @@ private:
   std::vector<flip_t> flip_;
 
   // working areas
-  info_t info_;
+  collector_t coll_buf_;
   std::vector<int> flip_close_;
   std::vector<flip_t> flip_stage_;
   std::vector<link_t> links_;

@@ -198,24 +198,28 @@ struct collector {
     typedef typename BASE_ESTIMATOR::collector collector;
     typedef typename BASE_ESTIMATOR::estimate estimate;
   public:
-    basic_collector() : collector(), nop_(0), nc_(0) {}
+    basic_collector() : collector(), ncc_(0), nop_(0) {}
     basic_collector& operator+=(basic_collector const& coll) {
       collector::operator+=(coll);
-      nop_ += coll.nop_;
       nc_ += coll.nc_;
+      nop_ += coll.nop_;
       return *this;
     }
     basic_collector& operator+=(estimate const& est) {
       collector::operator+=(est);
       return *this;
     }
-    void increase_operators(unsigned int nop) { nop_ += nop; }
-    void increase_clusters(unsigned int nc) { nc_ += nc; }
-    double num_operators() const { return nop_; }
+    void set_num_open_clusters(unsigned int n) { noc_ += n; }
+    unsigned int num_open_clusters() const { return noc_; }
+    void set_num_clusters(unsigned int n) { nc_ = n; }
+    void inc_num_clusters(unsigned int n) { nc_ += n; }
     double num_clusters() const { return nc_; }
+    void set_num_operators(unsigned int n) { nop_ = n; }
+    double num_operators() const { return nop_; }
   private:
-    double nop_;
-    double nc_;
+    unsigned int noc_; // number of open clusters (for parallel QMC)
+    double nc_;        // total number of (closed) clusters
+    double nop_;       // total number of operators
   };
   typedef basic_collector<ESTIMATOR> type;
 };

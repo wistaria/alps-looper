@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
   observable ssus; // staggered susceptibility
 
   // helper for parallelization
-  typedef looper::parallel_cluster_unifier<estimate_t, accumulate_t> unifier_t;
+  typedef looper::parallel_cluster_unifier<estimate_t, collector_t> unifier_t;
   unifier_t unifier(MPI_COMM_WORLD, nsites);
 
   //
@@ -185,13 +185,15 @@ int main(int argc, char* argv[]) {
     }
 
     // accumulate cluster properties
-    accumulate_t accum;
-    accum.nop = operators.size();
-    for (int c = noc; c < nc; ++c) accum += estimates[c];
+    collector_t coll;
+    coll.set_num_operators(operators.size());
+    coll.set_num_open_clusters(noc);
+    coll.set_num_clusters(nc - noc);
+    for (int c = noc; c < nc; ++c) coll += estimates[c];
 
     // global unification of open clusters
-    std::vector<unifier_t::flip_t> const&
-      to_flip = unifier.unify(noc, fragments, estimates, accum, r_uniform);
+    std::vector<unifier_t::flip_t> const& to_flip =
+      unifier.unify(coll, fragments, estimates, r_uniform);
 
     // determine whether clusters are flipped or not
     for (int c = 0; c < noc; ++c) clusters[c].to_flip = to_flip[c].flip();
@@ -209,10 +211,10 @@ int main(int argc, char* argv[]) {
     //
 
     if (process_id == 0 && mcs >= therm) {
-      energy << (0.25 * nbonds - accum.nop / beta) / nsites;
-      usus << 0.25 * beta * accum.usus / nsites;
-      smag << 0.25 * accum.smag;
-      ssus << 0.25 * beta * accum.ssus / nsites;
+      energy << (0.25 * nbonds - coll.num_operators() / beta) / nsites;
+      usus << 0.25 * beta * coll.usus / nsites;
+      smag << 0.25 * coll.smag;
+      ssus << 0.25 * beta * coll.ssus / nsites;
     }
   }
 
