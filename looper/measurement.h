@@ -198,7 +198,7 @@ struct collector {
     typedef typename BASE_ESTIMATOR::collector collector;
     typedef typename BASE_ESTIMATOR::estimate estimate;
   public:
-    basic_collector() : collector(), ncc_(0), nop_(0) {}
+    basic_collector() : collector(), noc_(0), nc_(0), nop_(0) {}
     basic_collector& operator+=(basic_collector const& coll) {
       collector::operator+=(coll);
       nc_ += coll.nc_;
