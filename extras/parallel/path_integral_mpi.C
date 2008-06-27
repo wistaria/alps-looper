@@ -76,8 +76,6 @@ protected:
   template<typename ENGINE, typename FIELD, typename SIGN, typename IMPROVE>
   void flip(ENGINE& eng, alps::ObservableSet& obs);
 
-  void measure(alps::ObservableSet& obs);
-
 private:
   // helpers
   alps::communicator_helper comm;
@@ -180,8 +178,6 @@ void loop_worker::run(ENGINE& eng, alps::ObservableSet& obs) {
   // flip<ENGINE, boost::mpl::false_, boost::mpl::true_,  boost::mpl::false_>(eng, obs);
   flip<ENGINE, boost::mpl::false_, boost::mpl::false_, boost::mpl::true_ >(eng, obs);
   flip<ENGINE, boost::mpl::false_, boost::mpl::false_, boost::mpl::false_>(eng, obs);
-
-  measure(obs);
 }
 
 
@@ -356,23 +352,26 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
 
   // determine whether clusters are flipped or not
   // double improved_sign = sign;
-  for (int c = noc; c < nc; ++c) {
-    to_flip[c] = ((2*r_uniform()-1) < 0);
     // if (SIGN() && IMPROVE() && (clusters[c].sign & 1 == 1)) improved_sign = 0;
-  }
 
   // global unification of clusters
   typename looper::collector<estimator_t>::type coll = get_collector(estimator);
+  coll.set_num_operators(operators.size());
+  coll.set_num_open_clusters(noc);
+  coll.set_num_clusters(nc - noc);
   for (unsigned int c = noc; c < nc; ++c) coll += estimates[c];
+
+  // global unification of open clusters
   std::vector<unifier_t::flip_t> const& to_flip_global
-    = unifier.unify(noc, fragments, estimates, coll, r_uniform);
+    = unifier.unify(coll, fragments, estimates, r_uniform);
   for (int c = 0; c < noc; ++c) to_flip[c] = to_flip_global[c].flip();
+  for (int c = noc; c < nc; ++c) to_flip[c] = ((2*r_uniform()-1) < 0);
 
   // improved measurement
   // if (IMPROVE()) {
 
-    estimator.improved_measurement(obs, lattice, beta, 1, spins, operators,
-      spins_c, fragments, coll);
+  estimator.improved_measurement(obs, lattice, beta, 1, spins, operators,
+    spins_c, fragments, coll);
     // if (SIGN()) {
     //   obs["Sign"] << improved_sign;
     //   if (alps::is_zero(improved_sign)) {
@@ -395,14 +394,7 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
       if (to_flip[fragments[2*nvs + s].id()]) spins_t[s] ^= 1;
   }
   // std::cerr << "flip end on process " << process_id(comm) << std::endl;
-}
 
-
-//
-// measurement
-//
-
-void loop_worker::measure(alps::ObservableSet& obs) {
   // std::cerr << "measure start on process " << process_id(comm) << std::endl;
   if (is_master(comm)) {
     obs["Temperature"] << 1/beta;
@@ -415,16 +407,18 @@ void loop_worker::measure(alps::ObservableSet& obs) {
   // if (model.is_signed() && !use_improved_estimator) obs["Sign"] << sign;
 
   // energy
-  // int nop = operators.size();
-  // double ene = model.energy_offset() - nop / beta;
-  // if (model.has_field())
-  //   BOOST_FOREACH(const cluster_info_t& c, clusters)
-  //     ene += (c.to_flip ? -c.weight : c.weight);
-  // looper::energy_estimator::measurement(obs, lattice, beta, nop, sign, ene);
+  if (is_master(comm)) {
+    int nop = coll.num_operators();
+    double ene = model.energy_offset() - nop / beta;
+    // if (model.has_field())
+    //   BOOST_FOREACH(const cluster_info_t& c, clusters)
+    //     ene += (c.to_flip ? -c.weight : c.weight);
+    looper::energy_estimator::measurement(obs, lattice, beta, nop, 1, ene);
 
-  // other quantities
-  // estimator.normal_measurement(obs, lattice, beta, sign, spins, operators, spins_c);
-  // std::cerr << "measure end on process " << process_id(comm) << std::endl;
+    // other quantities
+    estimator.normal_measurement(obs, lattice, beta, sign, spins, operators, spins_c);
+    // std::cerr << "measure end on process " << process_id(comm) << std::endl;
+  }
 }
 
 

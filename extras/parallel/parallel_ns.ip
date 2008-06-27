@@ -1,0 +1,8 @@
+SEED    = 23125
+SWEEPS  = 4096
+MODEL   = "spin"
+T = 0.25
+
+LATTICE = "chain lattice"
+L = 4
+{ REPRESENTATION = "path integral" }

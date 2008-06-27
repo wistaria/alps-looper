@@ -28,6 +28,14 @@ nodist_parallel_pevaluate_SOURCES = $(top_srcdir)/loop_evaluate.C $(top_srcdir)/
 dist_noinst_DATA =
 
 check_PROGRAMS =
+if HAVE_MPI
+check_PROGRAMS += parallel_ns
+endif
+
+dist_parallel_ns_SOURCES = parallel_ns.C parallel_config.h loop_factory_mpi.C path_integral_mpi.C
+nodist_parallel_ns_SOURCES = $(top_srcdir)/loop_model.C 
+       parallel_ns_LDFLAGS = @LDFLAGS_MPI@
+       parallel_ns_LDADD = @LIBS_MPI@
 
 TESTS = $(check_PROGRAMS)
 TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
