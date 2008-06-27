@@ -2,6 +2,7 @@ System Length             = 8
 Temperature               = 0.2
 MCS for Thermalization    = 8192
 MCS for Measurement       = 65536
+Number of Clusters        = 16.815 +- 0.0161872
 Energy Density            = -0.441537 +- 0.000529539
 Uniform Susceptibility    = 0.0807428 +- 0.000538005
 Staggered Magnetization^2 = 6.59332 +- 0.0113613

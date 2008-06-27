@@ -74,19 +74,18 @@ int main(int argc, char* argv[]) {
   std::vector<int> current(nsites);
 
   // cluster information
+  typedef looper::parallel_cluster_unifier<estimate_t, collector_t> unifier_t;
+  unifier_t unifier(MPI_COMM_WORLD, nsites);
   std::vector<fragment_t> fragments;
-  std::vector<cluster_t> clusters;
+  std::vector<unifier_t::flip_t> to_flip;
   std::vector<estimate_t> estimates;
 
   // oservables
+  observable num_clusters;
   observable energy;
   observable usus; // uniform susceptibility
   observable smag; // staggered magnetizetion^2
   observable ssus; // staggered susceptibility
-
-  // helper for parallelization
-  typedef looper::parallel_cluster_unifier<estimate_t, collector_t> unifier_t;
-  unifier_t unifier(MPI_COMM_WORLD, nsites);
 
   //
   // Monte Carlo steps
@@ -158,7 +157,7 @@ int main(int argc, char* argv[]) {
     for (int s = 2 * nsites; s < fragments.size(); ++s)
       if (fragments[s].is_root()) fragments[s].set_id(nc++);
     BOOST_FOREACH(fragment_t& f, fragments) f.set_id(cluster_id(fragments, f));
-    clusters.resize(0); clusters.resize(nc);
+    to_flip.resize(nc);
     estimates.resize(0); estimates.resize(nc);
 
     if (process_id == 0) {
@@ -192,25 +191,24 @@ int main(int argc, char* argv[]) {
     for (int c = noc; c < nc; ++c) coll += estimates[c];
 
     // global unification of open clusters
-    std::vector<unifier_t::flip_t> const& to_flip =
-      unifier.unify(coll, fragments, estimates, r_uniform);
+    unifier.unify(coll, to_flip, fragments, estimates, r_uniform);
 
     // determine whether clusters are flipped or not
-    for (int c = 0; c < noc; ++c) clusters[c].to_flip = to_flip[c].flip();
-    for (int c = noc; c < nc; ++c) clusters[c].to_flip = (r_uniform() < 0.5);
+    for (int c = noc; c < nc; ++c) to_flip[c].set_flip(r_uniform() < 0.5);
 
     // flip operators & spins
     BOOST_FOREACH(local_operator_t& op, operators)
-      if (clusters[fragments[op.lower_cluster].id()].to_flip ^
-          clusters[fragments[op.upper_cluster].id()].to_flip) op.flip();
+      if (to_flip[fragments[op.lower_cluster].id()] ^
+          to_flip[fragments[op.upper_cluster].id()]) op.flip();
     for (int s = 0; s < nsites; ++s)
-      if (clusters[fragments[s].id()].to_flip) spins[s] ^= 1;
+      if (to_flip[fragments[s].id()]) spins[s] ^= 1;
 
     //
     // measurements
     //
 
     if (process_id == 0 && mcs >= therm) {
+      num_clusters << coll.num_clusters();
       energy << (0.25 * nbonds - coll.num_operators() / beta) / nsites;
       usus << 0.25 * beta * coll.usus / nsites;
       smag << 0.25 * coll.smag;
@@ -223,7 +221,9 @@ int main(int argc, char* argv[]) {
   if (process_id == 0) {
     std::cerr << "Speed = " << (therm + sweeps) / tm.elapsed()
               << " MCS/sec\n";
-    std::cout << "Energy Density            = "
+    std::cout << "Number of Clusters        = "
+              << num_clusters.mean() << " +- " << num_clusters.error() << std::endl
+              << "Energy Density            = "
               << energy.mean() << " +- " << energy.error() << std::endl
               << "Uniform Susceptibility    = "
               << usus.mean() << " +- " << usus.error() << std::endl

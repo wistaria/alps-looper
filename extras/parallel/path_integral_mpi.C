@@ -104,7 +104,7 @@ private:
   std::vector<local_operator_t> operators_p;
   std::vector<cluster_fragment_t> fragments;
   std::vector<int> current;
-  std::vector<bool> to_flip;
+  std::vector<unifier_t::flip_t> to_flip;
   std::vector<looper::estimate<estimator_t>::type> estimates;
   std::vector<int> perm;
 };
@@ -187,7 +187,6 @@ void loop_worker::run(ENGINE& eng, alps::ObservableSet& obs) {
 
 template<typename ENGINE>
 void loop_worker::build(ENGINE& eng) {
-  // std::cerr << "build start on process " << process_id(comm) << std::endl;
 
   // initialize spin & operator information
   std::copy(spins.begin(), spins.end(), spins_c.begin());
@@ -273,7 +272,6 @@ void loop_worker::build(ENGINE& eng) {
   }
 
   for (int s = 2 * nvs - 1; s >= 0; --s) set_root(fragments, s);
-  // std::cerr << "build end on process " << process_id(comm) << std::endl;
 }
 
 
@@ -287,8 +285,6 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
       model.is_signed() != SIGN() ||
       use_improved_estimator != IMPROVE()) return;
 
-  // std::cerr << "flip start on process " << process_id(comm) << std::endl;
-
   boost::variate_generator<ENGINE&, boost::uniform_real<> >
     r_uniform(eng, boost::uniform_real<>());
 
@@ -301,7 +297,7 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
   for (int s = 2 * nvs; s < fragments.size(); ++s)
     if (fragments[s].is_root()) fragments[s].set_id(nc++);
   BOOST_FOREACH(cluster_fragment_t& f, fragments) f.set_id(cluster_id(fragments, f));
-  to_flip.resize(0); to_flip.resize(nc);
+  to_flip.resize(nc);
 
   std::copy(spins.begin(), spins.end(), spins_c.begin());
   // cluster_info_t::accumulator<cluster_fragment_t, FIELD, SIGN, IMPROVE>
@@ -362,10 +358,8 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
   for (unsigned int c = noc; c < nc; ++c) coll += estimates[c];
 
   // global unification of open clusters
-  std::vector<unifier_t::flip_t> const& to_flip_global
-    = unifier.unify(coll, fragments, estimates, r_uniform);
-  for (int c = 0; c < noc; ++c) to_flip[c] = to_flip_global[c].flip();
-  for (int c = noc; c < nc; ++c) to_flip[c] = ((2*r_uniform()-1) < 0);
+  unifier.unify(coll, to_flip, fragments, estimates, r_uniform);
+  for (int c = noc; c < nc; ++c) to_flip[c].set_flip(r_uniform() < 0.5);
 
   // improved measurement
   // if (IMPROVE()) {
@@ -393,9 +387,7 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
     for (int s = 0; s < nvs; ++s)
       if (to_flip[fragments[2*nvs + s].id()]) spins_t[s] ^= 1;
   }
-  // std::cerr << "flip end on process " << process_id(comm) << std::endl;
 
-  // std::cerr << "measure start on process " << process_id(comm) << std::endl;
   if (is_master(comm)) {
     obs["Temperature"] << 1/beta;
     obs["Inverse Temperature"] << beta;
@@ -417,7 +409,6 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
 
     // other quantities
     estimator.normal_measurement(obs, lattice, beta, sign, spins, operators, spins_c);
-    // std::cerr << "measure end on process " << process_id(comm) << std::endl;
   }
 }
 
@@ -428,5 +419,7 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
 
 const bool worker_registered =
   parallel_worker_factory::instance()->register_worker<loop_worker>("path integral");
+const bool evaluator_registered = loop_factory::instance()->
+  register_evaluator<looper::evaluator<loop_config::measurement_set> >("path integral");
 
 } // end namespace

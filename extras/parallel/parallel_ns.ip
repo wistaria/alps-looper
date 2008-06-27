@@ -6,3 +6,13 @@ T = 0.25
 LATTICE = "chain lattice"
 L = 4
 { REPRESENTATION = "path integral" }
+
+LATTICE = "chain lattice"
+L = 4
+local_S = 1
+T = 1/L
+{ REPRESENTATION = "path integral" }
+
+LATTICE = "site"
+Gamma = 1
+{ REPRESENTATION = "path integral" }

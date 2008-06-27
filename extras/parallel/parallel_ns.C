@@ -79,13 +79,15 @@ int main(int argc, char** argv)
     }
     delete worker;
 
-//     looper::abstract_evaluator* evaluator = loop_factory::instance()->make_evaluator(*p);
-//     evaluator->pre_evaluate(m, *p, m);
-//     evaluator->evaluate(m, *p, m);
-//     delete evaluator;
+    if (is_master(comm)) {
+      looper::abstract_evaluator* evaluator = loop_factory::instance()->make_evaluator(*p);
+      evaluator->pre_evaluate(m[0], *p, m[0]);
+      evaluator->evaluate(m[0], *p, m[0]);
+      delete evaluator;
 
-    std::cerr << "[speed]\nelapsed time = " << tm.elapsed() << " sec\n";
-    std::cout << "[results]\n" << m[0];
+      std::cerr << "[speed]\nelapsed time = " << tm.elapsed() << " sec\n";
+      std::cout << "[results]\n" << m[0];
+    }
   }
 
   alps::barrier(comm);

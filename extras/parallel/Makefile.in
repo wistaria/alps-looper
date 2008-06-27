@@ -59,7 +59,8 @@ CONFIG_CLEAN_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
 dist_parallel_ns_OBJECTS = parallel_ns.$(OBJEXT) \
 	loop_factory_mpi.$(OBJEXT) path_integral_mpi.$(OBJEXT)
-nodist_parallel_ns_OBJECTS = loop_model.$(OBJEXT)
+nodist_parallel_ns_OBJECTS = loop_factory.$(OBJEXT) \
+	loop_model.$(OBJEXT)
 parallel_ns_OBJECTS = $(dist_parallel_ns_OBJECTS) \
 	$(nodist_parallel_ns_OBJECTS)
 parallel_ns_DEPENDENCIES =
@@ -74,7 +75,8 @@ parallel_pevaluate_LDADD = $(LDADD)
 parallel_pevaluate_DEPENDENCIES =
 dist_parallel_pm_OBJECTS = loop_pm.$(OBJEXT) \
 	loop_factory_mpi.$(OBJEXT) path_integral_mpi.$(OBJEXT)
-nodist_parallel_pm_OBJECTS = loop_model.$(OBJEXT)
+nodist_parallel_pm_OBJECTS = loop_factory.$(OBJEXT) \
+	loop_model.$(OBJEXT)
 parallel_pm_OBJECTS = $(dist_parallel_pm_OBJECTS) \
 	$(nodist_parallel_pm_OBJECTS)
 parallel_pm_DEPENDENCIES =
@@ -224,7 +226,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 dist_parallel_pm_SOURCES = loop_pm.C parallel_config.h loop_factory_mpi.C path_integral_mpi.C
-nodist_parallel_pm_SOURCES = $(top_srcdir)/loop_model.C 
+nodist_parallel_pm_SOURCES = $(top_srcdir)/loop_factory.C $(top_srcdir)/loop_model.C 
 parallel_pm_LDFLAGS = @LDFLAGS_MPI@
 parallel_pm_LDADD = @LIBS_MPI@
 nodist_parallel_pevaluate_SOURCES = $(top_srcdir)/loop_evaluate.C $(top_srcdir)/loop_factory.C $(top_srcdir)/loop_model.C $(top_srcdir)/path_integral.C
@@ -232,9 +234,9 @@ nodist_parallel_pevaluate_SOURCES = $(top_srcdir)/loop_evaluate.C $(top_srcdir)/
 #
 # tests
 #
-dist_noinst_DATA = 
+dist_noinst_DATA = parallel_ns.ip parallel_ns.op
 dist_parallel_ns_SOURCES = parallel_ns.C parallel_config.h loop_factory_mpi.C path_integral_mpi.C
-nodist_parallel_ns_SOURCES = $(top_srcdir)/loop_model.C 
+nodist_parallel_ns_SOURCES = $(top_srcdir)/loop_factory.C $(top_srcdir)/loop_model.C 
 parallel_ns_LDFLAGS = @LDFLAGS_MPI@
 parallel_ns_LDADD = @LIBS_MPI@
 TESTS = $(check_PROGRAMS)
@@ -332,6 +334,20 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
 
+loop_factory.o: $(top_srcdir)/loop_factory.C
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_factory.o -MD -MP -MF $(DEPDIR)/loop_factory.Tpo -c -o loop_factory.o `test -f '$(top_srcdir)/loop_factory.C' || echo '$(srcdir)/'`$(top_srcdir)/loop_factory.C
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/loop_factory.Tpo $(DEPDIR)/loop_factory.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/loop_factory.C' object='loop_factory.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_factory.o `test -f '$(top_srcdir)/loop_factory.C' || echo '$(srcdir)/'`$(top_srcdir)/loop_factory.C
+
+loop_factory.obj: $(top_srcdir)/loop_factory.C
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_factory.obj -MD -MP -MF $(DEPDIR)/loop_factory.Tpo -c -o loop_factory.obj `if test -f '$(top_srcdir)/loop_factory.C'; then $(CYGPATH_W) '$(top_srcdir)/loop_factory.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/loop_factory.C'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/loop_factory.Tpo $(DEPDIR)/loop_factory.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/loop_factory.C' object='loop_factory.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_factory.obj `if test -f '$(top_srcdir)/loop_factory.C'; then $(CYGPATH_W) '$(top_srcdir)/loop_factory.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/loop_factory.C'; fi`
+
 loop_model.o: $(top_srcdir)/loop_model.C
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_model.o -MD -MP -MF $(DEPDIR)/loop_model.Tpo -c -o loop_model.o `test -f '$(top_srcdir)/loop_model.C' || echo '$(srcdir)/'`$(top_srcdir)/loop_model.C
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/loop_model.Tpo $(DEPDIR)/loop_model.Po
@@ -359,20 +375,6 @@ loop_evaluate.obj: $(top_srcdir)/loop_evaluate.C
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/loop_evaluate.C' object='loop_evaluate.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_evaluate.obj `if test -f '$(top_srcdir)/loop_evaluate.C'; then $(CYGPATH_W) '$(top_srcdir)/loop_evaluate.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/loop_evaluate.C'; fi`
-
-loop_factory.o: $(top_srcdir)/loop_factory.C
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_factory.o -MD -MP -MF $(DEPDIR)/loop_factory.Tpo -c -o loop_factory.o `test -f '$(top_srcdir)/loop_factory.C' || echo '$(srcdir)/'`$(top_srcdir)/loop_factory.C
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/loop_factory.Tpo $(DEPDIR)/loop_factory.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/loop_factory.C' object='loop_factory.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_factory.o `test -f '$(top_srcdir)/loop_factory.C' || echo '$(srcdir)/'`$(top_srcdir)/loop_factory.C
-
-loop_factory.obj: $(top_srcdir)/loop_factory.C
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_factory.obj -MD -MP -MF $(DEPDIR)/loop_factory.Tpo -c -o loop_factory.obj `if test -f '$(top_srcdir)/loop_factory.C'; then $(CYGPATH_W) '$(top_srcdir)/loop_factory.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/loop_factory.C'; fi`
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/loop_factory.Tpo $(DEPDIR)/loop_factory.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/loop_factory.C' object='loop_factory.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_factory.obj `if test -f '$(top_srcdir)/loop_factory.C'; then $(CYGPATH_W) '$(top_srcdir)/loop_factory.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/loop_factory.C'; fi`
 
 path_integral.o: $(top_srcdir)/path_integral.C
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT path_integral.o -MD -MP -MF $(DEPDIR)/path_integral.Tpo -c -o path_integral.o `test -f '$(top_srcdir)/path_integral.C' || echo '$(srcdir)/'`$(top_srcdir)/path_integral.C

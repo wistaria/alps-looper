@@ -45,8 +45,8 @@ public:
   public:
     flip_t() : flip_(id_mask) {}
     void set_flip(int flip) { flip_ = flip; }
-    bool flip() const { return flip_ == 1; }
-    bool open() const { return flip_ < 0; }
+    operator bool() const { return flip_ == 1; }
+    bool is_open() const { return flip_ < 0; }
     void set_id(int id) { flip_ = id ^ id_mask; }
     int id() const { return flip_ ^ id_mask; }
   private:
@@ -79,12 +79,11 @@ public:
   }
 
   template<typename FRAGMENT, typename RNG>
-  std::vector<flip_t> const& unify(collector_t& coll, std::vector<FRAGMENT> const& fragments,
+  void unify(collector_t& coll, std::vector<flip_t>& flip, std::vector<FRAGMENT> const& fragments,
     std::vector<estimate_t> const& estimates, RNG& r_uniform) {
 
     // initialize local tables
-    flip_.resize(coll.num_open_clusters());
-    for (int c = 0; c < coll.num_open_clusters(); ++c) flip_[c].set_id(c);
+    for (int c = 0; c < coll.num_open_clusters(); ++c) flip[c].set_id(c);
     if (num_processes_ > 1)
       for (int c = 0; c < num_boundaries_; ++c) flip_stage_[c].set_id(c);
     for (int v = 0; v < num_boundaries_; ++v) {
@@ -119,10 +118,10 @@ public:
 
       // determine whether clusters are flipped or not
       flip_close_.resize(nc);
-      for (int c = 0; c < nc; ++c) flip_close_[c] = (r_uniform() < 0.5);
+      for (int c = 0; c < nc; ++c) flip_close_[c].set_flip(r_uniform() < 0.5);
       for (int v = 0; v < num_boundaries_; ++v)
         if (linksD_[v].is_root())
-          flip_[linksD_[v].id()].set_flip(flip_close_[cluster_id(links_, v)]);
+          flip[linksD_[v].id()].set_flip(flip_close_[cluster_id(links_, v)]);
 
     } else {
 
@@ -177,7 +176,7 @@ public:
 
           // determine whether close clusters are flipped or not
           flip_close_.resize(nc);
-          for (int c = noc; c < nc; ++c) flip_close_[c] = (r_uniform() < 0.5);
+          for (int c = noc; c < nc; ++c) flip_close_[c].set_flip(r_uniform() < 0.5);
           estimates_.resize(nc);
           std::fill(estimates_.begin(), estimates_.end(), estimate_t());
 
@@ -247,12 +246,10 @@ public:
         }
 
         // update flip table
-        for (int c = 0; c < flip_.size(); ++c)
-          if (flip_[c].open()) flip_[c] = flip_stage_[flip_[c].id()];
+        for (int c = 0; c < estimates.size(); ++c)
+          if (flip[c].is_open()) flip[c] = flip_stage_[flip[c].id()];
       }
     }
-
-    return flip_;
   }
 
 protected:
@@ -285,11 +282,9 @@ private:
   int num_boundaries_; // number of sites at imaginary-boundaries (2 * num_sites_)
   int num_stages_;     // total number of stages
 
-  std::vector<flip_t> flip_;
-
   // working areas
   collector_t coll_buf_;
-  std::vector<int> flip_close_;
+  std::vector<flip_t> flip_close_;
   std::vector<flip_t> flip_stage_;
   std::vector<link_t> links_;
   std::vector<link_t> linksD_;

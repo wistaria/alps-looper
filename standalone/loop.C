@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
 
   // cluster information
   std::vector<fragment_t> fragments;
-  std::vector<cluster_t> clusters;
+  std::vector<bool> to_flip;
   std::vector<estimate_t> estimates;
 
   // oservables
@@ -139,7 +139,7 @@ int main(int argc, char* argv[]) {
     int nc = 0;
     BOOST_FOREACH(fragment_t& f, fragments) if (f.is_root()) f.set_id(nc++);
     BOOST_FOREACH(fragment_t& f, fragments) f.set_id(cluster_id(fragments, f));
-    clusters.resize(0); clusters.resize(nc);
+    to_flip.resize(nc);
     estimates.resize(0); estimates.resize(nc);
 
     BOOST_FOREACH(local_operator_t& op, operators) {
@@ -157,17 +157,18 @@ int main(int argc, char* argv[]) {
     // accumulate cluster properties
     collector_t coll;
     coll.set_num_operators(operators.size());
+    coll.set_num_clusters(nc);
     BOOST_FOREACH(estimate_t const& est, estimates) coll += est;
 
     // determine whether clusters are flipped or not
-    BOOST_FOREACH(cluster_t& ci, clusters) ci.to_flip = (r_uniform() < 0.5);
+    for (int c = 0; c < nc; ++c) to_flip[c] = (r_uniform() < 0.5);
 
     // flip operators & spins
     BOOST_FOREACH(local_operator_t& op, operators)
-      if (clusters[fragments[op.lower_cluster].id()].to_flip ^
-          clusters[fragments[op.upper_cluster].id()].to_flip) op.flip();
+      if (to_flip[fragments[op.lower_cluster].id()] ^
+          to_flip[fragments[op.upper_cluster].id()]) op.flip();
     for (int s = 0; s < nsites; ++s)
-      if (clusters[fragments[s].id()].to_flip) spins[s] ^= 1;
+      if (to_flip[fragments[s].id()]) spins[s] ^= 1;
 
     //
     // measurements

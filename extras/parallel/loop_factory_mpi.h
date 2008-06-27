@@ -22,6 +22,7 @@
 *
 *****************************************************************************/
 
+#include "loop_factory.h"
 #include <parapack/parallel.h>
 // #include <parapack/exchange_mpi.h>
 
