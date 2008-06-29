@@ -300,15 +300,11 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
   to_flip.resize(nc);
 
   std::copy(spins.begin(), spins.end(), spins_c.begin());
-  // cluster_info_t::accumulator<cluster_fragment_t, FIELD, SIGN, IMPROVE>
-  //   weight(clusters, fragments, model.field(), model.bond_sign(), model.site_sign());
   looper::accumulator<estimator_t, cluster_fragment_t, IMPROVE>
     accum(estimates, nc, lattice, estimator, fragments);
   for (unsigned int s = 0; s < nvs; ++s) {
-    // weight.at_bot(s, time_t(tau0), s, spins_c[s]);
     accum.at_bot(s, time_t(tau0), s, spins_c[s]);
   }
-  // int negop = 0; // number of operators with negative weights
   BOOST_FOREACH(local_operator_t& op, operators) {
     time_t t = op.time();
     if (op.is_bond()) {
@@ -316,102 +312,64 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
         int b = op.pos();
         int s0 = source(b, lattice.vg());
         int s1 = target(b, lattice.vg());
-        // weight.term_b(op.loop_l0(), op.loop_l1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
         accum.term_b(op.loop_l0(), op.loop_l1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
         if (op.is_offdiagonal()) {
           spins_c[s0] ^= 1;
           spins_c[s1] ^= 1;
-          // if (SIGN()) negop += model.bond_sign(op.pos());
         }
-        // weight.start_b(op.loop_u0(), op.loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
         accum.start_b(op.loop_u0(), op.loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
       }
     } else {
       if (!op.is_frozen_site_graph()) {
         int s = op.pos();
-        // weight.term_s(op.loop_l(), t, s, spins_c[s]);
         accum.term_s(op.loop_l(), t, s, spins_c[s]);
         if (op.is_offdiagonal()) {
           spins_c[s] ^= 1;
-          // if (SIGN()) negop += model.site_sign(op.pos());
         }
-        // weight.start_s(op.loop_u(), t, s, spins_c[s]);
         accum.start_s(op.loop_u(), t, s, spins_c[s]);
       }
     }
   }
   for (unsigned int s = 0; s < nvs; ++s) {
-    // weight.at_top(current[s], time_t(tau1), s, spins_c[s]);
     accum.at_top(current[s], time_t(tau1), s, spins_c[s]);
   }
-  // sign = ((negop & 1) == 1) ? -1 : 1;
 
-  // determine whether clusters are flipped or not
-  // double improved_sign = sign;
-    // if (SIGN() && IMPROVE() && (clusters[c].sign & 1 == 1)) improved_sign = 0;
-
-  // global unification of clusters
+  // accumulate cluster properties
   typename looper::collector<estimator_t>::type coll = get_collector(estimator);
   coll.set_num_operators(operators.size());
   coll.set_num_open_clusters(noc);
   coll.set_num_clusters(nc - noc);
   for (unsigned int c = noc; c < nc; ++c) coll += estimates[c];
 
-  // global unification of open clusters
+  // determine whether clusters are flipped or not
   unifier.unify(coll, to_flip, fragments, estimates, r_uniform);
   for (int c = noc; c < nc; ++c) to_flip[c].set_flip(r_uniform() < 0.5);
-
-  // improved measurement
-  // if (IMPROVE()) {
-
-  estimator.improved_measurement(obs, lattice, beta, 1, spins, operators,
-    spins_c, fragments, coll);
-    // if (SIGN()) {
-    //   obs["Sign"] << improved_sign;
-    //   if (alps::is_zero(improved_sign)) {
-    //     obs["Weight of Zero-Meron Sector"] << 0.;
-    //   } else {
-    //     obs["Weight of Zero-Meron Sector"] << 1.;
-    //     obs["Sign in Zero-Meron Sector"] << improved_sign;
-    //   }
-    // }
-  // }
-  // obs["Number of Clusters"] << (double)clusters.size();
 
   // flip operators & spins
   BOOST_FOREACH(local_operator_t& op, operators)
     if (to_flip[fragments[op.loop_0()].id()] ^ to_flip[fragments[op.loop_1()].id()]) op.flip();
-  for (int s = 0; s < nvs; ++s)
-    if (to_flip[fragments[s].id()]) spins[s] ^= 1;
-  if (is_master(comm)) {
-    for (int s = 0; s < nvs; ++s)
-      if (to_flip[fragments[2*nvs + s].id()]) spins_t[s] ^= 1;
-  }
+  for (int s = 0; s < nvs; ++s) if (to_flip[fragments[s].id()]) spins[s] ^= 1;
+  if (is_master(comm))
+    for (int s = 0; s < nvs; ++s) if (to_flip[fragments[2*nvs + s].id()]) spins_t[s] ^= 1;
 
+  // measurement
   if (is_master(comm)) {
     obs["Temperature"] << 1/beta;
     obs["Inverse Temperature"] << beta;
     obs["Volume"] << (double)lattice.volume();
     obs["Number of Sites"] << (double)num_sites(lattice.rg());
-  }
+    obs["Number of Clusters"] << coll.num_clusters();
 
-  // sign
-  // if (model.is_signed() && !use_improved_estimator) obs["Sign"] << sign;
-
-  // energy
-  if (is_master(comm)) {
     int nop = coll.num_operators();
     double ene = model.energy_offset() - nop / beta;
-    // if (model.has_field())
-    //   BOOST_FOREACH(const cluster_info_t& c, clusters)
-    //     ene += (c.to_flip ? -c.weight : c.weight);
     looper::energy_estimator::measurement(obs, lattice, beta, nop, 1, ene);
-
-    // other quantities
-    estimator.normal_measurement(obs, lattice, beta, sign, spins, operators, spins_c);
+    estimator.improved_measurement(obs, lattice, beta, 1, spins, operators, spins_c,
+      fragments, coll);
+    estimator.normal_measurement(obs, lattice, beta, 1, spins, operators, spins_c);
   }
 }
 
+typedef looper::evaluator<loop_config::measurement_set> loop_evaluator;
 
 //
 // dynamic registration to the factories
@@ -419,7 +377,7 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
 
 const bool worker_registered =
   parallel_worker_factory::instance()->register_worker<loop_worker>("path integral");
-const bool evaluator_registered = loop_factory::instance()->
-  register_evaluator<looper::evaluator<loop_config::measurement_set> >("path integral");
+const bool evaluator_registered =
+  loop_factory::instance()->register_evaluator<loop_evaluator>("path integral");
 
 } // end namespace

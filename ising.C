@@ -76,8 +76,6 @@ protected:
   template<typename ENGINE, typename FIELD, typename IMPROVE>
   void flip(ENGINE& eng, alps::ObservableSet& obs);
 
-  void measure(alps::ObservableSet& obs);
-
 private:
   // helpers
   lattice_t lattice;
@@ -150,8 +148,6 @@ void loop_worker::run(ENGINE& eng, alps::ObservableSet& obs) {
   flip<ENGINE, boost::mpl::true_,  boost::mpl::false_>(eng, obs);
   flip<ENGINE, boost::mpl::false_, boost::mpl::true_ >(eng, obs);
   flip<ENGINE, boost::mpl::false_, boost::mpl::false_>(eng, obs);
-
-  measure(obs);
 }
 
 
@@ -216,7 +212,7 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
   int nc = 0;
   BOOST_FOREACH(cluster_fragment_t& f, fragments) if (f.is_root()) f.set_id(nc++);
   BOOST_FOREACH(cluster_fragment_t& f, fragments) f.set_id(cluster_id(fragments, f));
-  to_flip.resize(0); to_flip.resize(nc);
+  to_flip.resize(nc);
   clusters.resize(0); clusters.resize(nc);
 
   cluster_info_t::accumulator<cluster_fragment_t, FIELD,
@@ -232,46 +228,45 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
     accum.at_top(s, time_t(1), s, spins[s]);
   }
 
+  // accumulate cluster properties
+  typename looper::collector<estimator_t>::type coll = get_collector(estimator);
+  if (IMPROVE())
+    BOOST_FOREACH(looper::estimate<estimator_t>::type const& est, estimates) { coll += est; }
+
   // determine whether clusters are flipped or not
   for (unsigned int c = 0; c < clusters.size(); ++c)
     to_flip[c] = ((2*r_uniform()-1) < (FIELD() ? std::tanh(clusters[c].weight) : 0));
 
-  // improved measurement
-  if (IMPROVE()) {
-    typename looper::collector<estimator_t>::type coll = get_collector(estimator);
-    BOOST_FOREACH(looper::estimate<estimator_t>::type const& est, estimates) { coll += est; }
-    estimator.improved_measurement(obs, lattice, beta, 1, spins, operator_string_t(),
-      spins, fragments, coll);
-  }
-  obs["Number of Clusters"] << (double)clusters.size();
-
   // flip spins
   for (int s = 0; s < nvs; ++s) if (to_flip[fragments[s].id()]) spins[s] ^= 1;
-}
 
+  //
+  // measurement
+  //
 
-//
-// measurement
-//
-
-void loop_worker::measure(alps::ObservableSet& obs) {
   obs["Temperature"] << 1/beta;
   obs["Inverse Temperature"] << beta;
   obs["Volume"] << (double)lattice.volume();
   obs["Number of Sites"] << (double)num_sites(lattice.rg());
+  obs["Number of Clusters"] << (double)clusters.size();
 
   // energy
   double ene = model.energy_offset() - nop / beta;
-  if (model.has_field()) {
-    for (unsigned int c = 0; c < clusters.size(); ++c) {
+  if (model.has_field())
+    for (unsigned int c = 0; c < clusters.size(); ++c)
       ene += (to_flip[c] ? -clusters[c].weight : clusters[c].weight);
-    }
-  }
   looper::energy_estimator::measurement(obs, lattice, beta, nop, 1, ene);
 
+  // improved measurement
+  if (IMPROVE())
+    estimator.improved_measurement(obs, lattice, beta, 1, spins, operator_string_t(),
+      spins, fragments, coll);
+
+  // normal measurement
   estimator.normal_measurement(obs, lattice, beta, 1, spins, operator_string_t(), spins);
 }
 
+typedef looper::evaluator<loop_config::measurement_set> loop_evaluator;
 
 //
 // dynamic registration to the factories
@@ -279,8 +274,8 @@ void loop_worker::measure(alps::ObservableSet& obs) {
 
 const bool loop_registered =
   loop_factory::instance()->register_worker<loop_worker>("Ising");
-const bool evaluator_registered = loop_factory::instance()->
-  register_evaluator<looper::evaluator<loop_config::measurement_set> >("Ising");
+const bool evaluator_registered =
+  loop_factory::instance()->register_evaluator<loop_evaluator>("Ising");
 
 } // end namespace
 

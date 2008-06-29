@@ -51,7 +51,6 @@ class loop_worker : private loop_config,
 public:
   typedef looper::sse mc_type;
 
-  typedef looper::lattice_helper<lattice_graph_t> lattice_t;
   typedef int time_t;
   typedef looper::local_operator<mc_type, loop_graph_t, time_t> local_operator_t;
   typedef std::vector<local_operator_t> operator_string_t;
@@ -88,8 +87,6 @@ protected:
 
   template<typename FIELD, typename SIGN, typename IMPROVE>
   void flip(std::vector<alps::ObservableSet>& obs);
-
-  void measure(std::vector<alps::ObservableSet>& obs);
 
 private:
   // helpers
@@ -207,8 +204,6 @@ void loop_worker::run(std::vector<alps::ObservableSet>& obs) {
   flip<boost::mpl::false_, boost::mpl::true_,  boost::mpl::false_>(obs);
   flip<boost::mpl::false_, boost::mpl::false_, boost::mpl::true_ >(obs);
   flip<boost::mpl::false_, boost::mpl::false_, boost::mpl::false_>(obs);
-
-  measure(obs);
 
   ++mcs;
 
@@ -417,7 +412,7 @@ void loop_worker::flip(std::vector<alps::ObservableSet>& obs) {
   int nc = 0;
   BOOST_FOREACH(cluster_fragment_t& f, fragments) if (f.is_root()) f.set_id(nc++);
   BOOST_FOREACH(cluster_fragment_t& f, fragments) f.set_id(cluster_id(fragments, f));
-  to_flip.resize(0); to_flip.resize(nc);
+  to_flip.resize(nc);
   clusters.resize(0); clusters.resize(nc);
 
   std::copy(spins.begin(), spins.end(), spins_c.begin());
@@ -469,6 +464,11 @@ void loop_worker::flip(std::vector<alps::ObservableSet>& obs) {
   sign = ((negop & 1) == 1) ? -1 : 1;
   sign *= std::exp(logw - (logg[nop] - logg0[nop]));
 
+  // accumulate cluster properties
+  typename looper::collector<estimator_t>::type coll = get_collector(estimator);
+  if (IMPROVE())
+    BOOST_FOREACH(looper::estimate<estimator_t>::type const& est, estimates) { coll += est; }
+
   // determine whether clusters are flipped or not
   double improved_sign = sign;
   for (unsigned int c = 0; c < clusters.size(); ++c) {
@@ -476,52 +476,35 @@ void loop_worker::flip(std::vector<alps::ObservableSet>& obs) {
     if (SIGN() && IMPROVE() && (clusters[c].sign & 1 == 1)) improved_sign = 0;
   }
 
-  // improved measurement
-  if (IMPROVE()) {
-    typename looper::collector<estimator_t>::type coll = get_collector(estimator);
-    coll = std::accumulate(estimates.begin(), estimates.end(), coll);
-    estimator.improved_measurement(obs[part], lattice, 1, improved_sign, spins, operators,
-      spins_c, fragments, coll);
-    // if (SIGN()) {
-      obs[part]["Sign"] << improved_sign;
-      // if (alps::is_zero(improved_sign)) {
-        // obs[part]["Weight of Zero-Meron Sector"] << 0.;
-      // } else {
-        // obs[part]["Weight of Zero-Meron Sector"] << 1.;
-        // obs[part]["Sign in Zero-Meron Sector"] << improved_sign;
-      // }
-    // }
-  }
-  obs[part]["Number of Clusters"] << (double)clusters.size();
-
   // flip operators & spins
   BOOST_FOREACH(local_operator_t& op, operators)
-    if (to_flip[fragments[op.loop_0()].id()] ^ to_flip[fragments[op.loop_1()].id()])
-      op.flip();
-  for (int s = 0; s < nvs; ++s)
-    if (to_flip[fragments[s].id()]) spins[s] ^= 1;
-}
+    if (to_flip[fragments[op.loop_0()].id()] ^ to_flip[fragments[op.loop_1()].id()]) op.flip();
+  for (int s = 0; s < nvs; ++s) if (to_flip[fragments[s].id()]) spins[s] ^= 1;
 
-
-//
-// measurement
-//
-
-void loop_worker::measure(std::vector<alps::ObservableSet>& obs) {
-
-  int nop = operators.size();
-  int part = log2(nop) + 1;
+  //
+  // measurement
+  //
 
   obs[part]["Volume"] << (double)lattice.volume();
   obs[part]["Number of Sites"] << (double)num_sites(lattice.rg());
-
+  obs[part]["Number of Clusters"] << (double)clusters.size();
   obs[0]["Global Histogram"] << nop;
   obs[0]["Partition Histogram"] << part;
   if (progress() >= 1) obs[0]["Log(g)"] << logg;
 
   // sign
-  /* if (model.is_signed() && !use_improved_estimator) */ obs[part]["Sign"] << sign;
+  if (SIGN()) {
+    if (IMPROVE())
+      obs[part]["Sign"] << improved_sign;
+    else
+      obs[part]["Sign"] << sign;
+  }
 
-  // other quantities
+  // improved measurement
+  if (IMPROVE())
+    estimator.improved_measurement(obs[part], lattice, 1, improved_sign, spins, operators,
+      spins_c, fragments, coll);
+
+  // normal measurement
   estimator.normal_measurement(obs[part], lattice, 1, sign, spins, operators, spins_c);
 }
