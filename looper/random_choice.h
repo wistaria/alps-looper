@@ -29,6 +29,7 @@
 #include <boost/static_assert.hpp>
 #include <boost/throw_exception.hpp>
 #include <cmath>
+#include <limits>
 #include <stdexcept>
 #include <utility>
 #include <vector>
