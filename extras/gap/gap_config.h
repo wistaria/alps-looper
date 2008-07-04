@@ -39,7 +39,7 @@ struct loop_config {
   typedef looper::lattice_helper<lattice_graph_t> lattice_t;
 
   // imaginary time
-  typedef looper::imaginary_time<boost::mpl::true_> time_t;
+  typedef looper::imaginary_time<> time_t;
 
   // graph for loops
   typedef looper::local_graph<> loop_graph_t;

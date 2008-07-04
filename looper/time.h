@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -27,38 +27,49 @@
 
 #include <alps/config.h>
 #include <alps/osiris.h>
-#include <boost/mpl/bool.hpp>
 #include <cmath>
 #include <complex>
 
 namespace looper {
 
-inline std::complex<double> ctime(double t) { return std::exp(std::complex<double>(0, 2*M_PI*t)); }
+inline std::complex<double> ctime(double t) {
+  return std::exp(std::complex<double>(0, 2*M_PI*t));
+}
 
-template<typename FOURIER = boost::mpl::false_>
-struct imaginary_time;
+template<bool STORE_CTIME = true>
+class imaginary_time;
 
-template<typename FOURIER>
-struct imaginary_time {
-  imaginary_time(double t) : time_(t) {}
+// default version
+// store complex time inside the object
+template<bool STORE_CTIME>
+class imaginary_time {
+public:
+  explicit imaginary_time(double t) : time_(t), ctime_(::looper::ctime(t)) {}
   operator double() const { return time_; }
-  double time_;
-};
-
-template<>
-struct imaginary_time<boost::mpl::true_> {
-  imaginary_time(double t) : time_(t), ctime_(ctime(t)) {}
-  operator double() const { return time_; }
+  std::complex<double> const& ctime() const { return ctime_; }
+private:
   double time_;
   std::complex<double> ctime_;
 };
 
-inline std::complex<double> ctime(imaginary_time<boost::mpl::false_> const& t) {
-  return ctime(t.time_);
+// another version
+// calculate complex time when needed
+template<>
+class imaginary_time<false> {
+public:
+  explicit imaginary_time(double t) : time_(t) {}
+  operator double() const { return time_; }
+  std::complex<double> ctime() const { return ::looper::ctime(time_); }
+private:
+  double time_;
+};
+
+inline std::complex<double> const& ctime(imaginary_time<true> const& t) {
+  return t.ctime();
 }
 
-inline std::complex<double> const& ctime(imaginary_time<boost::mpl::true_> const& t) {
-  return t.ctime_;
+inline std::complex<double> ctime(imaginary_time<false> const& t) {
+  return t.ctime();
 }
 
 } // end namespace looper
@@ -67,15 +78,16 @@ inline std::complex<double> const& ctime(imaginary_time<boost::mpl::true_> const
 namespace looper {
 #endif
 
-template<typename F>
+template<bool F>
 alps::ODump& operator<<(alps::ODump& dp, looper::imaginary_time<F> const& t) {
-  dp << t.time_; return dp;
+  dp << static_cast<double>(t); return dp;
 }
 
-template<typename F>
+template<bool F>
 alps::IDump& operator>>(alps::IDump& dp, looper::imaginary_time<F>& t) {
   double t_in;
-  dp >> t_in; t = looper::imaginary_time<F>(t_in);
+  dp >> t_in;
+  t = looper::imaginary_time<F>(t_in);
   return dp;
 }
 

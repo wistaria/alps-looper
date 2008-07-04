@@ -76,23 +76,30 @@ struct gap : public has_evaluator_tag {
         spsize = std::complex<double>(0,0);
         spmag = std::complex<double>(0,0);
       }
+      estimate& operator+=(estimate const& rhs) {
+        upsize += rhs.upsize;
+        upmag += rhs.upmag;
+        spsize += rhs.spsize;
+        spmag += rhs.spmag;
+        return *this;
+      }
       void start_s(lattice_t const& lat, double t, int s, int c) { term_s(lat, -ctime(t), s, c); }
-      template<typename T>
+      template<bool T>
       void start_s(lattice_t const& lat, imaginary_time<T> const& t, int s, int c) {
         term_s(lat, -ctime(t), s, c);
       }
       void start_bs(lattice_t const& lat, double t, int, int s, int c) { start_s(lat, t, s, c); }
       void start_bt(lattice_t const& lat, double t, int, int s, int c) { start_s(lat, t, s, c); }
-      template<typename T>
+      template<bool T>
       void start_bs(lattice_t const& lat, imaginary_time<T> const& t, int, int s, int c) {
         start_s(lat, t, s, c);
       }
-      template<typename T>
+      template<bool T>
       void start_bt(lattice_t const& lat, imaginary_time<T> const& t, int, int s, int c) {
         start_s(lat, t, s, c);
       }
       void term_s(lattice_t const& lat, double t, int s, int c) { term_s(lat, ctime(t), s, c); }
-      template<typename T>
+      template<bool T>
       void term_s(lattice_t const& lat, imaginary_time<T> const& t, int s, int c) {
         term_s(lat, ctime(t), s, c);
       }
@@ -105,21 +112,21 @@ struct gap : public has_evaluator_tag {
       }
       void term_bs(lattice_t const& lat, double t, int, int s, int c) { term_s(lat, t, s, c); }
       void term_bt(lattice_t const& lat, double t, int, int s, int c) { term_s(lat, t, s, c); }
-      template<typename T>
+      template<bool T>
       void term_bs(lattice_t const& lat, imaginary_time<T> const& t, int, int s, int c) {
         term_s(lat, t, s, c);
       }
-      template<typename T>
+      template<bool T>
       void term_bt(lattice_t const& lat, imaginary_time<T> const& t, int, int s, int c) {
         term_s(lat, t, s, c);
       }
       void at_bot(lattice_t const& lat, double t, int s, int c) { start_s(lat, t, s, c); }
-      template<typename T>
+      template<bool T>
       void at_bot(lattice_t const& lat, imaginary_time<T> const& t, int s, int c) {
         start_s(lat, t, s, c);
       }
       void at_top(lattice_t const& lat, double t, int s, int c) { term_s(lat, t, s, c); }
-      template<typename T>
+      template<bool T>
       void at_top(lattice_t const& lat, imaginary_time<T> const& t, int s, int c) {
         term_s(lat, t, s, c);
       }
@@ -191,17 +198,17 @@ struct gap : public has_evaluator_tag {
       for (typename std::vector<OP>::const_iterator oi = operators.begin();
            oi != operators.end(); ++oi) {
         if (oi->is_offdiagonal()) {
-          std::complex<double> p = ctime(oi->time());
+          const std::complex<double> p = ctime(oi->time());
           umag_a += p * umag;
           smag_a += p * smag;
           if (oi->is_site()) {
-            unsigned int s = oi->pos();
+            const unsigned int s = oi->pos();
             spins_c[s] ^= 1;
             umag += (1-2*spins_c[s]);
             smag += gauge[s] * (1-2*spins_c[s]);
           } else {
-            unsigned int s0 = source(oi->pos(), lat.vg());
-            unsigned int s1 = target(oi->pos(), lat.vg());
+            const unsigned int s0 = source(oi->pos(), lat.vg());
+            const unsigned int s1 = target(oi->pos(), lat.vg());
             spins_c[s0] ^= 1;
             spins_c[s1] ^= 1;
             umag += (1-2*spins_c[s0]) + (1-2*spins_c[s1]);

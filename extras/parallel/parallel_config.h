@@ -30,6 +30,8 @@
 #include <looper/model.h>
 
 // measurements
+#include <looper/correlation_length.h>
+#include <looper/gap.h>
 #include <looper/susceptibility.h>
 
 struct loop_config {
@@ -38,7 +40,7 @@ struct loop_config {
   typedef looper::lattice_helper<lattice_graph_t> lattice_t;
 
   // imaginary time
-  typedef double time_t;
+  typedef looper::imaginary_time<> time_t;
 
   // graph for loops
   typedef looper::local_graph<> loop_graph_t;
@@ -54,6 +56,8 @@ struct loop_config {
 
   // measurements
   typedef looper::measurement_set<
+    looper::correlation_length,
+    looper::gap,
     looper::susceptibility
   > measurement_set;
 };
