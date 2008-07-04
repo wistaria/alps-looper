@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -578,12 +578,13 @@ void lattice_helper<RG>::generate_virtual_graph(M const& model, bool has_d_term)
   mapping_.set_s2bond_type_offset(tmax-tmin+1);
 
   // add vertices to virtual graph
-  BOOST_FOREACH(typename graph_traits<rg_type>::site_descriptor rv, vertices(rg()))
+  BOOST_FOREACH(typename graph_traits<rg_type>::site_descriptor rv, vertices(rg())) {
     for (int i = 0; i < model.site(rv, rg()).s.get_twice(); ++i) {
       typename graph_traits<vg_type>::site_descriptor vvd = add_vertex(vgraph_);
       put(real_site_t(), vgraph_, vvd, rv);
       put(gauge_t(), vgraph_, vvd, 2. * get(parity_t(), rg(), rv) - 1);
     }
+  }
 
   // setup site mapping
   typename graph_traits<vg_type>::site_iterator vvi_first = vertices(vgraph_).first;
@@ -613,7 +614,7 @@ void lattice_helper<RG>::generate_virtual_graph(M const& model, bool has_d_term)
   }
 
   // add `in-real-site' bonds to virtual graph
-  if (has_d_term)
+  if (has_d_term) {
     BOOST_FOREACH(typename graph_traits<rg_type>::site_descriptor rv, vertices(rg())) {
       typename graph_traits<vg_type>::site_iterator vvsi, vvsi_end;
       for (boost::tie(vvsi, vvsi_end) =
@@ -626,6 +627,7 @@ void lattice_helper<RG>::generate_virtual_graph(M const& model, bool has_d_term)
           put(bond_index_t(), vgraph_, ved, num_bonds(vgraph_) - 1);
         }
     }
+  }
 
   // setup bond and s2bond mapping
   typename graph_traits<vg_type>::bond_iterator vei_first = bonds(vgraph_).first;
@@ -657,12 +659,14 @@ template<typename RG>
 void lattice_helper<RG>::convert_type(alps::Parameters const& p) {
   typedef typename graph_traits<RG>::site_descriptor site_descriptor;
   typedef typename graph_traits<RG>::bond_descriptor bond_descriptor;
-  if (p.value_or_default("USE_SITE_INDICES_AS_TYPES", false))
+  if (p.value_or_default("USE_SITE_INDICES_AS_TYPES", false)) {
     BOOST_FOREACH(site_descriptor s, sites(helper_.graph()))
       put(site_type_t(), helper_.graph(), s, s);
-  if (p.value_or_default("USE_BOND_INDICES_AS_TYPES", false))
+  }
+  if (p.value_or_default("USE_BOND_INDICES_AS_TYPES", false)) {
     BOOST_FOREACH(bond_descriptor b, bonds(helper_.graph()))
       put(bond_type_t(), helper_.graph(), b, get(bond_index_t(), helper_.graph(), b));
+  }
 }
 
 } // end namespace looper

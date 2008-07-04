@@ -343,7 +343,7 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
   double improved_sign = sign;
   for (unsigned int c = 0; c < clusters.size(); ++c) {
     to_flip[c] = ((2*r_uniform()-1) < 0);
-    if (SIGN() && IMPROVE() && (clusters[c].sign & 1 == 1)) improved_sign = 0;
+    if (SIGN() && IMPROVE() && (clusters[c].sign & 1) == 1) improved_sign = 0;
   }
 
   // flip operators & spins

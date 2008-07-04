@@ -360,7 +360,7 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
     obs["Number of Sites"] << (double)num_sites(lattice.rg());
     obs["Number of Clusters"] << coll.num_clusters();
 
-    int nop = coll.num_operators();
+    double nop = coll.num_operators();
     double ene = model.energy_offset() - nop / beta;
     looper::energy_estimator::measurement(obs, lattice, beta, nop, 1, ene);
     estimator.improved_measurement(obs, lattice, beta, 1, spins, operators, spins_c,

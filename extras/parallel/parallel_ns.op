@@ -147,6 +147,7 @@ Magnetization^4: 0.03479 +/- 0.00309; tau = 0.709
     bin #4   : 512      entries: error = 0.00302899
     bin #5   : 256      entries: error = 0.00317505
     bin #6   : 128      entries: error = 0.00309201
+Number of Clusters: 7.97729 +/- 0.0435684
 Number of Sites: 4 +/- 0
 Specific Heat: 0.261618 +/- 0.0836 WARNING: check error convergence
 Staggered Magnetization: 0 +/- 0; tau = nan
@@ -385,6 +386,7 @@ Magnetization^4: 8.34009 +/- 0.638; tau = 1.91 WARNING: ERRORS NOT CONVERGED!!!
     bin #4   : 512      entries: error = 0.507537
     bin #5   : 256      entries: error = 0.553061
     bin #6   : 128      entries: error = 0.638131
+Number of Clusters: 10.9922 +/- 0.0580806
 Number of Sites: 4 +/- 0
 Specific Heat: 2.76026 +/- 0.352 WARNING: ERRORS NOT CONVERGED!!!
 Staggered Magnetization: 0 +/- 0; tau = nan
@@ -624,6 +626,7 @@ Magnetization^4: 0.510742 +/- 0.00144; tau = 0.304 WARNING: check error converge
     bin #4   : 512      entries: error = 0.00130979
     bin #5   : 256      entries: error = 0.00140407
     bin #6   : 128      entries: error = 0.0014372
+Number of Clusters: 7.92383 +/- 0.0434831
 Number of Sites: 1 +/- 0
 Specific Heat: 0.12808 +/- 0.256 WARNING: ERRORS NOT CONVERGED!!!
 Staggered Magnetization: 0 +/- 0; tau = nan
