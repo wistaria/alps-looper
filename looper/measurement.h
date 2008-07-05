@@ -376,7 +376,7 @@ struct energy_estimator {
 
   template<typename RG>
   static void measurement(alps::ObservableSet& m, lattice_helper<RG> const& lat, double beta,
-    int nop, double sign, double ene) {
+    double nop, double sign, double ene) {
     m["Energy"] << sign * ene;
     m["Energy Density"] << sign * ene / lat.volume();
     m["Energy^2"] << sign * (power2(ene) - nop / power2(beta));
