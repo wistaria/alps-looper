@@ -96,16 +96,18 @@ struct twist_order_parameter_n {
         phase_ptr = p;
         moment = 0;
       }
-      void start_s(lattice_t const&, double, int, int) {}
-      void start_bs(lattice_t const&, double, int, int, int) {}
-      void start_bt(lattice_t const&, double, int, int, int) {}
-      void term_s(lattice_t const&, double, int, int) {}
-      void term_bs(lattice_t const&, double, int, int, int) {}
-      void term_bt(lattice_t const&, double, int, int, int) {}
-      void at_bot(lattice_t const&, double, int s, int c) {
+      void begin_s(lattice_t const&, double, int, int) {}
+      void begin_bs(lattice_t const&, double, int, int, int) {}
+      void begin_bt(lattice_t const&, double, int, int, int) {}
+      void end_s(lattice_t const&, double, int, int) {}
+      void end_bs(lattice_t const&, double, int, int, int) {}
+      void end_bt(lattice_t const&, double, int, int, int) {}
+      void start_bottom(lattice_t const&, double, int s, int c) {
         moment += (*phase_ptr)[s] * (0.5-c);
       }
-      void at_top(lattice_t const&, double, int, int) {}
+      void start(lattice_t const&, double, int, int) {
+      void stop(lattice_t const&, double, int, int) {}
+      void stop_top(lattice_t const&, double, int, int) {}
     };
     void init_estimate(estimate& est) const { est.init(&phase); }
 

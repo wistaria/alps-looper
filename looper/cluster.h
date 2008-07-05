@@ -39,18 +39,18 @@ struct cluster_info {
     // typedef F cluster_fragment_t;
     template<typename D0, typename D1, typename D2>
     field_accumulator(D0 const&, D1 const&, D2 const&) {}
-    void start(int, double, int, int) const {}
-    void term(int, double, int, int) const {}
+    void begin_s(int, double, int, int) const {}
+    void end_s(int, double, int, int) const {}
   };
   template<typename F>
   struct field_accumulator<F, boost::mpl::true_> {
     typedef F cluster_fragment_t;
     field_accumulator(std::vector<cluster_info>& cl, std::vector<cluster_fragment_t> const& fr,
       std::vector<double> const& fd) : clusters(cl), fragments(fr), field(fd) {}
-    void start(int p, double t, int s, int c) {
+    void begin_s(int p, double t, int s, int c) {
       clusters[fragments[p].id()].weight -= - field[s] * (0.5-c) * t;
     }
-    void term(int p, double t, int s, int c) {
+    void end_s(int p, double t, int s, int c) {
       clusters[fragments[p].id()].weight += - field[s] * (0.5-c) * t;
     }
     std::vector<cluster_info>& clusters;
@@ -90,26 +90,28 @@ struct cluster_info {
     template<typename CL, typename FR, typename FD, typename BS, typename SS>
     accumulator(CL& cl, FR const& fr, FD const& fd, BS const& bs, SS const& ss) :
       field_accumulator_t(cl, fr, fd), sign_accumulator_t(cl, fr, bs, ss) {}
-    void start_s(int p, double t, int s, int c) {
-      field_accumulator_t::start(p, t, s, c);
+    void begin_s(int p, double t, int s, int c) {
+      field_accumulator_t::begin_s(p, t, s, c);
       sign_accumulator_t::site_sign(p, s);
     }
-    void start_b(int p0, int p1, double t, int b, int s0, int s1, int c0, int c1) {
-      field_accumulator_t::start(p0, t, s0, c0);
-      field_accumulator_t::start(p1, t, s1, c1);
+    void begin_b(int p0, int p1, double t, int b, int s0, int s1, int c0, int c1) {
+      field_accumulator_t::begin_s(p0, t, s0, c0);
+      field_accumulator_t::begin_s(p1, t, s1, c1);
       sign_accumulator_t::bond_sign(p0, b);
     }
-    void term_s(int p, double t, int s, int c) {
-      field_accumulator_t::term(p, t, s, c);
+    void end_s(int p, double t, int s, int c) {
+      field_accumulator_t::end_s(p, t, s, c);
       sign_accumulator_t::site_sign(p, s);
     }
-    void term_b(int p0, int p1, double t, int b, int s0, int s1, int c0, int c1) {
-      field_accumulator_t::term(p0, t, s0, c0);
-      field_accumulator_t::term(p1, t, s1, c1);
+    void end_b(int p0, int p1, double t, int b, int s0, int s1, int c0, int c1) {
+      field_accumulator_t::end_s(p0, t, s0, c0);
+      field_accumulator_t::end_s(p1, t, s1, c1);
       sign_accumulator_t::bond_sign(p0, b);
     }
-    void at_bot(int p, double t, int s, int c) { field_accumulator_t::start(p, t, s, c); }
-    void at_top(int p, double t, int s, int c) { field_accumulator_t::term(p, t, s, c); }
+    void start_bottom(int p, double t, int s, int c) { field_accumulator_t::begin_s(p, t, s, c); }
+    void start(int p, double t, int s, int c) { field_accumulator_t::begin_s(p, t, s, c); }
+    void stop(int p, double t, int s, int c) { field_accumulator_t::end_s(p, t, s, c); }
+    void stop_top(int p, double t, int s, int c) { field_accumulator_t::end_s(p, t, s, c); }
   };
 };
 

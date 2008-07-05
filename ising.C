@@ -220,12 +220,12 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
   looper::accumulator<estimator_t, cluster_fragment_t, IMPROVE>
     accum(estimates, nc, lattice, estimator, fragments);
   for (unsigned int s = 0; s < nvs; ++s) {
-    weight.at_bot(s, time_t(0), s, spins[s]);
-    accum.at_bot(s, time_t(0), s, spins[s]);
+    weight.start_bottom(s, time_t(0), s, spins[s]);
+    accum.start_bottom(s, time_t(0), s, spins[s]);
   }
   for (unsigned int s = 0; s < nvs; ++s) {
-    weight.at_top(s, time_t(1), s, spins[s]);
-    accum.at_top(s, time_t(1), s, spins[s]);
+    weight.stop_top(s, time_t(1), s, spins[s]);
+    accum.stop_top(s, time_t(1), s, spins[s]);
   }
 
   // accumulate cluster properties
@@ -236,6 +236,11 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
   // determine whether clusters are flipped or not
   for (unsigned int c = 0; c < clusters.size(); ++c)
     to_flip[c] = ((2*r_uniform()-1) < (FIELD() ? std::tanh(clusters[c].weight) : 0));
+
+  // improved measurement
+  if (IMPROVE())
+    estimator.improved_measurement(obs, lattice, beta, 1, spins, operator_string_t(),
+      spins, fragments, coll);
 
   // flip spins
   for (int s = 0; s < nvs; ++s) if (to_flip[fragments[s].id()]) spins[s] ^= 1;
@@ -256,11 +261,6 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
     for (unsigned int c = 0; c < clusters.size(); ++c)
       ene += (to_flip[c] ? -clusters[c].weight : clusters[c].weight);
   looper::energy_estimator::measurement(obs, lattice, beta, nop, 1, ene);
-
-  // improved measurement
-  if (IMPROVE())
-    estimator.improved_measurement(obs, lattice, beta, 1, spins, operator_string_t(),
-      spins, fragments, coll);
 
   // normal measurement
   estimator.normal_measurement(obs, lattice, beta, 1, spins, operator_string_t(), spins);

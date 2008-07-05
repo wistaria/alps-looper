@@ -58,20 +58,22 @@ struct transverse_magnetization {
         length = 0;
         closed = true;
       }
-      void start_s(lattice_t const&, double t, int, int) {
+      void begin_s(lattice_t const&, double t, int, int) {
         length -= t;
         closed = false;
       }
-      void start_bs(lattice_t const&, double t, int, int, int) { length -= t; }
-      void start_bt(lattice_t const&, double t, int, int, int) { length -= t; }
-      void term_s(lattice_t const&, double t, int, int) {
+      void begin_bs(lattice_t const&, double t, int, int, int) { length -= t; }
+      void begin_bt(lattice_t const&, double t, int, int, int) { length -= t; }
+      void end_s(lattice_t const&, double t, int, int) {
         length += t;
         closed = false;
       }
-      void term_bs(lattice_t const&, double t, int, int, int) { length += t; }
-      void term_bt(lattice_t const&, double t, int, int, int) { length += t; }
-      void at_bot(lattice_t const&, double t, int, int) { length -= t; }
-      void at_top(lattice_t const&, double t, int, int) { length += t; }
+      void end_bs(lattice_t const&, double t, int, int, int) { length += t; }
+      void end_bt(lattice_t const&, double t, int, int, int) { length += t; }
+      void start_bottom(lattice_t const&, double t, int, int) { length -= t; }
+      void start(lattice_t const&, double t, int, int) { length -= t; }
+      void stop(lattice_t const&, double t, int, int) { length += t; }
+      void stop_top(lattice_t const&, double t, int, int) { length += t; }
     };
     void init_estimate(estimate& es) const { es.init(); }
 

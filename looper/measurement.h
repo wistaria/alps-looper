@@ -303,12 +303,14 @@ struct accumulator {
   typedef FRAGMENT fragment_t;
   accumulator(std::vector<estimate_t> const&, int /* nc */, lattice_t const& /* lat */,
     estimator_t const& /* emt */, std::vector<fragment_t> const& /* fr */) {}
-  void start_s(int, time_pt, int, int) const {}
-  void start_b(int, int, time_pt, int, int, int, int, int) const {}
-  void term_s(int, time_pt, int, int) const {}
-  void term_b(int, int, time_pt, int, int, int, int, int) const {}
-  void at_bot(int, time_pt, int, int) const {}
-  void at_top(int, time_pt, int, int) const {}
+  void begin_s(int, time_pt, int, int) const {}
+  void begin_b(int, int, time_pt, int, int, int, int, int) const {}
+  void end_s(int, time_pt, int, int) const {}
+  void end_b(int, int, time_pt, int, int, int, int, int) const {}
+  void start_bottom(int, time_pt, int, int) const {}
+  void start(int, time_pt, int, int) const {}
+  void stop_top(int, time_pt, int, int) const {}
+  void stop(int, time_pt, int, int) const {}
 };
 
 template<typename ESTIMATOR, typename FRAGMENT>
@@ -324,25 +326,31 @@ struct accumulator<ESTIMATOR, FRAGMENT, boost::mpl::true_> {
     estimates.resize(nc);
     for (int i = 0; i < nc; ++i) emt.init_estimate(estimates[i]);
   }
-  void start_s(int p, time_pt t, int s, int c) {
-    estimates[fragments[p].id()].start_s(lat, t, s, c);
+  void begin_s(int p, time_pt t, int s, int c) {
+    estimates[fragments[p].id()].begin_s(lat, t, s, c);
   }
-  void start_b(int p0, int p1, time_pt t, int b, int s0, int s1, int c0, int c1) {
-    estimates[fragments[p0].id()].start_bs(lat, t, b, s0, c0);
-    estimates[fragments[p1].id()].start_bt(lat, t, b, s1, c1);
+  void begin_b(int p0, int p1, time_pt t, int b, int s0, int s1, int c0, int c1) {
+    estimates[fragments[p0].id()].begin_bs(lat, t, b, s0, c0);
+    estimates[fragments[p1].id()].begin_bt(lat, t, b, s1, c1);
   }
-  void term_s(int p, time_pt t, int s, int c) {
-    estimates[fragments[p].id()].term_s(lat, t, s, c);
+  void end_s(int p, time_pt t, int s, int c) {
+    estimates[fragments[p].id()].end_s(lat, t, s, c);
   }
-  void term_b(int p0, int p1, time_pt t, int b, int s0, int s1, int c0, int c1) {
-    estimates[fragments[p0].id()].term_bs(lat, t, b, s0, c0);
-    estimates[fragments[p1].id()].term_bt(lat, t, b, s1, c1);
+  void end_b(int p0, int p1, time_pt t, int b, int s0, int s1, int c0, int c1) {
+    estimates[fragments[p0].id()].end_bs(lat, t, b, s0, c0);
+    estimates[fragments[p1].id()].end_bt(lat, t, b, s1, c1);
   }
-  void at_bot(int p, time_pt t, int s, int c) {
-    estimates[fragments[p].id()].at_bot(lat, t, s, c);
+  void start_bottom(int p, time_pt t, int s, int c) {
+    estimates[fragments[p].id()].start_bottom(lat, t, s, c);
   }
-  void at_top(int p, time_pt t, int s, int c) {
-    estimates[fragments[p].id()].at_top(lat, t, s, c);
+  void start(int p, time_pt t, int s, int c) {
+    estimates[fragments[p].id()].start(lat, t, s, c);
+  }
+  void stop(int p, time_pt t, int s, int c) {
+    estimates[fragments[p].id()].stop(lat, t, s, c);
+  }
+  void stop_top(int p, time_pt t, int s, int c) {
+    estimates[fragments[p].id()].stop_top(lat, t, s, c);
   }
 
   std::vector<estimate_t>& estimates;
@@ -413,14 +421,16 @@ struct dumb_measurement {
 
     struct estimate {
       estimate& operator+=(estimate const&) { return *this; }
-      void start_s(lattice_t const&, double, int, int) const {}
-      void start_bs(lattice_t const&, double, int, int, int) const {}
-      void start_bt(lattice_t const&, double, int, int, int) const {}
-      void term_s(lattice_t const&, double, int, int) const {}
-      void term_bs(lattice_t const&, double, int, int, int) const {}
-      void term_bt(lattice_t const&, double, int, int, int) const {}
-      void at_bot(lattice_t const&, double, int, int) const {}
-      void at_top(lattice_t const&, double, int, int) const {}
+      void begin_s(lattice_t const&, double, int, int) const {}
+      void begin_bs(lattice_t const&, double, int, int, int) const {}
+      void begin_bt(lattice_t const&, double, int, int, int) const {}
+      void end_s(lattice_t const&, double, int, int) const {}
+      void end_bs(lattice_t const&, double, int, int, int) const {}
+      void end_bt(lattice_t const&, double, int, int, int) const {}
+      void start_bottom(lattice_t const&, double, int, int) const {}
+      void start(lattice_t const&, double, int, int) const {}
+      void stop(lattice_t const&, double, int, int) const {}
+      void stop_top(lattice_t const&, double, int, int) const {}
     };
     void init_estimate(estimate& /* est */) const {}
 
@@ -493,37 +503,45 @@ struct composite_measurement :
         estimate2::operator+=(rhs);
         return *this;
       }
-      void start_s(lattice_t const& lat, time_pt t, int s, int c) {
-        estimate1::start_s(lat, t, s, c);
-        estimate2::start_s(lat, t, s, c);
+      void begin_s(lattice_t const& lat, time_pt t, int s, int c) {
+        estimate1::begin_s(lat, t, s, c);
+        estimate2::begin_s(lat, t, s, c);
       }
-      void start_bs(lattice_t const& lat, time_pt t, int b, int s, int c) {
-        estimate1::start_bs(lat, t, b, s, c);
-        estimate2::start_bs(lat, t, b, s, c);
+      void begin_bs(lattice_t const& lat, time_pt t, int b, int s, int c) {
+        estimate1::begin_bs(lat, t, b, s, c);
+        estimate2::begin_bs(lat, t, b, s, c);
       }
-      void start_bt(lattice_t const& lat, time_pt t, int b, int s, int c) {
-        estimate1::start_bt(lat, t, b, s, c);
-        estimate2::start_bt(lat, t, b, s, c);
+      void begin_bt(lattice_t const& lat, time_pt t, int b, int s, int c) {
+        estimate1::begin_bt(lat, t, b, s, c);
+        estimate2::begin_bt(lat, t, b, s, c);
       }
-      void term_s(lattice_t const& lat, time_pt t, int s, int c) {
-        estimate1::term_s(lat, t, s, c);
-        estimate2::term_s(lat, t, s, c);
+      void end_s(lattice_t const& lat, time_pt t, int s, int c) {
+        estimate1::end_s(lat, t, s, c);
+        estimate2::end_s(lat, t, s, c);
       }
-      void term_bs(lattice_t const& lat, time_pt t, int b, int s, int c) {
-        estimate1::term_bs(lat, t, b, s, c);
-        estimate2::term_bs(lat, t, b, s, c);
+      void end_bs(lattice_t const& lat, time_pt t, int b, int s, int c) {
+        estimate1::end_bs(lat, t, b, s, c);
+        estimate2::end_bs(lat, t, b, s, c);
       }
-      void term_bt(lattice_t const& lat, time_pt t, int b, int s, int c) {
-        estimate1::term_bt(lat, t, b, s, c);
-        estimate2::term_bt(lat, t, b, s, c);
+      void end_bt(lattice_t const& lat, time_pt t, int b, int s, int c) {
+        estimate1::end_bt(lat, t, b, s, c);
+        estimate2::end_bt(lat, t, b, s, c);
       }
-      void at_bot(lattice_t const& lat, time_pt t, int s, int c) {
-        estimate1::at_bot(lat, t, s, c);
-        estimate2::at_bot(lat, t, s, c);
+      void start_bottom(lattice_t const& lat, time_pt t, int s, int c) {
+        estimate1::start_bottom(lat, t, s, c);
+        estimate2::start_bottom(lat, t, s, c);
       }
-      void at_top(lattice_t const& lat, time_pt t, int s, int c) {
-        estimate1::at_top(lat, t, s, c);
-        estimate2::at_top(lat, t, s, c);
+      void start(lattice_t const& lat, time_pt t, int s, int c) {
+        estimate1::start(lat, t, s, c);
+        estimate2::start(lat, t, s, c);
+      }
+      void stop(lattice_t const& lat, time_pt t, int s, int c) {
+        estimate1::stop(lat, t, s, c);
+        estimate2::stop(lat, t, s, c);
+      }
+      void stop_top(lattice_t const& lat, time_pt t, int s, int c) {
+        estimate1::stop_top(lat, t, s, c);
+        estimate2::stop_top(lat, t, s, c);
       }
     };
     void init_estimate(estimate& est) const {

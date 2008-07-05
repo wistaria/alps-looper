@@ -302,8 +302,10 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
   std::copy(spins.begin(), spins.end(), spins_c.begin());
   looper::accumulator<estimator_t, cluster_fragment_t, IMPROVE>
     accum(estimates, nc, lattice, estimator, fragments);
-  for (unsigned int s = 0; s < nvs; ++s) {
-    accum.at_bot(s, time_t(tau0), s, spins_c[s]);
+  if (is_master(comm)) {
+    for (unsigned int s = 0; s < nvs; ++s) accum.start_bottom(s, time_t(tau0), s, spins_c[s]);
+  } else {
+    for (unsigned int s = 0; s < nvs; ++s) accum.start(s, time_t(tau0), s, spins_c[s]);
   }
   BOOST_FOREACH(local_operator_t& op, operators) {
     time_t t = op.time();
@@ -312,26 +314,28 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
         int b = op.pos();
         int s0 = source(b, lattice.vg());
         int s1 = target(b, lattice.vg());
-        accum.term_b(op.loop_l0(), op.loop_l1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
+        accum.end_b(op.loop_l0(), op.loop_l1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
         if (op.is_offdiagonal()) {
           spins_c[s0] ^= 1;
           spins_c[s1] ^= 1;
         }
-        accum.start_b(op.loop_u0(), op.loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
+        accum.begin_b(op.loop_u0(), op.loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
       }
     } else {
       if (!op.is_frozen_site_graph()) {
         int s = op.pos();
-        accum.term_s(op.loop_l(), t, s, spins_c[s]);
+        accum.end_s(op.loop_l(), t, s, spins_c[s]);
         if (op.is_offdiagonal()) {
           spins_c[s] ^= 1;
         }
-        accum.start_s(op.loop_u(), t, s, spins_c[s]);
+        accum.begin_s(op.loop_u(), t, s, spins_c[s]);
       }
     }
   }
-  for (unsigned int s = 0; s < nvs; ++s) {
-    accum.at_top(current[s], time_t(tau1), s, spins_c[s]);
+  if (process_id(comm) == (num_processes(comm) - 1)) {
+    for (unsigned int s = 0; s < nvs; ++s) accum.stop_top(current[s], time_t(tau1), s, spins_c[s]);
+  } else {
+    for (unsigned int s = 0; s < nvs; ++s) accum.stop(current[s], time_t(tau1), s, spins_c[s]);
   }
 
   // accumulate cluster properties
@@ -344,6 +348,11 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
   // determine whether clusters are flipped or not
   unifier.unify(coll, to_flip, fragments, estimates, r_uniform);
   for (int c = noc; c < nc; ++c) to_flip[c].set_flip(r_uniform() < 0.5);
+
+  // improved measurement
+  if (is_master(comm))
+    estimator.improved_measurement(obs, lattice, beta, 1, spins, operators, spins_c,
+      fragments, coll);
 
   // flip operators & spins
   BOOST_FOREACH(local_operator_t& op, operators)
@@ -363,8 +372,6 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
     double nop = coll.num_operators();
     double ene = model.energy_offset() - nop / beta;
     looper::energy_estimator::measurement(obs, lattice, beta, nop, 1, ene);
-    estimator.improved_measurement(obs, lattice, beta, 1, spins, operators, spins_c,
-      fragments, coll);
     estimator.normal_measurement(obs, lattice, beta, 1, spins, operators, spins_c);
   }
 }

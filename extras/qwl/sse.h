@@ -421,8 +421,8 @@ void loop_worker::flip(std::vector<alps::ObservableSet>& obs) {
   looper::accumulator<estimator_t, cluster_fragment_t, IMPROVE>
     accum(estimates, nc, lattice, estimator, fragments);
   for (unsigned int s = 0; s < nvs; ++s) {
-    weight.at_bot(s, time_t(0), s, spins_c[s]);
-    accum.at_bot(s, time_t(0), s, spins_c[s]);
+    weight.start_bottom(s, time_t(0), s, spins_c[s]);
+    accum.start_bottom(s, time_t(0), s, spins_c[s]);
   }
   int t = 0;
   int negop = 0; // number of operators with negative weights
@@ -432,34 +432,34 @@ void loop_worker::flip(std::vector<alps::ObservableSet>& obs) {
         int b = op.pos();
         int s0 = source(b, lattice.vg());
         int s1 = target(b, lattice.vg());
-        weight.term_b(op.loop_l0(), op.loop_l1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
-        accum.term_b(op.loop_l0(), op.loop_l1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
+        weight.end_b(op.loop_l0(), op.loop_l1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
+        accum.end_b(op.loop_l0(), op.loop_l1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
         if (op.is_offdiagonal()) {
           spins_c[s0] ^= 1;
           spins_c[s1] ^= 1;
           if (SIGN()) negop += model.bond_sign(op.pos());
         }
-        weight.start_b(op.loop_u0(), op.loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
-        accum.start_b(op.loop_u0(), op.loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
+        weight.begin_b(op.loop_u0(), op.loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
+        accum.begin_b(op.loop_u0(), op.loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
       }
     } else {
       if (!op.is_frozen_site_graph()) {
         int s = op.pos();
-        weight.term_s(op.loop_l(), t, s, spins_c[s]);
-        accum.term_s(op.loop_l(), t, s, spins_c[s]);
+        weight.end_s(op.loop_l(), t, s, spins_c[s]);
+        accum.end_s(op.loop_l(), t, s, spins_c[s]);
         if (op.is_offdiagonal()) {
           spins_c[s] ^= 1;
           if (SIGN()) negop += model.site_sign(op.pos());
         }
-        weight.start_s(op.loop_u(), t, s, spins_c[s]);
-        accum.start_s(op.loop_u(), t, s, spins_c[s]);
+        weight.begin_s(op.loop_u(), t, s, spins_c[s]);
+        accum.begin_s(op.loop_u(), t, s, spins_c[s]);
       }
     }
     ++t;
   }
   for (unsigned int s = 0; s < nvs; ++s) {
-    weight.at_top(current[s], time_t(nop), s, spins_c[s]);
-    accum.at_top(current[s], time_t(nop), s, spins_c[s]);
+    weight.stop_top(current[s], time_t(nop), s, spins_c[s]);
+    accum.stop_top(current[s], time_t(nop), s, spins_c[s]);
   }
   sign = ((negop & 1) == 1) ? -1 : 1;
   sign *= std::exp(logw - (logg[nop] - logg0[nop]));
@@ -475,6 +475,11 @@ void loop_worker::flip(std::vector<alps::ObservableSet>& obs) {
     to_flip[c] = ((2*uniform_01()-1) < 0);
     if (SIGN() && IMPROVE() && (clusters[c].sign & 1 == 1)) improved_sign = 0;
   }
+
+  // improved measurement
+  if (IMPROVE())
+    estimator.improved_measurement(obs[part], lattice, 1, improved_sign, spins, operators,
+      spins_c, fragments, coll);
 
   // flip operators & spins
   BOOST_FOREACH(local_operator_t& op, operators)
@@ -499,11 +504,6 @@ void loop_worker::flip(std::vector<alps::ObservableSet>& obs) {
     else
       obs[part]["Sign"] << sign;
   }
-
-  // improved measurement
-  if (IMPROVE())
-    estimator.improved_measurement(obs[part], lattice, 1, improved_sign, spins, operators,
-      spins_c, fragments, coll);
 
   // normal measurement
   estimator.normal_measurement(obs[part], lattice, 1, sign, spins, operators, spins_c);

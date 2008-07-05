@@ -58,7 +58,6 @@ struct local_susceptibility {
 
     mutable int next_id;
 
-    mutable std::vector<int> spins;
     mutable std::vector<int> vs2c; // table of virtual site to cluster
     mutable std::vector<double> usize;
     mutable std::vector<double> umag;
@@ -93,7 +92,6 @@ struct local_susceptibility {
 
       next_id = 0;
 
-      spins.resize(num_sites(lat.vg()));
       vs2c.resize(num_sites(lat.vg()));
       usize.resize(num_sites(lat.vg()));
       umag.resize(num_sites(lat.vg()));
@@ -151,30 +149,28 @@ struct local_susceptibility {
       int cluster_id;
       gauge_map_t gauge;
       int* id_ptr;
-      std::vector<int>* spins_ptr;
       std::vector<int>* vs2c_ptr;
       std::vector<double>* usize_ptr;
       std::vector<double>* umag_ptr;
       std::vector<double>* ssize_ptr;
       std::vector<double>* smag_ptr;
-      void init(gauge_map_t map, int* id, std::vector<int>* spins, std::vector<int>* vs2c,
+      void init(gauge_map_t map, int* id, std::vector<int>* vs2c,
         std::vector<double>* usize, std::vector<double>* umag,
         std::vector<double>* ssize, std::vector<double>* smag) {
         cross_itb = false;
         cluster_id = -1;
         gauge = map;
         id_ptr = id;
-        spins_ptr = spins;
         vs2c_ptr = vs2c;
         usize_ptr = usize;
         umag_ptr = umag;
         ssize_ptr = ssize;
         smag_ptr = smag;
       }
-      void start_s(lattice_t const& lat, double t, int s, int c) { term_s(lat, -t, s, c); }
-      void start_bs(lattice_t const& lat, double t, int, int s, int c) { start_s(lat, t, s, c); }
-      void start_bt(lattice_t const& lat, double t, int, int s, int c) { start_s(lat, t, s, c); }
-      void term_s(lattice_t const&, double t, int s, int c) {
+      void begin_s(lattice_t const& lat, double t, int s, int c) { end_s(lat, -t, s, c); }
+      void begin_bs(lattice_t const& lat, double t, int, int s, int c) { begin_s(lat, t, s, c); }
+      void begin_bt(lattice_t const& lat, double t, int, int s, int c) { begin_s(lat, t, s, c); }
+      void end_s(lattice_t const&, double t, int s, int c) {
         if (cross_itb) {
           (*usize_ptr)[cluster_id] += t * 0.5;
           (*umag_ptr)[cluster_id] += t * (0.5 - c);
@@ -182,26 +178,25 @@ struct local_susceptibility {
           (*smag_ptr)[cluster_id] += gauge[s] * t * (0.5 - c);
         }
       }
-      void term_bs(lattice_t const& lat, double t, int, int s, int c) { term_s(lat, t, s, c); }
-      void term_bt(lattice_t const& lat, double t, int, int s, int c) { term_s(lat, t, s, c); }
-      void at_bot(lattice_t const& lat, double t, int s, int c) {
+      void end_bs(lattice_t const& lat, double t, int, int s, int c) { end_s(lat, t, s, c); }
+      void end_bt(lattice_t const& lat, double t, int, int s, int c) { end_s(lat, t, s, c); }
+      void start_bottom(lattice_t const& lat, double t, int s, int c) {
         if (!cross_itb) {
           cross_itb = true;
           cluster_id = *id_ptr;
           (*id_ptr) += 1;
         }
-        (*spins_ptr)[s] = c;
         (*vs2c_ptr)[s] = cluster_id;
         (*usize_ptr)[cluster_id] = 0;
         (*umag_ptr)[cluster_id] = 0;
         (*ssize_ptr)[cluster_id] = 0;
         (*smag_ptr)[cluster_id] = 0;
-        start_s(lat, t, s, c);
+        begin_s(lat, t, s, c);
       }
-      void at_top(lattice_t const& lat, double t, int s, int c) { term_s(lat, t, s, c); }
+      void stop_top(lattice_t const& lat, double t, int s, int c) { end_s(lat, t, s, c); }
     };
     void init_estimate(estimate& est) const {
-      est.init(gauge, &next_id, &spins, &vs2c, &usize, &umag, &ssize, &smag);
+      est.init(gauge, &next_id, &vs2c, &usize, &umag, &ssize, &smag);
     }
 
     typedef typename dumb::template estimator<MC, LAT, TIME>::collector collector;
@@ -209,7 +204,7 @@ struct local_susceptibility {
 
     template<typename M, typename OP, typename FRAGMENT>
     void improved_measurement(M& m, lattice_t const& lat, double beta, double sign,
-      std::vector<int> const& /* spins */, std::vector<OP> const& /* operators */,
+      std::vector<int> const& spins, std::vector<OP> const& /* operators */,
       std::vector<int> const& /* spins_c */, std::vector<FRAGMENT> const& /* fragments */,
       collector const& /* coll */) {
 

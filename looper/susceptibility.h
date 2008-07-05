@@ -120,27 +120,31 @@ struct susceptibility :
         smag += rhs.smag;
         return *this;
       }
-      void start_s(lattice_t const& lat, double t, int s, int c) { term_s(lat, -t, s, c); }
-      void start_bs(lattice_t const& lat, double t, int, int s, int c) { start_s(lat, t, s, c); }
-      void start_bt(lattice_t const& lat, double t, int, int s, int c) { start_s(lat, t, s, c); }
-      void term_s(lattice_t const&, double t, int s, int c) {
+      void begin_s(lattice_t const& lat, double t, int s, int c) { end_s(lat, -t, s, c); }
+      void begin_bs(lattice_t const& lat, double t, int, int s, int c) { begin_s(lat, t, s, c); }
+      void begin_bt(lattice_t const& lat, double t, int, int s, int c) { begin_s(lat, t, s, c); }
+      void end_s(lattice_t const&, double t, int s, int c) {
         usize += t * 0.5;
         umag  += t * (0.5-c);
         double gg = gauge[s];
         ssize += gg * t * 0.5;
         smag  += gg * t * (0.5-c);
       }
-      void term_bs(lattice_t const& lat, double t, int, int s, int c) { term_s(lat, t, s, c); }
-      void term_bt(lattice_t const& lat, double t, int, int s, int c) { term_s(lat, t, s, c); }
-      void at_bot(lattice_t const& lat, double t, int s, int c) {
-        start_s(lat, t, s, c);
+      void end_bs(lattice_t const& lat, double t, int, int s, int c) { end_s(lat, t, s, c); }
+      void end_bt(lattice_t const& lat, double t, int, int s, int c) { end_s(lat, t, s, c); }
+      void start_bottom(lattice_t const& lat, double t, int s, int c) {
+        begin_s(lat, t, s, c);
         usize0 += 0.5;
         umag0  += (0.5-c);
         double gg = gauge[s];
         ssize0 += gg * 0.5;
         smag0  += gg * (0.5-c);
       }
-      void at_top(lattice_t const& lat, double t, int s, int c) { term_s(lat, t, s, c); }
+      void start(lattice_t const& lat, double t, int s, int c) {
+        begin_s(lat, t, s, c);
+      }
+      void stop(lattice_t const& lat, double t, int s, int c) { end_s(lat, t, s, c); }
+      void stop_top(lattice_t const& lat, double t, int s, int c) { end_s(lat, t, s, c); }
     };
     void init_estimate(estimate& est) const { est.init(gauge); }
 

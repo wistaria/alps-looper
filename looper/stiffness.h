@@ -94,20 +94,22 @@ struct stiffness
         for (int i = 0; i < winding.size(); ++i) winding[i] += rhs.winding[i];
         return *this;
       }
-      void start_s(lattice_t const&, double, int, int) const {}
-      void start_bs(lattice_t const& lat, double, int b, int, int c) {
+      void begin_s(lattice_t const&, double, int, int) const {}
+      void begin_bs(lattice_t const& lat, double, int b, int, int c) {
         alps::coordinate_type const& vr = bond_vector_relative[real_bond[bond(lat.vg(), b)]];
         for (int i = 0; i < winding.size(); ++i) winding[i] -= (1-2*c) * vr[i];
       }
-      void start_bt(lattice_t const&, double, int, int, int) {}
-      void term_s(lattice_t const&, double, int, int) const {}
-      void term_bs(lattice_t const& lat, double, int b, int, int c) {
+      void begin_bt(lattice_t const&, double, int, int, int) {}
+      void end_s(lattice_t const&, double, int, int) const {}
+      void end_bs(lattice_t const& lat, double, int b, int, int c) {
         alps::coordinate_type const& vr = bond_vector_relative[real_bond[bond(lat.vg(), b)]];
         for (int i = 0; i < winding.size(); ++i) winding[i] += (1-2*c) * vr[i];
       }
-      void term_bt(lattice_t const&, double, int, int, int) {}
-      void at_bot(lattice_t const&, double, int, int) const {}
-      void at_top(lattice_t const&, double, int, int) const {}
+      void end_bt(lattice_t const&, double, int, int, int) {}
+      void start_bottom(lattice_t const&, double, int, int) const {}
+      void start(lattice_t const&, double, int, int) const {}
+      void stop(lattice_t const&, double, int, int) const {}
+      void stop_top(lattice_t const&, double, int, int) const {}
     };
     void init_estimate(estimate& est) const {
       est.init(real_bond, bond_vector_relative, dim);
