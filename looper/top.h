@@ -105,7 +105,7 @@ struct twist_order_parameter_n {
       void start_bottom(lattice_t const&, double, int s, int c) {
         moment += (*phase_ptr)[s] * (0.5-c);
       }
-      void start(lattice_t const&, double, int, int) {
+      void start(lattice_t const&, double, int, int) {}
       void stop(lattice_t const&, double, int, int) {}
       void stop_top(lattice_t const&, double, int, int) {}
     };
