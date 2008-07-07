@@ -357,9 +357,14 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
   // flip operators & spins
   BOOST_FOREACH(local_operator_t& op, operators)
     if (to_flip[fragments[op.loop_0()].id()] ^ to_flip[fragments[op.loop_1()].id()]) op.flip();
-  for (int s = 0; s < nvs; ++s) if (to_flip[fragments[s].id()]) spins[s] ^= 1;
-  if (is_master(comm))
-    for (int s = 0; s < nvs; ++s) if (to_flip[fragments[2*nvs + s].id()]) spins_t[s] ^= 1;
+  if (is_master(comm)) {
+    for (int s = 0; s < nvs; ++s) {
+      if (to_flip[fragments[s].id()]) spins_t[s] ^= 1;
+      if (to_flip[fragments[2*nvs + s].id()]) spins[s] ^= 1;
+    }
+  } else {
+    for (int s = 0; s < nvs; ++s) if (to_flip[fragments[s].id()]) spins[s] ^= 1;
+  }
 
   // measurement
   if (is_master(comm)) {

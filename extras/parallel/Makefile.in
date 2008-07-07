@@ -67,7 +67,7 @@ parallel_ns_DEPENDENCIES =
 parallel_ns_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(parallel_ns_LDFLAGS) $(LDFLAGS) -o $@
-nodist_parallel_pevaluate_OBJECTS = loop_evaluate.$(OBJEXT) \
+nodist_parallel_pevaluate_OBJECTS = loop_pevaluate.$(OBJEXT) \
 	loop_factory.$(OBJEXT) loop_model.$(OBJEXT) \
 	path_integral.$(OBJEXT)
 parallel_pevaluate_OBJECTS = $(nodist_parallel_pevaluate_OBJECTS)
@@ -229,7 +229,7 @@ dist_parallel_pm_SOURCES = loop_pm.C parallel_config.h loop_factory_mpi.C path_i
 nodist_parallel_pm_SOURCES = $(top_srcdir)/loop_factory.C $(top_srcdir)/loop_model.C 
 parallel_pm_LDFLAGS = @LDFLAGS_MPI@
 parallel_pm_LDADD = @LIBS_MPI@
-nodist_parallel_pevaluate_SOURCES = $(top_srcdir)/loop_evaluate.C $(top_srcdir)/loop_factory.C $(top_srcdir)/loop_model.C $(top_srcdir)/path_integral.C
+nodist_parallel_pevaluate_SOURCES = $(top_srcdir)/loop_pevaluate.C $(top_srcdir)/loop_factory.C $(top_srcdir)/loop_model.C $(top_srcdir)/path_integral.C
 
 #
 # tests
@@ -304,10 +304,10 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_evaluate.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_factory.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_factory_mpi.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_model.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_pevaluate.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_pm.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parallel_ns.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/path_integral.Po@am__quote@
@@ -362,19 +362,19 @@ loop_model.obj: $(top_srcdir)/loop_model.C
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_model.obj `if test -f '$(top_srcdir)/loop_model.C'; then $(CYGPATH_W) '$(top_srcdir)/loop_model.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/loop_model.C'; fi`
 
-loop_evaluate.o: $(top_srcdir)/loop_evaluate.C
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_evaluate.o -MD -MP -MF $(DEPDIR)/loop_evaluate.Tpo -c -o loop_evaluate.o `test -f '$(top_srcdir)/loop_evaluate.C' || echo '$(srcdir)/'`$(top_srcdir)/loop_evaluate.C
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/loop_evaluate.Tpo $(DEPDIR)/loop_evaluate.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/loop_evaluate.C' object='loop_evaluate.o' libtool=no @AMDEPBACKSLASH@
+loop_pevaluate.o: $(top_srcdir)/loop_pevaluate.C
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_pevaluate.o -MD -MP -MF $(DEPDIR)/loop_pevaluate.Tpo -c -o loop_pevaluate.o `test -f '$(top_srcdir)/loop_pevaluate.C' || echo '$(srcdir)/'`$(top_srcdir)/loop_pevaluate.C
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/loop_pevaluate.Tpo $(DEPDIR)/loop_pevaluate.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/loop_pevaluate.C' object='loop_pevaluate.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_evaluate.o `test -f '$(top_srcdir)/loop_evaluate.C' || echo '$(srcdir)/'`$(top_srcdir)/loop_evaluate.C
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_pevaluate.o `test -f '$(top_srcdir)/loop_pevaluate.C' || echo '$(srcdir)/'`$(top_srcdir)/loop_pevaluate.C
 
-loop_evaluate.obj: $(top_srcdir)/loop_evaluate.C
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_evaluate.obj -MD -MP -MF $(DEPDIR)/loop_evaluate.Tpo -c -o loop_evaluate.obj `if test -f '$(top_srcdir)/loop_evaluate.C'; then $(CYGPATH_W) '$(top_srcdir)/loop_evaluate.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/loop_evaluate.C'; fi`
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/loop_evaluate.Tpo $(DEPDIR)/loop_evaluate.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/loop_evaluate.C' object='loop_evaluate.obj' libtool=no @AMDEPBACKSLASH@
+loop_pevaluate.obj: $(top_srcdir)/loop_pevaluate.C
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop_pevaluate.obj -MD -MP -MF $(DEPDIR)/loop_pevaluate.Tpo -c -o loop_pevaluate.obj `if test -f '$(top_srcdir)/loop_pevaluate.C'; then $(CYGPATH_W) '$(top_srcdir)/loop_pevaluate.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/loop_pevaluate.C'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/loop_pevaluate.Tpo $(DEPDIR)/loop_pevaluate.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/loop_pevaluate.C' object='loop_pevaluate.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_evaluate.obj `if test -f '$(top_srcdir)/loop_evaluate.C'; then $(CYGPATH_W) '$(top_srcdir)/loop_evaluate.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/loop_evaluate.C'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop_pevaluate.obj `if test -f '$(top_srcdir)/loop_pevaluate.C'; then $(CYGPATH_W) '$(top_srcdir)/loop_pevaluate.C'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/loop_pevaluate.C'; fi`
 
 path_integral.o: $(top_srcdir)/path_integral.C
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT path_integral.o -MD -MP -MF $(DEPDIR)/path_integral.Tpo -c -o path_integral.o `test -f '$(top_srcdir)/path_integral.C' || echo '$(srcdir)/'`$(top_srcdir)/path_integral.C
