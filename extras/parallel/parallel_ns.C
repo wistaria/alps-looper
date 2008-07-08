@@ -65,7 +65,7 @@ int main(int argc, char** argv)
     if (!p->defined("SEED")) (*p)["SEED"] = static_cast<unsigned int>(time(0));
     (*p)["WORKER_SEED"] = static_cast<unsigned int>((*p)["SEED"]) ^ process_id(comm);
     (*p)["DISORDER_SEED"] = (*p)["WORKER_SEED"];
-    std::cout << "[input parameters]\n" << *p;
+    if (is_master(comm)) std::cout << "[input parameters]\n" << *p;
     std::vector<alps::ObservableSet> m;
     alps::parapack::abstract_worker* worker =
       parallel_worker_factory::instance()->make_worker(comm, *p, m);
