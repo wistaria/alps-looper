@@ -15,7 +15,7 @@ noinst_PROGRAMS += parallel_pm parallel_pevaluate
 endif
 endif
 
-dist_parallel_pm_SOURCES = loop_pm.C parallel_config.h loop_factory_mpi.C path_integral_mpi.C
+dist_parallel_pm_SOURCES = loop_pm.C parallel_config.h loop_factory_mpi.h loop_factory_mpi.C path_integral_mpi.C
 nodist_parallel_pm_SOURCES = $(top_srcdir)/loop_factory.C $(top_srcdir)/loop_model.C 
        parallel_pm_LDFLAGS = @LDFLAGS_MPI@
        parallel_pm_LDADD = @LIBS_MPI@
@@ -32,7 +32,7 @@ if HAVE_MPI
 check_PROGRAMS += parallel_ns
 endif
 
-dist_parallel_ns_SOURCES = parallel_ns.C parallel_config.h loop_factory_mpi.C path_integral_mpi.C
+dist_parallel_ns_SOURCES = parallel_ns.C parallel_config.h loop_factory_mpi.h loop_factory_mpi.C path_integral_mpi.C
 nodist_parallel_ns_SOURCES = $(top_srcdir)/loop_factory.C $(top_srcdir)/loop_model.C 
        parallel_ns_LDFLAGS = @LDFLAGS_MPI@
        parallel_ns_LDADD = @LIBS_MPI@
