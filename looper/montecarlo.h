@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -36,6 +36,8 @@ namespace looper {
 
 class mc_steps {
 public:
+  typedef integer_range<unsigned int> range_type;
+
   mc_steps() : mcs_(0), sweep_("[0:]"), therm_(0) {}
   mc_steps(alps::Parameters const& p) : mcs_(0),
     sweep_(p.value_or_default("SWEEPS", "[65536:]"), p),
@@ -44,7 +46,8 @@ public:
   }
 
   void set_thermalization(int c) { therm_ = c; }
-  void set_sweeps(integer_range<unsigned int> const& c) { sweep_ = c; }
+  void set_sweeps(unsigned int c) { sweep_ = range_type(c); }
+  void set_sweeps(range_type const& c) { sweep_ = c; }
 
   mc_steps& operator++() { ++mcs_; return *this; }
   mc_steps operator++(int) { mc_steps tmp = *this; this->operator++(); return tmp; }
@@ -55,14 +58,14 @@ public:
   double progress() const { return static_cast<double>(mcs_) / (therm_ + sweep_.min()); }
 
   int thermalization() const { return therm_; }
-  integer_range<unsigned int> sweeps() const { return sweep_; }
+  range_type sweeps() const { return sweep_; }
 
   void save(alps::ODump& dp) const { dp << mcs_ << sweep_ << therm_; }
   void load(alps::IDump& dp) { dp >> mcs_ >> sweep_ >> therm_; }
 
 private:
   unsigned int mcs_;
-  integer_range<unsigned int> sweep_;
+  range_type sweep_;
   unsigned int therm_;
 };
 

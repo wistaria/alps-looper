@@ -493,7 +493,7 @@ struct composite_measurement :
       bool use_improved_estimator) {
       emt1.initialize(m, params, lat, is_signed, use_improved_estimator);
       emt2.initialize(m, params, lat, is_signed, use_improved_estimator);
-    };
+    }
 
     // improved estimator
 
