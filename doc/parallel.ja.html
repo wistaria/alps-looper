@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<title>looper::parallel_cluster_unifier 詳説</title>
+<style type="text/css">
+
+/*
+:Author: David Goodger (goodger@python.org)
+:Id: $Id: html4css1.css 5196 2007-06-03 20:25:28Z wiemann $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+
+See http://docutils.sf.net/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin: 0 0 0.5em 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left {
+  clear: left }
+
+img.align-right {
+  clear: right }
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font-family: serif ;
+  font-size: 100% }
+
+pre.literal-block, pre.doctest-block {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+</head>
+<body>
+<div class="document" id="looper-parallel-cluster-unifier">
+<h1 class="title">looper::parallel_cluster_unifier 詳説</h1>
+
+<!-- -*- mode: rst -*- -->
+<p>以下の解説は Rev: 2869 (2008-06-27) の looper/parallel.h に基づく.</p>
+<div class="section" id="class-flip-t">
+<h1>class flip_t</h1>
+<p>個々のクラスターの状態を表わすクラス. 一段階更新が終った後のクラスターは以下の二つのどちらかの状態を取る.</p>
+<ol class="arabic">
+<li><p class="first">まだ開いており虚時間境界を横切る.</p>
+<p>クラスターはより大きな開いたクラスター(結合クラスター)の一部分となっている. メンバー関数 id() は結合クラスターの id を返す.</p>
+</li>
+<li><p class="first">考えている虚時間領域で完全に閉じる.</p>
+<p>メンバー関数 operator() はフリップされるかどうかを返す.</p>
+</li>
+</ol>
+<p>メンバー関数の返り値 (表中の「--」は返り値が意味を持たないことを示す)</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="11%" />
+<col width="43%" />
+<col width="30%" />
+</colgroup>
+<tbody valign="top">
+<tr><td>タイプ</td>
+<td>is_open()</td>
+<td>operator()</td>
+<td>id()</td>
+</tr>
+<tr><td>開クラスター</td>
+<td>true</td>
+<td>--</td>
+<td>結合されたクラスターの id</td>
+</tr>
+<tr><td>閉クラスター</td>
+<td>false</td>
+<td>flip する場合 true, しない場合 false</td>
+<td>--</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="class-parallel-cluster-unifier">
+<h1>class parallel_cluster_unifier</h1>
+<ul>
+<li><p class="first">type</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">estimate_t</span></tt> (= <tt class="docutils literal"><span class="pre">ESTIMATE</span></tt>)</dt>
+<dd><p class="first last">個々のクラスターの物理量(長さなど)を保持するクラス. 演算子 <tt class="docutils literal"><span class="pre">+=</span></tt> が定義されており, 結合されたクラスターの物理量をクラスターのroot nodeに追加していくことができる.</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">collector_t</span></tt> (= <tt class="docutils literal"><span class="pre">COLLECTOR</span></tt>)</dt>
+<dd><p class="first last">全体の物理量を保持するクラス. 演算子 <tt class="docutils literal"><span class="pre">+=</span></tt> が定義されており, 閉じたクラスターの物理量(<tt class="docutils literal"><span class="pre">estiamte_t</span></tt>)を全体の物理量に追加していくことができる. また, 同じく演算子 <tt class="docutils literal"><span class="pre">+=</span></tt> により他のプロセスで収集された物理量を追加することができる. さらに現段階での全クラスター数(<tt class="docutils literal"><span class="pre">num_clusters()</span></tt>), 開いたクラスター数(<tt class="docutils literal"><span class="pre">num_open_clusters()</span></tt>)も保持する.</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">link_t</span></tt> (= <tt class="docutils literal"><span class="pre">looper::union_find::node_noweight</span></tt>)</dt>
+<dd><p class="first last">クラスターの結合関係(木構造)を表現するためのクラス.</p>
+</dd>
+</dl>
+</li>
+<li><p class="first">member</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">int</span> <span class="pre">num_sites_</span></tt></dt>
+<dd><p class="first last">サイト(スピン)数 (constructor中の58行目で設定)</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">int</span> <span class="pre">num_boundaries_</span></tt></dt>
+<dd><p class="first last">上下の虚時間境界に露出しているサイト数 (= <tt class="docutils literal"><span class="pre">2*num_sites_</span></tt>) (constructor中の58行目で設定)</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">int</span> <span class="pre">num_stages_</span></tt></dt>
+<dd><p class="first last">バイナリツリーの段数 (constructor中の67-68行目で設定)</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">collector_t</span> <span class="pre">coll_buf_</span></tt></dt>
+<dd><p class="first last">slaveプロセスから物理量(collector_t)を受け取るためのバッファー</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">std::vector&lt;flip_t&gt;</span> <span class="pre">flip_close_</span></tt></dt>
+<dd><p class="first last">現段階での閉じたクラスターについてフリップするか否かを記録するテーブル</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">std::vector&lt;flip_t&gt;</span> <span class="pre">flip_stage_</span></tt></dt>
+<dd><p class="first last">現段階で結合を行なう前のクラスターについて, 結合後のクラスターid, もしくは, 結合後に閉じた場合にはフリップするか否かを記録するテーブル. このテーブルはメンバー関数 <tt class="docutils literal"><span class="pre">distribute()</span></tt> により master, slave それぞれの下位プロセスに分配され, テーブル``flip``の更新に使われる.</p>
+</dd>
+</dl>
+</li>
+<li><p class="first">メンバー関数 unify における処理</p>
+<ul>
+<li><p class="first">入力</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">collector_t&amp;</span> <span class="pre">coll</span></tt></dt>
+<dd><p class="first">各プロセス内で閉じたクラスターの物理量を収集したもの. プロセス内の全クラスター数と開いたクラスター数はそれぞれ <tt class="docutils literal"><span class="pre">coll.num_clusters()</span></tt> と <tt class="docutils literal"><span class="pre">coll.num_open_clusters()</span></tt> で与えられる.</p>
+<p class="last">master プロセスの <tt class="docutils literal"><span class="pre">coll</span></tt> は全物理量, 全クラスター数で上書きされる. slave プロセスの <tt class="docutils literal"><span class="pre">coll</span></tt> の返り値は不定.</p>
+</dd>
+</dl>
+<p><tt class="docutils literal"><span class="pre">std::vector&lt;FRAGMENT&gt;</span> <span class="pre">const&amp;</span> <span class="pre">fragments</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">std::vector&lt;estimate_t&gt;</span> <span class="pre">const&amp;</span> <span class="pre">estimates</span></tt></p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">RNG&amp;</span> <span class="pre">rng</span></tt></dt>
+<dd><p class="first last">乱数発生器(0〜1の均等分布)</p>
+</dd>
+</dl>
+</li>
+<li><p class="first">出力</p>
+<p><tt class="docutils literal"><span class="pre">collector_t&amp;</span> <span class="pre">coll</span></tt></p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">std::vector&lt;flip_t&gt;&amp;</span> <span class="pre">flip</span></tt></dt>
+<dd><p class="first last">各プロセスにおける開いたクラスターをフリップするか否かを記録したテーブル. この値を元にスピン状態, 演算子のタイプ(対角 or 非対角)が更新される.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+<hr class="docutils" />
+<p>Copyright (c) 2007-2008 by 藤堂眞治 &lt;<a class="reference external" href="mailto:wistaria&#64;comp-phys.org">wistaria&#64;comp-phys.org</a>&gt;</p>
+</div>
+</div>
+</body>
+</html>

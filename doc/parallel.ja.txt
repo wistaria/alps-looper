@@ -1,0 +1,94 @@
+.. -*- mode: rst -*-
+
+looper::parallel_cluster_unifier 詳説
+=====================================
+
+以下の解説は Rev: 2869 (2008-06-27) の looper/parallel.h に基づく.
+
+class flip_t
+------------
+
+個々のクラスターの状態を表わすクラス. 一段階更新が終った後のクラスターは以下の二つのどちらかの状態を取る.
+
+1. まだ開いており虚時間境界を横切る.
+
+   クラスターはより大きな開いたクラスター(結合クラスター)の一部分となっている. メンバー関数 id() は結合クラスターの id を返す.
+   
+2. 考えている虚時間領域で完全に閉じる.
+
+   メンバー関数 operator() はフリップされるかどうかを返す.
+
+メンバー関数の返り値 (表中の「--」は返り値が意味を持たないことを示す)
+
+============== ========= ==================================== =========================
+タイプ         is_open() operator()                           id()
+-------------- --------- ------------------------------------ -------------------------
+開クラスター   true          --                               結合されたクラスターの id
+閉クラスター   false     flip する場合 true, しない場合 false           --
+============== ========= ==================================== =========================
+
+class parallel_cluster_unifier
+------------------------------
+
+- type
+
+  ``estimate_t`` (= ``ESTIMATE``)
+    個々のクラスターの物理量(長さなど)を保持するクラス. 演算子 ``+=`` が定義されており, 結合されたクラスターの物理量をクラスターのroot nodeに追加していくことができる.
+
+  ``collector_t`` (= ``COLLECTOR``)
+    全体の物理量を保持するクラス. 演算子 ``+=`` が定義されており, 閉じたクラスターの物理量(``estiamte_t``)を全体の物理量に追加していくことができる. また, 同じく演算子 ``+=`` により他のプロセスで収集された物理量を追加することができる. さらに現段階での全クラスター数(``num_clusters()``), 開いたクラスター数(``num_open_clusters()``)も保持する.
+
+  ``link_t`` (= ``looper::union_find::node_noweight``)
+    クラスターの結合関係(木構造)を表現するためのクラス.
+
+- member
+
+  ``int num_sites_``
+    サイト(スピン)数 (constructor中の58行目で設定)
+  ``int num_boundaries_``
+    上下の虚時間境界に露出しているサイト数 (= ``2*num_sites_``) (constructor中の58行目で設定)
+  ``int num_stages_``
+    バイナリツリーの段数 (constructor中の67-68行目で設定)
+  ``collector_t coll_buf_``
+    slaveプロセスから物理量(collector_t)を受け取るためのバッファー
+  ``std::vector<flip_t> flip_close_``
+    現段階での閉じたクラスターについてフリップするか否かを記録するテーブル
+  ``std::vector<flip_t> flip_stage_``
+    現段階で結合を行なう前のクラスターについて, 結合後のクラスターid, もしくは, 結合後に閉じた場合にはフリップするか否かを記録するテーブル. このテーブルはメンバー関数 ``distribute()`` により master, slave それぞれの下位プロセスに分配され, テーブル``flip``の更新に使われる.
+
+- メンバー関数 unify における処理
+
+  - 入力
+
+    ``collector_t& coll``
+      各プロセス内で閉じたクラスターの物理量を収集したもの. プロセス内の全クラスター数と開いたクラスター数はそれぞれ ``coll.num_clusters()`` と ``coll.num_open_clusters()`` で与えられる.
+
+      master プロセスの ``coll`` は全物理量, 全クラスター数で上書きされる. slave プロセスの ``coll`` の返り値は不定.
+
+    ``std::vector<FRAGMENT> const& fragments``
+
+    ``std::vector<estimate_t> const& estimates``
+
+    ``RNG& rng``
+      乱数発生器(0〜1の均等分布)
+
+  - 出力
+
+    ``collector_t& coll``
+
+    ``std::vector<flip_t>& flip``
+      各プロセスにおける開いたクラスターをフリップするか否かを記録したテーブル. この値を元にスピン状態, 演算子のタイプ(対角 or 非対角)が更新される.
+
+-------------------------------------
+
+Copyright (c) 2007-2008 by 藤堂眞治 <wistaria@comp-phys.org>
+
+.. _`ALPS Project`: http://alps.comp-phys.org/
+
+.. _`ALPS Library`: http://alps.comp-phys.org/software/ALPS/doc/
+
+.. _`ALPS Applications`: http://alps.comp-phys.org/software/applications/doc/
+
+.. _`ALPS/Looper`: http://wistaria.comp-phys.org/alps-looper/
+
+.. _`Looper Library version 2`: http://wistaria.comp-phys.org/looper/

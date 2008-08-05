@@ -169,8 +169,8 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-dist_pkgdata_DATA = index.html anneal.jpg
-dist_noinst_DATA = index.txt anneal.eps 
+dist_pkgdata_DATA = index.html anneal.jpg parallel.ja.html
+dist_noinst_DATA = index.txt anneal.eps parallel.ja.txt
 all: all-am
 
 .SUFFIXES:
