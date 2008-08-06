@@ -3,7 +3,7 @@
 looper::parallel_cluster_unifier 詳説
 =====================================
 
-以下の解説は Rev: 2869 (2008-06-27) の looper/parallel.h に基づく.
+以下, Rev: 2869 (2008-06-27) の looper/parallel.h に基づき解説を行なう.
 
 class flip_t
 ------------
@@ -33,16 +33,38 @@ class parallel_cluster_unifier
 - type
 
   ``estimate_t`` (= ``ESTIMATE``)
-    個々のクラスターの物理量(長さなど)を保持するクラス. 演算子 ``+=`` が定義されており, 結合されたクラスターの物理量をクラスターのroot nodeに追加していくことができる.
+    個々のクラスターの物理量(長さなど)を保持するクラス.
+
+    演算子 ``+=(estimate_t const&)``: 新たに結合されたクラスターの物理量を追加する.
 
   ``collector_t`` (= ``COLLECTOR``)
-    全体の物理量を保持するクラス. 演算子 ``+=`` が定義されており, 閉じたクラスターの物理量(``estiamte_t``)を全体の物理量に追加していくことができる. また, 同じく演算子 ``+=`` により他のプロセスで収集された物理量を追加することができる. さらに現段階での全クラスター数(``num_clusters()``), 開いたクラスター数(``num_open_clusters()``)も保持する.
+    全体の物理量を保持するクラス.
+
+    演算子 ``+=(collector_t const&)``: 閉じたクラスターの物理量(``estiamte_t``)を全体の物理量に追加
+
+    演算子 ``+=(collector_t const&)``: 他のプロセスで収集された物理量・閉じたクラスター数(``collector_t``)を追加
+
+    ``double num_clusters()``: 現段階での閉じたクラスター数
+
+    ``void set_num_clusters(int n)``: 閉じたクラスター数を ``n`` に設定
+
+    ``void inc_num_clusters(int n)``: 閉じたクラスター数を ``n`` だけ増加
+
+    ``double num_open_clusters()``: 現段階での開いたクラスター数
+
+    ``void set_num_open_clusters(int)``: 開いたクラスター数を設定
 
   ``link_t`` (= ``looper::union_find::node_noweight``)
-    クラスターの結合関係(木構造)を表現するためのクラス.
+    クラスターの結合関係(ツリー構造)を表現するためのクラス.
 
 - member
 
+  ``MPI_Comm comm_``
+    並列動作しているプロセスのグループ(正確には MPI の communicator) (constructor中の58行目で設定)
+  ``int num_processes_``
+    並列動作しているプロセス数 (= ``comm_`` のサイズ) (constructor中の61行目で設定)
+  ``int process_id_``
+    自プロセスの id (= ``comm_`` における rank) (constructor中の64行目で設定)
   ``int num_sites_``
     サイト(スピン)数 (constructor中の58行目で設定)
   ``int num_boundaries_``
@@ -52,22 +74,36 @@ class parallel_cluster_unifier
   ``collector_t coll_buf_``
     slaveプロセスから物理量(collector_t)を受け取るためのバッファー
   ``std::vector<flip_t> flip_close_``
-    現段階での閉じたクラスターについてフリップするか否かを記録するテーブル
+    現段階での閉じたクラスターについてフリップするか否かを記録する配列
   ``std::vector<flip_t> flip_stage_``
-    現段階で結合を行なう前のクラスターについて, 結合後のクラスターid, もしくは, 結合後に閉じた場合にはフリップするか否かを記録するテーブル. このテーブルはメンバー関数 ``distribute()`` により master, slave それぞれの下位プロセスに分配され, テーブル``flip``の更新に使われる.
+    現段階で結合を行なう前のクラスターについて, 結合後のクラスターid, もしくは, 結合後に閉じた場合にはフリップするか否かを記録する配列. この配列はメンバー関数 ``distribute()`` により master, slave それぞれの下位プロセスに分配され, 配列``flip``の更新に使われる.
+  ``std::vector<link_t> links_``
+    クラスター結合のための作業領域. サイズ = ``2*num_boundaries_`` = ``4*num_sites_``
+  ``std::vector<link_t> linksD_``
+    クラスター結合のための作業領域. 虚時間の小さい下半分の領域のツリー構造を収めておく. サイズ = ``num_boundaries_`` = ``2*num_sites_``
+  ``std::vector<link_t> linksU_``
+    クラスター結合のための作業領域. 虚時間の大きな上半分の領域のツリー構造を収めておく. サイズ = ``num_boundaries_`` = ``2*num_sites_``
+  ``std::vector<estimate_t> estimates_``
+    クラスター結合のための作業領域. 虚時間の小さい下半分の領域の個々のクラスターの物理量を収めておく. サイズ = ``2*num_boundaries_`` = ``4*num_sites_``
+  ``std::vector<estimate_t> estimatesD_``
+    クラスター結合のための作業領域. 虚時間の小さい下半分の領域の個々のクラスターの物理量を収めておく. サイズ = ``num_boundaries_`` = ``2*num_sites_``
 
 - メンバー関数 unify における処理
 
   - 入力
 
     ``collector_t& coll``
-      各プロセス内で閉じたクラスターの物理量を収集したもの. プロセス内の全クラスター数と開いたクラスター数はそれぞれ ``coll.num_clusters()`` と ``coll.num_open_clusters()`` で与えられる.
-
-      master プロセスの ``coll`` は全物理量, 全クラスター数で上書きされる. slave プロセスの ``coll`` の返り値は不定.
+      各プロセス内で閉じたクラスターの物理量を収集したオブジェクト. また, プロセス内の全クラスター数と開いたクラスター数はそれぞれ ``coll.num_clusters()`` と ``coll.num_open_clusters()`` で与えられる.
 
     ``std::vector<FRAGMENT> const& fragments``
 
+      虚時間境界(上下)のサイト(総数 = ``num_boundaries_`` = ``2*num_sites_``)の間のツリー構造(つながり方)を収めた配列. 0番目〜(``num_sites_-1``)番目の要素が下部虚時間境界(``tau`` = ``tau0``), ``num_sites_`` 番目〜(``2*num_sites_-1``)番目の要素が上部虚時間境界(``tau`` = ``tau1``)上のサイトに対応.
+
+      ``unify`` に渡される配列のサイズは, 一般に ``num_boundary_`` よりも大きい. しかし, それぞれのツリー内で 0 番目〜(``num_boundaries_-1``)番目の要素が, 他の要素よりも上にある(= rootに近い)ことは保証されている. (実際のコードでは ``unify`` 呼び出し前に ``set_root()`` 関数を用いて, それぞれのツリー内で並び換えを行なっている.) また, 虚時間境界のサイトを含むツリー(= クラスター)の id が 0 〜 (``coll.num_open_clusters()-1``) であることも保証されている.
+
     ``std::vector<estimate_t> const& estimates``
+
+      各クラスターの物理量を収めた配列. ``unify`` に渡される配列のサイズは, 一般に ``coll.num_open_clusters()`` よりも大きい. しかし, 虚時間境界のサイトを含むクラスター(``coll.num_open_clusters()`` 個)の id は 0 〜 (``coll.num_open_clusters()-1``) であることは保証されている. 一方, id が ``coll.num_open_clusters()`` 〜(``coll.num_open_clusters()+coll.num_clusters()-1``) までのクラスターは各プロセス内で閉じており, それらの物理量はすでに ``coll`` に追加されている.
 
     ``RNG& rng``
       乱数発生器(0〜1の均等分布)
@@ -75,20 +111,83 @@ class parallel_cluster_unifier
   - 出力
 
     ``collector_t& coll``
+      master プロセスの ``coll`` は全物理量, 全クラスター数で上書きされる. slave プロセスの ``coll`` の返り値は不定.
 
     ``std::vector<flip_t>& flip``
-      各プロセスにおける開いたクラスターをフリップするか否かを記録したテーブル. この値を元にスピン状態, 演算子のタイプ(対角 or 非対角)が更新される.
+      各プロセスにおける開いたクラスター(coll.num_open_clusters() の **入力値**)をフリップするか否かを記録した配列. この値を元にスピン状態, 演算子のタイプ(対角 or 非対角)が更新される.
+
+  - 処理内容
+
+    以下, 並列処理 (``num_processes_`` > 1) の場合についてのみ説明
+
+    85〜88行目
+      ``flip`` と ``flip_stage_`` の初期化. ``coll.num_open_clusters()`` 個の開いたクラスター(id は 0 〜 ``coll.num_clusters()-1``)を準備
+
+    89〜97行目
+      ``linksD_`` に引数 ``fragments`` の情報をコピーする. ``estimatesD_`` に引数 ``esteimates`` の情報をコピーする.
+
+    101〜124行目
+      非並列の場合の処理
+
+    129〜252行目
+      ``stage`` (バイナリツリーの段数)に関するループ. ``stage_mask`` は下 ``stage+1`` ビットが 1, ``target_mask`` は下から ``stage+1`` ビット目のみが1の定数.
+
+      それぞれの ``stage`` において, ``process_id`` の下 ``stage+1`` ビットが全て1のプロセスが master, ``process_id`` の下から ``stage+1`` ビット目が1, かつ下 ``stage`` ビットが全て 0 のプロセスが slave となる. 段数が増すに従って master, slave となるプロセスの数は減少する. 全プロセス数が2の羃でない場合には master に対応する slave が存在しない場合があるが, その場合 master は何もしない. ``process_id`` の下 ``stage`` ビットが 0 でないプロセスは, master もしくは slave プロセスの子ノードとなり, 配列 flip の更新のみを行なう.
+
+      133〜231行目
+        現 ``stage`` における master プロセスの処理
+
+        137〜150行目
+          slave から前 ``stage`` までで得られた物理量, 虚時間境界サイト間のつながり方(ツリー構造), 個々の開いたクラスターの物理量を受けとり, それぞれ ``coll_buff_``, ``linksU_``, ``estimatesU_`` に格納し, さらに, 自プロセスがあらかじめ持っている下部虚時間領域の情報(``linksD_``)と受け取った上部虚時間領域(``linksU_``)の情報を ``links_`` にまとめる. ``linksU_`` についてはもともと index が 0〜``num_boundaries_-1`` だったものが  ``num_boundaries_`` 〜 ``2*num_boundaries_-1`` の領域に写されるので, ツリー構造のリンクを修正する必要があることに注意する.
+
+        152〜154行目
+          下部虚時間領域の上境界サイト(index が ``num_sites_``〜``num_boundaries_-1``)と上部虚時間領域の下境界サイト(index が ``num_boundaries_``〜``num_boundaries_+num_sites_-1``)を結合(unify).
+
+        156〜159行目
+          虚時間方向の周期境界条件のため, 最終ステージでは下部虚時間領域の下境界サイト(tau = 0, index が 0〜``num_sites_-1``)と上部虚時間領域の上境界サイト(tau = 1, index が ``num_boundaries_+num_sites_``〜``2*num_boundaries_-1``)も結合する必要がある
+
+        161〜163行目
+          下部虚時間領域の下境界サイトと上部虚時間領域の上境界サイトが新たな境界上のサイトとなるため, ツリー構造の中でこれらのサイトが他の全てのサイトよりも上(= root に近い)になるように ``set_root`` する.
+
+        167〜172行目
+          下部虚時間領域の下境界サイトと上部虚時間領域の上境界サイトが属するクラスター(まだ開いているクラスター)に id (0〜noc-1)を割り当てる.
+
+        173〜174行目
+          残りのクラスター(このステージで閉じたクラスター)に id (noc〜nc-1)を割り当てる.
+
+        175〜175行目
+          最終ステージでは全てのクラスターは閉じるので noc = 0 とする.
+
+        178〜179行目
+          閉じたクラスターをフリップするかどうか(確率1/2)を乱数を用いて決定し, 配列 ``flip_close_`` に保存する. (この配列の 0 〜 ``noc-`` 番目の要素は使用されない.)
+
+        180〜181行目
+          結合されたクラスターについての物理量の配列(``estimates_``)を初期化する.
+
+        182〜231行目
+          to be written
+
+      234〜243行目
+        現 ``stage`` における slave プロセスの処理
+
+        236〜239行目
+          前 ``stage`` で得られた物理量(``coll``), 虚時間境界サイト間のつながり方(ツリー構造) (``linksD_``), 個々の開いたクラスターの物理量(``estimatesD_``)を master プロセスに送る
+
+        240行目
+          master から結合処理結果(``flip_stage_``)を受け取る. 
+
+        242行目
+          子ノードに結合処理結果(``flip_stage_``)を送信する.
+
+      244〜245行目
+        現 ``stage`` における子ノードの処理
+
+        245行目
+          親ノードから結合処理結果(``flip_stage_``)を受け取り, さらに自分の子ノードに送信する.
+
+      249〜250行目
+        ``flip_stage_`` を元に ``flip`` を更新する. クラスターが閉じた場合にはフリップするか否か, クラスターが結合後もまだ開いている場合にはその新しいクラスター id を格納する.
 
 -------------------------------------
 
 Copyright (c) 2007-2008 by 藤堂眞治 <wistaria@comp-phys.org>
-
-.. _`ALPS Project`: http://alps.comp-phys.org/
-
-.. _`ALPS Library`: http://alps.comp-phys.org/software/ALPS/doc/
-
-.. _`ALPS Applications`: http://alps.comp-phys.org/software/applications/doc/
-
-.. _`ALPS/Looper`: http://wistaria.comp-phys.org/alps-looper/
-
-.. _`Looper Library version 2`: http://wistaria.comp-phys.org/looper/

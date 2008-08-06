@@ -288,7 +288,7 @@ ul.auto-toc {
 <h1 class="title">looper::parallel_cluster_unifier 詳説</h1>
 
 <!-- -*- mode: rst -*- -->
-<p>以下の解説は Rev: 2869 (2008-06-27) の looper/parallel.h に基づく.</p>
+<p>以下, Rev: 2869 (2008-06-27) の looper/parallel.h に基づき解説を行なう.</p>
 <div class="section" id="class-flip-t">
 <h1>class flip_t</h1>
 <p>個々のクラスターの状態を表わすクラス. 一段階更新が終った後のクラスターは以下の二つのどちらかの状態を取る.</p>
@@ -333,18 +333,35 @@ ul.auto-toc {
 <li><p class="first">type</p>
 <dl class="docutils">
 <dt><tt class="docutils literal"><span class="pre">estimate_t</span></tt> (= <tt class="docutils literal"><span class="pre">ESTIMATE</span></tt>)</dt>
-<dd><p class="first last">個々のクラスターの物理量(長さなど)を保持するクラス. 演算子 <tt class="docutils literal"><span class="pre">+=</span></tt> が定義されており, 結合されたクラスターの物理量をクラスターのroot nodeに追加していくことができる.</p>
+<dd><p class="first">個々のクラスターの物理量(長さなど)を保持するクラス.</p>
+<p class="last">演算子 <tt class="docutils literal"><span class="pre">+=(estimate_t</span> <span class="pre">const&amp;)</span></tt>: 新たに結合されたクラスターの物理量を追加する.</p>
 </dd>
 <dt><tt class="docutils literal"><span class="pre">collector_t</span></tt> (= <tt class="docutils literal"><span class="pre">COLLECTOR</span></tt>)</dt>
-<dd><p class="first last">全体の物理量を保持するクラス. 演算子 <tt class="docutils literal"><span class="pre">+=</span></tt> が定義されており, 閉じたクラスターの物理量(<tt class="docutils literal"><span class="pre">estiamte_t</span></tt>)を全体の物理量に追加していくことができる. また, 同じく演算子 <tt class="docutils literal"><span class="pre">+=</span></tt> により他のプロセスで収集された物理量を追加することができる. さらに現段階での全クラスター数(<tt class="docutils literal"><span class="pre">num_clusters()</span></tt>), 開いたクラスター数(<tt class="docutils literal"><span class="pre">num_open_clusters()</span></tt>)も保持する.</p>
+<dd><p class="first">全体の物理量を保持するクラス.</p>
+<p>演算子 <tt class="docutils literal"><span class="pre">+=(collector_t</span> <span class="pre">const&amp;)</span></tt>: 閉じたクラスターの物理量(<tt class="docutils literal"><span class="pre">estiamte_t</span></tt>)を全体の物理量に追加</p>
+<p>演算子 <tt class="docutils literal"><span class="pre">+=(collector_t</span> <span class="pre">const&amp;)</span></tt>: 他のプロセスで収集された物理量・閉じたクラスター数(<tt class="docutils literal"><span class="pre">collector_t</span></tt>)を追加</p>
+<p><tt class="docutils literal"><span class="pre">double</span> <span class="pre">num_clusters()</span></tt>: 現段階での閉じたクラスター数</p>
+<p><tt class="docutils literal"><span class="pre">void</span> <span class="pre">set_num_clusters(int</span> <span class="pre">n)</span></tt>: 閉じたクラスター数を <tt class="docutils literal"><span class="pre">n</span></tt> に設定</p>
+<p><tt class="docutils literal"><span class="pre">void</span> <span class="pre">inc_num_clusters(int</span> <span class="pre">n)</span></tt>: 閉じたクラスター数を <tt class="docutils literal"><span class="pre">n</span></tt> だけ増加</p>
+<p><tt class="docutils literal"><span class="pre">double</span> <span class="pre">num_open_clusters()</span></tt>: 現段階での開いたクラスター数</p>
+<p class="last"><tt class="docutils literal"><span class="pre">void</span> <span class="pre">set_num_open_clusters(int)</span></tt>: 開いたクラスター数を設定</p>
 </dd>
 <dt><tt class="docutils literal"><span class="pre">link_t</span></tt> (= <tt class="docutils literal"><span class="pre">looper::union_find::node_noweight</span></tt>)</dt>
-<dd><p class="first last">クラスターの結合関係(木構造)を表現するためのクラス.</p>
+<dd><p class="first last">クラスターの結合関係(ツリー構造)を表現するためのクラス.</p>
 </dd>
 </dl>
 </li>
 <li><p class="first">member</p>
 <dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">MPI_Comm</span> <span class="pre">comm_</span></tt></dt>
+<dd><p class="first last">並列動作しているプロセスのグループ(正確には MPI の communicator) (constructor中の58行目で設定)</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">int</span> <span class="pre">num_processes_</span></tt></dt>
+<dd><p class="first last">並列動作しているプロセス数 (= <tt class="docutils literal"><span class="pre">comm_</span></tt> のサイズ) (constructor中の61行目で設定)</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">int</span> <span class="pre">process_id_</span></tt></dt>
+<dd><p class="first last">自プロセスの id (= <tt class="docutils literal"><span class="pre">comm_</span></tt> における rank) (constructor中の64行目で設定)</p>
+</dd>
 <dt><tt class="docutils literal"><span class="pre">int</span> <span class="pre">num_sites_</span></tt></dt>
 <dd><p class="first last">サイト(スピン)数 (constructor中の58行目で設定)</p>
 </dd>
@@ -358,10 +375,25 @@ ul.auto-toc {
 <dd><p class="first last">slaveプロセスから物理量(collector_t)を受け取るためのバッファー</p>
 </dd>
 <dt><tt class="docutils literal"><span class="pre">std::vector&lt;flip_t&gt;</span> <span class="pre">flip_close_</span></tt></dt>
-<dd><p class="first last">現段階での閉じたクラスターについてフリップするか否かを記録するテーブル</p>
+<dd><p class="first last">現段階での閉じたクラスターについてフリップするか否かを記録する配列</p>
 </dd>
 <dt><tt class="docutils literal"><span class="pre">std::vector&lt;flip_t&gt;</span> <span class="pre">flip_stage_</span></tt></dt>
-<dd><p class="first last">現段階で結合を行なう前のクラスターについて, 結合後のクラスターid, もしくは, 結合後に閉じた場合にはフリップするか否かを記録するテーブル. このテーブルはメンバー関数 <tt class="docutils literal"><span class="pre">distribute()</span></tt> により master, slave それぞれの下位プロセスに分配され, テーブル``flip``の更新に使われる.</p>
+<dd><p class="first last">現段階で結合を行なう前のクラスターについて, 結合後のクラスターid, もしくは, 結合後に閉じた場合にはフリップするか否かを記録する配列. この配列はメンバー関数 <tt class="docutils literal"><span class="pre">distribute()</span></tt> により master, slave それぞれの下位プロセスに分配され, 配列``flip``の更新に使われる.</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">std::vector&lt;link_t&gt;</span> <span class="pre">links_</span></tt></dt>
+<dd><p class="first last">クラスター結合のための作業領域. サイズ = <tt class="docutils literal"><span class="pre">2*num_boundaries_</span></tt> = <tt class="docutils literal"><span class="pre">4*num_sites_</span></tt></p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">std::vector&lt;link_t&gt;</span> <span class="pre">linksD_</span></tt></dt>
+<dd><p class="first last">クラスター結合のための作業領域. 虚時間の小さい下半分の領域のツリー構造を収めておく. サイズ = <tt class="docutils literal"><span class="pre">num_boundaries_</span></tt> = <tt class="docutils literal"><span class="pre">2*num_sites_</span></tt></p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">std::vector&lt;link_t&gt;</span> <span class="pre">linksU_</span></tt></dt>
+<dd><p class="first last">クラスター結合のための作業領域. 虚時間の大きな上半分の領域のツリー構造を収めておく. サイズ = <tt class="docutils literal"><span class="pre">num_boundaries_</span></tt> = <tt class="docutils literal"><span class="pre">2*num_sites_</span></tt></p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">std::vector&lt;estimate_t&gt;</span> <span class="pre">estimates_</span></tt></dt>
+<dd><p class="first last">クラスター結合のための作業領域. 虚時間の小さい下半分の領域の個々のクラスターの物理量を収めておく. サイズ = <tt class="docutils literal"><span class="pre">2*num_boundaries_</span></tt> = <tt class="docutils literal"><span class="pre">4*num_sites_</span></tt></p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">std::vector&lt;estimate_t&gt;</span> <span class="pre">estimatesD_</span></tt></dt>
+<dd><p class="first last">クラスター結合のための作業領域. 虚時間の小さい下半分の領域の個々のクラスターの物理量を収めておく. サイズ = <tt class="docutils literal"><span class="pre">num_boundaries_</span></tt> = <tt class="docutils literal"><span class="pre">2*num_sites_</span></tt></p>
 </dd>
 </dl>
 </li>
@@ -370,12 +402,18 @@ ul.auto-toc {
 <li><p class="first">入力</p>
 <dl class="docutils">
 <dt><tt class="docutils literal"><span class="pre">collector_t&amp;</span> <span class="pre">coll</span></tt></dt>
-<dd><p class="first">各プロセス内で閉じたクラスターの物理量を収集したもの. プロセス内の全クラスター数と開いたクラスター数はそれぞれ <tt class="docutils literal"><span class="pre">coll.num_clusters()</span></tt> と <tt class="docutils literal"><span class="pre">coll.num_open_clusters()</span></tt> で与えられる.</p>
-<p class="last">master プロセスの <tt class="docutils literal"><span class="pre">coll</span></tt> は全物理量, 全クラスター数で上書きされる. slave プロセスの <tt class="docutils literal"><span class="pre">coll</span></tt> の返り値は不定.</p>
+<dd><p class="first last">各プロセス内で閉じたクラスターの物理量を収集したオブジェクト. また, プロセス内の全クラスター数と開いたクラスター数はそれぞれ <tt class="docutils literal"><span class="pre">coll.num_clusters()</span></tt> と <tt class="docutils literal"><span class="pre">coll.num_open_clusters()</span></tt> で与えられる.</p>
 </dd>
 </dl>
 <p><tt class="docutils literal"><span class="pre">std::vector&lt;FRAGMENT&gt;</span> <span class="pre">const&amp;</span> <span class="pre">fragments</span></tt></p>
+<blockquote>
+<p>虚時間境界(上下)のサイト(総数 = <tt class="docutils literal"><span class="pre">num_boundaries_</span></tt> = <tt class="docutils literal"><span class="pre">2*num_sites_</span></tt>)の間のツリー構造(つながり方)を収めた配列. 0番目〜(<tt class="docutils literal"><span class="pre">num_sites_-1</span></tt>)番目の要素が下部虚時間境界(<tt class="docutils literal"><span class="pre">tau</span></tt> = <tt class="docutils literal"><span class="pre">tau0</span></tt>), <tt class="docutils literal"><span class="pre">num_sites_</span></tt> 番目〜(<tt class="docutils literal"><span class="pre">2*num_sites_-1</span></tt>)番目の要素が上部虚時間境界(<tt class="docutils literal"><span class="pre">tau</span></tt> = <tt class="docutils literal"><span class="pre">tau1</span></tt>)上のサイトに対応.</p>
+<p><tt class="docutils literal"><span class="pre">unify</span></tt> に渡される配列のサイズは, 一般に <tt class="docutils literal"><span class="pre">num_boundary_</span></tt> よりも大きい. しかし, それぞれのツリー内で 0 番目〜(<tt class="docutils literal"><span class="pre">num_boundaries_-1</span></tt>)番目の要素が, 他の要素よりも上にある(= rootに近い)ことは保証されている. (実際のコードでは <tt class="docutils literal"><span class="pre">unify</span></tt> 呼び出し前に <tt class="docutils literal"><span class="pre">set_root()</span></tt> 関数を用いて, それぞれのツリー内で並び換えを行なっている.) また, 虚時間境界のサイトを含むツリー(= クラスター)の id が 0 〜 (<tt class="docutils literal"><span class="pre">coll.num_open_clusters()-1</span></tt>) であることも保証されている.</p>
+</blockquote>
 <p><tt class="docutils literal"><span class="pre">std::vector&lt;estimate_t&gt;</span> <span class="pre">const&amp;</span> <span class="pre">estimates</span></tt></p>
+<blockquote>
+<p>各クラスターの物理量を収めた配列. <tt class="docutils literal"><span class="pre">unify</span></tt> に渡される配列のサイズは, 一般に <tt class="docutils literal"><span class="pre">coll.num_open_clusters()</span></tt> よりも大きい. しかし, 虚時間境界のサイトを含むクラスター(<tt class="docutils literal"><span class="pre">coll.num_open_clusters()</span></tt> 個)の id は 0 〜 (<tt class="docutils literal"><span class="pre">coll.num_open_clusters()-1</span></tt>) であることは保証されている. 一方, id が <tt class="docutils literal"><span class="pre">coll.num_open_clusters()</span></tt> 〜(<tt class="docutils literal"><span class="pre">coll.num_open_clusters()+coll.num_clusters()-1</span></tt>) までのクラスターは各プロセス内で閉じており, それらの物理量はすでに <tt class="docutils literal"><span class="pre">coll</span></tt> に追加されている.</p>
+</blockquote>
 <dl class="docutils">
 <dt><tt class="docutils literal"><span class="pre">RNG&amp;</span> <span class="pre">rng</span></tt></dt>
 <dd><p class="first last">乱数発生器(0〜1の均等分布)</p>
@@ -383,10 +421,92 @@ ul.auto-toc {
 </dl>
 </li>
 <li><p class="first">出力</p>
-<p><tt class="docutils literal"><span class="pre">collector_t&amp;</span> <span class="pre">coll</span></tt></p>
 <dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">collector_t&amp;</span> <span class="pre">coll</span></tt></dt>
+<dd><p class="first last">master プロセスの <tt class="docutils literal"><span class="pre">coll</span></tt> は全物理量, 全クラスター数で上書きされる. slave プロセスの <tt class="docutils literal"><span class="pre">coll</span></tt> の返り値は不定.</p>
+</dd>
 <dt><tt class="docutils literal"><span class="pre">std::vector&lt;flip_t&gt;&amp;</span> <span class="pre">flip</span></tt></dt>
-<dd><p class="first last">各プロセスにおける開いたクラスターをフリップするか否かを記録したテーブル. この値を元にスピン状態, 演算子のタイプ(対角 or 非対角)が更新される.</p>
+<dd><p class="first last">各プロセスにおける開いたクラスター(coll.num_open_clusters() の <strong>入力値</strong>)をフリップするか否かを記録した配列. この値を元にスピン状態, 演算子のタイプ(対角 or 非対角)が更新される.</p>
+</dd>
+</dl>
+</li>
+<li><p class="first">処理内容</p>
+<p>以下, 並列処理 (<tt class="docutils literal"><span class="pre">num_processes_</span></tt> &gt; 1) の場合についてのみ説明</p>
+<dl class="docutils">
+<dt>85〜88行目</dt>
+<dd><p class="first last"><tt class="docutils literal"><span class="pre">flip</span></tt> と <tt class="docutils literal"><span class="pre">flip_stage_</span></tt> の初期化. <tt class="docutils literal"><span class="pre">coll.num_open_clusters()</span></tt> 個の開いたクラスター(id は 0 〜 <tt class="docutils literal"><span class="pre">coll.num_clusters()-1</span></tt>)を準備</p>
+</dd>
+<dt>89〜97行目</dt>
+<dd><p class="first last"><tt class="docutils literal"><span class="pre">linksD_</span></tt> に引数 <tt class="docutils literal"><span class="pre">fragments</span></tt> の情報をコピーする. <tt class="docutils literal"><span class="pre">estimatesD_</span></tt> に引数 <tt class="docutils literal"><span class="pre">esteimates</span></tt> の情報をコピーする.</p>
+</dd>
+<dt>101〜124行目</dt>
+<dd><p class="first last">非並列の場合の処理</p>
+</dd>
+<dt>129〜252行目</dt>
+<dd><p class="first"><tt class="docutils literal"><span class="pre">stage</span></tt> (バイナリツリーの段数)に関するループ. <tt class="docutils literal"><span class="pre">stage_mask</span></tt> は下 <tt class="docutils literal"><span class="pre">stage+1</span></tt> ビットが 1, <tt class="docutils literal"><span class="pre">target_mask</span></tt> は下から <tt class="docutils literal"><span class="pre">stage+1</span></tt> ビット目のみが1の定数.</p>
+<p>それぞれの <tt class="docutils literal"><span class="pre">stage</span></tt> において, <tt class="docutils literal"><span class="pre">process_id</span></tt> の下 <tt class="docutils literal"><span class="pre">stage+1</span></tt> ビットが全て1のプロセスが master, <tt class="docutils literal"><span class="pre">process_id</span></tt> の下から <tt class="docutils literal"><span class="pre">stage+1</span></tt> ビット目が1, かつ下 <tt class="docutils literal"><span class="pre">stage</span></tt> ビットが全て 0 のプロセスが slave となる. 段数が増すに従って master, slave となるプロセスの数は減少する. 全プロセス数が2の羃でない場合には master に対応する slave が存在しない場合があるが, その場合 master は何もしない. <tt class="docutils literal"><span class="pre">process_id</span></tt> の下 <tt class="docutils literal"><span class="pre">stage</span></tt> ビットが 0 でないプロセスは, master もしくは slave プロセスの子ノードとなり, 配列 flip の更新のみを行なう.</p>
+<dl class="last docutils">
+<dt>133〜231行目</dt>
+<dd><p class="first">現 <tt class="docutils literal"><span class="pre">stage</span></tt> における master プロセスの処理</p>
+<dl class="last docutils">
+<dt>137〜150行目</dt>
+<dd><p class="first last">slave から前 <tt class="docutils literal"><span class="pre">stage</span></tt> までで得られた物理量, 虚時間境界サイト間のつながり方(ツリー構造), 個々の開いたクラスターの物理量を受けとり, それぞれ <tt class="docutils literal"><span class="pre">coll_buff_</span></tt>, <tt class="docutils literal"><span class="pre">linksU_</span></tt>, <tt class="docutils literal"><span class="pre">estimatesU_</span></tt> に格納し, さらに, 自プロセスがあらかじめ持っている下部虚時間領域の情報(<tt class="docutils literal"><span class="pre">linksD_</span></tt>)と受け取った上部虚時間領域(<tt class="docutils literal"><span class="pre">linksU_</span></tt>)の情報を <tt class="docutils literal"><span class="pre">links_</span></tt> にまとめる. <tt class="docutils literal"><span class="pre">linksU_</span></tt> についてはもともと index が 0〜``num_boundaries_-1`` だったものが  <tt class="docutils literal"><span class="pre">num_boundaries_</span></tt> 〜 <tt class="docutils literal"><span class="pre">2*num_boundaries_-1</span></tt> の領域に写されるので, ツリー構造のリンクを修正する必要があることに注意する.</p>
+</dd>
+<dt>152〜154行目</dt>
+<dd><p class="first last">下部虚時間領域の上境界サイト(index が <tt class="docutils literal"><span class="pre">num_sites_``〜``num_boundaries_-1</span></tt>)と上部虚時間領域の下境界サイト(index が <tt class="docutils literal"><span class="pre">num_boundaries_``〜``num_boundaries_+num_sites_-1</span></tt>)を結合(unify).</p>
+</dd>
+<dt>156〜159行目</dt>
+<dd><p class="first last">虚時間方向の周期境界条件のため, 最終ステージでは下部虚時間領域の下境界サイト(tau = 0, index が 0〜``num_sites_-1``)と上部虚時間領域の上境界サイト(tau = 1, index が <tt class="docutils literal"><span class="pre">num_boundaries_+num_sites_``〜``2*num_boundaries_-1</span></tt>)も結合する必要がある</p>
+</dd>
+<dt>161〜163行目</dt>
+<dd><p class="first last">下部虚時間領域の下境界サイトと上部虚時間領域の上境界サイトが新たな境界上のサイトとなるため, ツリー構造の中でこれらのサイトが他の全てのサイトよりも上(= root に近い)になるように <tt class="docutils literal"><span class="pre">set_root</span></tt> する.</p>
+</dd>
+<dt>167〜172行目</dt>
+<dd><p class="first last">下部虚時間領域の下境界サイトと上部虚時間領域の上境界サイトが属するクラスター(まだ開いているクラスター)に id (0〜noc-1)を割り当てる.</p>
+</dd>
+<dt>173〜174行目</dt>
+<dd><p class="first last">残りのクラスター(このステージで閉じたクラスター)に id (noc〜nc-1)を割り当てる.</p>
+</dd>
+<dt>175〜175行目</dt>
+<dd><p class="first last">最終ステージでは全てのクラスターは閉じるので noc = 0 とする.</p>
+</dd>
+<dt>178〜179行目</dt>
+<dd><p class="first last">閉じたクラスターをフリップするかどうか(確率1/2)を乱数を用いて決定し, 配列 <tt class="docutils literal"><span class="pre">flip_close_</span></tt> に保存する. (この配列の 0 〜 <tt class="docutils literal"><span class="pre">noc-</span></tt> 番目の要素は使用されない.)</p>
+</dd>
+<dt>180〜181行目</dt>
+<dd><p class="first last">結合されたクラスターについての物理量の配列(<tt class="docutils literal"><span class="pre">estimates_</span></tt>)を初期化する.</p>
+</dd>
+<dt>182〜231行目</dt>
+<dd><p class="first last">to be written</p>
+</dd>
+</dl>
+</dd>
+<dt>234〜243行目</dt>
+<dd><p class="first">現 <tt class="docutils literal"><span class="pre">stage</span></tt> における slave プロセスの処理</p>
+<dl class="last docutils">
+<dt>236〜239行目</dt>
+<dd><p class="first last">前 <tt class="docutils literal"><span class="pre">stage</span></tt> で得られた物理量(<tt class="docutils literal"><span class="pre">coll</span></tt>), 虚時間境界サイト間のつながり方(ツリー構造) (<tt class="docutils literal"><span class="pre">linksD_</span></tt>), 個々の開いたクラスターの物理量(<tt class="docutils literal"><span class="pre">estimatesD_</span></tt>)を master プロセスに送る</p>
+</dd>
+<dt>240行目</dt>
+<dd><p class="first last">master から結合処理結果(<tt class="docutils literal"><span class="pre">flip_stage_</span></tt>)を受け取る.</p>
+</dd>
+<dt>242行目</dt>
+<dd><p class="first last">子ノードに結合処理結果(<tt class="docutils literal"><span class="pre">flip_stage_</span></tt>)を送信する.</p>
+</dd>
+</dl>
+</dd>
+<dt>244〜245行目</dt>
+<dd><p class="first">現 <tt class="docutils literal"><span class="pre">stage</span></tt> における子ノードの処理</p>
+<dl class="last docutils">
+<dt>245行目</dt>
+<dd><p class="first last">親ノードから結合処理結果(<tt class="docutils literal"><span class="pre">flip_stage_</span></tt>)を受け取り, さらに自分の子ノードに送信する.</p>
+</dd>
+</dl>
+</dd>
+<dt>249〜250行目</dt>
+<dd><p class="first last"><tt class="docutils literal"><span class="pre">flip_stage_</span></tt> を元に <tt class="docutils literal"><span class="pre">flip</span></tt> を更新する. クラスターが閉じた場合にはフリップするか否か, クラスターが結合後もまだ開いている場合にはその新しいクラスター id を格納する.</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </li>
