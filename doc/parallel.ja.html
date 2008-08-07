@@ -450,28 +450,28 @@ ul.auto-toc {
 <dd><p class="first">現 <tt class="docutils literal"><span class="pre">stage</span></tt> における master プロセスの処理</p>
 <dl class="last docutils">
 <dt>137〜150行目</dt>
-<dd><p class="first last">slave から前 <tt class="docutils literal"><span class="pre">stage</span></tt> までで得られた物理量, 虚時間境界サイト間のつながり方(ツリー構造), 個々の開いたクラスターの物理量を受けとり, それぞれ <tt class="docutils literal"><span class="pre">coll_buff_</span></tt>, <tt class="docutils literal"><span class="pre">linksU_</span></tt>, <tt class="docutils literal"><span class="pre">estimatesU_</span></tt> に格納し, さらに, 自プロセスがあらかじめ持っている下部虚時間領域の情報(<tt class="docutils literal"><span class="pre">linksD_</span></tt>)と受け取った上部虚時間領域(<tt class="docutils literal"><span class="pre">linksU_</span></tt>)の情報を <tt class="docutils literal"><span class="pre">links_</span></tt> にまとめる. <tt class="docutils literal"><span class="pre">linksU_</span></tt> についてはもともと index が 0〜``num_boundaries_-1`` だったものが  <tt class="docutils literal"><span class="pre">num_boundaries_</span></tt> 〜 <tt class="docutils literal"><span class="pre">2*num_boundaries_-1</span></tt> の領域に写されるので, ツリー構造のリンクを修正する必要があることに注意する.</p>
+<dd><p class="first last">slave から前 <tt class="docutils literal"><span class="pre">stage</span></tt> までで得られた物理量, 虚時間境界サイト間のつながり方(ツリー構造), 個々の開いたクラスターの物理量を受けとり, それぞれ <tt class="docutils literal"><span class="pre">coll_buff_</span></tt>, <tt class="docutils literal"><span class="pre">linksU_</span></tt>, <tt class="docutils literal"><span class="pre">estimatesU_</span></tt> に格納し, さらに, 自プロセスがあらかじめ持っている下部虚時間領域の情報(<tt class="docutils literal"><span class="pre">linksD_</span></tt>)と受け取った上部虚時間領域(<tt class="docutils literal"><span class="pre">linksU_</span></tt>)の情報を <tt class="docutils literal"><span class="pre">links_</span></tt> にまとめる. <tt class="docutils literal"><span class="pre">linksU_</span></tt> についてはもともと index が 0 〜 <tt class="docutils literal"><span class="pre">num_boundaries_-1</span></tt> だったものが <tt class="docutils literal"><span class="pre">num_boundaries_</span></tt> 〜 <tt class="docutils literal"><span class="pre">2*num_boundaries_-1</span></tt> の領域に写されるので, ツリー構造のリンクを修正する必要があることに注意する.</p>
 </dd>
 <dt>152〜154行目</dt>
-<dd><p class="first last">下部虚時間領域の上境界サイト(index が <tt class="docutils literal"><span class="pre">num_sites_``〜``num_boundaries_-1</span></tt>)と上部虚時間領域の下境界サイト(index が <tt class="docutils literal"><span class="pre">num_boundaries_``〜``num_boundaries_+num_sites_-1</span></tt>)を結合(unify).</p>
+<dd><p class="first last">下部虚時間領域の上境界サイト(index が <tt class="docutils literal"><span class="pre">num_sites_</span></tt> 〜 <tt class="docutils literal"><span class="pre">num_boundaries_-1</span></tt>)と上部虚時間領域の下境界サイト(index が <tt class="docutils literal"><span class="pre">num_boundaries_</span></tt> 〜 <tt class="docutils literal"><span class="pre">num_boundaries_+num_sites_-1</span></tt>)を結合(unify).</p>
 </dd>
 <dt>156〜159行目</dt>
-<dd><p class="first last">虚時間方向の周期境界条件のため, 最終ステージでは下部虚時間領域の下境界サイト(tau = 0, index が 0〜``num_sites_-1``)と上部虚時間領域の上境界サイト(tau = 1, index が <tt class="docutils literal"><span class="pre">num_boundaries_+num_sites_``〜``2*num_boundaries_-1</span></tt>)も結合する必要がある</p>
+<dd><p class="first last">虚時間方向の周期境界条件のため, 最終ステージでは下部虚時間領域の下境界サイト(tau = 0, index が 0 〜 <tt class="docutils literal"><span class="pre">num_sites_-1</span></tt>)と上部虚時間領域の上境界サイト(tau = 1, index が <tt class="docutils literal"><span class="pre">num_boundaries_+num_sites_</span></tt> 〜 <tt class="docutils literal"><span class="pre">2*num_boundaries_-1</span></tt>)も結合する必要がある</p>
 </dd>
 <dt>161〜163行目</dt>
 <dd><p class="first last">下部虚時間領域の下境界サイトと上部虚時間領域の上境界サイトが新たな境界上のサイトとなるため, ツリー構造の中でこれらのサイトが他の全てのサイトよりも上(= root に近い)になるように <tt class="docutils literal"><span class="pre">set_root</span></tt> する.</p>
 </dd>
 <dt>167〜172行目</dt>
-<dd><p class="first last">下部虚時間領域の下境界サイトと上部虚時間領域の上境界サイトが属するクラスター(まだ開いているクラスター)に id (0〜noc-1)を割り当てる.</p>
+<dd><p class="first last">下部虚時間領域の下境界サイトと上部虚時間領域の上境界サイトが属するクラスター(まだ開いているクラスター)に id (0 〜 <tt class="docutils literal"><span class="pre">noc-1</span></tt>)を割り当てる.</p>
 </dd>
 <dt>173〜174行目</dt>
-<dd><p class="first last">残りのクラスター(このステージで閉じたクラスター)に id (noc〜nc-1)を割り当てる.</p>
+<dd><p class="first last">残りのクラスター(このステージで閉じたクラスター)に id (<tt class="docutils literal"><span class="pre">noc</span></tt> 〜 <tt class="docutils literal"><span class="pre">nc-1</span></tt>)を割り当てる.</p>
 </dd>
 <dt>175〜175行目</dt>
 <dd><p class="first last">最終ステージでは全てのクラスターは閉じるので noc = 0 とする.</p>
 </dd>
 <dt>178〜179行目</dt>
-<dd><p class="first last">閉じたクラスターをフリップするかどうか(確率1/2)を乱数を用いて決定し, 配列 <tt class="docutils literal"><span class="pre">flip_close_</span></tt> に保存する. (この配列の 0 〜 <tt class="docutils literal"><span class="pre">noc-</span></tt> 番目の要素は使用されない.)</p>
+<dd><p class="first last">閉じたクラスターをフリップするかどうか(確率1/2)を乱数を用いて決定し, 配列 <tt class="docutils literal"><span class="pre">flip_close_</span></tt> に保存する. (この配列の 0 〜 <tt class="docutils literal"><span class="pre">noc-1</span></tt> 番目の要素は使用されない.)</p>
 </dd>
 <dt>180〜181行目</dt>
 <dd><p class="first last">結合されたクラスターについての物理量の配列(<tt class="docutils literal"><span class="pre">estimates_</span></tt>)を初期化する.</p>
@@ -509,6 +509,10 @@ ul.auto-toc {
 </dl>
 </dd>
 </dl>
+</li>
+<li><p class="first">処理・転送パターン</p>
+<p>以下にプロセス数 8 (ステージ数 3)の場合の処理・転送パターンを示す. 青矢印がデータの転送を表す.</p>
+<div align="center" class="align-center"><img alt="communication.png" class="align-center" src="communication.png" /></div>
 </li>
 </ul>
 </li>
