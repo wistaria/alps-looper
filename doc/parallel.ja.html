@@ -5,6 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
 <title>looper::parallel_cluster_unifier 詳説</title>
+<meta name="author" content="藤堂眞治" />
 <style type="text/css">
 
 /*
@@ -286,9 +287,26 @@ ul.auto-toc {
 <body>
 <div class="document" id="looper-parallel-cluster-unifier">
 <h1 class="title">looper::parallel_cluster_unifier 詳説</h1>
-
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr><th class="docinfo-name">Author:</th>
+<td>藤堂眞治</td></tr>
+<tr><th class="docinfo-name">Address:</th>
+<td><pre class="address">
+Department of Applied Physics, University of Tokyo, 113-8656 Tokyo, Japan
+</pre>
+</td></tr>
+<tr><th class="docinfo-name">Contact:</th>
+<td><a class="first last reference external" href="mailto:wistaria&#64;ap.t.u-tokyo.ac.jp">wistaria&#64;ap.t.u-tokyo.ac.jp</a></td></tr>
+<tr><th class="docinfo-name">Version:</th>
+<td>1.0 (2008/08/07)</td></tr>
+</tbody>
+</table>
 <!-- -*- mode: rst -*- -->
-<p>以下, Rev: 2869 (2008-06-27) の looper/parallel.h に基づき解説を行なう.</p>
+<hr class="docutils" />
+<p>この文書では, looper/parallel.h (Rev: 2869 (2008-06-27))の内容について解説を行なう.</p>
 <div class="section" id="class-flip-t">
 <h1>class flip_t</h1>
 <p>個々のクラスターの状態を表わすクラス. 一段階更新が終った後のクラスターは以下の二つのどちらかの状態を取る.</p>
@@ -476,8 +494,20 @@ ul.auto-toc {
 <dt>180〜181行目</dt>
 <dd><p class="first last">結合されたクラスターについての物理量の配列(<tt class="docutils literal"><span class="pre">estimates_</span></tt>)を初期化する.</p>
 </dd>
-<dt>182〜231行目</dt>
-<dd><p class="first last">to be written</p>
+<dt>184〜195行目</dt>
+<dd><p class="first last">上部虚時間領域(slave分)の <tt class="docutils literal"><span class="pre">flip_stage_</span></tt> を作成し, slave に送信する. また同時に結合前のクラスターの物理量(<tt class="docutils literal"><span class="pre">estimateU_</span></tt>)を新たなクラスターの物理量(<tt class="docutils literal"><span class="pre">estimate_</span></tt>)に足し込む. <tt class="docutils literal"><span class="pre">old_id</span></tt> は <tt class="docutils literal"><span class="pre">linkU_</span></tt> 内でのクラスター id, <tt class="docutils literal"><span class="pre">new_id</span></tt> は結合後の <tt class="docutils literal"><span class="pre">link_</span></tt> におけるクラスター id.</p>
+</dd>
+<dt>198〜208行目</dt>
+<dd><p class="first last">下部虚時間領域(master分)の <tt class="docutils literal"><span class="pre">flip_stage_</span></tt> を作成する. また同時に結合前のクラスターの物理量(<tt class="docutils literal"><span class="pre">estimateD_</span></tt>)を新たなクラスターの物理量(<tt class="docutils literal"><span class="pre">estimate_</span></tt>)に足し込む. <tt class="docutils literal"><span class="pre">old_id</span></tt> は <tt class="docutils literal"><span class="pre">linkD_</span></tt> 内でのクラスター id, <tt class="docutils literal"><span class="pre">new_id</span></tt> は結合後の <tt class="docutils literal"><span class="pre">link_</span></tt> におけるクラスター id.</p>
+</dd>
+<dt>211行目</dt>
+<dd><p class="first last">子ノードに結合処理結果(<tt class="docutils literal"><span class="pre">flip_stage_</span></tt>)を送信する. (distribute)</p>
+</dd>
+<dt>214〜216行目</dt>
+<dd><p class="first last">結合処理により閉じたクラスター(id = <tt class="docutils literal"><span class="pre">noc</span></tt> 〜 <tt class="docutils literal"><span class="pre">nc-1</span></tt>)の物理量を全物理量(<tt class="docutils literal"><span class="pre">coll</span></tt>)に足し込む. また, まだ開いているクラスター数(<tt class="docutils literal"><span class="pre">noc</span></tt>)をセットし, 新たに閉じたクラスターの数(<tt class="docutils literal"><span class="pre">nc-noc</span></tt>)を全クラスター数に足し込む.</p>
+</dd>
+<dt>219〜230行目</dt>
+<dd><p class="first last">次のステージのために, 結合後の虚時間境界のサイトの間の結合関係(ツリー構造)を作成し, 配列 <tt class="docutils literal"><span class="pre">linkD_</span></tt> に格納する. まだ開いているクラスター(<tt class="docutils literal"><span class="pre">noc</span></tt> 個)の物理量を <tt class="docutils literal"><span class="pre">estimate_</span></tt> から <tt class="docutils literal"><span class="pre">estimateD_</span></tt> にコピーする.</p>
 </dd>
 </dl>
 </dd>
@@ -491,7 +521,7 @@ ul.auto-toc {
 <dd><p class="first last">master から結合処理結果(<tt class="docutils literal"><span class="pre">flip_stage_</span></tt>)を受け取る.</p>
 </dd>
 <dt>242行目</dt>
-<dd><p class="first last">子ノードに結合処理結果(<tt class="docutils literal"><span class="pre">flip_stage_</span></tt>)を送信する.</p>
+<dd><p class="first last">子ノードに結合処理結果(<tt class="docutils literal"><span class="pre">flip_stage_</span></tt>)を送信する. (distribute)</p>
 </dd>
 </dl>
 </dd>
@@ -499,12 +529,12 @@ ul.auto-toc {
 <dd><p class="first">現 <tt class="docutils literal"><span class="pre">stage</span></tt> における子ノードの処理</p>
 <dl class="last docutils">
 <dt>245行目</dt>
-<dd><p class="first last">親ノードから結合処理結果(<tt class="docutils literal"><span class="pre">flip_stage_</span></tt>)を受け取り, さらに自分の子ノードに送信する.</p>
+<dd><p class="first last">親ノードから結合処理結果(<tt class="docutils literal"><span class="pre">flip_stage_</span></tt>)を受け取り, さらに自分の子ノードに送信する. (distribute)</p>
 </dd>
 </dl>
 </dd>
 <dt>249〜250行目</dt>
-<dd><p class="first last"><tt class="docutils literal"><span class="pre">flip_stage_</span></tt> を元に <tt class="docutils literal"><span class="pre">flip</span></tt> を更新する. クラスターが閉じた場合にはフリップするか否か, クラスターが結合後もまだ開いている場合にはその新しいクラスター id を格納する.</p>
+<dd><p class="first last"><tt class="docutils literal"><span class="pre">flip_stage_</span></tt> を元に <tt class="docutils literal"><span class="pre">flip</span></tt> を更新する. クラスターが閉じた場合にはフリップするか否か, クラスターが結合後もまだ開いている場合にはその新しいクラスター id を格納する. (update)</p>
 </dd>
 </dl>
 </dd>
