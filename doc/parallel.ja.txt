@@ -91,9 +91,17 @@ class parallel_cluster_unifier
   ``std::vector<link_t> linksU_``
     クラスター結合のための作業領域. 虚時間の大きな上半分の領域のツリー構造を収めておく. サイズ = ``num_boundaries_`` = ``2*num_sites_``
   ``std::vector<estimate_t> estimates_``
-    クラスター結合のための作業領域. 虚時間の小さい下半分の領域の個々のクラスターの物理量を収めておく. サイズ = ``2*num_boundaries_`` = ``4*num_sites_``
+    クラスター結合のための作業領域. サイズ = ``nc``
   ``std::vector<estimate_t> estimatesD_``
-    クラスター結合のための作業領域. 虚時間の小さい下半分の領域の個々のクラスターの物理量を収めておく. サイズ = ``num_boundaries_`` = ``2*num_sites_``
+    クラスター結合のための作業領域. 虚時間の小さい下半分の領域の個々のクラスターの物理量を収めておく. サイズ = ``coll.num_open_clusters()``
+  ``std::vector<estimate_t> estimatesU_``
+    クラスター結合のための作業領域. 虚時間の大きな上半分の領域の個々のクラスターの物理量を収めておく. サイズ = ``coll_buf_.num_open_clusters()``
+
+.. parallel L180: estimates_ のサイズを nc. nc はクラスタ総数で L167-L174 で決定
+
+.. L95  estimatesD_ のサイズを coll.num_open_clusters (プロセス内の開クラスター数)
+
+.. L140 estimatesU_ のサイズを coll_buf_.num_open_clusters()
 
 - メンバー関数 unify における処理
 
