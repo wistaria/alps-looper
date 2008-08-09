@@ -3,10 +3,10 @@
 looper::parallel_cluster_unifier 詳説
 =====================================
 
-:Author: 藤堂眞治
+:Author: 藤堂眞治, 松尾春彦
 :Address: Department of Applied Physics, University of Tokyo, 113-8656 Tokyo, Japan
 :Contact: wistaria@ap.t.u-tokyo.ac.jp
-:Version: 1.0 (2008/08/07)
+:Version: 1.1 (2008/08/09)
 
 ---------------------------------------------------------------------------
 
@@ -224,4 +224,4 @@ class parallel_cluster_unifier
 
 -------------------------------------
 
-Copyright (c) 2007-2008 by 藤堂眞治 <wistaria@comp-phys.org>
+Copyright (c) 2007-2008 by 藤堂眞治 <wistaria@comp-phys.org>, 松尾春彦 <halm@looper.t.u-tokyo.ac.jp>

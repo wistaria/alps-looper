@@ -3,9 +3,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.6: http://docutils.sourceforge.net/" />
 <title>looper::parallel_cluster_unifier 詳説</title>
-<meta name="author" content="藤堂眞治" />
+<meta name="author" content="藤堂眞治, 松尾春彦" />
 <style type="text/css">
 
 /*
@@ -292,7 +292,7 @@ ul.auto-toc {
 <col class="docinfo-content" />
 <tbody valign="top">
 <tr><th class="docinfo-name">Author:</th>
-<td>藤堂眞治</td></tr>
+<td>藤堂眞治, 松尾春彦</td></tr>
 <tr><th class="docinfo-name">Address:</th>
 <td><pre class="address">
 Department of Applied Physics, University of Tokyo, 113-8656 Tokyo, Japan
@@ -301,7 +301,7 @@ Department of Applied Physics, University of Tokyo, 113-8656 Tokyo, Japan
 <tr><th class="docinfo-name">Contact:</th>
 <td><a class="first last reference external" href="mailto:wistaria&#64;ap.t.u-tokyo.ac.jp">wistaria&#64;ap.t.u-tokyo.ac.jp</a></td></tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>1.0 (2008/08/07)</td></tr>
+<td>1.1 (2008/08/09)</td></tr>
 </tbody>
 </table>
 <!-- -*- mode: rst -*- -->
@@ -408,13 +408,21 @@ Department of Applied Physics, University of Tokyo, 113-8656 Tokyo, Japan
 <dd><p class="first last">クラスター結合のための作業領域. 虚時間の大きな上半分の領域のツリー構造を収めておく. サイズ = <tt class="docutils literal"><span class="pre">num_boundaries_</span></tt> = <tt class="docutils literal"><span class="pre">2*num_sites_</span></tt></p>
 </dd>
 <dt><tt class="docutils literal"><span class="pre">std::vector&lt;estimate_t&gt;</span> <span class="pre">estimates_</span></tt></dt>
-<dd><p class="first last">クラスター結合のための作業領域. 虚時間の小さい下半分の領域の個々のクラスターの物理量を収めておく. サイズ = <tt class="docutils literal"><span class="pre">2*num_boundaries_</span></tt> = <tt class="docutils literal"><span class="pre">4*num_sites_</span></tt></p>
+<dd><p class="first last">クラスター結合のための作業領域. サイズ = <tt class="docutils literal"><span class="pre">nc</span></tt></p>
 </dd>
 <dt><tt class="docutils literal"><span class="pre">std::vector&lt;estimate_t&gt;</span> <span class="pre">estimatesD_</span></tt></dt>
-<dd><p class="first last">クラスター結合のための作業領域. 虚時間の小さい下半分の領域の個々のクラスターの物理量を収めておく. サイズ = <tt class="docutils literal"><span class="pre">num_boundaries_</span></tt> = <tt class="docutils literal"><span class="pre">2*num_sites_</span></tt></p>
+<dd><p class="first last">クラスター結合のための作業領域. 虚時間の小さい下半分の領域の個々のクラスターの物理量を収めておく. サイズ = <tt class="docutils literal"><span class="pre">coll.num_open_clusters()</span></tt></p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">std::vector&lt;estimate_t&gt;</span> <span class="pre">estimatesU_</span></tt></dt>
+<dd><p class="first last">クラスター結合のための作業領域. 虚時間の大きな上半分の領域の個々のクラスターの物理量を収めておく. サイズ = <tt class="docutils literal"><span class="pre">coll_buf_.num_open_clusters()</span></tt></p>
 </dd>
 </dl>
 </li>
+</ul>
+<!-- parallel L180: estimates_ のサイズを nc. nc はクラスタ総数で L167-L174 で決定 -->
+<!-- L95  estimatesD_ のサイズを coll.num_open_clusters (プロセス内の開クラスター数) -->
+<!-- L140 estimatesU_ のサイズを coll_buf_.num_open_clusters() -->
+<ul>
 <li><p class="first">メンバー関数 unify における処理</p>
 <ul>
 <li><p class="first">入力</p>
@@ -548,7 +556,7 @@ Department of Applied Physics, University of Tokyo, 113-8656 Tokyo, Japan
 </li>
 </ul>
 <hr class="docutils" />
-<p>Copyright (c) 2007-2008 by 藤堂眞治 &lt;<a class="reference external" href="mailto:wistaria&#64;comp-phys.org">wistaria&#64;comp-phys.org</a>&gt;</p>
+<p>Copyright (c) 2007-2008 by 藤堂眞治 &lt;<a class="reference external" href="mailto:wistaria&#64;comp-phys.org">wistaria&#64;comp-phys.org</a>&gt;, 松尾春彦 &lt;<a class="reference external" href="mailto:halm&#64;looper.t.u-tokyo.ac.jp">halm&#64;looper.t.u-tokyo.ac.jp</a>&gt;</p>
 </div>
 </div>
 </body>
