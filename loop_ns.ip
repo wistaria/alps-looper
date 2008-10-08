@@ -5,27 +5,27 @@ T = 0.25
 
 LATTICE = "chain lattice"
 L = 4
-{ REPRESENTATION = "diagonalization" }
-{ REPRESENTATION = "path integral" }
-{ REPRESENTATION = "SSE" }
+{ WORKER = "diagonalization" }
+{ WORKER = "path integral" }
+{ WORKER = "sse" }
 
 LATTICE = "chain lattice"
 L = 4
 local_S = 1
 T = 1/L
-{ REPRESENTATION = "diagonalization" }
-{ REPRESENTATION = "path integral" }
-{ REPRESENTATION = "SSE" }
+{ WORKER = "diagonalization" }
+{ WORKER = "path integral" }
+{ WORKER = "sse" }
 
 LATTICE = "site"
 Gamma = 1
-{ REPRESENTATION = "diagonalization" }
-{ REPRESENTATION = "path integral" }
-{ REPRESENTATION = "SSE" }
+{ WORKER = "diagonalization" }
+{ WORKER = "path integral" }
+{ WORKER = "sse" }
 
 Gamma = 0
-{ REPRESENTATION = "diagonalization"; h = 0.3 }
-{ REPRESENTATION = "path integral"; h = 0.3 }
+{ WORKER = "diagonalization"; h = 0.3 }
+{ WORKER = "path integral"; h = 0.3 }
 
 LATTICE = "chain lattice"
 Jz = 1
@@ -34,10 +34,10 @@ local_S = 1/2
 Gamma = 0
 L = 4
 T = 0.5
-{ REPRESENTATION = "diagonalization" }
-{ REPRESENTATION = "path integral" }
-{ REPRESENTATION = "SSE" }
-{ REPRESENTATION = "Ising" }
+{ WORKER = "diagonalization" }
+{ WORKER = "path integral" }
+{ WORKER = "sse" }
+{ WORKER = "ising" }
 
 LATTICE = "chain lattice"
 Jz = -1
@@ -46,10 +46,10 @@ local_S = 1
 D = -0.8
 L = 4
 T = 2
-{ REPRESENTATION = "diagonalization" }
-{ REPRESENTATION = "path integral" }
-{ REPRESENTATION = "SSE" }
-{ REPRESENTATION = "Ising" }
+{ WORKER = "diagonalization" }
+{ WORKER = "path integral" }
+{ WORKER = "sse" }
+{ WORKER = "ising" }
 
 LATTICE = "chain lattice"
 Jz = 1
@@ -59,7 +59,7 @@ D = 0
 L = 4
 T = 0.5
 {
-REPRESENTATION = "path integral"
+WORKER = "path integral"
 MEASURE[Correlations] = true
 MEASURE[Green Function] = true
 MEASURE[Structure Factor] = true
@@ -78,7 +78,7 @@ D = 0
 L = 4
 T = 0.5
 {
-REPRESENTATION = "path integral"
+WORKER = "path integral"
 MEASURE[Correlations] = true
 MEASURE[Green Function] = true
 MEASURE[Structure Factor] = true

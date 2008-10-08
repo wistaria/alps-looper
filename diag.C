@@ -33,6 +33,9 @@
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/tuple/tuple.hpp>
+#ifdef HAVE_PARAPACK
+# include <parapack/serial.h>
+#endif
 
 namespace {
 
@@ -283,9 +286,9 @@ double dynamic_average2(double beta, double offset, const VEC& evals, const MAT&
 class diag_worker : private loop_config, protected loop_config::lattice_t,
   protected alps::model_helper<> {
 public:
-  diag_worker(alps::Parameters const& p, alps::ObservableSet&) :
-    loop_config::lattice_t(p),
+  diag_worker(alps::Parameters const& p) : loop_config::lattice_t(p),
     alps::model_helper<>(this->graph_helper(), p), done(false), params(p) {}
+  void init_observables(alps::ObservableSet&) {}
   bool is_thermalized() const { return true; }
   double progress() const { return done ? 1 : 0; }
   template<typename ENGINE>
@@ -473,5 +476,7 @@ const bool worker_registered = loop_factory::instance()->
   register_worker<diag_worker>("diagonalization");
 const bool evaluator_registered = loop_factory::instance()->
   register_evaluator<dummy_evaluator>("diagonalization");
+
+PARAPACK_REGISTER_WORKER(parapack_single_worker<diag_worker>, "diagonalization");
 
 } // end namespace

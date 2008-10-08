@@ -33,6 +33,11 @@
 #include <looper/type.h>
 #include <looper/union_find.h>
 
+#ifdef HAVE_PARAPACK
+# include <parapack/serial.h>
+# include <parapack/exchange.h>
+#endif
+
 namespace {
 
 class loop_worker : private loop_config {
@@ -48,7 +53,8 @@ public:
 
   typedef looper::estimator<measurement_set, mc_type, lattice_t, time_t>::type estimator_t;
 
-  loop_worker(alps::Parameters const& p, alps::ObservableSet& obs);
+  loop_worker(alps::Parameters const& p);
+  void init_observables(alps::ObservableSet& obs);
 
   bool is_thermalized() const { return mcs.is_thermalized(); }
   double progress() const { return mcs.progress(); }
@@ -77,6 +83,7 @@ private:
   model_t model;
 
   // parameters
+  alps::Parameters const& params;
   looper::temperature temperature;
   double beta;
   bool use_improved_estimator;
@@ -106,8 +113,8 @@ private:
 // member functions of loop_worker
 //
 
-loop_worker::loop_worker(alps::Parameters const& p, alps::ObservableSet& obs) :
-  lattice(p), model(p, lattice, /* is_path_integral = */ true), temperature(p), mcs(p) {
+loop_worker::loop_worker(alps::Parameters const& p) :
+  lattice(p), model(p, lattice, /* is_path_integral = */ true), params(p), temperature(p), mcs(p) {
 
   if (temperature.annealing_steps() > mcs.thermalization())
     boost::throw_exception(std::invalid_argument("longer annealing steps than thermalization"));
@@ -123,7 +130,9 @@ loop_worker::loop_worker(alps::Parameters const& p, alps::ObservableSet& obs) :
   spins_c.resize(nvs);
   current.resize(nvs);
   perm.resize(max_virtual_sites(lattice));
+}
 
+void loop_worker::init_observables(alps::ObservableSet& obs) {
   obs << make_observable(alps::SimpleRealObservable("Temperature"));
   obs << make_observable(alps::SimpleRealObservable("Inverse Temperature"));
   obs << make_observable(alps::SimpleRealObservable("Volume"));
@@ -137,7 +146,7 @@ loop_worker::loop_worker(alps::Parameters const& p, alps::ObservableSet& obs) :
     }
   }
   looper::energy_estimator::initialize(obs, model.is_signed());
-  estimator.initialize(obs, p, lattice, model.is_signed(), use_improved_estimator);
+  estimator.initialize(obs, params, lattice, model.is_signed(), use_improved_estimator);
 }
 
 template<typename ENGINE>
@@ -378,5 +387,14 @@ const bool worker_registered =
   loop_factory::instance()->register_worker<loop_worker>("path integral");
 const bool evaluator_registered =
   loop_factory::instance()->register_evaluator<loop_evaluator>("path integral");
+
+#ifdef HAVE_PARAPACK
+
+PARAPACK_REGISTER_WORKER(parapack_single_worker<loop_worker>, "path integral");
+PARAPACK_REGISTER_WORKER(alps::parapack::single_exchange_worker<parapack_single_worker<loop_worker> >, "path integral exchange");
+PARAPACK_REGISTER_EVALUATOR(loop_evaluator, "path integral");
+PARAPACK_REGISTER_EVALUATOR(loop_evaluator, "path integral exchange");
+
+#endif
 
 } // end namespace

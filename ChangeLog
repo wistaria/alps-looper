@@ -1,3 +1,7 @@
+2008-10-08  Synge Todo <wistaria@comp-phys.org>
+
+	* Update for alps-parapack new factory class
+
 2008-01-12  Synge Todo <wistaria@comp-phys.org>
 	
 	* [pro] Added stand-alone reference implementations (serial and

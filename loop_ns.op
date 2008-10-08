@@ -5,7 +5,11 @@ MODEL = spin;
 T = 0.25;
 LATTICE = "chain lattice";
 L = 4;
-REPRESENTATION = diagonalization;
+WORKER = diagonalization;
+DIR_NAME = .;
+BASE_NAME = task1;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Magnetization: 0.0358335 +/- inf
 Binder Ratio of Staggered Magnetization: 0.663633 +/- inf
@@ -53,7 +57,11 @@ MODEL = spin;
 T = 0.25;
 LATTICE = "chain lattice";
 L = 4;
-REPRESENTATION = "path integral";
+WORKER = "path integral";
+DIR_NAME = .;
+BASE_NAME = task2;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Generalized Magnetization: 0.674805 +/- 0.00473
 Binder Ratio of Generalized Staggered Magnetization: 0.0341797 +/- 0.00351 WARNING: ERRORS NOT CONVERGED!!!
@@ -296,7 +304,11 @@ MODEL = spin;
 T = 0.25;
 LATTICE = "chain lattice";
 L = 4;
-REPRESENTATION = SSE;
+WORKER = sse;
+DIR_NAME = .;
+BASE_NAME = task3;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Generalized Magnetization: 0.665534 +/- 0.00462
 Binder Ratio of Generalized Staggered Magnetization: 0.0323559 +/- 0.00307
@@ -540,7 +552,11 @@ T = 1/L;
 LATTICE = "chain lattice";
 L = 4;
 local_S = 1;
-REPRESENTATION = diagonalization;
+WORKER = diagonalization;
+DIR_NAME = .;
+BASE_NAME = task4;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Magnetization: 0.0346634 +/- inf
 Binder Ratio of Staggered Magnetization: 0.588053 +/- inf
@@ -589,7 +605,11 @@ T = 1/L;
 LATTICE = "chain lattice";
 L = 4;
 local_S = 1;
-REPRESENTATION = "path integral";
+WORKER = "path integral";
+DIR_NAME = .;
+BASE_NAME = task5;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Generalized Magnetization: 0.577896 +/- 0.00352
 Binder Ratio of Generalized Staggered Magnetization: 0.0377197 +/- 0.00343
@@ -833,7 +853,11 @@ T = 1/L;
 LATTICE = "chain lattice";
 L = 4;
 local_S = 1;
-REPRESENTATION = SSE;
+WORKER = sse;
+DIR_NAME = .;
+BASE_NAME = task6;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Generalized Magnetization: 0.589501 +/- 0.00374
 Binder Ratio of Generalized Staggered Magnetization: 0.034668 +/- 0.00339 WARNING: check error convergence
@@ -1078,7 +1102,11 @@ LATTICE = site;
 L = 4;
 local_S = 1;
 Gamma = 1;
-REPRESENTATION = diagonalization;
+WORKER = diagonalization;
+DIR_NAME = .;
+BASE_NAME = task7;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Magnetization: 0.50899 +/- inf
 Binder Ratio of Staggered Magnetization: 0.50899 +/- inf
@@ -1125,7 +1153,11 @@ LATTICE = site;
 L = 4;
 local_S = 1;
 Gamma = 1;
-REPRESENTATION = "path integral";
+WORKER = "path integral";
+DIR_NAME = .;
+BASE_NAME = task8;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Generalized Magnetization: 0.510254 +/- 0.00121
 Binder Ratio of Generalized Staggered Magnetization: 0.510254 +/- 0.00121
@@ -1370,7 +1402,11 @@ LATTICE = site;
 L = 4;
 local_S = 1;
 Gamma = 1;
-REPRESENTATION = SSE;
+WORKER = sse;
+DIR_NAME = .;
+BASE_NAME = task9;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Generalized Magnetization: 0.507568 +/- 0.000949
 Binder Ratio of Generalized Staggered Magnetization: 0.507568 +/- 0.000949
@@ -1615,8 +1651,12 @@ LATTICE = site;
 L = 4;
 local_S = 1;
 Gamma = 0;
-REPRESENTATION = diagonalization;
+WORKER = diagonalization;
 h = 0.3;
+DIR_NAME = .;
+BASE_NAME = task10;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Magnetization: 0.783611 +/- inf
 Binder Ratio of Staggered Magnetization: 0.783611 +/- inf
@@ -1663,8 +1703,12 @@ LATTICE = site;
 L = 4;
 local_S = 1;
 Gamma = 0;
-REPRESENTATION = "path integral";
+WORKER = "path integral";
 h = 0.3;
+DIR_NAME = .;
+BASE_NAME = task11;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Magnetization: 0.781006 +/- 0.00807 WARNING: check error convergence
 Binder Ratio of Staggered Magnetization: 0.781006 +/- 0.00807 WARNING: check error convergence
@@ -1839,7 +1883,11 @@ local_S = 1/2;
 Gamma = 0;
 Jz = 1;
 Jxy = 0;
-REPRESENTATION = diagonalization;
+WORKER = diagonalization;
+DIR_NAME = .;
+BASE_NAME = task12;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Magnetization: 0.247339 +/- inf
 Binder Ratio of Staggered Magnetization: 0.681191 +/- inf
@@ -1891,7 +1939,11 @@ local_S = 1/2;
 Gamma = 0;
 Jz = 1;
 Jxy = 0;
-REPRESENTATION = "path integral";
+WORKER = "path integral";
+DIR_NAME = .;
+BASE_NAME = task13;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Generalized Magnetization: 0.684268 +/- 0.00563 WARNING: check error convergence
 Binder Ratio of Generalized Staggered Magnetization: 0.242844 +/- 0.00465
@@ -2138,7 +2190,11 @@ local_S = 1/2;
 Gamma = 0;
 Jz = 1;
 Jxy = 0;
-REPRESENTATION = SSE;
+WORKER = sse;
+DIR_NAME = .;
+BASE_NAME = task14;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Generalized Magnetization: 0.677368 +/- 0.005
 Binder Ratio of Generalized Staggered Magnetization: 0.248599 +/- 0.00473
@@ -2385,7 +2441,11 @@ local_S = 1/2;
 Gamma = 0;
 Jz = 1;
 Jxy = 0;
-REPRESENTATION = Ising;
+WORKER = ising;
+DIR_NAME = .;
+BASE_NAME = task15;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Generalized Magnetization: 0.684268 +/- 0.00563 WARNING: check error convergence
 Binder Ratio of Generalized Staggered Magnetization: 0.242844 +/- 0.00465
@@ -2633,7 +2693,11 @@ Gamma = 0;
 Jz = -1;
 Jxy = 0;
 D = -0.8;
-REPRESENTATION = diagonalization;
+WORKER = diagonalization;
+DIR_NAME = .;
+BASE_NAME = task16;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Magnetization: 0.553185 +/- inf
 Binder Ratio of Staggered Magnetization: 0.310169 +/- inf
@@ -2686,7 +2750,11 @@ Gamma = 0;
 Jz = -1;
 Jxy = 0;
 D = -0.8;
-REPRESENTATION = "path integral";
+WORKER = "path integral";
+DIR_NAME = .;
+BASE_NAME = task17;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Generalized Magnetization: 0.553013 +/- 0.00379
 Binder Ratio of Generalized Staggered Magnetization: 0.310254 +/- 0.00248
@@ -2934,7 +3002,11 @@ Gamma = 0;
 Jz = -1;
 Jxy = 0;
 D = -0.8;
-REPRESENTATION = SSE;
+WORKER = sse;
+DIR_NAME = .;
+BASE_NAME = task18;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Generalized Magnetization: 0.55902 +/- 0.00405
 Binder Ratio of Generalized Staggered Magnetization: 0.306556 +/- 0.00265 WARNING: check error convergence
@@ -3182,7 +3254,11 @@ Gamma = 0;
 Jz = -1;
 Jxy = 0;
 D = -0.8;
-REPRESENTATION = Ising;
+WORKER = ising;
+DIR_NAME = .;
+BASE_NAME = task19;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Generalized Magnetization: 0.553013 +/- 0.00379
 Binder Ratio of Generalized Staggered Magnetization: 0.310254 +/- 0.00248
@@ -3430,7 +3506,7 @@ Gamma = 0;
 Jz = 1;
 Jxy = 1;
 D = 0;
-REPRESENTATION = "path integral";
+WORKER = "path integral";
 MEASURE[Correlations] = true;
 MEASURE[Green Function] = true;
 MEASURE[Structure Factor] = true;
@@ -3439,6 +3515,10 @@ MEASURE_AVERAGE[Exchange] = exchange;
 MEASURE_LOCAL[Sz Local] = Sz;
 MEASURE_CORRELATIONS[Sz Correlations] = Sz:Sz;
 MEASURE_STRUCTURE_FACTOR[Sz Structure Factor] = Sz:Sz;
+DIR_NAME = .;
+BASE_NAME = task20;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Generalized Magnetization: 0.618119 +/- 0.00392
 Binder Ratio of Generalized Staggered Magnetization: 0.208747 +/- 0.00565 WARNING: check error convergence
@@ -3925,7 +4005,7 @@ Gamma = 0;
 Jz = 1;
 Jxy = 1;
 D = 0;
-REPRESENTATION = "path integral";
+WORKER = "path integral";
 MEASURE[Correlations] = true;
 MEASURE[Green Function] = true;
 MEASURE[Structure Factor] = true;
@@ -3934,6 +4014,10 @@ MEASURE_AVERAGE[Exchange] = exchange;
 MEASURE_LOCAL[Sz Local] = Sz;
 MEASURE_CORRELATIONS[Sz Correlations] = Sz:Sz;
 MEASURE_STRUCTURE_FACTOR[Sz Structure Factor] = Sz:Sz;
+DIR_NAME = .;
+BASE_NAME = task21;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Generalized Magnetization: 0.585096 +/- 0.00349
 Binder Ratio of Generalized Staggered Magnetization: 0.176606 +/- 0.00552

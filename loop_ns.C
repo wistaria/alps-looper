@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -21,6 +21,14 @@
 * DEALINGS IN THE SOFTWARE.
 *
 *****************************************************************************/
+
+#ifdef HAVE_PARAPACK
+
+#include <parapack/scheduler.h>
+
+int main(int argc, char** argv) { return alps::parapack::run_sequential(argc, argv); }
+
+#else
 
 #include "loop_factory.h"
 #include <alps/osiris/comm.h>
@@ -90,3 +98,5 @@ int main(int argc, char** argv)
   }
 #endif
 }
+
+#endif // HAVE_PARAPACK

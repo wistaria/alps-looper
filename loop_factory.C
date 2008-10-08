@@ -38,57 +38,37 @@ loop_factory::make_task(const alps::ProcessList& w, const boost::filesystem::pat
 
 alps::scheduler::MCRun*
 loop_factory::make_worker(const alps::ProcessList& w, const alps::Parameters& p, int n) const {
-  if (p.defined("REPRESENTATION")) {
-    worker_map_type::const_iterator itr = worker_creators_.find(p["REPRESENTATION"]);
+  if (p.defined("WORKER")) {
+    worker_map_type::const_iterator itr = worker_creators_.find(p["WORKER"]);
     if (itr == worker_creators_.end() || itr->second == 0)
-      boost::throw_exception(std::runtime_error("Unknown representation: " + p["REPRESENTATION"]));
+      boost::throw_exception(std::runtime_error("Unknown worker: " + p["WORKER"]));
     return itr->second->create(w, p, n);
   } else if (worker_creators_.size() == 1 && worker_creators_.begin()->second) {
     return worker_creators_.begin()->second->create(w, p, n);
   } else {
     worker_map_type::const_iterator itr = worker_creators_.find("path integral");
     if (itr == worker_creators_.end() || itr->second == 0)
-      boost::throw_exception(std::runtime_error("representation is not specified"));
+      boost::throw_exception(std::runtime_error("worker is not specified"));
     return itr->second->create(w, p, n);
   }
   return 0;
 }
-
-#ifdef HAVE_PARAPACK
-alps::parapack::abstract_worker*
-loop_factory::make_worker(alps::Parameters const& p, std::vector<alps::ObservableSet>& obs) const {
-  if (p.defined("REPRESENTATION")) {
-    worker_map_type::const_iterator itr = worker_creators_.find(p["REPRESENTATION"]);
-    if (itr == worker_creators_.end() || itr->second == 0)
-      boost::throw_exception(std::runtime_error("Unknown representation: " + p["REPRESENTATION"]));
-    return itr->second->create(p, obs);
-  } else if (worker_creators_.size() == 1 && worker_creators_.begin()->second) {
-    return worker_creators_.begin()->second->create(p, obs);
-  } else {
-    worker_map_type::const_iterator itr = worker_creators_.find("path integral");
-    if (itr == worker_creators_.end() || itr->second == 0)
-      boost::throw_exception(std::runtime_error("representation is not specified"));
-    return itr->second->create(p, obs);
-  }
-  return 0;
-}
-#endif // HAVE_PARAPACK
 
 std::string loop_factory::version() const { return looper::version(); }
 
 void loop_factory::print_copyright(std::ostream& os) const { looper::print_copyright(os); }
 
 looper::abstract_evaluator* loop_factory::make_evaluator(const alps::Parameters& p) const {
-  if (p.defined("REPRESENTATION")) {
-    evaluator_map_type::const_iterator itr = evaluator_creators_.find(p["REPRESENTATION"]);
+  if (p.defined("WORKER")) {
+    evaluator_map_type::const_iterator itr = evaluator_creators_.find(p["WORKER"]);
     if (itr == evaluator_creators_.end() || itr->second == 0)
-      boost::throw_exception(std::runtime_error("Unknown representation: " + p["REPRESENTATION"]));
+      boost::throw_exception(std::runtime_error("Unknown worker: " + p["WORKER"]));
     return itr->second->create();
   } else {
     if (evaluator_creators_.size() == 1 && evaluator_creators_.begin()->second)
       return evaluator_creators_.begin()->second->create();
     else
-      boost::throw_exception(std::runtime_error("representation is not specified"));
+      boost::throw_exception(std::runtime_error("worker is not specified"));
   }
   return 0;
 }

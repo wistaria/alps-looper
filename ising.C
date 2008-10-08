@@ -30,6 +30,10 @@
 #include <looper/permutation.h>
 #include <looper/union_find.h>
 #include <looper/temperature.h>
+#ifdef HAVE_PARAPACK
+# include <parapack/serial.h>
+# include <parapack/exchange.h>
+#endif
 
 #ifndef LOOPER_ONLY_PATH_INTEGRAL
 
@@ -53,7 +57,8 @@ public:
 
   typedef looper::estimator<measurement_set, mc_type, lattice_t, time_t>::type estimator_t;
 
-  loop_worker(alps::Parameters const& p, alps::ObservableSet& obs);
+  loop_worker(alps::Parameters const& p);
+  void init_observables(alps::ObservableSet& obs);
 
   bool is_thermalized() const { return mcs.is_thermalized(); }
   double progress() const { return mcs.progress(); }
@@ -82,6 +87,7 @@ private:
   model_t model;
 
   // parameters
+  alps::Parameters const& params;
   looper::temperature temperature;
   double beta;
   bool use_improved_estimator;
@@ -106,8 +112,8 @@ private:
 // member functions of loop_worker
 //
 
-loop_worker::loop_worker(alps::Parameters const& p, alps::ObservableSet& obs) :
-  lattice(p), model(p, lattice), temperature(p), mcs(p) {
+loop_worker::loop_worker(alps::Parameters const& p) :
+  lattice(p), model(p, lattice), params(p), temperature(p), mcs(p) {
 
   if (temperature.annealing_steps() > mcs.thermalization())
     boost::throw_exception(std::invalid_argument("longer annealing steps than thermalization"));
@@ -126,13 +132,16 @@ loop_worker::loop_worker(alps::Parameters const& p, alps::ObservableSet& obs) :
   perm.resize(max_virtual_sites(lattice));
 
   // measurements
+}
+
+void loop_worker::init_observables(alps::ObservableSet& obs) {
   obs << make_observable(alps::SimpleRealObservable("Temperature"));
   obs << make_observable(alps::SimpleRealObservable("Inverse Temperature"));
   obs << make_observable(alps::SimpleRealObservable("Volume"));
   obs << make_observable(alps::SimpleRealObservable("Number of Sites"));
   obs << make_observable(alps::SimpleRealObservable("Number of Clusters"));
   looper::energy_estimator::initialize(obs, false);
-  estimator.initialize(obs, p, lattice, false, use_improved_estimator);
+  estimator.initialize(obs, params, lattice, false, use_improved_estimator);
 }
 
 template<typename ENGINE>
@@ -277,6 +286,14 @@ const bool loop_registered =
 const bool evaluator_registered =
   loop_factory::instance()->register_evaluator<loop_evaluator>("Ising");
 
+#ifdef HAVE_PARAPACK
+
+PARAPACK_REGISTER_WORKER(parapack_single_worker<loop_worker>, "ising");
+PARAPACK_REGISTER_WORKER(alps::parapack::single_exchange_worker<parapack_single_worker<loop_worker> >, "ising exchange");
+PARAPACK_REGISTER_EVALUATOR(loop_evaluator, "ising");
+PARAPACK_REGISTER_EVALUATOR(loop_evaluator, "ising exchange");
+
+#endif
 } // end namespace
 
 #endif // LOOPER_ONLY_PATH_INTEGRAL
