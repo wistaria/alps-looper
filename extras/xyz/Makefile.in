@@ -37,12 +37,13 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-noinst_PROGRAMS = xyz$(EXEEXT) xyz_evaluate$(EXEEXT) $(am__EXEEXT_1) \
-	$(am__EXEEXT_2) $(am__EXEEXT_3)
+noinst_PROGRAMS = xyz$(EXEEXT) xyz_evaluate$(EXEEXT) $(am__EXEEXT_2) \
+	$(am__EXEEXT_3) $(am__EXEEXT_4)
 @HAVE_MPI_TRUE@am__append_1 = xyz_mpi
 @HAVE_PARAPACK_TRUE@am__append_2 = xyz_ps xyz_pevaluate
 @HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__append_3 = xyz_pp
-check_PROGRAMS = xyz_ns$(EXEEXT)
+check_PROGRAMS = $(am__EXEEXT_1)
+@HAVE_PARAPACK_TRUE@am__append_4 = xyz_ns
 subdir = extras/xyz
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/xyz_model.xml.in
@@ -54,10 +55,11 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES = xyz_model.xml
-@HAVE_MPI_TRUE@am__EXEEXT_1 = xyz_mpi$(EXEEXT)
-@HAVE_PARAPACK_TRUE@am__EXEEXT_2 = xyz_ps$(EXEEXT) \
+@HAVE_PARAPACK_TRUE@am__EXEEXT_1 = xyz_ns$(EXEEXT)
+@HAVE_MPI_TRUE@am__EXEEXT_2 = xyz_mpi$(EXEEXT)
+@HAVE_PARAPACK_TRUE@am__EXEEXT_3 = xyz_ps$(EXEEXT) \
 @HAVE_PARAPACK_TRUE@	xyz_pevaluate$(EXEEXT)
-@HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__EXEEXT_3 = xyz_pp$(EXEEXT)
+@HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__EXEEXT_4 = xyz_pp$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 dist_xyz_OBJECTS =
 am__objects_1 = loop_factory.$(OBJEXT) loop_model.$(OBJEXT) \

@@ -40,7 +40,10 @@ nodist_xyz_pevaluate_SOURCES = $(top_srcdir)/loop_pevaluate.C $(SRC)
 
 dist_noinst_DATA = xyz_ns.ip xyz_ns.op
 
-check_PROGRAMS = xyz_ns
+check_PROGRAMS =
+if HAVE_PARAPACK
+check_PROGRAMS += xyz_ns
+endif
 
 nodist_xyz_ns_SOURCES = $(top_srcdir)/loop_ns.C $(SRC)
 

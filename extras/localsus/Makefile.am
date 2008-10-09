@@ -40,7 +40,10 @@ nodist_localsus_pevaluate_SOURCES = $(top_srcdir)/loop_pevaluate.C $(SRC)
 
 dist_noinst_DATA = localsus_ns.ip localsus_ns.op
 
-check_PROGRAMS = localsus_ns
+check_PROGRAMS =
+if HAVE_PARAPACK
+check_PROGRAMS += localsus_ns
+endif
 
 nodist_localsus_ns_SOURCES =  $(top_srcdir)/loop_ns.C $(SRC)
 

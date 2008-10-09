@@ -4,7 +4,7 @@ LATTICE = "chain lattice"
 MODEL   = "spin"
 T = 0.25
 L = 4
-REPRESENTATION = "path integral"
+WORKER = "path integral"
 
 { local_S = 1/2; SOP_M = 1; SOP_N = 0; }
 { local_S = 1; SOP_M = 1; SOP_N = 1; }

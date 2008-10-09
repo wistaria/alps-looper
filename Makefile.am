@@ -92,7 +92,7 @@ if HAVE_MPI
 noinst_PROGRAMS += loop_mpi
 endif
 if HAVE_PARAPACK
-noinst_PROGRAMS += loop_ps loop_pevaluate
+noinst_PROGRAMS += loop_ps
 if HAVE_MPI
 noinst_PROGRAMS += loop_pp
 endif
@@ -138,11 +138,6 @@ loop_pp_SOURCES = loop_pp.C $(SRC_PP)
 loop_pp_LDFLAGS = @LDFLAGS_MPI@
 loop_pp_LDADD = @LIBS_MPI@
 
-loop_pevaluate_SOURCES = loop_pevaluate.C $(SRC)
-if ENABLE_SSE_QWL
-loop_pevaluate_SOURCES += qwl_evaluate.C
-endif
-
 #
 # tests
 #
@@ -150,11 +145,13 @@ endif
 dist_noinst_DATA += loop_ns.ip loop_ns.op
 
 check_PROGRAMS =
+if HAVE_PARAPACK
 if ENABLE_DIAG
 if ENABLE_ISING
 if ENABLE_PI
 if ENABLE_SSE
 check_PROGRAMS += loop_ns
+endif
 endif
 endif
 endif

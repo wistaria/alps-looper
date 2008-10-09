@@ -37,12 +37,13 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-noinst_PROGRAMS = gap$(EXEEXT) gap_evaluate$(EXEEXT) $(am__EXEEXT_1) \
-	$(am__EXEEXT_2) $(am__EXEEXT_3)
+noinst_PROGRAMS = gap$(EXEEXT) gap_evaluate$(EXEEXT) $(am__EXEEXT_2) \
+	$(am__EXEEXT_3) $(am__EXEEXT_4)
 @HAVE_MPI_TRUE@am__append_1 = gap_mpi
 @HAVE_PARAPACK_TRUE@am__append_2 = gap_ps gap_pevaluate
 @HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__append_3 = gap_pp
-check_PROGRAMS = gap_ns$(EXEEXT)
+check_PROGRAMS = $(am__EXEEXT_1)
+@HAVE_PARAPACK_TRUE@am__append_4 = gap_ns
 subdir = extras/gap
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
@@ -54,10 +55,11 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
-@HAVE_MPI_TRUE@am__EXEEXT_1 = gap_mpi$(EXEEXT)
-@HAVE_PARAPACK_TRUE@am__EXEEXT_2 = gap_ps$(EXEEXT) \
+@HAVE_PARAPACK_TRUE@am__EXEEXT_1 = gap_ns$(EXEEXT)
+@HAVE_MPI_TRUE@am__EXEEXT_2 = gap_mpi$(EXEEXT)
+@HAVE_PARAPACK_TRUE@am__EXEEXT_3 = gap_ps$(EXEEXT) \
 @HAVE_PARAPACK_TRUE@	gap_pevaluate$(EXEEXT)
-@HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__EXEEXT_3 = gap_pp$(EXEEXT)
+@HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__EXEEXT_4 = gap_pp$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 dist_gap_OBJECTS =
 am__objects_1 = loop_factory.$(OBJEXT) loop_model.$(OBJEXT) \

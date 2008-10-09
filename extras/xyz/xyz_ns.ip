@@ -7,15 +7,15 @@ T = 0.25
 
 LATTICE = "chain lattice"
 L = 4
-{ REPRESENTATION = "diagonalization" }
-{ REPRESENTATION = "path integral" }
+{ WORKER = "diagonalization" }
+{ WORKER = "path integral" }
 
 LATTICE = "chain lattice"
 L = 4
 local_S = 1
 T = 1/L
-{ REPRESENTATION = "diagonalization" }
-{ REPRESENTATION = "path integral" }
+{ WORKER = "diagonalization" }
+{ WORKER = "path integral" }
 
 LATTICE = "chain lattice"
 Jz = -1
@@ -24,8 +24,8 @@ Jy = 0
 local_S = 1/2
 L = 4
 T = 0.5
-{ REPRESENTATION = "diagonalization" }
-{ REPRESENTATION = "path integral" }
+{ WORKER = "diagonalization" }
+{ WORKER = "path integral" }
 
 LATTICE = "chain lattice"
 local_S = 1/2
@@ -36,15 +36,15 @@ Jz = 1
 Jx = 0
 Jy = 0
 
-{ REPRESENTATION = "diagonalization" }
-{ REPRESENTATION = "path integral" }
+{ WORKER = "diagonalization" }
+{ WORKER = "path integral" }
 
 Jz = 0
 Jx = 1
 Jy = 0
 
-{ REPRESENTATION = "diagonalization" }
-{ REPRESENTATION = "path integral" }
+{ WORKER = "diagonalization" }
+{ WORKER = "path integral" }
 
 DISABLE_IMPROVED_ESTIMATOR = 1
 
@@ -52,4 +52,4 @@ Jz = 0
 Jx = 1
 Jy = 0
 
-{ REPRESENTATION = "path integral" }
+{ WORKER = "path integral" }

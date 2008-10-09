@@ -5,10 +5,14 @@ LATTICE = "chain lattice";
 MODEL = spin;
 T = 0.25;
 L = 4;
-REPRESENTATION = "path integral";
+WORKER = "path integral";
 local_S = 1/2;
 SOP_M = 1;
 SOP_N = 0;
+DIR_NAME = .;
+BASE_NAME = task1;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Generalized Magnetization: 0.673375 +/- 0.00913 WARNING: ERRORS NOT CONVERGED!!!
 Binder Ratio of Generalized Staggered Magnetization: 0.0356445 +/- 0.00657 WARNING: ERRORS NOT CONVERGED!!!
@@ -197,10 +201,14 @@ LATTICE = "chain lattice";
 MODEL = spin;
 T = 0.25;
 L = 4;
-REPRESENTATION = "path integral";
+WORKER = "path integral";
 local_S = 1;
 SOP_M = 1;
 SOP_N = 1;
+DIR_NAME = .;
+BASE_NAME = task2;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Generalized Magnetization: 0.573437 +/- 0.00685 WARNING: ERRORS NOT CONVERGED!!!
 Binder Ratio of Generalized Staggered Magnetization: 0.0390625 +/- 0.00672 WARNING: ERRORS NOT CONVERGED!!!
@@ -389,10 +397,14 @@ LATTICE = "chain lattice";
 MODEL = spin;
 T = 0.25;
 L = 4;
-REPRESENTATION = "path integral";
+WORKER = "path integral";
 local_S = 3/2;
 SOP_M = 2;
 SOP_N = 1;
+DIR_NAME = .;
+BASE_NAME = task3;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Generalized Magnetization: 0.57277 +/- 0.00668 WARNING: ERRORS NOT CONVERGED!!!
 Binder Ratio of Generalized Staggered Magnetization: 0.0444336 +/- 0.00731 WARNING: ERRORS NOT CONVERGED!!!
@@ -581,11 +593,15 @@ LATTICE = "chain lattice";
 MODEL = spin;
 T = 0.25;
 L = 4;
-REPRESENTATION = "path integral";
+WORKER = "path integral";
 DISABLE_IMPROVED_ESTIMATOR = 1;
 local_S = 1/2;
 SOP_M = 1;
 SOP_N = 0;
+DIR_NAME = .;
+BASE_NAME = task4;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Magnetization: 0.0400391 +/- 0.00999 WARNING: ERRORS NOT CONVERGED!!!
 Binder Ratio of Staggered Magnetization: 0.688494 +/- 0.017 WARNING: check error convergence
@@ -722,11 +738,15 @@ LATTICE = "chain lattice";
 MODEL = spin;
 T = 0.25;
 L = 4;
-REPRESENTATION = "path integral";
+WORKER = "path integral";
 DISABLE_IMPROVED_ESTIMATOR = 1;
 local_S = 1;
 SOP_M = 1;
 SOP_N = 1;
+DIR_NAME = .;
+BASE_NAME = task5;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Magnetization: 0.0410156 +/- 0.009 WARNING: ERRORS NOT CONVERGED!!!
 Binder Ratio of Staggered Magnetization: 0.556088 +/- 0.0132 WARNING: check error convergence

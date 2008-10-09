@@ -2,7 +2,7 @@ SEED    = 23125
 SWEEPS  = 1024
 MODEL   = "spin"
 T = 0.25
-REPRESENTATION = "path integral"
+WORKER = "path integral"
 MEASURE[Local Susceptibility] = 1
 MEASURE[Site Type Susceptibility] = 1
 

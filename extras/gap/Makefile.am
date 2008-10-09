@@ -40,7 +40,10 @@ nodist_gap_pevaluate_SOURCES = $(top_srcdir)/loop_pevaluate.C $(SRC)
 
 dist_noinst_DATA = gap_ns.ip gap_ns.op
 
-check_PROGRAMS = gap_ns
+check_PROGRAMS =
+if HAVE_PARAPACK
+check_PROGRAMS += gap_ns
+endif
 
 nodist_gap_ns_SOURCES =  $(top_srcdir)/loop_ns.C $(SRC)
 

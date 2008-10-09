@@ -288,7 +288,7 @@ class diag_worker : private loop_config, protected loop_config::lattice_t,
 public:
   diag_worker(alps::Parameters const& p) : loop_config::lattice_t(p),
     alps::model_helper<>(this->graph_helper(), p), done(false), params(p) {}
-  void init_observables(alps::ObservableSet&) {}
+  void init_observables(alps::Parameters const&, alps::ObservableSet&) {}
   bool is_thermalized() const { return true; }
   double progress() const { return done ? 1 : 0; }
   template<typename ENGINE>

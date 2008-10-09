@@ -48,7 +48,7 @@ host_triplet = @host@
 noinst_PROGRAMS = loop$(EXEEXT) loop_evaluate$(EXEEXT) $(am__EXEEXT_2) \
 	$(am__EXEEXT_3) $(am__EXEEXT_4)
 @HAVE_MPI_TRUE@am__append_7 = loop_mpi
-@HAVE_PARAPACK_TRUE@am__append_8 = loop_ps loop_pevaluate
+@HAVE_PARAPACK_TRUE@am__append_8 = loop_ps
 @HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__append_9 = loop_pp
 @ENABLE_DIAG_TRUE@am__append_10 = diag.C
 @ENABLE_DIAG_TRUE@am__append_11 = diag.C
@@ -61,9 +61,8 @@ noinst_PROGRAMS = loop$(EXEEXT) loop_evaluate$(EXEEXT) $(am__EXEEXT_2) \
 @ENABLE_SSE_QWL_TRUE@am__append_18 = sse_qwl.C
 @ENABLE_SSE_QWL_TRUE@am__append_19 = sse_qwl.C
 @ENABLE_SSE_QWL_TRUE@am__append_20 = qwl_evaluate.C
-@ENABLE_SSE_QWL_TRUE@am__append_21 = qwl_evaluate.C
 check_PROGRAMS = $(am__EXEEXT_1)
-@ENABLE_DIAG_TRUE@@ENABLE_ISING_TRUE@@ENABLE_PI_TRUE@@ENABLE_SSE_TRUE@am__append_22 = loop_ns
+@ENABLE_DIAG_TRUE@@ENABLE_ISING_TRUE@@ENABLE_PI_TRUE@@ENABLE_SSE_TRUE@@HAVE_PARAPACK_TRUE@am__append_21 = loop_ns
 subdir = .
 DIST_COMMON = README $(am__configure_deps) \
 	$(am__dist_noinst_HEADERS_DIST) $(dist_noinst_DATA) \
@@ -81,10 +80,9 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
-@ENABLE_DIAG_TRUE@@ENABLE_ISING_TRUE@@ENABLE_PI_TRUE@@ENABLE_SSE_TRUE@am__EXEEXT_1 = loop_ns$(EXEEXT)
+@ENABLE_DIAG_TRUE@@ENABLE_ISING_TRUE@@ENABLE_PI_TRUE@@ENABLE_SSE_TRUE@@HAVE_PARAPACK_TRUE@am__EXEEXT_1 = loop_ns$(EXEEXT)
 @HAVE_MPI_TRUE@am__EXEEXT_2 = loop_mpi$(EXEEXT)
-@HAVE_PARAPACK_TRUE@am__EXEEXT_3 = loop_ps$(EXEEXT) \
-@HAVE_PARAPACK_TRUE@	loop_pevaluate$(EXEEXT)
+@HAVE_PARAPACK_TRUE@am__EXEEXT_3 = loop_ps$(EXEEXT)
 @HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__EXEEXT_4 = loop_pp$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 am__loop_SOURCES_DIST = loop.C loop_config.h loop_factory.h \
@@ -127,14 +125,6 @@ am_loop_ns_OBJECTS = loop_ns.$(OBJEXT) $(am__objects_6)
 loop_ns_OBJECTS = $(am_loop_ns_OBJECTS)
 loop_ns_LDADD = $(LDADD)
 loop_ns_DEPENDENCIES =
-am__loop_pevaluate_SOURCES_DIST = loop_pevaluate.C loop_config.h \
-	loop_factory.h loop_factory.C loop_custom.C loop_model.C \
-	diag.C ising.C path_integral.C sse.C sse_qwl.C qwl_evaluate.C
-am_loop_pevaluate_OBJECTS = loop_pevaluate.$(OBJEXT) $(am__objects_6) \
-	$(am__objects_7)
-loop_pevaluate_OBJECTS = $(am_loop_pevaluate_OBJECTS)
-loop_pevaluate_LDADD = $(LDADD)
-loop_pevaluate_DEPENDENCIES =
 am__loop_pp_SOURCES_DIST = loop_pp.C loop_config.h loop_factory.h \
 	loop_factory.C loop_custom.C loop_model.C diag.C ising.C \
 	path_integral.C sse.C sse_qwl.C
@@ -173,12 +163,11 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(loop_SOURCES) $(loop_evaluate_SOURCES) $(loop_mpi_SOURCES) \
-	$(loop_ns_SOURCES) $(loop_pevaluate_SOURCES) \
-	$(loop_pp_SOURCES) $(loop_ps_SOURCES)
+	$(loop_ns_SOURCES) $(loop_pp_SOURCES) $(loop_ps_SOURCES)
 DIST_SOURCES = $(am__loop_SOURCES_DIST) \
 	$(am__loop_evaluate_SOURCES_DIST) $(am__loop_mpi_SOURCES_DIST) \
-	$(am__loop_ns_SOURCES_DIST) $(am__loop_pevaluate_SOURCES_DIST) \
-	$(am__loop_pp_SOURCES_DIST) $(am__loop_ps_SOURCES_DIST)
+	$(am__loop_ns_SOURCES_DIST) $(am__loop_pp_SOURCES_DIST) \
+	$(am__loop_ps_SOURCES_DIST)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-dvi-recursive install-exec-recursive \
@@ -387,7 +376,6 @@ loop_ps_SOURCES = loop_pp.C $(SRC)
 loop_pp_SOURCES = loop_pp.C $(SRC_PP)
 loop_pp_LDFLAGS = @LDFLAGS_MPI@
 loop_pp_LDADD = @LIBS_MPI@
-loop_pevaluate_SOURCES = loop_pevaluate.C $(SRC) $(am__append_21)
 loop_ns_SOURCES = loop_ns.C $(SRC)
 TESTS = $(check_PROGRAMS)
 TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
@@ -462,9 +450,6 @@ loop_mpi$(EXEEXT): $(loop_mpi_OBJECTS) $(loop_mpi_DEPENDENCIES)
 loop_ns$(EXEEXT): $(loop_ns_OBJECTS) $(loop_ns_DEPENDENCIES) 
 	@rm -f loop_ns$(EXEEXT)
 	$(CXXLINK) $(loop_ns_OBJECTS) $(loop_ns_LDADD) $(LIBS)
-loop_pevaluate$(EXEEXT): $(loop_pevaluate_OBJECTS) $(loop_pevaluate_DEPENDENCIES) 
-	@rm -f loop_pevaluate$(EXEEXT)
-	$(CXXLINK) $(loop_pevaluate_OBJECTS) $(loop_pevaluate_LDADD) $(LIBS)
 loop_pp$(EXEEXT): $(loop_pp_OBJECTS) $(loop_pp_DEPENDENCIES) 
 	@rm -f loop_pp$(EXEEXT)
 	$(loop_pp_LINK) $(loop_pp_OBJECTS) $(loop_pp_LDADD) $(LIBS)
@@ -486,7 +471,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_factory.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_model.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_ns.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_pevaluate.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop_pp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/path_integral.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qwl_evaluate.Po@am__quote@

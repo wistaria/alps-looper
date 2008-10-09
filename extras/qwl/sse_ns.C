@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -28,7 +28,7 @@
 #include <time.h>
 
 typedef loop_worker worker_type;
-typedef alps::parapack::default_evaluator evaluator_type;
+typedef alps::parapack::simple_evaluator evaluator_type;
 
 int main(int argc, char** argv)
 {
@@ -59,7 +59,8 @@ int main(int argc, char** argv)
     if (!p.defined("DISORDER_SEED")) p["DISORDER_SEED"] = p["WORKER_SEED"];
     std::cout << "[input parameters]\n" << p;
     std::vector<alps::ObservableSet> obs;
-    alps::parapack::abstract_worker* worker = new worker_type(p, obs);
+    alps::parapack::abstract_worker* worker = new worker_type(p);
+    worker->init_observables(p, obs);
     bool thermalized = worker->is_thermalized();
     while (worker->progress() < 1.0) {
       worker->run(obs);
@@ -70,7 +71,8 @@ int main(int argc, char** argv)
     }
     delete worker;
 
-    BOOST_FOREACH(alps::ObservableSet& s, obs) evaluator_type::evaluate_observable(s, p);
+    evaluator_type evaluator(p);
+    BOOST_FOREACH(alps::ObservableSet& s, obs) evaluator.evaluate(s);
     std::cerr << "[speed]\nelapsed time = " << tm.elapsed() << " sec\n";
     std::cout << "[results]\n";
     for (int i = 0; i < obs.size(); ++i)

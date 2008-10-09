@@ -4,12 +4,16 @@ SWEEPS = 1024;
 MODEL = spin;
 LATTICE = "simple cubic lattice";
 L = 4;
-REPRESENTATION = "path integral";
+WORKER = "path integral";
 MEASURE[Structure Factor] = 1;
 MEASURE[Correlation Length] = 1;
 Q0_OVER_TWO_PI = (1/2,1/2,1/2);
 DQ_OVER_TWO_PI = (1/L,0,0);
 T = 0.25;
+DIR_NAME = .;
+BASE_NAME = task1;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
 [results]
 Correlation Length: 2.25945 +/- 0.0396
 Energy: -58.3313 +/- 0.22; tau = 0.456 WARNING: ERRORS NOT CONVERGED!!!
@@ -375,13 +379,17 @@ SWEEPS = 1024;
 MODEL = spin;
 LATTICE = "simple cubic lattice";
 L = 4;
-REPRESENTATION = "path integral";
+WORKER = "path integral";
 MEASURE[Structure Factor] = 1;
 MEASURE[Correlation Length] = 1;
 Q0_OVER_TWO_PI = (1/2,1/2,1/2);
 DQ_OVER_TWO_PI = (1/L,0,0);
 DISABLE_IMPROVED_ESTIMATOR = 1;
 T = 0.25;
+DIR_NAME = .;
+BASE_NAME = task2;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
 [results]
 Correlation Length: 2.32632 +/- 0.0821 WARNING: check error convergence
 Energy: -58.3313 +/- 0.22; tau = 0.456 WARNING: ERRORS NOT CONVERGED!!!

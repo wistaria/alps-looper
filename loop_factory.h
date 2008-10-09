@@ -36,7 +36,7 @@ template<typename WORKER>
 class alps_worker : public alps::scheduler::MCRun {
 public:
   alps_worker(alps::ProcessList const& w, alps::Parameters const& p, int n) :
-    alps::scheduler::MCRun(w, p, n),  worker_(p) { worker_.init_observables(measurements); }
+    alps::scheduler::MCRun(w, p, n),  worker_(p) { worker_.init_observables(p, measurements); }
   virtual ~alps_worker() {}
   void dostep() { worker_.run(*engine_ptr, measurements); }
   void load(alps::IDump& dump) { worker_.load(dump); }
@@ -55,7 +55,9 @@ public:
   typedef double weight_parameter_type;
   parapack_single_worker(alps::Parameters const& p) : alps::parapack::mc_worker(p),  worker_(p) {}
   virtual ~parapack_single_worker() {}
-  void init_observables(alps::ObservableSet& obs) { worker_.init_observables(obs); }
+  void init_observables(alps::Parameters const& p, alps::ObservableSet& obs) {
+    worker_.init_observables(p, obs);
+  }
   bool is_thermalized() const { return worker_.is_thermalized(); }
   double progress() const { return worker_.progress(); }
   void run(alps::ObservableSet& obs) { worker_.run(*engine_ptr, obs); }

@@ -22,10 +22,10 @@
 *
 *****************************************************************************/
 
-#include "loop_factory_mpi.h"
-#include <parapack/process_mpi.h>
+#include <parapack/scheduler.h>
+#include <parapack/parallel.h>
+#include <parapack/parallel_factory.h>
 #include <boost/timer.hpp>
-#include <time.h>
 
 int main(int argc, char** argv)
 {
@@ -66,27 +66,25 @@ int main(int argc, char** argv)
     (*p)["WORKER_SEED"] = static_cast<unsigned int>((*p)["SEED"]) ^ process_id(comm);
     (*p)["DISORDER_SEED"] = (*p)["WORKER_SEED"];
     if (is_master(comm)) std::cout << "[input parameters]\n" << *p;
-    std::vector<alps::ObservableSet> m;
-    alps::parapack::abstract_worker* worker =
-      parallel_worker_factory::instance()->make_worker(comm, *p, m);
+    alps::ObservableSet m;
+    boost::shared_ptr<alps::parapack::abstract_worker> worker
+      = alps::parapack::parallel_worker_factory::make_worker(comm, *p);
+    worker->init_observables(*p, m);
     bool thermalized = worker->is_thermalized();
     while (worker->progress() < 1.0) {
       worker->run(m);
       if (!thermalized && worker->is_thermalized()) {
-        BOOST_FOREACH(alps::ObservableSet& o, m) o.reset(true);
+        m.reset(true);
         thermalized = true;
       }
     }
-    delete worker;
 
     if (is_master(comm)) {
-      looper::abstract_evaluator* evaluator = loop_factory::instance()->make_evaluator(*p);
-      evaluator->pre_evaluate(m[0], *p, m[0]);
-      evaluator->evaluate(m[0], *p, m[0]);
-      delete evaluator;
-
+      boost::shared_ptr<alps::parapack::abstract_evaluator> evaluator
+        = alps::parapack::evaluator_factory::make_evaluator(*p);
+      evaluator->evaluate(m);
       std::cerr << "[speed]\nelapsed time = " << tm.elapsed() << " sec\n";
-      std::cout << "[results]\n" << m[0];
+      std::cout << "[results]\n" << m;
     }
   }
 

@@ -28,10 +28,17 @@
 #include <iostream>
 
 /* Define the version of ALPS/looper */
-#define LOOPER_VERSION "3.2b6-20081008"
+#define LOOPER_VERSION "3.2b6-20081010"
 
 /* Define the published date of ALPS/looper */
-#define LOOPER_DATE "2008/10/08"
+#define LOOPER_DATE "2008/10/10"
+
+#define LOOPER_VERSION_STRING "ALPS/looper version " LOOPER_VERSION " (" LOOPER_DATE ")"
+
+#define LOOPER_COPYRIGHT LOOPER_VERSION_STRING "\n" \
+  "  multi-cluster quantum Monte Carlo algorithms for spin systems\n" \
+  "  available from http://wistaria.comp-phys.org/alps-looper/\n" \
+  "  copyright (c) 1997-2008 by Synge Todo <wistaria@comp-phys.org>\n" \
 
 #include <alps/copyright.h>
 #include <iostream>
@@ -39,15 +46,11 @@
 namespace looper {
 
 inline std::string version() {
-  return "ALPS/looper version " LOOPER_VERSION;
+  return LOOPER_VERSION_STRING;
 }
 
 inline std::ostream& print_copyright(std::ostream& os = std::cout) {
-  os << "ALPS/looper version " LOOPER_VERSION " (" LOOPER_DATE ")\n"
-     << "  multi-cluster quantum Monte Carlo algorithms for spin systems\n"
-     << "  available from http://wistaria.comp-phys.org/alps-looper/\n"
-     << "  copyright (c) 1997-2008 by Synge Todo <wistaria@comp-phys.org>\n"
-     << "\n";
+  os << LOOPER_COPYRIGHT << "\n";
   return os;
 }
 

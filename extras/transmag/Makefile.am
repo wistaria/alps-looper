@@ -40,7 +40,10 @@ nodist_transmag_pevaluate_SOURCES = $(top_srcdir)/loop_pevaluate.C $(SRC)
 
 dist_noinst_DATA = transmag_ns.ip transmag_ns.op
 
-check_PROGRAMS = transmag_ns
+check_PROGRAMS =
+if HAVE_PARAPACK
+check_PROGRAMS += transmag_ns
+endif
 
 nodist_transmag_ns_SOURCES =  $(top_srcdir)/loop_ns.C $(SRC)
 

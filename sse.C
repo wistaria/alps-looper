@@ -56,7 +56,7 @@ public:
   typedef looper::estimator<measurement_set, mc_type, lattice_t, time_t>::type estimator_t;
 
   loop_worker(alps::Parameters const& p);
-  void init_observables(alps::ObservableSet& obs);
+  void init_observables(alps::Parameters const& params, alps::ObservableSet& obs);
 
   bool is_thermalized() const { return mcs.is_thermalized(); }
   double progress() const { return mcs.progress(); }
@@ -85,7 +85,6 @@ private:
   model_t model;
 
   // parameters
-  alps::Parameters const& params;
   looper::temperature temperature;
   double beta;
   bool use_improved_estimator;
@@ -116,7 +115,7 @@ private:
 //
 
 loop_worker::loop_worker(alps::Parameters const& p) :
-  lattice(p), model(p, lattice, /* is_path_integral = */ false), params(p), temperature(p), mcs(p) {
+  lattice(p), model(p, lattice, /* is_path_integral = */ false), temperature(p), mcs(p) {
 
   if (temperature.annealing_steps() > mcs.thermalization())
     boost::throw_exception(std::invalid_argument("longer annealing steps than thermalization"));
@@ -134,7 +133,7 @@ loop_worker::loop_worker(alps::Parameters const& p) :
   perm.resize(max_virtual_sites(lattice));
 }
 
-void loop_worker::init_observables(alps::ObservableSet& obs) {
+void loop_worker::init_observables(alps::Parameters const& p, alps::ObservableSet& obs) {
   obs << make_observable(alps::SimpleRealObservable("Temperature"));
   obs << make_observable(alps::SimpleRealObservable("Inverse Temperature"));
   obs << make_observable(alps::SimpleRealObservable("Volume"));
@@ -148,7 +147,7 @@ void loop_worker::init_observables(alps::ObservableSet& obs) {
     }
   }
   looper::energy_estimator::initialize(obs, model.is_signed());
-  estimator.initialize(obs, params, lattice, model.is_signed(), use_improved_estimator);
+  estimator.initialize(obs, p, lattice, model.is_signed(), use_improved_estimator);
 }
 
 template<typename ENGINE>

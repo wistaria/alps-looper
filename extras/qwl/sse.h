@@ -46,8 +46,7 @@ struct walker_direc {
 };
 typedef walker_direc::walker_direc_t walker_direc_t;
 
-class loop_worker : private loop_config,
-  public alps::parapack::mc_worker, public alps::parapack::need_multiple_observableset_tag {
+class loop_worker : private loop_config, public alps::parapack::mc_worker {
 public:
   typedef looper::sse mc_type;
 
@@ -61,8 +60,10 @@ public:
 
   typedef looper::estimator<measurement_set, mc_type, lattice_t, time_t>::type estimator_t;
 
-  loop_worker(alps::Parameters const& p, std::vector<alps::ObservableSet>& obs);
+  loop_worker(alps::Parameters const& p);
   virtual ~loop_worker() {}
+
+  void init_observables(alps::Parameters const& p, std::vector<alps::ObservableSet>& obs);
 
   static std::string version() { return looper::version(); }
   static void print_copyright(std::ostream& os) { looper::print_copyright(os); }
@@ -132,7 +133,7 @@ private:
 // member functions of loop_worker
 //
 
-loop_worker::loop_worker(alps::Parameters const& p, std::vector<alps::ObservableSet>& obs) :
+loop_worker::loop_worker(alps::Parameters const& p) :
   alps::parapack::mc_worker(p),
   lattice(p), model(p, lattice, /* is_path_integral = */ false), mcs(p) {
 
@@ -166,7 +167,10 @@ loop_worker::loop_worker(alps::Parameters const& p, std::vector<alps::Observable
   for (int i = 0; i < max_order; ++i) set_logg0[i] = 0;
   direc = walker_direc::down;
   logw = 0;
+}
 
+void loop_worker::init_observables(alps::Parameters const& p,
+  std::vector<alps::ObservableSet>& obs) {
   int num_part = log2(max_order-1) + 2;
   obs.resize(num_part);
   obs[0] << alps::HistogramObservable<int>("Global Histogram", 0, max_order);

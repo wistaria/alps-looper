@@ -4,7 +4,7 @@ MODEL   = "spin"
 
 LATTICE = "site"
 
-REPRESENTATION = "path integral"
+WORKER = "path integral"
 Gamma = 0.7
 {
 T = 0.2
@@ -17,7 +17,7 @@ LATTICE_LIBRARY = "alternating_chain.xml"
 LATTICE = "alternating chain lattice"
 L=4
 
-REPRESENTATION = "path integral"
+WORKER = "path integral"
 Jz0 = 1
 Jxy0 = 1
 Jz1 = 1

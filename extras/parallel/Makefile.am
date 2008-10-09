@@ -8,18 +8,18 @@ DEFAULT_INCLUDES = -I$(srcdir) -I$(top_srcdir) -DLOOP_CONFIG_HEADER=\"parallel_c
 # programs
 #
 
-noinst_PROGRAMS =
+noinst_PROGRAMS = parallel_ps
 if HAVE_PARAPACK
 if HAVE_MPI
-noinst_PROGRAMS += parallel_pm parallel_pevaluate
+noinst_PROGRAMS += parallel_pm
 endif
 endif
 
-dist_parallel_pm_SOURCES = loop_pm.C parallel_config.h loop_factory_mpi.h loop_factory_mpi.C path_integral_mpi.C
-nodist_parallel_pm_SOURCES = $(top_srcdir)/loop_factory.C $(top_srcdir)/loop_model.C 
+dist_parallel_ps_SOURCES = $(top_srcdir)/loop_pp.C parallel_config.h $(top_srcdir)/loop_factory.C $(top_srcdir)/loop_model.C $(top_srcdir)/path_integral.C
+
+dist_parallel_pm_SOURCES = $(top_srcdir)/loop_pp.C parallel_config.h $(top_srcdir)/loop_model.C path_integral_mpi.C
        parallel_pm_LDFLAGS = @LDFLAGS_MPI@
        parallel_pm_LDADD = @LIBS_MPI@
-nodist_parallel_pevaluate_SOURCES = $(top_srcdir)/loop_pevaluate.C $(top_srcdir)/loop_factory.C $(top_srcdir)/loop_model.C $(top_srcdir)/path_integral.C
 
 #
 # tests
@@ -28,16 +28,17 @@ nodist_parallel_pevaluate_SOURCES = $(top_srcdir)/loop_pevaluate.C $(top_srcdir)
 dist_noinst_DATA = parallel_ns.ip parallel_ns.op
 
 check_PROGRAMS =
+if HAVE_PARAPACK
 if HAVE_MPI
 check_PROGRAMS += parallel_ns
 endif
+endif
 
-dist_parallel_ns_SOURCES = parallel_ns.C parallel_config.h loop_factory_mpi.h loop_factory_mpi.C path_integral_mpi.C
-nodist_parallel_ns_SOURCES = $(top_srcdir)/loop_factory.C $(top_srcdir)/loop_model.C 
+dist_parallel_ns_SOURCES = parallel_ns.C parallel_config.h $(top_srcdir)/loop_model.C path_integral_mpi.C
        parallel_ns_LDFLAGS = @LDFLAGS_MPI@
        parallel_ns_LDADD = @LIBS_MPI@
 
-TESTS = $(check_PROGRAMS)
+TESTS =
 TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
 
 .PHONY : test tests

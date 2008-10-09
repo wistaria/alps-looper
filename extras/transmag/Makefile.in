@@ -38,11 +38,12 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 noinst_PROGRAMS = transmag$(EXEEXT) transmag_evaluate$(EXEEXT) \
-	$(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3)
+	$(am__EXEEXT_2) $(am__EXEEXT_3) $(am__EXEEXT_4)
 @HAVE_MPI_TRUE@am__append_1 = transmag_mpi
 @HAVE_PARAPACK_TRUE@am__append_2 = transmag_ps transmag_pevaluate
 @HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__append_3 = transmag_pp
-check_PROGRAMS = transmag_ns$(EXEEXT)
+check_PROGRAMS = $(am__EXEEXT_1)
+@HAVE_PARAPACK_TRUE@am__append_4 = transmag_ns
 subdir = extras/transmag
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/alternating_chain.xml.in
@@ -54,10 +55,11 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES = alternating_chain.xml
-@HAVE_MPI_TRUE@am__EXEEXT_1 = transmag_mpi$(EXEEXT)
-@HAVE_PARAPACK_TRUE@am__EXEEXT_2 = transmag_ps$(EXEEXT) \
+@HAVE_PARAPACK_TRUE@am__EXEEXT_1 = transmag_ns$(EXEEXT)
+@HAVE_MPI_TRUE@am__EXEEXT_2 = transmag_mpi$(EXEEXT)
+@HAVE_PARAPACK_TRUE@am__EXEEXT_3 = transmag_ps$(EXEEXT) \
 @HAVE_PARAPACK_TRUE@	transmag_pevaluate$(EXEEXT)
-@HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__EXEEXT_3 =  \
+@HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__EXEEXT_4 =  \
 @HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@	transmag_pp$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 dist_transmag_OBJECTS =

@@ -23,7 +23,6 @@
 *****************************************************************************/
 
 #include "loop_config.h"
-#include "loop_factory_mpi.h"
 #include <looper/cluster.h>
 #include <looper/evaluator_impl.h>
 #include <looper/montecarlo.h>
@@ -33,10 +32,11 @@
 #include <looper/type.h>
 #include <looper/union_find.h>
 #include <looper/parallel.h>
+#include <parapack/parallel.h>
 
 namespace {
 
-class loop_worker : private loop_config {
+class loop_worker : public alps::parapack::mc_worker, private loop_config {
 public:
   typedef looper::path_integral mc_type;
 
@@ -52,29 +52,24 @@ public:
   typedef looper::parallel_cluster_unifier<looper::estimate<estimator_t>::type,
     looper::collector<estimator_t>::type> unifier_t;
 
-  loop_worker(alps::communicator_helper const& c, alps::Parameters const& p,
-    alps::ObservableSet& obs);
+  loop_worker(alps::communicator_helper const& c, alps::Parameters const& p);
+  virtual ~loop_worker() {}
+
+  void init_observables(alps::ObservableSet& obs);
 
   bool is_thermalized() const { return mcs.is_thermalized(); }
   double progress() const { return mcs.progress(); }
 
-  template<typename ENGINE>
-  void run(ENGINE& eng, alps::ObservableSet& obs);
-
-  // for exchange Monte Carlo
-  void set_beta(double beta) { temperature.set_beta(beta); }
-  double weight_parameter() const { return operators.size(); }
-  static double log_weight(double gw, double beta) { return std::log(beta) * gw; }
+  void run(alps::ObservableSet& obs);
 
   void save(alps::ODump& dp) const { dp << mcs << spins << spins_t << operators; }
   void load(alps::IDump& dp) { dp >> mcs >> spins >> spins_t >> operators; }
 
 protected:
-  template<typename ENGINE>
-  void build(ENGINE& eng);
+  void build();
 
-  template<typename ENGINE, typename FIELD, typename SIGN, typename IMPROVE>
-  void flip(ENGINE& eng, alps::ObservableSet& obs);
+  template<typename FIELD, typename SIGN, typename IMPROVE>
+  void flip(alps::ObservableSet& obs);
 
 private:
   // helpers
@@ -84,6 +79,7 @@ private:
   unifier_t unifier;
 
   // parameters
+  alps::Parameters params;
   looper::temperature temperature;
   double beta;
   double tau0, tau1;
@@ -114,10 +110,10 @@ private:
 // member functions of loop_worker
 //
 
-loop_worker::loop_worker(alps::communicator_helper const& c, alps::Parameters const& p,
-  alps::ObservableSet& obs) :
-  comm(c), lattice(p), model(p, lattice, /* is_path_integral = */ true),
-  unifier(comm.comm, num_sites(lattice.vg())), temperature(p), mcs(p) {
+loop_worker::loop_worker(alps::communicator_helper const& c, alps::Parameters const& p)
+  : alps::parapack::mc_worker(p), comm(c), lattice(p),
+    model(p, lattice, /* is_path_integral = */ true),
+    unifier(comm.comm, num_sites(lattice.vg())), params(params), temperature(p), mcs(p) {
   if (temperature.annealing_steps() > mcs.thermalization())
     boost::throw_exception(std::invalid_argument("longer annealing steps than thermalization"));
 
@@ -139,7 +135,9 @@ loop_worker::loop_worker(alps::communicator_helper const& c, alps::Parameters co
   spins_c.resize(nvs);
   current.resize(nvs);
   if (is_master(comm)) perm.resize(max_virtual_sites(lattice));
+}
 
+void loop_worker::init_observables(alps::ObservableSet& obs) {
   if (is_master(comm)) {
     obs << make_observable(alps::SimpleRealObservable("Temperature"));
     obs << make_observable(alps::SimpleRealObservable("Inverse Temperature"));
@@ -155,11 +153,10 @@ loop_worker::loop_worker(alps::communicator_helper const& c, alps::Parameters co
     }
   }
   looper::energy_estimator::initialize(obs, model.is_signed());
-  estimator.initialize(obs, p, lattice, model.is_signed(), use_improved_estimator);
+  estimator.initialize(obs, params, lattice, model.is_signed(), use_improved_estimator);
 }
 
-template<typename ENGINE>
-void loop_worker::run(ENGINE& eng, alps::ObservableSet& obs) {
+void loop_worker::run(alps::ObservableSet& obs) {
   // if (!mcs.can_work()) return;
   ++mcs;
 
@@ -167,17 +164,11 @@ void loop_worker::run(ENGINE& eng, alps::ObservableSet& obs) {
   tau0 = 1.0 * process_id(comm) / num_processes(comm);
   tau1 = 1.0 * (process_id(comm) + 1) / num_processes(comm);
 
-  build(eng);
+  build();
 
-  //           FIELD               SIGN                IMPROVE
-  // flip<ENGINE, boost::mpl::true_,  boost::mpl::true_,  boost::mpl::true_ >(eng, obs);
-  // flip<ENGINE, boost::mpl::true_,  boost::mpl::true_,  boost::mpl::false_>(eng, obs);
-  // flip<ENGINE, boost::mpl::true_,  boost::mpl::false_, boost::mpl::true_ >(eng, obs);
-  // flip<ENGINE, boost::mpl::true_,  boost::mpl::false_, boost::mpl::false_>(eng, obs);
-  // flip<ENGINE, boost::mpl::false_, boost::mpl::true_,  boost::mpl::true_ >(eng, obs);
-  // flip<ENGINE, boost::mpl::false_, boost::mpl::true_,  boost::mpl::false_>(eng, obs);
-  flip<ENGINE, boost::mpl::false_, boost::mpl::false_, boost::mpl::true_ >(eng, obs);
-  flip<ENGINE, boost::mpl::false_, boost::mpl::false_, boost::mpl::false_>(eng, obs);
+  //   FIELD               SIGN                IMPROVE
+  flip<boost::mpl::false_, boost::mpl::false_, boost::mpl::true_ >(obs);
+  flip<boost::mpl::false_, boost::mpl::false_, boost::mpl::false_>(obs);
 }
 
 
@@ -185,9 +176,7 @@ void loop_worker::run(ENGINE& eng, alps::ObservableSet& obs) {
 // diagonal update and cluster construction
 //
 
-template<typename ENGINE>
-void loop_worker::build(ENGINE& eng) {
-
+void loop_worker::build() {
   // initialize spin & operator information
   std::copy(spins.begin(), spins.end(), spins_c.begin());
   std::swap(operators, operators_p); operators.resize(0);
@@ -203,16 +192,14 @@ void loop_worker::build(ENGINE& eng) {
     for (int s = 0; s < nvs; ++s) current[s] = s;
   }
 
-  boost::variate_generator<ENGINE&, boost::uniform_real<> >
-    r_uniform(eng, boost::uniform_real<>());
-  boost::variate_generator<ENGINE&, boost::exponential_distribution<> >
-    r_time(eng, boost::exponential_distribution<>(beta * model.graph_weight()));
+  boost::variate_generator<engine_type&, boost::exponential_distribution<> >
+    r_time(*engine_ptr, boost::exponential_distribution<>(beta * model.graph_weight()));
   double t = tau0 + r_time();
   for (operator_iterator opi = operators_p.begin(); t < tau1 || opi != operators_p.end();) {
 
     // diagonal update & labeling
     if (opi == operators_p.end() || t < opi->time()) {
-      loop_graph_t g = model.choose_graph(r_uniform);
+      loop_graph_t g = model.choose_graph(uniform_01);
       if ((is_bond(g) && is_compatible(g, spins_c[source(pos(g), lattice.vg())],
                                           spins_c[target(pos(g), lattice.vg())])) ||
           (is_site(g) && is_compatible(g, spins_c[pos(g)]))) {
@@ -237,7 +224,7 @@ void loop_worker::build(ENGINE& eng) {
       int s0 = source(oi->pos(), lattice.vg());
       int s1 = target(oi->pos(), lattice.vg());
       if (oi->is_offdiagonal()) {
-        oi->assign_graph(model.choose_offdiagonal(r_uniform, oi->loc(), spins_c[s0], spins_c[s1]));
+        oi->assign_graph(model.choose_offdiagonal(uniform_01, oi->loc(), spins_c[s0], spins_c[s1]));
         spins_c[s0] ^= 1;
         spins_c[s1] ^= 1;
       }
@@ -265,7 +252,7 @@ void loop_worker::build(ENGINE& eng) {
         int s2 = *vsi_end - *vsi;
         for (int i = 0; i < s2; ++i) perm[i] = i;
         looper::partitioned_random_shuffle(perm.begin(), perm.begin() + s2,
-          spins_t.begin() + offset, spins.begin() + offset, r_uniform);
+          spins_t.begin() + offset, spins.begin() + offset, uniform_01);
         for (int i = 0; i < s2; ++i) unify(fragments, offset+i, 2*nvs+offset+perm[i]);
       }
     }
@@ -279,14 +266,11 @@ void loop_worker::build(ENGINE& eng) {
 // cluster flip
 //
 
-template<typename ENGINE, typename FIELD, typename SIGN, typename IMPROVE>
-void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
+template<typename FIELD, typename SIGN, typename IMPROVE>
+void loop_worker::flip(alps::ObservableSet& obs) {
   if (model.has_field() != FIELD() ||
       model.is_signed() != SIGN() ||
       use_improved_estimator != IMPROVE()) return;
-
-  boost::variate_generator<ENGINE&, boost::uniform_real<> >
-    r_uniform(eng, boost::uniform_real<>());
 
   int nvs = num_sites(lattice.vg());
 
@@ -346,8 +330,8 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
   for (unsigned int c = noc; c < nc; ++c) coll += estimates[c];
 
   // determine whether clusters are flipped or not
-  unifier.unify(coll, to_flip, fragments, estimates, r_uniform);
-  for (int c = noc; c < nc; ++c) to_flip[c].set_flip(r_uniform() < 0.5);
+  unifier.unify(coll, to_flip, fragments, estimates, uniform_01);
+  for (int c = noc; c < nc; ++c) to_flip[c].set_flip(uniform_01() < 0.5);
 
   // improved measurement
   if (is_master(comm))
@@ -381,15 +365,12 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
   }
 }
 
-typedef looper::evaluator<loop_config::measurement_set> loop_evaluator;
-
 //
 // dynamic registration to the factories
 //
 
-const bool worker_registered =
-  parallel_worker_factory::instance()->register_worker<loop_worker>("path integral");
-const bool evaluator_registered =
-  loop_factory::instance()->register_evaluator<loop_evaluator>("path integral");
+PARAPACK_SET_COPYRIGHT(LOOPER_COPYRIGHT);
+PARAPACK_SET_VERSION(LOOPER_VERSION_STRING);
+PARAPACK_REGISTER_PARALLEL_WORKER(loop_worker, "path integral");
 
 } // end namespace
