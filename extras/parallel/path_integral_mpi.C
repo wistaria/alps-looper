@@ -55,7 +55,7 @@ public:
   loop_worker(alps::communicator_helper const& c, alps::Parameters const& p);
   virtual ~loop_worker() {}
 
-  void init_observables(alps::ObservableSet& obs);
+  void init_observables(alps::Parameters const& params, alps::ObservableSet& obs);
 
   bool is_thermalized() const { return mcs.is_thermalized(); }
   double progress() const { return mcs.progress(); }
@@ -79,7 +79,6 @@ private:
   unifier_t unifier;
 
   // parameters
-  alps::Parameters params;
   looper::temperature temperature;
   double beta;
   double tau0, tau1;
@@ -113,7 +112,7 @@ private:
 loop_worker::loop_worker(alps::communicator_helper const& c, alps::Parameters const& p)
   : alps::parapack::mc_worker(p), comm(c), lattice(p),
     model(p, lattice, /* is_path_integral = */ true),
-    unifier(comm.comm, num_sites(lattice.vg())), params(params), temperature(p), mcs(p) {
+    unifier(comm.comm, num_sites(lattice.vg())), temperature(p), mcs(p) {
   if (temperature.annealing_steps() > mcs.thermalization())
     boost::throw_exception(std::invalid_argument("longer annealing steps than thermalization"));
 
@@ -137,7 +136,7 @@ loop_worker::loop_worker(alps::communicator_helper const& c, alps::Parameters co
   if (is_master(comm)) perm.resize(max_virtual_sites(lattice));
 }
 
-void loop_worker::init_observables(alps::ObservableSet& obs) {
+void loop_worker::init_observables(alps::Parameters const& p, alps::ObservableSet& obs) {
   if (is_master(comm)) {
     obs << make_observable(alps::SimpleRealObservable("Temperature"));
     obs << make_observable(alps::SimpleRealObservable("Inverse Temperature"));
@@ -153,7 +152,7 @@ void loop_worker::init_observables(alps::ObservableSet& obs) {
     }
   }
   looper::energy_estimator::initialize(obs, model.is_signed());
-  estimator.initialize(obs, params, lattice, model.is_signed(), use_improved_estimator);
+  estimator.initialize(obs, p, lattice, model.is_signed(), use_improved_estimator);
 }
 
 void loop_worker::run(alps::ObservableSet& obs) {
