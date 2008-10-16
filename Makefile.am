@@ -93,7 +93,7 @@ noinst_PROGRAMS += loop_mpi
 endif
 if HAVE_PARAPACK
 noinst_PROGRAMS += loop_ps
-if HAVE_MPI
+if HAVE_BOOST_MPI
 noinst_PROGRAMS += loop_pp
 endif
 endif

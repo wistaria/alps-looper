@@ -12,7 +12,7 @@ noinst_PROGRAMS =
 if HAVE_PARAPACK
 #noinst_PROGRAMS += pi_ns sse_ns
 noinst_PROGRAMS += sse_ns sse_ps
-if HAVE_MPI
+if HAVE_BOOST_MPI
 noinst_PROGRAMS += sse_pp
 endif
 endif

@@ -49,7 +49,7 @@ noinst_PROGRAMS = loop$(EXEEXT) loop_evaluate$(EXEEXT) $(am__EXEEXT_2) \
 	$(am__EXEEXT_3) $(am__EXEEXT_4)
 @HAVE_MPI_TRUE@am__append_7 = loop_mpi
 @HAVE_PARAPACK_TRUE@am__append_8 = loop_ps
-@HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__append_9 = loop_pp
+@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__append_9 = loop_pp
 @ENABLE_DIAG_TRUE@am__append_10 = diag.C
 @ENABLE_DIAG_TRUE@am__append_11 = diag.C
 @ENABLE_ISING_TRUE@am__append_12 = ising.C
@@ -83,7 +83,8 @@ CONFIG_CLEAN_FILES =
 @ENABLE_DIAG_TRUE@@ENABLE_ISING_TRUE@@ENABLE_PI_TRUE@@ENABLE_SSE_TRUE@@HAVE_PARAPACK_TRUE@am__EXEEXT_1 = loop_ns$(EXEEXT)
 @HAVE_MPI_TRUE@am__EXEEXT_2 = loop_mpi$(EXEEXT)
 @HAVE_PARAPACK_TRUE@am__EXEEXT_3 = loop_ps$(EXEEXT)
-@HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__EXEEXT_4 = loop_pp$(EXEEXT)
+@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__EXEEXT_4 =  \
+@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_TRUE@	loop_pp$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 am__loop_SOURCES_DIST = loop.C loop_config.h loop_factory.h \
 	loop_factory.C loop_custom.C loop_model.C diag.C ising.C \

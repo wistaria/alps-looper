@@ -14,7 +14,7 @@ noinst_PROGRAMS += xyz_mpi
 endif
 if HAVE_PARAPACK
 noinst_PROGRAMS += xyz_ps xyz_pevaluate
-if HAVE_MPI
+if HAVE_BOOST_MPI
 noinst_PROGRAMS += xyz_pp
 endif
 endif

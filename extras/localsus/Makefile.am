@@ -14,7 +14,7 @@ noinst_PROGRAMS += localsus_mpi
 endif
 if HAVE_PARAPACK
 noinst_PROGRAMS += localsus_ps localsus_pevaluate
-if HAVE_MPI
+if HAVE_BOOST_MPI
 noinst_PROGRAMS += localsus_pp
 endif
 endif

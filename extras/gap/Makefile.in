@@ -41,7 +41,7 @@ noinst_PROGRAMS = gap$(EXEEXT) gap_evaluate$(EXEEXT) $(am__EXEEXT_2) \
 	$(am__EXEEXT_3) $(am__EXEEXT_4)
 @HAVE_MPI_TRUE@am__append_1 = gap_mpi
 @HAVE_PARAPACK_TRUE@am__append_2 = gap_ps gap_pevaluate
-@HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__append_3 = gap_pp
+@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__append_3 = gap_pp
 check_PROGRAMS = $(am__EXEEXT_1)
 @HAVE_PARAPACK_TRUE@am__append_4 = gap_ns
 subdir = extras/gap
@@ -59,7 +59,8 @@ CONFIG_CLEAN_FILES =
 @HAVE_MPI_TRUE@am__EXEEXT_2 = gap_mpi$(EXEEXT)
 @HAVE_PARAPACK_TRUE@am__EXEEXT_3 = gap_ps$(EXEEXT) \
 @HAVE_PARAPACK_TRUE@	gap_pevaluate$(EXEEXT)
-@HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__EXEEXT_4 = gap_pp$(EXEEXT)
+@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__EXEEXT_4 =  \
+@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_TRUE@	gap_pp$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 dist_gap_OBJECTS =
 am__objects_1 = loop_factory.$(OBJEXT) loop_model.$(OBJEXT) \

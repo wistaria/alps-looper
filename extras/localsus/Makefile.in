@@ -41,7 +41,7 @@ noinst_PROGRAMS = localsus$(EXEEXT) localsus_evaluate$(EXEEXT) \
 	$(am__EXEEXT_2) $(am__EXEEXT_3) $(am__EXEEXT_4)
 @HAVE_MPI_TRUE@am__append_1 = localsus_mpi
 @HAVE_PARAPACK_TRUE@am__append_2 = localsus_ps localsus_pevaluate
-@HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__append_3 = localsus_pp
+@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__append_3 = localsus_pp
 check_PROGRAMS = $(am__EXEEXT_1)
 @HAVE_PARAPACK_TRUE@am__append_4 = localsus_ns
 subdir = extras/localsus
@@ -59,8 +59,8 @@ CONFIG_CLEAN_FILES =
 @HAVE_MPI_TRUE@am__EXEEXT_2 = localsus_mpi$(EXEEXT)
 @HAVE_PARAPACK_TRUE@am__EXEEXT_3 = localsus_ps$(EXEEXT) \
 @HAVE_PARAPACK_TRUE@	localsus_pevaluate$(EXEEXT)
-@HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__EXEEXT_4 =  \
-@HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@	localsus_pp$(EXEEXT)
+@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__EXEEXT_4 =  \
+@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_TRUE@	localsus_pp$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 dist_localsus_OBJECTS =
 am__objects_1 = loop_factory.$(OBJEXT) loop_model.$(OBJEXT) \

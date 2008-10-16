@@ -41,7 +41,7 @@ noinst_PROGRAMS = corrlen$(EXEEXT) corrlen_evaluate$(EXEEXT) \
 	$(am__EXEEXT_2) $(am__EXEEXT_3) $(am__EXEEXT_4)
 @HAVE_MPI_TRUE@am__append_1 = corrlen_mpi
 @HAVE_PARAPACK_TRUE@am__append_2 = corrlen_ps corrlen_pevaluate
-@HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__append_3 = corrlen_pp
+@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__append_3 = corrlen_pp
 check_PROGRAMS = $(am__EXEEXT_1)
 @HAVE_PARAPACK_TRUE@am__append_4 = corrlen_ns
 subdir = extras/corrlen
@@ -59,7 +59,8 @@ CONFIG_CLEAN_FILES =
 @HAVE_MPI_TRUE@am__EXEEXT_2 = corrlen_mpi$(EXEEXT)
 @HAVE_PARAPACK_TRUE@am__EXEEXT_3 = corrlen_ps$(EXEEXT) \
 @HAVE_PARAPACK_TRUE@	corrlen_pevaluate$(EXEEXT)
-@HAVE_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__EXEEXT_4 = corrlen_pp$(EXEEXT)
+@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__EXEEXT_4 =  \
+@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_TRUE@	corrlen_pp$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 dist_corrlen_OBJECTS =
 am__objects_1 = loop_factory.$(OBJEXT) loop_model.$(OBJEXT) \

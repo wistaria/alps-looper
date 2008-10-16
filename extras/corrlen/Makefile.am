@@ -14,7 +14,7 @@ noinst_PROGRAMS += corrlen_mpi
 endif
 if HAVE_PARAPACK
 noinst_PROGRAMS += corrlen_ps corrlen_pevaluate
-if HAVE_MPI
+if HAVE_BOOST_MPI
 noinst_PROGRAMS += corrlen_pp
 endif
 endif

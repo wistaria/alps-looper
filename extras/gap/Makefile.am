@@ -14,7 +14,7 @@ noinst_PROGRAMS += gap_mpi
 endif
 if HAVE_PARAPACK
 noinst_PROGRAMS += gap_ps gap_pevaluate
-if HAVE_MPI
+if HAVE_BOOST_MPI
 noinst_PROGRAMS += gap_pp
 endif
 endif

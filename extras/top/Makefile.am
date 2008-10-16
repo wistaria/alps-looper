@@ -14,7 +14,7 @@ noinst_PROGRAMS += top_mpi
 endif
 if HAVE_PARAPACK
 noinst_PROGRAMS += top_ps top_pevaluate
-if HAVE_MPI
+if HAVE_BOOST_MPI
 noinst_PROGRAMS += top_pp
 endif
 endif

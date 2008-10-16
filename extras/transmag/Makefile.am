@@ -14,7 +14,7 @@ noinst_PROGRAMS += transmag_mpi
 endif
 if HAVE_PARAPACK
 noinst_PROGRAMS += transmag_ps transmag_pevaluate
-if HAVE_MPI
+if HAVE_BOOST_MPI
 noinst_PROGRAMS += transmag_pp
 endif
 endif

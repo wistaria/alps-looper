@@ -10,7 +10,7 @@ DEFAULT_INCLUDES = -I$(srcdir) -I$(top_srcdir) -DLOOP_CONFIG_HEADER=\"parallel_c
 
 noinst_PROGRAMS = parallel_ps
 if HAVE_PARAPACK
-if HAVE_MPI
+if HAVE_BOOST_MPI
 noinst_PROGRAMS += parallel_pm
 endif
 endif
@@ -29,7 +29,7 @@ dist_noinst_DATA = parallel_ns.ip parallel_ns.op
 
 check_PROGRAMS =
 if HAVE_PARAPACK
-if HAVE_MPI
+if HAVE_BOOST_MPI
 check_PROGRAMS += parallel_ns
 endif
 endif
