@@ -36,6 +36,8 @@
 
 namespace {
 
+namespace mpi = boost::mpi;
+
 class loop_worker : public alps::parapack::mc_worker, private loop_config {
 public:
   typedef looper::path_integral mc_type;
@@ -52,7 +54,7 @@ public:
   typedef looper::parallel_cluster_unifier<looper::estimate<estimator_t>::type,
     looper::collector<estimator_t>::type> unifier_t;
 
-  loop_worker(alps::communicator_helper const& c, alps::Parameters const& p);
+  loop_worker(mpi::communicator const& c, alps::Parameters const& p);
   virtual ~loop_worker() {}
 
   void init_observables(alps::Parameters const& params, alps::ObservableSet& obs);
@@ -73,7 +75,7 @@ protected:
 
 private:
   // helpers
-  alps::communicator_helper comm;
+  mpi::communicator comm;
   lattice_t lattice;
   model_t model;
   unifier_t unifier;
@@ -109,10 +111,10 @@ private:
 // member functions of loop_worker
 //
 
-loop_worker::loop_worker(alps::communicator_helper const& c, alps::Parameters const& p)
+loop_worker::loop_worker(mpi::communicator const& c, alps::Parameters const& p)
   : alps::parapack::mc_worker(p), comm(c), lattice(p),
     model(p, lattice, /* is_path_integral = */ true),
-    unifier(comm.comm, num_sites(lattice.vg())), temperature(p), mcs(p) {
+    unifier(comm, num_sites(lattice.vg())), temperature(p), mcs(p) {
   if (temperature.annealing_steps() > mcs.thermalization())
     boost::throw_exception(std::invalid_argument("longer annealing steps than thermalization"));
 
@@ -121,23 +123,23 @@ loop_worker::loop_worker(alps::communicator_helper const& c, alps::Parameters co
   use_improved_estimator = (!model.has_field()) && (!p.defined("DISABLE_IMPROVED_ESTIMATOR"));
   if (!use_improved_estimator) std::cerr << "WARNING: improved estimator is disabled\n";
 
-  tau0 = 1.0 * process_id(comm) / num_processes(comm);
-  tau1 = 1.0 * (process_id(comm) + 1) / num_processes(comm);
+  tau0 = 1.0 * comm.rank() / comm.size();
+  tau1 = 1.0 * (comm.rank() + 1) / comm.size();
 
   // configuration
   int nvs = num_sites(lattice.vg());
   spins.resize(nvs); std::fill(spins.begin(), spins.end(), 0 /* all up */);
-  if (is_master(comm)) {
+  if (comm.rank() == 0) {
     spins_t.resize(nvs);
     std::copy(spins.begin(), spins.end(), spins_t.begin());
   }
   spins_c.resize(nvs);
   current.resize(nvs);
-  if (is_master(comm)) perm.resize(max_virtual_sites(lattice));
+  if (comm.rank() == 0) perm.resize(max_virtual_sites(lattice));
 }
 
 void loop_worker::init_observables(alps::Parameters const& p, alps::ObservableSet& obs) {
-  if (is_master(comm)) {
+  if (comm.rank() == 0) {
     obs << make_observable(alps::SimpleRealObservable("Temperature"));
     obs << make_observable(alps::SimpleRealObservable("Inverse Temperature"));
     obs << make_observable(alps::SimpleRealObservable("Volume"));
@@ -160,8 +162,8 @@ void loop_worker::run(alps::ObservableSet& obs) {
   ++mcs;
 
   beta = 1.0 / temperature(mcs());
-  tau0 = 1.0 * process_id(comm) / num_processes(comm);
-  tau1 = 1.0 * (process_id(comm) + 1) / num_processes(comm);
+  tau0 = 1.0 * comm.rank() / comm.size();
+  tau1 = 1.0 * (comm.rank() + 1) / comm.size();
 
   build();
 
@@ -183,7 +185,7 @@ void loop_worker::build() {
   // initialize cluster information (setup cluster fragments)
   int nvs = num_sites(lattice.vg());
   fragments.resize(0);
-  if (is_master(comm)) {
+  if (comm.rank() == 0) {
     fragments.resize(3 * nvs);
     for (int s = 0; s < nvs; ++s) current[s] = 2 * nvs + s;
   } else {
@@ -240,7 +242,7 @@ void loop_worker::build() {
   for (int s = 0; s < nvs; ++s) unify(fragments, current[s], nvs + s);
 
   // symmetrize spins
-  if (is_master(comm)) {
+  if (comm.rank() == 0) {
     if (max_virtual_sites(lattice) == 1) {
       for (int s = 0; s < nvs; ++s) unify(fragments, s, 2*nvs + s);
     } else {
@@ -285,7 +287,7 @@ void loop_worker::flip(alps::ObservableSet& obs) {
   std::copy(spins.begin(), spins.end(), spins_c.begin());
   looper::accumulator<estimator_t, cluster_fragment_t, IMPROVE>
     accum(estimates, nc, lattice, estimator, fragments);
-  if (is_master(comm)) {
+  if (comm.rank() == 0) {
     for (unsigned int s = 0; s < nvs; ++s) accum.start_bottom(s, time_t(tau0), s, spins_c[s]);
   } else {
     for (unsigned int s = 0; s < nvs; ++s) accum.start(s, time_t(tau0), s, spins_c[s]);
@@ -315,7 +317,7 @@ void loop_worker::flip(alps::ObservableSet& obs) {
       }
     }
   }
-  if (process_id(comm) == (num_processes(comm) - 1)) {
+  if (comm.rank() == (comm.size() - 1)) {
     for (unsigned int s = 0; s < nvs; ++s) accum.stop_top(current[s], time_t(tau1), s, spins_c[s]);
   } else {
     for (unsigned int s = 0; s < nvs; ++s) accum.stop(current[s], time_t(tau1), s, spins_c[s]);
@@ -333,14 +335,14 @@ void loop_worker::flip(alps::ObservableSet& obs) {
   for (int c = noc; c < nc; ++c) to_flip[c].set_flip(uniform_01() < 0.5);
 
   // improved measurement
-  if (is_master(comm))
+  if (comm.rank() == 0)
     estimator.improved_measurement(obs, lattice, beta, 1, spins, operators, spins_c,
       fragments, coll);
 
   // flip operators & spins
   BOOST_FOREACH(local_operator_t& op, operators)
     if (to_flip[fragments[op.loop_0()].id()] ^ to_flip[fragments[op.loop_1()].id()]) op.flip();
-  if (is_master(comm)) {
+  if (comm.rank() == 0) {
     for (int s = 0; s < nvs; ++s) {
       if (to_flip[fragments[s].id()]) spins_t[s] ^= 1;
       if (to_flip[fragments[2*nvs + s].id()]) spins[s] ^= 1;
@@ -350,7 +352,7 @@ void loop_worker::flip(alps::ObservableSet& obs) {
   }
 
   // measurement
-  if (is_master(comm)) {
+  if (comm.rank() == 0) {
     obs["Temperature"] << 1/beta;
     obs["Inverse Temperature"] << beta;
     obs["Volume"] << (double)lattice.volume();
@@ -364,6 +366,8 @@ void loop_worker::flip(alps::ObservableSet& obs) {
   }
 }
 
+typedef looper::evaluator<loop_config::measurement_set> loop_evaluator;
+
 //
 // dynamic registration to the factories
 //
@@ -371,5 +375,6 @@ void loop_worker::flip(alps::ObservableSet& obs) {
 PARAPACK_SET_COPYRIGHT(LOOPER_COPYRIGHT);
 PARAPACK_SET_VERSION(LOOPER_VERSION_STRING);
 PARAPACK_REGISTER_PARALLEL_WORKER(loop_worker, "path integral");
+PARAPACK_REGISTER_EVALUATOR(loop_evaluator, "path integral");
 
 } // end namespace

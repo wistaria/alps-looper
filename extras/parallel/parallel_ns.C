@@ -24,7 +24,6 @@
 
 #include <parapack/scheduler.h>
 #include <parapack/parallel.h>
-#include <parapack/parallel_factory.h>
 #include <boost/timer.hpp>
 
 int main(int argc, char** argv)
@@ -33,11 +32,11 @@ int main(int argc, char** argv)
   try {
 #endif
 
-  alps::comm_init(argc, argv);
-  alps::communicator_helper comm(MPI_COMM_WORLD);
+  boost::mpi::environment env(argc, argv);
+  boost::mpi::communicator world;
 
   alps::ParameterList parameterlist;
-  if (is_master(comm)) {
+  if (world.rank() == 0) {
     switch (argc) {
     case 1:
       std::cin >> parameterlist;
@@ -50,25 +49,22 @@ int main(int argc, char** argv)
       }
       // default:
     }
-    alps::OMPIDump dump;
-    dump << parameterlist;
-    for (int p = 1; p < num_processes(comm); ++p) dump.send(p, 0, comm);
+    for (int p = 1; p < world.size(); ++p) world.send(p, 0, parameterlist);
   } else {
-    alps::IMPIDump dump(0, 0, comm);
-    dump >> parameterlist;
+    world.recv(0, 0, parameterlist);
   }
 
   for (alps::ParameterList::iterator p = parameterlist.begin();
        p != parameterlist.end(); ++p) {
-    alps::barrier(comm);
+    world.barrier();
     boost::timer tm;
     if (!p->defined("SEED")) (*p)["SEED"] = static_cast<unsigned int>(time(0));
-    (*p)["WORKER_SEED"] = static_cast<unsigned int>((*p)["SEED"]) ^ process_id(comm);
+    (*p)["WORKER_SEED"] = static_cast<unsigned int>((*p)["SEED"]) ^ world.rank();
     (*p)["DISORDER_SEED"] = (*p)["WORKER_SEED"];
-    if (is_master(comm)) std::cout << "[input parameters]\n" << *p;
+    if (world.rank() == 0) std::cout << "[input parameters]\n" << *p;
     alps::ObservableSet m;
     boost::shared_ptr<alps::parapack::abstract_worker> worker
-      = alps::parapack::parallel_worker_factory::make_worker(comm, *p);
+      = alps::parapack::parallel_worker_factory::make_worker(world, *p);
     worker->init_observables(*p, m);
     bool thermalized = worker->is_thermalized();
     while (worker->progress() < 1.0) {
@@ -79,7 +75,7 @@ int main(int argc, char** argv)
       }
     }
 
-    if (is_master(comm)) {
+    if (world.rank() == 0) {
       boost::shared_ptr<alps::parapack::abstract_evaluator> evaluator
         = alps::parapack::evaluator_factory::make_evaluator(*p);
       evaluator->evaluate(m);
@@ -88,14 +84,12 @@ int main(int argc, char** argv)
     }
   }
 
-  alps::barrier(comm);
-  alps::comm_exit();
+  world.barrier();
 
 #ifndef BOOST_NO_EXCEPTIONS
   }
   catch (std::exception& exc) {
     std::cerr << exc.what() << "\n";
-    alps::comm_exit(true);
     return -1;
   }
   catch (...) {
