@@ -42,8 +42,7 @@ DIST_COMMON = $(dist_noinst_DATA) $(dist_noinst_SCRIPTS) \
 	$(srcdir)/triangle.gp.in $(srcdir)/xyz.gp.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
-	$(top_srcdir)/config/ac_alps.m4 \
-	$(top_srcdir)/config/ac_parapack.m4 $(top_srcdir)/configure.ac
+	$(top_srcdir)/config/ac_alps.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d

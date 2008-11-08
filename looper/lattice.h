@@ -26,9 +26,9 @@
 #define LOOPER_LATTICE_H_
 
 #include "alternating_tensor.h"
-#include "integer_range.h"
 #include <alps/lattice.h>
 #include <alps/math.hpp>
+#include <alps/parapack/integer_range.h>
 #include <boost/throw_exception.hpp>
 #include <stdexcept>
 #include <utility>                 // std::pair, std::make_pair
@@ -287,7 +287,7 @@ public:
   typedef alps::graph_helper<real_graph_type> graph_helper_type;
   typedef virtual_mapping<real_graph_type, virtual_graph_type>
                                               mapping_type;
-  typedef integer_range<int>                  type_range_type;
+  typedef alps::integer_range<int>            type_range_type;
 
   typedef real_graph_type    rg_type;
   typedef virtual_graph_type vg_type;

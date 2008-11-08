@@ -9,10 +9,8 @@ DEFAULT_INCLUDES = -I$(srcdir) -I$(top_srcdir) -DLOOP_CONFIG_HEADER=\"parallel_c
 #
 
 noinst_PROGRAMS = parallel_ps
-if HAVE_PARAPACK
 if HAVE_BOOST_MPI
 noinst_PROGRAMS += parallel_pm
-endif
 endif
 
 dist_parallel_ps_SOURCES = $(top_srcdir)/loop_pp.C parallel_config.h $(top_srcdir)/loop_factory.C $(top_srcdir)/loop_model.C $(top_srcdir)/path_integral.C
@@ -28,10 +26,8 @@ dist_parallel_pm_SOURCES = $(top_srcdir)/loop_pp.C parallel_config.h $(top_srcdi
 dist_noinst_DATA = parallel_ns.ip parallel_ns.op
 
 check_PROGRAMS =
-if HAVE_PARAPACK
 if HAVE_BOOST_MPI
 check_PROGRAMS += parallel_ns
-endif
 endif
 
 dist_parallel_ns_SOURCES = parallel_ns.C parallel_config.h $(top_srcdir)/loop_model.C path_integral_mpi.C

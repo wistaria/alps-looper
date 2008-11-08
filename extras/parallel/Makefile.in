@@ -38,25 +38,22 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 noinst_PROGRAMS = parallel_ps$(EXEEXT) $(am__EXEEXT_2)
-@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__append_1 = parallel_pm
+@HAVE_BOOST_MPI_TRUE@am__append_1 = parallel_pm
 check_PROGRAMS = $(am__EXEEXT_1)
-@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__append_2 = parallel_ns
+@HAVE_BOOST_MPI_TRUE@am__append_2 = parallel_ns
 TESTS =
 subdir = extras/parallel
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
-	$(top_srcdir)/config/ac_alps.m4 \
-	$(top_srcdir)/config/ac_parapack.m4 $(top_srcdir)/configure.ac
+	$(top_srcdir)/config/ac_alps.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
-@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__EXEEXT_1 =  \
-@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_TRUE@	parallel_ns$(EXEEXT)
-@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__EXEEXT_2 =  \
-@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_TRUE@	parallel_pm$(EXEEXT)
+@HAVE_BOOST_MPI_TRUE@am__EXEEXT_1 = parallel_ns$(EXEEXT)
+@HAVE_BOOST_MPI_TRUE@am__EXEEXT_2 = parallel_pm$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 dist_parallel_ns_OBJECTS = parallel_ns.$(OBJEXT) loop_model.$(OBJEXT) \
 	path_integral_mpi.$(OBJEXT)

@@ -46,23 +46,22 @@ host_triplet = @host@
 @EXIST_V31_TRUE@am__append_5 = v3.1
 @LOOPER_PRO_TRUE@am__append_6 = $(HEADERS_PRO)
 noinst_PROGRAMS = loop$(EXEEXT) loop_evaluate$(EXEEXT) $(am__EXEEXT_2) \
-	$(am__EXEEXT_3) $(am__EXEEXT_4)
+	loop_ps$(EXEEXT) $(am__EXEEXT_3)
 @HAVE_MPI_TRUE@am__append_7 = loop_mpi
-@HAVE_PARAPACK_TRUE@am__append_8 = loop_ps
-@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__append_9 = loop_pp
+@HAVE_BOOST_MPI_TRUE@am__append_8 = loop_pp
+@ENABLE_DIAG_TRUE@am__append_9 = diag.C
 @ENABLE_DIAG_TRUE@am__append_10 = diag.C
-@ENABLE_DIAG_TRUE@am__append_11 = diag.C
+@ENABLE_ISING_TRUE@am__append_11 = ising.C
 @ENABLE_ISING_TRUE@am__append_12 = ising.C
-@ENABLE_ISING_TRUE@am__append_13 = ising.C
+@ENABLE_PI_TRUE@am__append_13 = path_integral.C
 @ENABLE_PI_TRUE@am__append_14 = path_integral.C
-@ENABLE_PI_TRUE@am__append_15 = path_integral.C
+@ENABLE_SSE_TRUE@am__append_15 = sse.C
 @ENABLE_SSE_TRUE@am__append_16 = sse.C
-@ENABLE_SSE_TRUE@am__append_17 = sse.C
+@ENABLE_SSE_QWL_TRUE@am__append_17 = sse_qwl.C
 @ENABLE_SSE_QWL_TRUE@am__append_18 = sse_qwl.C
-@ENABLE_SSE_QWL_TRUE@am__append_19 = sse_qwl.C
-@ENABLE_SSE_QWL_TRUE@am__append_20 = qwl_evaluate.C
+@ENABLE_SSE_QWL_TRUE@am__append_19 = qwl_evaluate.C
 check_PROGRAMS = $(am__EXEEXT_1)
-@ENABLE_DIAG_TRUE@@ENABLE_ISING_TRUE@@ENABLE_PI_TRUE@@ENABLE_SSE_TRUE@@HAVE_PARAPACK_TRUE@am__append_21 = loop_ns
+@ENABLE_DIAG_TRUE@@ENABLE_ISING_TRUE@@ENABLE_PI_TRUE@@ENABLE_SSE_TRUE@am__append_20 = loop_ns
 subdir = .
 DIST_COMMON = README $(am__configure_deps) \
 	$(am__dist_noinst_HEADERS_DIST) $(dist_noinst_DATA) \
@@ -72,19 +71,16 @@ DIST_COMMON = README $(am__configure_deps) \
 	config/install-sh config/ltmain.sh config/missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
-	$(top_srcdir)/config/ac_alps.m4 \
-	$(top_srcdir)/config/ac_parapack.m4 $(top_srcdir)/configure.ac
+	$(top_srcdir)/config/ac_alps.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
-@ENABLE_DIAG_TRUE@@ENABLE_ISING_TRUE@@ENABLE_PI_TRUE@@ENABLE_SSE_TRUE@@HAVE_PARAPACK_TRUE@am__EXEEXT_1 = loop_ns$(EXEEXT)
+@ENABLE_DIAG_TRUE@@ENABLE_ISING_TRUE@@ENABLE_PI_TRUE@@ENABLE_SSE_TRUE@am__EXEEXT_1 = loop_ns$(EXEEXT)
 @HAVE_MPI_TRUE@am__EXEEXT_2 = loop_mpi$(EXEEXT)
-@HAVE_PARAPACK_TRUE@am__EXEEXT_3 = loop_ps$(EXEEXT)
-@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__EXEEXT_4 =  \
-@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_TRUE@	loop_pp$(EXEEXT)
+@HAVE_BOOST_MPI_TRUE@am__EXEEXT_3 = loop_pp$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 am__loop_SOURCES_DIST = loop.C loop_config.h loop_factory.h \
 	loop_factory.C loop_custom.C loop_model.C diag.C ising.C \
@@ -183,13 +179,12 @@ am__dist_noinst_HEADERS_DIST = looper/alternating_tensor.h \
 	looper/evaluator.h looper/evaluator_impl.h \
 	looper/find_bridge.h looper/flatten_matrix.h \
 	looper/generate_seed.h looper/graph.h looper/graph_impl.h \
-	looper/histogram.h looper/integer_range.h looper/lapack.h \
-	looper/lattice.h looper/location.h looper/location_impl.h \
-	looper/matrix.h looper/measurement.h looper/model.h \
-	looper/model_impl.h looper/model_parameter.h \
-	looper/montecarlo.h looper/operator.h looper/permutation.h \
-	looper/poisson_distribution.h looper/power.h \
-	looper/random_choice.h looper/stiffness.h \
+	looper/histogram.h looper/lapack.h looper/lattice.h \
+	looper/location.h looper/location_impl.h looper/matrix.h \
+	looper/measurement.h looper/model.h looper/model_impl.h \
+	looper/model_parameter.h looper/montecarlo.h looper/operator.h \
+	looper/permutation.h looper/poisson_distribution.h \
+	looper/power.h looper/random_choice.h looper/stiffness.h \
 	looper/susceptibility.h looper/temperature.h looper/time.h \
 	looper/type.h looper/union_find.h looper/version.h \
 	looper/weight.h looper/weight_impl.h \
@@ -336,10 +331,10 @@ dist_noinst_HEADERS = looper/alternating_tensor.h looper/cluster.h \
 	looper/crop.h looper/divide_if_positive.h looper/evaluator.h \
 	looper/evaluator_impl.h looper/find_bridge.h \
 	looper/flatten_matrix.h looper/generate_seed.h looper/graph.h \
-	looper/graph_impl.h looper/histogram.h looper/integer_range.h \
-	looper/lapack.h looper/lattice.h looper/location.h \
-	looper/location_impl.h looper/matrix.h looper/measurement.h \
-	looper/model.h looper/model_impl.h looper/model_parameter.h \
+	looper/graph_impl.h looper/histogram.h looper/lapack.h \
+	looper/lattice.h looper/location.h looper/location_impl.h \
+	looper/matrix.h looper/measurement.h looper/model.h \
+	looper/model_impl.h looper/model_parameter.h \
 	looper/montecarlo.h looper/operator.h looper/permutation.h \
 	looper/poisson_distribution.h looper/power.h \
 	looper/random_choice.h looper/stiffness.h \
@@ -363,13 +358,13 @@ dist_noinst_SCRIPTS = bootstrap setup.sh config/extract_date.sh config/extract_v
 dist_noinst_DATA = CITATIONS.txt LICENSE.txt README config/preamble.in \
 	config/version.in loop_ns.ip loop_ns.op
 SRC = loop_config.h loop_factory.h loop_factory.C loop_custom.C \
+	loop_model.C $(am__append_9) $(am__append_11) $(am__append_13) \
+	$(am__append_15) $(am__append_17)
+SRC_PP = loop_config.h loop_factory.h loop_factory.C loop_custom.C \
 	loop_model.C $(am__append_10) $(am__append_12) \
 	$(am__append_14) $(am__append_16) $(am__append_18)
-SRC_PP = loop_config.h loop_factory.h loop_factory.C loop_custom.C \
-	loop_model.C $(am__append_11) $(am__append_13) \
-	$(am__append_15) $(am__append_17) $(am__append_19)
 loop_SOURCES = loop.C $(SRC)
-loop_evaluate_SOURCES = loop_evaluate.C $(SRC) $(am__append_20)
+loop_evaluate_SOURCES = loop_evaluate.C $(SRC) $(am__append_19)
 loop_mpi_SOURCES = loop.C $(SRC)
 loop_mpi_LDFLAGS = @LDFLAGS_MPI@
 loop_mpi_LDADD = @LIBS_MPI@

@@ -38,17 +38,16 @@ check_PROGRAMS = alternating_tensor$(EXEEXT) bond_matrix$(EXEEXT) \
 	generate_01$(EXEEXT) gesvd$(EXEEXT) lattice$(EXEEXT) \
 	llsp$(EXEEXT) model_parameter$(EXEEXT) parse_vector$(EXEEXT) \
 	permutation$(EXEEXT) poisson_distribution$(EXEEXT) \
-	postorder$(EXEEXT) random_choice$(EXEEXT) range$(EXEEXT) \
-	sign$(EXEEXT) site_matrix$(EXEEXT) spinmodel_helper$(EXEEXT) \
-	syev$(EXEEXT) temperature$(EXEEXT) union_find$(EXEEXT) \
+	postorder$(EXEEXT) random_choice$(EXEEXT) sign$(EXEEXT) \
+	site_matrix$(EXEEXT) spinmodel_helper$(EXEEXT) syev$(EXEEXT) \
+	temperature$(EXEEXT) union_find$(EXEEXT) \
 	virtual_lattice$(EXEEXT) weight$(EXEEXT)
 subdir = test
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
-	$(top_srcdir)/config/ac_alps.m4 \
-	$(top_srcdir)/config/ac_parapack.m4 $(top_srcdir)/configure.ac
+	$(top_srcdir)/config/ac_alps.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -117,10 +116,6 @@ am_random_choice_OBJECTS = random_choice.$(OBJEXT)
 random_choice_OBJECTS = $(am_random_choice_OBJECTS)
 random_choice_LDADD = $(LDADD)
 random_choice_DEPENDENCIES =
-am_range_OBJECTS = range.$(OBJEXT)
-range_OBJECTS = $(am_range_OBJECTS)
-range_LDADD = $(LDADD)
-range_DEPENDENCIES =
 am_sign_OBJECTS = sign.$(OBJEXT)
 sign_OBJECTS = $(am_sign_OBJECTS)
 sign_LDADD = $(LDADD)
@@ -171,7 +166,7 @@ SOURCES = $(alternating_tensor_SOURCES) $(bond_matrix_SOURCES) \
 	$(llsp_SOURCES) $(model_parameter_SOURCES) \
 	$(parse_vector_SOURCES) $(permutation_SOURCES) \
 	$(poisson_distribution_SOURCES) $(postorder_SOURCES) \
-	$(random_choice_SOURCES) $(range_SOURCES) $(sign_SOURCES) \
+	$(random_choice_SOURCES) $(sign_SOURCES) \
 	$(site_matrix_SOURCES) $(spinmodel_helper_SOURCES) \
 	$(syev_SOURCES) $(temperature_SOURCES) $(union_find_SOURCES) \
 	$(virtual_lattice_SOURCES) $(weight_SOURCES)
@@ -182,7 +177,7 @@ DIST_SOURCES = $(alternating_tensor_SOURCES) $(bond_matrix_SOURCES) \
 	$(llsp_SOURCES) $(model_parameter_SOURCES) \
 	$(parse_vector_SOURCES) $(permutation_SOURCES) \
 	$(poisson_distribution_SOURCES) $(postorder_SOURCES) \
-	$(random_choice_SOURCES) $(range_SOURCES) $(sign_SOURCES) \
+	$(random_choice_SOURCES) $(sign_SOURCES) \
 	$(site_matrix_SOURCES) $(spinmodel_helper_SOURCES) \
 	$(syev_SOURCES) $(temperature_SOURCES) $(union_find_SOURCES) \
 	$(virtual_lattice_SOURCES) $(weight_SOURCES)
@@ -320,7 +315,6 @@ dist_noinst_DATA = \
 	poisson_distribution.ip poisson_distribution.op \
 	postorder.ip postorder.op \
 	random_choice.op \
-	range.ip range.op \
 	sign.ip sign.op \
 	site_matrix.ip site_matrix.op \
 	spinmodel_helper.ip spinmodel_helper.op \
@@ -346,7 +340,6 @@ permutation_SOURCES = permutation.C
 poisson_distribution_SOURCES = poisson_distribution.C
 postorder_SOURCES = postorder.C
 random_choice_SOURCES = random_choice.C
-range_SOURCES = range.C
 sign_SOURCES = sign.C
 site_matrix_SOURCES = site_matrix.C
 spinmodel_helper_SOURCES = spinmodel_helper.C
@@ -445,9 +438,6 @@ postorder$(EXEEXT): $(postorder_OBJECTS) $(postorder_DEPENDENCIES)
 random_choice$(EXEEXT): $(random_choice_OBJECTS) $(random_choice_DEPENDENCIES) 
 	@rm -f random_choice$(EXEEXT)
 	$(CXXLINK) $(random_choice_OBJECTS) $(random_choice_LDADD) $(LIBS)
-range$(EXEEXT): $(range_OBJECTS) $(range_DEPENDENCIES) 
-	@rm -f range$(EXEEXT)
-	$(CXXLINK) $(range_OBJECTS) $(range_LDADD) $(LIBS)
 sign$(EXEEXT): $(sign_OBJECTS) $(sign_DEPENDENCIES) 
 	@rm -f sign$(EXEEXT)
 	$(CXXLINK) $(sign_OBJECTS) $(sign_LDADD) $(LIBS)
@@ -495,7 +485,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/poisson_distribution.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/postorder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/random_choice.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/range.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sign.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/site_matrix.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/spinmodel_helper.Po@am__quote@

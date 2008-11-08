@@ -12,11 +12,9 @@ noinst_PROGRAMS = xyz xyz_evaluate
 if HAVE_MPI
 noinst_PROGRAMS += xyz_mpi
 endif
-if HAVE_PARAPACK
 noinst_PROGRAMS += xyz_ps xyz_pevaluate
 if HAVE_BOOST_MPI
 noinst_PROGRAMS += xyz_pp
-endif
 endif
 
 SRC = $(top_srcdir)/loop_factory.C $(top_srcdir)/loop_model.C $(top_srcdir)/diag.C $(top_srcdir)/path_integral.C $(top_srcdir)/sse.C
@@ -41,9 +39,7 @@ nodist_xyz_pevaluate_SOURCES = $(top_srcdir)/loop_pevaluate.C $(SRC)
 dist_noinst_DATA = xyz_ns.ip xyz_ns.op
 
 check_PROGRAMS =
-if HAVE_PARAPACK
 check_PROGRAMS += xyz_ns
-endif
 
 nodist_xyz_ns_SOURCES = $(top_srcdir)/loop_ns.C $(SRC)
 

@@ -22,6 +22,6 @@
 *
 *****************************************************************************/
 
-#include <parapack/scheduler.h>
+#include <alps/parapack/scheduler.h>
 
 int main(int argc, char** argv) { return alps::parapack::run_sequential(argc, argv); }

@@ -33,9 +33,7 @@
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/tuple/tuple.hpp>
-#ifdef HAVE_PARAPACK
-# include <parapack/serial.h>
-#endif
+#include <alps/parapack/serial.h>
 
 namespace {
 

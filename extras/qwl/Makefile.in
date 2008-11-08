@@ -37,26 +37,21 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-noinst_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2)
-#noinst_PROGRAMS += pi_ns sse_ns
-@HAVE_PARAPACK_TRUE@am__append_1 = sse_ns sse_ps
-@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__append_2 = sse_pp
+noinst_PROGRAMS = sse_ns$(EXEEXT) sse_ps$(EXEEXT) $(am__EXEEXT_1)
+@HAVE_BOOST_MPI_TRUE@am__append_1 = sse_pp
 check_PROGRAMS =
-TESTS = $(am__EXEEXT_3)
+TESTS = $(am__EXEEXT_2)
 subdir = extras/qwl
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
-	$(top_srcdir)/config/ac_alps.m4 \
-	$(top_srcdir)/config/ac_parapack.m4 $(top_srcdir)/configure.ac
+	$(top_srcdir)/config/ac_alps.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
-@HAVE_PARAPACK_TRUE@am__EXEEXT_1 = sse_ns$(EXEEXT) sse_ps$(EXEEXT)
-@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__EXEEXT_2 =  \
-@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_TRUE@	sse_pp$(EXEEXT)
+@HAVE_BOOST_MPI_TRUE@am__EXEEXT_1 = sse_pp$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 dist_sse_ns_OBJECTS = sse_ns.$(OBJEXT)
 am__objects_1 = loop_custom.$(OBJEXT) loop_factory.$(OBJEXT) \
@@ -105,7 +100,7 @@ DIST_SOURCES = $(dist_sse_ns_SOURCES) $(dist_sse_pp_SOURCES) \
 DATA = $(dist_noinst_DATA)
 ETAGS = etags
 CTAGS = ctags
-am__EXEEXT_3 =
+am__EXEEXT_2 =
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@

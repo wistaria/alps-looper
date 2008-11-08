@@ -32,10 +32,8 @@
 #include <looper/temperature.h>
 #include <looper/type.h>
 #include <looper/union_find.h>
-#ifdef HAVE_PARAPACK
-# include <parapack/serial.h>
-# include <parapack/exchange.h>
-#endif
+#include <alps/parapack/serial.h>
+#include <alps/parapack/exchange.h>
 
 #ifndef LOOPER_ONLY_PATH_INTEGRAL
 
@@ -407,14 +405,10 @@ const bool worker_registered =
 const bool evaluator_registered =
   loop_factory::instance()->register_evaluator<loop_evaluator>("SSE");
 
-#ifdef HAVE_PARAPACK
-
 PARAPACK_REGISTER_WORKER(parapack_single_worker<loop_worker>, "sse");
 PARAPACK_REGISTER_WORKER(alps::parapack::single_exchange_worker<parapack_single_worker<loop_worker> >, "sse exchange");
 PARAPACK_REGISTER_EVALUATOR(loop_evaluator, "sse");
 PARAPACK_REGISTER_EVALUATOR(loop_evaluator, "sse exchange");
-
-#endif
 
 } // end namespace
 

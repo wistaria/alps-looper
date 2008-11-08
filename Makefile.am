@@ -41,7 +41,6 @@ dist_noinst_HEADERS = \
 	looper/graph.h \
 	looper/graph_impl.h \
 	looper/histogram.h \
-	looper/integer_range.h \
 	looper/lapack.h \
 	looper/lattice.h \
 	looper/location.h \
@@ -91,11 +90,9 @@ noinst_PROGRAMS = loop loop_evaluate
 if HAVE_MPI
 noinst_PROGRAMS += loop_mpi
 endif
-if HAVE_PARAPACK
 noinst_PROGRAMS += loop_ps
 if HAVE_BOOST_MPI
 noinst_PROGRAMS += loop_pp
-endif
 endif
 
 SRC = loop_config.h loop_factory.h loop_factory.C loop_custom.C loop_model.C
@@ -145,13 +142,11 @@ loop_pp_LDADD = @LIBS_MPI@
 dist_noinst_DATA += loop_ns.ip loop_ns.op
 
 check_PROGRAMS =
-if HAVE_PARAPACK
 if ENABLE_DIAG
 if ENABLE_ISING
 if ENABLE_PI
 if ENABLE_SSE
 check_PROGRAMS += loop_ns
-endif
 endif
 endif
 endif

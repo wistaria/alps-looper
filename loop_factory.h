@@ -28,9 +28,7 @@
 #include <boost/throw_exception.hpp>
 #include <map>
 #include <stdexcept>
-#ifdef HAVE_PARAPACK
-# include <parapack/serial.h>
-#endif
+#include <alps/parapack/serial.h>
 
 template<typename WORKER>
 class alps_worker : public alps::scheduler::MCRun {
@@ -46,8 +44,6 @@ public:
 private:
   WORKER worker_;
 };
-
-#ifdef HAVE_PARAPACK
 
 template<typename WORKER>
 class parapack_single_worker : public alps::parapack::mc_worker {
@@ -69,8 +65,6 @@ public:
 private:
   WORKER worker_;
 };
-
-#endif
 
 class abstract_worker_creator {
 public:

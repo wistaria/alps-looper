@@ -32,11 +32,8 @@
 #include <looper/temperature.h>
 #include <looper/type.h>
 #include <looper/union_find.h>
-
-#ifdef HAVE_PARAPACK
-# include <parapack/serial.h>
-# include <parapack/exchange.h>
-#endif
+#include <alps/parapack/serial.h>
+#include <alps/parapack/exchange.h>
 
 namespace {
 
@@ -387,13 +384,9 @@ const bool worker_registered =
 const bool evaluator_registered =
   loop_factory::instance()->register_evaluator<loop_evaluator>("path integral");
 
-#ifdef HAVE_PARAPACK
-
 PARAPACK_REGISTER_WORKER(parapack_single_worker<loop_worker>, "path integral");
 PARAPACK_REGISTER_WORKER(alps::parapack::single_exchange_worker<parapack_single_worker<loop_worker> >, "path integral exchange");
 PARAPACK_REGISTER_EVALUATOR(loop_evaluator, "path integral");
 PARAPACK_REGISTER_EVALUATOR(loop_evaluator, "path integral exchange");
-
-#endif
 
 } // end namespace

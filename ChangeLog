@@ -1,3 +1,10 @@
+2008-11-08  Synge Todo <wistaria@comp-phys.org>
+
+	* Adapted for parapack scheduler inclusion into ALPS library
+	  (To-Do: remove dependency on conventional ALPS scheduler)
+
+	* Removed looper/integer_range.h (use alps/parapack/integer_range.h instead)
+
 2008-10-08  Synge Todo <wistaria@comp-phys.org>
 
 	* Update for alps-parapack new factory class

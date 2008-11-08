@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2004-2007 by Stefan Wessel <wessel@comp-phys.org>,
+* Copyright (C) 2004-2008 by Stefan Wessel <wessel@comp-phys.org>,
 *                            Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
@@ -26,9 +26,8 @@
 #ifndef LOOPER_HISTOGRAM_H
 #define LOOPER_HISTOGRAM_H
 
-#include "integer_range.h"
-
 #include <alps/osiris.h>
+#include <alps/parapack/integer_range.h>
 #include <cmath>
 #include <map>
 #include <string>
@@ -40,7 +39,7 @@ class wl_histogram {
 public:
   wl_histogram() : offset_(0) {}
   template<class T>
-  explicit wl_histogram(integer_range<T> const& r) : offset_(r.min())
+  explicit wl_histogram(alps::integer_range<T> const& r) : offset_(r.min())
   {
     logg_.resize(r.size(), 0);
     hist_.resize(r.size(), 0);
@@ -127,13 +126,13 @@ public:
 
   histogram_set() {}
   template<typename U>
-  histogram_set(integer_range<U> const& r) :
+  histogram_set(alps::integer_range<U> const& r) :
     offset_(r.min()), size_(r.size()), map_() {}
   histogram_set(histogram_set const& h) :
     offset_(h.offset_), size_(h.size_), map_(h.map_), pos_(h.pos_) {}
 
   template<typename U>
-  void initialize(integer_range<U> const& r) {
+  void initialize(alps::integer_range<U> const& r) {
     offset_ = r.min();
     size_ = r.size();
     map_.clear();

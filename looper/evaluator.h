@@ -27,17 +27,11 @@
 
 #include "version.h"
 #include <alps/scheduler.h>
-#ifdef HAVE_PARAPACK
-# include <parapack/serial.h>
-#endif
+#include <alps/parapack/serial.h>
 
 namespace looper {
 
-class abstract_evaluator
-#ifdef HAVE_PARAPACK
-  : public alps::parapack::simple_evaluator
-#endif
-{
+class abstract_evaluator : public alps::parapack::simple_evaluator {
 public:
   virtual ~abstract_evaluator() {}
   virtual void pre_evaluate(alps::ObservableSet& m, alps::Parameters const&,

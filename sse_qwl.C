@@ -94,7 +94,7 @@ private:
   // parameters
   bool use_improved_estimator;
   // Wang-Landau parameters
-  looper::integer_range<int> exp_range;
+  alps::integer_range<int> exp_range;
   bool store_all_histograms;
   int min_visit;
   double flatness;

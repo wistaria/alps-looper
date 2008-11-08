@@ -40,11 +40,10 @@ undefine([package_date])
 undefine([package_bugreport])
 
 dnl
-dnl check for ALPS and ALPS/parapack
+dnl check for ALPS
 dnl
 
 AC_ALPS
-AC_PARAPACK
 
 dnl
 dnl compiler

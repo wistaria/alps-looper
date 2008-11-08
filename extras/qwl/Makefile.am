@@ -9,12 +9,10 @@ DEFAULT_INCLUDES = -I$(srcdir) -I$(top_srcdir)
 #
 
 noinst_PROGRAMS =
-if HAVE_PARAPACK
 #noinst_PROGRAMS += pi_ns sse_ns
 noinst_PROGRAMS += sse_ns sse_ps
 if HAVE_BOOST_MPI
 noinst_PROGRAMS += sse_pp
-endif
 endif
 
 SRC = $(top_srcdir)/loop_custom.C $(top_srcdir)/loop_factory.C $(top_srcdir)/loop_model.C
@@ -36,10 +34,8 @@ nodist_sse_pp_SOURCES = $(SRC)
 
 dist_noinst_DATA = sse_ns.ip sse_ns.op
 check_PROGRAMS =
-if HAVE_PARAPACK
 #check_PROGRAMS += pi_ns sse_ns
 #check_PROGRAMS += sse_ns
-endif
 
 TESTS = $(check_PROGRAMS)
 TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)

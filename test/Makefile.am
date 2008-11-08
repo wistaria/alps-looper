@@ -14,7 +14,6 @@ dist_noinst_DATA = \
 	poisson_distribution.ip poisson_distribution.op \
 	postorder.ip postorder.op \
 	random_choice.op \
-	range.ip range.op \
 	sign.ip sign.op \
 	site_matrix.ip site_matrix.op \
 	spinmodel_helper.ip spinmodel_helper.op \
@@ -41,7 +40,6 @@ check_PROGRAMS = \
 	poisson_distribution \
 	postorder \
 	random_choice \
-	range \
 	sign \
 	site_matrix \
 	spinmodel_helper \
@@ -67,7 +65,6 @@ permutation_SOURCES = permutation.C
 poisson_distribution_SOURCES = poisson_distribution.C
 postorder_SOURCES = postorder.C
 random_choice_SOURCES = random_choice.C
-range_SOURCES = range.C
 sign_SOURCES = sign.C
 site_matrix_SOURCES = site_matrix.C
 spinmodel_helper_SOURCES = spinmodel_helper.C

@@ -12,11 +12,9 @@ noinst_PROGRAMS = top top_evaluate
 if HAVE_MPI
 noinst_PROGRAMS += top_mpi
 endif
-if HAVE_PARAPACK
 noinst_PROGRAMS += top_ps top_pevaluate
 if HAVE_BOOST_MPI
 noinst_PROGRAMS += top_pp
-endif
 endif
 
 SRC = $(top_srcdir)/loop_factory.C $(top_srcdir)/loop_model.C $(top_srcdir)/path_integral.C
@@ -41,9 +39,7 @@ nodist_top_pevaluate_SOURCES = $(top_srcdir)/loop_pevaluate.C $(SRC)
 dist_noinst_DATA = top_ns.ip top_ns.op
 
 check_PROGRAMS =
-if HAVE_PARAPACK
 check_PROGRAMS += top_ns
-endif
 
 nodist_top_ns_SOURCES =  $(top_srcdir)/loop_ns.C $(SRC)
 

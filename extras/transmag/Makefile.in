@@ -38,29 +38,23 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 noinst_PROGRAMS = transmag$(EXEEXT) transmag_evaluate$(EXEEXT) \
-	$(am__EXEEXT_2) $(am__EXEEXT_3) $(am__EXEEXT_4)
+	$(am__EXEEXT_1) transmag_ps$(EXEEXT) \
+	transmag_pevaluate$(EXEEXT) $(am__EXEEXT_2)
 @HAVE_MPI_TRUE@am__append_1 = transmag_mpi
-@HAVE_PARAPACK_TRUE@am__append_2 = transmag_ps transmag_pevaluate
-@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__append_3 = transmag_pp
-check_PROGRAMS = $(am__EXEEXT_1)
-@HAVE_PARAPACK_TRUE@am__append_4 = transmag_ns
+@HAVE_BOOST_MPI_TRUE@am__append_2 = transmag_pp
+check_PROGRAMS = transmag_ns$(EXEEXT)
 subdir = extras/transmag
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/alternating_chain.xml.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
-	$(top_srcdir)/config/ac_alps.m4 \
-	$(top_srcdir)/config/ac_parapack.m4 $(top_srcdir)/configure.ac
+	$(top_srcdir)/config/ac_alps.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES = alternating_chain.xml
-@HAVE_PARAPACK_TRUE@am__EXEEXT_1 = transmag_ns$(EXEEXT)
-@HAVE_MPI_TRUE@am__EXEEXT_2 = transmag_mpi$(EXEEXT)
-@HAVE_PARAPACK_TRUE@am__EXEEXT_3 = transmag_ps$(EXEEXT) \
-@HAVE_PARAPACK_TRUE@	transmag_pevaluate$(EXEEXT)
-@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_TRUE@am__EXEEXT_4 =  \
-@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_TRUE@	transmag_pp$(EXEEXT)
+@HAVE_MPI_TRUE@am__EXEEXT_1 = transmag_mpi$(EXEEXT)
+@HAVE_BOOST_MPI_TRUE@am__EXEEXT_2 = transmag_pp$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 dist_transmag_OBJECTS =
 am__objects_1 = loop_factory.$(OBJEXT) loop_model.$(OBJEXT) \

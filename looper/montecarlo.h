@@ -25,10 +25,9 @@
 #ifndef LOOPER_MONTECARLO_H
 #define LOOPER_MONTECARLO_H
 
-#include "integer_range.h"
-
 #include <alps/expression.h>
 #include <alps/osiris.h>
+#include <alps/parapack/integer_range.h>
 #include <boost/throw_exception.hpp>
 #include <stdexcept>
 
@@ -36,7 +35,7 @@ namespace looper {
 
 class mc_steps {
 public:
-  typedef integer_range<unsigned int> range_type;
+  typedef alps::integer_range<unsigned int> range_type;
 
   mc_steps() : mcs_(0), sweep_("[0:]"), therm_(0) {}
   mc_steps(alps::Parameters const& p) : mcs_(0),
@@ -95,13 +94,14 @@ class wl_steps {
 public:
   wl_steps() : mcs_(0), stage_(0) {}
   template<class T>
-  wl_steps(alps::Parameters const& p, integer_range<T> const& exp_range) : mcs_(0), stage_(0),
-    multicanonical_(!p.defined("DISABLE_MULTICANONICAL_MEASUREMENT")),
-    zhou_bhatt_(!p.defined("DISABLE_ZHOU_BHATT")),
-    block_(zhou_bhatt_ ? exp_range.size() : static_cast<int>(
-      p.value_or_default("BLOCK_SWEEPS", 65536))),
-    sweep_(p.value_or_default("SWEEPS", 65536)),
-    iteration_(p.value_or_default("WANG_LANDAU_ITERATIONS", 16)) {
+  wl_steps(alps::Parameters const& p, alps::integer_range<T> const& exp_range)
+    : mcs_(0), stage_(0),
+      multicanonical_(!p.defined("DISABLE_MULTICANONICAL_MEASUREMENT")),
+      zhou_bhatt_(!p.defined("DISABLE_ZHOU_BHATT")),
+      block_(zhou_bhatt_ ? exp_range.size() : static_cast<int>(
+        p.value_or_default("BLOCK_SWEEPS", 65536))),
+      sweep_(p.value_or_default("SWEEPS", 65536)),
+      iteration_(p.value_or_default("WANG_LANDAU_ITERATIONS", 16)) {
   }
 
   wl_steps& operator++() { ++mcs_; return *this; }

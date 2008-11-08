@@ -12,11 +12,9 @@ noinst_PROGRAMS = transmag transmag_evaluate
 if HAVE_MPI
 noinst_PROGRAMS += transmag_mpi
 endif
-if HAVE_PARAPACK
 noinst_PROGRAMS += transmag_ps transmag_pevaluate
 if HAVE_BOOST_MPI
 noinst_PROGRAMS += transmag_pp
-endif
 endif
 
 SRC = $(top_srcdir)/loop_factory.C $(top_srcdir)/loop_model.C $(top_srcdir)/diag.C $(top_srcdir)/path_integral.C
@@ -41,9 +39,7 @@ nodist_transmag_pevaluate_SOURCES = $(top_srcdir)/loop_pevaluate.C $(SRC)
 dist_noinst_DATA = transmag_ns.ip transmag_ns.op
 
 check_PROGRAMS =
-if HAVE_PARAPACK
 check_PROGRAMS += transmag_ns
-endif
 
 nodist_transmag_ns_SOURCES =  $(top_srcdir)/loop_ns.C $(SRC)
 

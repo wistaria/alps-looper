@@ -12,11 +12,9 @@ noinst_PROGRAMS = gap gap_evaluate
 if HAVE_MPI
 noinst_PROGRAMS += gap_mpi
 endif
-if HAVE_PARAPACK
 noinst_PROGRAMS += gap_ps gap_pevaluate
 if HAVE_BOOST_MPI
 noinst_PROGRAMS += gap_pp
-endif
 endif
 
 SRC = $(top_srcdir)/loop_factory.C $(top_srcdir)/loop_model.C $(top_srcdir)/path_integral.C
@@ -41,9 +39,7 @@ nodist_gap_pevaluate_SOURCES = $(top_srcdir)/loop_pevaluate.C $(SRC)
 dist_noinst_DATA = gap_ns.ip gap_ns.op
 
 check_PROGRAMS =
-if HAVE_PARAPACK
 check_PROGRAMS += gap_ns
-endif
 
 nodist_gap_ns_SOURCES =  $(top_srcdir)/loop_ns.C $(SRC)
 

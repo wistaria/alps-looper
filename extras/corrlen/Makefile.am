@@ -12,11 +12,9 @@ noinst_PROGRAMS = corrlen corrlen_evaluate
 if HAVE_MPI
 noinst_PROGRAMS += corrlen_mpi
 endif
-if HAVE_PARAPACK
 noinst_PROGRAMS += corrlen_ps corrlen_pevaluate
 if HAVE_BOOST_MPI
 noinst_PROGRAMS += corrlen_pp
-endif
 endif
 
 SRC = $(top_srcdir)/loop_factory.C $(top_srcdir)/loop_model.C $(top_srcdir)/path_integral.C
@@ -41,9 +39,7 @@ nodist_corrlen_pevaluate_SOURCES = $(top_srcdir)/loop_pevaluate.C $(SRC)
 dist_noinst_DATA = corrlen_ns.ip corrlen_ns.op
 
 check_PROGRAMS =
-if HAVE_PARAPACK
 check_PROGRAMS += corrlen_ns
-endif
 
 nodist_corrlen_ns_SOURCES =  $(top_srcdir)/loop_ns.C $(SRC)
 
