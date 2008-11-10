@@ -32,7 +32,7 @@
 #include <looper/type.h>
 #include <looper/union_find.h>
 #include <looper/parallel.h>
-#include <parapack/parallel.h>
+#include <alps/parapack/parallel.h>
 
 namespace {
 
