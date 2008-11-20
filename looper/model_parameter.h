@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -561,9 +561,10 @@ void model_parameter::set_parameters_impl(alps::Parameters params, const G& g,
     energy_offset_ += site(s, g).c;
   BOOST_FOREACH(typename alps::graph_traits<G>::bond_descriptor b, bonds(g))
     energy_offset_ += bond(b, g).c;
-  if (has_d_term())
+  if (has_d_term()) {
     BOOST_FOREACH(typename alps::graph_traits<G>::site_descriptor s, sites(g))
       energy_offset_ += 0.5 * site(s, g).s.get_twice() * site(s, g).d;
+  }
 
   if (params.defined("LOOPER_DEBUG[MODEL OUTPUT]")) {
     if (params["LOOPER_DEBUG[MODEL OUTPUT]"] == "cerr")
@@ -621,12 +622,13 @@ bool model_parameter::check_frustration(const G& g) const {
     w.push_back(alps::is_zero<1>(bond(b, g).jz) ? 0 : (bond(b, g).jz < 0 ? 1 : -1));
   bool frustrated =
     alps::is_frustrated(g, boost::make_iterator_property_map(w.begin(), get(bond_index_t(), g)));
-  if (has_d_ && !frustrated)
+  if (has_d_ && !frustrated) {
     BOOST_FOREACH(typename alps::graph_traits<G>::site_descriptor s, sites(g))
       if (site(s, g).s.get_twice() > 1 && alps::is_positive<1>(site(s, g).d)) {
         frustrated = true;
         break;
       }
+  }
   return frustrated;
 }
 
