@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2009 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -73,7 +73,9 @@ public:
 
   bool is_quantal() const { return quantal_; }
   bool is_frustrated() const { return frustrated_; }
-  double energy_offset() const { return offset_; }
+  double energy_offset() const { return site_energy_offset() + bond_energy_offset(); }
+  double site_energy_offset() const { return site_offset_; }
+  double bond_energy_offset() const { return bond_offset_; }
 
   bool has_field() const { return field_.size(); }
   std::vector<double> const& field() const { return field_; }
@@ -104,7 +106,8 @@ public:
 private:
   bool quantal_;
   bool frustrated_;
-  double offset_;
+  double site_offset_;
+  double bond_offset_;
   graph_chooser<LG> chooser_;
   std::vector<double> field_;
   bool signed_;

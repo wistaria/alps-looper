@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2009 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -203,7 +203,8 @@ public:
 
   model_parameter() :
     sites_(), bonds_(), use_site_indices_(false), use_bond_indices_(false), quantal_(false),
-    has_hz_(false), has_d_(false), signed_(false), frustrated_(false), energy_offset_(0) {
+    has_hz_(false), has_d_(false), signed_(false), frustrated_(false),
+    site_offset_(0), bond_offset_(0) {
   }
   template<typename G, typename I>
   model_parameter(const alps::Parameters& params, const alps::graph_helper<G>& gh,
@@ -262,7 +263,8 @@ public:
   bool has_d_term() const { return has_d_; }
   bool is_signed() const { return signed_; }
   bool is_frustrated() const { return frustrated_; }
-  double energy_offset() const { return energy_offset_; }
+  double site_energy_offset() const { return site_offset_; }
+  double bond_energy_offset() const { return bond_offset_; }
 
   template<typename G>
   void output(std::ostream& os, G const& g) const;
@@ -293,7 +295,8 @@ private:
   bool has_d_;
   bool signed_;
   bool frustrated_;
-  double energy_offset_;
+  double site_offset_;
+  double bond_offset_;
 };
 
 //
@@ -470,7 +473,8 @@ void model_parameter::set_parameters_impl(G const& g, site_parameter const& sp,
   has_d_ = false;
   signed_ = false;
   frustrated_ = false;
-  energy_offset_ = 0;
+  site_offset_ = 0;
+  bond_offset_ = 0;
 }
 
 template<typename G, typename I>
@@ -556,14 +560,15 @@ void model_parameter::set_parameters_impl(alps::Parameters params, const G& g,
     }
   }
 
-  energy_offset_ = 0;
+  site_offset_ = 0;
   BOOST_FOREACH(typename alps::graph_traits<G>::site_descriptor s, sites(g))
-    energy_offset_ += site(s, g).c;
+    site_offset_ += site(s, g).c;
+  bond_offset_ = 0;
   BOOST_FOREACH(typename alps::graph_traits<G>::bond_descriptor b, bonds(g))
-    energy_offset_ += bond(b, g).c;
+    bond_offset_ += bond(b, g).c;
   if (has_d_term()) {
     BOOST_FOREACH(typename alps::graph_traits<G>::site_descriptor s, sites(g))
-      energy_offset_ += 0.5 * site(s, g).s.get_twice() * site(s, g).d;
+      site_offset_ += 0.5 * site(s, g).s.get_twice() * site(s, g).d;
   }
 
   if (params.defined("LOOPER_DEBUG[MODEL OUTPUT]")) {

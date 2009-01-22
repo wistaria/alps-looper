@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2009 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -374,12 +374,13 @@ public:
       }
     }
 
-    energy_offset_ = 0;
-    BOOST_FOREACH(site_weight_t const& w, site_weights_) energy_offset_ += w.second.offset;
-    BOOST_FOREACH(bond_weight_t const& w, bond_weights_) energy_offset_ += w.second.offset;
+    site_offset_ = 0;
+    bond_offset_ = 0;
+    BOOST_FOREACH(site_weight_t const& w, site_weights_) site_offset_ += w.second.offset;
+    BOOST_FOREACH(bond_weight_t const& w, bond_weights_) bond_offset_ += w.second.offset;
     if (m.has_d_term())
       BOOST_FOREACH(typename real_site_descriptor<LAT>::type rs, sites(lat.rg()))
-        energy_offset_ -= 0.25 * m.site(rs, lat.rg()).s.get_twice() * m.site(rs, lat.rg()).d;
+        site_offset_ -= 0.25 * m.site(rs, lat.rg()).s.get_twice() * m.site(rs, lat.rg()).d;
   }
 
   std::pair<site_weight_iterator, site_weight_iterator>
@@ -389,11 +390,13 @@ public:
 
   double weight() const { return weight_; }
   double rho() const { return weight(); }
-  double energy_offset() const { return energy_offset_; }
+  double site_energy_offset() const { return site_offset_; }
+  double bond_energy_offset() const { return bond_offset_; }
 
 private:
   double weight_;
-  double energy_offset_;
+  double site_offset_;
+  double bond_offset_;
   std::vector<site_weight_t> site_weights_;
   std::vector<bond_weight_t> bond_weights_;
 };

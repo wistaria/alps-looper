@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2009 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -75,7 +75,8 @@ void spinmodel_helper<RG, LG, WH>::init(alps::Parameters const& p, lattice_helpe
   }
 
   // energy offset
-  offset_ = mp.energy_offset() + wt.energy_offset();
+  site_offset_ = mp.site_energy_offset() + wt.site_energy_offset();
+  bond_offset_ = mp.bond_energy_offset() + wt.bond_energy_offset();
 }
 
 } // end namespace looper
