@@ -2,6 +2,7 @@ SEED    = 23125
 SWEEPS  = 1024
 LATTICE = "chain lattice"
 MODEL   = "spin"
+J = 1
 T = 0.25
 L = 4
 WORKER = "path integral"

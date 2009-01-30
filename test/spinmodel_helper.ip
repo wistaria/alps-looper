@@ -2,7 +2,7 @@ LATTICE = "chain lattice"
 L = 4
 MODEL   = "spin"
 
-{}
+{ J = 1; }
 
 {
   USE_BOND_INDICES_AS_TYPES = true

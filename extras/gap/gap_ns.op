@@ -2,6 +2,7 @@
 SEED = 23125;
 SWEEPS = 1024;
 MODEL = spin;
+J = 1;
 T = 0.25;
 WORKER = "path integral";
 LATTICE = "chain lattice";
@@ -208,6 +209,7 @@ Volume: 4 +/- 0
 SEED = 23125;
 SWEEPS = 1024;
 MODEL = spin;
+J = 1;
 T = 0.25;
 WORKER = "path integral";
 LATTICE = "chain lattice";
@@ -415,6 +417,7 @@ Volume: 4 +/- 0
 SEED = 23125;
 SWEEPS = 1024;
 MODEL = spin;
+J = 1;
 T = 0.25;
 WORKER = "path integral";
 LATTICE = site;
@@ -621,6 +624,7 @@ Volume: 1 +/- 0
 SEED = 23125;
 SWEEPS = 1024;
 MODEL = spin;
+J = 1;
 T = 0.25;
 WORKER = "path integral";
 LATTICE = "chain lattice";
@@ -830,6 +834,7 @@ Volume: 4 +/- 0
 SEED = 23125;
 SWEEPS = 1024;
 MODEL = spin;
+J = 1;
 T = 0.25;
 WORKER = "path integral";
 DISABLE_IMPROVED_ESTIMATOR = 1;
@@ -971,6 +976,7 @@ Volume: 4 +/- 0
 SEED = 23125;
 SWEEPS = 1024;
 MODEL = spin;
+J = 1;
 T = 0.25;
 WORKER = "path integral";
 DISABLE_IMPROVED_ESTIMATOR = 1;
@@ -1113,6 +1119,7 @@ Volume: 4 +/- 0
 SEED = 23125;
 SWEEPS = 1024;
 MODEL = spin;
+J = 1;
 T = 0.25;
 WORKER = "path integral";
 DISABLE_IMPROVED_ESTIMATOR = 1;
@@ -1254,6 +1261,7 @@ Volume: 1 +/- 0
 SEED = 23125;
 SWEEPS = 1024;
 MODEL = spin;
+J = 1;
 T = 0.25;
 WORKER = "path integral";
 DISABLE_IMPROVED_ESTIMATOR = 1;

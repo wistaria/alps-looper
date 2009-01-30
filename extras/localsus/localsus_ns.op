@@ -2,6 +2,7 @@
 SEED = 23125;
 SWEEPS = 1024;
 MODEL = spin;
+J = 1;
 T = 0.25;
 WORKER = "path integral";
 MEASURE[Local Susceptibility] = 1;
@@ -191,6 +192,7 @@ Volume: 4 +/- 0
 SEED = 23125;
 SWEEPS = 1024;
 MODEL = spin;
+J = 1;
 T = 0.25;
 WORKER = "path integral";
 MEASURE[Local Susceptibility] = 1;
@@ -381,6 +383,7 @@ Volume: 4 +/- 0
 SEED = 23125;
 SWEEPS = 1024;
 MODEL = spin;
+J = 1;
 T = 0.25;
 WORKER = "path integral";
 MEASURE[Local Susceptibility] = 1;
@@ -613,6 +616,7 @@ Volume: 4 +/- 0
 SEED = 23125;
 SWEEPS = 1024;
 MODEL = spin;
+J = 1;
 T = 0.25;
 WORKER = "path integral";
 MEASURE[Local Susceptibility] = 1;
@@ -846,6 +850,7 @@ Volume: 4 +/- 0
 SEED = 23125;
 SWEEPS = 1024;
 MODEL = spin;
+J = 1;
 T = 0.25;
 WORKER = "path integral";
 MEASURE[Local Susceptibility] = 1;
@@ -1001,6 +1006,7 @@ Volume: 4 +/- 0
 SEED = 23125;
 SWEEPS = 1024;
 MODEL = spin;
+J = 1;
 T = 0.25;
 WORKER = "path integral";
 MEASURE[Local Susceptibility] = 1;
@@ -1157,6 +1163,7 @@ Volume: 4 +/- 0
 SEED = 23125;
 SWEEPS = 1024;
 MODEL = spin;
+J = 1;
 T = 0.25;
 WORKER = "path integral";
 MEASURE[Local Susceptibility] = 1;
@@ -1332,6 +1339,7 @@ Volume: 4 +/- 0
 SEED = 23125;
 SWEEPS = 1024;
 MODEL = spin;
+J = 1;
 T = 0.25;
 WORKER = "path integral";
 MEASURE[Local Susceptibility] = 1;

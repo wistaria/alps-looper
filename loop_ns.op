@@ -2,6 +2,7 @@
 SEED = 23125;
 SWEEPS = 4096;
 MODEL = spin;
+J = 1;
 T = 0.25;
 LATTICE = "chain lattice";
 L = 4;
@@ -54,6 +55,7 @@ Volume: 4 +/- inf
 SEED = 23125;
 SWEEPS = 4096;
 MODEL = spin;
+J = 1;
 T = 0.25;
 LATTICE = "chain lattice";
 L = 4;
@@ -301,6 +303,7 @@ Volume: 4 +/- 0
 SEED = 23125;
 SWEEPS = 4096;
 MODEL = spin;
+J = 1;
 T = 0.25;
 LATTICE = "chain lattice";
 L = 4;
@@ -548,6 +551,7 @@ Volume: 4 +/- 0
 SEED = 23125;
 SWEEPS = 4096;
 MODEL = spin;
+J = 1;
 T = 1/L;
 LATTICE = "chain lattice";
 L = 4;
@@ -601,6 +605,7 @@ Volume: 4 +/- inf
 SEED = 23125;
 SWEEPS = 4096;
 MODEL = spin;
+J = 1;
 T = 1/L;
 LATTICE = "chain lattice";
 L = 4;
@@ -849,6 +854,7 @@ Volume: 4 +/- 0
 SEED = 23125;
 SWEEPS = 4096;
 MODEL = spin;
+J = 1;
 T = 1/L;
 LATTICE = "chain lattice";
 L = 4;
@@ -1097,6 +1103,7 @@ Volume: 4 +/- 0
 SEED = 23125;
 SWEEPS = 4096;
 MODEL = spin;
+J = 1;
 T = 1/L;
 LATTICE = site;
 L = 4;
@@ -1148,6 +1155,7 @@ Volume: 1 +/- inf
 SEED = 23125;
 SWEEPS = 4096;
 MODEL = spin;
+J = 1;
 T = 1/L;
 LATTICE = site;
 L = 4;
@@ -1397,6 +1405,7 @@ Volume: 1 +/- 0
 SEED = 23125;
 SWEEPS = 4096;
 MODEL = spin;
+J = 1;
 T = 1/L;
 LATTICE = site;
 L = 4;
@@ -1646,6 +1655,7 @@ Volume: 1 +/- 0
 SEED = 23125;
 SWEEPS = 4096;
 MODEL = spin;
+J = 1;
 T = 1/L;
 LATTICE = site;
 L = 4;
@@ -1698,6 +1708,7 @@ Volume: 1 +/- inf
 SEED = 23125;
 SWEEPS = 4096;
 MODEL = spin;
+J = 1;
 T = 1/L;
 LATTICE = site;
 L = 4;
@@ -1876,6 +1887,7 @@ Volume: 1 +/- 0
 SEED = 23125;
 SWEEPS = 4096;
 MODEL = spin;
+J = 1;
 T = 0.5;
 LATTICE = "chain lattice";
 L = 4;
@@ -1932,6 +1944,7 @@ Volume: 4 +/- inf
 SEED = 23125;
 SWEEPS = 4096;
 MODEL = spin;
+J = 1;
 T = 0.5;
 LATTICE = "chain lattice";
 L = 4;
@@ -2183,6 +2196,7 @@ Volume: 4 +/- 0
 SEED = 23125;
 SWEEPS = 4096;
 MODEL = spin;
+J = 1;
 T = 0.5;
 LATTICE = "chain lattice";
 L = 4;
@@ -2434,6 +2448,7 @@ Volume: 4 +/- 0
 SEED = 23125;
 SWEEPS = 4096;
 MODEL = spin;
+J = 1;
 T = 0.5;
 LATTICE = "chain lattice";
 L = 4;
@@ -2685,6 +2700,7 @@ Volume: 4 +/- 0
 SEED = 23125;
 SWEEPS = 4096;
 MODEL = spin;
+J = 1;
 T = 2;
 LATTICE = "chain lattice";
 L = 4;
@@ -2742,6 +2758,7 @@ Volume: 4 +/- inf
 SEED = 23125;
 SWEEPS = 4096;
 MODEL = spin;
+J = 1;
 T = 2;
 LATTICE = "chain lattice";
 L = 4;
@@ -2994,6 +3011,7 @@ Volume: 4 +/- 0
 SEED = 23125;
 SWEEPS = 4096;
 MODEL = spin;
+J = 1;
 T = 2;
 LATTICE = "chain lattice";
 L = 4;
@@ -3246,6 +3264,7 @@ Volume: 4 +/- 0
 SEED = 23125;
 SWEEPS = 4096;
 MODEL = spin;
+J = 1;
 T = 2;
 LATTICE = "chain lattice";
 L = 4;
@@ -3498,6 +3517,7 @@ Volume: 4 +/- 0
 SEED = 23125;
 SWEEPS = 4096;
 MODEL = spin;
+J = 1;
 T = 0.5;
 LATTICE = "chain lattice";
 L = 4;
@@ -3997,6 +4017,7 @@ Volume: 4 +/- 0
 SEED = 23125;
 SWEEPS = 4096;
 MODEL = spin;
+J = 1;
 T = 0.5;
 LATTICE = "chain lattice";
 L = 4;
