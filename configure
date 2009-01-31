@@ -20267,8 +20267,7 @@ if test "$exist_extras" = yes; then
 
   ac_config_files="$ac_config_files extras/parallel/Makefile"
 
-  ac_config_files="$ac_config_files extras/qwl/Makefile"
-
+  # AC_CONFIG_FILES(extras/qwl/Makefile)
   ac_config_files="$ac_config_files extras/top/Makefile"
 
   ac_config_files="$ac_config_files extras/transmag/Makefile extras/transmag/alternating_chain.xml"
@@ -20986,7 +20985,6 @@ do
     "extras/gap/Makefile") CONFIG_FILES="$CONFIG_FILES extras/gap/Makefile" ;;
     "extras/localsus/Makefile") CONFIG_FILES="$CONFIG_FILES extras/localsus/Makefile" ;;
     "extras/parallel/Makefile") CONFIG_FILES="$CONFIG_FILES extras/parallel/Makefile" ;;
-    "extras/qwl/Makefile") CONFIG_FILES="$CONFIG_FILES extras/qwl/Makefile" ;;
     "extras/top/Makefile") CONFIG_FILES="$CONFIG_FILES extras/top/Makefile" ;;
     "extras/transmag/Makefile") CONFIG_FILES="$CONFIG_FILES extras/transmag/Makefile" ;;
     "extras/transmag/alternating_chain.xml") CONFIG_FILES="$CONFIG_FILES extras/transmag/alternating_chain.xml" ;;
