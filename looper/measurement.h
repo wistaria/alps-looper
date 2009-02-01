@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2009 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -498,6 +498,7 @@ struct composite_measurement :
     // improved estimator
 
     struct estimate : public estimate1, public estimate2 {
+      estimate() : estimate1(), estimate2() {}
       estimate& operator+=(estimate const& rhs) {
         estimate1::operator+=(rhs);
         estimate2::operator+=(rhs);

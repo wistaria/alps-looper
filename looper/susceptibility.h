@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2009 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -98,6 +98,8 @@ struct susceptibility :
       gauge_map_t gauge;
       double usize0, umag0, usize, umag;
       double ssize0, smag0, ssize, smag;
+      estimate() : usize0(0), umag0(0), usize(0), umag(0), ssize0(0), smag0(0), ssize(0),
+        smag(0) {}
       void init(gauge_map_t map) {
         gauge = map;
         usize0 = 0;

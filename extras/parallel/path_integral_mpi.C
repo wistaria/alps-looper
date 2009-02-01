@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2009 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -288,7 +288,7 @@ void loop_worker::flip(alps::ObservableSet& obs) {
   looper::accumulator<estimator_t, cluster_fragment_t, IMPROVE>
     accum(estimates, nc, lattice, estimator, fragments);
   if (comm.rank() == 0) {
-    for (unsigned int s = 0; s < nvs; ++s) accum.start_bottom(s, time_t(tau0), s, spins_c[s]);
+    for (unsigned int s = 0; s < nvs; ++s) accum.start_bottom(2*nvs+s, time_t(tau0), s, spins_c[s]);
   } else {
     for (unsigned int s = 0; s < nvs; ++s) accum.start(s, time_t(tau0), s, spins_c[s]);
   }

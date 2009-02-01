@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2009 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -154,6 +154,7 @@ struct local_susceptibility {
       std::vector<double>* umag_ptr;
       std::vector<double>* ssize_ptr;
       std::vector<double>* smag_ptr;
+      estimate() : cross_itb(false), cluster_id(-1) {}
       void init(gauge_map_t map, int* id, std::vector<int>* vs2c,
         std::vector<double>* usize, std::vector<double>* umag,
         std::vector<double>* ssize, std::vector<double>* smag) {

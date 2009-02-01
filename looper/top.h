@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2009 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -92,6 +92,7 @@ struct twist_order_parameter_n {
     struct estimate {
       const std::vector<double> *phase_ptr;
       double moment;
+      estimate() : moment(0) {}
       void init(const std::vector<double> *p) {
         phase_ptr = p;
         moment = 0;

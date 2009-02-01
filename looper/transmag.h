@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2006-2008 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 2006-2009 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -54,6 +54,7 @@ struct transverse_magnetization {
     struct estimate {
       double length;
       bool closed;
+      estimate() : length(0), closed(true); {}
       void init() {
         length = 0;
         closed = true;

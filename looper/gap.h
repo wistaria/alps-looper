@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2006-2008 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 2006-2009 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -69,6 +69,9 @@ struct gap : public has_evaluator_tag {
     struct estimate {
       gauge_map_t gauge;
       std::complex<double> upsize, upmag, spsize, spmag;
+      estimate() : upsize(std::complex<double>(0,0)), upmag(std::complex<double>(0,0)),
+        spsize(std::complex<double>(0,0)), spmag(std::complex<double>(0,0)) {
+      }
       void init(gauge_map_t map) {
         gauge = map;
         upsize = std::complex<double>(0,0);
