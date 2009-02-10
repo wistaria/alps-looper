@@ -23,7 +23,7 @@ dist_parallel_pm_SOURCES = $(top_srcdir)/loop_pp.C parallel_config.h $(top_srcdi
 # tests
 #
 
-dist_noinst_DATA = parallel_ns.ip parallel_ns.op
+dist_noinst_DATA = parallel_ns.ip parallel_ns.op-2 parallel_ns.op-4
 
 check_PROGRAMS =
 if HAVE_BOOST_MPI

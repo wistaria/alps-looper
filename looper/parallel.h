@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2009 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -182,9 +182,9 @@ public:
 
           // construct and send flip table for upper part
           for (int v = 0; v < num_boundaries_; ++v) {
-            const int new_id = cluster_id(links_, num_boundaries_ + v);
-            const int old_id = cluster_id(linksU_, v);
             if (linksU_[v].is_root()) {
+              const int new_id = cluster_id(links_, num_boundaries_ + v);
+              const int old_id = linksU_[v].id();
               estimates_[new_id] += estimatesU_[old_id];
               if (new_id < noc)
                 flip_stage_[old_id].set_id(new_id);
@@ -196,9 +196,9 @@ public:
 
           // construct flip table for lower part
           for (int v = 0; v < num_boundaries_; ++v) {
-            const int new_id = cluster_id(links_, v);
-            const int old_id = cluster_id(linksD_, v);
             if (linksD_[v].is_root()) {
+              const int new_id = cluster_id(links_, v);
+              const int old_id = linksD_[v].id();
               estimates_[new_id] += estimatesD_[old_id];
               if (new_id < noc)
                 flip_stage_[old_id].set_id(new_id);

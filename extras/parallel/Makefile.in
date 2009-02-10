@@ -224,7 +224,7 @@ parallel_pm_LDADD = @LIBS_MPI@
 #
 # tests
 #
-dist_noinst_DATA = parallel_ns.ip parallel_ns.op
+dist_noinst_DATA = parallel_ns.ip parallel_ns.op-2 parallel_ns.op-4
 dist_parallel_ns_SOURCES = parallel_ns.C parallel_config.h $(top_srcdir)/loop_model.C path_integral_mpi.C
 parallel_ns_LDFLAGS = @LDFLAGS_MPI@
 parallel_ns_LDADD = @LIBS_MPI@
