@@ -84,6 +84,8 @@ public:
 
     // initialize local tables
     for (int c = 0; c < coll.num_open_clusters(); ++c) flip[c].set_id(c);
+    if (num_processes_ > 1)
+      for (int c = 0; c < num_boundaries_; ++c) flip_stage_[c].set_id(c);
     for (int v = 0; v < num_boundaries_; ++v) {
       if (fragments[v].is_root())
         linksD_[v].set_id(fragments[v].id()); // id = [0 ... num_open_clusters)
