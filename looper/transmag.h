@@ -54,7 +54,7 @@ struct transverse_magnetization {
     struct estimate {
       double length;
       bool closed;
-      estimate() : length(0), closed(true); {}
+      estimate() : length(0), closed(true) {}
       void init() {
         length = 0;
         closed = true;
