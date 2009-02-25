@@ -2,7 +2,8 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2009 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2009 by Synge Todo <wistaria@comp-phys.org>,
+*                            Haruhiko Matsuo <halm@looper.t.u-tokyo.ac.jp>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -21,6 +22,8 @@
 * DEALINGS IN THE SOFTWARE.
 *
 *****************************************************************************/
+
+// #define PARA_RANGE_DEBUG 1
 
 #include "loop_config.h"
 #include <looper/cluster.h>
@@ -73,6 +76,8 @@ protected:
   template<typename FIELD, typename SIGN, typename IMPROVE>
   void flip(alps::ObservableSet& obs);
 
+  boost::tuple<int, int> real_site_range(int nrs, int nprocs, int rank) const;
+
 private:
   // helpers
   mpi::communicator comm;
@@ -85,6 +90,10 @@ private:
   double beta;
   double tau0, tau1;
   bool use_improved_estimator;
+
+  // index for parallel
+  int rs_local_begin, rs_local_end;
+  int vs_local_begin, vs_local_end, nvs_local;
 
   // configuration (checkpoint)
   looper::mc_steps mcs;
@@ -114,7 +123,8 @@ private:
 loop_worker::loop_worker(mpi::communicator const& c, alps::Parameters const& p)
   : alps::parapack::mc_worker(p), comm(c), lattice(p),
     model(p, lattice, /* is_path_integral = */ true),
-    unifier(comm, num_sites(lattice.vg())), temperature(p), mcs(p) {
+    unifier(comm, num_sites(lattice.vg())),
+    temperature(p), mcs(p) {
   if (temperature.annealing_steps() > mcs.thermalization())
     boost::throw_exception(std::invalid_argument("longer annealing steps than thermalization"));
 
@@ -127,15 +137,18 @@ loop_worker::loop_worker(mpi::communicator const& c, alps::Parameters const& p)
   tau1 = 1.0 * (comm.rank() + 1) / comm.size();
 
   // configuration
+  int nrs = num_sites(lattice.rg());
   int nvs = num_sites(lattice.vg());
+  boost::tie(rs_local_begin, rs_local_end) = real_site_range(nrs, comm.size(), comm.rank());
+  looper::virtual_site_iterator<lattice_t>::type vs, ve;
+  boost::tie(vs, ve) = sites(lattice, rs_local_begin); vs_local_begin = *vs;
+  boost::tie(vs, ve) = sites(lattice, rs_local_end-1); vs_local_end = *ve;
+  nvs_local = vs_local_end - vs_local_begin;
   spins.resize(nvs); std::fill(spins.begin(), spins.end(), 0 /* all up */);
-  if (comm.rank() == 0) {
-    spins_t.resize(nvs);
-    std::copy(spins.begin(), spins.end(), spins_t.begin());
-  }
+  spins_t.resize(nvs_local); std::fill(spins_t.begin(), spins_t.end(), 0 /* all up */);
   spins_c.resize(nvs);
   current.resize(nvs);
-  if (comm.rank() == 0) perm.resize(max_virtual_sites(lattice));
+  perm.resize(max_virtual_sites(lattice));
 }
 
 void loop_worker::init_observables(alps::Parameters const& p, alps::ObservableSet& obs) {
@@ -184,14 +197,10 @@ void loop_worker::build() {
 
   // initialize cluster information (setup cluster fragments)
   int nvs = num_sites(lattice.vg());
-  fragments.resize(0);
-  if (comm.rank() == 0) {
-    fragments.resize(3 * nvs);
-    for (int s = 0; s < nvs; ++s) current[s] = 2 * nvs + s;
-  } else {
-    fragments.resize(2 * nvs);
-    for (int s = 0; s < nvs; ++s) current[s] = s;
-  }
+  fragments.resize(0); fragments.resize(2 * nvs + nvs_local);
+  for (int s = 0; s < nvs; ++s) current[s] = s;
+  int offset = 2 * nvs - vs_local_begin;
+  for (int s = vs_local_begin; s < vs_local_end; ++s) current[s] = offset + s;
 
   boost::variate_generator<engine_type&, boost::exponential_distribution<> >
     r_time(*engine_ptr, boost::exponential_distribution<>(beta * model.graph_weight()));
@@ -242,20 +251,19 @@ void loop_worker::build() {
   for (int s = 0; s < nvs; ++s) unify(fragments, current[s], nvs + s);
 
   // symmetrize spins
-  if (comm.rank() == 0) {
-    if (max_virtual_sites(lattice) == 1) {
-      for (int s = 0; s < nvs; ++s) unify(fragments, s, 2*nvs + s);
-    } else {
-      BOOST_FOREACH(looper::real_site_descriptor<lattice_t>::type rs, sites(lattice.rg())) {
-        looper::virtual_site_iterator<lattice_t>::type vsi, vsi_end;
-        boost::tie(vsi, vsi_end) = sites(lattice, rs);
-        int offset = *vsi;
-        int s2 = *vsi_end - *vsi;
-        for (int i = 0; i < s2; ++i) perm[i] = i;
-        looper::partitioned_random_shuffle(perm.begin(), perm.begin() + s2,
-          spins_t.begin() + offset, spins.begin() + offset, uniform_01);
-        for (int i = 0; i < s2; ++i) unify(fragments, offset+i, 2*nvs+offset+perm[i]);
-      }
+  if (max_virtual_sites(lattice) == 1) {
+    for (int s = vs_local_begin; s < vs_local_end; ++s) unify(fragments, s, 2*nvs - vs_local_begin + s);
+  } else {
+    for (int rs = rs_local_begin; rs < rs_local_end; ++rs) {
+      looper::virtual_site_iterator<lattice_t>::type vsi_sta, vsi_end;
+      boost::tie(vsi_sta, vsi_end) = sites(lattice, rs);
+      int offset1 = *vsi_sta;
+      int offset2 = *vsi_sta - vs_local_begin;
+      int s2 = *vsi_end - *vsi_sta;
+      for (int i = 0; i < s2; ++i) perm[i] = i;
+      looper::partitioned_random_shuffle(perm.begin(), perm.begin() + s2,
+        spins_t.begin() + offset2, spins.begin() + offset1, uniform_01);
+      for (int i = 0; i < s2; ++i) unify(fragments, offset1+i, 2*nvs+offset2+perm[i]);
     }
   }
 
@@ -288,9 +296,19 @@ void loop_worker::flip(alps::ObservableSet& obs) {
   looper::accumulator<estimator_t, cluster_fragment_t, IMPROVE>
     accum(estimates, nc, lattice, estimator, fragments);
   if (comm.rank() == 0) {
-    for (unsigned int s = 0; s < nvs; ++s) accum.start_bottom(2*nvs+s, time_t(tau0), s, spins_c[s]);
+    for (unsigned int s = 0; s < vs_local_begin; ++s)
+      accum.start_bottom(s, time_t(tau0), s, spins_c[s]);
+    for (unsigned int s = vs_local_begin; s < vs_local_end; ++s)
+      accum.start_bottom(2*nvs+s-vs_local_begin, time_t(tau0), s, spins_c[s]);
+    for (unsigned int s = vs_local_end; s < nvs; ++s)
+      accum.start_bottom(s, time_t(tau0), s, spins_c[s]);
   } else {
-    for (unsigned int s = 0; s < nvs; ++s) accum.start(s, time_t(tau0), s, spins_c[s]);
+    for (unsigned int s = 0; s < vs_local_begin; ++s)
+      accum.start(s, time_t(tau0), s, spins_c[s]);
+    for (unsigned int s = vs_local_begin; s < vs_local_end; ++s)
+      accum.start(2*nvs+s-vs_local_begin, time_t(tau0), s, spins_c[s]);
+    for (unsigned int s = vs_local_end; s < nvs; ++s)
+      accum.start(s, time_t(tau0), s, spins_c[s]);
   }
   BOOST_FOREACH(local_operator_t& op, operators) {
     time_t t = op.time();
@@ -342,14 +360,13 @@ void loop_worker::flip(alps::ObservableSet& obs) {
   // flip operators & spins
   BOOST_FOREACH(local_operator_t& op, operators)
     if (to_flip[fragments[op.loop_0()].id()] ^ to_flip[fragments[op.loop_1()].id()]) op.flip();
-  if (comm.rank() == 0) {
-    for (int s = 0; s < nvs; ++s) {
-      if (to_flip[fragments[s].id()]) spins_t[s] ^= 1;
-      if (to_flip[fragments[2*nvs + s].id()]) spins[s] ^= 1;
-    }
-  } else {
-    for (int s = 0; s < nvs; ++s) if (to_flip[fragments[s].id()]) spins[s] ^= 1;
+  for (int s = 0; s < vs_local_begin; ++s) if (to_flip[fragments[s].id()]) spins[s] ^= 1;
+  int offset1 = vs_local_begin;
+  for (int s = vs_local_begin; s < vs_local_end; ++s) {
+    if (to_flip[fragments[s].id()]) spins_t[s - offset1] ^= 1;
+    if (to_flip[fragments[2*nvs + s - offset1].id()]) spins[s] ^= 1;
   }
+  for (int s = vs_local_end; s < nvs; ++s) if (to_flip[fragments[s].id()]) spins[s] ^= 1;
 
   // measurement
   if (comm.rank() == 0) {
@@ -364,6 +381,24 @@ void loop_worker::flip(alps::ObservableSet& obs) {
     looper::energy_estimator::measurement(obs, lattice, beta, nop, 1, ene);
     estimator.normal_measurement(obs, lattice, beta, 1, spins, operators, spins_c);
   }
+}
+
+boost::tuple<int, int> loop_worker::real_site_range(int nrs, int nprocs, int rank) const {
+  int nrs_local = nrs / nprocs;
+  int nextra = nrs % nprocs;
+  int rs_begin = rank * nrs_local + (rank < nextra ? rank : nextra);
+  int rs_local_end = rs_begin + nrs_local + (rank < nextra ? 1 : 0);
+#ifdef PARA_RANGE_DEBUG
+  comm.barrier();
+  if (rank == 0)
+    std::cerr << "rank " << rank << ": real_site_range: nrs = " << nrs << std::endl;
+  comm.barrier();
+  std::cerr << nrs_local << ' ' << nextra << std::endl;
+  std::cerr << "rank " << rank << ": real_site_range: rs_begin = " << rs_begin
+            << ", rs_local_end = " << rs_local_end << std::endl;
+  comm.barrier();
+#endif
+  return boost::make_tuple(rs_begin, rs_local_end);
 }
 
 typedef looper::evaluator<loop_config::measurement_set> loop_evaluator;
