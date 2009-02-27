@@ -369,7 +369,7 @@ Spin Structure Factor at q = q0 + dq: 0.352028 +/- 0.00681; tau = 0.257
     bin #4   : 128      entries: error = 0.00681205
 Temperature: 0.25 +/- 0
 Volume: 64 +/- 0
-|dq|: 1.5708 +/- 0; tau = nan
+|dq|: 1.5708 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
@@ -746,7 +746,7 @@ Spin Structure Factor at q = q0 + dq: 0.337524 +/- 0.0137; tau = 0.204 WARNING: 
     bin #4   : 128      entries: error = 0.0136836
 Temperature: 0.25 +/- 0
 Volume: 64 +/- 0
-|dq|: 1.5708 +/- 0; tau = nan
+|dq|: 1.5708 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0

@@ -78,7 +78,7 @@ Generalized Staggered Susceptibility: 0.0356445 +/- 0.00657; tau = 0.832 WARNING
     bin #2   : 512      entries: error = 0.00504857
     bin #3   : 256      entries: error = 0.00599851
     bin #4   : 128      entries: error = 0.00656836
-Generalized Staggered Susceptibility [w=2pi/beta]: 0 +/- 0; tau = 0.749 WARNING: ERRORS NOT CONVERGED!!!
+Generalized Staggered Susceptibility [w=2pi/beta]: 0 +/- 0; tau = 0 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
@@ -96,12 +96,12 @@ Generalized Susceptibility [w=2pi/beta]: 0.367995 +/- 0.00671; tau = 0.348 WARNI
 Inverse Gap [k=pi]: 0.973903 +/- 0.0232
 Inverse Generalized Gap: 0.973903 +/- 0.0232
 Inverse Temperature: 4 +/- 0
-Magnetization: 0 +/- 0; tau = nan
+Magnetization: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-Magnetization Density: 0 +/- 0; tau = nan
+Magnetization Density: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
@@ -129,12 +129,12 @@ Magnetization^4: 0.0356445 +/- 0.00657; tau = 0.832 WARNING: ERRORS NOT CONVERGE
 Number of Clusters: 8.04199 +/- 0.0877118
 Number of Sites: 4 +/- 0
 Specific Heat: 0.198675 +/- 0.183 WARNING: ERRORS NOT CONVERGED!!!
-Staggered Magnetization: 0 +/- 0; tau = nan
+Staggered Magnetization: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-Staggered Magnetization Density: 0 +/- 0; tau = nan
+Staggered Magnetization Density: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
@@ -174,29 +174,29 @@ Susceptibility: 0.0356445 +/- 0.00657; tau = 0.832 WARNING: ERRORS NOT CONVERGED
     bin #2   : 512      entries: error = 0.00504857
     bin #3   : 256      entries: error = 0.00599851
     bin #4   : 128      entries: error = 0.00656836
-Susceptibility [w=2pi/beta]: 0 +/- 0; tau = 0.749 WARNING: ERRORS NOT CONVERGED!!!
+Susceptibility [w=2pi/beta]: 0 +/- 0; tau = 0 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
 Temperature: 0.25 +/- 0
 Volume: 4 +/- 0
-|Magnetization Density|: 0 +/- 0; tau = nan
+|Magnetization Density|: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-|Magnetization|: 0 +/- 0; tau = nan
+|Magnetization|: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-|Staggered Magnetization Density|: 0 +/- 0; tau = nan
+|Staggered Magnetization Density|: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-|Staggered Magnetization|: 0 +/- 0; tau = nan
+|Staggered Magnetization|: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
@@ -282,7 +282,7 @@ Generalized Staggered Susceptibility: 0.0390625 +/- 0.00672; tau = 0.783 WARNING
     bin #2   : 512      entries: error = 0.00530061
     bin #3   : 256      entries: error = 0.00613313
     bin #4   : 128      entries: error = 0.00672457
-Generalized Staggered Susceptibility [w=2pi/beta]: 0 +/- 0; tau = 0.65 WARNING: ERRORS NOT CONVERGED!!!
+Generalized Staggered Susceptibility [w=2pi/beta]: 0 +/- 0; tau = 0 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
@@ -300,12 +300,12 @@ Generalized Susceptibility [w=2pi/beta]: 1.08098 +/- 0.0195; tau = 0.394 WARNING
 Inverse Gap [k=pi]: 1.01753 +/- 0.0235 WARNING: ERRORS NOT CONVERGED!!!
 Inverse Generalized Gap: 1.01753 +/- 0.0235 WARNING: ERRORS NOT CONVERGED!!!
 Inverse Temperature: 4 +/- 0
-Magnetization: 0 +/- 0; tau = nan
+Magnetization: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-Magnetization Density: 0 +/- 0; tau = nan
+Magnetization Density: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
@@ -333,12 +333,12 @@ Magnetization^4: 0.0390625 +/- 0.00672; tau = 0.783 WARNING: ERRORS NOT CONVERGE
 Number of Clusters: 16.1016 +/- 0.123947
 Number of Sites: 4 +/- 0
 Specific Heat: -0.109086 +/- 0.519 WARNING: ERRORS NOT CONVERGED!!!
-Staggered Magnetization: 0 +/- 0; tau = nan
+Staggered Magnetization: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-Staggered Magnetization Density: 0 +/- 0; tau = nan
+Staggered Magnetization Density: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
@@ -378,29 +378,29 @@ Susceptibility: 0.0390625 +/- 0.00672; tau = 0.783 WARNING: ERRORS NOT CONVERGED
     bin #2   : 512      entries: error = 0.00530061
     bin #3   : 256      entries: error = 0.00613313
     bin #4   : 128      entries: error = 0.00672457
-Susceptibility [w=2pi/beta]: 0 +/- 0; tau = 0.65 WARNING: ERRORS NOT CONVERGED!!!
+Susceptibility [w=2pi/beta]: 0 +/- 0; tau = 0 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
 Temperature: 0.25 +/- 0
 Volume: 4 +/- 0
-|Magnetization Density|: 0 +/- 0; tau = nan
+|Magnetization Density|: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-|Magnetization|: 0 +/- 0; tau = nan
+|Magnetization|: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-|Staggered Magnetization Density|: 0 +/- 0; tau = nan
+|Staggered Magnetization Density|: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-|Staggered Magnetization|: 0 +/- 0; tau = nan
+|Staggered Magnetization|: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
@@ -441,43 +441,43 @@ Energy^2: 0.249878 +/- 0.0288; tau = 0.746 WARNING: ERRORS NOT CONVERGED!!!
 Gap [k=0]: 1.00123 +/- 0.0334 WARNING: ERRORS NOT CONVERGED!!!
 Gap [k=pi]: 1.00123 +/- 0.0334 WARNING: ERRORS NOT CONVERGED!!!
 Generalized Gap: 1.00123 +/- 0.0334 WARNING: ERRORS NOT CONVERGED!!!
-Generalized Magnetization Density^2: 0.25 +/- 0; tau = nan
+Generalized Magnetization Density^2: 0.25 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-Generalized Magnetization Density^4: 0.0625 +/- 0; tau = nan
+Generalized Magnetization Density^4: 0.0625 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-Generalized Magnetization^2: 0.25 +/- 0; tau = nan
+Generalized Magnetization^2: 0.25 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-Generalized Magnetization^4: 0.0625 +/- 0; tau = nan
+Generalized Magnetization^4: 0.0625 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
 Generalized Staggered Gap: 1.00123 +/- 0.0334 WARNING: ERRORS NOT CONVERGED!!!
-Generalized Staggered Magnetization Density^2: 0.25 +/- 0; tau = nan
+Generalized Staggered Magnetization Density^2: 0.25 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-Generalized Staggered Magnetization Density^4: 0.0625 +/- 0; tau = nan
+Generalized Staggered Magnetization Density^4: 0.0625 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-Generalized Staggered Magnetization^2: 0.25 +/- 0; tau = nan
+Generalized Staggered Magnetization^2: 0.25 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-Generalized Staggered Magnetization^4: 0.0625 +/- 0; tau = nan
+Generalized Staggered Magnetization^4: 0.0625 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
@@ -507,32 +507,32 @@ Inverse Gap [k=pi]: 0.99767 +/- 0.0331 WARNING: ERRORS NOT CONVERGED!!!
 Inverse Generalized Gap: 0.99767 +/- 0.0331 WARNING: ERRORS NOT CONVERGED!!!
 Inverse Generalized Staggered Gap: 0.99767 +/- 0.0331 WARNING: ERRORS NOT CONVERGED!!!
 Inverse Temperature: 4 +/- 0
-Magnetization: 0 +/- 0; tau = nan
+Magnetization: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-Magnetization Density: 0 +/- 0; tau = nan
+Magnetization Density: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-Magnetization Density^2: 0.25 +/- 0; tau = nan
+Magnetization Density^2: 0.25 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-Magnetization Density^4: 0.0625 +/- 0; tau = nan
+Magnetization Density^4: 0.0625 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-Magnetization^2: 0.25 +/- 0; tau = nan
+Magnetization^2: 0.25 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-Magnetization^4: 0.0625 +/- 0; tau = nan
+Magnetization^4: 0.0625 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
@@ -540,32 +540,32 @@ Magnetization^4: 0.0625 +/- 0; tau = nan
 Number of Clusters: 3.99609 +/- 0.0614059
 Number of Sites: 1 +/- 0
 Specific Heat: 0.175414 +/- 0.245 WARNING: ERRORS NOT CONVERGED!!!
-Staggered Magnetization: 0 +/- 0; tau = nan
+Staggered Magnetization: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-Staggered Magnetization Density: 0 +/- 0; tau = nan
+Staggered Magnetization Density: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-Staggered Magnetization Density^2: 0.25 +/- 0; tau = nan
+Staggered Magnetization Density^2: 0.25 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-Staggered Magnetization Density^4: 0.0625 +/- 0; tau = nan
+Staggered Magnetization Density^4: 0.0625 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-Staggered Magnetization^2: 0.25 +/- 0; tau = nan
+Staggered Magnetization^2: 0.25 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-Staggered Magnetization^4: 0.0625 +/- 0; tau = nan
+Staggered Magnetization^4: 0.0625 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
@@ -592,22 +592,22 @@ Susceptibility [w=2pi/beta]: 0.139206 +/- 0.00317; tau = 0.5 WARNING: ERRORS NOT
     bin #4   : 128      entries: error = 0.00316804
 Temperature: 0.25 +/- 0
 Volume: 1 +/- 0
-|Magnetization Density|: 0 +/- 0; tau = nan
+|Magnetization Density|: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-|Magnetization|: 0 +/- 0; tau = nan
+|Magnetization|: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-|Staggered Magnetization Density|: 0 +/- 0; tau = nan
+|Staggered Magnetization Density|: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-|Staggered Magnetization|: 0 +/- 0; tau = nan
+|Staggered Magnetization|: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
@@ -717,12 +717,12 @@ Inverse Gap [k=pi]: 1.62234 +/- 0.0443 WARNING: ERRORS NOT CONVERGED!!!
 Inverse Generalized Gap: 1.62234 +/- 0.0443 WARNING: ERRORS NOT CONVERGED!!!
 Inverse Generalized Staggered Gap: 0.72338 +/- 0.0159 WARNING: ERRORS NOT CONVERGED!!!
 Inverse Temperature: 4 +/- 0
-Magnetization: 0 +/- 0; tau = nan
+Magnetization: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-Magnetization Density: 0 +/- 0; tau = nan
+Magnetization Density: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
@@ -750,12 +750,12 @@ Magnetization^4: 1.21973 +/- 0.0448; tau = 0.363 WARNING: ERRORS NOT CONVERGED!!
 Number of Clusters: 12.1357 +/- 0.138939
 Number of Sites: 4 +/- 0
 Specific Heat: 0.428931 +/- 0.285 WARNING: ERRORS NOT CONVERGED!!!
-Staggered Magnetization: 0 +/- 0; tau = nan
+Staggered Magnetization: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-Staggered Magnetization Density: 0 +/- 0; tau = nan
+Staggered Magnetization Density: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
@@ -802,22 +802,22 @@ Susceptibility [w=2pi/beta]: 0.100715 +/- 0.00167; tau = 0.336 WARNING: ERRORS N
     bin #4   : 128      entries: error = 0.00167064
 Temperature: 0.25 +/- 0
 Volume: 4 +/- 0
-|Magnetization Density|: 0 +/- 0; tau = nan
+|Magnetization Density|: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-|Magnetization|: 0 +/- 0; tau = nan
+|Magnetization|: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-|Staggered Magnetization Density|: 0 +/- 0; tau = nan
+|Staggered Magnetization Density|: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-|Staggered Magnetization|: 0 +/- 0; tau = nan
+|Staggered Magnetization|: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
@@ -935,7 +935,7 @@ Susceptibility: 0.0400391 +/- 0.01; tau = 0.829 WARNING: ERRORS NOT CONVERGED!!!
     bin #2   : 512      entries: error = 0.00742998
     bin #3   : 256      entries: error = 0.00888821
     bin #4   : 128      entries: error = 0.00999665
-Susceptibility [w=2pi/beta]: 0 +/- 0; tau = nan
+Susceptibility [w=2pi/beta]: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
@@ -1076,7 +1076,7 @@ Susceptibility: 0.0410156 +/- 0.009; tau = 0.553 WARNING: ERRORS NOT CONVERGED!!
     bin #2   : 512      entries: error = 0.00748372
     bin #3   : 256      entries: error = 0.00848417
     bin #4   : 128      entries: error = 0.0090016
-Susceptibility [w=2pi/beta]: 0 +/- 0; tau = nan
+Susceptibility [w=2pi/beta]: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
@@ -1150,22 +1150,22 @@ Magnetization Density: 0.00195312 +/- 0.0147; tau = -0.0556
     bin #2   : 512      entries: error = 0.0154012
     bin #3   : 256      entries: error = 0.0152913
     bin #4   : 128      entries: error = 0.0147448
-Magnetization Density^2: 0.25 +/- 0; tau = nan
+Magnetization Density^2: 0.25 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-Magnetization Density^4: 0.0625 +/- 0; tau = nan
+Magnetization Density^4: 0.0625 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-Magnetization^2: 0.25 +/- 0; tau = nan
+Magnetization^2: 0.25 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-Magnetization^4: 0.0625 +/- 0; tau = nan
+Magnetization^4: 0.0625 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
@@ -1183,22 +1183,22 @@ Staggered Magnetization Density: 0.00195312 +/- 0.0147; tau = -0.0556
     bin #2   : 512      entries: error = 0.0154012
     bin #3   : 256      entries: error = 0.0152913
     bin #4   : 128      entries: error = 0.0147448
-Staggered Magnetization Density^2: 0.25 +/- 0; tau = nan
+Staggered Magnetization Density^2: 0.25 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-Staggered Magnetization Density^4: 0.0625 +/- 0; tau = nan
+Staggered Magnetization Density^4: 0.0625 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-Staggered Magnetization^2: 0.25 +/- 0; tau = nan
+Staggered Magnetization^2: 0.25 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-Staggered Magnetization^4: 0.0625 +/- 0; tau = nan
+Staggered Magnetization^4: 0.0625 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
@@ -1225,22 +1225,22 @@ Susceptibility [w=2pi/beta]: 0.140705 +/- 0.00548; tau = 0.223 WARNING: check er
     bin #4   : 128      entries: error = 0.00547996
 Temperature: 0.25 +/- 0
 Volume: 1 +/- 0
-|Magnetization Density|: 0.5 +/- 0; tau = nan
+|Magnetization Density|: 0.5 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-|Magnetization|: 0.5 +/- 0; tau = nan
+|Magnetization|: 0.5 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-|Staggered Magnetization Density|: 0.5 +/- 0; tau = nan
+|Staggered Magnetization Density|: 0.5 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
     bin #4   : 128      entries: error = 0
-|Staggered Magnetization|: 0.5 +/- 0; tau = nan
+|Staggered Magnetization|: 0.5 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
