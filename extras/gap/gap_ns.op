@@ -78,7 +78,7 @@ Generalized Staggered Susceptibility: 0.0356445 +/- 0.00657; tau = 0.832 WARNING
     bin #2   : 512      entries: error = 0.00504857
     bin #3   : 256      entries: error = 0.00599851
     bin #4   : 128      entries: error = 0.00656836
-Generalized Staggered Susceptibility [w=2pi/beta]: 0 +/- 0; tau = 0 WARNING: ERRORS NOT CONVERGED!!!
+Generalized Staggered Susceptibility [w=2pi/beta]: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
@@ -174,7 +174,7 @@ Susceptibility: 0.0356445 +/- 0.00657; tau = 0.832 WARNING: ERRORS NOT CONVERGED
     bin #2   : 512      entries: error = 0.00504857
     bin #3   : 256      entries: error = 0.00599851
     bin #4   : 128      entries: error = 0.00656836
-Susceptibility [w=2pi/beta]: 0 +/- 0; tau = 0 WARNING: ERRORS NOT CONVERGED!!!
+Susceptibility [w=2pi/beta]: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
@@ -282,7 +282,7 @@ Generalized Staggered Susceptibility: 0.0390625 +/- 0.00672; tau = 0.783 WARNING
     bin #2   : 512      entries: error = 0.00530061
     bin #3   : 256      entries: error = 0.00613313
     bin #4   : 128      entries: error = 0.00672457
-Generalized Staggered Susceptibility [w=2pi/beta]: 0 +/- 0; tau = 0 WARNING: ERRORS NOT CONVERGED!!!
+Generalized Staggered Susceptibility [w=2pi/beta]: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
@@ -378,7 +378,7 @@ Susceptibility: 0.0390625 +/- 0.00672; tau = 0.783 WARNING: ERRORS NOT CONVERGED
     bin #2   : 512      entries: error = 0.00530061
     bin #3   : 256      entries: error = 0.00613313
     bin #4   : 128      entries: error = 0.00672457
-Susceptibility [w=2pi/beta]: 0 +/- 0; tau = 0 WARNING: ERRORS NOT CONVERGED!!!
+Susceptibility [w=2pi/beta]: 0 +/- 0; tau = 0
     bin #1   : 1024     entries: error = 0
     bin #2   : 512      entries: error = 0
     bin #3   : 256      entries: error = 0
