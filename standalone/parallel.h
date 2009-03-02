@@ -2,7 +2,8 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2009 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2009 by Synge Todo <wistaria@comp-phys.org>,
+*                            Haruhiko Matsuo <halm@looper.t.u-tokyo.ac.jp>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -45,10 +46,10 @@ public:
   public:
     flip_t() : flip_(id_mask) {}
     void set_flip(int flip) { flip_ = flip; }
-    operator bool() const { return flip_ == 1; }
+    operator bool() const { return (flip_ & 1) == 1; }
     bool is_open() const { return flip_ < 0; }
-    void set_id(int id) { flip_ = id ^ id_mask; }
-    int id() const { return flip_ ^ id_mask; }
+    void set_local_cid(int id) { flip_ = id ^ id_mask; }
+    int local_cid() const { return flip_ ^ id_mask; }
   private:
     static const int id_mask = -1;
     int flip_; // negative if cluster is still open
@@ -58,12 +59,14 @@ public:
     comm_(comm), num_sites_(num_sites), num_boundaries_(2 * num_sites) {
 
     int info;
-    if ((info = MPI_Comm_size(comm_, &num_processes_)) != 0)
+    if ((info = MPI_Comm_size(comm_, &num_processes_)) != 0) {
       boost::throw_exception(std::runtime_error(("Error " +
         boost::lexical_cast<std::string>(info) + " in MPI_Comm_size")));
-    if ((info = MPI_Comm_rank(comm, &process_id_)) != 0)
+    }
+    if ((info = MPI_Comm_rank(comm, &process_id_)) != 0) {
       boost::throw_exception(std::runtime_error(("Error " +
         boost::lexical_cast<std::string>(info) + " in MPI_Comm_rank")));
+    }
     num_stages_ = 0;
     for (int t = (num_processes_ - 1); t > 0; t = (t >> 1)) ++num_stages_;
 
@@ -83,9 +86,10 @@ public:
     std::vector<estimate_t> const& estimates, RNG& r_uniform) {
 
     // initialize local tables
-    for (int c = 0; c < coll.num_open_clusters(); ++c) flip[c].set_id(c);
+    const int noc_init = coll.num_open_clusters();
+    for (int c = 0; c < noc_init; ++c) flip[c].set_local_cid(c);
     if (num_processes_ > 1)
-      for (int c = 0; c < num_boundaries_; ++c) flip_stage_[c].set_id(c);
+      for (int c = 0; c < num_boundaries_; ++c) flip_stage_[c].set_local_cid(c);
     for (int v = 0; v < num_boundaries_; ++v) {
       if (fragments[v].is_root())
         linksD_[v].set_id(fragments[v].id()); // id = [0 ... num_open_clusters)
@@ -93,8 +97,7 @@ public:
         linksD_[v].set_parent(root_index(fragments, v));
     }
     estimatesD_.resize(coll.num_open_clusters());
-    std::copy(estimates.begin(), estimates.begin() + coll.num_open_clusters(),
-              estimatesD_.begin());
+    std::copy(estimates.begin(), estimates.begin() + noc_init, estimatesD_.begin());
 
     if (num_processes_ == 1) {
 
@@ -179,15 +182,20 @@ public:
           for (int c = noc; c < nc; ++c) flip_close_[c].set_flip(r_uniform() < 0.5);
           estimates_.resize(nc);
           std::fill(estimates_.begin(), estimates_.end(), estimate_t());
+          for (int v = 0; v < num_boundaries_; ++v) {
+            if (linksD_[v].is_root())
+              estimates_[cluster_id(links_, v)] += estimatesD_[linksD_[v].id()];
+            if (linksU_[v].is_root())
+              estimates_[cluster_id(links_, num_boundaries_ + v)] += estimatesU_[linksU_[v].id()];
+          }
 
           // construct and send flip table for upper part
           for (int v = 0; v < num_boundaries_; ++v) {
             if (linksU_[v].is_root()) {
               const int new_id = cluster_id(links_, num_boundaries_ + v);
               const int old_id = linksU_[v].id();
-              estimates_[new_id] += estimatesU_[old_id];
               if (new_id < noc)
-                flip_stage_[old_id].set_id(new_id);
+                flip_stage_[old_id].set_local_cid(new_id);
               else
                 flip_stage_[old_id].set_flip(flip_close_[new_id]);
             }
@@ -199,9 +207,8 @@ public:
             if (linksD_[v].is_root()) {
               const int new_id = cluster_id(links_, v);
               const int old_id = linksD_[v].id();
-              estimates_[new_id] += estimatesD_[old_id];
               if (new_id < noc)
-                flip_stage_[old_id].set_id(new_id);
+                flip_stage_[old_id].set_local_cid(new_id);
               else
                 flip_stage_[old_id].set_flip(flip_close_[new_id]);
             }
@@ -246,8 +253,8 @@ public:
         }
 
         // update flip table
-        for (int c = 0; c < estimates.size(); ++c)
-          if (flip[c].is_open()) flip[c] = flip_stage_[flip[c].id()];
+        for (int c = 0; c < noc_init; ++c)
+          if (flip[c].is_open()) flip[c] = flip_stage_[flip[c].local_cid()];
       }
     }
   }
@@ -278,9 +285,9 @@ private:
   MPI_Comm comm_;
   int num_processes_;
   int process_id_;
-  int num_sites_;      // number of (virtual) sites
+  int num_sites_; // number of (virtual) sites
   int num_boundaries_; // number of sites at imaginary-boundaries (2 * num_sites_)
-  int num_stages_;     // total number of stages
+  int num_stages_; // total number of stages
 
   // working areas
   collector_t coll_buf_;

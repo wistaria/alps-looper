@@ -86,7 +86,8 @@ public:
     std::vector<estimate_t> const& estimates, RNG& r_uniform) {
 
     // initialize local tables
-    for (int c = 0; c < coll.num_open_clusters(); ++c) flip[c].set_local_cid(c);
+    const int noc_init = coll.num_open_clusters();
+    for (int c = 0; c < noc_init; ++c) flip[c].set_local_cid(c);
     if (num_processes_ > 1)
       for (int c = 0; c < num_boundaries_; ++c) flip_stage_[c].set_local_cid(c);
     for (int v = 0; v < num_boundaries_; ++v) {
@@ -96,8 +97,7 @@ public:
         linksD_[v].set_parent(root_index(fragments, v));
     }
     estimatesD_.resize(coll.num_open_clusters());
-    std::copy(estimates.begin(), estimates.begin() + coll.num_open_clusters(),
-              estimatesD_.begin());
+    std::copy(estimates.begin(), estimates.begin() + noc_init, estimatesD_.begin());
 
     if (num_processes_ == 1) {
 
@@ -253,7 +253,7 @@ public:
         }
 
         // update flip table
-        for (int c = 0; c < estimates.size(); ++c)
+        for (int c = 0; c < noc_init; ++c)
           if (flip[c].is_open()) flip[c] = flip_stage_[flip[c].local_cid()];
       }
     }
@@ -285,9 +285,9 @@ private:
   MPI_Comm comm_;
   int num_processes_;
   int process_id_;
-  int num_sites_;      // number of (virtual) sites
+  int num_sites_; // number of (virtual) sites
   int num_boundaries_; // number of sites at imaginary-boundaries (2 * num_sites_)
-  int num_stages_;     // total number of stages
+  int num_stages_; // total number of stages
 
   // working areas
   collector_t coll_buf_;
