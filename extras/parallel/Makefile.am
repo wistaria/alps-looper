@@ -28,7 +28,7 @@ if HAVE_BOOST_MPI
 check_PROGRAMS += parallel_ns
 endif
 
-dist_parallel_ns_SOURCES = parallel_ns.C parallel_config.h $(top_srcdir)/loop_model.C path_integral_mpi.C
+dist_parallel_ns_SOURCES = parallel_ns.C parallel_config.h $(top_srcdir)/loop_model.C $(top_srcdir)/path_integral.C path_integral_mpi.C
      parallel_ns_LDFLAGS = @LDFLAGS_MPI@
      parallel_ns_LDADD = @LIBS_MPI@
 

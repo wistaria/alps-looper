@@ -63,7 +63,7 @@ parallel_mpi_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(parallel_mpi_LDFLAGS) $(LDFLAGS) -o $@
 dist_parallel_ns_OBJECTS = parallel_ns.$(OBJEXT) loop_model.$(OBJEXT) \
-	path_integral_mpi.$(OBJEXT)
+	path_integral.$(OBJEXT) path_integral_mpi.$(OBJEXT)
 parallel_ns_OBJECTS = $(dist_parallel_ns_OBJECTS)
 parallel_ns_DEPENDENCIES =
 parallel_ns_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
@@ -218,7 +218,7 @@ parallel_mpi_LDADD = @LIBS_MPI@
 # tests
 #
 dist_noinst_DATA = parallel_ns.ip parallel_ns.op-2 parallel_ns.op-3 parallel_ns.op-4
-dist_parallel_ns_SOURCES = parallel_ns.C parallel_config.h $(top_srcdir)/loop_model.C path_integral_mpi.C
+dist_parallel_ns_SOURCES = parallel_ns.C parallel_config.h $(top_srcdir)/loop_model.C $(top_srcdir)/path_integral.C path_integral_mpi.C
 parallel_ns_LDFLAGS = @LDFLAGS_MPI@
 parallel_ns_LDADD = @LIBS_MPI@
 TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
