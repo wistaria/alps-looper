@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2009 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -23,7 +23,6 @@
 *****************************************************************************/
 
 #include "loop_config.h"
-#include "loop_factory.h"
 #include <looper/cluster.h>
 #include <looper/evaluator_impl.h>
 #include <looper/montecarlo.h>
@@ -44,7 +43,7 @@ struct dummy_operator {
   static bool is_bond() { return false; }
 };
 
-class loop_worker : private loop_config {
+class loop_worker : public alps::parapack::mc_worker, private loop_config {
 public:
   typedef looper::classical mc_type;
 
@@ -55,14 +54,15 @@ public:
 
   typedef looper::estimator<measurement_set, mc_type, lattice_t, time_t>::type estimator_t;
 
+  typedef double weight_parameter_type;
+
   loop_worker(alps::Parameters const& p);
   void init_observables(alps::Parameters const& p, alps::ObservableSet& obs);
 
   bool is_thermalized() const { return mcs.is_thermalized(); }
   double progress() const { return mcs.progress(); }
 
-  template<typename ENGINE>
-  void run(ENGINE& eng, alps::ObservableSet& obs);
+  void run(alps::ObservableSet& obs);
 
   // for exchange Monte Carlo
   void set_beta(double beta) { temperature.set_beta(beta); }
@@ -73,11 +73,10 @@ public:
   void load(alps::IDump& dp) { dp >> mcs >> spins; }
 
 protected:
-  template<typename ENGINE>
-  void build(ENGINE& eng);
+  void build();
 
-  template<typename ENGINE, typename FIELD, typename IMPROVE>
-  void flip(ENGINE& eng, alps::ObservableSet& obs);
+  template<typename FIELD, typename IMPROVE>
+  void flip(alps::ObservableSet& obs);
 
 private:
   // helpers
@@ -109,8 +108,8 @@ private:
 // member functions of loop_worker
 //
 
-loop_worker::loop_worker(alps::Parameters const& p) :
-  lattice(p), model(p, lattice), temperature(p), mcs(p) {
+loop_worker::loop_worker(alps::Parameters const& p)
+  : alps::parapack::mc_worker(p), lattice(p), model(p, lattice), temperature(p), mcs(p) {
 
   if (temperature.annealing_steps() > mcs.thermalization())
     boost::throw_exception(std::invalid_argument("longer annealing steps than thermalization"));
@@ -141,19 +140,18 @@ void loop_worker::init_observables(alps::Parameters const& p, alps::ObservableSe
   estimator.initialize(obs, p, lattice, false, use_improved_estimator);
 }
 
-template<typename ENGINE>
-void loop_worker::run(ENGINE& eng, alps::ObservableSet& obs) {
+void loop_worker::run(alps::ObservableSet& obs) {
   // if (!mcs.can_work()) return;
   ++mcs;
   beta = 1.0 / temperature(mcs());
 
-  build(eng);
+  build();
 
-  //           FIELD               IMPROVE
-  flip<ENGINE, boost::mpl::true_,  boost::mpl::true_ >(eng, obs);
-  flip<ENGINE, boost::mpl::true_,  boost::mpl::false_>(eng, obs);
-  flip<ENGINE, boost::mpl::false_, boost::mpl::true_ >(eng, obs);
-  flip<ENGINE, boost::mpl::false_, boost::mpl::false_>(eng, obs);
+  //   FIELD               IMPROVE
+  flip<boost::mpl::true_,  boost::mpl::true_ >(obs);
+  flip<boost::mpl::true_,  boost::mpl::false_>(obs);
+  flip<boost::mpl::false_, boost::mpl::true_ >(obs);
+  flip<boost::mpl::false_, boost::mpl::false_>(obs);
 }
 
 
@@ -161,21 +159,18 @@ void loop_worker::run(ENGINE& eng, alps::ObservableSet& obs) {
 // cluster construction
 //
 
-template<typename ENGINE>
-void loop_worker::build(ENGINE& eng) {
+void loop_worker::build() {
   // initialize cluster information (setup cluster fragments)
   int nvs = num_sites(lattice.vg());
   fragments.resize(0); fragments.resize(nvs);
 
   // building up clusters
   nop = 0;
-  boost::variate_generator<ENGINE&, boost::uniform_real<> >
-    r_uniform(eng, boost::uniform_real<>());
-  boost::variate_generator<ENGINE&, boost::exponential_distribution<> >
-    r_time(eng, boost::exponential_distribution<>(beta * model.graph_weight()));
+  boost::variate_generator<engine_type&, boost::exponential_distribution<> >
+    r_time(*engine_ptr, boost::exponential_distribution<>(beta * model.graph_weight()));
   double t = r_time();
   while (t < 1) {
-    loop_graph_t g = model.choose_graph(r_uniform);
+    loop_graph_t g = model.choose_graph(uniform_01);
     int s0 = source(pos(g), lattice.vg());
     int s1 = target(pos(g), lattice.vg());
     if (is_compatible(g, spins[s0], spins[s1])) {
@@ -194,7 +189,7 @@ void loop_worker::build(ENGINE& eng) {
       int s2 = *vsi_end - *vsi;
       for (int i = 0; i < s2; ++i) perm[i] = i;
       looper::partitioned_random_shuffle(perm.begin(), perm.begin() + s2,
-        spins.begin() + offset, spins.begin() + offset, r_uniform);
+        spins.begin() + offset, spins.begin() + offset, uniform_01);
       for (int i = 0; i < s2; ++i) unify(fragments, offset+i, offset+perm[i]);
     }
   }
@@ -205,12 +200,9 @@ void loop_worker::build(ENGINE& eng) {
 // cluster flip
 //
 
-template<typename ENGINE, typename FIELD, typename IMPROVE>
-void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
+template<typename FIELD, typename IMPROVE>
+void loop_worker::flip(alps::ObservableSet& obs) {
   if (FIELD() || use_improved_estimator != IMPROVE()) return;
-
-  boost::variate_generator<ENGINE&, boost::uniform_real<> >
-    r_uniform(eng, boost::uniform_real<>());
 
   int nvs = num_sites(lattice.vg());
 
@@ -241,7 +233,7 @@ void loop_worker::flip(ENGINE& eng, alps::ObservableSet& obs) {
 
   // determine whether clusters are flipped or not
   for (unsigned int c = 0; c < clusters.size(); ++c)
-    to_flip[c] = ((2*r_uniform()-1) < (FIELD() ? std::tanh(clusters[c].weight) : 0));
+    to_flip[c] = ((2*uniform_01()-1) < (FIELD() ? std::tanh(clusters[c].weight) : 0));
 
   // improved measurement
   if (IMPROVE())
@@ -278,13 +270,8 @@ typedef looper::evaluator<loop_config::measurement_set> loop_evaluator;
 // dynamic registration to the factories
 //
 
-const bool loop_registered =
-  loop_factory::instance()->register_worker<loop_worker>("Ising");
-const bool evaluator_registered =
-  loop_factory::instance()->register_evaluator<loop_evaluator>("Ising");
-
-PARAPACK_REGISTER_WORKER(parapack_single_worker<loop_worker>, "ising");
-PARAPACK_REGISTER_WORKER(alps::parapack::single_exchange_worker<parapack_single_worker<loop_worker> >, "ising exchange");
+PARAPACK_REGISTER_WORKER(loop_worker, "ising");
+PARAPACK_REGISTER_WORKER(alps::parapack::single_exchange_worker<loop_worker>, "ising exchange");
 PARAPACK_REGISTER_EVALUATOR(loop_evaluator, "ising");
 PARAPACK_REGISTER_EVALUATOR(loop_evaluator, "ising exchange");
 

@@ -16,8 +16,3 @@ if test -d "$DIR"; then
   cp -fp $DIR/config/extract_version.sh config/
   cp -fp $DIR/config/update_version config/
 fi
-
-DIR="$HOME/development/alps-parapack"
-if test -d "$DIR"; then
-  cp -rp $DIR/config/ac_parapack.m4 config/
-fi

@@ -8,29 +8,18 @@ DEFAULT_INCLUDES = -I$(srcdir) -I$(top_srcdir) -DLOOP_CONFIG_HEADER=\"corrlen_co
 # programs
 #
 
-noinst_PROGRAMS = corrlen corrlen_evaluate
+noinst_PROGRAMS = corrlen
 if HAVE_MPI
 noinst_PROGRAMS += corrlen_mpi
 endif
-noinst_PROGRAMS += corrlen_ps corrlen_pevaluate
-if HAVE_BOOST_MPI
-noinst_PROGRAMS += corrlen_pp
-endif
 
-SRC = $(top_srcdir)/loop_factory.C $(top_srcdir)/loop_model.C $(top_srcdir)/path_integral.C
+SRC = $(top_srcdir)/loop_model.C $(top_srcdir)/path_integral.C
 
   dist_corrlen_SOURCES = corrlen_config.h
 nodist_corrlen_SOURCES = $(top_srcdir)/loop.C $(SRC)
 nodist_corrlen_mpi_SOURCES = $(top_srcdir)/loop.C $(SRC)
        corrlen_mpi_LDFLAGS = @LDFLAGS_MPI@
        corrlen_mpi_LDADD = @LIBS_MPI@
-nodist_corrlen_evaluate_SOURCES = $(top_srcdir)/loop_evaluate.C $(SRC)
-
-nodist_corrlen_ps_SOURCES = $(top_srcdir)/loop_pp.C $(SRC)
-nodist_corrlen_pp_SOURCES = $(top_srcdir)/loop_pp.C $(SRC)
-       corrlen_pp_LDFLAGS = @LDFLAGS_MPI@
-       corrlen_pp_LDADD = @LIBS_MPI@
-nodist_corrlen_pevaluate_SOURCES = $(top_srcdir)/loop_pevaluate.C $(SRC)
 
 #
 # tests

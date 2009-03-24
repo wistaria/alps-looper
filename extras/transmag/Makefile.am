@@ -8,29 +8,18 @@ DEFAULT_INCLUDES = -I$(srcdir) -I$(top_srcdir) -DLOOP_CONFIG_HEADER=\"transmag_c
 # programs
 #
 
-noinst_PROGRAMS = transmag transmag_evaluate
+noinst_PROGRAMS = transmag
 if HAVE_MPI
 noinst_PROGRAMS += transmag_mpi
 endif
-noinst_PROGRAMS += transmag_ps transmag_pevaluate
-if HAVE_BOOST_MPI
-noinst_PROGRAMS += transmag_pp
-endif
 
-SRC = $(top_srcdir)/loop_factory.C $(top_srcdir)/loop_model.C $(top_srcdir)/diag.C $(top_srcdir)/path_integral.C
+SRC = $(top_srcdir)/loop_model.C $(top_srcdir)/diag.C $(top_srcdir)/path_integral.C
 
   dist_transmag_SOURCES = transmag_config.h
 nodist_transmag_SOURCES = $(top_srcdir)/loop.C $(SRC)
 nodist_transmag_mpi_SOURCES = $(top_srcdir)/loop.C $(SRC)
        transmag_mpi_LDFLAGS = @LDFLAGS_MPI@
        transmag_mpi_LDADD = @LIBS_MPI@
-nodist_transmag_evaluate_SOURCES = $(top_srcdir)/loop_evaluate.C $(SRC)
-
-nodist_transmag_ps_SOURCES = $(top_srcdir)/loop_pp.C $(SRC)
-nodist_transmag_pp_SOURCES = $(top_srcdir)/loop_pp.C $(SRC)
-       transmag_pp_LDFLAGS = @LDFLAGS_MPI@
-       transmag_pp_LDADD = @LIBS_MPI@
-nodist_transmag_pevaluate_SOURCES = $(top_srcdir)/loop_pevaluate.C $(SRC)
 
 #
 # tests

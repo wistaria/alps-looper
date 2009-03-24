@@ -86,54 +86,32 @@ dist_noinst_DATA = CITATIONS.txt LICENSE.txt README config/preamble.in config/ve
 # programs
 #
 
-noinst_PROGRAMS = loop loop_evaluate
+noinst_PROGRAMS = loop
 if HAVE_MPI
 noinst_PROGRAMS += loop_mpi
 endif
-noinst_PROGRAMS += loop_ps
-if HAVE_BOOST_MPI
-noinst_PROGRAMS += loop_pp
-endif
 
-SRC = loop_config.h loop_factory.h loop_factory.C loop_custom.C loop_model.C
-SRC_PP = loop_config.h loop_factory.h loop_factory.C loop_custom.C loop_model.C
+SRC = loop_config.h loop_custom.C loop_model.C
 if ENABLE_DIAG
 SRC += diag.C
-SRC_PP += diag.C
 endif
 if ENABLE_ISING
 SRC += ising.C
-SRC_PP += ising.C
 endif
 if ENABLE_PI
 SRC += path_integral.C
-SRC_PP += path_integral.C
 endif
 if ENABLE_SSE
 SRC += sse.C
-SRC_PP += sse.C
 endif
 if ENABLE_SSE_QWL
 SRC += sse_qwl.C
-SRC_PP += sse_qwl.C
 endif
 
 loop_SOURCES = loop.C $(SRC)
-
-loop_evaluate_SOURCES = loop_evaluate.C $(SRC)
-if ENABLE_SSE_QWL
-loop_evaluate_SOURCES += qwl_evaluate.C
-endif
-
 loop_mpi_SOURCES = loop.C $(SRC)
 loop_mpi_LDFLAGS = @LDFLAGS_MPI@
 loop_mpi_LDADD = @LIBS_MPI@
-
-loop_ps_SOURCES = loop_pp.C $(SRC)
-
-loop_pp_SOURCES = loop_pp.C $(SRC_PP)
-loop_pp_LDFLAGS = @LDFLAGS_MPI@
-loop_pp_LDADD = @LIBS_MPI@
 
 #
 # tests

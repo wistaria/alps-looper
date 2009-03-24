@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2003-2008 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 2003-2009 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -23,17 +23,15 @@
 *****************************************************************************/
 
 #include "loop_config.h"
-#include "loop_factory.h"
 #include <looper/lapack.h>
 #include <looper/power.h>
 #include <alps/math.hpp>
-#include <alps/scheduler.h>
+#include <alps/parapack/serial.h>
 #include <boost/foreach.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/tuple/tuple.hpp>
-#include <alps/parapack/serial.h>
 
 namespace {
 
@@ -281,19 +279,15 @@ double dynamic_average2(double beta, double offset, const VEC& evals, const MAT&
 }
 
 
-class diag_worker : private loop_config, protected loop_config::lattice_t,
-  protected alps::model_helper<> {
+class diag_worker : public alps::parapack::abstract_worker, private loop_config,
+  protected loop_config::lattice_t, protected alps::model_helper<> {
 public:
   diag_worker(alps::Parameters const& p) : loop_config::lattice_t(p),
     alps::model_helper<>(this->graph_helper(), p), done(false), params(p) {}
   void init_observables(alps::Parameters const&, alps::ObservableSet&) {}
   bool is_thermalized() const { return true; }
   double progress() const { return done ? 1 : 0; }
-  template<typename ENGINE>
-  void run(ENGINE&, alps::ObservableSet& obs);
-  void set_beta(double) const { boost::throw_exception(std::logic_error("diag")); }
-  double weight_parameter() const { boost::throw_exception(std::logic_error("diag")); return 0; }
-  static double log_weight(double, double) { boost::throw_exception(std::logic_error("diag")); return 0; }
+  void run(alps::ObservableSet& obs);
   void save(alps::ODump& dp) const { dp << done; }
   void load(alps::IDump& dp) { dp >> done; }
 private:
@@ -302,10 +296,9 @@ private:
 };
 
 
-template<typename ENGINE>
-void diag_worker::run(ENGINE&, alps::ObservableSet& obs) {
-  typedef typename looper::real_site_descriptor<lattice_t>::type site_descriptor;
-  typedef typename looper::real_bond_descriptor<lattice_t>::type bond_descriptor;
+void diag_worker::run(alps::ObservableSet& obs) {
+  typedef looper::real_site_descriptor<lattice_t>::type site_descriptor;
+  typedef looper::real_bond_descriptor<lattice_t>::type bond_descriptor;
 
   typedef boost::numeric::ublas::vector<double> vector_type;
   typedef boost::numeric::ublas::matrix<double, boost::numeric::ublas::column_major> matrix_type;
@@ -453,28 +446,12 @@ void diag_worker::run(ENGINE&, alps::ObservableSet& obs) {
   BOOST_FOREACH(nv_t const& t, m) obs << alps::SimpleRealObservable(t.first);
   obs.reset(true);
   BOOST_FOREACH(nv_t const& t, m) obs[t.first] << t.second;
-}
-
-
-class dummy_evaluator : public looper::abstract_evaluator {
-public:
-  void pre_evaluate(alps::ObservableSet&, alps::Parameters const&,
-    alps::ObservableSet const&) const {}
-  void evaluate(alps::scheduler::MCSimulation&, alps::Parameters const&,
-    boost::filesystem::path const&) const {}
-  void evaluate(alps::ObservableSet&, alps::Parameters const&, alps::ObservableSet const&) const {}
 };
-
 
 //
 // dynamic registration to the factories
 //
 
-const bool worker_registered = loop_factory::instance()->
-  register_worker<diag_worker>("diagonalization");
-const bool evaluator_registered = loop_factory::instance()->
-  register_evaluator<dummy_evaluator>("diagonalization");
-
-PARAPACK_REGISTER_WORKER(parapack_single_worker<diag_worker>, "diagonalization");
+PARAPACK_REGISTER_WORKER(diag_worker, "diagonalization");
 
 } // end namespace
