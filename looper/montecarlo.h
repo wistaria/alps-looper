@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2009 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -41,7 +41,7 @@ public:
   mc_steps(alps::Parameters const& p) : mcs_(0),
     sweep_(p.value_or_default("SWEEPS", "[65536:]"), p),
     therm_(p.defined("THERMALIZATION") ? static_cast<int>(alps::evaluate("THERMALIZATION", p)) :
-      (sweep_.min() >> 3)) {
+      (sweep_.min BOOST_PREVENT_MACRO_SUBSTITUTION () >> 3)) {
   }
 
   void set_thermalization(int c) { therm_ = c; }
@@ -52,9 +52,13 @@ public:
   mc_steps operator++(int) { mc_steps tmp = *this; this->operator++(); return tmp; }
 
   unsigned int operator()() const { return mcs_; }
-  bool can_work() const { return mcs_ < therm_ || mcs_ - therm_ < sweep_.max(); }
+  bool can_work() const {
+    return mcs_ < therm_ || mcs_ - therm_ < sweep_.max BOOST_PREVENT_MACRO_SUBSTITUTION ();
+  }
   bool is_thermalized() const { return mcs_ >= therm_; }
-  double progress() const { return static_cast<double>(mcs_) / (therm_ + sweep_.min()); }
+  double progress() const {
+    return static_cast<double>(mcs_) / (therm_ + sweep_.min BOOST_PREVENT_MACRO_SUBSTITUTION ());
+  }
 
   int thermalization() const { return therm_; }
   range_type sweeps() const { return sweep_; }

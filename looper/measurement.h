@@ -194,19 +194,17 @@ struct estimate {
 template<typename ESTIMATOR>
 struct collector {
   template<typename BASE_ESTIMATOR>
-  class basic_collector : public  BASE_ESTIMATOR::collector {
-    typedef typename BASE_ESTIMATOR::collector collector;
-    typedef typename BASE_ESTIMATOR::estimate estimate;
+  class basic_collector : public BASE_ESTIMATOR::collector {
   public:
-    basic_collector() : collector(), noc_(0), nc_(0), nop_(0) {}
+    basic_collector() : BASE_ESTIMATOR::collector(), noc_(0), nc_(0), nop_(0) {}
     basic_collector& operator+=(basic_collector const& coll) {
-      collector::operator+=(coll);
+      BASE_ESTIMATOR::collector::operator+=(coll);
       nc_ += coll.nc_;
       nop_ += coll.nop_;
       return *this;
     }
-    basic_collector& operator+=(estimate const& est) {
-      collector::operator+=(est);
+    basic_collector& operator+=(typename BASE_ESTIMATOR::estimate const& est) {
+      BASE_ESTIMATOR::collector::operator+=(est);
       return *this;
     }
     void set_num_open_clusters(unsigned int n) { noc_ += n; }
