@@ -22,6 +22,10 @@
 *
 *****************************************************************************/
 
+#include <looper/version.h>
 #include <alps/parapack/scheduler.h>
 
 int main(int argc, char** argv) { return alps::parapack::start(argc, argv); }
+
+PARAPACK_SET_COPYRIGHT(LOOPER_COPYRIGHT)
+PARAPACK_SET_VERSION(LOOPER_VERSION_STRING)
