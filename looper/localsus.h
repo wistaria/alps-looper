@@ -46,10 +46,7 @@ struct local_susceptibility {
               const typename lattice_t::virtual_graph_type,
               double>::type gauge_map_t;
 
-    bool measure;
-    bool measure_local;
-    bool measure_type;
-    bool improved;
+    bool measure, measure_local, measure_type, bipartite, improved;
     real_site_map_t real_site;
     gauge_map_t gauge;
 
@@ -67,13 +64,12 @@ struct local_susceptibility {
     std::valarray<double> tlumag, tlumag_a, tlsmag, tlsmag_a; // temporary
     std::valarray<double> tumag, tumag_a, tsmag, tsmag_a; // temporary
 
-    template<typename M>
-    void initialize(M& m, alps::Parameters const& params, lattice_t const& lat,
+    void initialize(alps::Parameters const& params, lattice_t const& lat,
       bool is_signed, bool use_improved_estimator) {
       measure_local = params.value_or_default("MEASURE[Local Susceptibility]", false);
       measure_type = params.value_or_default("MEASURE[Site Type Susceptibility]", false);
       measure = measure_local || measure_type;
-
+      bipartite = is_bipartite(lat);
       improved = use_improved_estimator;
       real_site = alps::get_or_default(real_site_t(), lat.vg(), 0);
       gauge = alps::get_or_default(gauge_t(), lat.vg(), 0);
@@ -103,39 +99,44 @@ struct local_susceptibility {
         tlumag_a.resize(num_sites(lat.rg()));
         tlsmag.resize(num_sites(lat.rg()));
         tlsmag_a.resize(num_sites(lat.rg()));
-
-        add_vector_obs(m, "Local Magnetization", is_signed);
-        add_vector_obs(m, "Local Susceptibility", is_signed);
-        add_vector_obs(m, "Local Field Susceptibility", is_signed);
-        if (is_bipartite(lat))
-          add_vector_obs(m, "Staggered Local Susceptibility", is_signed);
-        if (improved) {
-          add_vector_obs(m, "Generalized Local Susceptibility", is_signed);
-          add_vector_obs(m, "Generalized Local Field Susceptibility", is_signed);
-          if (is_bipartite(lat))
-            add_vector_obs(m, "Generalized Staggered Local Susceptibility", is_signed);
-        }
       }
       if (measure_type) {
         tumag.resize(type_nrs.size());
         tumag_a.resize(type_nrs.size());
         tsmag.resize(type_nrs.size());
         tsmag_a.resize(type_nrs.size());
-
+      }
+    }
+    template<typename M>
+    void init_observables(M& m, bool is_signed) {
+      if (measure_local) {
+        add_vector_obs(m, "Local Magnetization", is_signed);
+        add_vector_obs(m, "Local Susceptibility", is_signed);
+        add_vector_obs(m, "Local Field Susceptibility", is_signed);
+        if (bipartite)
+          add_vector_obs(m, "Staggered Local Susceptibility", is_signed);
+        if (improved) {
+          add_vector_obs(m, "Generalized Local Susceptibility", is_signed);
+          add_vector_obs(m, "Generalized Local Field Susceptibility", is_signed);
+          if (bipartite)
+            add_vector_obs(m, "Generalized Staggered Local Susceptibility", is_signed);
+        }
+      }
+      if (measure_type) {
         add_vector_obs(m, "Number of Sites of Each Type", is_signed);
         add_vector_obs(m, "Site Type Magnetization", is_signed);
         add_vector_obs(m, "Site Type Magnetization Density", is_signed);
         add_vector_obs(m, "Site Type Susceptibility", is_signed);
         add_vector_obs(m, "Site Type Field Susceptibility", is_signed);
-        if (use_improved_estimator) {
+        if (improved) {
           add_vector_obs(m, "Generalized Site Type Susceptibility", is_signed);
         }
-        if (is_bipartite(lat)) {
+        if (bipartite) {
           add_vector_obs(m, "Staggered Site Type Magnetization", is_signed);
           add_vector_obs(m, "Staggered Site Type Magnetization Density", is_signed);
           add_vector_obs(m, "Staggered Site Type Susceptibility", is_signed);
           add_vector_obs(m, "Staggered Site Type Field Susceptibility", is_signed);
-          if (use_improved_estimator) {
+          if (improved) {
             add_vector_obs(m, "Generalized Staggered Site Type Susceptibility", is_signed);
           }
         }

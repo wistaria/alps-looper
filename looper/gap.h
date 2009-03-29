@@ -47,20 +47,23 @@ struct gap : public has_evaluator_tag {
     typedef typename alps::property_map<gauge_t, const typename lattice_t::virtual_graph_type,
       double>::type gauge_map_t;
 
-    bool improved;
+    bool bipartite, improved;
     gauge_map_t gauge;
 
-    template<typename M>
-    void initialize(M& m, alps::Parameters const& /* params */, lattice_t const& lat,
+    void initialize(alps::Parameters const& /* params */, lattice_t const& lat,
       bool is_signed, bool use_improved_estimator) {
+      bipartite = is_bipartite(lat);
       improved = use_improved_estimator;
       gauge = alps::get_or_default(gauge_t(), lat.vg(), 0);
+    }
+    template<typename M>
+    void init_observables(M& m, bool is_signed) {
       add_scalar_obs(m, "Susceptibility [w=2pi/beta]", is_signed);
-      if (is_bipartite(lat))
+      if (bipartite)
         add_scalar_obs(m, "Staggered Susceptibility [w=2pi/beta]", is_signed);
-      if (use_improved_estimator) {
+      if (improved) {
         add_scalar_obs(m, "Generalized Susceptibility [w=2pi/beta]", is_signed);
-        if (is_bipartite(lat))
+        if (bipartite)
           add_scalar_obs(m, "Generalized Staggered Susceptibility [w=2pi/beta]", is_signed);
       }
     }

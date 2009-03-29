@@ -40,10 +40,15 @@ struct transverse_magnetization {
     typedef LAT  lattice_t;
     typedef TIME time_t;
 
+    bool improved;
+
+    void initialize(alps::Parameters const& /* params */, lattice_t const& /* lat */,
+      bool /* is_signed */, bool use_improved_estimator) {
+      improved = use_improved_estimator;
+    }
     template<typename M>
-    void initialize(M& m, alps::Parameters const& /* params */, lattice_t const& /* lat */,
-      bool is_signed, bool use_improved_estimator) {
-      if (use_improved_estimator) {
+    void init_observables(M& m, bool is_signed) {
+      if (improved) {
         add_scalar_obs(m, "Transverse Magnetization", is_signed);
         add_scalar_obs(m, "Transverse Magnetization Density", is_signed);
       }

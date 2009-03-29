@@ -56,18 +56,13 @@ struct stiffness
     bond_vector_relative_map_t bond_vector_relative;
     unsigned int dim;
 
-    template<typename M>
-    void initialize(M& m, alps::Parameters const& /* params */,
-                    lattice_t const& lat,
-                    bool is_signed, bool use_improved_estimator)
-    {
+    void initialize(alps::Parameters const& /* params */, lattice_t const& lat,
+                    bool is_signed, bool use_improved_estimator) {
       improved = use_improved_estimator;
-      real_bond =
-        alps::get_or_default(real_bond_t(), lat.vg(),
-                             typename real_bond_descriptor<lattice_t>::type());
-      bond_vector_relative =
-        alps::get_or_default(bond_vector_relative_t(), lat.rg(),
-                             coordinate_type());
+      real_bond = alps::get_or_default(real_bond_t(), lat.vg(),
+                                       typename real_bond_descriptor<lattice_t>::type());
+      bond_vector_relative = alps::get_or_default(bond_vector_relative_t(), lat.rg(),
+                                                  coordinate_type());
       dim = get_property(lat.rg(), dimension_t());
       if (improved && dim > MAX_DIM) {
         std::cerr << "Spatial dimension (=" << dim << ") is too large.  "
@@ -75,6 +70,9 @@ struct stiffness
                   << MAX_DIM << " dimensions\n";
         dim = MAX_DIM;
       }
+    }
+    template<typename M>
+    void init_observables(M& m, bool is_signed) {
       if (dim > 0) add_scalar_obs(m, "Stiffness", is_signed);
     }
 

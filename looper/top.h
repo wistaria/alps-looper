@@ -46,10 +46,8 @@ struct twist_order_parameter_n {
     std::vector<double> phase;
     std::vector<std::string> label;
 
-    template<typename M>
-    void initialize(M& m, alps::Parameters const& /* params */, lattice_t const& lat,
+    void initialize(alps::Parameters const& /* params */, lattice_t const& lat,
       bool is_signed, bool use_improved_estimator) {
-
       improved = use_improved_estimator;
 
       // check basis vector
@@ -80,8 +78,10 @@ struct twist_order_parameter_n {
       label[0] = "Twist Order Parameter";
       for (unsigned int i = 1; i < N; ++i)
         label[i] = "Twist Order Parameter with p = " + boost::lexical_cast<std::string>(i+1);
-
-      for (unsigned int i = 0; i < N; ++i) {
+    }
+    template<typename M>
+    void init_observables(M& m, bool is_signed) {
+      for (unsigned int i = 0; i < label.size(); ++i) {
         add_scalar_obs(m, label[i], is_signed);
         add_scalar_obs(m, label[i] + " (Imaginary Part)", is_signed);
       }

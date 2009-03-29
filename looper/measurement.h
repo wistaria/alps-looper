@@ -364,7 +364,7 @@ struct accumulator<ESTIMATOR, FRAGMENT, boost::mpl::true_> {
 
 struct energy_estimator {
   template<typename M>
-  static void initialize(M& m, bool is_signed) {
+  static void init_observables(M& m, bool is_signed) {
     add_scalar_obs(m, "Energy", is_signed);
     add_scalar_obs(m, "Energy Density", is_signed);
     add_scalar_obs(m, "Energy^2", is_signed);
@@ -411,9 +411,10 @@ struct dumb_measurement {
     typedef LAT  lattice_t;
     typedef TIME time_t;
 
-    template<typename M>
-    void initialize(M& /* m */, alps::Parameters const& /* params */, lattice_t const& /* lat */,
+    void initialize(alps::Parameters const& /* params */, lattice_t const& /* lat */,
       bool /* is_signed */, bool /* use_improved_estimator */) {}
+    template<typename M>
+    void init_observables(M& /* m */, bool /* is_signed */) {}
 
     // improved estimator
 
@@ -486,11 +487,15 @@ struct composite_measurement :
     estimator1 emt1;
     estimator2 emt2;
 
-    template<typename M>
-    void initialize(M& m, alps::Parameters const& params, lattice_t const& lat, bool is_signed,
+    void initialize(alps::Parameters const& params, lattice_t const& lat, bool is_signed,
       bool use_improved_estimator) {
-      emt1.initialize(m, params, lat, is_signed, use_improved_estimator);
-      emt2.initialize(m, params, lat, is_signed, use_improved_estimator);
+      emt1.initialize(params, lat, is_signed, use_improved_estimator);
+      emt2.initialize(params, lat, is_signed, use_improved_estimator);
+    }
+    template<typename M>
+    void init_observables(M& m, bool is_signed) {
+      emt1.init_observables(m, is_signed);
+      emt2.init_observables(m, is_signed);
     }
 
     // improved estimator

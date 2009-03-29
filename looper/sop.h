@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2009 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -45,8 +45,7 @@ struct string_order_parameter {
     int p_right;
     std::string label;
 
-    template<typename M>
-    void initialize(M& m, alps::Parameters const& params, lattice_t const& lat,
+    void initialize(alps::Parameters const& params, lattice_t const& lat,
       bool is_signed, bool /* use_improved_estimator */) {
 
       p_left = 1;
@@ -88,6 +87,9 @@ struct string_order_parameter {
       if (params.defined("SOP_M") && params.defined("SOP_N"))
         label += " (M,N)=(" + boost::lexical_cast<std::string>(p_left) + "," +
           boost::lexical_cast<std::string>(p_right) + ")";
+    }
+    template<typename M>
+    void init_observables(M& m, bool is_signed) {
       add_scalar_obs(m, label, is_signed);
     }
 

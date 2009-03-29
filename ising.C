@@ -127,7 +127,8 @@ loop_worker::loop_worker(alps::Parameters const& p)
   spins.resize(nvs); std::fill(spins.begin(), spins.end(), 0 /* all up */);
   perm.resize(max_virtual_sites(lattice));
 
-  // measurements
+  // initialize estimators
+  estimator.initialize(p, lattice, model.is_signed(), use_improved_estimator);
 }
 
 void loop_worker::init_observables(alps::Parameters const& p, alps::ObservableSet& obs) {
@@ -136,8 +137,8 @@ void loop_worker::init_observables(alps::Parameters const& p, alps::ObservableSe
   obs << make_observable(alps::SimpleRealObservable("Volume"));
   obs << make_observable(alps::SimpleRealObservable("Number of Sites"));
   obs << make_observable(alps::SimpleRealObservable("Number of Clusters"));
-  looper::energy_estimator::initialize(obs, false);
-  estimator.initialize(obs, p, lattice, false, use_improved_estimator);
+  looper::energy_estimator::init_observables(obs, false);
+  estimator.init_observables(obs, false);
 }
 
 void loop_worker::run(alps::ObservableSet& obs) {

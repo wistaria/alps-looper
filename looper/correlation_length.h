@@ -67,8 +67,7 @@ struct correlation_length : public has_evaluator_tag {
     double dq_abs;
     std::vector<complex_type> sq0, sq1;
 
-    template<typename M>
-    void initialize(M& m, alps::Parameters const& params, lattice_t const& lat,
+    void initialize(alps::Parameters const& params, lattice_t const& lat,
       bool is_signed, bool use_improved_estimator) {
       measure = params.value_or_default("MEASURE[Correlation Length]", false);
 
@@ -127,7 +126,11 @@ struct correlation_length : public has_evaluator_tag {
           sq0.resize(nc);
           sq1.resize(nc);
         }
-
+      }
+    }
+    template<typename M>
+    void init_observables(M& m, bool is_signed) {
+      if (measure) {
         add_scalar_obs(m, "Spin Structure Factor at q = q0", is_signed);
         add_scalar_obs(m, "Spin Structure Factor at q = q0 + dq", is_signed);
         add_scalar_obs(m, "|dq|");

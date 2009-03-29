@@ -42,15 +42,17 @@ struct susceptibility :
               const typename lattice_t::virtual_graph_type,
               double>::type gauge_map_t;
 
-    bool improved;
+    bool bipartite, improved;
     gauge_map_t gauge;
 
-    template<typename M>
-    void initialize(M& m, alps::Parameters const& /* params */, lattice_t const& lat,
+    void initialize(alps::Parameters const& /* params */, lattice_t const& lat,
       bool is_signed, bool use_improved_estimator) {
+      bipartite = is_bipartite(lat);
       improved = use_improved_estimator;
       gauge = alps::get_or_default(gauge_t(), lat.vg(), 0);
-
+    }
+    template<typename M>
+    void init_observables(M& m, bool is_signed) {
       add_scalar_obs(m, "Magnetization", is_signed);
       add_scalar_obs(m, "Magnetization Density", is_signed);
       add_scalar_obs(m, "|Magnetization|", is_signed);
@@ -60,14 +62,14 @@ struct susceptibility :
       add_scalar_obs(m, "Magnetization^4", is_signed);
       add_scalar_obs(m, "Magnetization Density^4", is_signed);
       add_scalar_obs(m, "Susceptibility", is_signed);
-      if (use_improved_estimator) {
+      if (improved) {
         add_scalar_obs(m, "Generalized Magnetization^2", is_signed);
         add_scalar_obs(m, "Generalized Magnetization Density^2", is_signed);
         add_scalar_obs(m, "Generalized Magnetization^4", is_signed);
         add_scalar_obs(m, "Generalized Magnetization Density^4", is_signed);
         add_scalar_obs(m, "Generalized Susceptibility", is_signed);
       }
-      if (is_bipartite(lat)) {
+      if (bipartite) {
         add_scalar_obs(m, "Staggered Magnetization", is_signed);
         add_scalar_obs(m, "Staggered Magnetization Density", is_signed);
         add_scalar_obs(m, "|Staggered Magnetization|", is_signed);
@@ -77,17 +79,12 @@ struct susceptibility :
         add_scalar_obs(m, "Staggered Magnetization^4", is_signed);
         add_scalar_obs(m, "Staggered Magnetization Density^4", is_signed);
         add_scalar_obs(m, "Staggered Susceptibility", is_signed);
-        if (use_improved_estimator) {
-          add_scalar_obs(m, "Generalized Staggered Magnetization^2",
-                         is_signed);
-          add_scalar_obs(m, "Generalized Staggered Magnetization Density^2",
-                         is_signed);
-          add_scalar_obs(m, "Generalized Staggered Magnetization^4",
-                         is_signed);
-          add_scalar_obs(m, "Generalized Staggered Magnetization Density^4",
-                         is_signed);
-          add_scalar_obs(m, "Generalized Staggered Susceptibility",
-                         is_signed);
+        if (improved) {
+          add_scalar_obs(m, "Generalized Staggered Magnetization^2", is_signed);
+          add_scalar_obs(m, "Generalized Staggered Magnetization Density^2", is_signed);
+          add_scalar_obs(m, "Generalized Staggered Magnetization^4", is_signed);
+          add_scalar_obs(m, "Generalized Staggered Magnetization Density^4", is_signed);
+          add_scalar_obs(m, "Generalized Staggered Susceptibility", is_signed);
         }
       }
     }
@@ -321,18 +318,16 @@ struct susceptibility :
         umag_a += umag;
         m["Susceptibility"] << sign * beta * power2(umag_a) / vol;
         smag_a += smag;
-        if (is_bipartite(lat))
+        if (bipartite)
           m["Staggered Susceptibility"] << sign * beta * power2(smag_a) / vol;
       } else {
         umag_a += nop * umag;
         m["Susceptibility"]
-          << sign * beta * (dip(power2(umag_a), nop) + power2(umag))
-          / (nop + 1) / vol;
+          << sign * beta * (dip(power2(umag_a), nop) + power2(umag)) / (nop + 1) / vol;
         smag_a += nop * smag;
-        if (is_bipartite(lat))
+        if (bipartite)
           m["Staggered Susceptibility"]
-            << sign * beta * (dip(power2(smag_a), nop) + power2(smag))
-            / (nop + 1) / vol;
+            << sign * beta * (dip(power2(smag_a), nop) + power2(smag)) / (nop + 1) / vol;
       }
     }
   };

@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2009 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -74,48 +74,52 @@ struct custom_measurement {
     coordinate_map_t coordinate;
     boost::optional<int> origin;
     std::valarray<double> mltplcty;
+    std::vector<std::string> site_label, distance_label, momenta_label;
 
     // working vector
     std::valarray<double> local, corr, sfac;
 
-    template<typename M>
-    void initialize(M& m, alps::Parameters const& params, lattice_t const& lat,
+    void initialize(alps::Parameters const& params, lattice_t const& lat,
       bool is_signed, bool /* use_improved_estimator */) {
-
       custom_measurement_initializer<lattice_t> initializer(params);
       initializer.init(lat, average_elements, local_elements, correlation_elements,
                        strfactor_elements);
-
-      BOOST_FOREACH(s_elements_type const& elms, average_elements)
-        add_scalar_obs(m, elms.get<0>(), is_signed);
-
       if (local_elements.size()) {
-        std::vector<std::string> labels = alps::site_labels(lat.rg());
-        local.resize(labels.size());
-        BOOST_FOREACH(s_elements_type const& elms, local_elements)
-          add_vector_obs(m, elms.get<0>(), labels, is_signed);
+        site_label = alps::site_labels(lat.rg());
+        local.resize(site_label.size());
       }
-
       if (correlation_elements.size()) {
         if (params.defined("INITIAL_SITE"))
           origin = static_cast<int>(params["INITIAL_SITE"]);
-        std::vector<std::string> labels = distance_labels(lat, origin);
+        distance_label = distance_labels(lat, origin);
         if (!origin) {
           std::vector<unsigned int> m = distance_multiplicities(lat);
           mltplcty.resize(m.size());
           for (int i = 0; i < mltplcty.size(); ++i) mltplcty[i] = 1. / m[i];
         }
-        corr.resize(labels.size());
-        BOOST_FOREACH(p_elements_type const& elms, correlation_elements)
-          add_vector_obs(m, elms.get<0>(), labels, is_signed);
+        corr.resize(distance_label.size());
       }
-
       if (strfactor_elements.size()) {
         coordinate = alps::get_or_default(coordinate_t(), lat.rg(), 0);
-        std::vector<std::string> labels = momenta_labels(lat);
-        sfac.resize(labels.size());
+        momenta_label = momenta_labels(lat);
+        sfac.resize(momenta_label.size());
+      }
+    }
+    template<typename M>
+    void init_observables(M& m, bool is_signed) {
+      BOOST_FOREACH(s_elements_type const& elms, average_elements)
+        add_scalar_obs(m, elms.get<0>(), is_signed);
+      if (local_elements.size()) {
+        BOOST_FOREACH(s_elements_type const& elms, local_elements)
+          add_vector_obs(m, elms.get<0>(), site_label, is_signed);
+      }
+      if (correlation_elements.size()) {
+        BOOST_FOREACH(p_elements_type const& elms, correlation_elements)
+          add_vector_obs(m, elms.get<0>(), distance_label, is_signed);
+      }
+      if (strfactor_elements.size()) {
         BOOST_FOREACH(p_elements_type const& elms, strfactor_elements)
-          add_vector_obs(m, elms.get<0>(), labels, is_signed);
+          add_vector_obs(m, elms.get<0>(), momenta_label, is_signed);
       }
     }
 

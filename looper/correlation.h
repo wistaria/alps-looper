@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2009 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -50,19 +50,18 @@ struct correlation {
               coordinate_type>::type coordinate_map_t;
 
     bool measure_correlation, measure_green_function,
-      measure_structure_factor;
-    bool improved;
+      measure_structure_factor, bipartite, improved;
     real_site_map_t real_site;
     gauge_map_t gauge;
     coordinate_map_t coordinate;
     boost::optional<int> origin;
     std::valarray<double> mltplcty;
+    std::vector<std::string> distance_label, momenta_label;
 
     // working vector
     std::valarray<double> ucorr, scorr, gucorr, gscorr, gfunc, sfac;
 
-    template<typename M>
-    void initialize(M& m, alps::Parameters const& params, lattice_t const& lat,
+    void initialize(alps::Parameters const& params, lattice_t const& lat,
       bool is_signed, bool use_improved_estimator) {
       measure_correlation =
         params.value_or_default("MEASURE[Correlations]", false);
@@ -70,6 +69,7 @@ struct correlation {
         params.value_or_default("MEASURE[Green Function]", false);
       measure_structure_factor =
         params.value_or_default("MEASURE[Structure Factor]", false);
+      bipartite = is_bipartite(lat);
       improved = use_improved_estimator;
 
       if (measure_green_function && !improved) {
@@ -87,39 +87,46 @@ struct correlation {
         if (params.defined("INITIAL_SITE"))
           origin = static_cast<int>(params["INITIAL_SITE"]);
 
-        std::vector<std::string> label = distance_labels(lat, origin);
+        distance_label = distance_labels(lat, origin);
         if (!origin) {
           std::vector<unsigned int> m = distance_multiplicities(lat);
           mltplcty.resize(m.size());
           for (int i = 0; i < mltplcty.size(); ++i) mltplcty[i] = 1. / m[i];
         }
-        ucorr.resize(label.size());
-        scorr.resize(label.size());
+        ucorr.resize(distance_label.size());
+        scorr.resize(distance_label.size());
         if (improved) {
-          gucorr.resize(label.size());
-          gscorr.resize(label.size());
-          gfunc.resize(label.size());
+          gucorr.resize(distance_label.size());
+          gscorr.resize(distance_label.size());
+          gfunc.resize(distance_label.size());
         }
-        if (measure_correlation) {
-          add_vector_obs(m, "Spin Correlations", label, is_signed);
-          if (is_bipartite(lat))
-            add_vector_obs(m, "Staggered Spin Correlations", label, is_signed);
-          if (improved) {
-            add_vector_obs(m, "Generalized Spin Correlations", label,
-                           is_signed);
-            if (is_bipartite(lat))
-              add_vector_obs(m, "Generalized Staggered Spin Correlations",
-                             label, is_signed);
-          }
-        }
-        if (measure_green_function)
-          add_vector_obs(m, "Green's Function", label, is_signed);
       }
 
       if (measure_structure_factor) {
         coordinate = alps::get_or_default(coordinate_t(), lat.rg(), 0);
         sfac.resize(num_sites(lat.rg()));
-        add_vector_obs(m, "Spin Structure Factor", momenta_labels(lat), is_signed);
+        momenta_label = momenta_labels(lat);
+      }
+    }
+    template<typename M>
+    void init_observables(M& m, bool is_signed) {
+      if (measure_correlation || measure_green_function) {
+        if (measure_correlation) {
+          add_vector_obs(m, "Spin Correlations", distance_label, is_signed);
+          if (bipartite)
+            add_vector_obs(m, "Staggered Spin Correlations", distance_label, is_signed);
+          if (improved) {
+            add_vector_obs(m, "Generalized Spin Correlations", distance_label, is_signed);
+            if (bipartite)
+              add_vector_obs(m, "Generalized Staggered Spin Correlations", distance_label,
+                             is_signed);
+          }
+        }
+        if (measure_green_function)
+          add_vector_obs(m, "Green's Function", distance_label, is_signed);
+      }
+      if (measure_structure_factor) {
+        add_vector_obs(m, "Spin Structure Factor", momenta_label, is_signed);
       }
     }
 
@@ -197,7 +204,7 @@ struct correlation {
         if (measure_correlation) {
           m["Spin Correlations"] << ucorr;
           m["Generalized Spin Correlations"] << gucorr;
-          if (is_bipartite(lat)) {
+          if (bipartite) {
             m["Staggered Spin Correlations"] << scorr;
             m["Generalized Staggered Spin Correlations"] << gscorr;
           }
@@ -248,7 +255,7 @@ struct correlation {
           scorr *= 0.25 * sign * mltplcty;
         }
         m["Spin Correlations"] << ucorr;
-        if (is_bipartite(lat))
+        if (bipartite)
           m["Staggered Spin Correlations"] << scorr;
       }
 

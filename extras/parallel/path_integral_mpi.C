@@ -149,6 +149,9 @@ loop_worker::loop_worker(mpi::communicator const& c, alps::Parameters const& p)
   spins_c.resize(nvs);
   current.resize(nvs);
   perm.resize(max_virtual_sites(lattice));
+
+  // initialize estimators
+  estimator.initialize(p, lattice, model.is_signed(), use_improved_estimator);
 }
 
 void loop_worker::init_observables(alps::Parameters const& p, alps::ObservableSet& obs) {
@@ -166,8 +169,8 @@ void loop_worker::init_observables(alps::Parameters const& p, alps::ObservableSe
       }
     }
   }
-  looper::energy_estimator::initialize(obs, model.is_signed());
-  estimator.initialize(obs, p, lattice, model.is_signed(), use_improved_estimator);
+  looper::energy_estimator::init_observables(obs, model.is_signed());
+  estimator.init_observables(obs, model.is_signed());
 }
 
 void loop_worker::run(alps::ObservableSet& obs) {
