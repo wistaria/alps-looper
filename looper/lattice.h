@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2009 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -632,7 +632,10 @@ void lattice_helper<RG>::generate_virtual_graph(M const& model, bool has_d_term)
   // setup bond and s2bond mapping
   typename graph_traits<vg_type>::bond_iterator vei_first = bonds(vgraph_).first;
   typename graph_traits<vg_type>::bond_iterator vei_last = vei_first;
-  BOOST_FOREACH(typename graph_traits<rg_type>::bond_descriptor re, bonds(rg())) {
+  // BOOST_FOREACH(typename graph_traits<rg_type>::bond_descriptor re, bonds(rg())) {
+  typename graph_traits<rg_type>::bond_iterator rei, rei_end;
+  for (boost::tie(rei, rei_end) = bonds(rg()); rei != rei_end; ++rei) {
+    typename graph_traits<rg_type>::bond_descriptor re = *rei;
     vei_last += model.site(source(re, rg()), rg()).s.get_twice() *
       model.site(target(re, rg()), rg()).s.get_twice();
     mapping_.add_bonds(rg(), re, vei_first, vei_last);
