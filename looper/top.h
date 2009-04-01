@@ -47,7 +47,7 @@ struct twist_order_parameter_n {
     std::vector<std::string> label;
 
     void initialize(alps::Parameters const& /* params */, lattice_t const& lat,
-      bool is_signed, bool use_improved_estimator) {
+      bool /* is_signed */, bool use_improved_estimator) {
       improved = use_improved_estimator;
 
       // check basis vector

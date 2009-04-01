@@ -65,7 +65,7 @@ struct local_susceptibility {
     std::valarray<double> tumag, tumag_a, tsmag, tsmag_a; // temporary
 
     void initialize(alps::Parameters const& params, lattice_t const& lat,
-      bool is_signed, bool use_improved_estimator) {
+      bool /* is_signed */, bool use_improved_estimator) {
       measure_local = params.value_or_default("MEASURE[Local Susceptibility]", false);
       measure_type = params.value_or_default("MEASURE[Site Type Susceptibility]", false);
       measure = measure_local || measure_type;

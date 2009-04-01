@@ -57,7 +57,7 @@ struct stiffness
     unsigned int dim;
 
     void initialize(alps::Parameters const& /* params */, lattice_t const& lat,
-                    bool is_signed, bool use_improved_estimator) {
+      bool /* is_signed */, bool use_improved_estimator) {
       improved = use_improved_estimator;
       real_bond = alps::get_or_default(real_bond_t(), lat.vg(),
                                        typename real_bond_descriptor<lattice_t>::type());

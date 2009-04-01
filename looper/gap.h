@@ -51,7 +51,7 @@ struct gap : public has_evaluator_tag {
     gauge_map_t gauge;
 
     void initialize(alps::Parameters const& /* params */, lattice_t const& lat,
-      bool is_signed, bool use_improved_estimator) {
+      bool /* is_signed */, bool use_improved_estimator) {
       bipartite = is_bipartite(lat);
       improved = use_improved_estimator;
       gauge = alps::get_or_default(gauge_t(), lat.vg(), 0);

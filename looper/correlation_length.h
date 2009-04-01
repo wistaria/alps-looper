@@ -68,7 +68,7 @@ struct correlation_length : public has_evaluator_tag {
     std::vector<complex_type> sq0, sq1;
 
     void initialize(alps::Parameters const& params, lattice_t const& lat,
-      bool is_signed, bool use_improved_estimator) {
+      bool /* is_signed */, bool use_improved_estimator) {
       measure = params.value_or_default("MEASURE[Correlation Length]", false);
 
       if (measure) {

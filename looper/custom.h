@@ -80,7 +80,7 @@ struct custom_measurement {
     std::valarray<double> local, corr, sfac;
 
     void initialize(alps::Parameters const& params, lattice_t const& lat,
-      bool is_signed, bool /* use_improved_estimator */) {
+      bool /* is_signed */, bool /* use_improved_estimator */) {
       custom_measurement_initializer<lattice_t> initializer(params);
       initializer.init(lat, average_elements, local_elements, correlation_elements,
                        strfactor_elements);

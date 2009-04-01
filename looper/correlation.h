@@ -62,7 +62,7 @@ struct correlation {
     std::valarray<double> ucorr, scorr, gucorr, gscorr, gfunc, sfac;
 
     void initialize(alps::Parameters const& params, lattice_t const& lat,
-      bool is_signed, bool use_improved_estimator) {
+      bool /* is_signed */, bool use_improved_estimator) {
       measure_correlation =
         params.value_or_default("MEASURE[Correlations]", false);
       measure_green_function =

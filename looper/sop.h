@@ -46,7 +46,7 @@ struct string_order_parameter {
     std::string label;
 
     void initialize(alps::Parameters const& params, lattice_t const& lat,
-      bool is_signed, bool /* use_improved_estimator */) {
+      bool /* is_signed */, bool /* use_improved_estimator */) {
 
       p_left = 1;
       p_right = 1;
