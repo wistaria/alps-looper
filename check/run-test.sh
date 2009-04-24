@@ -30,7 +30,7 @@ if test `type lamnodes 1>&- 2>&-; echo $?` == 0; then
   fi
 fi
 
-mpirun -x LD_LIBRARY_PATH -np $NUM_PROCS $PROG --evaluate $BASE.run/$BASE.in.xml
+mpirun -x LD_LIBRARY_PATH -np $NUM_PROCS $PROG --auto-evaluate $BASE.run/$BASE.in.xml
 
 rm -f $BASE.db
 archive --db-file=$BASE.db --command=install
