@@ -2,288 +2,346 @@ set xlabel 'T'
 
 set ylabel 'Energy Density'
 plot \
-  "< choose REPRESENTATION diagonalization chain-1-plot-energy.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-1-plot-energy.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-1-plot-energy.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-1-plot-energy.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-1-plot-energy.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-1-plot-energy.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Specific Heat'
 plot \
-  "< choose REPRESENTATION diagonalization chain-1-plot-sheat.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-1-plot-sheat.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-1-plot-sheat.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-1-plot-sheat.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-1-plot-sheat.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-1-plot-sheat.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Magnetization Density^2'
 plot \
-  "< choose REPRESENTATION diagonalization chain-1-plot-m2.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-1-plot-m2.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-1-plot-m2.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-1-plot-m2.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-1-plot-m2.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-1-plot-m2.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Magnetization Density^4'
 plot \
-  "< choose REPRESENTATION diagonalization chain-1-plot-m4.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-1-plot-m4.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-1-plot-m4.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-1-plot-m4.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-1-plot-m4.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-1-plot-m4.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Susceptibility'
 plot \
-  "< choose REPRESENTATION diagonalization chain-1-plot-sus.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-1-plot-sus.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-1-plot-sus.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-1-plot-sus.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-1-plot-sus.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-1-plot-sus.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Staggered Magnetization Density^2'
 plot \
-  "< choose REPRESENTATION diagonalization chain-1-plot-m2.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-1-plot-m2.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-1-plot-m2.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-1-plot-m2.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-1-plot-m2.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-1-plot-m2.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Staggered Magnetization Density^4'
 plot \
-  "< choose REPRESENTATION diagonalization chain-1-plot-m4.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-1-plot-m4.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-1-plot-m4.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-1-plot-m4.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-1-plot-m4.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-1-plot-m4.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Staggered Susceptibility'
 plot \
-  "< choose REPRESENTATION diagonalization chain-1-plot-ssus.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-1-plot-ssus.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-1-plot-ssus.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-1-plot-ssus.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-1-plot-ssus.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-1-plot-ssus.dat" u 1:2:3 w e
 pause -1
 
 set xlabel 'T'
 
 set ylabel 'Energy Density'
 plot \
-  "< choose REPRESENTATION diagonalization chain-2-plot-energy.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-2-plot-energy.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-2-plot-energy.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-2-plot-energy.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-2-plot-energy.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-2-plot-energy.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Specific Heat'
 plot \
-  "< choose REPRESENTATION diagonalization chain-2-plot-sheat.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-2-plot-sheat.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-2-plot-sheat.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-2-plot-sheat.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-2-plot-sheat.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-2-plot-sheat.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Magnetization Density^2'
 plot \
-  "< choose REPRESENTATION diagonalization chain-2-plot-m2.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-2-plot-m2.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-2-plot-m2.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-2-plot-m2.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-2-plot-m2.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-2-plot-m2.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Magnetization Density^4'
 plot \
-  "< choose REPRESENTATION diagonalization chain-2-plot-m4.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-2-plot-m4.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-2-plot-m4.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-2-plot-m4.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-2-plot-m4.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-2-plot-m4.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Susceptibility'
 plot \
-  "< choose REPRESENTATION diagonalization chain-2-plot-sus.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-2-plot-sus.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-2-plot-sus.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-2-plot-sus.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-2-plot-sus.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-2-plot-sus.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Staggered Magnetization Density^2'
 plot \
-  "< choose REPRESENTATION diagonalization chain-2-plot-m2.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-2-plot-m2.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-2-plot-m2.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-2-plot-m2.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-2-plot-m2.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-2-plot-m2.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Staggered Magnetization Density^4'
 plot \
-  "< choose REPRESENTATION diagonalization chain-2-plot-m4.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-2-plot-m4.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-2-plot-m4.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-2-plot-m4.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-2-plot-m4.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-2-plot-m4.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Staggered Susceptibility'
 plot \
-  "< choose REPRESENTATION diagonalization chain-2-plot-ssus.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-2-plot-ssus.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-2-plot-ssus.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-2-plot-ssus.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-2-plot-ssus.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-2-plot-ssus.dat" u 1:2:3 w e
 pause -1
 
 set xlabel 'T'
 
 set ylabel 'Energy Density'
 plot \
-  "< choose REPRESENTATION diagonalization chain-3-plot-energy.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-3-plot-energy.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-3-plot-energy.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-3-plot-energy.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-3-plot-energy.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-3-plot-energy.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Specific Heat'
 plot \
-  "< choose REPRESENTATION diagonalization chain-3-plot-sheat.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-3-plot-sheat.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-3-plot-sheat.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-3-plot-sheat.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-3-plot-sheat.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-3-plot-sheat.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Magnetization Density^2'
 plot \
-  "< choose REPRESENTATION diagonalization chain-3-plot-m2.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-3-plot-m2.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-3-plot-m2.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-3-plot-m2.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-3-plot-m2.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-3-plot-m2.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Magnetization Density^4'
 plot \
-  "< choose REPRESENTATION diagonalization chain-3-plot-m4.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-3-plot-m4.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-3-plot-m4.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-3-plot-m4.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-3-plot-m4.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-3-plot-m4.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Susceptibility'
 plot \
-  "< choose REPRESENTATION diagonalization chain-3-plot-sus.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-3-plot-sus.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-3-plot-sus.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-3-plot-sus.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-3-plot-sus.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-3-plot-sus.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Staggered Magnetization Density^2'
 plot \
-  "< choose REPRESENTATION diagonalization chain-3-plot-m2.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-3-plot-m2.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-3-plot-m2.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-3-plot-m2.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-3-plot-m2.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-3-plot-m2.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Staggered Magnetization Density^4'
 plot \
-  "< choose REPRESENTATION diagonalization chain-3-plot-m4.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-3-plot-m4.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-3-plot-m4.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-3-plot-m4.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-3-plot-m4.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-3-plot-m4.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Staggered Susceptibility'
 plot \
-  "< choose REPRESENTATION diagonalization chain-3-plot-ssus.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-3-plot-ssus.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-3-plot-ssus.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-3-plot-ssus.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-3-plot-ssus.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-3-plot-ssus.dat" u 1:2:3 w e
 pause -1
 
 set xlabel 'T'
 
 set ylabel 'Energy Density'
 plot \
-  "< choose REPRESENTATION diagonalization chain-4-plot-energy.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-4-plot-energy.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-4-plot-energy.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-4-plot-energy.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-4-plot-energy.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-4-plot-energy.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Specific Heat'
 plot \
-  "< choose REPRESENTATION diagonalization chain-4-plot-sheat.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-4-plot-sheat.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-4-plot-sheat.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-4-plot-sheat.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-4-plot-sheat.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-4-plot-sheat.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Magnetization Density^2'
 plot \
-  "< choose REPRESENTATION diagonalization chain-4-plot-m2.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-4-plot-m2.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-4-plot-m2.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-4-plot-m2.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-4-plot-m2.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-4-plot-m2.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Magnetization Density^4'
 plot \
-  "< choose REPRESENTATION diagonalization chain-4-plot-m4.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-4-plot-m4.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-4-plot-m4.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-4-plot-m4.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-4-plot-m4.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-4-plot-m4.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Susceptibility'
 plot \
-  "< choose REPRESENTATION diagonalization chain-4-plot-sus.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-4-plot-sus.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-4-plot-sus.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-4-plot-sus.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-4-plot-sus.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-4-plot-sus.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Staggered Magnetization Density^2'
 plot \
-  "< choose REPRESENTATION diagonalization chain-4-plot-m2.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-4-plot-m2.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-4-plot-m2.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-4-plot-m2.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-4-plot-m2.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-4-plot-m2.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Staggered Magnetization Density^4'
 plot \
-  "< choose REPRESENTATION diagonalization chain-4-plot-m4.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-4-plot-m4.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-4-plot-m4.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-4-plot-m4.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-4-plot-m4.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-4-plot-m4.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Staggered Susceptibility'
 plot \
-  "< choose REPRESENTATION diagonalization chain-4-plot-ssus.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-4-plot-ssus.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-4-plot-ssus.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-4-plot-ssus.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-4-plot-ssus.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-4-plot-ssus.dat" u 1:2:3 w e
 pause -1
 
 set xlabel 'T'
 
 set ylabel 'Energy Density'
 plot \
-  "< choose REPRESENTATION diagonalization chain-5-plot-energy.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-5-plot-energy.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-5-plot-energy.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-5-plot-energy.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-5-plot-energy.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-5-plot-energy.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Specific Heat'
 plot \
-  "< choose REPRESENTATION diagonalization chain-5-plot-sheat.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-5-plot-sheat.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-5-plot-sheat.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-5-plot-sheat.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-5-plot-sheat.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-5-plot-sheat.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Magnetization Density^2'
 plot \
-  "< choose REPRESENTATION diagonalization chain-5-plot-m2.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-5-plot-m2.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-5-plot-m2.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-5-plot-m2.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-5-plot-m2.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-5-plot-m2.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Magnetization Density^4'
 plot \
-  "< choose REPRESENTATION diagonalization chain-5-plot-m4.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-5-plot-m4.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-5-plot-m4.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-5-plot-m4.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-5-plot-m4.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-5-plot-m4.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Susceptibility'
 plot \
-  "< choose REPRESENTATION diagonalization chain-5-plot-sus.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-5-plot-sus.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-5-plot-sus.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-5-plot-sus.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-5-plot-sus.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-5-plot-sus.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Staggered Magnetization Density^2'
 plot \
-  "< choose REPRESENTATION diagonalization chain-5-plot-m2.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-5-plot-m2.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-5-plot-m2.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-5-plot-m2.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-5-plot-m2.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-5-plot-m2.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Staggered Magnetization Density^4'
 plot \
-  "< choose REPRESENTATION diagonalization chain-5-plot-m4.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-5-plot-m4.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-5-plot-m4.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-5-plot-m4.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-5-plot-m4.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-5-plot-m4.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Staggered Susceptibility'
 plot \
-  "< choose REPRESENTATION diagonalization chain-5-plot-ssus.dat" u 1:2 w lp, \
-  "< choose REPRESENTATION 'path integral' chain-5-plot-ssus.dat" u 1:2:3 w e, \
-  "< choose REPRESENTATION SSE chain-5-plot-ssus.dat" u 1:2:3 w e
+  "< choose WORKER diagonalization chain-5-plot-ssus.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-5-plot-ssus.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-5-plot-ssus.dat" u 1:2:3 w e
+pause -1
+
+set xlabel 'T'
+
+set ylabel 'Energy Density'
+plot \
+  "< choose WORKER diagonalization chain-6-plot-energy.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-6-plot-energy.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-6-plot-energy.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Specific Heat'
+plot \
+  "< choose WORKER diagonalization chain-6-plot-sheat.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-6-plot-sheat.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-6-plot-sheat.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Magnetization Density^2'
+plot \
+  "< choose WORKER diagonalization chain-6-plot-m2.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-6-plot-m2.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-6-plot-m2.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Magnetization Density^4'
+plot \
+  "< choose WORKER diagonalization chain-6-plot-m4.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-6-plot-m4.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-6-plot-m4.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Susceptibility'
+plot \
+  "< choose WORKER diagonalization chain-6-plot-sus.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-6-plot-sus.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-6-plot-sus.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Staggered Magnetization Density^2'
+plot \
+  "< choose WORKER diagonalization chain-6-plot-m2.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-6-plot-m2.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-6-plot-m2.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Staggered Magnetization Density^4'
+plot \
+  "< choose WORKER diagonalization chain-6-plot-m4.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-6-plot-m4.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-6-plot-m4.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Staggered Susceptibility'
+plot \
+  "< choose WORKER diagonalization chain-6-plot-ssus.dat" u 1:2 w lp, \
+  "< choose WORKER 'path integral' chain-6-plot-ssus.dat" u 1:2:3 w e, \
+  "< choose WORKER sse chain-6-plot-ssus.dat" u 1:2:3 w e
 pause -1

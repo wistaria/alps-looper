@@ -7,7 +7,7 @@ run: chain dterm kagome site transmag triangle xyz
 
 #
 
-dist_noinst_DATA += chain-1 chain-2 chain-3 chain-4 chain-5
+dist_noinst_DATA += chain-1 chain-2 chain-3 chain-4 chain-5 chain-6
 .PHONY : chain
 chain:
 	(cd $(top_builddir) && $(MAKE) loop_mpi)
@@ -16,6 +16,7 @@ chain:
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_mpi chain-3 plot-energy plot-sheat plot-m2 plot-m4 plot-sus plot-sm2 plot-sm4 plot-ssus
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_mpi chain-4 plot-energy plot-sheat plot-m2 plot-m4 plot-sus plot-sm2 plot-sm4 plot-ssus
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_mpi chain-5 plot-energy plot-sheat plot-m2 plot-m4 plot-sus plot-sm2 plot-sm4 plot-ssus
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_mpi chain-6 plot-energy plot-sheat plot-m2 plot-m4 plot-sus plot-sm2 plot-sm4 plot-ssus
 
 #
 

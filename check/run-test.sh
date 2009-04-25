@@ -34,7 +34,7 @@ mpirun -x LD_LIBRARY_PATH -np $NUM_PROCS $PROG --auto-evaluate $BASE.run/$BASE.i
 
 rm -f $BASE.db
 archive --db-file=$BASE.db --command=install
-archive --db-file=$BASE.db --command=append --xml-path=$BASE.run
+archive --db-file=$BASE.db --command=append --xml-file=$BASE.run/$BASE.out.xml
 
 for p in $PLOTS; do
   archive --db-file=$BASE.db --command=plot --plot-file=$SRCDIR/$p --output-path=.

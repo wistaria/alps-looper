@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plot SYSTEM "conf/plot.dtd">
 <plot name="" output="text">
-  <for-each name="REPRESENTATION">
+  <for-each name="WORKER">
     <xaxis name="T" type="parameter" />
     <yaxis name="Staggered Magnetization Density^4" type="mean" error="true"/>
   </for-each>
