@@ -25,6 +25,10 @@
 #ifndef LOOPER_CORRELATION_LENGTH_H
 #define LOOPER_CORRELATION_LENGTH_H
 
+#ifndef LOOPER_ONLY_PATH_INTEGRAL
+# define LOOPER_ONLY_PATH_INTEGRAL
+#endif
+
 #include "measurement.h"
 #include "type.h"
 #include <boost/classic_spirit.hpp>
@@ -67,7 +71,6 @@ struct correlation_length : public has_evaluator_tag {
     bool measure, improved;
     double dq_abs;
     std::vector<complex_type> phase0, phase1;
-    // std::vector<complex_type> sq0, sq1;
 
     void initialize(alps::Parameters const& params, lattice_t const& lat,
       bool /* is_signed */, bool use_improved_estimator) {
@@ -87,7 +90,6 @@ struct correlation_length : public has_evaluator_tag {
 
         int dim = lat.graph_helper().dimension();
         int nvs = num_sites(lat.vg());
-        // int nc = 2 * nvs;
 
         std::vector<double> q0 =
           parse_vec(static_cast<std::string>(params["Q0_OVER_TWO_PI"]), params);
@@ -122,12 +124,6 @@ struct correlation_length : public has_evaluator_tag {
         dq_abs = 0;
         for (int i = 0; i < dim; ++i) dq_abs += dq[i] * dq[i];
         dq_abs = std::sqrt(dq_abs);
-
-        // working vector
-        // if (improved) {
-        //   sq0.resize(nc);
-        //   sq1.resize(nc);
-        // }
       }
     }
     template<typename M>
@@ -210,7 +206,6 @@ struct correlation_length : public has_evaluator_tag {
     void normal_measurement(M& m, lattice_t const& lat, double beta, double sign,
       std::vector<int> const& spins, std::vector<OP> const& operators,
       std::vector<int>& spins_c) {
-      if (!typename is_path_integral<mc_type>::type()) return;
       if (!measure || improved) return;
 
       complex_type sq0 = 0;
@@ -223,11 +218,10 @@ struct correlation_length : public has_evaluator_tag {
       complex_type sq0_a = 0;
       complex_type sq1_a = 0;
       std::copy(spins.begin(), spins.end(), spins_c.begin());
-      double t = 0;
       for (typename std::vector<OP>::const_iterator oi = operators.begin();
            oi != operators.end(); ++oi) {
         if (oi->is_offdiagonal()) {
-          proceed(typename is_path_integral<mc_type>::type(), t, *oi);
+          double t = oi->time();
           sq0_a += t * sq0;
           sq1_a += t * sq1;
           if (oi->is_site()) {

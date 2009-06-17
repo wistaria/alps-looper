@@ -16,7 +16,7 @@ BASE_NAME = task1;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 [results]
-Correlation Length: 2.25945 +/- 0.0396
+Correlation Length: 4.90463 +/- 0.0871 WARNING: ERRORS NOT CONVERGED!!!
 Energy: -58.3313 +/- 0.22; tau = 0.456 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0.158889
     bin #2   : 512      entries: error = 0.184062
@@ -36,6 +36,16 @@ Inverse Temperature: 4 +/- 0
 Number of Clusters: 88.4189 +/- 0.304644
 Number of Sites: 64 +/- 0
 Specific Heat: -0.183354 +/- 0.303 WARNING: ERRORS NOT CONVERGED!!!
+Spin Dynamic Structure Factor at (q,w) = (q0+dq,0): 0.271887 +/- 0.00615; tau = 0.429 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00451272
+    bin #2   : 512      entries: error = 0.00508383
+    bin #3   : 256      entries: error = 0.00555334
+    bin #4   : 128      entries: error = 0.00615047
+Spin Dynamic Structure Factor at (q,w) = (q0,0): 16.4161 +/- 0.286; tau = 0.251 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.233723
+    bin #2   : 512      entries: error = 0.260778
+    bin #3   : 256      entries: error = 0.284089
+    bin #4   : 128      entries: error = 0.286435
 Spin Structure Factor
 Entry[( 0,0,0 )]: 0.00827026 +/- 0.00056582; tau = 0.325607 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0.000440328
@@ -357,16 +367,6 @@ Entry[( -1.5708,-1.5708,-1.5708 )]: 0.168945 +/- 0.00678012; tau = 0.0949206
     bin #2   : 512      entries: error = 0.00692947
     bin #3   : 256      entries: error = 0.00713342
     bin #4   : 128      entries: error = 0.00678012
-Spin Structure Factor at q = q0: 4.78753 +/- 0.089; tau = 0.254 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.072493
-    bin #2   : 512      entries: error = 0.0791734
-    bin #3   : 256      entries: error = 0.0879557
-    bin #4   : 128      entries: error = 0.0890046
-Spin Structure Factor at q = q0 + dq: 0.352028 +/- 0.00681; tau = 0.257
-    bin #1   : 1024     entries: error = 0.00553794
-    bin #2   : 512      entries: error = 0.00619847
-    bin #3   : 256      entries: error = 0.0068891
-    bin #4   : 128      entries: error = 0.00681205
 Temperature: 0.25 +/- 0
 Volume: 64 +/- 0
 |dq|: 1.5708 +/- 0; tau = 0
@@ -393,7 +393,7 @@ BASE_NAME = task2;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 [results]
-Correlation Length: 2.32632 +/- 0.0821 WARNING: check error convergence
+Correlation Length: 4.81943 +/- 0.161
 Energy: -58.3313 +/- 0.22; tau = 0.456 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0.158889
     bin #2   : 512      entries: error = 0.184062
@@ -413,6 +413,16 @@ Inverse Temperature: 4 +/- 0
 Number of Clusters: 88.4189 +/- 0.304644
 Number of Sites: 64 +/- 0
 Specific Heat: -0.183354 +/- 0.303 WARNING: ERRORS NOT CONVERGED!!!
+Spin Dynamic Structure Factor at (q,w) = (q0+dq,0): 0.276646 +/- 0.0114; tau = 0.222
+    bin #1   : 1024     entries: error = 0.00951734
+    bin #2   : 512      entries: error = 0.010751
+    bin #3   : 256      entries: error = 0.0116208
+    bin #4   : 128      entries: error = 0.011436
+Spin Dynamic Structure Factor at (q,w) = (q0,0): 16.1516 +/- 0.588; tau = 0.351 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.450704
+    bin #2   : 512      entries: error = 0.513113
+    bin #3   : 256      entries: error = 0.570195
+    bin #4   : 128      entries: error = 0.588115
 Spin Structure Factor
 Entry[( 0,0,0 )]: 0.00827026 +/- 0.00056582; tau = 0.325607 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0.000440328
@@ -734,16 +744,6 @@ Entry[( -1.5708,-1.5708,-1.5708 )]: 0.168945 +/- 0.00678012; tau = 0.0949206
     bin #2   : 512      entries: error = 0.00692947
     bin #3   : 256      entries: error = 0.00713342
     bin #4   : 128      entries: error = 0.00678012
-Spin Structure Factor at q = q0: 4.84988 +/- 0.182; tau = 0.329 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.141224
-    bin #2   : 512      entries: error = 0.161091
-    bin #3   : 256      entries: error = 0.178226
-    bin #4   : 128      entries: error = 0.181844
-Spin Structure Factor at q = q0 + dq: 0.337524 +/- 0.0137; tau = 0.204 WARNING: check error convergence
-    bin #1   : 1024     entries: error = 0.0115336
-    bin #2   : 512      entries: error = 0.0128845
-    bin #3   : 256      entries: error = 0.0136351
-    bin #4   : 128      entries: error = 0.0136836
 Temperature: 0.25 +/- 0
 Volume: 64 +/- 0
 |dq|: 1.5708 +/- 0; tau = 0
