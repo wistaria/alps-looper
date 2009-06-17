@@ -131,7 +131,7 @@ loop_worker::loop_worker(alps::Parameters const& p)
   estimator.initialize(p, lattice, model.is_signed(), use_improved_estimator);
 }
 
-void loop_worker::init_observables(alps::Parameters const& p, alps::ObservableSet& obs) {
+void loop_worker::init_observables(alps::Parameters const&, alps::ObservableSet& obs) {
   obs << make_observable(alps::SimpleRealObservable("Temperature"));
   obs << make_observable(alps::SimpleRealObservable("Inverse Temperature"));
   obs << make_observable(alps::SimpleRealObservable("Volume"));

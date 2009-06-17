@@ -194,30 +194,42 @@ struct estimate {
 template<typename ESTIMATOR>
 struct collector {
   template<typename BASE_ESTIMATOR>
-  class basic_collector : public BASE_ESTIMATOR::collector {
+  class basic_collector : public  BASE_ESTIMATOR::collector {
+    typedef typename BASE_ESTIMATOR::collector collector;
+    typedef typename BASE_ESTIMATOR::estimate estimate;
   public:
-    basic_collector() : BASE_ESTIMATOR::collector(), noc_(0), nc_(0), nop_(0) {}
+    basic_collector() : collector(), nop_(0), nc_(0), range_(std::make_pair(1, 0)), noc_(0) {}
     basic_collector& operator+=(basic_collector const& coll) {
-      BASE_ESTIMATOR::collector::operator+=(coll);
-      nc_ += coll.nc_;
+      collector::operator+=(coll);
       nop_ += coll.nop_;
+      nc_ += coll.nc_;
+      range_ = std::make_pair(std::min(range_.first, coll.range_.first),
+                              std::max(range_.second, coll.range_.second));
       return *this;
     }
-    basic_collector& operator+=(typename BASE_ESTIMATOR::estimate const& est) {
-      BASE_ESTIMATOR::collector::operator+=(est);
+    basic_collector& operator+=(estimate const& est) {
+      collector::operator+=(est);
       return *this;
     }
-    void set_num_open_clusters(unsigned int n) { noc_ += n; }
-    unsigned int num_open_clusters() const { return noc_; }
     void set_num_clusters(unsigned int n) { nc_ = n; }
     void inc_num_clusters(unsigned int n) { nc_ += n; }
     double num_clusters() const { return nc_; }
     void set_num_operators(unsigned int n) { nop_ = n; }
     double num_operators() const { return nop_; }
+
+    // for parallel QMC
+    void set_num_open_clusters(unsigned int n) { noc_ = n; }
+    unsigned int num_open_clusters() const { return noc_; }
+    void clear_range() { range_ = std::make_pair(1, 0); }
+    void set_range(int pos) { range_ = std::make_pair(pos, pos); }
+    std::pair<int, int> const& range() const { return range_; }
+    bool empty() const { return range_.first > range_.second; }
+
   private:
+    double nop_; // total number of operators
+    double nc_; // total number of (closed) clusters
+    std::pair<int, int> range_; // configuration range (for parallel QMC)
     unsigned int noc_; // number of open clusters (for parallel QMC)
-    double nc_;        // total number of (closed) clusters
-    double nop_;       // total number of operators
   };
   typedef basic_collector<ESTIMATOR> type;
 };
