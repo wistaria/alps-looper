@@ -26,6 +26,7 @@
 #define LOOPER_CORRELATION_LENGTH_H
 
 #include "measurement.h"
+#include "type.h"
 #include <boost/classic_spirit.hpp>
 
 namespace {
@@ -59,13 +60,14 @@ struct correlation_length : public has_evaluator_tag {
 
   template<typename MC, typename LAT, typename TIME>
   struct estimator {
+    typedef MC mc_type;
     typedef LAT lattice_t;
     typedef std::complex<double> complex_type;
 
     bool measure, improved;
-    std::vector<complex_type> phase0, phase1;
     double dq_abs;
-    std::vector<complex_type> sq0, sq1;
+    std::vector<complex_type> phase0, phase1;
+    // std::vector<complex_type> sq0, sq1;
 
     void initialize(alps::Parameters const& params, lattice_t const& lat,
       bool /* is_signed */, bool use_improved_estimator) {
@@ -85,7 +87,7 @@ struct correlation_length : public has_evaluator_tag {
 
         int dim = lat.graph_helper().dimension();
         int nvs = num_sites(lat.vg());
-        int nc = 2 * nvs;
+        // int nc = 2 * nvs;
 
         std::vector<double> q0 =
           parse_vec(static_cast<std::string>(params["Q0_OVER_TWO_PI"]), params);
@@ -106,7 +108,7 @@ struct correlation_length : public has_evaluator_tag {
         phase1.resize(nvs);
         typename alps::graph_helper<typename lattice_t::real_graph_type>::vector_type coord;
         BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type s, sites(lat.vg())) {
-          coord = lat.graph_helper().coordinate(s);
+          coord = lat.graph_helper().coordinate(get(real_site_t(), lat.vg(), s));
           double p0 = 0;
           double p1 = 0;
           for (int i = 0; i < dim; ++i) {
@@ -122,85 +124,149 @@ struct correlation_length : public has_evaluator_tag {
         dq_abs = std::sqrt(dq_abs);
 
         // working vector
-        if (improved) {
-          sq0.resize(nc);
-          sq1.resize(nc);
-        }
+        // if (improved) {
+        //   sq0.resize(nc);
+        //   sq1.resize(nc);
+        // }
       }
     }
     template<typename M>
     void init_observables(M& m, bool is_signed) {
       if (measure) {
-        add_scalar_obs(m, "Spin Structure Factor at q = q0", is_signed);
-        add_scalar_obs(m, "Spin Structure Factor at q = q0 + dq", is_signed);
+        add_scalar_obs(m, "Spin Dynamic Structure Factor at (q,w) = (q0,0)", is_signed);
+        add_scalar_obs(m, "Spin Dynamic Structure Factor at (q,w) = (q0+dq,0)", is_signed);
         add_scalar_obs(m, "|dq|");
       }
     }
 
     // improved estimator
-    typedef typename dumb::template estimator<MC, LAT, TIME>::estimate estimate;
-    void init_estimate(estimate&) const {}
 
-    typedef typename dumb::template estimator<MC, LAT, TIME>::collector collector;
-    void init_collector(collector&) const {}
+    struct estimate {
+      const std::vector<complex_type> *phase0_ptr;
+      const std::vector<complex_type> *phase1_ptr;
+      complex_type sq0, sq1;
+      estimate() : sq0(complex_type(0)), sq1(complex_type(0)) {}
+      void init(const std::vector<complex_type> *p0, const std::vector<complex_type> *p1) {
+        phase0_ptr = p0;
+        phase1_ptr = p1;
+        sq0 = complex_type(0);
+        sq1 = complex_type(0);
+      }
+      estimate& operator+=(estimate const& rhs) {
+        sq0 += rhs.sq0;
+        sq1 += rhs.sq1;
+        return *this;
+      }
+      void begin_s(lattice_t const& lat, double t, int s, int c) { end_s(lat, -t, s, c); }
+      void begin_bs(lattice_t const& lat, double t, int, int s, int c) { begin_s(lat, t, s, c); }
+      void begin_bt(lattice_t const& lat, double t, int, int s, int c) { begin_s(lat, t, s, c); }
+      void end_s(lattice_t const&, double t, int s, int c) {
+        sq0 += (*phase0_ptr)[s] * t * (0.5-c);
+        sq1 += (*phase1_ptr)[s] * t * (0.5-c);
+      }
+      void end_bs(lattice_t const& lat, double t, int, int s, int c) { end_s(lat, t, s, c); }
+      void end_bt(lattice_t const& lat, double t, int, int s, int c) { end_s(lat, t, s, c); }
+      void start_bottom(lattice_t const& lat, double t, int s, int c) { begin_s(lat, t, s, c); }
+      void start(lattice_t const& lat, double t, int s, int c) { begin_s(lat, t, s, c); }
+      void stop(lattice_t const& lat, double t, int s, int c) { end_s(lat, t, s, c); }
+      void stop_top(lattice_t const& lat, double t, int s, int c) { end_s(lat, t, s, c); }
+    };
+    void init_estimate(estimate& est) const { est.init(&phase0, &phase1); }
+
+    struct collector {
+      double str0, str1;
+      void init() {
+        str0 = 0; str1 = 0;
+      }
+      collector& operator+=(collector const& coll) {
+        str0 += coll.str0;
+        str1 += coll.str1;
+        return *this;
+      }
+      collector& operator+=(estimate const& est) {
+        str0 += power2(est.sq0);
+        str1 += power2(est.sq1);
+        return *this;
+      }
+      template<typename M>
+      void commit(M& m, lattice_t const& lat, double beta, int /* nop */, double sign) const {
+        double vol = lat.volume();
+        m["Spin Dynamic Structure Factor at (q,w) = (q0,0)"] << sign * beta * str0 / vol;
+        m["Spin Dynamic Structure Factor at (q,w) = (q0+dq,0)"] << sign * beta * str1 / vol;
+      }
+    };
+    void init_collector(collector& coll) const { coll.init(); }
 
     template<typename M, typename OP, typename FRAGMENT>
-    void improved_measurement(M& m, lattice_t const& lat, double /* beta */, double sign,
-      std::vector<int> const& spins, std::vector<OP> const& /* operators */,
-      std::vector<int> const& /* spins_c */, std::vector<FRAGMENT> const& fragments,
-      collector const& /* coll */) {
-      if (measure && improved) {
-        int nvs = num_sites(lat.vg());
-        int nc = 2 * nvs;
-        std::fill(sq0.begin(), sq0.end(), complex_type(0));
-        std::fill(sq1.begin(), sq1.end(), complex_type(0));
-        for (int s = 0; s < nvs; ++s) {
-          sq0[fragments[s].id()] += phase0[s] * (0.5-spins[s]);
-          sq1[fragments[s].id()] += phase1[s] * (0.5-spins[s]);
-        }
-        double str0 = 0;
-        double str1 = 0;
-        for (int c = 0; c < nc; ++c) {
-          str0 += power2(sq0[c]);
-          str1 += power2(sq1[c]);
-        }
-        double vol = lat.volume();
-        m["Spin Structure Factor at q = q0"] << sign * str0 / vol;
-        m["Spin Structure Factor at q = q0 + dq"] << sign * str1 / vol;
-        m["|dq|"] << dq_abs;
-      }
+    void improved_measurement(M& m, lattice_t const& lat, double beta, double sign,
+      std::vector<int> const& /* spins */, std::vector<OP> const& operators,
+      std::vector<int> const& /* spins_c */, std::vector<FRAGMENT> const& /* fragments */,
+      collector const& coll) {
+      coll.commit(m, lat, beta, operators.size(), sign);
+      m["|dq|"] << dq_abs;
     }
 
     template<typename M, typename OP>
-    void normal_measurement(M& m, lattice_t const& lat, double /* beta */, double sign,
-      std::vector<int> const& spins, std::vector<OP> const& /* operators */,
-      std::vector<int>& /* spins_c */) {
+    void normal_measurement(M& m, lattice_t const& lat, double beta, double sign,
+      std::vector<int> const& spins, std::vector<OP> const& operators,
+      std::vector<int>& spins_c) {
+      if (!typename is_path_integral<mc_type>::type()) return;
+      if (!measure || improved) return;
 
-      if (measure && !improved) {
-        int nvs = num_sites(lat.vg());
-        complex_type s0 = 0;
-        complex_type s1 = 0;
-        for (int s = 0; s < nvs; ++s) {
-          s0 += phase0[s] * (0.5-spins[s]);
-          s1 += phase1[s] * (0.5-spins[s]);
-        }
-        double vol = lat.volume();
-        m["Spin Structure Factor at q = q0"] << sign * power2(s0) / vol;
-        m["Spin Structure Factor at q = q0 + dq"] << sign * power2(s1) / vol;
-        m["|dq|"] << dq_abs;
+      complex_type sq0 = 0;
+      complex_type sq1 = 0;
+      typename virtual_site_iterator<lattice_t>::type si, si_end;
+      for (boost::tie(si, si_end) = sites(lat.vg()); si != si_end; ++si) {
+        sq0 += phase0[*si] * (0.5-spins[*si]);
+        sq1 += phase1[*si] * (0.5-spins[*si]);
       }
+      complex_type sq0_a = 0;
+      complex_type sq1_a = 0;
+      std::copy(spins.begin(), spins.end(), spins_c.begin());
+      double t = 0;
+      for (typename std::vector<OP>::const_iterator oi = operators.begin();
+           oi != operators.end(); ++oi) {
+        if (oi->is_offdiagonal()) {
+          proceed(typename is_path_integral<mc_type>::type(), t, *oi);
+          sq0_a += t * sq0;
+          sq1_a += t * sq1;
+          if (oi->is_site()) {
+            unsigned int s = oi->pos();
+            spins_c[s] ^= 1;
+            sq0 += phase0[s] * (1.0-2*spins_c[s]);
+            sq1 += phase1[s] * (1.0-2*spins_c[s]);
+          } else {
+            unsigned int s0 = source(oi->pos(), lat.vg());
+            unsigned int s1 = target(oi->pos(), lat.vg());
+            spins_c[s0] ^= 1;
+            spins_c[s1] ^= 1;
+            sq0 += phase0[s0] * (1.0-2*spins_c[s0]) + phase0[s1] * (1.0-2*spins_c[s1]);
+            sq1 += phase1[s0] * (1.0-2*spins_c[s0]) + phase1[s1] * (1.0-2*spins_c[s1]);
+          }
+          sq0_a -= t * sq0;
+          sq1_a -= t * sq1;
+        }
+      }
+      sq0_a += sq0;
+      sq1_a += sq1;
+      double vol = lat.volume();
+      m["Spin Dynamic Structure Factor at (q,w) = (q0,0)"]
+        << sign * beta * power2(sq0_a) / vol;
+      m["Spin Dynamic Structure Factor at (q,w) = (q0+dq,0)"]
+        << sign * beta * power2(sq1_a) / vol;
+      m["|dq|"] << dq_abs;
     }
   };
 
   struct evaluator {
     static void evaluate(alps::ObservableSet& m, alps::Parameters const& /* params */,
       alps::ObservableSet const& m_in) {
-      if (m_in.has("Spin Structure Factor at q = q0") &&
-          m_in.has("Spin Structure Factor at q = q0 + dq") &&
+      if (m_in.has("Spin Dynamic Structure Factor at (q,w) = (q0,0)") &&
+          m_in.has("Spin Dynamic Structure Factor at (q,w) = (q0+dq,0)") &&
           m_in.has("|dq|")) {
         alps::RealObsevaluator dq_abs_eval(m_in["|dq|"]);
-        alps::RealObsevaluator obse_s0(m_in["Spin Structure Factor at q = q0"]);
-        alps::RealObsevaluator obse_s1(m_in["Spin Structure Factor at q = q0 + dq"]);
+        alps::RealObsevaluator obse_s0(m_in["Spin Dynamic Structure Factor at (q,w) = (q0,0)"]);
+        alps::RealObsevaluator obse_s1(m_in["Spin Dynamic Structure Factor at (q,w) = (q0+dq,0)"]);
         if (dq_abs_eval.count() && obse_s0.count() && obse_s1.count()) {
           double dq_abs = dq_abs_eval.mean();
           alps::RealObsevaluator eval("Correlation Length");

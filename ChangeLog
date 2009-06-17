@@ -1,5 +1,9 @@
-2009-03-30  Synge Todo <wistaria@comp-phys.org>
+2009-06-17  Synge Todo <wistaria@comp-phys.org>
 
+	* [pro] fixed correlation length estimator
+	
+2009-03-30  Synge Todo <wistaria@comp-phys.org>
+	
 	* version 3.2b9 for ALPS Applications 1.3
 
 2009-03-30  Synge Todo <wistaria@comp-phys.org>

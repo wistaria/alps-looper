@@ -130,7 +130,7 @@ loop_worker::loop_worker(alps::Parameters const& p)
   estimator.initialize(p, lattice, model.is_signed(), use_improved_estimator);
 }
 
-void loop_worker::init_observables(alps::Parameters const& p, alps::ObservableSet& obs) {
+void loop_worker::init_observables(alps::Parameters const&, alps::ObservableSet& obs) {
   obs << make_observable(alps::SimpleRealObservable("Temperature"));
   obs << make_observable(alps::SimpleRealObservable("Inverse Temperature"));
   obs << make_observable(alps::SimpleRealObservable("Volume"));
@@ -254,7 +254,6 @@ void loop_worker::flip(alps::ObservableSet& obs) {
       use_improved_estimator != IMPROVE()) return;
 
   int nvs = num_sites(lattice.vg());
-  int nop = operators.size();
 
   // assign cluster id
   int nc = 0;
@@ -312,6 +311,8 @@ void loop_worker::flip(alps::ObservableSet& obs) {
 
   // accumulate cluster properties
   typename looper::collector<estimator_t>::type coll = get_collector(estimator);
+  coll.set_num_operators(operators.size());
+  coll.set_num_clusters(nc);
   if (IMPROVE())
     BOOST_FOREACH(looper::estimate<estimator_t>::type const& est, estimates) { coll += est; }
 
@@ -340,7 +341,7 @@ void loop_worker::flip(alps::ObservableSet& obs) {
   obs["Inverse Temperature"] << beta;
   obs["Volume"] << (double)lattice.volume();
   obs["Number of Sites"] << (double)num_sites(lattice.rg());
-  obs["Number of Clusters"] << (double)clusters.size();
+  obs["Number of Clusters"] << coll.num_clusters();
 
   // sign
   if (SIGN()) {
@@ -358,6 +359,7 @@ void loop_worker::flip(alps::ObservableSet& obs) {
   }
 
   // energy
+  double nop = coll.num_operators();
   double ene = model.energy_offset() - nop / beta;
   if (FIELD())
     for (unsigned int c = 0; c < clusters.size(); ++c)
