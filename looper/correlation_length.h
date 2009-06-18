@@ -76,9 +76,14 @@ struct correlation_length : public has_evaluator_tag {
       bool /* is_signed */, bool use_improved_estimator) {
       measure = params.value_or_default("MEASURE[Correlation Length]", false);
 
-      if (measure) {
-        improved = use_improved_estimator;
+      improved = use_improved_estimator;
+      int dim = lat.graph_helper().dimension();
+      int nvs = num_sites(lat.vg());
 
+      std::vector<double> q0(dim, 0.0);
+      std::vector<double> dq(dim, 0.0);
+
+      if (measure) {
         if (!params.defined("Q0_OVER_TWO_PI")) {
           std::cerr << "parameter Q0_OVER_TWO_PI (q0/2pi) is not defined\n";
           boost::throw_exception(std::invalid_argument("correlation_length"));
@@ -88,13 +93,8 @@ struct correlation_length : public has_evaluator_tag {
           boost::throw_exception(std::invalid_argument("correlation_length"));
         }
 
-        int dim = lat.graph_helper().dimension();
-        int nvs = num_sites(lat.vg());
-
-        std::vector<double> q0 =
-          parse_vec(static_cast<std::string>(params["Q0_OVER_TWO_PI"]), params);
-        std::vector<double> dq =
-          parse_vec(static_cast<std::string>(params["DQ_OVER_TWO_PI"]), params);
+        q0 = parse_vec(static_cast<std::string>(params["Q0_OVER_TWO_PI"]), params);
+        dq = parse_vec(static_cast<std::string>(params["DQ_OVER_TWO_PI"]), params);
         if (q0.size() != dim) {
           std::cerr << "inconsistent dimension of Q0_OVER_TWO_PI (q0/2pi)\n";
           boost::throw_exception(std::invalid_argument("correlation_length::initialize"));
@@ -105,26 +105,26 @@ struct correlation_length : public has_evaluator_tag {
         }
         std::clog << "info: calculating correlation length with q0 = (" << alps::write_vector(q0)
                   << ") and dq = (" << alps::write_vector(dq) << ")\n";
-
-        phase0.resize(nvs);
-        phase1.resize(nvs);
-        typename alps::graph_helper<typename lattice_t::real_graph_type>::vector_type coord;
-        BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type s, sites(lat.vg())) {
-          coord = lat.graph_helper().coordinate(get(real_site_t(), lat.vg(), s));
-          double p0 = 0;
-          double p1 = 0;
-          for (int i = 0; i < dim; ++i) {
-            p0 += q0[i] * coord[i];
-            p1 += (q0[i] + dq[i]) * coord[i];
-          }
-          phase0[s] = complex_type(std::cos(p0), std::sin(p0));
-          phase1[s] = complex_type(std::cos(p1), std::sin(p1));
-        }
-
-        dq_abs = 0;
-        for (int i = 0; i < dim; ++i) dq_abs += dq[i] * dq[i];
-        dq_abs = std::sqrt(dq_abs);
       }
+
+      phase0.resize(nvs);
+      phase1.resize(nvs);
+      typename alps::graph_helper<typename lattice_t::real_graph_type>::vector_type coord;
+      BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type s, sites(lat.vg())) {
+        coord = lat.graph_helper().coordinate(get(real_site_t(), lat.vg(), s));
+        double p0 = 0;
+        double p1 = 0;
+        for (int i = 0; i < dim; ++i) {
+          p0 += q0[i] * coord[i];
+          p1 += (q0[i] + dq[i]) * coord[i];
+        }
+        phase0[s] = complex_type(std::cos(p0), std::sin(p0));
+        phase1[s] = complex_type(std::cos(p1), std::sin(p1));
+      }
+
+      dq_abs = 0;
+      for (int i = 0; i < dim; ++i) dq_abs += dq[i] * dq[i];
+      dq_abs = std::sqrt(dq_abs);
     }
     template<typename M>
     void init_observables(M& m, bool is_signed) {
@@ -198,8 +198,10 @@ struct correlation_length : public has_evaluator_tag {
       std::vector<int> const& /* spins */, std::vector<OP> const& operators,
       std::vector<int> const& /* spins_c */, std::vector<FRAGMENT> const& /* fragments */,
       collector const& coll) {
-      coll.commit(m, lat, beta, operators.size(), sign);
-      m["|dq|"] << dq_abs;
+      if (measure) {
+        coll.commit(m, lat, beta, operators.size(), sign);
+        m["|dq|"] << dq_abs;
+      }
     }
 
     template<typename M, typename OP>
