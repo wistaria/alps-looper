@@ -39,6 +39,7 @@ struct transverse_magnetization {
     typedef MC   mc_type;
     typedef LAT  lattice_t;
     typedef TIME time_t;
+    typedef estimator<mc_type, lattice_t, time_t> estimator_t;
 
     bool improved;
 
@@ -64,22 +65,22 @@ struct transverse_magnetization {
         length = 0;
         closed = true;
       }
-      void begin_s(lattice_t const&, double t, int, int) {
+      void begin_s(estimator_t const&, lattice_t const&, double t, int, int) {
         length -= t;
         closed = false;
       }
-      void begin_bs(lattice_t const&, double t, int, int, int) { length -= t; }
-      void begin_bt(lattice_t const&, double t, int, int, int) { length -= t; }
-      void end_s(lattice_t const&, double t, int, int) {
+      void begin_bs(estimator_t const&, lattice_t const&, double t, int, int, int) { length -= t; }
+      void begin_bt(estimator_t const&, lattice_t const&, double t, int, int, int) { length -= t; }
+      void end_s(estimator_t const&, lattice_t const&, double t, int, int) {
         length += t;
         closed = false;
       }
-      void end_bs(lattice_t const&, double t, int, int, int) { length += t; }
-      void end_bt(lattice_t const&, double t, int, int, int) { length += t; }
-      void start_bottom(lattice_t const&, double t, int, int) { length -= t; }
-      void start(lattice_t const&, double t, int, int) { length -= t; }
-      void stop(lattice_t const&, double t, int, int) { length += t; }
-      void stop_top(lattice_t const&, double t, int, int) { length += t; }
+      void end_bs(estimator_t const&, lattice_t const&, double t, int, int, int) { length += t; }
+      void end_bt(estimator_t const&, lattice_t const&, double t, int, int, int) { length += t; }
+      void start_bottom(estimator_t const&, lattice_t const&, double t, int, int) { length -= t; }
+      void start(estimator_t const&, lattice_t const&, double t, int, int) { length -= t; }
+      void stop(estimator_t const&, lattice_t const&, double t, int, int) { length += t; }
+      void stop_top(estimator_t const&, lattice_t const&, double t, int, int) { length += t; }
     };
     void init_estimate(estimate& es) const { es.init(); }
 

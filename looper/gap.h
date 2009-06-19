@@ -44,6 +44,7 @@ struct gap : public has_evaluator_tag {
     typedef MC   mc_type;
     typedef LAT  lattice_t;
     typedef TIME time_t;
+    typedef estimator<mc_type, lattice_t, time_t> estimator_t;
     typedef typename alps::property_map<gauge_t, const typename lattice_t::virtual_graph_type,
       double>::type gauge_map_t;
 
@@ -71,17 +72,12 @@ struct gap : public has_evaluator_tag {
     // improved estimator
 
     struct estimate {
-      gauge_map_t gauge;
       std::complex<double> upsize, upmag, spsize, spmag;
       estimate() : upsize(std::complex<double>(0,0)), upmag(std::complex<double>(0,0)),
         spsize(std::complex<double>(0,0)), spmag(std::complex<double>(0,0)) {
       }
-      void init(gauge_map_t map) {
-        gauge = map;
-        upsize = std::complex<double>(0,0);
-        upmag = std::complex<double>(0,0);
-        spsize = std::complex<double>(0,0);
-        spmag = std::complex<double>(0,0);
+      void init() {
+        upsize = upmag = spsize = spmag = std::complex<double>(0,0);
       }
       estimate& operator+=(estimate const& rhs) {
         upsize += rhs.upsize;
@@ -90,65 +86,96 @@ struct gap : public has_evaluator_tag {
         spmag += rhs.spmag;
         return *this;
       }
-      void begin_s(lattice_t const& lat, double t, int s, int c) { end_s(lat, -ctime(t), s, c); }
-      template<bool T>
-      void begin_s(lattice_t const& lat, imaginary_time<T> const& t, int s, int c) {
-        end_s(lat, -ctime(t), s, c);
-      }
-      void begin_bs(lattice_t const& lat, double t, int, int s, int c) { begin_s(lat, t, s, c); }
-      void begin_bt(lattice_t const& lat, double t, int, int s, int c) { begin_s(lat, t, s, c); }
-      template<bool T>
-      void begin_bs(lattice_t const& lat, imaginary_time<T> const& t, int, int s, int c) {
-        begin_s(lat, t, s, c);
+      void begin_s(estimator_t const& emt, lattice_t const& lat, double t, int s, int c) {
+        end_s(emt, lat, -ctime(t), s, c);
       }
       template<bool T>
-      void begin_bt(lattice_t const& lat, imaginary_time<T> const& t, int, int s, int c) {
-        begin_s(lat, t, s, c);
+      void begin_s(estimator_t const& emt, lattice_t const& lat, imaginary_time<T> const& t, int s,
+                   int c) {
+        end_s(emt, lat, -ctime(t), s, c);
       }
-      void end_s(lattice_t const& lat, double t, int s, int c) { end_s(lat, ctime(t), s, c); }
+      void begin_bs(estimator_t const& emt, lattice_t const& lat, double t, int, int s, int c) {
+        begin_s(emt, lat, t, s, c);
+      }
+      void begin_bt(estimator_t const& emt, lattice_t const& lat, double t, int, int s, int c) {
+        begin_s(emt, lat, t, s, c);
+      }
       template<bool T>
-      void end_s(lattice_t const& lat, imaginary_time<T> const& t, int s, int c) {
-        end_s(lat, ctime(t), s, c);
+      void begin_bs(estimator_t const& emt, lattice_t const& lat, imaginary_time<T> const& t, int,
+                    int s, int c) {
+        begin_s(emt, lat, t, s, c);
       }
-      void end_s(lattice_t const&, std::complex<double> const& ct, int s, int c) {
+      template<bool T>
+      void begin_bt(estimator_t const& emt, lattice_t const& lat, imaginary_time<T> const& t, int,
+                    int s, int c) {
+        begin_s(emt, lat, t, s, c);
+      }
+      void end_s(estimator_t const& emt, lattice_t const& lat, double t, int s, int c) {
+        end_s(emt, lat, ctime(t), s, c);
+      }
+      template<bool T>
+      void end_s(estimator_t const& emt, lattice_t const& lat, imaginary_time<T> const& t, int s,
+                 int c) {
+        end_s(emt, lat, ctime(t), s, c);
+      }
+      void end_s(estimator_t const& emt, lattice_t const&, std::complex<double> const& ct, int s,
+                 int c) {
         upsize += ct * 0.5;
         upmag += ct * (0.5-c);
-        double gg = gauge[s];
+        double gg = emt.gauge[s];
         spsize += gg * ct * 0.5;
         spmag  += gg * ct * (0.5-c);
       }
-      void end_bs(lattice_t const& lat, double t, int, int s, int c) { end_s(lat, t, s, c); }
-      void end_bt(lattice_t const& lat, double t, int, int s, int c) { end_s(lat, t, s, c); }
-      template<bool T>
-      void end_bs(lattice_t const& lat, imaginary_time<T> const& t, int, int s, int c) {
-        end_s(lat, t, s, c);
+      void end_bs(estimator_t const& emt, lattice_t const& lat, double t, int, int s, int c) {
+        end_s(emt, lat, t, s, c);
+      }
+      void end_bt(estimator_t const& emt, lattice_t const& lat, double t, int, int s, int c) {
+        end_s(emt, lat, t, s, c);
       }
       template<bool T>
-      void end_bt(lattice_t const& lat, imaginary_time<T> const& t, int, int s, int c) {
-        end_s(lat, t, s, c);
+      void end_bs(estimator_t const& emt, lattice_t const& lat, imaginary_time<T> const& t, int,
+                  int s, int c) {
+        end_s(emt, lat, t, s, c);
       }
-      void start_bottom(lattice_t const& lat, double t, int s, int c) { begin_s(lat, t, s, c); }
       template<bool T>
-      void start_bottom(lattice_t const& lat, imaginary_time<T> const& t, int s, int c) {
-        begin_s(lat, t, s, c);
+      void end_bt(estimator_t const& emt, lattice_t const& lat, imaginary_time<T> const& t, int,
+                  int s, int c) {
+        end_s(emt, lat, t, s, c);
       }
-      void start(lattice_t const& lat, double t, int s, int c) { begin_s(lat, t, s, c); }
-      template<bool T>
-      void start(lattice_t const& lat, imaginary_time<T> const& t, int s, int c) {
-        begin_s(lat, t, s, c);
+      void start_bottom(estimator_t const& emt, lattice_t const& lat, double t, int s, int c) {
+        begin_s(emt, lat, t, s, c);
       }
-      void stop(lattice_t const& lat, double t, int s, int c) { end_s(lat, t, s, c); }
       template<bool T>
-      void stop(lattice_t const& lat, imaginary_time<T> const& t, int s, int c) {
-        end_s(lat, t, s, c);
+      void start_bottom(estimator_t const& emt, lattice_t const& lat, imaginary_time<T> const& t,
+                        int s, int c) {
+        begin_s(emt, lat, t, s, c);
       }
-      void stop_top(lattice_t const& lat, double t, int s, int c) { end_s(lat, t, s, c); }
+      void start(estimator_t const& emt, lattice_t const& lat, double t, int s, int c) {
+        begin_s(emt, lat, t, s, c);
+      }
       template<bool T>
-      void stop_top(lattice_t const& lat, imaginary_time<T> const& t, int s, int c) {
-        end_s(lat, t, s, c);
+      void start(estimator_t const& emt, lattice_t const& lat, imaginary_time<T> const& t, int s,
+                 int c) {
+        begin_s(emt, lat, t, s, c);
+      }
+      void stop(estimator_t const& emt, lattice_t const& lat, double t, int s, int c) {
+        end_s(emt, lat, t, s, c);
+      }
+      template<bool T>
+      void stop(estimator_t const& emt, lattice_t const& lat, imaginary_time<T> const& t, int s,
+                int c) {
+        end_s(emt, lat, t, s, c);
+      }
+      void stop_top(estimator_t const& emt, lattice_t const& lat, double t, int s, int c) {
+        end_s(emt, lat, t, s, c);
+      }
+      template<bool T>
+      void stop_top(estimator_t const& emt, lattice_t const& lat, imaginary_time<T> const& t, int s,
+                    int c) {
+        end_s(emt, lat, t, s, c);
       }
     };
-    void init_estimate(estimate& est) const { est.init(gauge); }
+    void init_estimate(estimate& est) const { est.init(); }
 
     struct collector {
       double upsize2, upmag2, spsize2, spmag2;

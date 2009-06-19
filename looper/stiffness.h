@@ -43,6 +43,7 @@ struct stiffness
     typedef MC   mc_type;
     typedef LAT  lattice_t;
     typedef TIME time_t;
+    typedef estimator<mc_type, lattice_t, time_t> estimator_t;
     typedef typename alps::property_map<real_bond_t,
               const typename lattice_t::virtual_graph_type,
               typename real_bond_descriptor<lattice_t>::type>::type
@@ -79,41 +80,37 @@ struct stiffness
     // improved estimator
 
     struct estimate {
-      real_bond_map_t real_bond;
-      bond_vector_relative_map_t bond_vector_relative;
       alps::fixed_capacity_vector<double, MAX_DIM> winding;
       estimate() : winding() {}
-      void init(real_bond_map_t rb_map, bond_vector_relative_map_t bvr_map, int dim) {
-        real_bond = rb_map;
-        bond_vector_relative = bvr_map;
+      void init(int dim) {
         winding.resize(dim);
         std::fill(winding.begin(), winding.end(), 0.);
       }
       estimate& operator+=(estimate const& rhs) {
-        if (winding.size() != rhs.winding.size()) winding.resize(rhs.winding.size());
+        // if (winding.size() != rhs.winding.size()) winding.resize(rhs.winding.size());
         for (int i = 0; i < winding.size(); ++i) winding[i] += rhs.winding[i];
         return *this;
       }
-      void begin_s(lattice_t const&, double, int, int) const {}
-      void begin_bs(lattice_t const& lat, double, int b, int, int c) {
-        alps::coordinate_type const& vr = bond_vector_relative[real_bond[bond(lat.vg(), b)]];
+      void begin_s(estimator_t const&, lattice_t const&, double, int, int) const {}
+      void begin_bs(estimator_t const& emt, lattice_t const& lat, double, int b, int, int c) {
+        alps::coordinate_type const& vr =
+          emt.bond_vector_relative[emt.real_bond[bond(lat.vg(), b)]];
         for (int i = 0; i < winding.size(); ++i) winding[i] -= (1-2*c) * vr[i];
       }
-      void begin_bt(lattice_t const&, double, int, int, int) {}
-      void end_s(lattice_t const&, double, int, int) const {}
-      void end_bs(lattice_t const& lat, double, int b, int, int c) {
-        alps::coordinate_type const& vr = bond_vector_relative[real_bond[bond(lat.vg(), b)]];
+      void begin_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
+      void end_s(estimator_t const&, lattice_t const&, double, int, int) const {}
+      void end_bs(estimator_t const& emt, lattice_t const& lat, double, int b, int, int c) {
+        alps::coordinate_type const& vr =
+          emt.bond_vector_relative[emt.real_bond[bond(lat.vg(), b)]];
         for (int i = 0; i < winding.size(); ++i) winding[i] += (1-2*c) * vr[i];
       }
-      void end_bt(lattice_t const&, double, int, int, int) {}
-      void start_bottom(lattice_t const&, double, int, int) const {}
-      void start(lattice_t const&, double, int, int) const {}
-      void stop(lattice_t const&, double, int, int) const {}
-      void stop_top(lattice_t const&, double, int, int) const {}
+      void end_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
+      void start_bottom(estimator_t const&, lattice_t const&, double, int, int) const {}
+      void start(estimator_t const&, lattice_t const&, double, int, int) const {}
+      void stop(estimator_t const&, lattice_t const&, double, int, int) const {}
+      void stop_top(estimator_t const&, lattice_t const&, double, int, int) const {}
     };
-    void init_estimate(estimate& est) const {
-      est.init(real_bond, bond_vector_relative, dim);
-    }
+    void init_estimate(estimate& est) const { est.init(dim); }
 
     struct collector {
       unsigned int dim;

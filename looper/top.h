@@ -41,6 +41,7 @@ struct twist_order_parameter_n {
     typedef MC   mc_type;
     typedef LAT lattice_t;
     typedef TIME time_t;
+    typedef estimator<mc_type, lattice_t, time_t> estimator_t;
 
     bool improved;
     std::vector<double> phase;
@@ -90,27 +91,23 @@ struct twist_order_parameter_n {
     // improved estimator
 
     struct estimate {
-      const std::vector<double> *phase_ptr;
       double moment;
       estimate() : moment(0) {}
-      void init(const std::vector<double> *p) {
-        phase_ptr = p;
-        moment = 0;
+      void init() { moment = 0; }
+      void begin_s(estimator_t const&, lattice_t const&, double, int, int) {}
+      void begin_bs(estimator_t const&, lattice_t const&, double, int, int, int) {}
+      void begin_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
+      void end_s(estimator_t const&, lattice_t const&, double, int, int) {}
+      void end_bs(estimator_t const&, lattice_t const&, double, int, int, int) {}
+      void end_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
+      void start_bottom(estimator_t const& emt, lattice_t const&, double, int s, int c) {
+        moment += emt.phase[s] * (0.5-c);
       }
-      void begin_s(lattice_t const&, double, int, int) {}
-      void begin_bs(lattice_t const&, double, int, int, int) {}
-      void begin_bt(lattice_t const&, double, int, int, int) {}
-      void end_s(lattice_t const&, double, int, int) {}
-      void end_bs(lattice_t const&, double, int, int, int) {}
-      void end_bt(lattice_t const&, double, int, int, int) {}
-      void start_bottom(lattice_t const&, double, int s, int c) {
-        moment += (*phase_ptr)[s] * (0.5-c);
-      }
-      void start(lattice_t const&, double, int, int) {}
-      void stop(lattice_t const&, double, int, int) {}
-      void stop_top(lattice_t const&, double, int, int) {}
+      void start(estimator_t const&, lattice_t const&, double, int, int) {}
+      void stop(estimator_t const&, lattice_t const&, double, int, int) {}
+      void stop_top(estimator_t const&, lattice_t const&, double, int, int) {}
     };
-    void init_estimate(estimate& est) const { est.init(&phase); }
+    void init_estimate(estimate& est) const { est.init(); }
 
     struct collector {
       const std::vector<std::string> *label_ptr;

@@ -38,6 +38,7 @@ struct susceptibility :
     typedef MC   mc_type;
     typedef LAT lattice_t;
     typedef TIME time_t;
+    typedef estimator<mc_type, lattice_t, time_t> estimator_t;
     typedef typename alps::property_map<gauge_t,
               const typename lattice_t::virtual_graph_type,
               double>::type gauge_map_t;
@@ -92,21 +93,13 @@ struct susceptibility :
     // improved estimator
 
     struct estimate {
-      gauge_map_t gauge;
       double usize0, umag0, usize, umag;
       double ssize0, smag0, ssize, smag;
       estimate() : usize0(0), umag0(0), usize(0), umag(0), ssize0(0), smag0(0), ssize(0),
         smag(0) {}
-      void init(gauge_map_t map) {
-        gauge = map;
-        usize0 = 0;
-        umag0 = 0;
-        usize = 0;
-        umag = 0;
-        ssize0 = 0;
-        smag0 = 0;
-        ssize = 0;
-        smag = 0;
+      void init() {
+        usize0 = umag0 = usize = umag = 0;
+        ssize0 = smag0 = ssize = smag = 0;
       }
       estimate& operator+=(estimate const& rhs) {
         usize0 += rhs.usize0;
@@ -119,33 +112,45 @@ struct susceptibility :
         smag += rhs.smag;
         return *this;
       }
-      void begin_s(lattice_t const& lat, double t, int s, int c) { end_s(lat, -t, s, c); }
-      void begin_bs(lattice_t const& lat, double t, int, int s, int c) { begin_s(lat, t, s, c); }
-      void begin_bt(lattice_t const& lat, double t, int, int s, int c) { begin_s(lat, t, s, c); }
-      void end_s(lattice_t const&, double t, int s, int c) {
+      void begin_s(estimator_t const& emt, lattice_t const& lat, double t, int s, int c) {
+        end_s(emt, lat, -t, s, c);
+      }
+      void begin_bs(estimator_t const& emt, lattice_t const& lat, double t, int, int s, int c) {
+        begin_s(emt, lat, t, s, c);
+      }
+      void begin_bt(estimator_t const& emt, lattice_t const& lat, double t, int, int s, int c) {
+        begin_s(emt, lat, t, s, c);
+      }
+      void end_s(estimator_t const& emt, lattice_t const&, double t, int s, int c) {
         usize += t * 0.5;
         umag  += t * (0.5-c);
-        double gg = gauge[s];
+        double gg = emt.gauge[s];
         ssize += gg * t * 0.5;
         smag  += gg * t * (0.5-c);
       }
-      void end_bs(lattice_t const& lat, double t, int, int s, int c) { end_s(lat, t, s, c); }
-      void end_bt(lattice_t const& lat, double t, int, int s, int c) { end_s(lat, t, s, c); }
-      void start_bottom(lattice_t const& lat, double t, int s, int c) {
-        begin_s(lat, t, s, c);
+      void end_bs(estimator_t const& emt, lattice_t const& lat, double t, int, int s, int c) {
+        end_s(emt, lat, t, s, c); }
+      void end_bt(estimator_t const& emt, lattice_t const& lat, double t, int, int s, int c) {
+        end_s(emt, lat, t, s, c); }
+      void start_bottom(estimator_t const& emt, lattice_t const& lat, double t, int s, int c) {
+        begin_s(emt, lat, t, s, c);
         usize0 += 0.5;
         umag0  += (0.5-c);
-        double gg = gauge[s];
+        double gg = emt.gauge[s];
         ssize0 += gg * 0.5;
         smag0  += gg * (0.5-c);
       }
-      void start(lattice_t const& lat, double t, int s, int c) {
-        begin_s(lat, t, s, c);
+      void start(estimator_t const& emt, lattice_t const& lat, double t, int s, int c) {
+        begin_s(emt, lat, t, s, c);
       }
-      void stop(lattice_t const& lat, double t, int s, int c) { end_s(lat, t, s, c); }
-      void stop_top(lattice_t const& lat, double t, int s, int c) { end_s(lat, t, s, c); }
+      void stop(estimator_t const& emt, lattice_t const& lat, double t, int s, int c) {
+        end_s(emt, lat, t, s, c);
+      }
+      void stop_top(estimator_t const& emt, lattice_t const& lat, double t, int s, int c) {
+        end_s(emt, lat, t, s, c);
+      }
     };
-    void init_estimate(estimate& est) const { est.init(gauge); }
+    void init_estimate(estimate& est) const { est.init(); }
 
     struct collector {
       double usize2, umag2, usize4, umag4, usize, umag;

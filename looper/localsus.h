@@ -38,6 +38,7 @@ struct local_susceptibility {
     typedef MC   mc_type;
     typedef LAT  lattice_t;
     typedef TIME time_t;
+    typedef estimator<mc_type, lattice_t, time_t> estimator_t;
     typedef typename alps::property_map<real_site_t,
               const typename lattice_t::virtual_graph_type,
               typename real_site_descriptor<lattice_t>::type>::type
@@ -148,58 +149,51 @@ struct local_susceptibility {
     struct estimate {
       bool cross_itb;
       int cluster_id;
-      gauge_map_t gauge;
-      int* id_ptr;
-      std::vector<int>* vs2c_ptr;
-      std::vector<double>* usize_ptr;
-      std::vector<double>* umag_ptr;
-      std::vector<double>* ssize_ptr;
-      std::vector<double>* smag_ptr;
       estimate() : cross_itb(false), cluster_id(-1) {}
-      void init(gauge_map_t map, int* id, std::vector<int>* vs2c,
-        std::vector<double>* usize, std::vector<double>* umag,
-        std::vector<double>* ssize, std::vector<double>* smag) {
+      void init() {
         cross_itb = false;
         cluster_id = -1;
-        gauge = map;
-        id_ptr = id;
-        vs2c_ptr = vs2c;
-        usize_ptr = usize;
-        umag_ptr = umag;
-        ssize_ptr = ssize;
-        smag_ptr = smag;
       }
-      void begin_s(lattice_t const& lat, double t, int s, int c) { end_s(lat, -t, s, c); }
-      void begin_bs(lattice_t const& lat, double t, int, int s, int c) { begin_s(lat, t, s, c); }
-      void begin_bt(lattice_t const& lat, double t, int, int s, int c) { begin_s(lat, t, s, c); }
-      void end_s(lattice_t const&, double t, int s, int c) {
+      void begin_s(estimator_t const& emt, lattice_t const& lat, double t, int s, int c) {
+        end_s(emt, lat, -t, s, c);
+      }
+      void begin_bs(estimator_t const& emt, lattice_t const& lat, double t, int, int s, int c) {
+        begin_s(emt, lat, t, s, c);
+      }
+      void begin_bt(estimator_t const& emt, lattice_t const& lat, double t, int, int s, int c) {
+        begin_s(emt, lat, t, s, c);
+      }
+      void end_s(estimator_t const& emt, lattice_t const&, double t, int s, int c) {
         if (cross_itb) {
-          (*usize_ptr)[cluster_id] += t * 0.5;
-          (*umag_ptr)[cluster_id] += t * (0.5 - c);
-          (*ssize_ptr)[cluster_id] += gauge[s] * t * 0.5;
-          (*smag_ptr)[cluster_id] += gauge[s] * t * (0.5 - c);
+          emt.usize[cluster_id] += t * 0.5;
+          emt.umag[cluster_id] += t * (0.5 - c);
+          emt.ssize[cluster_id] += emt.gauge[s] * t * 0.5;
+          emt.smag[cluster_id] += emt.gauge[s] * t * (0.5 - c);
         }
       }
-      void end_bs(lattice_t const& lat, double t, int, int s, int c) { end_s(lat, t, s, c); }
-      void end_bt(lattice_t const& lat, double t, int, int s, int c) { end_s(lat, t, s, c); }
-      void start_bottom(lattice_t const& lat, double t, int s, int c) {
+      void end_bs(estimator_t const& emt, lattice_t const& lat, double t, int, int s, int c) {
+        end_s(emt, lat, t, s, c);
+      }
+      void end_bt(estimator_t const& emt, lattice_t const& lat, double t, int, int s, int c) {
+        end_s(emt, lat, t, s, c);
+      }
+      void start_bottom(estimator_t const& emt, lattice_t const& lat, double t, int s, int c) {
         if (!cross_itb) {
           cross_itb = true;
-          cluster_id = *id_ptr;
-          (*id_ptr) += 1;
+          cluster_id = emt.next_id++;
         }
-        (*vs2c_ptr)[s] = cluster_id;
-        (*usize_ptr)[cluster_id] = 0;
-        (*umag_ptr)[cluster_id] = 0;
-        (*ssize_ptr)[cluster_id] = 0;
-        (*smag_ptr)[cluster_id] = 0;
-        begin_s(lat, t, s, c);
+        emt.vs2c[s] = cluster_id;
+        emt.usize[cluster_id] = 0;
+        emt.umag[cluster_id] = 0;
+        emt.ssize[cluster_id] = 0;
+        emt.smag[cluster_id] = 0;
+        begin_s(emt, lat, t, s, c);
       }
-      void stop_top(lattice_t const& lat, double t, int s, int c) { end_s(lat, t, s, c); }
+      void stop_top(estimator_t const& emt, lattice_t const& lat, double t, int s, int c) {
+        end_s(emt, lat, t, s, c);
+      }
     };
-    void init_estimate(estimate& est) const {
-      est.init(gauge, &next_id, &vs2c, &usize, &umag, &ssize, &smag);
-    }
+    void init_estimate(estimate& est) const { est.init(); }
 
     typedef typename dumb::template estimator<MC, LAT, TIME>::collector collector;
     void init_collector(collector const&) const {}

@@ -1,3 +1,7 @@
+2009-06-19  Synge Todo <wistaria@comp-phys.org>
+
+	* Reduced memory usage of estimators
+	
 2009-06-17  Synge Todo <wistaria@comp-phys.org>
 
 	* [pro] fixed correlation length estimator

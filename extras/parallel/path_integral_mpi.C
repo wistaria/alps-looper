@@ -154,7 +154,7 @@ loop_worker::loop_worker(mpi::communicator const& c, alps::Parameters const& p)
   estimator.initialize(p, lattice, model.is_signed(), use_improved_estimator);
 }
 
-void loop_worker::init_observables(alps::Parameters const& p, alps::ObservableSet& obs) {
+void loop_worker::init_observables(alps::Parameters const&, alps::ObservableSet& obs) {
   if (comm.rank() == 0) {
     obs << make_observable(alps::SimpleRealObservable("Temperature"));
     obs << make_observable(alps::SimpleRealObservable("Inverse Temperature"));

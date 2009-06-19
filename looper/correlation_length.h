@@ -60,12 +60,12 @@ namespace looper {
 
 struct correlation_length : public has_evaluator_tag {
 
-  typedef dumb_measurement<correlation_length> dumb;
-
   template<typename MC, typename LAT, typename TIME>
   struct estimator {
     typedef MC mc_type;
     typedef LAT lattice_t;
+    typedef TIME time_t;
+    typedef estimator<mc_type, lattice_t, time_t> estimator_t;
     typedef std::complex<double> complex_type;
 
     bool measure, improved;
@@ -138,13 +138,9 @@ struct correlation_length : public has_evaluator_tag {
     // improved estimator
 
     struct estimate {
-      const std::vector<complex_type> *phase0_ptr;
-      const std::vector<complex_type> *phase1_ptr;
       complex_type sq0, sq1;
       estimate() : sq0(complex_type(0)), sq1(complex_type(0)) {}
-      void init(const std::vector<complex_type> *p0, const std::vector<complex_type> *p1) {
-        phase0_ptr = p0;
-        phase1_ptr = p1;
+      void init() {
         sq0 = complex_type(0);
         sq1 = complex_type(0);
       }
@@ -153,26 +149,45 @@ struct correlation_length : public has_evaluator_tag {
         sq1 += rhs.sq1;
         return *this;
       }
-      void begin_s(lattice_t const& lat, double t, int s, int c) { end_s(lat, -t, s, c); }
-      void begin_bs(lattice_t const& lat, double t, int, int s, int c) { begin_s(lat, t, s, c); }
-      void begin_bt(lattice_t const& lat, double t, int, int s, int c) { begin_s(lat, t, s, c); }
-      void end_s(lattice_t const&, double t, int s, int c) {
-        sq0 += (*phase0_ptr)[s] * t * (0.5-c);
-        sq1 += (*phase1_ptr)[s] * t * (0.5-c);
+      void begin_s(estimator_t const& emt, lattice_t const& lat, double t, int s, int c) {
+        end_s(emt, lat, -t, s, c);
       }
-      void end_bs(lattice_t const& lat, double t, int, int s, int c) { end_s(lat, t, s, c); }
-      void end_bt(lattice_t const& lat, double t, int, int s, int c) { end_s(lat, t, s, c); }
-      void start_bottom(lattice_t const& lat, double t, int s, int c) { begin_s(lat, t, s, c); }
-      void start(lattice_t const& lat, double t, int s, int c) { begin_s(lat, t, s, c); }
-      void stop(lattice_t const& lat, double t, int s, int c) { end_s(lat, t, s, c); }
-      void stop_top(lattice_t const& lat, double t, int s, int c) { end_s(lat, t, s, c); }
+      void begin_bs(estimator_t const& emt, lattice_t const& lat, double t, int, int s, int c) {
+        begin_s(emt, lat, t, s, c);
+      }
+      void begin_bt(estimator_t const& emt, lattice_t const& lat, double t, int, int s, int c) {
+        begin_s(emt, lat, t, s, c);
+      }
+      void end_s(estimator_t const& emt, lattice_t const&, double t, int s, int c) {
+        sq0 += emt.phase0[s] * t * (0.5-c);
+        sq1 += emt.phase1[s] * t * (0.5-c);
+      }
+      void end_bs(estimator_t const& emt, lattice_t const& lat, double t, int, int s, int c) {
+        end_s(emt, lat, t, s, c);
+      }
+      void end_bt(estimator_t const& emt, lattice_t const& lat, double t, int, int s, int c) {
+        end_s(emt, lat, t, s, c);
+      }
+      void start_bottom(estimator_t const& emt, lattice_t const& lat, double t, int s, int c) {
+        begin_s(emt, lat, t, s, c);
+      }
+      void start(estimator_t const& emt, lattice_t const& lat, double t, int s, int c) {
+        begin_s(emt, lat, t, s, c);
+      }
+      void stop(estimator_t const& emt, lattice_t const& lat, double t, int s, int c) {
+        end_s(emt, lat, t, s, c);
+      }
+      void stop_top(estimator_t const& emt, lattice_t const& lat, double t, int s, int c) {
+        end_s(emt, lat, t, s, c);
+      }
     };
-    void init_estimate(estimate& est) const { est.init(&phase0, &phase1); }
+    void init_estimate(estimate& est) const { est.init(); }
 
     struct collector {
       double str0, str1;
       void init() {
-        str0 = 0; str1 = 0;
+        str0 = 0;
+        str1 = 0;
       }
       collector& operator+=(collector const& coll) {
         str0 += coll.str0;
