@@ -153,21 +153,21 @@ struct susceptibility :
     void init_estimate(estimate& est) const { est.init(); }
 
     struct collector {
-      double usize2, umag2, usize4, umag4, usize, umag;
-      double ssize2, smag2, ssize4, smag4, ssize, smag;
+      double umag0, usize2, umag2, usize4, umag4, usize, umag;
+      double smag0, ssize2, smag2, ssize4, smag4, ssize, smag;
       void init() {
-        usize2 = 0; umag2 = 0; usize4 = 0; umag4 = 0;
-        usize = 0; umag = 0;
-        ssize2 = 0; smag2 = 0; ssize4 = 0; smag4 = 0;
-        ssize = 0; smag = 0;
+        umag0 = usize2 = umag2 = usize4 = umag4 = usize = umag = 0;
+        smag0 = ssize2 = smag2 = ssize4 = smag4 = ssize = smag = 0;
       }
       collector& operator+=(collector const& coll) {
+        umag0 += coll.umag0;
         usize2 += coll.usize2;
         umag2  += coll.umag2;
         usize4 += coll.usize4;
         umag4  += coll.umag4;
         usize  += coll.usize;
         umag   += coll.umag;
+        smag0 += coll.smag0;
         ssize2 += coll.ssize2;
         smag2  += coll.smag2;
         ssize4 += coll.ssize4;
@@ -177,12 +177,14 @@ struct susceptibility :
         return *this;
       }
       collector& operator+=(estimate const& est) {
+        umag0  += est.umag0;
         usize2 += power2(est.usize0);
         umag2  += power2(est.umag0);
         usize4 += power4(est.usize0);
         umag4  += power4(est.umag0);
         usize  += power2(est.usize);
         umag   += power2(est.umag);
+        smag0  += est.smag0;
         ssize2 += power2(est.ssize0);
         smag2  += power2(est.smag0);
         ssize4 += power4(est.ssize0);
@@ -196,8 +198,8 @@ struct susceptibility :
         double vol = lat.volume();
         m["Magnetization"] << 0.0;
         m["Magnetization Density"] << 0.0;
-        m["|Magnetization|"] << 0.0;
-        m["|Magnetization Density|"] << 0.0;
+        m["|Magnetization|"] << sign * std::abs(umag0);
+        m["|Magnetization Density|"] << sign * std::abs(umag0) / vol;
         m["Magnetization^2"] << sign * umag2;
         m["Magnetization Density^2"] << sign * umag2 / power2(vol);
         m["Magnetization^4"] << sign * (3 * power2(umag2) - 2 * umag4);
@@ -221,8 +223,8 @@ struct susceptibility :
         if (is_bipartite(lat)) {
           m["Staggered Magnetization"] << 0.0;
           m["Staggered Magnetization Density"] << 0.0;
-          m["|Staggered Magnetization|"] << 0.0;
-          m["|Staggered Magnetization Density|"] << 0.0;
+          m["|Staggered Magnetization|"] << sign * std::abs(smag0);
+          m["|Staggered Magnetization Density|"] << sign * std::abs(smag0) / vol;
           m["Staggered Magnetization^2"] << sign * smag2;
           m["Staggered Magnetization Density^2"] << sign * smag2 / power2(vol);
           m["Staggered Magnetization^4"]

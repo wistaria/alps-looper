@@ -401,6 +401,10 @@ void diag_worker::run(alps::ObservableSet& obs) {
   m["Susceptibility"] =
     dynamic_average2(beta, gs_ene, evals, hamiltonian, uniform_sz) / part / volume;
   m["Binder Ratio of Magnetization"] = looper::power2(umag2 / part) / (umag4 / part);
+  BOOST_FOREACH(double& elm, uniform_sz) { elm = std::abs(elm); }
+  umag = static_average(beta, gs_ene, evals, hamiltonian, uniform_sz);
+  m["|Magnetization|"] = umag / part;
+  m["|Magnetization Density|"] = umag / part / volume;
   if (this->graph_helper().is_bipartite()) {
     diagonal_matrix_type staggered_sz(dim);
     staggered_sz.clear();
@@ -427,6 +431,10 @@ void diag_worker::run(alps::ObservableSet& obs) {
     m["Staggered Susceptibility"] =
       dynamic_average2(beta, gs_ene, evals, hamiltonian, staggered_sz) / part / volume;
     m["Binder Ratio of Staggered Magnetization"] = looper::power2(smag2 / part) / (smag4 / part);
+    BOOST_FOREACH(double& elm, staggered_sz) { elm = std::abs(elm); }
+    smag = static_average(beta, gs_ene, evals, hamiltonian, staggered_sz);
+    m["|Staggered Magnetization|"] = smag / part;
+    m["|Staggered Magnetization Density|"] = smag / part / volume;
 
     // local Sz
     diagonal_matrix_type local_sz(dim);
