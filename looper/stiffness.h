@@ -26,7 +26,6 @@
 #define LOOPER_STIFFNESS_H
 
 #include "measurement.h"
-#include <alps/fixed_capacity_vector.h>
 
 namespace looper {
 
@@ -80,29 +79,27 @@ struct stiffness
     // improved estimator
 
     struct estimate {
-      alps::fixed_capacity_vector<double, MAX_DIM> winding;
+      double winding[MAX_DIM];
       estimate() : winding() {}
-      void init(int dim) {
-        winding.resize(dim);
-        std::fill(winding.begin(), winding.end(), 0.);
+      void init() {
+        for (int i = 0; i < MAX_DIM; ++i) winding[i] = 0;
       }
       estimate& operator+=(estimate const& rhs) {
-        // if (winding.size() != rhs.winding.size()) winding.resize(rhs.winding.size());
-        for (int i = 0; i < winding.size(); ++i) winding[i] += rhs.winding[i];
+        for (int i = 0; i < MAX_DIM; ++i) winding[i] += rhs.winding[i];
         return *this;
       }
       void begin_s(estimator_t const&, lattice_t const&, double, int, int) const {}
       void begin_bs(estimator_t const& emt, lattice_t const& lat, double, int b, int, int c) {
         alps::coordinate_type const& vr =
           emt.bond_vector_relative[emt.real_bond[bond(lat.vg(), b)]];
-        for (int i = 0; i < winding.size(); ++i) winding[i] -= (1-2*c) * vr[i];
+        for (int i = 0; i < emt.dim; ++i) winding[i] -= (1-2*c) * vr[i];
       }
       void begin_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
       void end_s(estimator_t const&, lattice_t const&, double, int, int) const {}
       void end_bs(estimator_t const& emt, lattice_t const& lat, double, int b, int, int c) {
         alps::coordinate_type const& vr =
           emt.bond_vector_relative[emt.real_bond[bond(lat.vg(), b)]];
-        for (int i = 0; i < winding.size(); ++i) winding[i] += (1-2*c) * vr[i];
+        for (int i = 0; i < emt.dim; ++i) winding[i] += (1-2*c) * vr[i];
       }
       void end_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
       void start_bottom(estimator_t const&, lattice_t const&, double, int, int) const {}
@@ -110,7 +107,7 @@ struct stiffness
       void stop(estimator_t const&, lattice_t const&, double, int, int) const {}
       void stop_top(estimator_t const&, lattice_t const&, double, int, int) const {}
     };
-    void init_estimate(estimate& est) const { est.init(dim); }
+    void init_estimate(estimate& est) const { est.init(); }
 
     struct collector {
       unsigned int dim;
