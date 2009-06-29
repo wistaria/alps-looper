@@ -51,6 +51,10 @@ Staggered Susceptibility: 1.25365 +/- inf
 Susceptibility: 0.0359724 +/- inf
 Temperature: 0.25 +/- inf
 Volume: 4 +/- inf
+|Magnetization Density|: 0.00898729 +/- inf
+|Magnetization|: 0.0359492 +/- inf
+|Staggered Magnetization Density|: 0.332904 +/- inf
+|Staggered Magnetization|: 1.33162 +/- inf
 [input parameters]
 MODEL_LIBRARY = xyz_model.xml;
 MODEL = "XYZ spin";
@@ -264,34 +268,34 @@ Susceptibility: 0.0341797 +/- 0.00351; tau = 1.08 WARNING: ERRORS NOT CONVERGED!
     bin #6   : 128      entries: error = 0.00350866
 Temperature: 0.25 +/- 0
 Volume: 4 +/- 0
-|Magnetization Density|: 0 +/- 0; tau = 0
-    bin #1   : 4096     entries: error = 0
-    bin #2   : 2048     entries: error = 0
-    bin #3   : 1024     entries: error = 0
-    bin #4   : 512      entries: error = 0
-    bin #5   : 256      entries: error = 0
-    bin #6   : 128      entries: error = 0
-|Magnetization|: 0 +/- 0; tau = 0
-    bin #1   : 4096     entries: error = 0
-    bin #2   : 2048     entries: error = 0
-    bin #3   : 1024     entries: error = 0
-    bin #4   : 512      entries: error = 0
-    bin #5   : 256      entries: error = 0
-    bin #6   : 128      entries: error = 0
-|Staggered Magnetization Density|: 0 +/- 0; tau = 0
-    bin #1   : 4096     entries: error = 0
-    bin #2   : 2048     entries: error = 0
-    bin #3   : 1024     entries: error = 0
-    bin #4   : 512      entries: error = 0
-    bin #5   : 256      entries: error = 0
-    bin #6   : 128      entries: error = 0
-|Staggered Magnetization|: 0 +/- 0; tau = 0
-    bin #1   : 4096     entries: error = 0
-    bin #2   : 2048     entries: error = 0
-    bin #3   : 1024     entries: error = 0
-    bin #4   : 512      entries: error = 0
-    bin #5   : 256      entries: error = 0
-    bin #6   : 128      entries: error = 0
+|Magnetization Density|: 0.00793457 +/- 0.00112; tau = 0.845 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.000684943
+    bin #2   : 2048     entries: error = 0.000827657
+    bin #3   : 1024     entries: error = 0.000933222
+    bin #4   : 512      entries: error = 0.0010206
+    bin #5   : 256      entries: error = 0.00109408
+    bin #6   : 128      entries: error = 0.00112327
+|Magnetization|: 0.0317383 +/- 0.00449; tau = 0.845 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.00273977
+    bin #2   : 2048     entries: error = 0.00331063
+    bin #3   : 1024     entries: error = 0.00373289
+    bin #4   : 512      entries: error = 0.00408238
+    bin #5   : 256      entries: error = 0.0043763
+    bin #6   : 128      entries: error = 0.0044931
+|Staggered Magnetization Density|: 0.343628 +/- 0.0051; tau = 0.53 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.00355535
+    bin #2   : 2048     entries: error = 0.00395839
+    bin #3   : 1024     entries: error = 0.0042803
+    bin #4   : 512      entries: error = 0.0045969
+    bin #5   : 256      entries: error = 0.00486152
+    bin #6   : 128      entries: error = 0.00510228
+|Staggered Magnetization|: 1.37451 +/- 0.0204; tau = 0.53 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.0142214
+    bin #2   : 2048     entries: error = 0.0158336
+    bin #3   : 1024     entries: error = 0.0171212
+    bin #4   : 512      entries: error = 0.0183876
+    bin #5   : 256      entries: error = 0.0194461
+    bin #6   : 128      entries: error = 0.0204091
 [input parameters]
 MODEL_LIBRARY = xyz_model.xml;
 MODEL = "XYZ spin";
@@ -346,6 +350,10 @@ Staggered Susceptibility: 3.78284 +/- inf
 Susceptibility: 0.0348027 +/- inf
 Temperature: 0.25 +/- inf
 Volume: 4 +/- inf
+|Magnetization Density|: 0.00869484 +/- inf
+|Magnetization|: 0.0347794 +/- inf
+|Staggered Magnetization Density|: 0.599993 +/- inf
+|Staggered Magnetization|: 2.39997 +/- inf
 [input parameters]
 MODEL_LIBRARY = xyz_model.xml;
 MODEL = "XYZ spin";
@@ -560,34 +568,34 @@ Susceptibility: 0.0377197 +/- 0.00343; tau = 0.884
     bin #6   : 128      entries: error = 0.00343413
 Temperature: 0.25 +/- 0
 Volume: 4 +/- 0
-|Magnetization Density|: 0 +/- 0; tau = 0
-    bin #1   : 4096     entries: error = 0
-    bin #2   : 2048     entries: error = 0
-    bin #3   : 1024     entries: error = 0
-    bin #4   : 512      entries: error = 0
-    bin #5   : 256      entries: error = 0
-    bin #6   : 128      entries: error = 0
-|Magnetization|: 0 +/- 0; tau = 0
-    bin #1   : 4096     entries: error = 0
-    bin #2   : 2048     entries: error = 0
-    bin #3   : 1024     entries: error = 0
-    bin #4   : 512      entries: error = 0
-    bin #5   : 256      entries: error = 0
-    bin #6   : 128      entries: error = 0
-|Staggered Magnetization Density|: 0 +/- 0; tau = 0
-    bin #1   : 4096     entries: error = 0
-    bin #2   : 2048     entries: error = 0
-    bin #3   : 1024     entries: error = 0
-    bin #4   : 512      entries: error = 0
-    bin #5   : 256      entries: error = 0
-    bin #6   : 128      entries: error = 0
-|Staggered Magnetization|: 0 +/- 0; tau = 0
-    bin #1   : 4096     entries: error = 0
-    bin #2   : 2048     entries: error = 0
-    bin #3   : 1024     entries: error = 0
-    bin #4   : 512      entries: error = 0
-    bin #5   : 256      entries: error = 0
-    bin #6   : 128      entries: error = 0
+|Magnetization Density|: 0.00946045 +/- 0.00122; tau = 0.835
+    bin #1   : 4096     entries: error = 0.000745547
+    bin #2   : 2048     entries: error = 0.000891668
+    bin #3   : 1024     entries: error = 0.00104278
+    bin #4   : 512      entries: error = 0.00112348
+    bin #5   : 256      entries: error = 0.001225
+    bin #6   : 128      entries: error = 0.00121843
+|Magnetization|: 0.0378418 +/- 0.00487; tau = 0.835
+    bin #1   : 4096     entries: error = 0.00298219
+    bin #2   : 2048     entries: error = 0.00356667
+    bin #3   : 1024     entries: error = 0.00417112
+    bin #4   : 512      entries: error = 0.00449392
+    bin #5   : 256      entries: error = 0.00490002
+    bin #6   : 128      entries: error = 0.00487374
+|Staggered Magnetization Density|: 0.584534 +/- 0.00789; tau = 0.438 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.00576032
+    bin #2   : 2048     entries: error = 0.00639688
+    bin #3   : 1024     entries: error = 0.0068819
+    bin #4   : 512      entries: error = 0.00722519
+    bin #5   : 256      entries: error = 0.00741096
+    bin #6   : 128      entries: error = 0.00788924
+|Staggered Magnetization|: 2.33813 +/- 0.0316; tau = 0.438 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.0230413
+    bin #2   : 2048     entries: error = 0.0255875
+    bin #3   : 1024     entries: error = 0.0275276
+    bin #4   : 512      entries: error = 0.0289008
+    bin #5   : 256      entries: error = 0.0296438
+    bin #6   : 128      entries: error = 0.031557
 [input parameters]
 MODEL_LIBRARY = xyz_model.xml;
 MODEL = "XYZ spin";
@@ -645,6 +653,10 @@ Staggered Susceptibility: 0.167894 +/- inf
 Susceptibility: 1.24058 +/- inf
 Temperature: 0.5 +/- inf
 Volume: 4 +/- inf
+|Magnetization Density|: 0.347116 +/- inf
+|Magnetization|: 1.38846 +/- inf
+|Staggered Magnetization Density|: 0.0789439 +/- inf
+|Staggered Magnetization|: 0.315775 +/- inf
 [input parameters]
 MODEL_LIBRARY = xyz_model.xml;
 MODEL = "XYZ spin";
@@ -862,34 +874,34 @@ Susceptibility: 1.2489 +/- 0.0128; tau = 0.653 WARNING: check error convergence
     bin #6   : 128      entries: error = 0.0127605
 Temperature: 0.5 +/- 0
 Volume: 4 +/- 0
-|Magnetization Density|: 0 +/- 0; tau = 0
-    bin #1   : 4096     entries: error = 0
-    bin #2   : 2048     entries: error = 0
-    bin #3   : 1024     entries: error = 0
-    bin #4   : 512      entries: error = 0
-    bin #5   : 256      entries: error = 0
-    bin #6   : 128      entries: error = 0
-|Magnetization|: 0 +/- 0; tau = 0
-    bin #1   : 4096     entries: error = 0
-    bin #2   : 2048     entries: error = 0
-    bin #3   : 1024     entries: error = 0
-    bin #4   : 512      entries: error = 0
-    bin #5   : 256      entries: error = 0
-    bin #6   : 128      entries: error = 0
-|Staggered Magnetization Density|: 0 +/- 0; tau = 0
-    bin #1   : 4096     entries: error = 0
-    bin #2   : 2048     entries: error = 0
-    bin #3   : 1024     entries: error = 0
-    bin #4   : 512      entries: error = 0
-    bin #5   : 256      entries: error = 0
-    bin #6   : 128      entries: error = 0
-|Staggered Magnetization|: 0 +/- 0; tau = 0
-    bin #1   : 4096     entries: error = 0
-    bin #2   : 2048     entries: error = 0
-    bin #3   : 1024     entries: error = 0
-    bin #4   : 512      entries: error = 0
-    bin #5   : 256      entries: error = 0
-    bin #6   : 128      entries: error = 0
+|Magnetization Density|: 0.351501 +/- 0.00437; tau = 0.645 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.002888
+    bin #2   : 2048     entries: error = 0.00342174
+    bin #3   : 1024     entries: error = 0.00388771
+    bin #4   : 512      entries: error = 0.00412135
+    bin #5   : 256      entries: error = 0.00431962
+    bin #6   : 128      entries: error = 0.00437086
+|Magnetization|: 1.40601 +/- 0.0175; tau = 0.645 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.011552
+    bin #2   : 2048     entries: error = 0.013687
+    bin #3   : 1024     entries: error = 0.0155508
+    bin #4   : 512      entries: error = 0.0164854
+    bin #5   : 256      entries: error = 0.0172785
+    bin #6   : 128      entries: error = 0.0174834
+|Staggered Magnetization Density|: 0.0758667 +/- 0.00239; tau = 0.328
+    bin #1   : 4096     entries: error = 0.00185756
+    bin #2   : 2048     entries: error = 0.00213316
+    bin #3   : 1024     entries: error = 0.0023337
+    bin #4   : 512      entries: error = 0.00250842
+    bin #5   : 256      entries: error = 0.00236537
+    bin #6   : 128      entries: error = 0.00239104
+|Staggered Magnetization|: 0.303467 +/- 0.00956; tau = 0.328
+    bin #1   : 4096     entries: error = 0.00743023
+    bin #2   : 2048     entries: error = 0.00853262
+    bin #3   : 1024     entries: error = 0.00933482
+    bin #4   : 512      entries: error = 0.0100337
+    bin #5   : 256      entries: error = 0.00946146
+    bin #6   : 128      entries: error = 0.00956416
 [input parameters]
 MODEL_LIBRARY = xyz_model.xml;
 MODEL = "XYZ spin";
@@ -947,6 +959,10 @@ Staggered Susceptibility: 4.83789 +/- inf
 Susceptibility: 0.0325974 +/- inf
 Temperature: 0.2 +/- inf
 Volume: 4 +/- inf
+|Magnetization Density|: 0.00649767 +/- inf
+|Magnetization|: 0.0259907 +/- inf
+|Staggered Magnetization Density|: 0.487026 +/- inf
+|Staggered Magnetization|: 1.94811 +/- inf
 [input parameters]
 MODEL_LIBRARY = xyz_model.xml;
 MODEL = "XYZ spin";
@@ -1164,34 +1180,34 @@ Susceptibility: 0.0358582 +/- 0.00393; tau = 0.948 WARNING: check error converge
     bin #6   : 128      entries: error = 0.00393461
 Temperature: 0.2 +/- 0
 Volume: 4 +/- 0
-|Magnetization Density|: 0 +/- 0; tau = 0
-    bin #1   : 4096     entries: error = 0
-    bin #2   : 2048     entries: error = 0
-    bin #3   : 1024     entries: error = 0
-    bin #4   : 512      entries: error = 0
-    bin #5   : 256      entries: error = 0
-    bin #6   : 128      entries: error = 0
-|Magnetization|: 0 +/- 0; tau = 0
-    bin #1   : 4096     entries: error = 0
-    bin #2   : 2048     entries: error = 0
-    bin #3   : 1024     entries: error = 0
-    bin #4   : 512      entries: error = 0
-    bin #5   : 256      entries: error = 0
-    bin #6   : 128      entries: error = 0
-|Staggered Magnetization Density|: 0 +/- 0; tau = 0
-    bin #1   : 4096     entries: error = 0
-    bin #2   : 2048     entries: error = 0
-    bin #3   : 1024     entries: error = 0
-    bin #4   : 512      entries: error = 0
-    bin #5   : 256      entries: error = 0
-    bin #6   : 128      entries: error = 0
-|Staggered Magnetization|: 0 +/- 0; tau = 0
-    bin #1   : 4096     entries: error = 0
-    bin #2   : 2048     entries: error = 0
-    bin #3   : 1024     entries: error = 0
-    bin #4   : 512      entries: error = 0
-    bin #5   : 256      entries: error = 0
-    bin #6   : 128      entries: error = 0
+|Magnetization Density|: 0.00756836 +/- 0.00117; tau = 1.02 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.000669455
+    bin #2   : 2048     entries: error = 0.000829331
+    bin #3   : 1024     entries: error = 0.00101642
+    bin #4   : 512      entries: error = 0.00113652
+    bin #5   : 256      entries: error = 0.00111768
+    bin #6   : 128      entries: error = 0.00116899
+|Magnetization|: 0.0302734 +/- 0.00468; tau = 1.02 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.00267782
+    bin #2   : 2048     entries: error = 0.00331733
+    bin #3   : 1024     entries: error = 0.00406568
+    bin #4   : 512      entries: error = 0.00454607
+    bin #5   : 256      entries: error = 0.0044707
+    bin #6   : 128      entries: error = 0.00467598
+|Staggered Magnetization Density|: 0.487061 +/- 0.00187; tau = 1.13 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.0010379
+    bin #2   : 2048     entries: error = 0.00131246
+    bin #3   : 1024     entries: error = 0.00158331
+    bin #4   : 512      entries: error = 0.00173709
+    bin #5   : 256      entries: error = 0.00182099
+    bin #6   : 128      entries: error = 0.00187175
+|Staggered Magnetization|: 1.94824 +/- 0.00749; tau = 1.13 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.0041516
+    bin #2   : 2048     entries: error = 0.00524984
+    bin #3   : 1024     entries: error = 0.00633323
+    bin #4   : 512      entries: error = 0.00694836
+    bin #5   : 256      entries: error = 0.00728395
+    bin #6   : 128      entries: error = 0.007487
 [input parameters]
 MODEL_LIBRARY = xyz_model.xml;
 MODEL = "XYZ spin";
@@ -1249,6 +1265,10 @@ Staggered Susceptibility: 0.512908 +/- inf
 Susceptibility: 0.512908 +/- inf
 Temperature: 0.2 +/- inf
 Volume: 4 +/- inf
+|Magnetization Density|: 0.1875 +/- inf
+|Magnetization|: 0.75 +/- inf
+|Staggered Magnetization Density|: 0.1875 +/- inf
+|Staggered Magnetization|: 0.75 +/- inf
 [input parameters]
 MODEL_LIBRARY = xyz_model.xml;
 MODEL = "XYZ spin";
@@ -1466,34 +1486,34 @@ Susceptibility: 0.521553 +/- 0.0244; tau = 2.4 WARNING: ERRORS NOT CONVERGED!!!
     bin #6   : 128      entries: error = 0.0244124
 Temperature: 0.2 +/- 0
 Volume: 4 +/- 0
-|Magnetization Density|: 0 +/- 0; tau = 0
-    bin #1   : 4096     entries: error = 0
-    bin #2   : 2048     entries: error = 0
-    bin #3   : 1024     entries: error = 0
-    bin #4   : 512      entries: error = 0
-    bin #5   : 256      entries: error = 0
-    bin #6   : 128      entries: error = 0
-|Magnetization|: 0 +/- 0; tau = 0
-    bin #1   : 4096     entries: error = 0
-    bin #2   : 2048     entries: error = 0
-    bin #3   : 1024     entries: error = 0
-    bin #4   : 512      entries: error = 0
-    bin #5   : 256      entries: error = 0
-    bin #6   : 128      entries: error = 0
-|Staggered Magnetization Density|: 0 +/- 0; tau = 0
-    bin #1   : 4096     entries: error = 0
-    bin #2   : 2048     entries: error = 0
-    bin #3   : 1024     entries: error = 0
-    bin #4   : 512      entries: error = 0
-    bin #5   : 256      entries: error = 0
-    bin #6   : 128      entries: error = 0
-|Staggered Magnetization|: 0 +/- 0; tau = 0
-    bin #1   : 4096     entries: error = 0
-    bin #2   : 2048     entries: error = 0
-    bin #3   : 1024     entries: error = 0
-    bin #4   : 512      entries: error = 0
-    bin #5   : 256      entries: error = 0
-    bin #6   : 128      entries: error = 0
+|Magnetization Density|: 0.186401 +/- 0.006; tau = 2.13 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 4096     entries: error = 0.00261799
+    bin #2   : 2048     entries: error = 0.00344412
+    bin #3   : 1024     entries: error = 0.00436815
+    bin #4   : 512      entries: error = 0.00532725
+    bin #5   : 256      entries: error = 0.0057761
+    bin #6   : 128      entries: error = 0.00600114
+|Magnetization|: 0.745605 +/- 0.024; tau = 2.13 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 4096     entries: error = 0.010472
+    bin #2   : 2048     entries: error = 0.0137765
+    bin #3   : 1024     entries: error = 0.0174726
+    bin #4   : 512      entries: error = 0.021309
+    bin #5   : 256      entries: error = 0.0231044
+    bin #6   : 128      entries: error = 0.0240045
+|Staggered Magnetization Density|: 0.18396 +/- 0.007; tau = 3.11 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 4096     entries: error = 0.00260318
+    bin #2   : 2048     entries: error = 0.00341287
+    bin #3   : 1024     entries: error = 0.00442795
+    bin #4   : 512      entries: error = 0.00530973
+    bin #5   : 256      entries: error = 0.00624899
+    bin #6   : 128      entries: error = 0.0069974
+|Staggered Magnetization|: 0.73584 +/- 0.028; tau = 3.11 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 4096     entries: error = 0.0104127
+    bin #2   : 2048     entries: error = 0.0136515
+    bin #3   : 1024     entries: error = 0.0177118
+    bin #4   : 512      entries: error = 0.0212389
+    bin #5   : 256      entries: error = 0.0249959
+    bin #6   : 128      entries: error = 0.0279896
 [input parameters]
 MODEL_LIBRARY = xyz_model.xml;
 MODEL = "XYZ spin";
