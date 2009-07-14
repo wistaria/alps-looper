@@ -2,8 +2,8 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2004 by Synge Todo <wistaria@comp-phys.org>,
-*                       Marc Locher <Marc@itp.phys.ethz.ch>
+* Copyright (C) 2004-2009 by Synge Todo <wistaria@comp-phys.org>,
+*                            Marc Locher <Marc@itp.phys.ethz.ch>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -73,8 +73,8 @@ int main(int , char**)
   Graph g(nv);
 
   // random number generator
-  boost::variate_generator<boost::mt19937, boost::uniform_int<> >
-    rng(boost::mt19937(8237), boost::uniform_int<>(0, nv-1));
+  boost::variate_generator<boost::mt19937, boost::uniform_real<> >
+    rng(boost::mt19937(8237), boost::uniform_real<>());
 
   int a0 = 0;
   int b0 = 1;
@@ -83,8 +83,8 @@ int main(int , char**)
   std::cout << "add edge: " << a0 << " -- " << b0 << std::endl;
   std::vector<int> component(nv);
   do {
-    int a = rng();
-    int b = rng();
+    int a = static_cast<int>(nv * rng());
+    int b = static_cast<int>(nv * rng());
     if ((a != a0 || b != b0) && (a != b0 || b != a0)) {
       Edge e = add_edge(a,b,g).first;
       put(boost::edge_index, g, e, num_edges(g)-1);

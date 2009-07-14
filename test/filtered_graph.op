@@ -1,10 +1,9 @@
 add edge: 0 -- 1
-add edge: 5 -- 0
-add edge: 1 -- 2
-add edge: 4 -- 5
+add edge: 1 -- 5
 add edge: 0 -- 0
 add edge: 4 -- 0
-add edge: 2 -- 3
+add edge: 2 -- 0
+add edge: 3 -- 0
 DFS on original graph
 initialize_vertex: 0
 initialize_vertex: 1
@@ -17,33 +16,30 @@ examine_edge: 0 -- 1
 tree_edge: 0 -- 1
 discover_vertex: 1
 examine_edge: 1 -- 0
-examine_edge: 1 -- 2
-tree_edge: 1 -- 2
-discover_vertex: 2
-examine_edge: 2 -- 1
-examine_edge: 2 -- 3
-tree_edge: 2 -- 3
-discover_vertex: 3
-examine_edge: 3 -- 2
-finish_vertex: 3
-finish_vertex: 2
-finish_vertex: 1
-examine_edge: 0 -- 5
-tree_edge: 0 -- 5
+examine_edge: 1 -- 5
+tree_edge: 1 -- 5
 discover_vertex: 5
-examine_edge: 5 -- 0
-examine_edge: 5 -- 4
-tree_edge: 5 -- 4
-discover_vertex: 4
-examine_edge: 4 -- 5
-examine_edge: 4 -- 0
-back_edge: 4 -- 0
-finish_vertex: 4
+examine_edge: 5 -- 1
 finish_vertex: 5
+finish_vertex: 1
 examine_edge: 0 -- 0
 back_edge: 0 -- 0
 examine_edge: 0 -- 0
 examine_edge: 0 -- 4
+tree_edge: 0 -- 4
+discover_vertex: 4
+examine_edge: 4 -- 0
+finish_vertex: 4
+examine_edge: 0 -- 2
+tree_edge: 0 -- 2
+discover_vertex: 2
+examine_edge: 2 -- 0
+finish_vertex: 2
+examine_edge: 0 -- 3
+tree_edge: 0 -- 3
+discover_vertex: 3
+examine_edge: 3 -- 0
+finish_vertex: 3
 finish_vertex: 0
 DFS on filtered graph (edge 0 -- 1 is removed)
 initialize_vertex: 0
@@ -53,32 +49,29 @@ initialize_vertex: 3
 initialize_vertex: 4
 initialize_vertex: 5
 discover_vertex: 0
-examine_edge: 0 -- 5
-tree_edge: 0 -- 5
-discover_vertex: 5
-examine_edge: 5 -- 0
-examine_edge: 5 -- 4
-tree_edge: 5 -- 4
-discover_vertex: 4
-examine_edge: 4 -- 5
-examine_edge: 4 -- 0
-back_edge: 4 -- 0
-finish_vertex: 4
-finish_vertex: 5
 examine_edge: 0 -- 0
 back_edge: 0 -- 0
 examine_edge: 0 -- 0
 examine_edge: 0 -- 4
+tree_edge: 0 -- 4
+discover_vertex: 4
+examine_edge: 4 -- 0
+finish_vertex: 4
+examine_edge: 0 -- 2
+tree_edge: 0 -- 2
+discover_vertex: 2
+examine_edge: 2 -- 0
+finish_vertex: 2
+examine_edge: 0 -- 3
+tree_edge: 0 -- 3
+discover_vertex: 3
+examine_edge: 3 -- 0
+finish_vertex: 3
 finish_vertex: 0
 discover_vertex: 1
-examine_edge: 1 -- 2
-tree_edge: 1 -- 2
-discover_vertex: 2
-examine_edge: 2 -- 1
-examine_edge: 2 -- 3
-tree_edge: 2 -- 3
-discover_vertex: 3
-examine_edge: 3 -- 2
-finish_vertex: 3
-finish_vertex: 2
+examine_edge: 1 -- 5
+tree_edge: 1 -- 5
+discover_vertex: 5
+examine_edge: 5 -- 1
+finish_vertex: 5
 finish_vertex: 1

@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2009 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -37,8 +37,8 @@ int main()
 {
   // random number generator
   boost::mt19937 eng(29833u);
-  boost::variate_generator<boost::mt19937&, boost::uniform_int<> >
-    rng(eng, boost::uniform_int<>(0, n-1));
+  boost::variate_generator<boost::mt19937&, boost::uniform_real<> >
+    rng(eng, boost::uniform_real<>());
 
   std::cout << "[[union find test]]\n";
 
@@ -48,8 +48,8 @@ int main()
   std::cout << "\n[making tree]\n";
 
   for (int i = 0; i < n; i++) {
-    int i0 = rng();
-    int i1 = rng();
+    int i0 = static_cast<int>(n * rng());
+    int i1 = static_cast<int>(n * rng());
     std::cout << "connecting node " << i0 << " to node " << i1 << std::endl;
     looper::union_find::unify(nodes, i0, i1);
     looper::union_find::unify(nodes_noweight, i0, i1);
