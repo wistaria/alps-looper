@@ -39,6 +39,8 @@ undefine([package_version])
 undefine([package_date])
 undefine([package_bugreport])
 
+AC_CONFIG_HEADERS([config/config.h])
+
 dnl
 dnl check for ALPS
 dnl
