@@ -181,13 +181,13 @@ void loop_worker::build() {
   for (int s = 0; s < nvs; ++s) current[s] = s;
 
   boost::variate_generator<engine_type&, boost::exponential_distribution<> >
-    r_time(*engine_ptr, boost::exponential_distribution<>(beta * model.graph_weight()));
+    r_time(engine(), boost::exponential_distribution<>(beta * model.graph_weight()));
   double t = r_time();
   for (operator_iterator opi = operators_p.begin(); t < 1 || opi != operators_p.end();) {
 
     // diagonal update & labeling
     if (opi == operators_p.end() || t < opi->time()) {
-      loop_graph_t g = model.choose_graph(uniform_01);
+      loop_graph_t g = model.choose_graph(generator_01());
       if ((is_bond(g) && is_compatible(g, spins_c[source(pos(g), lattice.vg())],
                                           spins_c[target(pos(g), lattice.vg())])) ||
           (is_site(g) && is_compatible(g, spins_c[pos(g)]))) {
@@ -212,7 +212,8 @@ void loop_worker::build() {
       int s0 = source(oi->pos(), lattice.vg());
       int s1 = target(oi->pos(), lattice.vg());
       if (oi->is_offdiagonal()) {
-        oi->assign_graph(model.choose_offdiagonal(uniform_01, oi->loc(), spins_c[s0], spins_c[s1]));
+        oi->assign_graph(model.choose_offdiagonal(generator_01(), oi->loc(),
+          spins_c[s0], spins_c[s1]));
         spins_c[s0] ^= 1;
         spins_c[s1] ^= 1;
       }
@@ -236,7 +237,7 @@ void loop_worker::build() {
       int s2 = *vsi_end - *vsi;
       for (int i = 0; i < s2; ++i) perm[i] = i;
       looper::partitioned_random_shuffle(perm.begin(), perm.begin() + s2,
-        spins.begin() + offset, spins_c.begin() + offset, uniform_01);
+        spins.begin() + offset, spins_c.begin() + offset, generator_01());
       for (int i = 0; i < s2; ++i) unify(fragments, offset+i, current[offset+perm[i]]);
     }
   }

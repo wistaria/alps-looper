@@ -168,10 +168,10 @@ void loop_worker::build() {
   // building up clusters
   nop = 0;
   boost::variate_generator<engine_type&, boost::exponential_distribution<> >
-    r_time(*engine_ptr, boost::exponential_distribution<>(beta * model.graph_weight()));
+    r_time(engine(), boost::exponential_distribution<>(beta * model.graph_weight()));
   double t = r_time();
   while (t < 1) {
-    loop_graph_t g = model.choose_graph(uniform_01);
+    loop_graph_t g = model.choose_graph(generator_01());
     int s0 = source(pos(g), lattice.vg());
     int s1 = target(pos(g), lattice.vg());
     if (is_compatible(g, spins[s0], spins[s1])) {
@@ -190,7 +190,7 @@ void loop_worker::build() {
       int s2 = *vsi_end - *vsi;
       for (int i = 0; i < s2; ++i) perm[i] = i;
       looper::partitioned_random_shuffle(perm.begin(), perm.begin() + s2,
-        spins.begin() + offset, spins.begin() + offset, uniform_01);
+        spins.begin() + offset, spins.begin() + offset, generator_01());
       for (int i = 0; i < s2; ++i) unify(fragments, offset+i, offset+perm[i]);
     }
   }

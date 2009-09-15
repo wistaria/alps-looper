@@ -191,7 +191,7 @@ void loop_worker::build() {
     // diagonal update & labeling
     if (try_gap) {
       if ((nop+1) * uniform_01() < bw) {
-        loop_graph_t g = model.choose_graph(uniform_01);
+        loop_graph_t g = model.choose_graph(generator_01());
         if ((is_bond(g) && is_compatible(g, spins_c[source(pos(g), lattice.vg())],
                                             spins_c[target(pos(g), lattice.vg())])) ||
             (is_site(g) && is_compatible(g, spins_c[pos(g)]))) {
@@ -213,16 +213,17 @@ void loop_worker::build() {
           continue;
         } else {
           if (opi->is_site()) {
-            opi->assign_graph(model.choose_diagonal(uniform_01, opi->loc(), spins_c[opi->pos()]));
+            opi->assign_graph(model.choose_diagonal(generator_01(), opi->loc(),
+              spins_c[opi->pos()]));
           } else {
-            opi->assign_graph(model.choose_diagonal(uniform_01, opi->loc(),
+            opi->assign_graph(model.choose_diagonal(generator_01(), opi->loc(),
               spins_c[source(opi->pos(), lattice.vg())],
               spins_c[target(opi->pos(), lattice.vg())]));
           }
         }
       } else {
         if (opi->is_bond())
-          opi->assign_graph(model.choose_offdiagonal(uniform_01, opi->loc(),
+          opi->assign_graph(model.choose_offdiagonal(generator_01(), opi->loc(),
             spins_c[source(opi->pos(), lattice.vg())],
             spins_c[target(opi->pos(), lattice.vg())]));
       }
@@ -259,7 +260,7 @@ void loop_worker::build() {
       int s2 = *vsi_end - *vsi;
       for (int i = 0; i < s2; ++i) perm[i] = i;
       looper::partitioned_random_shuffle(perm.begin(), perm.begin() + s2,
-        spins.begin() + offset, spins_c.begin() + offset, uniform_01);
+        spins.begin() + offset, spins_c.begin() + offset, generator_01());
       for (int i = 0; i < s2; ++i) unify(fragments, offset+i, current[offset+perm[i]]);
     }
   }
