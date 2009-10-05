@@ -433,7 +433,6 @@ struct gap4 : public has_evaluator_tag {
       void end_s(estimator_t const& emt, lattice_t const&, std::complex<double> const& ct,
                  std::complex<double> const& ct2, int s, int c) {
         const double gg = emt.gauge[s];
-        std::cerr << ct << ' ' << ct2 << std::endl;
         upsize += ct * 0.5;
         upmag += ct * (0.5-c);
         spsize += gg * ct * 0.5;
