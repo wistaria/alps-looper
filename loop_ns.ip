@@ -6,27 +6,27 @@ T = 0.25
 
 LATTICE = "chain lattice"
 L = 4
-{ WORKER = "diagonalization" }
-{ WORKER = "path integral" }
-{ WORKER = "sse" }
+{ ALGORITHM = "diagonalization" }
+{ ALGORITHM = "loop; path integral" }
+{ ALGORITHM = "loop; sse" }
 
 LATTICE = "chain lattice"
 L = 4
 local_S = 1
 T = 1/L
-{ WORKER = "diagonalization" }
-{ WORKER = "path integral" }
-{ WORKER = "sse" }
+{ ALGORITHM = "diagonalization" }
+{ ALGORITHM = "loop; path integral" }
+{ ALGORITHM = "loop; sse" }
 
 LATTICE = "site"
 Gamma = 1
-{ WORKER = "diagonalization" }
-{ WORKER = "path integral" }
-{ WORKER = "sse" }
+{ ALGORITHM = "diagonalization" }
+{ ALGORITHM = "loop; path integral" }
+{ ALGORITHM = "loop; sse" }
 
 Gamma = 0
-{ WORKER = "diagonalization"; h = 0.3 }
-{ WORKER = "path integral"; h = 0.3 }
+{ ALGORITHM = "diagonalization"; h = 0.3 }
+{ ALGORITHM = "loop; path integral"; h = 0.3 }
 
 LATTICE = "chain lattice"
 Jz = 1
@@ -35,10 +35,10 @@ local_S = 1/2
 Gamma = 0
 L = 4
 T = 0.5
-{ WORKER = "diagonalization" }
-{ WORKER = "path integral" }
-{ WORKER = "sse" }
-{ WORKER = "ising" }
+{ ALGORITHM = "diagonalization" }
+{ ALGORITHM = "loop; path integral" }
+{ ALGORITHM = "loop; sse" }
+{ ALGORITHM = "ising" }
 
 LATTICE = "chain lattice"
 Jz = -1
@@ -47,10 +47,10 @@ local_S = 1
 D = -0.2
 L = 4
 T = 2
-{ WORKER = "diagonalization" }
-{ WORKER = "path integral" }
-{ WORKER = "sse" }
-{ WORKER = "ising" }
+{ ALGORITHM = "diagonalization" }
+{ ALGORITHM = "loop; path integral" }
+{ ALGORITHM = "loop; sse" }
+{ ALGORITHM = "ising" }
 
 LATTICE = "chain lattice"
 Jz = 1
@@ -60,7 +60,7 @@ D = 0
 L = 4
 T = 0.5
 {
-WORKER = "path integral"
+ALGORITHM = "loop; path integral"
 MEASURE[Correlations] = true
 MEASURE[Green Function] = true
 MEASURE[Structure Factor] = true
@@ -79,7 +79,7 @@ D = 0
 L = 4
 T = 0.5
 {
-WORKER = "path integral"
+ALGORITHM = "loop; path integral"
 MEASURE[Correlations] = true
 MEASURE[Green Function] = true
 MEASURE[Structure Factor] = true

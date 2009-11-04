@@ -6,7 +6,7 @@ J = 1
 LATTICE = "simple cubic lattice"
 L = 4
 
-WORKER = "path integral"
+ALGORITHM = "loop; path integral"
 
 MEASURE[Structure Factor] = 1
 MEASURE[Correlation Length] = 1

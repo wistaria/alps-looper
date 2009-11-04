@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plot SYSTEM "conf/plot.dtd">
 <plot name="" output="text">
-  <for-each name="WORKER">
+  <for-each name="ALGORITHM">
     <xaxis name="T" type="parameter" />
     <yaxis name="Staggered Susceptibility" type="mean" error="true"/>
   </for-each>

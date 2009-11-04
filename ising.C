@@ -271,10 +271,8 @@ typedef looper::evaluator<loop_config::measurement_set> loop_evaluator;
 // dynamic registration to the factories
 //
 
-PARAPACK_REGISTER_WORKER(loop_worker, "ising");
-PARAPACK_REGISTER_WORKER(alps::parapack::single_exchange_worker<loop_worker>, "ising exchange");
-PARAPACK_REGISTER_EVALUATOR(loop_evaluator, "ising");
-PARAPACK_REGISTER_EVALUATOR(loop_evaluator, "ising exchange");
+PARAPACK_REGISTER_ALGORITHM(loop_worker, "ising");
+PARAPACK_REGISTER_ALGORITHM(alps::parapack::single_exchange_worker<loop_worker>, "ising exchange");
 
 } // end namespace
 

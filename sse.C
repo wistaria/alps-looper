@@ -392,16 +392,12 @@ void loop_worker::flip(alps::ObservableSet& obs) {
   estimator.normal_measurement(obs, lattice, beta, sign, spins, operators, spins_c);
 }
 
-typedef looper::evaluator<loop_config::measurement_set> loop_evaluator;
-
 //
 // dynamic registration to the factories
 //
 
-PARAPACK_REGISTER_WORKER(loop_worker, "sse");
-PARAPACK_REGISTER_WORKER(alps::parapack::single_exchange_worker<loop_worker>, "sse exchange");
-PARAPACK_REGISTER_EVALUATOR(loop_evaluator, "sse");
-PARAPACK_REGISTER_EVALUATOR(loop_evaluator, "sse exchange");
+PARAPACK_REGISTER_ALGORITHM(loop_worker, "loop; sse");
+PARAPACK_REGISTER_ALGORITHM(alps::parapack::single_exchange_worker<loop_worker>, "loop; sse; exchange");
 
 } // end namespace
 

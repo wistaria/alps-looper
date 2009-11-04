@@ -460,6 +460,6 @@ void diag_worker::run(alps::ObservableSet& obs) {
 // dynamic registration to the factories
 //
 
-PARAPACK_REGISTER_WORKER(diag_worker, "diagonalization");
+PARAPACK_REGISTER_ALGORITHM(diag_worker, "diagonalization");
 
 } // end namespace

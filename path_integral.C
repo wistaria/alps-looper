@@ -377,9 +377,10 @@ typedef looper::evaluator<loop_config::measurement_set> loop_evaluator;
 // dynamic registration to the factories
 //
 
-PARAPACK_REGISTER_WORKER(loop_worker, "path integral");
-PARAPACK_REGISTER_WORKER(alps::parapack::single_exchange_worker<loop_worker>, "path integral exchange");
-PARAPACK_REGISTER_EVALUATOR(loop_evaluator, "path integral");
-PARAPACK_REGISTER_EVALUATOR(loop_evaluator, "path integral exchange");
+PARAPACK_REGISTER_ALGORITHM(loop_worker, "loop");
+PARAPACK_REGISTER_ALGORITHM(loop_worker, "loop; path integral");
+PARAPACK_REGISTER_ALGORITHM(alps::parapack::single_exchange_worker<loop_worker>, "loop; exchange");
+PARAPACK_REGISTER_ALGORITHM(alps::parapack::single_exchange_worker<loop_worker>, "loop; path integral; exchange");
+PARAPACK_REGISTER_EVALUATOR(loop_evaluator, "loop");
 
 } // end namespace

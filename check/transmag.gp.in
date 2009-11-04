@@ -2,36 +2,36 @@ set xlabel 'T'
 
 set ylabel 'Energy Density'
 plot \
-  "< choose WORKER diagonalization transmag-2-plot-energy.dat" u 1:2 w lp, \
-  "< choose WORKER 'path integral' transmag-1-plot-energy.dat" u 1:2:3 w e
+  "< choose ALGORITHM diagonalization transmag-2-plot-energy.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' transmag-1-plot-energy.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Specific Heat'
 plot \
-  "< choose WORKER diagonalization transmag-2-plot-sheat.dat" u 1:2 w lp, \
-  "< choose WORKER 'path integral' transmag-1-plot-sheat.dat" u 1:2:3 w e
+  "< choose ALGORITHM diagonalization transmag-2-plot-sheat.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' transmag-1-plot-sheat.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Transverse Magnetization Density'
 plot \
-  "< choose WORKER diagonalization transmag-2-plot-m.dat" u 1:2 w lp, \
-  "< choose WORKER 'path integral' transmag-1-plot-tm.dat" u 1:2:3 w e
+  "< choose ALGORITHM diagonalization transmag-2-plot-m.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' transmag-1-plot-tm.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Energy Density'
 plot \
-  "< choose WORKER diagonalization transmag-4-plot-energy.dat" u 1:2 w lp, \
-  "< choose WORKER 'path integral' transmag-3-plot-energy.dat" u 1:2:3 w e
+  "< choose ALGORITHM diagonalization transmag-4-plot-energy.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' transmag-3-plot-energy.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Specific Heat'
 plot \
-  "< choose WORKER diagonalization transmag-4-plot-sheat.dat" u 1:2 w lp, \
-  "< choose WORKER 'path integral' transmag-3-plot-sheat.dat" u 1:2:3 w e
+  "< choose ALGORITHM diagonalization transmag-4-plot-sheat.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' transmag-3-plot-sheat.dat" u 1:2:3 w e
 pause -1
 
 set ylabel 'Transverse Magnetization Density'
 plot \
-  "< choose WORKER diagonalization transmag-4-plot-sm.dat" u 1:2 w lp, \
-  "< choose WORKER 'path integral' transmag-3-plot-tm.dat" u 1:2:3 w e
+  "< choose ALGORITHM diagonalization transmag-4-plot-sm.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' transmag-3-plot-tm.dat" u 1:2:3 w e
 pause -1
