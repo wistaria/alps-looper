@@ -196,8 +196,9 @@ dist_noinst_DATA = plot-energy plot-sheat plot-m plot-m2 plot-sus \
 	chain-3 chain-4 chain-5 chain-6 dterm-1 dterm-2 dterm-3 \
 	kagome-1 kagome-2 kagome-3 kagome-4 site-1 site-2 site-3 \
 	site-4 site-5 transmag-1 transmag-2 transmag-3 transmag-4 \
-	triangle-1 triangle-2 triangle-3 triangle-4 xyz-1 xyz-2 xyz-3 \
-	xyz-4 xyz-5
+	triangle-1 triangle-2 triangle-3 triangle-4 triangle-5 \
+	triangle-6 xyz-1 xyz-2 xyz-3 xyz-4 xyz-5 xyz-6 xyz-7 xyz-8 \
+	xyz-9 xyz-10
 all: all-am
 
 .SUFFIXES:
@@ -449,6 +450,8 @@ triangle:
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_mpi triangle-2 plot-energy plot-sheat plot-sus plot-m2 plot-sign plot-zeromeron plot-signmeron
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_mpi triangle-3 plot-energy plot-sheat plot-sus plot-m2 plot-sign plot-zeromeron plot-signmeron
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_mpi triangle-4 plot-energy plot-sheat plot-sus plot-m2 plot-sign plot-zeromeron plot-signmeron
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_mpi triangle-5 plot-energy plot-sheat plot-sus plot-m2 plot-sign
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_mpi triangle-6 plot-energy plot-sheat plot-sus plot-m2 plot-sign
 
 .PHONY : xyz
 
@@ -459,6 +462,11 @@ xyz:
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_mpi xyz-3 plot-energy plot-sheat plot-sus plot-ssus plot-m2
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_mpi xyz-4 plot-energy plot-sheat plot-sus plot-ssus plot-m2
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_mpi xyz-5 plot-energy plot-sheat plot-sus plot-ssus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_mpi xyz-6 plot-energy plot-sheat plot-sus plot-ssus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_mpi xyz-7 plot-energy plot-sheat plot-sus plot-ssus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_mpi xyz-8 plot-energy plot-sheat plot-sus plot-ssus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_mpi xyz-9 plot-energy plot-sheat plot-sus plot-ssus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_mpi xyz-10 plot-energy plot-sheat plot-sus plot-ssus plot-m2
 
 #
 

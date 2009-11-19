@@ -174,3 +174,178 @@ plot \
   "< choose ALGORITHM 'loop; path integral' xyz-5-plot-ssus.dat" u 1:2:3 w e, \
   "< choose ALGORITHM 'loop; sse' xyz-5-plot-ssus.dat" u 1:2:3 w e
 pause -1
+
+set ylabel 'Energy Density'
+plot \
+  "< choose ALGORITHM diagonalization xyz-6-plot-energy.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' xyz-6-plot-energy.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' xyz-6-plot-energy.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Specific Heat'
+plot \
+  "< choose ALGORITHM diagonalization xyz-6-plot-sheat.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' xyz-6-plot-sheat.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' xyz-6-plot-sheat.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Magnetization Density^2'
+plot \
+  "< choose ALGORITHM diagonalization xyz-6-plot-m2.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' xyz-6-plot-m2.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' xyz-6-plot-m2.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Susceptibility'
+plot \
+  "< choose ALGORITHM diagonalization xyz-6-plot-sus.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' xyz-6-plot-sus.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' xyz-6-plot-sus.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Staggered Susceptibility'
+plot \
+  "< choose ALGORITHM diagonalization xyz-6-plot-ssus.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' xyz-6-plot-ssus.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' xyz-6-plot-ssus.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Energy Density'
+plot \
+  "< choose ALGORITHM diagonalization xyz-7-plot-energy.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' xyz-7-plot-energy.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' xyz-7-plot-energy.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Specific Heat'
+plot \
+  "< choose ALGORITHM diagonalization xyz-7-plot-sheat.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' xyz-7-plot-sheat.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' xyz-7-plot-sheat.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Magnetization Density^2'
+plot \
+  "< choose ALGORITHM diagonalization xyz-7-plot-m2.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' xyz-7-plot-m2.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' xyz-7-plot-m2.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Susceptibility'
+plot \
+  "< choose ALGORITHM diagonalization xyz-7-plot-sus.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' xyz-7-plot-sus.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' xyz-7-plot-sus.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Staggered Susceptibility'
+plot \
+  "< choose ALGORITHM diagonalization xyz-7-plot-ssus.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' xyz-7-plot-ssus.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' xyz-7-plot-ssus.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Energy Density'
+plot \
+  "< choose ALGORITHM diagonalization xyz-8-plot-energy.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' xyz-8-plot-energy.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' xyz-8-plot-energy.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Specific Heat'
+plot \
+  "< choose ALGORITHM diagonalization xyz-8-plot-sheat.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' xyz-8-plot-sheat.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' xyz-8-plot-sheat.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Magnetization Density^2'
+plot \
+  "< choose ALGORITHM diagonalization xyz-8-plot-m2.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' xyz-8-plot-m2.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' xyz-8-plot-m2.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Susceptibility'
+plot \
+  "< choose ALGORITHM diagonalization xyz-8-plot-sus.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' xyz-8-plot-sus.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' xyz-8-plot-sus.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Staggered Susceptibility'
+plot \
+  "< choose ALGORITHM diagonalization xyz-8-plot-ssus.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' xyz-8-plot-ssus.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' xyz-8-plot-ssus.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Energy Density'
+plot \
+  "< choose ALGORITHM diagonalization xyz-9-plot-energy.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' xyz-9-plot-energy.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' xyz-9-plot-energy.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Specific Heat'
+plot \
+  "< choose ALGORITHM diagonalization xyz-9-plot-sheat.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' xyz-9-plot-sheat.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' xyz-9-plot-sheat.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Magnetization Density^2'
+plot \
+  "< choose ALGORITHM diagonalization xyz-9-plot-m2.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' xyz-9-plot-m2.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' xyz-9-plot-m2.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Susceptibility'
+plot \
+  "< choose ALGORITHM diagonalization xyz-9-plot-sus.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' xyz-9-plot-sus.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' xyz-9-plot-sus.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Staggered Susceptibility'
+plot \
+  "< choose ALGORITHM diagonalization xyz-9-plot-ssus.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' xyz-9-plot-ssus.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' xyz-9-plot-ssus.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Energy Density'
+plot \
+  "< choose ALGORITHM diagonalization xyz-10-plot-energy.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' xyz-10-plot-energy.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' xyz-10-plot-energy.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Specific Heat'
+plot \
+  "< choose ALGORITHM diagonalization xyz-10-plot-sheat.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' xyz-10-plot-sheat.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' xyz-10-plot-sheat.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Magnetization Density^2'
+plot \
+  "< choose ALGORITHM diagonalization xyz-10-plot-m2.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' xyz-10-plot-m2.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' xyz-10-plot-m2.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Susceptibility'
+plot \
+  "< choose ALGORITHM diagonalization xyz-10-plot-sus.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' xyz-10-plot-sus.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' xyz-10-plot-sus.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Staggered Susceptibility'
+plot \
+  "< choose ALGORITHM diagonalization xyz-10-plot-ssus.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' xyz-10-plot-ssus.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' xyz-10-plot-ssus.dat" u 1:2:3 w e
+pause -1

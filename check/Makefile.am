@@ -66,7 +66,7 @@ transmag:
 
 #
 
-dist_noinst_DATA += triangle-1 triangle-2 triangle-3 triangle-4
+dist_noinst_DATA += triangle-1 triangle-2 triangle-3 triangle-4 triangle-5 triangle-6
 .PHONY : triangle
 triangle:
 	(cd $(top_builddir) && $(MAKE) loop_mpi)
@@ -74,10 +74,12 @@ triangle:
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_mpi triangle-2 plot-energy plot-sheat plot-sus plot-m2 plot-sign plot-zeromeron plot-signmeron
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_mpi triangle-3 plot-energy plot-sheat plot-sus plot-m2 plot-sign plot-zeromeron plot-signmeron
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_mpi triangle-4 plot-energy plot-sheat plot-sus plot-m2 plot-sign plot-zeromeron plot-signmeron
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_mpi triangle-5 plot-energy plot-sheat plot-sus plot-m2 plot-sign
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/loop_mpi triangle-6 plot-energy plot-sheat plot-sus plot-m2 plot-sign
 
 #
 
-dist_noinst_DATA += xyz-1 xyz-2 xyz-3 xyz-4 xyz-5
+dist_noinst_DATA += xyz-1 xyz-2 xyz-3 xyz-4 xyz-5 xyz-6 xyz-7 xyz-8 xyz-9 xyz-10
 
 .PHONY : xyz
 
@@ -88,6 +90,11 @@ xyz:
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_mpi xyz-3 plot-energy plot-sheat plot-sus plot-ssus plot-m2
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_mpi xyz-4 plot-energy plot-sheat plot-sus plot-ssus plot-m2
 	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_mpi xyz-5 plot-energy plot-sheat plot-sus plot-ssus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_mpi xyz-6 plot-energy plot-sheat plot-sus plot-ssus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_mpi xyz-7 plot-energy plot-sheat plot-sus plot-ssus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_mpi xyz-8 plot-energy plot-sheat plot-sus plot-ssus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_mpi xyz-9 plot-energy plot-sheat plot-sus plot-ssus plot-m2
+	$(SHELL) $(srcdir)/run-test.sh $(top_builddir)/extras/xyz/xyz_mpi xyz-10 plot-energy plot-sheat plot-sus plot-ssus plot-m2
 
 #
 
