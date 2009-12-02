@@ -10,7 +10,9 @@ DEFAULT_INCLUDES = -I$(srcdir) -I$(top_srcdir) -DLOOP_CONFIG_HEADER=\"xyz_config
 
 noinst_PROGRAMS = xyz
 if HAVE_MPI
+if HAVE_BOOST_MPI
 noinst_PROGRAMS += xyz_mpi
+endif
 endif
 
 SRC = $(top_srcdir)/loop_model.C $(top_srcdir)/diag.C $(top_srcdir)/path_integral.C $(top_srcdir)/sse.C

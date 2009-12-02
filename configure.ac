@@ -45,6 +45,10 @@ dnl
 
 AC_ALPS
 
+if test "$ac_cv_boost_mpi" != yes; then
+  AC_MSG_NOTICE([Boost.MPI library not found. MPI version will not be built.])
+fi
+
 dnl
 dnl compiler
 dnl

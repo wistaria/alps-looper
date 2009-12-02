@@ -88,7 +88,9 @@ dist_noinst_DATA = CITATIONS.txt LICENSE.txt README config/preamble.in config/ve
 
 noinst_PROGRAMS = loop
 if HAVE_MPI
+if HAVE_BOOST_MPI
 noinst_PROGRAMS += loop_mpi
+endif
 endif
 
 SRC = loop_config.h loop_custom.C loop_model.C

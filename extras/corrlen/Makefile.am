@@ -10,7 +10,9 @@ DEFAULT_INCLUDES = -I$(srcdir) -I$(top_srcdir) -DLOOP_CONFIG_HEADER=\"corrlen_co
 
 noinst_PROGRAMS = corrlen
 if HAVE_MPI
+if HAVE_BOOST_MPI
 noinst_PROGRAMS += corrlen_mpi
+endif
 endif
 
 SRC = $(top_srcdir)/loop_model.C $(top_srcdir)/path_integral.C

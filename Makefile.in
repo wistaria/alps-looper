@@ -48,7 +48,7 @@ host_triplet = @host@
 @EXIST_V31_TRUE@am__append_5 = v3.1
 @LOOPER_PRO_TRUE@am__append_6 = $(HEADERS_PRO)
 noinst_PROGRAMS = loop$(EXEEXT) $(am__EXEEXT_2)
-@HAVE_MPI_TRUE@am__append_7 = loop_mpi
+@HAVE_BOOST_MPI_TRUE@@HAVE_MPI_TRUE@am__append_7 = loop_mpi
 @ENABLE_DIAG_TRUE@am__append_8 = diag.C
 @ENABLE_ISING_TRUE@am__append_9 = ising.C
 @ENABLE_PI_TRUE@am__append_10 = path_integral.C
@@ -74,7 +74,7 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 @ENABLE_DIAG_TRUE@@ENABLE_ISING_TRUE@@ENABLE_PI_TRUE@@ENABLE_SSE_TRUE@am__EXEEXT_1 = loop_ns$(EXEEXT)
-@HAVE_MPI_TRUE@am__EXEEXT_2 = loop_mpi$(EXEEXT)
+@HAVE_BOOST_MPI_TRUE@@HAVE_MPI_TRUE@am__EXEEXT_2 = loop_mpi$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 am__loop_SOURCES_DIST = loop.C loop_config.h loop_custom.C \
 	loop_model.C diag.C ising.C path_integral.C sse.C sse_qwl.C

@@ -10,7 +10,9 @@ DEFAULT_INCLUDES = -I$(srcdir) -I$(top_srcdir) -DLOOP_CONFIG_HEADER=\"localsus_c
 
 noinst_PROGRAMS = localsus
 if HAVE_MPI
+if HAVE_BOOST_MPI
 noinst_PROGRAMS += localsus_mpi
+endif
 endif
 
 SRC = $(top_srcdir)/loop_model.C $(top_srcdir)/path_integral.C
