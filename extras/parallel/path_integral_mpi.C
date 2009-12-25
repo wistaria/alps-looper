@@ -411,8 +411,6 @@ typedef looper::evaluator<loop_config::measurement_set> loop_evaluator;
 // dynamic registration to the factories
 //
 
-PARAPACK_SET_COPYRIGHT(LOOPER_COPYRIGHT);
-PARAPACK_SET_VERSION(LOOPER_VERSION_STRING);
 PARAPACK_REGISTER_PARALLEL_WORKER(loop_worker, "path integral");
 PARAPACK_REGISTER_EVALUATOR(loop_evaluator, "path integral");
 
