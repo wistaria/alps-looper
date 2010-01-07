@@ -61,17 +61,13 @@ PROGRAMS = $(noinst_PROGRAMS)
 dist_parallel_mpi_OBJECTS = loop.$(OBJEXT) loop_model.$(OBJEXT) \
 	path_integral.$(OBJEXT) path_integral_mpi.$(OBJEXT)
 parallel_mpi_OBJECTS = $(dist_parallel_mpi_OBJECTS)
+parallel_mpi_LDADD = $(LDADD)
 parallel_mpi_DEPENDENCIES =
-parallel_mpi_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
-	$(CXXFLAGS) $(parallel_mpi_LDFLAGS) $(LDFLAGS) -o $@
 dist_parallel_ns_OBJECTS = parallel_ns.$(OBJEXT) loop_model.$(OBJEXT) \
 	path_integral.$(OBJEXT) path_integral_mpi.$(OBJEXT)
 parallel_ns_OBJECTS = $(dist_parallel_ns_OBJECTS)
+parallel_ns_LDADD = $(LDADD)
 parallel_ns_DEPENDENCIES =
-parallel_ns_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
-	$(CXXFLAGS) $(parallel_ns_LDFLAGS) $(LDFLAGS) -o $@
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
 am__mv = mv -f
@@ -139,10 +135,8 @@ INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LD = @LD@
 LDADD = @LDADD@
 LDFLAGS = @LDFLAGS@
-LDFLAGS_MPI = @LDFLAGS_MPI@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
-LIBS_MPI = @LIBS_MPI@
 LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
@@ -224,16 +218,12 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 dist_parallel_mpi_SOURCES = $(top_srcdir)/loop.C parallel_config.h $(top_srcdir)/loop_model.C $(top_srcdir)/path_integral.C path_integral_mpi.C
-parallel_mpi_LDFLAGS = @LDFLAGS_MPI@
-parallel_mpi_LDADD = @LIBS_MPI@
 
 #
 # tests
 #
 dist_noinst_DATA = parallel_ns.ip parallel_ns.op-2 parallel_ns.op-3 parallel_ns.op-4
 dist_parallel_ns_SOURCES = parallel_ns.C parallel_config.h $(top_srcdir)/loop_model.C $(top_srcdir)/path_integral.C path_integral_mpi.C
-parallel_ns_LDFLAGS = @LDFLAGS_MPI@
-parallel_ns_LDADD = @LIBS_MPI@
 TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
 all: all-am
 
@@ -289,10 +279,10 @@ clean-noinstPROGRAMS:
 	rm -f $$list
 parallel_mpi$(EXEEXT): $(parallel_mpi_OBJECTS) $(parallel_mpi_DEPENDENCIES) 
 	@rm -f parallel_mpi$(EXEEXT)
-	$(parallel_mpi_LINK) $(parallel_mpi_OBJECTS) $(parallel_mpi_LDADD) $(LIBS)
+	$(CXXLINK) $(parallel_mpi_OBJECTS) $(parallel_mpi_LDADD) $(LIBS)
 parallel_ns$(EXEEXT): $(parallel_ns_OBJECTS) $(parallel_ns_DEPENDENCIES) 
 	@rm -f parallel_ns$(EXEEXT)
-	$(parallel_ns_LINK) $(parallel_ns_OBJECTS) $(parallel_ns_LDADD) $(LIBS)
+	$(CXXLINK) $(parallel_ns_OBJECTS) $(parallel_ns_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)

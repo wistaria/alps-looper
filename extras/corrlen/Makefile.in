@@ -39,8 +39,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-noinst_PROGRAMS = corrlen$(EXEEXT) $(am__EXEEXT_1)
-@HAVE_BOOST_MPI_TRUE@@HAVE_MPI_TRUE@am__append_1 = corrlen_mpi
+noinst_PROGRAMS = corrlen$(EXEEXT)
 check_PROGRAMS = corrlen_ns$(EXEEXT)
 subdir = extras/corrlen
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
@@ -53,8 +52,6 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-@HAVE_BOOST_MPI_TRUE@@HAVE_MPI_TRUE@am__EXEEXT_1 =  \
-@HAVE_BOOST_MPI_TRUE@@HAVE_MPI_TRUE@	corrlen_mpi$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 dist_corrlen_OBJECTS =
 am__objects_1 = loop_model.$(OBJEXT) path_integral.$(OBJEXT)
@@ -62,12 +59,6 @@ nodist_corrlen_OBJECTS = loop.$(OBJEXT) $(am__objects_1)
 corrlen_OBJECTS = $(dist_corrlen_OBJECTS) $(nodist_corrlen_OBJECTS)
 corrlen_LDADD = $(LDADD)
 corrlen_DEPENDENCIES =
-nodist_corrlen_mpi_OBJECTS = loop.$(OBJEXT) $(am__objects_1)
-corrlen_mpi_OBJECTS = $(nodist_corrlen_mpi_OBJECTS)
-corrlen_mpi_DEPENDENCIES =
-corrlen_mpi_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
-	$(CXXFLAGS) $(corrlen_mpi_LDFLAGS) $(LDFLAGS) -o $@
 nodist_corrlen_ns_OBJECTS = loop_ns.$(OBJEXT) $(am__objects_1)
 corrlen_ns_OBJECTS = $(nodist_corrlen_ns_OBJECTS)
 corrlen_ns_LDADD = $(LDADD)
@@ -94,7 +85,7 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(dist_corrlen_SOURCES) $(nodist_corrlen_SOURCES) \
-	$(nodist_corrlen_mpi_SOURCES) $(nodist_corrlen_ns_SOURCES)
+	$(nodist_corrlen_ns_SOURCES)
 DIST_SOURCES = $(dist_corrlen_SOURCES)
 DATA = $(dist_noinst_DATA)
 ETAGS = etags
@@ -139,10 +130,8 @@ INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LD = @LD@
 LDADD = @LDADD@
 LDFLAGS = @LDFLAGS@
-LDFLAGS_MPI = @LDFLAGS_MPI@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
-LIBS_MPI = @LIBS_MPI@
 LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
@@ -226,9 +215,6 @@ top_srcdir = @top_srcdir@
 SRC = $(top_srcdir)/loop_model.C $(top_srcdir)/path_integral.C
 dist_corrlen_SOURCES = corrlen_config.h
 nodist_corrlen_SOURCES = $(top_srcdir)/loop.C $(SRC)
-nodist_corrlen_mpi_SOURCES = $(top_srcdir)/loop.C $(SRC)
-corrlen_mpi_LDFLAGS = @LDFLAGS_MPI@
-corrlen_mpi_LDADD = @LIBS_MPI@
 
 #
 # tests
@@ -292,9 +278,6 @@ clean-noinstPROGRAMS:
 corrlen$(EXEEXT): $(corrlen_OBJECTS) $(corrlen_DEPENDENCIES) 
 	@rm -f corrlen$(EXEEXT)
 	$(CXXLINK) $(corrlen_OBJECTS) $(corrlen_LDADD) $(LIBS)
-corrlen_mpi$(EXEEXT): $(corrlen_mpi_OBJECTS) $(corrlen_mpi_DEPENDENCIES) 
-	@rm -f corrlen_mpi$(EXEEXT)
-	$(corrlen_mpi_LINK) $(corrlen_mpi_OBJECTS) $(corrlen_mpi_LDADD) $(LIBS)
 corrlen_ns$(EXEEXT): $(corrlen_ns_OBJECTS) $(corrlen_ns_DEPENDENCIES) 
 	@rm -f corrlen_ns$(EXEEXT)
 	$(CXXLINK) $(corrlen_ns_OBJECTS) $(corrlen_ns_LDADD) $(LIBS)

@@ -39,8 +39,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-noinst_PROGRAMS = gap$(EXEEXT) $(am__EXEEXT_1)
-@HAVE_BOOST_MPI_TRUE@@HAVE_MPI_TRUE@am__append_1 = gap_mpi
+noinst_PROGRAMS = gap$(EXEEXT)
 check_PROGRAMS = gap_ns$(EXEEXT)
 subdir = extras/gap
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
@@ -53,7 +52,6 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-@HAVE_BOOST_MPI_TRUE@@HAVE_MPI_TRUE@am__EXEEXT_1 = gap_mpi$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 dist_gap_OBJECTS =
 am__objects_1 = loop_model.$(OBJEXT) path_integral.$(OBJEXT)
@@ -61,12 +59,6 @@ nodist_gap_OBJECTS = loop.$(OBJEXT) $(am__objects_1)
 gap_OBJECTS = $(dist_gap_OBJECTS) $(nodist_gap_OBJECTS)
 gap_LDADD = $(LDADD)
 gap_DEPENDENCIES =
-nodist_gap_mpi_OBJECTS = loop.$(OBJEXT) $(am__objects_1)
-gap_mpi_OBJECTS = $(nodist_gap_mpi_OBJECTS)
-gap_mpi_DEPENDENCIES =
-gap_mpi_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
-	$(gap_mpi_LDFLAGS) $(LDFLAGS) -o $@
 nodist_gap_ns_OBJECTS = loop_ns.$(OBJEXT) $(am__objects_1)
 gap_ns_OBJECTS = $(nodist_gap_ns_OBJECTS)
 gap_ns_LDADD = $(LDADD)
@@ -93,7 +85,7 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(dist_gap_SOURCES) $(nodist_gap_SOURCES) \
-	$(nodist_gap_mpi_SOURCES) $(nodist_gap_ns_SOURCES)
+	$(nodist_gap_ns_SOURCES)
 DIST_SOURCES = $(dist_gap_SOURCES)
 DATA = $(dist_noinst_DATA)
 ETAGS = etags
@@ -138,10 +130,8 @@ INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LD = @LD@
 LDADD = @LDADD@
 LDFLAGS = @LDFLAGS@
-LDFLAGS_MPI = @LDFLAGS_MPI@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
-LIBS_MPI = @LIBS_MPI@
 LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
@@ -225,9 +215,6 @@ top_srcdir = @top_srcdir@
 SRC = $(top_srcdir)/loop_model.C $(top_srcdir)/path_integral.C
 dist_gap_SOURCES = gap_config.h
 nodist_gap_SOURCES = $(top_srcdir)/loop.C $(SRC)
-nodist_gap_mpi_SOURCES = $(top_srcdir)/loop.C $(SRC)
-gap_mpi_LDFLAGS = @LDFLAGS_MPI@
-gap_mpi_LDADD = @LIBS_MPI@
 
 #
 # tests
@@ -291,9 +278,6 @@ clean-noinstPROGRAMS:
 gap$(EXEEXT): $(gap_OBJECTS) $(gap_DEPENDENCIES) 
 	@rm -f gap$(EXEEXT)
 	$(CXXLINK) $(gap_OBJECTS) $(gap_LDADD) $(LIBS)
-gap_mpi$(EXEEXT): $(gap_mpi_OBJECTS) $(gap_mpi_DEPENDENCIES) 
-	@rm -f gap_mpi$(EXEEXT)
-	$(gap_mpi_LINK) $(gap_mpi_OBJECTS) $(gap_mpi_LDADD) $(LIBS)
 gap_ns$(EXEEXT): $(gap_ns_OBJECTS) $(gap_ns_DEPENDENCIES) 
 	@rm -f gap_ns$(EXEEXT)
 	$(CXXLINK) $(gap_ns_OBJECTS) $(gap_ns_LDADD) $(LIBS)

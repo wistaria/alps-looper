@@ -39,8 +39,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-noinst_PROGRAMS = xyz$(EXEEXT) $(am__EXEEXT_1)
-@HAVE_BOOST_MPI_TRUE@@HAVE_MPI_TRUE@am__append_1 = xyz_mpi
+noinst_PROGRAMS = xyz$(EXEEXT)
 check_PROGRAMS = xyz_ns$(EXEEXT)
 subdir = extras/xyz
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
@@ -53,7 +52,6 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES = xyz_model.xml
 CONFIG_CLEAN_VPATH_FILES =
-@HAVE_BOOST_MPI_TRUE@@HAVE_MPI_TRUE@am__EXEEXT_1 = xyz_mpi$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 dist_xyz_OBJECTS =
 am__objects_1 = loop_model.$(OBJEXT) diag.$(OBJEXT) \
@@ -62,12 +60,6 @@ nodist_xyz_OBJECTS = loop.$(OBJEXT) $(am__objects_1)
 xyz_OBJECTS = $(dist_xyz_OBJECTS) $(nodist_xyz_OBJECTS)
 xyz_LDADD = $(LDADD)
 xyz_DEPENDENCIES =
-nodist_xyz_mpi_OBJECTS = loop.$(OBJEXT) $(am__objects_1)
-xyz_mpi_OBJECTS = $(nodist_xyz_mpi_OBJECTS)
-xyz_mpi_DEPENDENCIES =
-xyz_mpi_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
-	$(xyz_mpi_LDFLAGS) $(LDFLAGS) -o $@
 nodist_xyz_ns_OBJECTS = loop_ns.$(OBJEXT) $(am__objects_1)
 xyz_ns_OBJECTS = $(nodist_xyz_ns_OBJECTS)
 xyz_ns_LDADD = $(LDADD)
@@ -94,7 +86,7 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(dist_xyz_SOURCES) $(nodist_xyz_SOURCES) \
-	$(nodist_xyz_mpi_SOURCES) $(nodist_xyz_ns_SOURCES)
+	$(nodist_xyz_ns_SOURCES)
 DIST_SOURCES = $(dist_xyz_SOURCES)
 DATA = $(dist_noinst_DATA)
 ETAGS = etags
@@ -139,10 +131,8 @@ INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LD = @LD@
 LDADD = @LDADD@
 LDFLAGS = @LDFLAGS@
-LDFLAGS_MPI = @LDFLAGS_MPI@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
-LIBS_MPI = @LIBS_MPI@
 LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
@@ -226,9 +216,6 @@ top_srcdir = @top_srcdir@
 SRC = $(top_srcdir)/loop_model.C $(top_srcdir)/diag.C $(top_srcdir)/path_integral.C $(top_srcdir)/sse.C
 dist_xyz_SOURCES = xyz_config.h
 nodist_xyz_SOURCES = $(top_srcdir)/loop.C $(SRC)
-nodist_xyz_mpi_SOURCES = $(top_srcdir)/loop.C $(SRC)
-xyz_mpi_LDFLAGS = @LDFLAGS_MPI@
-xyz_mpi_LDADD = @LIBS_MPI@
 
 #
 # tests
@@ -294,9 +281,6 @@ clean-noinstPROGRAMS:
 xyz$(EXEEXT): $(xyz_OBJECTS) $(xyz_DEPENDENCIES) 
 	@rm -f xyz$(EXEEXT)
 	$(CXXLINK) $(xyz_OBJECTS) $(xyz_LDADD) $(LIBS)
-xyz_mpi$(EXEEXT): $(xyz_mpi_OBJECTS) $(xyz_mpi_DEPENDENCIES) 
-	@rm -f xyz_mpi$(EXEEXT)
-	$(xyz_mpi_LINK) $(xyz_mpi_OBJECTS) $(xyz_mpi_LDADD) $(LIBS)
 xyz_ns$(EXEEXT): $(xyz_ns_OBJECTS) $(xyz_ns_DEPENDENCIES) 
 	@rm -f xyz_ns$(EXEEXT)
 	$(CXXLINK) $(xyz_ns_OBJECTS) $(xyz_ns_LDADD) $(LIBS)

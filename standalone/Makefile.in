@@ -55,10 +55,8 @@ loop_LDADD = $(LDADD)
 loop_DEPENDENCIES =
 am_loop_mpi_OBJECTS = loop_mpi.$(OBJEXT)
 loop_mpi_OBJECTS = $(am_loop_mpi_OBJECTS)
+loop_mpi_LDADD = $(LDADD)
 loop_mpi_DEPENDENCIES =
-loop_mpi_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
-	$(CXXFLAGS) $(loop_mpi_LDFLAGS) $(LDFLAGS) -o $@
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
 am__mv = mv -f
@@ -125,10 +123,8 @@ INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LD = @LD@
 LDADD = @LDADD@
 LDFLAGS = @LDFLAGS@
-LDFLAGS_MPI = @LDFLAGS_MPI@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
-LIBS_MPI = @LIBS_MPI@
 LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
@@ -212,8 +208,6 @@ top_srcdir = @top_srcdir@
 dist_noinst_DATA = loop.op loop_mpi.op-1 loop_mpi.op-2 loop_mpi.op-3 loop_mpi.op-4
 loop_SOURCES = loop.C common.h observable.h options.h union_find.h
 loop_mpi_SOURCES = loop_mpi.C common.h observable.h options.h parallel.h union_find.h
-loop_mpi_LDFLAGS = @LDFLAGS_MPI@
-loop_mpi_LDADD = @LIBS_MPI@
 TESTS_ENVIRONMENT = $(top_srcdir)/config/run-test $(srcdir)
 all: all-am
 
@@ -263,7 +257,7 @@ loop$(EXEEXT): $(loop_OBJECTS) $(loop_DEPENDENCIES)
 	$(CXXLINK) $(loop_OBJECTS) $(loop_LDADD) $(LIBS)
 loop_mpi$(EXEEXT): $(loop_mpi_OBJECTS) $(loop_mpi_DEPENDENCIES) 
 	@rm -f loop_mpi$(EXEEXT)
-	$(loop_mpi_LINK) $(loop_mpi_OBJECTS) $(loop_mpi_LDADD) $(LIBS)
+	$(CXXLINK) $(loop_mpi_OBJECTS) $(loop_mpi_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)

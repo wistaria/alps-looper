@@ -87,11 +87,6 @@ dist_noinst_DATA = CITATIONS.txt LICENSE.txt README config/preamble.in config/ve
 #
 
 noinst_PROGRAMS = loop
-if HAVE_MPI
-if HAVE_BOOST_MPI
-noinst_PROGRAMS += loop_mpi
-endif
-endif
 
 SRC = loop_config.h loop_custom.C loop_model.C
 if ENABLE_DIAG
@@ -111,9 +106,6 @@ SRC += sse_qwl.C
 endif
 
 loop_SOURCES = loop.C $(SRC)
-loop_mpi_SOURCES = loop.C $(SRC)
-loop_mpi_LDFLAGS = @LDFLAGS_MPI@
-loop_mpi_LDADD = @LIBS_MPI@
 
 #
 # tests

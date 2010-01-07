@@ -9,19 +9,11 @@ DEFAULT_INCLUDES = -I$(srcdir) -I$(top_srcdir) -DLOOP_CONFIG_HEADER=\"gap_config
 #
 
 noinst_PROGRAMS = gap
-if HAVE_MPI
-if HAVE_BOOST_MPI
-noinst_PROGRAMS += gap_mpi
-endif
-endif
 
 SRC = $(top_srcdir)/loop_model.C $(top_srcdir)/path_integral.C
 
   dist_gap_SOURCES = gap_config.h
 nodist_gap_SOURCES = $(top_srcdir)/loop.C $(SRC)
-nodist_gap_mpi_SOURCES = $(top_srcdir)/loop.C $(SRC)
-       gap_mpi_LDFLAGS = @LDFLAGS_MPI@
-       gap_mpi_LDADD = @LIBS_MPI@
 
 #
 # tests

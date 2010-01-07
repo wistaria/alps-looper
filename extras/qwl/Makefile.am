@@ -11,9 +11,6 @@ DEFAULT_INCLUDES = -I$(srcdir) -I$(top_srcdir)
 noinst_PROGRAMS =
 #noinst_PROGRAMS += pi_ns sse_ns
 noinst_PROGRAMS += sse_ns sse_ps
-if HAVE_BOOST_MPI
-noinst_PROGRAMS += sse_pp
-endif
 
 SRC = $(top_srcdir)/loop_custom.C $(top_srcdir)/loop_factory.C $(top_srcdir)/loop_model.C
 
@@ -23,10 +20,6 @@ SRC = $(top_srcdir)/loop_custom.C $(top_srcdir)/loop_factory.C $(top_srcdir)/loo
 nodist_sse_ns_SOURCES = $(SRC)
   dist_sse_ps_SOURCES = sse.C sse.h
 nodist_sse_ps_SOURCES = $(SRC)
-  dist_sse_pp_SOURCES = sse.C sse.h
-nodist_sse_pp_SOURCES = $(SRC)
-       sse_pp_LDFLAGS = @LDFLAGS_MPI@
-       sse_pp_LDADD = @LIBS_MPI@
 
 #
 # tests

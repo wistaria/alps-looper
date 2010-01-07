@@ -39,8 +39,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-noinst_PROGRAMS = localsus$(EXEEXT) $(am__EXEEXT_1)
-@HAVE_BOOST_MPI_TRUE@@HAVE_MPI_TRUE@am__append_1 = localsus_mpi
+noinst_PROGRAMS = localsus$(EXEEXT)
 check_PROGRAMS = localsus_ns$(EXEEXT)
 subdir = extras/localsus
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
@@ -53,8 +52,6 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-@HAVE_BOOST_MPI_TRUE@@HAVE_MPI_TRUE@am__EXEEXT_1 =  \
-@HAVE_BOOST_MPI_TRUE@@HAVE_MPI_TRUE@	localsus_mpi$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 dist_localsus_OBJECTS =
 am__objects_1 = loop_model.$(OBJEXT) path_integral.$(OBJEXT)
@@ -62,12 +59,6 @@ nodist_localsus_OBJECTS = loop.$(OBJEXT) $(am__objects_1)
 localsus_OBJECTS = $(dist_localsus_OBJECTS) $(nodist_localsus_OBJECTS)
 localsus_LDADD = $(LDADD)
 localsus_DEPENDENCIES =
-nodist_localsus_mpi_OBJECTS = loop.$(OBJEXT) $(am__objects_1)
-localsus_mpi_OBJECTS = $(nodist_localsus_mpi_OBJECTS)
-localsus_mpi_DEPENDENCIES =
-localsus_mpi_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
-	$(CXXFLAGS) $(localsus_mpi_LDFLAGS) $(LDFLAGS) -o $@
 nodist_localsus_ns_OBJECTS = loop_ns.$(OBJEXT) $(am__objects_1)
 localsus_ns_OBJECTS = $(nodist_localsus_ns_OBJECTS)
 localsus_ns_LDADD = $(LDADD)
@@ -94,7 +85,7 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(dist_localsus_SOURCES) $(nodist_localsus_SOURCES) \
-	$(nodist_localsus_mpi_SOURCES) $(nodist_localsus_ns_SOURCES)
+	$(nodist_localsus_ns_SOURCES)
 DIST_SOURCES = $(dist_localsus_SOURCES)
 DATA = $(dist_noinst_DATA)
 ETAGS = etags
@@ -139,10 +130,8 @@ INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LD = @LD@
 LDADD = @LDADD@
 LDFLAGS = @LDFLAGS@
-LDFLAGS_MPI = @LDFLAGS_MPI@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
-LIBS_MPI = @LIBS_MPI@
 LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
@@ -226,9 +215,6 @@ top_srcdir = @top_srcdir@
 SRC = $(top_srcdir)/loop_model.C $(top_srcdir)/path_integral.C
 dist_localsus_SOURCES = localsus_config.h
 nodist_localsus_SOURCES = $(top_srcdir)/loop.C $(SRC)
-nodist_localsus_mpi_SOURCES = $(top_srcdir)/loop.C $(SRC)
-localsus_mpi_LDFLAGS = @LDFLAGS_MPI@
-localsus_mpi_LDADD = @LIBS_MPI@
 
 #
 # tests
@@ -292,9 +278,6 @@ clean-noinstPROGRAMS:
 localsus$(EXEEXT): $(localsus_OBJECTS) $(localsus_DEPENDENCIES) 
 	@rm -f localsus$(EXEEXT)
 	$(CXXLINK) $(localsus_OBJECTS) $(localsus_LDADD) $(LIBS)
-localsus_mpi$(EXEEXT): $(localsus_mpi_OBJECTS) $(localsus_mpi_DEPENDENCIES) 
-	@rm -f localsus_mpi$(EXEEXT)
-	$(localsus_mpi_LINK) $(localsus_mpi_OBJECTS) $(localsus_mpi_LDADD) $(LIBS)
 localsus_ns$(EXEEXT): $(localsus_ns_OBJECTS) $(localsus_ns_DEPENDENCIES) 
 	@rm -f localsus_ns$(EXEEXT)
 	$(CXXLINK) $(localsus_ns_OBJECTS) $(localsus_ns_LDADD) $(LIBS)
