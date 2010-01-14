@@ -39,15 +39,13 @@ undefine([package_version])
 undefine([package_date])
 undefine([package_bugreport])
 
+AC_CONFIG_HEADERS([config/config.h])
+
 dnl
 dnl check for ALPS
 dnl
 
 AC_ALPS
-
-if test "$ac_cv_boost_mpi" != yes; then
-  AC_MSG_NOTICE([Boost.MPI library not found. MPI version will not be built.])
-fi
 
 dnl
 dnl compiler
