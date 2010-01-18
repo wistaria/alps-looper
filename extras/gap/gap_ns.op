@@ -854,8 +854,8 @@ Energy^2: 4.06445 +/- 0.173; tau = 0.6 WARNING: ERRORS NOT CONVERGED!!!
     bin #2   : 512      entries: error = 0.139195
     bin #3   : 256      entries: error = 0.161199
     bin #4   : 128      entries: error = 0.173032
-Gap [k=pi]: 0.974151 +/- 0.0433
-Inverse Gap [k=pi]: 1.02451 +/- 0.0456
+Gap [k=pi]: 0.974151 +/- 0.0433 WARNING: ERRORS NOT CONVERGED!!!
+Inverse Gap [k=pi]: 1.02451 +/- 0.0456 WARNING: ERRORS NOT CONVERGED!!!
 Inverse Temperature: 4 +/- 0
 Magnetization: 0.000976562 +/- 0.00687; tau = 0.102
     bin #1   : 1024     entries: error = 0.00625909
@@ -1135,10 +1135,10 @@ Energy^2: 0.249878 +/- 0.0288; tau = 0.746 WARNING: ERRORS NOT CONVERGED!!!
     bin #2   : 512      entries: error = 0.0217381
     bin #3   : 256      entries: error = 0.0251691
     bin #4   : 128      entries: error = 0.0288081
-Gap [k=0]: 1.00915 +/- 0.0522 WARNING: check error convergence
-Gap [k=pi]: 1.00915 +/- 0.0522 WARNING: check error convergence
-Inverse Gap [k=0]: 0.988296 +/- 0.051 WARNING: check error convergence
-Inverse Gap [k=pi]: 0.988296 +/- 0.051 WARNING: check error convergence
+Gap [k=0]: 1.00915 +/- 0.0522 WARNING: ERRORS NOT CONVERGED!!!
+Gap [k=pi]: 1.00915 +/- 0.0522 WARNING: ERRORS NOT CONVERGED!!!
+Inverse Gap [k=0]: 0.988296 +/- 0.051 WARNING: ERRORS NOT CONVERGED!!!
+Inverse Gap [k=pi]: 0.988296 +/- 0.051 WARNING: ERRORS NOT CONVERGED!!!
 Inverse Temperature: 4 +/- 0
 Magnetization: 0.00195312 +/- 0.0147; tau = -0.0556
     bin #1   : 1024     entries: error = 0.0156402
@@ -1264,7 +1264,7 @@ WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Magnetization: 0.312705 +/- 0.0125 WARNING: check error convergence
-Binder Ratio of Staggered Magnetization: 0.515235 +/- 0.0135
+Binder Ratio of Staggered Magnetization: 0.515235 +/- 0.0135 WARNING: ERRORS NOT CONVERGED!!!
 Energy: -1.98296 +/- 0.0545; tau = 0.669 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0.0356653
     bin #2   : 512      entries: error = 0.0420022
@@ -1280,9 +1280,9 @@ Energy^2: 4.03639 +/- 0.232; tau = 0.68 WARNING: ERRORS NOT CONVERGED!!!
     bin #2   : 512      entries: error = 0.174237
     bin #3   : 256      entries: error = 0.20717
     bin #4   : 128      entries: error = 0.232288
-Gap [k=0]: 1.5008 +/- 0.0886
+Gap [k=0]: 1.5008 +/- 0.0886 WARNING: check error convergence
 Gap [k=pi]: 0.621017 +/- 0.0269 WARNING: ERRORS NOT CONVERGED!!!
-Inverse Gap [k=0]: 0.664022 +/- 0.0388
+Inverse Gap [k=0]: 0.664022 +/- 0.0388 WARNING: check error convergence
 Inverse Gap [k=pi]: 1.60725 +/- 0.0696 WARNING: ERRORS NOT CONVERGED!!!
 Inverse Temperature: 4 +/- 0
 Magnetization: 0.015625 +/- 0.0231; tau = -0.0705

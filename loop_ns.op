@@ -1805,7 +1805,7 @@ Magnetization^4: 0.781006 +/- 0.00807; tau = 0.279 WARNING: check error converge
     bin #6   : 128      entries: error = 0.00806694
 Number of Clusters: 1.61401 +/- 0.00760761
 Number of Sites: 1 +/- 0
-Specific Heat: 0.504163 +/- 0.0141
+Specific Heat: 0.504163 +/- 0.0141 WARNING: check error convergence
 Staggered Magnetization: 0.656494 +/- 0.00958; tau = 0.0366
     bin #1   : 4096     entries: error = 0.00924641
     bin #2   : 2048     entries: error = 0.00952928
@@ -1979,8 +1979,8 @@ WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Generalized Magnetization: 0.684268 +/- 0.00563 WARNING: check error convergence
-Binder Ratio of Generalized Staggered Magnetization: 0.242844 +/- 0.00465
-Binder Ratio of Magnetization: 0.242844 +/- 0.00465
+Binder Ratio of Generalized Staggered Magnetization: 0.242844 +/- 0.00465 WARNING: check error convergence
+Binder Ratio of Magnetization: 0.242844 +/- 0.00465 WARNING: check error convergence
 Binder Ratio of Staggered Magnetization: 0.684268 +/- 0.00563 WARNING: check error convergence
 Energy: -0.550537 +/- 0.0232; tau = 0.531 WARNING: check error convergence
     bin #1   : 4096     entries: error = 0.0161256
@@ -2483,8 +2483,8 @@ WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Generalized Magnetization: 0.684268 +/- 0.00563 WARNING: check error convergence
-Binder Ratio of Generalized Staggered Magnetization: 0.242844 +/- 0.00465
-Binder Ratio of Magnetization: 0.242844 +/- 0.00465
+Binder Ratio of Generalized Staggered Magnetization: 0.242844 +/- 0.00465 WARNING: check error convergence
+Binder Ratio of Magnetization: 0.242844 +/- 0.00465 WARNING: check error convergence
 Binder Ratio of Staggered Magnetization: 0.684268 +/- 0.00563 WARNING: check error convergence
 Energy: -0.550537 +/- 0.0232; tau = 0.531 WARNING: check error convergence
     bin #1   : 4096     entries: error = 0.0161256
@@ -2798,9 +2798,9 @@ WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Generalized Magnetization: 0.520958 +/- 0.00337
-Binder Ratio of Generalized Staggered Magnetization: 0.321151 +/- 0.00208
+Binder Ratio of Generalized Staggered Magnetization: 0.321151 +/- 0.00208 WARNING: check error convergence
 Binder Ratio of Magnetization: 0.520958 +/- 0.00337
-Binder Ratio of Staggered Magnetization: 0.321151 +/- 0.00208
+Binder Ratio of Staggered Magnetization: 0.321151 +/- 0.00208 WARNING: check error convergence
 Energy: -1.61719 +/- 0.0742; tau = 0.319
     bin #1   : 4096     entries: error = 0.0580024
     bin #2   : 2048     entries: error = 0.0644987
@@ -3304,9 +3304,9 @@ WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 [results]
 Binder Ratio of Generalized Magnetization: 0.520958 +/- 0.00337
-Binder Ratio of Generalized Staggered Magnetization: 0.321151 +/- 0.00208
+Binder Ratio of Generalized Staggered Magnetization: 0.321151 +/- 0.00208 WARNING: check error convergence
 Binder Ratio of Magnetization: 0.520958 +/- 0.00337
-Binder Ratio of Staggered Magnetization: 0.321151 +/- 0.00208
+Binder Ratio of Staggered Magnetization: 0.321151 +/- 0.00208 WARNING: check error convergence
 Energy: -1.61719 +/- 0.0742; tau = 0.319
     bin #1   : 4096     entries: error = 0.0580024
     bin #2   : 2048     entries: error = 0.0644987

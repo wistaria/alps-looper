@@ -393,7 +393,7 @@ BASE_NAME = task2;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 [results]
-Correlation Length: 4.81943 +/- 0.161
+Correlation Length: 4.81943 +/- 0.161 WARNING: ERRORS NOT CONVERGED!!!
 Energy: -58.3313 +/- 0.22; tau = 0.456 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0.158889
     bin #2   : 512      entries: error = 0.184062

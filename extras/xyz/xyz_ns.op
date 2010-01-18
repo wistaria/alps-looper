@@ -675,9 +675,9 @@ BASE_NAME = task6;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 [results]
-Binder Ratio of Generalized Magnetization: 0.684236 +/- 0.00538
+Binder Ratio of Generalized Magnetization: 0.684236 +/- 0.00538 WARNING: check error convergence
 Binder Ratio of Generalized Staggered Magnetization: 0.242873 +/- 0.00443
-Binder Ratio of Magnetization: 0.684236 +/- 0.00538
+Binder Ratio of Magnetization: 0.684236 +/- 0.00538 WARNING: check error convergence
 Binder Ratio of Staggered Magnetization: 0.242873 +/- 0.00443
 Energy: -0.550049 +/- 0.0217; tau = 0.403
     bin #1   : 4096     entries: error = 0.0161288
