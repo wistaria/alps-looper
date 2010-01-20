@@ -9,11 +9,19 @@ DEFAULT_INCLUDES = -I$(srcdir) -I$(top_srcdir) -DLOOP_CONFIG_HEADER=\"xyz_config
 #
 
 noinst_PROGRAMS = xyz
+if HAVE_PARAPACK_13
+if HAVE_BOOST_MPI
+noinst_PROGRAMS += xyz_mpi
+endif
+endif
 
 SRC = $(top_srcdir)/loop_model.C $(top_srcdir)/diag.C $(top_srcdir)/path_integral.C $(top_srcdir)/sse.C
 
   dist_xyz_SOURCES = xyz_config.h
 nodist_xyz_SOURCES = $(top_srcdir)/loop.C $(SRC)
+nodist_xyz_mpi_SOURCES = $(top_srcdir)/loop.C $(SRC)
+       xyz_mpi_LDFLAGS = @LDFLAGS_MPI@
+       xyz_mpi_LDADD = @LIBS_MPI@
 
 #
 # tests

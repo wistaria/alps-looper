@@ -29,7 +29,11 @@
 #include <looper/permutation.h>
 #include <looper/union_find.h>
 #include <looper/temperature.h>
-#include <alps/parapack/worker.h>
+#ifdef HAVE_PARAPACK_13
+# include <alps/parapack/serial.h>
+#else
+# include <alps/parapack/worker.h>
+#endif
 #include <alps/parapack/exchange.h>
 
 #ifndef LOOPER_ONLY_PATH_INTEGRAL

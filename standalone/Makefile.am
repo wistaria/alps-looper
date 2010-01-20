@@ -1,8 +1,11 @@
 DEFAULT_INCLUDES = -I$(srcdir)
 dist_noinst_DATA = loop.op loop_mpi.op-1 loop_mpi.op-2 loop_mpi.op-3 loop_mpi.op-4
 check_PROGRAMS = loop
+if HAVE_PARAPACK_13
+else
 if HAVE_MPI
 check_PROGRAMS += loop_mpi
+endif
 endif
 loop_SOURCES = loop.C common.h observable.h options.h union_find.h
 loop_mpi_SOURCES = loop_mpi.C common.h observable.h options.h parallel.h union_find.h

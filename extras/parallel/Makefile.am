@@ -9,8 +9,11 @@ DEFAULT_INCLUDES = -I$(srcdir) -I$(top_srcdir) -DLOOP_CONFIG_HEADER=\"parallel_c
 #
 
 noinst_PROGRAMS =
+if HAVE_PARAPACK_13
+else
 if HAVE_BOOST_MPI
 noinst_PROGRAMS += parallel_mpi
+endif
 endif
 
 dist_parallel_mpi_SOURCES = $(top_srcdir)/loop.C parallel_config.h $(top_srcdir)/loop_model.C $(top_srcdir)/path_integral.C path_integral_mpi.C

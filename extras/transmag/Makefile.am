@@ -9,11 +9,19 @@ DEFAULT_INCLUDES = -I$(srcdir) -I$(top_srcdir) -DLOOP_CONFIG_HEADER=\"transmag_c
 #
 
 noinst_PROGRAMS = transmag
+if HAVE_PARAPACK_13
+if HAVE_BOOST_MPI
+noinst_PROGRAMS += transmag_mpi
+endif
+endif
 
 SRC = $(top_srcdir)/loop_model.C $(top_srcdir)/diag.C $(top_srcdir)/path_integral.C
 
   dist_transmag_SOURCES = transmag_config.h
 nodist_transmag_SOURCES = $(top_srcdir)/loop.C $(SRC)
+nodist_transmag_mpi_SOURCES = $(top_srcdir)/loop.C $(SRC)
+       transmag_mpi_LDFLAGS = @LDFLAGS_MPI@
+       transmag_mpi_LDADD = @LIBS_MPI@
 
 #
 # tests

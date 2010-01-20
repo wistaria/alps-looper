@@ -26,7 +26,11 @@
 #include <looper/lapack.h>
 #include <looper/power.h>
 #include <alps/math.hpp>
-#include <alps/parapack/worker.h>
+#ifdef HAVE_PARAPACK_13
+# include <alps/parapack/serial.h>
+#else
+# include <alps/parapack/worker.h>
+#endif
 #include <boost/foreach.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>

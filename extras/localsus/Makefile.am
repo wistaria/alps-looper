@@ -9,11 +9,19 @@ DEFAULT_INCLUDES = -I$(srcdir) -I$(top_srcdir) -DLOOP_CONFIG_HEADER=\"localsus_c
 #
 
 noinst_PROGRAMS = localsus
+if HAVE_PARAPACK_13
+if HAVE_BOOST_MPI
+noinst_PROGRAMS += localsus_mpi
+endif
+endif
 
 SRC = $(top_srcdir)/loop_model.C $(top_srcdir)/path_integral.C
 
   dist_localsus_SOURCES = localsus_config.h
 nodist_localsus_SOURCES = $(top_srcdir)/loop.C $(SRC)
+nodist_localsus_mpi_SOURCES = $(top_srcdir)/loop.C $(SRC)
+       localsus_mpi_LDFLAGS = @LDFLAGS_MPI@
+       localsus_mpi_LDADD = @LIBS_MPI@
 
 #
 # tests

@@ -39,7 +39,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-noinst_PROGRAMS = transmag$(EXEEXT)
+noinst_PROGRAMS = transmag$(EXEEXT) $(am__EXEEXT_1)
+@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_13_TRUE@am__append_1 = transmag_mpi
 check_PROGRAMS = transmag_ns$(EXEEXT)
 subdir = extras/transmag
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
@@ -50,9 +51,9 @@ am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = $(top_builddir)/config/config.h
 CONFIG_CLEAN_FILES = alternating_chain.xml
 CONFIG_CLEAN_VPATH_FILES =
+@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_13_TRUE@am__EXEEXT_1 = transmag_mpi$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 dist_transmag_OBJECTS =
 am__objects_1 = loop_model.$(OBJEXT) diag.$(OBJEXT) \
@@ -61,6 +62,12 @@ nodist_transmag_OBJECTS = loop.$(OBJEXT) $(am__objects_1)
 transmag_OBJECTS = $(dist_transmag_OBJECTS) $(nodist_transmag_OBJECTS)
 transmag_LDADD = $(LDADD)
 transmag_DEPENDENCIES =
+nodist_transmag_mpi_OBJECTS = loop.$(OBJEXT) $(am__objects_1)
+transmag_mpi_OBJECTS = $(nodist_transmag_mpi_OBJECTS)
+transmag_mpi_DEPENDENCIES =
+transmag_mpi_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(transmag_mpi_LDFLAGS) $(LDFLAGS) -o $@
 nodist_transmag_ns_OBJECTS = loop_ns.$(OBJEXT) $(am__objects_1)
 transmag_ns_OBJECTS = $(nodist_transmag_ns_OBJECTS)
 transmag_ns_LDADD = $(LDADD)
@@ -87,7 +94,7 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(dist_transmag_SOURCES) $(nodist_transmag_SOURCES) \
-	$(nodist_transmag_ns_SOURCES)
+	$(nodist_transmag_mpi_SOURCES) $(nodist_transmag_ns_SOURCES)
 DIST_SOURCES = $(dist_transmag_SOURCES)
 DATA = $(dist_noinst_DATA)
 ETAGS = etags
@@ -132,8 +139,10 @@ INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LD = @LD@
 LDADD = @LDADD@
 LDFLAGS = @LDFLAGS@
+LDFLAGS_MPI = @LDFLAGS_MPI@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
+LIBS_MPI = @LIBS_MPI@
 LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
@@ -217,6 +226,9 @@ top_srcdir = @top_srcdir@
 SRC = $(top_srcdir)/loop_model.C $(top_srcdir)/diag.C $(top_srcdir)/path_integral.C
 dist_transmag_SOURCES = transmag_config.h
 nodist_transmag_SOURCES = $(top_srcdir)/loop.C $(SRC)
+nodist_transmag_mpi_SOURCES = $(top_srcdir)/loop.C $(SRC)
+transmag_mpi_LDFLAGS = @LDFLAGS_MPI@
+transmag_mpi_LDADD = @LIBS_MPI@
 
 #
 # tests
@@ -282,6 +294,9 @@ clean-noinstPROGRAMS:
 transmag$(EXEEXT): $(transmag_OBJECTS) $(transmag_DEPENDENCIES) 
 	@rm -f transmag$(EXEEXT)
 	$(CXXLINK) $(transmag_OBJECTS) $(transmag_LDADD) $(LIBS)
+transmag_mpi$(EXEEXT): $(transmag_mpi_OBJECTS) $(transmag_mpi_DEPENDENCIES) 
+	@rm -f transmag_mpi$(EXEEXT)
+	$(transmag_mpi_LINK) $(transmag_mpi_OBJECTS) $(transmag_mpi_LDADD) $(LIBS)
 transmag_ns$(EXEEXT): $(transmag_ns_OBJECTS) $(transmag_ns_DEPENDENCIES) 
 	@rm -f transmag_ns$(EXEEXT)
 	$(CXXLINK) $(transmag_ns_OBJECTS) $(transmag_ns_LDADD) $(LIBS)

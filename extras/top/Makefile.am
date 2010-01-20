@@ -9,11 +9,19 @@ DEFAULT_INCLUDES = -I$(srcdir) -I$(top_srcdir) -DLOOP_CONFIG_HEADER=\"top_config
 #
 
 noinst_PROGRAMS = top
+if HAVE_PARAPACK_13
+if HAVE_BOOST_MPI
+noinst_PROGRAMS += top_mpi
+endif
+endif
 
 SRC = $(top_srcdir)/loop_model.C $(top_srcdir)/path_integral.C
 
   dist_top_SOURCES = top_config.h
 nodist_top_SOURCES = $(top_srcdir)/loop.C $(SRC)
+nodist_top_mpi_SOURCES = $(top_srcdir)/loop.C $(SRC)
+       top_mpi_LDFLAGS = @LDFLAGS_MPI@
+       top_mpi_LDADD = @LIBS_MPI@
 
 #
 # tests

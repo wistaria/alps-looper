@@ -39,7 +39,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-noinst_PROGRAMS = top$(EXEEXT)
+noinst_PROGRAMS = top$(EXEEXT) $(am__EXEEXT_1)
+@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_13_TRUE@am__append_1 = top_mpi
 check_PROGRAMS = top_ns$(EXEEXT)
 subdir = extras/top
 DIST_COMMON = $(dist_noinst_DATA) $(srcdir)/Makefile.am \
@@ -50,9 +51,10 @@ am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = $(top_builddir)/config/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
+@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_13_TRUE@am__EXEEXT_1 =  \
+@HAVE_BOOST_MPI_TRUE@@HAVE_PARAPACK_13_TRUE@	top_mpi$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 dist_top_OBJECTS =
 am__objects_1 = loop_model.$(OBJEXT) path_integral.$(OBJEXT)
@@ -60,6 +62,12 @@ nodist_top_OBJECTS = loop.$(OBJEXT) $(am__objects_1)
 top_OBJECTS = $(dist_top_OBJECTS) $(nodist_top_OBJECTS)
 top_LDADD = $(LDADD)
 top_DEPENDENCIES =
+nodist_top_mpi_OBJECTS = loop.$(OBJEXT) $(am__objects_1)
+top_mpi_OBJECTS = $(nodist_top_mpi_OBJECTS)
+top_mpi_DEPENDENCIES =
+top_mpi_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
+	$(top_mpi_LDFLAGS) $(LDFLAGS) -o $@
 nodist_top_ns_OBJECTS = loop_ns.$(OBJEXT) $(am__objects_1)
 top_ns_OBJECTS = $(nodist_top_ns_OBJECTS)
 top_ns_LDADD = $(LDADD)
@@ -86,7 +94,7 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(dist_top_SOURCES) $(nodist_top_SOURCES) \
-	$(nodist_top_ns_SOURCES)
+	$(nodist_top_mpi_SOURCES) $(nodist_top_ns_SOURCES)
 DIST_SOURCES = $(dist_top_SOURCES)
 DATA = $(dist_noinst_DATA)
 ETAGS = etags
@@ -131,8 +139,10 @@ INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LD = @LD@
 LDADD = @LDADD@
 LDFLAGS = @LDFLAGS@
+LDFLAGS_MPI = @LDFLAGS_MPI@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
+LIBS_MPI = @LIBS_MPI@
 LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
@@ -216,6 +226,9 @@ top_srcdir = @top_srcdir@
 SRC = $(top_srcdir)/loop_model.C $(top_srcdir)/path_integral.C
 dist_top_SOURCES = top_config.h
 nodist_top_SOURCES = $(top_srcdir)/loop.C $(SRC)
+nodist_top_mpi_SOURCES = $(top_srcdir)/loop.C $(SRC)
+top_mpi_LDFLAGS = @LDFLAGS_MPI@
+top_mpi_LDADD = @LIBS_MPI@
 
 #
 # tests
@@ -279,6 +292,9 @@ clean-noinstPROGRAMS:
 top$(EXEEXT): $(top_OBJECTS) $(top_DEPENDENCIES) 
 	@rm -f top$(EXEEXT)
 	$(CXXLINK) $(top_OBJECTS) $(top_LDADD) $(LIBS)
+top_mpi$(EXEEXT): $(top_mpi_OBJECTS) $(top_mpi_DEPENDENCIES) 
+	@rm -f top_mpi$(EXEEXT)
+	$(top_mpi_LINK) $(top_mpi_OBJECTS) $(top_mpi_LDADD) $(LIBS)
 top_ns$(EXEEXT): $(top_ns_OBJECTS) $(top_ns_DEPENDENCIES) 
 	@rm -f top_ns$(EXEEXT)
 	$(CXXLINK) $(top_ns_OBJECTS) $(top_ns_LDADD) $(LIBS)
