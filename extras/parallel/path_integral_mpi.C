@@ -34,11 +34,7 @@
 #include <looper/temperature.h>
 #include <looper/type.h>
 #include <looper/union_find.h>
-#ifdef HAVE_PARAPACK_13
-# include <looper/parallel.h>
-#else
-# include <alps/parapack/worker.h>
-#endif
+#include <looper/parallel.h>
 #include <alps/parapack/worker.h>
 
 namespace {
