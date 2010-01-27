@@ -39,7 +39,7 @@ undefine([package_version])
 undefine([package_date])
 undefine([package_bugreport])
 
-dnl AC_CONFIG_HEADERS([config/config.h])
+AC_CONFIG_HEADERS([config/config.h])
 
 dnl
 dnl check for ALPS
@@ -95,7 +95,9 @@ dnl
 AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
 AC_CHECK_HEADER([alps/parapack/scheduler.h])
-test "$ac_cv_header_alps_parapack_scheduler_h" = yes && AC_DEFINE(HAVE_PARAPACK_13)
+if test "$ac_cv_header_alps_parapack_scheduler_h" = yes; then
+  CPPFLAGS="$CPPFLAGS -DHAVE_PARAPACK_13"
+fi
 AM_CONDITIONAL(HAVE_PARAPACK_13, test "$ac_cv_header_alps_parapack_scheduler_h" = yes)
 AC_LANG_RESTORE
 
