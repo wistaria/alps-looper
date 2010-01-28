@@ -38,7 +38,7 @@
 #define LOOPER_COPYRIGHT LOOPER_VERSION_STRING "\n" \
   "  multi-cluster quantum Monte Carlo algorithms for spin systems\n" \
   "  available from http://wistaria.comp-phys.org/alps-looper/\n" \
-  "  copyright (c) 1997-2009 by Synge Todo <wistaria@comp-phys.org>\n" \
+  "  copyright (c) 1997-2010 by Synge Todo <wistaria@comp-phys.org>\n" \
 
 #include <alps/copyright.h>
 #include <iostream>
