@@ -51,9 +51,11 @@ install(TARGETS loop RUNTIME DESTINATION bin)
 # tests
 ######################################################################
 
+add_custom_target(check ${CMAKE_CTEST_COMMAND})
+
 set(TESTS loop_ns)
 foreach(name ${TESTS})
-  add_executable(${name} ${name}.C)
+  add_executable(${name} EXCLUDE_FROM_ALL ${name}.C)
   target_link_libraries(${name} loop_common)
   add_test(${name}
     ${CMAKE_COMMAND}
@@ -66,12 +68,13 @@ foreach(name ${TESTS})
     -Dtimeout=600
     -P ${PROJECT_SOURCE_DIR}/config/CMake/run_test.cmake
   )
+  add_dependencies(check ${name})
 endforeach(name)
 
 ######################################################################
 # subdirectories
 ######################################################################
 
-add_subdirectory(test)
+add_subdirectory(test EXCLUDE_FROM_ALL)
 
 ENABLE_TESTING()

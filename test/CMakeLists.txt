@@ -18,4 +18,5 @@ foreach(name ${TESTS})
       -Dtimeout=600
       -P ${PROJECT_SOURCE_DIR}/config/CMake/run_test.cmake
   )
+  add_dependencies(check ${name})
 endforeach(name)
