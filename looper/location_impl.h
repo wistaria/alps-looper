@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2010 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -78,7 +78,9 @@ namespace looper {
 class location_bond {
 public:
   location_bond(int pos = 0, bool is_bond = true) : loc_(pos) {
+#ifdef NDEBUG
     if (!is_bond) boost::throw_exception(std::invalid_argument("location_bond"));
+#endif
   }
   int pos() const { return loc_; }
   static bool is_bond() { return true; }

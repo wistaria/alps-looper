@@ -47,7 +47,7 @@ public:
   typedef looper::sse mc_type;
 
   typedef int time_t;
-  typedef looper::local_operator<mc_type, loop_graph_t, time_t> local_operator_t;
+  typedef looper::local_operator<mc_type, model_t::local_graph_t, time_t> local_operator_t;
   typedef std::vector<local_operator_t> operator_string_t;
   typedef operator_string_t::iterator operator_iterator;
 
@@ -195,7 +195,7 @@ void loop_worker::build() {
     // diagonal update & labeling
     if (try_gap) {
       if ((nop+1) * uniform_01() < bw) {
-        loop_graph_t g = model.choose_graph(generator_01());
+        model_t::local_graph_t g = model.choose_graph(generator_01());
         if ((is_bond(g) && is_compatible(g, spins_c[source(pos(g), lattice.vg())],
                                             spins_c[target(pos(g), lattice.vg())])) ||
             (is_site(g) && is_compatible(g, spins_c[pos(g)]))) {

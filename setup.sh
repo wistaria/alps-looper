@@ -8,6 +8,7 @@ if test -d "$DIR"; then
   cp -rp $DIR/config/ac_alps.m4 config/
   cp -rp $DIR/config/run-test config/
   cp -rp $DIR/config/update_preamble config/
+  cp -rp $DIR/config/CMake/run_test.cmake config/CMake
 fi
 
 DIR="$HOME/development/simtool"

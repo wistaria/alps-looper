@@ -44,7 +44,7 @@ class loop_worker : public alps::parapack::mc_worker, private loop_config {
 public:
   typedef looper::path_integral mc_type;
 
-  typedef looper::local_operator<mc_type, loop_graph_t, time_t> local_operator_t;
+  typedef looper::local_operator<mc_type, model_t::local_graph_t, time_t> local_operator_t;
   typedef std::vector<local_operator_t> operator_string_t;
   typedef operator_string_t::iterator operator_iterator;
 
@@ -191,7 +191,7 @@ void loop_worker::build() {
 
     // diagonal update & labeling
     if (opi == operators_p.end() || t < opi->time()) {
-      loop_graph_t g = model.choose_graph(generator_01());
+      model_t::local_graph_t g = model.choose_graph(generator_01());
       if ((is_bond(g) && is_compatible(g, spins_c[source(pos(g), lattice.vg())],
                                           spins_c[target(pos(g), lattice.vg())])) ||
           (is_site(g) && is_compatible(g, spins_c[pos(g)]))) {
