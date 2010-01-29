@@ -51,7 +51,9 @@ install(TARGETS loop RUNTIME DESTINATION bin)
 # tests
 ######################################################################
 
+enable_testing()
 add_custom_target(check ${CMAKE_CTEST_COMMAND})
+add_subdirectory(test EXCLUDE_FROM_ALL)
 
 set(TESTS loop_ns)
 foreach(name ${TESTS})
@@ -61,13 +63,13 @@ foreach(name ${TESTS})
     ${CMAKE_COMMAND}
       -Dcmd=${name}
       -Dsourcedir=${CMAKE_CURRENT_SOURCE_DIR}
-    -Dbinarydir=${CMAKE_CURRENT_BINARY_DIR}
-    -Ddllexedir=${PROJECT_BINARY_DIR}/bin
-    -Dinput=${name}.ip
-    -Doutput=${name}.op
-    -Dtimeout=600
-    -P ${PROJECT_SOURCE_DIR}/config/CMake/run_test.cmake
-  )
+      -Dbinarydir=${CMAKE_CURRENT_BINARY_DIR}
+      -Ddllexedir=${PROJECT_BINARY_DIR}/bin
+      -Dinput=${name}.ip
+      -Doutput=${name}.op
+      -Dtimeout=600
+      -P ${PROJECT_SOURCE_DIR}/config/CMake/run_test.cmake
+    )
   add_dependencies(check ${name})
 endforeach(name)
 
@@ -75,6 +77,3 @@ endforeach(name)
 # subdirectories
 ######################################################################
 
-add_subdirectory(test EXCLUDE_FROM_ALL)
-
-ENABLE_TESTING()
