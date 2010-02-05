@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2010 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -33,6 +33,7 @@
 #include <stdexcept>
 #include <utility>
 #include <vector>
+#include <iostream>
 
 namespace looper {
 
@@ -184,7 +185,7 @@ public:
       RealType p = cutoff(i);
       for (result_type j = 0; j < size(); ++j)
         if (alias(j) == i) p += 1 - cutoff(j);
-      if (std::abs(p - norm * weights[i]) > tol) r = false;
+      if (i < weights.size() && std::abs(p - norm * weights[i]) > tol) r = false;
     }
     return r;
   }
@@ -253,9 +254,6 @@ public:
     for (result_type i = 0; i < weights.size(); ++i) norm += weights[i];
     norm = n / norm;
 
-    std::vector<double> w(n, 0);
-    std::copy(weights.begin(), weights.end(), w.begin());
-
     // Initialize arrays.  We will reorder the elements in `array', so
     // that all the negative elements precede the positive ones.
     resize(n);
@@ -265,7 +263,7 @@ public:
     typename std::vector<std::pair<RealType, result_type> >::iterator
       pos_p = array.end();
     for (result_type i = 0; i < n; ++i) {
-      RealType b = norm * w[i] - RealType(1.);
+      RealType b = norm * (i < weights.size() ? weights[i] : 0) - RealType(1.);
       if (b < RealType(0.)) {
         *neg_p = std::make_pair(b, i);
         ++neg_p;
@@ -300,14 +298,14 @@ public:
 
     RealType norm = RealType(0);
     BOOST_FOREACH(RealType w, weights) norm += w;
-    norm = weights.size() / norm;
+    norm = 1 / norm;
 
     const double nm = RealType(1) / std::numeric_limits<IntType>::max();
-    for (result_type i = 0; i < table_.size(); ++i) {
+    for (result_type i = 0; i < weights.size(); ++i) {
       RealType p = nm * cutoff(i);
       for (result_type j = 0; j < table_.size(); ++j)
         if (alias(j) == i) p += 1 - nm * cutoff(j);
-      if (std::abs(p - norm * weights[i]) > tol) r = false;
+      if (std::abs(p / table_.size() - norm * weights[i]) > tol) r = false;
     }
     return r;
   }
