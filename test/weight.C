@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2010 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -24,15 +24,25 @@
 
 #include <looper/model_parameter.h>
 #include <looper/weight_impl.h>
-#include <alps/math.hpp>
+#ifdef HAVE_PARAPACK_13
+# include <alps/math.hpp>
+#else
+# include <alps/numeric/round.hpp>
+#endif
 #include <boost/random.hpp>
 #include <iostream>
+
+#ifdef HAVE_PARAPACK_13
+using alps::round;
+#else
+using alps::numeric::round;
+#endif
 
 void output(const looper::site_parameter& p, const looper::site_weight_helper& w)
 {
   std::cout << "C = " << p.c
             << ", Hx = " << p.hx
-            << " : v[0] = " << alps::round<1>(w.v[0])
+            << " : v[0] = " << round<1>(w.v[0])
             << ", offset = " << w.offset
             << ", sign = " << w.sign << std::endl;
   w.check(p);
@@ -43,10 +53,10 @@ void output(const looper::bond_parameter_xxz& p, const looper::xxz_bond_weight_h
   std::cout << "C = " << p.c
             << ", Jxy = " << p.jxy
             << ", Jz = " << p.jz
-            << " : v[0] = " << alps::round<1>(w.v[0])
-            << ", v[1] = " << alps::round<1>(w.v[1])
-            << ", v[2] = " << alps::round<1>(w.v[2])
-            << ", v[3] = " << alps::round<1>(w.v[3])
+            << " : v[0] = " << round<1>(w.v[0])
+            << ", v[1] = " << round<1>(w.v[1])
+            << ", v[2] = " << round<1>(w.v[2])
+            << ", v[3] = " << round<1>(w.v[3])
             << ", offset = " << w.offset
             << ", sign = " << w.sign << std::endl;
   w.check(p);
@@ -58,12 +68,12 @@ void output(const looper::bond_parameter_xyz& p, const looper::xyz_bond_weight_h
             << ", Jx = " << p.jx
             << ", Jy = " << p.jy
             << ", Jz = " << p.jz
-            << " : v[0] = " << alps::round<1>(w.v[0])
-            << ", v[1] = " << alps::round<1>(w.v[1])
-            << ", v[2] = " << alps::round<1>(w.v[2])
-            << ", v[3] = " << alps::round<1>(w.v[3])
-            << ", v[4] = " << alps::round<1>(w.v[4])
-            << ", v[5] = " << alps::round<1>(w.v[5])
+            << " : v[0] = " << round<1>(w.v[0])
+            << ", v[1] = " << round<1>(w.v[1])
+            << ", v[2] = " << round<1>(w.v[2])
+            << ", v[3] = " << round<1>(w.v[3])
+            << ", v[4] = " << round<1>(w.v[4])
+            << ", v[5] = " << round<1>(w.v[5])
             << ", offset = " << w.offset
             << ", sign = " << w.sign << std::endl;
   w.check(p);

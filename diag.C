@@ -25,17 +25,27 @@
 #include "loop_config.h"
 #include <looper/lapack.h>
 #include <looper/power.h>
-#include <alps/math.hpp>
 #ifdef HAVE_PARAPACK_13
 # include <alps/parapack/serial.h>
+# include <alps/math.hpp>
 #else
 # include <alps/parapack/worker.h>
+# include <alps/numeric/is_nonzero.hpp>
+# include <alps/numeric/round.hpp>
 #endif
 #include <boost/foreach.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/tuple/tuple.hpp>
+
+#ifdef HAVE_PARAPACK_13
+using alps::is_nonzero;
+using alps::round;
+#else
+using alps::numeric::is_nonzero;
+using alps::numeric::round;
+#endif
 
 namespace {
 
@@ -137,7 +147,7 @@ void add_to_diagonal_matrix(
     site_matrix(get_matrix(value_type(), term, basis.site_basis(t), params));
   for (int is = 0; is < ds; ++is)
     for (int js = 0; js < ds; ++js)
-      if ((is != js) && alps::is_nonzero<1>(site_matrix[is][js]))
+      if ((is != js) && is_nonzero<1>(site_matrix[is][js]))
         boost::throw_exception(std::logic_error("non-diagonal site term"));
 
   for (int i = 0; i < dim; ++i) {
@@ -395,7 +405,7 @@ void diag_worker::run(alps::ObservableSet& obs) {
                            model().basis(), basis_set, v, this->rg(), params);
   double umag, umag2, umag4;
   boost::tie(umag, umag2, umag4) = static_average4(beta, gs_ene, evals, hamiltonian, uniform_sz);
-  umag = alps::round<1>(umag);
+  umag = round<1>(umag);
   m["Magnetization"] = umag / part;
   m["Magnetization Density"] = umag / part / volume;
   m["Magnetization^2"] = umag2 / part;
@@ -425,7 +435,7 @@ void diag_worker::run(alps::ObservableSet& obs) {
     double smag, smag2, smag4;
     boost::tie(smag, smag2, smag4) =
       static_average4(beta, gs_ene, evals, hamiltonian, staggered_sz);
-    smag = alps::round<1>(smag);
+    smag = round<1>(smag);
     m["Staggered Magnetization"] = smag / part;
     m["Staggered Magnetization Density"] = smag / part / volume;
     m["Staggered Magnetization^2"] = smag2 / part;
@@ -448,7 +458,7 @@ void diag_worker::run(alps::ObservableSet& obs) {
                              model().basis(), basis_set, v, this->rg(), params);
       double mag, mag2, mag4;
       boost::tie(mag, mag2, mag4) = static_average4(beta, gs_ene, evals, hamiltonian, local_sz);
-      mag = alps::round<1>(mag);
+      mag = round<1>(mag);
       m["Local Magnetization at Site " + boost::lexical_cast<std::string>(v)] = mag / part;
     }
   }

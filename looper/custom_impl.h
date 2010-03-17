@@ -28,8 +28,19 @@
 #include "custom.h"
 #include <alps/model.h>
 #include <alps/scheduler/measurement_operators.h>
+#ifdef HAVE_PARAPACK_13
+# include <alps/math.h>
+#else
+# include <alps/numeric/is_nonzero.hpp>
+#endif
 #include <boost/foreach.hpp>
 #include <boost/next_prior.hpp>
+
+#ifdef HAVE_PARAPACK_13
+using alps::is_nonzero;
+#else
+using alps::numeric::is_nonzero;
+#endif
 
 namespace looper {
 
@@ -48,7 +59,7 @@ bool build_diagonal_matrix(std::string const& op, alps::Parameters const& p,
         if (i == j) {
           mat[i] = alps::evaluate<double>(m[i][j]);
         } else {
-          if (alps::is_nonzero(alps::evaluate<double>(m[i][j]))) valid = false;
+          if (is_nonzero(alps::evaluate<double>(m[i][j]))) valid = false;
         }
       } else {
         valid = false;

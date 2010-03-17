@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2009 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2010 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -29,6 +29,29 @@
 #include "lattice.h"
 #include "matrix.h"
 #include <alps/model.h>
+#ifdef HAVE_PARAPACK_13
+# include <alps/math.hpp>
+#else
+# include <alps/numeric/is_equal.hpp>
+# include <alps/numeric/is_nonzero.hpp>
+# include <alps/numeric/is_positive.hpp>
+# include <alps/numeric/is_zero.hpp>
+# include <alps/numeric/round.hpp>
+#endif
+
+#ifdef HAVE_PARAPACK_13
+using alps::is_equal;
+using alps::is_nonzero;
+using alps::is_positive;
+using alps::is_zero;
+using alps::round;
+#else
+using alps::numeric::is_equal;
+using alps::numeric::is_nonzero;
+using alps::numeric::is_positive;
+using alps::numeric::is_zero;
+using alps::numeric::round;
+#endif
 
 namespace looper {
 
@@ -56,14 +79,14 @@ struct site_parameter {
   site_parameter(const boost::multi_array<double, 2>& mat) { do_fit(mat); }
 
   bool operator==(const site_parameter& rhs) const {
-    return (s == rhs.s) && alps::is_equal<1>(c, rhs.c) && alps::is_equal<1>(hx, rhs.hx) &&
-      alps::is_equal<1>(hz, rhs.hz) && alps::is_equal<1>(d, rhs.d);
+    return (s == rhs.s) && is_equal<1>(c, rhs.c) && is_equal<1>(hx, rhs.hx) &&
+      is_equal<1>(hz, rhs.hz) && is_equal<1>(d, rhs.d);
   }
   bool operator!=(const site_parameter& rhs) const { return !operator==(rhs); }
 
-  bool is_quantal() const { return alps::is_nonzero<1>(hx); }
-  bool has_hz() const { return alps::is_nonzero<1>(hz); }
-  bool has_d() const { return alps::is_nonzero<1>(d); }
+  bool is_quantal() const { return is_nonzero<1>(hx); }
+  bool has_hz() const { return is_nonzero<1>(hz); }
+  bool has_d() const { return is_nonzero<1>(d); }
 
   void output(std::ostream& os) const {
     os << '(' << s << ", " << c << ", " << hx << ", " << hz << ", " << d << ')';
@@ -104,12 +127,12 @@ struct bond_parameter_xxz {
   bond_parameter_xxz(const boost::multi_array<double, 4>& mat) { do_fit(mat); }
 
   bool operator==(const bond_parameter_xxz& rhs) const {
-    return alps::is_equal<1>(c, rhs.c) && alps::is_equal<1>(jxy, rhs.jxy) &&
-      alps::is_equal<1>(jz, rhs.jz);
+    return is_equal<1>(c, rhs.c) && is_equal<1>(jxy, rhs.jxy) &&
+      is_equal<1>(jz, rhs.jz);
   }
   bool operator!=(const bond_parameter_xxz& rhs) const { return !operator==(rhs); }
 
-  bool is_quantal() const { return alps::is_nonzero<1>(jxy); }
+  bool is_quantal() const { return is_nonzero<1>(jxy); }
 
   void print(std::ostream& os) const { os << '(' << c << ", " << jxy << ", " << jz << ')'; }
 
@@ -129,12 +152,12 @@ struct bond_parameter_xyz {
   bond_parameter_xyz(const boost::multi_array<double, 4>& mat) { do_fit(mat); }
 
   bool operator==(const bond_parameter_xyz& rhs) const {
-    return alps::is_equal<1>(c, rhs.c) && alps::is_equal<1>(jx, rhs.jx) &&
-      alps::is_equal<1>(jy, rhs.jy) && alps::is_equal<1>(jz, rhs.jz);
+    return is_equal<1>(c, rhs.c) && is_equal<1>(jx, rhs.jx) &&
+      is_equal<1>(jy, rhs.jy) && is_equal<1>(jz, rhs.jz);
   }
   bool operator!=(const bond_parameter_xyz& rhs) const { return !operator==(rhs); }
 
-  bool is_quantal() const { return alps::is_nonzero<1>(jx) || alps::is_nonzero<1>(jy); }
+  bool is_quantal() const { return is_nonzero<1>(jx) || is_nonzero<1>(jy); }
 
   void print(std::ostream& os) const {
     os << '(' << c << ", " << jx << ", " << jy << ", " << jz << ')';
@@ -333,12 +356,12 @@ inline void site_parameter::do_fit(const boost::multi_array<double, 2>& mat) {
   }
 
   // call linear least sqaure problem solver
-  bool success = alps::is_zero<1>(solve_llsp(a, b, x));
+  bool success = is_zero<1>(solve_llsp(a, b, x));
   if (!success)
     boost::throw_exception(std::runtime_error("Error: fitting to site_parameter failed.  "
       "This model is not supported by the current version of looper."));
 
-  for (int i = 0; i < n; ++i) x(i) = alps::round<1>(x(i));
+  for (int i = 0; i < n; ++i) x(i) = round<1>(x(i));
   c = x(0);
   hx = x(1);
   hz = x(2);
@@ -382,12 +405,12 @@ inline void bond_parameter_xxz::do_fit(const boost::multi_array<double, 4>& mat)
         }
 
   // call linear least squaure problem solver
-  bool success = alps::is_zero<1>(solve_llsp(a, b, x));
+  bool success = is_zero<1>(solve_llsp(a, b, x));
   if (!success)
     boost::throw_exception(std::runtime_error("Error: fitting to bond_parameter_xxz failed.  "
       "This model is not supported by the current version of looper."));
 
-  for (int i = 0; i < n; ++i) x(i) = alps::round<1>(x(i));
+  for (int i = 0; i < n; ++i) x(i) = round<1>(x(i));
   c = x(0);
   jxy = x(1);
   jz = x(2);
@@ -428,12 +451,12 @@ inline void bond_parameter_xyz::do_fit(const boost::multi_array<double, 4>& mat)
         }
 
   // call linear least squaure problem solver
-  bool success = alps::is_zero<1>(solve_llsp(a, b, x));
+  bool success = is_zero<1>(solve_llsp(a, b, x));
   if (!success)
     boost::throw_exception(std::runtime_error("Error: fitting to bond_parameter_xyz failed.  "
       "This model is not supported by the current version of looper."));
 
-  for (int i = 0; i < n; ++i) x(i) = alps::round<1>(x(i));
+  for (int i = 0; i < n; ++i) x(i) = round<1>(x(i));
   c = x(0);
   jx = x(1);
   jy = x(2);
@@ -595,8 +618,8 @@ bool model_parameter::check_sign(const G& g) const {
   std::vector<double> wb, ws;
   BOOST_FOREACH(typename alps::graph_traits<G>::bond_descriptor b, bonds(g)) {
     double w = 1;
-    if (alps::is_zero<1>(bond(b, g).jx + bond(b, g).jy)) {
-      if (alps::is_zero<1>(bond(b, g).jx - bond(b, g).jy))
+    if (is_zero<1>(bond(b, g).jx + bond(b, g).jy)) {
+      if (is_zero<1>(bond(b, g).jx - bond(b, g).jy))
         w = 0;
       else
         w = (bond(b, g).jx - bond(b, g).jy < 0 ? 1 : -1);
@@ -614,7 +637,7 @@ bool model_parameter::check_sign(const G& g) const {
     wb.push_back(w);
   }
   BOOST_FOREACH(typename alps::graph_traits<G>::site_descriptor s, sites(g))
-    ws.push_back(alps::is_zero<1>(site(s, g).hx) ? 0 : (site(s, g).hx > 0 ? 1 : -1));
+    ws.push_back(is_zero<1>(site(s, g).hx) ? 0 : (site(s, g).hx > 0 ? 1 : -1));
   return alps::is_frustrated(g,
     boost::make_iterator_property_map(wb.begin(), get(bond_index_t(), g)),
     boost::make_iterator_property_map(ws.begin(), get(site_index_t(), g)));
@@ -624,12 +647,12 @@ template<typename G>
 bool model_parameter::check_frustration(const G& g) const {
   std::vector<double> w;
   BOOST_FOREACH(typename alps::graph_traits<G>::bond_descriptor b, bonds(g))
-    w.push_back(alps::is_zero<1>(bond(b, g).jz) ? 0 : (bond(b, g).jz < 0 ? 1 : -1));
+    w.push_back(is_zero<1>(bond(b, g).jz) ? 0 : (bond(b, g).jz < 0 ? 1 : -1));
   bool frustrated =
     alps::is_frustrated(g, boost::make_iterator_property_map(w.begin(), get(bond_index_t(), g)));
   if (has_d_ && !frustrated) {
     BOOST_FOREACH(typename alps::graph_traits<G>::site_descriptor s, sites(g))
-      if (site(s, g).s.get_twice() > 1 && alps::is_positive<1>(site(s, g).d)) {
+      if (site(s, g).s.get_twice() > 1 && is_positive<1>(site(s, g).d)) {
         frustrated = true;
         break;
       }

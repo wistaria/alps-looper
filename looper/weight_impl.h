@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2009 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2010 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -29,11 +29,30 @@
 #include "crop.h"
 #include "model_parameter.h"
 
-#include <alps/math.hpp>
+#ifdef HAVE_PARAPACK_13
+# include <alps/math.hpp>
+#else
+# include <alps/numeric/is_equal.hpp>
+# include <alps/numeric/is_nonzero.hpp>
+# include <alps/numeric/is_positive.hpp>
+# include <alps/numeric/is_zero.hpp>
+#endif
 #include <alps/parameter.h>
 #include <boost/array.hpp>
 #include <algorithm> // for std::min std::max
 #include <cmath>     // for std::abs
+
+#ifdef HAVE_PARAPACK_13
+using alps::is_equal;
+using alps::is_nonzero;
+using alps::is_positive;
+using alps::is_zero;
+#else
+using alps::numeric::is_equal;
+using alps::numeric::is_nonzero;
+using alps::numeric::is_positive;
+using alps::numeric::is_zero;
+#endif
 
 namespace looper {
 
@@ -69,12 +88,12 @@ struct site_weight_helper {
   }
 
   double weight() const { return v[0]; }
-  bool has_weight() const { return alps::is_positive<1>(weight()); }
+  bool has_weight() const { return is_positive<1>(weight()); }
 
   void check(const site_parameter& p) const {
-    if (!alps::is_zero<1>(-offset+v[0]) ||
-        !alps::is_zero<1>(-offset+v[0]) ||
-        !alps::is_equal<1>(v[0], sign * p.hx/2))
+    if (!is_zero<1>(-offset+v[0]) ||
+        !is_zero<1>(-offset+v[0]) ||
+        !is_equal<1>(v[0], sign * p.hx/2))
       boost::throw_exception(std::logic_error("site_parameter::check 1"));
     site_parameter pp(p.s, p.c, 2 * v[0] * sign, 0, 0);
     if (pp != p) {
@@ -148,7 +167,7 @@ struct xxz_bond_weight_helper {
     double jxy = std::abs(p.jxy);
     double jz = p.jz;
     double a = crop_01(params.value_or_default("FORCE_SCATTER", 0.));
-    if (alps::is_nonzero<1>(jxy + std::abs(jz))) {
+    if (is_nonzero<1>(jxy + std::abs(jz))) {
       if (jxy - jz > 2 * a * jxy) {
         // standard solutions
         v[0] = crop_0(std::min(jxy/2, (jxy + jz)/4));
@@ -168,7 +187,7 @@ struct xxz_bond_weight_helper {
     offset = weight()/2;
   }
   void init(const bond_parameter_xyz& p, alps::Parameters const& params) {
-    if (!alps::is_equal<>(p.jx, p.jy))
+    if (!is_equal<>(p.jx, p.jy))
       boost::throw_exception(std::runtime_error("not an XXZ model"));
     init(bond_parameter_xxz(p.c, p.jx, p.jz), params);
   }
@@ -178,12 +197,12 @@ struct xxz_bond_weight_helper {
   }
 
   double weight() const { return v[0] + v[1] + v[2] + v[3]; }
-  bool has_weight() const { return alps::is_positive<1>(weight()); }
+  bool has_weight() const { return is_positive<1>(weight()); }
 
   void check(const bond_parameter_xxz& p) const {
-    if (!alps::is_equal<1>(-offset+v[0]+v[2],  p.jz/4) ||
-        !alps::is_equal<1>(-offset+v[1]+v[3], -p.jz/4) ||
-        !alps::is_equal<1>(v[0]+v[1], -sign * p.jxy/2))
+    if (!is_equal<1>(-offset+v[0]+v[2],  p.jz/4) ||
+        !is_equal<1>(-offset+v[1]+v[3], -p.jz/4) ||
+        !is_equal<1>(v[0]+v[1], -sign * p.jxy/2))
       boost::throw_exception(std::logic_error("bond_parameter_xxz::check 1"));
     bond_parameter_xxz pp(p.c, -2 * (v[0] + v[1]) * sign, 2 * (v[0] - v[1] + v[2] - v[3]));
     if (pp != p) {
@@ -269,7 +288,7 @@ struct xyz_bond_weight_helper {
     double jz = p.jz;
     double a = crop_01(params.value_or_default("FORCE_SCATTER", 0.));
     double r = crop_01(params.value_or_default("SCATTERING_RATIO", 0.5));
-    if (alps::is_nonzero<1>(jp + std::abs(jz))) {
+    if (is_nonzero<1>(jp + std::abs(jz))) {
       if (jp - jz - (1-2*r) * jm > 2 * a * jp) {
         // standard solutions
         v[0] = crop_0(std::min(jp/2, (jp + jz + (1-2*r) * jm)/4));
@@ -286,7 +305,7 @@ struct xyz_bond_weight_helper {
     } else {
       v[0] = v[1] = v[2] = v[3] = 0;
     }
-    if (alps::is_nonzero<1>(jm)) {
+    if (is_nonzero<1>(jm)) {
       v[4] = r * jm/2;
       v[5] = (1-r) * jm/2;
     } else {
@@ -303,13 +322,13 @@ struct xyz_bond_weight_helper {
   }
 
   double weight() const { return v[0] + v[1] + v[2] + v[3] + v[4] + v[5]; }
-  bool has_weight() const { return alps::is_positive<1>(weight()); }
+  bool has_weight() const { return is_positive<1>(weight()); }
 
   void check(const bond_parameter_xyz& p) const {
-    if (!alps::is_equal<1>(-offset+v[0]+v[2]+v[4],  p.jz/4) ||
-        !alps::is_equal<1>(-offset+v[1]+v[3]+v[5], -p.jz/4) ||
-        !alps::is_equal<1>(v[0]+v[1], -sign * (p.jx+p.jy)/4) ||
-        !alps::is_equal<1>(v[4]+v[5], -sign * (p.jx-p.jy)/4)) {
+    if (!is_equal<1>(-offset+v[0]+v[2]+v[4],  p.jz/4) ||
+        !is_equal<1>(-offset+v[1]+v[3]+v[5], -p.jz/4) ||
+        !is_equal<1>(v[0]+v[1], -sign * (p.jx+p.jy)/4) ||
+        !is_equal<1>(v[4]+v[5], -sign * (p.jx-p.jy)/4)) {
       std::cerr << -offset+v[0]+v[2]+v[4] << '\t' << p.jz/4 << '\t'
                 << -offset+v[1]+v[3]+v[5] << '\t' << -p.jz/4 << '\t'
                 << v[0]+v[1] << '\t' << -sign * (p.jx+p.jy)/4 << '\t'

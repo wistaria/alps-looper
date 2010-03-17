@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2010 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -27,6 +27,16 @@
 #include <looper/model_parameter.h>
 #include <boost/numeric/ublas/io.hpp>
 #include <iostream>
+#ifdef HAVE_PARAPACK_13
+# include <alps/math.hpp>
+#else
+# include <alps/numeric/is_equal.hpp>
+#endif
+#ifdef HAVE_PARAPACK_13
+  using alps::is_equal;
+#else
+  using alps::numeric::is_equal;
+#endif
 
 std::ostream& operator<<(std::ostream& os, const looper::bond_matrix_xxz& m) {
   boost::numeric::ublas::matrix<double> mat;
@@ -50,7 +60,7 @@ int main() {
 
     alps::half_integer<int> s0(s0_in);
     alps::half_integer<int> s1(s1_in);
-    if (alps::is_equal(jx, jy)) {
+    if (is_equal(jx, jy)) {
       looper::bond_parameter_xxz pi(c, jx, jz);
       looper::bond_matrix_xxz m(s0, s1, pi);
       std::cout << "[bond_matrix_xxz]\n";

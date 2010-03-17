@@ -28,10 +28,10 @@
 #include <iostream>
 
 /* Define the version of ALPS/looper */
-#define LOOPER_VERSION "3.2b12-20100205"
+#define LOOPER_VERSION "3.2b12-20100317"
 
 /* Define the published date of ALPS/looper */
-#define LOOPER_DATE "2010/02/05"
+#define LOOPER_DATE "2010/03/17"
 
 #define LOOPER_VERSION_STRING "ALPS/looper version " LOOPER_VERSION " (" LOOPER_DATE ")"
 
@@ -40,7 +40,11 @@
   "  available from http://wistaria.comp-phys.org/alps-looper/\n" \
   "  copyright (c) 1997-2010 by Synge Todo <wistaria@comp-phys.org>\n" \
 
-#include <alps/copyright.h>
+#ifdef HAVE_PARAPACK_13
+# include <alps/copyright.h>
+#else
+# include <alps/utility/copyright.hpp>
+#endif
 #include <iostream>
 
 namespace looper {

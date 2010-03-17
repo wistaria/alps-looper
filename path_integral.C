@@ -33,10 +33,18 @@
 #include <looper/union_find.h>
 #ifdef HAVE_PARAPACK_13
 # include <alps/parapack/serial.h>
+# include <alps/math.hpp>
 #else
 # include <alps/parapack/worker.h>
+# include <alps/numeric/is_zero.hpp>
 #endif
 #include <alps/parapack/exchange.h>
+
+#ifdef HAVE_PARAPACK_13
+using alps::is_zero;
+#else
+using alps::numeric::is_zero;
+#endif
 
 namespace {
 
@@ -352,7 +360,7 @@ void loop_worker::flip(alps::ObservableSet& obs) {
   if (SIGN()) {
     if (IMPROVE()) {
       obs["Sign"] << improved_sign;
-      if (alps::is_zero(improved_sign)) {
+      if (is_zero(improved_sign)) {
         obs["Weight of Zero-Meron Sector"] << 0.;
       } else {
         obs["Weight of Zero-Meron Sector"] << 1.;
