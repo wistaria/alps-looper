@@ -26,14 +26,8 @@ endif(NOT LAPACK_FOUND)
 ######################################################################
 # RPATH setting
 ######################################################################
-if(APPLE)
-  set(CMAKE_INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
-else(APPLE)
-  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-  set(CMAKE_SKIP_BUILD_RPATH TRUE)
-  set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE) 
-  set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-endif(APPLE)
+set(CMAKE_INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
 ######################################################################
 # applications
@@ -68,7 +62,7 @@ foreach(name ${TESTS})
       -Dinput=${name}.ip
       -Doutput=${name}.op
       -Dtimeout=600
-      -P ${PROJECT_SOURCE_DIR}/config/CMake/run_test.cmake
+      -P ${CMAKE_INSTALL_PREFIX}/share/alps/run_test.cmake
     )
   add_dependencies(check ${name})
 endforeach(name)
