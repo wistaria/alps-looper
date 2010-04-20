@@ -16,7 +16,6 @@ foreach(name ${TESTS})
       -Dinput=${name}.ip
       -Doutput=${name}.op
       -Dtimeout=600
-      -P ${PROJECT_SOURCE_DIR}/config/CMake/run_test.cmake
+      -P ${CMAKE_INSTALL_PREFIX}/share/alps/run_test.cmake
   )
-  add_dependencies(check ${name})
 endforeach(name)
