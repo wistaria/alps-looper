@@ -6,7 +6,7 @@ project(alps-looper)
 ######################################################################
 
 option(LOOPER_INSTALL "Install loop application" OFF)
-option(LOOPER_BUILD_TESTS "Build looper tests" OFF)
+option(LOOPER_BUILD_TESTS "Build looper tests" ON)
 
 ######################################################################
 # set default CMAKE_INSTALL_PREFIX
