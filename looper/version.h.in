@@ -27,7 +27,7 @@
 
 #cmakedefine LOOPER_VERSION
 
-#cmakedefine LOOPER_VERSION_STRING "@LOOPER_VERSION_STRING@"
+#cmakedefine LOOPER_VERSION_STRING "ALPS/looper version @LOOPER_VERSION@"
 
 #define LOOPER_COPYRIGHT "@LOOPER_VERSION_STRING@\n" \
   "  multi-cluster quantum Monte Carlo algorithms for spin systems\n" \

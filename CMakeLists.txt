@@ -5,7 +5,6 @@ project(alps-looper)
 # options
 ######################################################################
 
-option(LOOPER_INSTALL "Install loop application" OFF)
 option(LOOPER_BUILD_TESTS "Build looper tests" ON)
 
 ######################################################################
@@ -28,7 +27,6 @@ if(NOT LOOPER_VERSION_BUILD AND EXISTS ${PROJECT_SOURCE_DIR}/.svn)
   find_package(Subversion) 
   if(Subversion_FOUND) 
     Subversion_WC_INFO(${PROJECT_SOURCE_DIR} LOOPER) 
-    MESSAGE("Current revision is r${LOOPER_WC_REVISION} (${LOOPER_WC_LAST_CHANGED_DATE})") 
     set(LOOPER_VERSION_BUILD "r${LOOPER_WC_REVISION}")
   endif(Subversion_FOUND) 
 endif(NOT LOOPER_VERSION_BUILD AND EXISTS ${PROJECT_SOURCE_DIR}/.svn) 
@@ -36,9 +34,9 @@ endif(NOT LOOPER_VERSION_BUILD AND EXISTS ${PROJECT_SOURCE_DIR}/.svn)
 if(LOOPER_VERSION_BUILD)
   set(LOOPER_VERSION "${LOOPER_VERSION_MAJOR}.${LOOPER_VERSION_MINOR}-${LOOPER_VERSION_BUILD}")
 else(LOOPER_VERSION_BUILD)
-  set(ALPS_VERSION "${ALPS_VERSION_MAJOR}.${ALPS_VERSION_MINOR}")
+  set(LOOPER_VERSION "${LOOPER_VERSION_MAJOR}.${LOOPER_VERSION_MINOR}")
 endif(LOOPER_VERSION_BUILD)
-set(LOOPER_VERSION_STRING "ALPS/looper version ${LOOPER_VERSION}")
+message(STATUS "Looper version: ${LOOPER_VERSION}")
 
 configure_file(looper/version.h.in ${PROJECT_BINARY_DIR}/looper/version.h)
 
@@ -46,18 +44,12 @@ configure_file(looper/version.h.in ${PROJECT_BINARY_DIR}/looper/version.h)
 # find ALPS Library
 ######################################################################
 
-find_package(ALPS REQUIRED)
+find_package(ALPS REQUIRED NO_SYSTEM_ENVIRONMENT_PATH)
+message(STATUS "ALPS version: ${ALPS_VERSION}")
 include(${ALPS_USE_FILE})
 if(NOT LAPACK_FOUND)
   message(FATAL "loop will not be built since lapack library is not found")
 endif(NOT LAPACK_FOUND)
-
-######################################################################
-# RPATH setting
-######################################################################
-
-set(CMAKE_INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
 ######################################################################
 # applications
@@ -65,14 +57,11 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
 include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR})
 
-add_library(loop_common loop_custom.C loop_model.C diag.C ising.C path_integral.C sse.C)
-target_link_libraries(loop_common ${ALPS_LIBRARIES})
+add_library(loop_core loop_custom.C loop_model.C diag.C ising.C path_integral.C sse.C)
+target_link_libraries(loop_core ${ALPS_LIBRARIES})
 
 add_executable(loop loop.C)
-target_link_libraries(loop loop_common)
-if(LOOPER_INSTALL)
-  install(TARGETS loop RUNTIME DESTINATION bin)
-endif(LOOPER_INSTALL)
+target_link_libraries(loop loop_core)
 
 ######################################################################
 # tests
@@ -85,7 +74,7 @@ if(LOOPER_BUILD_TESTS)
   set(TESTS loop_ns)
   foreach(name ${TESTS})
     add_executable(${name} ${name}.C)
-    target_link_libraries(${name} loop_common)
+    target_link_libraries(${name} loop_core)
     add_test(${name}
       ${CMAKE_COMMAND}
         -Dcmd=${name}
