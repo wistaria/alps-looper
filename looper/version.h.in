@@ -25,11 +25,11 @@
 #ifndef LOOPER_VERSION_H
 #define LOOPER_VERSION_H
 
-#cmakedefine LOOPER_VERSION
+#define LOOPER_VERSION "@LOOPER_VERSION@"
 
-#cmakedefine LOOPER_VERSION_STRING "ALPS/looper version @LOOPER_VERSION@"
+#define LOOPER_VERSION_STRING "ALPS/looper version " LOOPER_VERSION
 
-#define LOOPER_COPYRIGHT "@LOOPER_VERSION_STRING@\n" \
+#define LOOPER_COPYRIGHT LOOPER_VERSION_STRING "\n" \
   "  multi-cluster quantum Monte Carlo algorithms for spin systems\n" \
   "  available from http://wistaria.comp-phys.org/alps-looper/\n" \
   "  copyright (c) 1997-2010 by Synge Todo <wistaria@comp-phys.org>\n" \
