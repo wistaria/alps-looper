@@ -134,3 +134,15 @@ endif(LOOPER_BUILD_EXTRAS)
 
 # Standalone version is built completeley independetly.
 # add_subdirectory(standalone)
+
+######################################################################
+# headers
+######################################################################
+
+install(DIRECTORY looper ${CMAKE_BINARY_DIR}/looper
+        DESTINATION include
+        PATTERN "CVS" EXCLUDE
+        PATTERN ".svn" EXCLUDE
+        PATTERN ".DS_Store" EXCLUDE
+        PATTERN "*.in" EXCLUDE
+        PATTERN "Makefile*" EXCLUDE)
