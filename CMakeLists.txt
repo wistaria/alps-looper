@@ -1,3 +1,7 @@
+#  Copyright Haruhiko Matsuo and Synsge Todo 2010.
+#  Distributed under the Boost Software License, Version 1.0.
+#      (See http://www.boost.org/LICENSE_1_0.txt)
+
 cmake_minimum_required(VERSION 2.8.0 FATAL_ERROR)
 project(alps-looper)
 
@@ -6,6 +10,13 @@ project(alps-looper)
 ######################################################################
 
 option(LOOPER_BUILD_TESTS "Build looper tests" ON)
+option(LOOPER_BUILD_EXTRAS "Build in extras subdirectory" ON)
+
+option(LOOPER_ENABLE_DIAG "Enable exact diagonalization method" ON)
+option(LOOPER_ENABLE_ISING "Enable Swendsen-Wang method for classical Ising model" ON)
+option(LOOPER_ENABLE_PI "Enable path integral method" ON)
+option(LOOPER_ENABLE_SSE "Enable SSE method" ON)
+option(LOOPER_ENABLE_SSE_QWL "Enable SSE quantum Wang-Landau method" OFF)
 
 ######################################################################
 # set default CMAKE_INSTALL_PREFIX
@@ -57,20 +68,36 @@ endif(NOT LAPACK_FOUND)
 
 include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR})
 
-add_library(loop_core loop_custom.C loop_model.C diag.C ising.C path_integral.C sse.C)
+set(LOOP_CORE_SRC loop_custom.C loop_model.C)
+if(LOOPER_ENABLE_DIAG)
+  set(LOOP_CORE_SRC ${LOOP_CORE_SRC} diag.C)
+endif(LOOPER_ENABLE_DIAG)
+if(LOOPER_ENABLE_ISING)
+  set(LOOP_CORE_SRC ${LOOP_CORE_SRC} ising.C)
+endif(LOOPER_ENABLE_ISING)
+if(LOOPER_ENABLE_PI)
+  set(LOOP_CORE_SRC ${LOOP_CORE_SRC} path_integral.C path_integral_omp.C loop_model_omp.C)
+endif(LOOPER_ENABLE_PI)
+if(LOOPER_ENABLE_SSE)
+  set(LOOP_CORE_SRC ${LOOP_CORE_SRC} sse.C)
+endif(LOOPER_ENABLE_SSE)
+if(LOOPER_ENABLE_SSE_QWL)
+  set(LOOP_CORE_SRC ${LOOP_CORE_SRC} sse_qwl.C)
+endif(LOOPER_ENABLE_SSE_QWL)
+
+add_library(loop_core ${LOOP_CORE_SRC})
 target_link_libraries(loop_core ${ALPS_LIBRARIES})
 
 add_executable(loop loop.C)
 target_link_libraries(loop loop_core)
 
 ######################################################################
-# tests
+# test
 ######################################################################
 
 enable_testing()
-if(LOOPER_BUILD_TESTS)
-  add_subdirectory(test)
 
+if(LOOPER_BUILD_TESTS)
   set(TESTS loop_ns)
   foreach(name ${TESTS})
     add_executable(${name} ${name}.C)
@@ -88,3 +115,22 @@ if(LOOPER_BUILD_TESTS)
       )
   endforeach(name)
 endif(LOOPER_BUILD_TESTS)
+
+if(LOOPER_BUILD_TESTS)
+  add_subdirectory(test)
+endif(LOOPER_BUILD_TESTS)
+
+######################################################################
+# extras
+######################################################################
+
+if(LOOPER_BUILD_EXTRAS)
+  add_subdirectory(extras)
+endif(LOOPER_BUILD_EXTRAS)
+
+######################################################################
+# standalone
+######################################################################
+
+# Standalone version is built completeley independetly.
+# add_subdirectory(standalone)
