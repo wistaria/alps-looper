@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2009 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2010 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -26,8 +26,22 @@
 #define LOOPER_SOP_H
 
 #include "measurement.h"
+#ifdef HAVE_PARAPACK_13
+# include <alps/math.hpp>
+#else
+# include <alps/numeric/is_nonzero.hpp>
+# include <alps/numeric/is_zero.hpp>
+#endif
 #include <boost/foreach.hpp>
 #include <cmath>
+
+#ifdef HAVE_PARAPACK_13
+using alps::is_nonzero;
+using alps::is_zero;
+#else
+using alps::numeric::is_nonzero;
+using alps::numeric::is_zero;
+#endif
 
 namespace looper {
 
@@ -60,7 +74,7 @@ struct string_order_parameter {
       BOOST_FOREACH(std::vector<double> const& v, lat.graph_helper().basis_vectors()) {
         int j = 0;
         BOOST_FOREACH(double x, v) {
-          if ((j == i && alps::is_zero(x)) || (j != i && alps::is_nonzero(x)))
+          if ((j == i && is_zero(x)) || (j != i && is_nonzero(x)))
             boost::throw_exception(std::runtime_error("basis vector check failed"));
           ++j;
         }

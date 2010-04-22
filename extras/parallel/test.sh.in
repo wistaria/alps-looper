@@ -1,0 +1,12 @@
+#!/bin/sh
+
+SOURCE_DIR=@CMAKE_CURRENT_SOURCE_DIR@
+
+set -x
+make -j parallel_ns
+
+if test $? == 0; then
+  mpirun -np 2 parallel_ns < $SOURCE_DIR/parallel_ns.ip | diff $SOURCE_DIR/parallel_ns.op-2 -
+  mpirun -np 3 parallel_ns < $SOURCE_DIR/parallel_ns.ip | diff $SOURCE_DIR/parallel_ns.op-3 -
+  mpirun -np 4 parallel_ns < $SOURCE_DIR/parallel_ns.ip | diff $SOURCE_DIR/parallel_ns.op-4 -
+fi

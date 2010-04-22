@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2006-2009 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 2006-2010 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -32,8 +32,18 @@
 #include "measurement.h"
 #include "time.h"
 #include "type.h"
-#include <alps/math.hpp>
+#ifdef HAVE_PARAPACK_13
+# include <alps/math.hpp>
+#else
+# include <alps/numeric/is_nonzero.hpp>
+#endif
 #include <complex>
+
+#ifdef HAVE_PARAPACK_13
+using alps::is_nonzero;
+#else
+using alps::numeric::is_nonzero;
+#endif
 
 namespace looper {
 
@@ -281,7 +291,7 @@ struct gap : public has_evaluator_tag {
             m_in.has("Susceptibility [w=2pi/beta]")) {
           alps::RealObsevaluator obse_s0 = m_in["Susceptibility"];
           alps::RealObsevaluator obse_s2 = m_in["Susceptibility [w=2pi/beta]"];
-          if (obse_s0.count() && obse_s2.count() && alps::is_nonzero<1>(obse_s2.mean())) {
+          if (obse_s0.count() && obse_s2.count() && is_nonzero<1>(obse_s2.mean())) {
             alps::RealObsevaluator eval0("Inverse Gap [k=0]");
             alps::RealObsevaluator eval1("Gap [k=0]");
             eval0 = sqrt(obse_s0/obse_s2 - 1) / (2*M_PI/beta);
@@ -294,7 +304,7 @@ struct gap : public has_evaluator_tag {
             m_in.has("Staggered Susceptibility [w=2pi/beta]")) {
           alps::RealObsevaluator obse_s0 = m_in["Staggered Susceptibility"];
           alps::RealObsevaluator obse_s2 = m_in["Staggered Susceptibility [w=2pi/beta]"];
-          if (obse_s0.count() && obse_s2.count() && alps::is_nonzero<1>(obse_s2.mean())) {
+          if (obse_s0.count() && obse_s2.count() && is_nonzero<1>(obse_s2.mean())) {
             alps::RealObsevaluator eval0("Inverse Gap [k=pi]");
             alps::RealObsevaluator eval1("Gap [k=pi]");
             eval0 = sqrt(obse_s0/obse_s2 - 1) / (2*M_PI/beta);
@@ -307,7 +317,7 @@ struct gap : public has_evaluator_tag {
             m_in.has("Generalized Susceptibility [w=2pi/beta]")) {
           alps::RealObsevaluator obse_s0 = m_in["Generalized Susceptibility"];
           alps::RealObsevaluator obse_s2 = m_in["Generalized Susceptibility [w=2pi/beta]"];
-          if (obse_s0.count() && obse_s2.count() && alps::is_nonzero<1>(obse_s2.mean())) {
+          if (obse_s0.count() && obse_s2.count() && is_nonzero<1>(obse_s2.mean())) {
             alps::RealObsevaluator eval0("Inverse Generalized Gap");
             alps::RealObsevaluator eval1("Generalized Gap");
             eval0 = sqrt(obse_s0/obse_s2 - 1) / (2*M_PI/beta);
@@ -321,7 +331,7 @@ struct gap : public has_evaluator_tag {
           alps::RealObsevaluator obse_s0 = m_in["Generalized Staggered Susceptibility"];
           alps::RealObsevaluator obse_s2 =
             m_in["Generalized Staggered Susceptibility [w=2pi/beta]"];
-          if (obse_s0.count() && obse_s2.count() && alps::is_nonzero<1>(obse_s2.mean())) {
+          if (obse_s0.count() && obse_s2.count() && is_nonzero<1>(obse_s2.mean())) {
             alps::RealObsevaluator eval0("Inverse Generalized Staggered Gap");
             alps::RealObsevaluator eval1("Generalized Staggered Gap");
             eval0 = sqrt(obse_s0/obse_s2 - 1) / (2*M_PI/beta);
@@ -629,7 +639,7 @@ struct gap4 : public has_evaluator_tag {
             m_in.has("Susceptibility [w=2pi/beta]")) {
           alps::RealObsevaluator obse_s0 = m_in["Susceptibility"];
           alps::RealObsevaluator obse_s2 = m_in["Susceptibility [w=2pi/beta]"];
-          if (obse_s0.count() && obse_s2.count() && alps::is_nonzero<1>(obse_s2.mean())) {
+          if (obse_s0.count() && obse_s2.count() && is_nonzero<1>(obse_s2.mean())) {
             alps::RealObsevaluator eval0("Inverse Gap [k=0]");
             alps::RealObsevaluator eval1("Gap [k=0]");
             eval0 = sqrt(obse_s0/obse_s2 - 1) / (2*M_PI/beta);
@@ -645,7 +655,7 @@ struct gap4 : public has_evaluator_tag {
           alps::RealObsevaluator obse_s2 = m_in["Susceptibility [w=2pi/beta]"];
           alps::RealObsevaluator obse_s4 = m_in["Susceptibility [w=4pi/beta]"];
           if (obse_s0.count() && obse_s2.count() &&
-              alps::is_nonzero<1>(obse_s2.mean() - obse_s4.mean())) {
+              is_nonzero<1>(obse_s2.mean() - obse_s4.mean())) {
             alps::RealObsevaluator eval0("Inverse Gap (4th moment estimator) [k=0]");
             alps::RealObsevaluator eval1("Gap (4th moment estimator) [k=0]");
             eval0 = sqrt(3.0*(obse_s0-obse_s2)/(obse_s2-obse_s4) - 1) / (4*M_PI/beta);
@@ -658,7 +668,7 @@ struct gap4 : public has_evaluator_tag {
             m_in.has("Staggered Susceptibility [w=2pi/beta]")) {
           alps::RealObsevaluator obse_s0 = m_in["Staggered Susceptibility"];
           alps::RealObsevaluator obse_s2 = m_in["Staggered Susceptibility [w=2pi/beta]"];
-          if (obse_s0.count() && obse_s2.count() && alps::is_nonzero<1>(obse_s2.mean())) {
+          if (obse_s0.count() && obse_s2.count() && is_nonzero<1>(obse_s2.mean())) {
             alps::RealObsevaluator eval0("Inverse Gap [k=pi]");
             alps::RealObsevaluator eval1("Gap [k=pi]");
             eval0 = sqrt(obse_s0/obse_s2 - 1) / (2*M_PI/beta);
@@ -674,7 +684,7 @@ struct gap4 : public has_evaluator_tag {
           alps::RealObsevaluator obse_s2 = m_in["Staggered Susceptibility [w=2pi/beta]"];
           alps::RealObsevaluator obse_s4 = m_in["Staggered Susceptibility [w=4pi/beta]"];
           if (obse_s0.count() && obse_s2.count() &&
-              alps::is_nonzero<1>(obse_s2.mean() - obse_s4.mean())) {
+              is_nonzero<1>(obse_s2.mean() - obse_s4.mean())) {
             alps::RealObsevaluator eval0("Inverse Gap (4th moment estimator) [k=pi]");
             alps::RealObsevaluator eval1("Gap (4th moment estimator) [k=pi]");
             eval0 = sqrt(3.0*(obse_s0-obse_s2)/(obse_s2-obse_s4) - 1) / (4*M_PI/beta);
@@ -687,7 +697,7 @@ struct gap4 : public has_evaluator_tag {
             m_in.has("Generalized Susceptibility [w=2pi/beta]")) {
           alps::RealObsevaluator obse_s0 = m_in["Generalized Susceptibility"];
           alps::RealObsevaluator obse_s2 = m_in["Generalized Susceptibility [w=2pi/beta]"];
-          if (obse_s0.count() && obse_s2.count() && alps::is_nonzero<1>(obse_s2.mean())) {
+          if (obse_s0.count() && obse_s2.count() && is_nonzero<1>(obse_s2.mean())) {
             alps::RealObsevaluator eval0("Inverse Generalized Gap");
             alps::RealObsevaluator eval1("Generalized Gap");
             eval0 = sqrt(obse_s0/obse_s2 - 1) / (2*M_PI/beta);
@@ -703,7 +713,7 @@ struct gap4 : public has_evaluator_tag {
           alps::RealObsevaluator obse_s2 = m_in["Generalized Susceptibility [w=2pi/beta]"];
           alps::RealObsevaluator obse_s4 = m_in["Generalized Susceptibility [w=4pi/beta]"];
           if (obse_s0.count() && obse_s2.count() &&
-              alps::is_nonzero<1>(obse_s2.mean() - obse_s4.mean())) {
+              is_nonzero<1>(obse_s2.mean() - obse_s4.mean())) {
             alps::RealObsevaluator eval0("Inverse Generalized Gap (4th moment estimator)");
             alps::RealObsevaluator eval1("Generalized Gap (4th moment estimator)");
             eval0 = sqrt(3.0*(obse_s0-obse_s2)/(obse_s2-obse_s4) - 1) / (4*M_PI/beta);
@@ -717,7 +727,7 @@ struct gap4 : public has_evaluator_tag {
           alps::RealObsevaluator obse_s0 = m_in["Generalized Staggered Susceptibility"];
           alps::RealObsevaluator obse_s2 =
             m_in["Generalized Staggered Susceptibility [w=2pi/beta]"];
-          if (obse_s0.count() && obse_s2.count() && alps::is_nonzero<1>(obse_s2.mean())) {
+          if (obse_s0.count() && obse_s2.count() && is_nonzero<1>(obse_s2.mean())) {
             alps::RealObsevaluator eval0("Inverse Generalized Staggered Gap");
             alps::RealObsevaluator eval1("Generalized Staggered Gap");
             eval0 = sqrt(obse_s0/obse_s2 - 1) / (2*M_PI/beta);
@@ -735,7 +745,7 @@ struct gap4 : public has_evaluator_tag {
           alps::RealObsevaluator obse_s4 =
             m_in["Generalized Staggered Susceptibility [w=4pi/beta]"];
           if (obse_s0.count() && obse_s2.count() &&
-              alps::is_nonzero<1>(obse_s2.mean() - obse_s4.mean())) {
+              is_nonzero<1>(obse_s2.mean() - obse_s4.mean())) {
             alps::RealObsevaluator
               eval0("Inverse Generalized Staggered Gap (4th moment estimator)");
             alps::RealObsevaluator
