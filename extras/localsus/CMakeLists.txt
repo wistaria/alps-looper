@@ -10,15 +10,5 @@ target_link_libraries(localsus localsus_core)
 if(LOOPER_BUILD_TESTS)
   add_executable(localsus_ns ${PROJECT_SOURCE_DIR}/loop_ns.C)
   target_link_libraries(localsus_ns localsus_core)
-  add_test(localsus_ns
-    ${CMAKE_COMMAND}
-      -Dcmd=localsus_ns
-      -Dsourcedir=${CMAKE_CURRENT_SOURCE_DIR}
-      -Dbinarydir=${CMAKE_CURRENT_BINARY_DIR}
-      -Ddllexedir=${PROJECT_BINARY_DIR}/bin
-      -Dinput=localsus_ns.ip
-      -Doutput=localsus_ns.op
-      -Dtimeout=600
-      -P ${CMAKE_INSTALL_PREFIX}/share/alps/run_test.cmake
-    )
+  add_alps_test(localsus_ns)
 endif(LOOPER_BUILD_TESTS)

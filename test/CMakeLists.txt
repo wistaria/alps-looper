@@ -7,15 +7,5 @@ set(TESTS alternating_tensor bond_matrix compatibility edge_type
 foreach(name ${TESTS})
   add_executable(${name} ${name}.C)
   target_link_libraries(${name} ${ALPS_LIBRARIES})
-  add_test(${name}
-    ${CMAKE_COMMAND}
-      -Dcmd=${name}
-      -Dsourcedir=${CMAKE_CURRENT_SOURCE_DIR}
-      -Dbinarydir=${CMAKE_CURRENT_BINARY_DIR}
-      -Ddllexedir=${PROJECT_BINARY_DIR}/bin
-      -Dinput=${name}.ip
-      -Doutput=${name}.op
-      -Dtimeout=600
-      -P ${CMAKE_INSTALL_PREFIX}/share/alps/run_test.cmake
-  )
+  add_alps_test(${name})
 endforeach(name)

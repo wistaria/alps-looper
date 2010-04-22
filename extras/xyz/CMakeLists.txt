@@ -10,16 +10,6 @@ target_link_libraries(xyz xyz_core)
 if(LOOPER_BUILD_TESTS)
   add_executable(xyz_ns ${PROJECT_SOURCE_DIR}/loop_ns.C)
   target_link_libraries(xyz_ns xyz_core)
-  add_test(xyz_ns
-    ${CMAKE_COMMAND}
-      -Dcmd=xyz_ns
-      -Dsourcedir=${CMAKE_CURRENT_SOURCE_DIR}
-      -Dbinarydir=${CMAKE_CURRENT_BINARY_DIR}
-      -Ddllexedir=${PROJECT_BINARY_DIR}/bin
-      -Dinput=xyz_ns.ip
-      -Doutput=xyz_ns.op
-      -Dtimeout=600
-      -P ${CMAKE_INSTALL_PREFIX}/share/alps/run_test.cmake
-    )
+  add_alps_test(xyz_ns)
   configure_file(xyz_model.xml.in xyz_model.xml)
 endif(LOOPER_BUILD_TESTS)
