@@ -19,14 +19,6 @@ option(LOOPER_ENABLE_SSE "Enable SSE method" ON)
 option(LOOPER_ENABLE_SSE_QWL "Enable SSE quantum Wang-Landau method" OFF)
 
 ######################################################################
-# set default CMAKE_INSTALL_PREFIX
-######################################################################
-
-if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  set(CMAKE_INSTALL_PREFIX "$ENV{HOME}/ALPS" CACHE PATH "ALPS install prefix" FORCE)
-endif(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-
-######################################################################
 # Version information
 ######################################################################
 
@@ -94,8 +86,6 @@ target_link_libraries(loop loop_core)
 ######################################################################
 # test
 ######################################################################
-
-enable_testing()
 
 if(LOOPER_BUILD_TESTS)
   set(TESTS loop_ns)
