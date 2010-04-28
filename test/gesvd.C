@@ -22,17 +22,13 @@
 *
 *****************************************************************************/
 
-#include <boost/numeric/bindings/lapack/gesvd.hpp>
-#include <boost/numeric/bindings/traits/matrix_traits.hpp>
-#include <boost/numeric/bindings/traits/traits.hpp>
-#include <boost/numeric/bindings/traits/ublas_matrix.hpp>
-#include <boost/numeric/bindings/traits/ublas_vector.hpp>
+#include <alps/config.h> // needed to set up correct bindings
+#include <boost/numeric/bindings/lapack/driver/gesvd.hpp>
 #include <boost/numeric/ublas/io.hpp>
+#include <boost/numeric/bindings/ublas.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>
-#include <cmath>
 #include <boost/random.hpp>
-
 #include <cmath>
 #include <iostream>
 
@@ -68,12 +64,12 @@ int main()
     std::cout << "input: A      = " << a << std::endl;
 
     int minmn = std::min(m, n);
-    matrix_type at(a);
+    matrix_type at; at = a;
     matrix_type u(m, minmn);
     matrix_type vt(minmn, n);
     vector_type s(minmn);
 
-    boost::numeric::bindings::lapack::gesvd(at, s, u, vt);
+    boost::numeric::bindings::lapack::gesvd('S', 'S', at, s, u, vt);
 
     for (int i = 0; i < m; ++i)
       for (int j = 0; j < n; ++j) {

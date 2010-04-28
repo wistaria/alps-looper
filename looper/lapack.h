@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2010 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -25,20 +25,18 @@
 #ifndef LOOPER_LAPACK_H
 #define LOOPER_LAPACK_H
 
-#include <cassert>
+#include <alps/config.h> // needed to set up correct bindings
+#include <boost/numeric/bindings/lapack/driver/gesvd.hpp>
+#include <boost/numeric/bindings/lapack/driver/syev.hpp>
+#include <boost/numeric/bindings/lapack/driver/heev.hpp>
+#include <boost/numeric/bindings/lower.hpp>
+#include <boost/numeric/bindings/size.hpp>
+#include <boost/numeric/bindings/ublas.hpp>
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/vector.hpp>
 #include <cmath>
 #include <complex>
 #include <stdexcept>
-
-#include <boost/numeric/bindings/lapack/gesvd.hpp>
-#include <boost/numeric/bindings/lapack/syev.hpp>
-#include <boost/numeric/bindings/lapack/heev.hpp>
-#include <boost/numeric/bindings/traits/matrix_traits.hpp>
-#include <boost/numeric/bindings/traits/traits.hpp>
-#include <boost/numeric/bindings/traits/ublas_matrix.hpp>
-#include <boost/numeric/bindings/traits/ublas_vector.hpp>
-#include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/vector.hpp>
 
 namespace looper {
 
@@ -47,40 +45,32 @@ namespace looper {
 //
 
 template <class T, class R, class A, class Vector>
-inline void diagonalize(
-  boost::numeric::ublas::matrix<T,R,A>& a,
-  Vector& w, bool need_eigenvectors = true)
-{
+inline void diagonalize(boost::numeric::ublas::matrix<T,R,A>& a, Vector& w,
+  bool need_eigenvectors = true) {
   using namespace boost::numeric;
 
   BOOST_STATIC_ASSERT((boost::is_same<typename R::orientation_category,
     ublas::column_major_tag>::value));
 
   const char jobz = (need_eigenvectors ? 'V' : 'N');
-  const char uplo = 'L';
 
   // call dispatcher
-  int info = bindings::lapack::syev(jobz, uplo, a, w,
-    bindings::lapack::optimal_workspace());
-  if (info != 0) throw std::runtime_error("failed in heev");
+  int info = bindings::lapack::syev(jobz, boost::numeric::bindings::lower(a), w);
+  if (info != 0) throw std::runtime_error("failed in syev");
 }
 
 template <class T, class R, class A, class Vector>
-inline void diagonalize(
-  boost::numeric::ublas::matrix<std::complex<T>,R,A>& a,
-  Vector& w, bool need_eigenvectors = true)
-{
+inline void diagonalize(boost::numeric::ublas::matrix<std::complex<T>,R,A>& a, Vector& w,
+  bool need_eigenvectors = true) {
   using namespace boost::numeric;
 
   BOOST_STATIC_ASSERT((boost::is_same<typename R::orientation_category,
     ublas::column_major_tag>::value));
 
   const char jobz = (need_eigenvectors ? 'V' : 'N');
-  const char uplo = 'L';
 
   // call dispatcher
-  int info = bindings::lapack::heev(jobz, uplo, a, w,
-    bindings::lapack::optimal_workspace());
+  int info = bindings::lapack::heev(jobz, boost::numeric::bindings::lower(a), w);
   if (info != 0) throw std::runtime_error("failed in heev");
 }
 
@@ -90,12 +80,9 @@ inline void diagonalize(
 //
 
 template <typename T, typename R, typename A>
-inline double solve_llsp(
-  const boost::numeric::ublas::matrix<T, R, A>& a,
-  const boost::numeric::ublas::vector<T>& b,
-  boost::numeric::ublas::vector<T>& x,
-  double tol = 1.0e-10)
-{
+inline double solve_llsp(const boost::numeric::ublas::matrix<T, R, A>& a,
+  const boost::numeric::ublas::vector<T>& b, boost::numeric::ublas::vector<T>& x,
+  double tol = 1.0e-10) {
   using namespace boost::numeric;
 #ifdef BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
   using ublas::norm_inf; using ublas::norm_2; using ublas::prod;
@@ -108,8 +95,8 @@ inline double solve_llsp(
   typedef ublas::matrix<value_type, R, A> matrix_type;
   typedef ublas::vector<value_type> vector_type;
 
-  int const m = bindings::traits::matrix_size1(a);
-  int const n = bindings::traits::matrix_size2(a);
+  int const m = bindings::size_row(a);
+  int const n = bindings::size_column(a);
   int const min_mn = std::min(m, n);
 
   // temporary storage
@@ -119,7 +106,7 @@ inline double solve_llsp(
   vector_type s(min_mn);
 
   // call SVD
-  int info = bindings::lapack::gesvd(at, s, u, vt);
+  int info = bindings::lapack::gesvd('S', 'S', at, s, u, vt);
   if (info != 0) throw std::runtime_error("failed in gesvd");
 
   // inverse S
