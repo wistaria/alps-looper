@@ -26,6 +26,7 @@
 #define LOOPER_LATTICE_H_
 
 #include "alternating_tensor.h"
+#include "openmp.h"
 #include <alps/lattice.h>
 #include <alps/parapack/integer_range.h>
 #include <boost/throw_exception.hpp>
@@ -670,6 +671,106 @@ void lattice_helper<RG>::convert_type(alps::Parameters const& p) {
       put(bond_type_t(), helper_.graph(), b, get(bond_index_t(), helper_.graph(), b));
   }
 }
+
+class simple_lattice_sharing {
+public:
+  simple_lattice_sharing() {}
+  template<class LATTICE>
+  simple_lattice_sharing(LATTICE const& lat) { init(lat); }
+  template<class LATTICE>
+  void init(LATTICE const& lat) {
+    int num_threads = omp_get_max_threads();
+    int nb = num_bonds(lat.vg());
+    bond_offset_.resize(num_threads);
+    num_bonds_local_.resize(num_threads);
+    share_.resize(nb);
+    std::vector<int> bond_owner(nb);
+    std::vector<std::vector<int> > site_owners(num_sites(lat.vg()));
+    for (int b = 0; b < nb; ++b) num_bonds_local_[b % num_threads] += 1;
+    for (int p = 0; p < num_threads; ++p) {
+      int bs = 0;
+      for (int q = 0; q < p; ++q) bs += num_bonds_local_[q];
+      for (int b = bs; b < bs + num_bonds_local_[p]; ++b) bond_owner[b] = p;
+    }
+//  The following code (almost equivalent to the above) does not compile by icpc
+//     #pragma omp parallel
+//     {
+//       int tid = omp_get_thread_num();
+//       int n = 0;
+//       #pragma omp for schedule(static)
+//       for (int b = 0; b < num_bonds(lat.vg()); ++b) {
+//         ++n;
+//         bond_owner[b] = tid;
+//       }
+//       num_bonds_local_[tid] = n;
+//     }
+    // TODO: parallelization
+    for (int b = 0; b < nb; ++b) {
+      site_owners[source(b, lat.vg())].push_back(bond_owner[b]);
+      site_owners[target(b, lat.vg())].push_back(bond_owner[b]);
+    }
+//     for (int s = 0; s < num_sites(lat.vg()); ++s) {
+//       std::cerr << s << ' ';
+//       for (int q = 0; q < site_owners[s].size(); ++q) {
+//         std::cerr << site_owners[s][q] << ' ';
+//       }
+//       std::cerr << std::endl;
+//     }
+//  The following directive does not compile by icpc
+//   #pragma omp parallel for schedule(static)
+    for (int b = 0; b < nb; ++b) {
+      bool found_other = false;
+      int other_owner = 0;
+      int s = source(b, lat.vg());
+      for (int q = 0; q < site_owners[s].size(); ++q) {
+        if (site_owners[s][q] != bond_owner[b]) {
+          if (found_other) {
+            if (site_owners[s][q] != other_owner) {
+              std::cerr << "Error: This lattice is not supported!!!\n";
+              std::exit(-1);
+            }
+          } else {
+            found_other = true;
+            other_owner = site_owners[s][q];
+          }
+        }
+      }
+      int t = target(b, lat.vg());
+      for (int q = 0; q < site_owners[t].size(); ++q) {
+        if (site_owners[t][q] != bond_owner[b]) {
+          if (found_other) {
+            if (site_owners[t][q] != other_owner) {
+              std::cerr << "Error: This lattice is not supported!!!\n";
+              std::exit(-1);
+            }
+          } else {
+            found_other = true;
+            other_owner = site_owners[t][q];
+          }
+        }
+      }
+      if (found_other) {
+        share_[b] = other_owner;
+      } else {
+        share_[b] = bond_owner[b];
+      }
+    }
+    bond_offset_[0] = 0;
+    for (int t = 1; t < omp_get_max_threads(); ++t)
+      bond_offset_[t] = bond_offset_[t-1] + num_bonds_local_[t-1];
+//     for (int b = 0; b < nb; ++b)
+//       std::cerr << b << ' ' << bond_owner[b] << std::endl;
+//     for (int b = 0; b < nb; ++b)
+//       std::cerr << b << ' ' << share_[b] << std::endl;
+  }
+  int bond_offset(int tid) const { return bond_offset_[tid]; }
+  int num_bonds_local(int tid) const { return num_bonds_local_[tid]; }
+  int operator()(int s) const { return share_[s]; }
+private:
+  std::vector<int> bond_offset_;
+  std::vector<int> num_bonds_local_;
+  std::vector<int> share_;
+};
 
 } // end namespace looper
 

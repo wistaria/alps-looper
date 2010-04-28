@@ -44,6 +44,8 @@ using alps::numeric::is_nonzero;
 
 namespace looper {
 
+namespace {
+
 template<class I>
 bool build_diagonal_matrix(std::string const& op, alps::Parameters const& p,
   alps::model_helper<I> const& mh, unsigned int t, std::vector<double>& mat) {
@@ -68,6 +70,8 @@ bool build_diagonal_matrix(std::string const& op, alps::Parameters const& p,
   }
   return valid;
 }
+
+} // end namespace
 
 template<typename LAT>
 custom_measurement_initializer<LAT>::
