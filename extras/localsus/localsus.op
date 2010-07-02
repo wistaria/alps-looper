@@ -128,7 +128,7 @@ Entry[3]: 0.0478516 +/- 0.0111079; tau = 0.681274 WARNING: ERRORS NOT CONVERGED!
     bin #2   : 512      entries: error = 0.0086546
     bin #3   : 256      entries: error = 0.010435
     bin #4   : 128      entries: error = 0.0111079
-Number of Clusters: 8.04199 +/- 0.0877118
+Number of Clusters: 8.04199 +/- 0.0877
 Number of Sites: 4 +/- 0
 Number of Sites of Each Type
 Entry[0]: 2 +/- 0; tau = 0
@@ -319,7 +319,7 @@ Entry[3]: 0.0332031 +/- 0.0128255; tau = 0.3533
     bin #2   : 512      entries: error = 0.0125908
     bin #3   : 256      entries: error = 0.0136873
     bin #4   : 128      entries: error = 0.0128255
-Number of Clusters: 16.1016 +/- 0.123947
+Number of Clusters: 16.1016 +/- 0.124
 Number of Sites: 4 +/- 0
 Number of Sites of Each Type
 Entry[0]: 2 +/- 0; tau = 0
@@ -532,7 +532,7 @@ Entry[3]: 0.0478516 +/- 0.0111079; tau = 0.681274 WARNING: ERRORS NOT CONVERGED!
     bin #2   : 512      entries: error = 0.0086546
     bin #3   : 256      entries: error = 0.010435
     bin #4   : 128      entries: error = 0.0111079
-Number of Clusters: 8.04199 +/- 0.0877118
+Number of Clusters: 8.04199 +/- 0.0877
 Number of Sites: 4 +/- 0
 Number of Sites of Each Type
 Entry[0]: 4 +/- 0; tau = 0
@@ -766,7 +766,7 @@ Entry[3]: 0.0332031 +/- 0.0128255; tau = 0.3533
     bin #2   : 512      entries: error = 0.0125908
     bin #3   : 256      entries: error = 0.0136873
     bin #4   : 128      entries: error = 0.0128255
-Number of Clusters: 16.1016 +/- 0.123947
+Number of Clusters: 16.1016 +/- 0.124
 Number of Sites: 4 +/- 0
 Number of Sites of Each Type
 Entry[0]: 4 +/- 0; tau = 0
@@ -942,7 +942,7 @@ Entry[3]: 0.0545055 +/- 0.0173264; tau = 0.952177 WARNING: ERRORS NOT CONVERGED!
     bin #2   : 512      entries: error = 0.0122608
     bin #3   : 256      entries: error = 0.0150331
     bin #4   : 128      entries: error = 0.0173264
-Number of Clusters: 8.04199 +/- 0.0877118
+Number of Clusters: 8.04199 +/- 0.0877
 Number of Sites: 4 +/- 0
 Number of Sites of Each Type
 Entry[0]: 2 +/- 0; tau = 0
@@ -1099,7 +1099,7 @@ Entry[3]: 0.035754 +/- 0.0149291; tau = 0.404454
     bin #2   : 512      entries: error = 0.0133243
     bin #3   : 256      entries: error = 0.015241
     bin #4   : 128      entries: error = 0.0149291
-Number of Clusters: 16.1016 +/- 0.123947
+Number of Clusters: 16.1016 +/- 0.124
 Number of Sites: 4 +/- 0
 Number of Sites of Each Type
 Entry[0]: 2 +/- 0; tau = 0
@@ -1255,7 +1255,7 @@ Entry[3]: 0.0545055 +/- 0.0173264; tau = 0.952177 WARNING: ERRORS NOT CONVERGED!
     bin #2   : 512      entries: error = 0.0122608
     bin #3   : 256      entries: error = 0.0150331
     bin #4   : 128      entries: error = 0.0173264
-Number of Clusters: 8.04199 +/- 0.0877118
+Number of Clusters: 8.04199 +/- 0.0877
 Number of Sites: 4 +/- 0
 Number of Sites of Each Type
 Entry[0]: 4 +/- 0; tau = 0
@@ -1432,7 +1432,7 @@ Entry[3]: 0.035754 +/- 0.0149291; tau = 0.404454
     bin #2   : 512      entries: error = 0.0133243
     bin #3   : 256      entries: error = 0.015241
     bin #4   : 128      entries: error = 0.0149291
-Number of Clusters: 16.1016 +/- 0.123947
+Number of Clusters: 16.1016 +/- 0.124
 Number of Sites: 4 +/- 0
 Number of Sites of Each Type
 Entry[0]: 4 +/- 0; tau = 0

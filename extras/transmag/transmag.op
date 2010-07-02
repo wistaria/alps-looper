@@ -27,10 +27,10 @@ Energy^2: 0.147559 +/- 0.017; tau = 0.65 WARNING: ERRORS NOT CONVERGED!!!
     bin #3   : 256      entries: error = 0.0155083
     bin #4   : 128      entries: error = 0.0170352
 Inverse Temperature: 5 +/- 0
-Number of Clusters: 3.60547 +/- 0.0597882
+Number of Clusters: 3.60547 +/- 0.0598
 Number of Sites: 1 +/- 0
 Specific Heat: 0.460864 +/- 0.225 WARNING: ERRORS NOT CONVERGED!!!
-Temperature: 0.2 +/- 7.17983e-10 Warning: potential error underflow. Errors might be smaller
+Temperature: 0.2 +/- 7.18e-10 Warning: potential error underflow. Errors might be smaller
 Transverse Magnetization: 0.472168 +/- 0.00415; tau = 0.17 WARNING: check error convergence
     bin #1   : 1024     entries: error = 0.00358587
     bin #2   : 512      entries: error = 0.00354833
@@ -71,7 +71,7 @@ Energy^2: 0.141885 +/- 0.0385; tau = 0.578 WARNING: ERRORS NOT CONVERGED!!!
     bin #3   : 256      entries: error = 0.0350867
     bin #4   : 128      entries: error = 0.0385244
 Inverse Temperature: 2 +/- 0
-Number of Clusters: 1.53516 +/- 0.0291272
+Number of Clusters: 1.53516 +/- 0.0291
 Number of Sites: 1 +/- 0
 Specific Heat: 0.367647 +/- 0.123 WARNING: ERRORS NOT CONVERGED!!!
 Temperature: 0.5 +/- 0
@@ -123,10 +123,10 @@ Energy^2: 4.89828 +/- 0.156; tau = 0.344
     bin #3   : 256      entries: error = 0.156921
     bin #4   : 128      entries: error = 0.156056
 Inverse Temperature: 5 +/- 0
-Number of Clusters: 11.6631 +/- 0.097159
+Number of Clusters: 11.6631 +/- 0.0972
 Number of Sites: 4 +/- 0
 Specific Heat: -0.362865 +/- 0.223
-Temperature: 0.2 +/- 7.17983e-10 Warning: potential error underflow. Errors might be smaller
+Temperature: 0.2 +/- 7.18e-10 Warning: potential error underflow. Errors might be smaller
 Transverse Magnetization: 1.20791 +/- 0.0218; tau = 0.644 WARNING: ERRORS NOT CONVERGED!!!
     bin #1   : 1024     entries: error = 0.0144404
     bin #2   : 512      entries: error = 0.016746
@@ -175,7 +175,7 @@ Energy^2: 4.27602 +/- 0.328; tau = 0.783 WARNING: ERRORS NOT CONVERGED!!!
     bin #3   : 256      entries: error = 0.300085
     bin #4   : 128      entries: error = 0.328245
 Inverse Temperature: 2 +/- 0
-Number of Clusters: 5.07129 +/- 0.0593007
+Number of Clusters: 5.07129 +/- 0.0593
 Number of Sites: 4 +/- 0
 Specific Heat: 0.503464 +/- 0.127 WARNING: ERRORS NOT CONVERGED!!!
 Temperature: 0.5 +/- 0

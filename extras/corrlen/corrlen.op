@@ -33,7 +33,7 @@ Energy^2: 3401.76 +/- 25.8; tau = 0.46 WARNING: ERRORS NOT CONVERGED!!!
     bin #3   : 256      entries: error = 24.1361
     bin #4   : 128      entries: error = 25.827
 Inverse Temperature: 4 +/- 0
-Number of Clusters: 88.4189 +/- 0.304644
+Number of Clusters: 88.4189 +/- 0.305
 Number of Sites: 64 +/- 0
 Specific Heat: -0.183354 +/- 0.303 WARNING: ERRORS NOT CONVERGED!!!
 Spin Dynamic Structure Factor at (q,w) = (q0+dq,0): 0.271887 +/- 0.00615; tau = 0.429 WARNING: ERRORS NOT CONVERGED!!!
@@ -410,7 +410,7 @@ Energy^2: 3401.76 +/- 25.8; tau = 0.46 WARNING: ERRORS NOT CONVERGED!!!
     bin #3   : 256      entries: error = 24.1361
     bin #4   : 128      entries: error = 25.827
 Inverse Temperature: 4 +/- 0
-Number of Clusters: 88.4189 +/- 0.304644
+Number of Clusters: 88.4189 +/- 0.305
 Number of Sites: 64 +/- 0
 Specific Heat: -0.183354 +/- 0.303 WARNING: ERRORS NOT CONVERGED!!!
 Spin Dynamic Structure Factor at (q,w) = (q0+dq,0): 0.276646 +/- 0.0114; tau = 0.222

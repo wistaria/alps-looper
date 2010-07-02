@@ -60,38 +60,33 @@ endif(NOT LAPACK_FOUND)
 
 include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR})
 
-set(LOOP_CORE_SRC loop_custom.C loop_model.C)
+set(LOOP_SRC loop_custom.C loop_model.C)
 if(LOOPER_ENABLE_DIAG)
-  set(LOOP_CORE_SRC ${LOOP_CORE_SRC} diag.C)
+  set(LOOP_SRC ${LOOP_SRC} diag.C)
 endif(LOOPER_ENABLE_DIAG)
 if(LOOPER_ENABLE_ISING)
-  set(LOOP_CORE_SRC ${LOOP_CORE_SRC} ising.C)
+  set(LOOP_SRC ${LOOP_SRC} ising.C)
 endif(LOOPER_ENABLE_ISING)
 if(LOOPER_ENABLE_PI)
-  set(LOOP_CORE_SRC ${LOOP_CORE_SRC} path_integral.C)
+  set(LOOP_SRC ${LOOP_SRC} path_integral.C)
 endif(LOOPER_ENABLE_PI)
 if(LOOPER_ENABLE_SSE)
-  set(LOOP_CORE_SRC ${LOOP_CORE_SRC} sse.C)
+  set(LOOP_SRC ${LOOP_SRC} sse.C)
 endif(LOOPER_ENABLE_SSE)
 if(LOOPER_ENABLE_SSE_QWL)
-  set(LOOP_CORE_SRC ${LOOP_CORE_SRC} sse_qwl.C)
+  set(LOOP_SRC ${LOOP_SRC} sse_qwl.C)
 endif(LOOPER_ENABLE_SSE_QWL)
 
-add_library(loop_core ${LOOP_CORE_SRC})
-target_link_libraries(loop_core ${ALPS_LIBRARIES})
-
-add_executable(loop loop.C)
-target_link_libraries(loop loop_core)
+add_executable(loop loop.C ${LOOP_SRC})
+target_link_libraries(loop ${ALPS_LIBRARIES})
 
 ######################################################################
 # test
 ######################################################################
 
 if(LOOPER_BUILD_TESTS)
-  set(TESTS loop_ns)
+  set(TESTS loop)
   foreach(name ${TESTS})
-    add_executable(${name} ${name}.C)
-    target_link_libraries(${name} loop_core)
     add_alps_test(${name})
   endforeach(name)
 endif(LOOPER_BUILD_TESTS)
