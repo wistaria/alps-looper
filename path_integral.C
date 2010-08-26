@@ -195,9 +195,6 @@ void loop_worker::run_impl(alps::ObservableSet& obs, COLLECTOR& coll) {
   fragments.resize(0); fragments.resize(nvs);
   for (int s = 0; s < nvs; ++s) current[s] = s;
 
-  // initialize measurement
-  coll.reset();
-  
   boost::variate_generator<engine_type&, boost::exponential_distribution<> >
     r_time(engine(), boost::exponential_distribution<>(beta * model.graph_weight()));
   double t = r_time();
@@ -275,7 +272,7 @@ void loop_worker::run_impl(alps::ObservableSet& obs, COLLECTOR& coll) {
   cluster_info_t::accumulator<cluster_fragment_t, FIELD, SIGN, IMPROVE>
     weight(clusters, fragments, model.field(), model.bond_sign(), model.site_sign());
   looper::accumulator<estimator_t, cluster_fragment_t, IMPROVE>
-    accum(estimates, nc, lattice, estimator, fragments);
+    accum(coll, estimates, nc, lattice, estimator, fragments);
   for (unsigned int s = 0; s < nvs; ++s) {
     weight.start_bottom(s, time_t(0), s, spins_c[s]);
     accum.start_bottom(s, time_t(0), s, spins_c[s]);

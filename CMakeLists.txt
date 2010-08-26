@@ -68,7 +68,7 @@ set(LOOP_SRC loop_custom.C loop_model.C)
 #  set(LOOP_SRC ${LOOP_SRC} ising.C)
 #endif(LOOPER_ENABLE_ISING)
 if(LOOPER_ENABLE_PI)
-  set(LOOP_SRC ${LOOP_SRC} path_integral.C)
+  set(LOOP_SRC path_integral.C ${LOOP_SRC})
 endif(LOOPER_ENABLE_PI)
 #if(LOOPER_ENABLE_SSE)
 #  set(LOOP_SRC ${LOOP_SRC} sse.C)
@@ -77,7 +77,7 @@ endif(LOOPER_ENABLE_PI)
 #  set(LOOP_SRC ${LOOP_SRC} sse_qwl.C)
 #endif(LOOPER_ENABLE_SSE_QWL)
 
-add_executable(loop loop.C ${LOOP_SRC})
+add_executable(loop ${LOOP_SRC} loop.C)
 target_link_libraries(loop ${ALPS_LIBRARIES})
 
 ######################################################################

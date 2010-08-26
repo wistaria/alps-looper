@@ -56,11 +56,11 @@ struct energy : public has_normal_estimator_tag, public has_evaluator_tag {
           return *this;
         }
         void begin_s(estimator_t const&, lattice_t const&, double, int, int) {}
-        void begin_bs(estimator_t const&, lattice_t const&, double, int, int) {}
-        void begin_bt(estimator_t const&, lattice_t const&, double, int, int) {}
+        void begin_bs(estimator_t const&, lattice_t const&, double, int, int, int) {}
+        void begin_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
         void end_s(estimator_t const&, lattice_t const&, double, int, int) {}
-        void end_bs(estimator_t const&, lattice_t const&, double, int, int) {}
-        void end_bt(estimator_t const&, lattice_t const&, double, int, int) {}
+        void end_bs(estimator_t const&, lattice_t const&, double, int, int, int) {}
+        void end_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
         void start_bottom(estimator_t const&, lattice_t const&, double, int, int) {}
         void start(estimator_t const&, lattice_t const&, double, int, int) {}
         void stop_top(estimator_t const&, lattice_t const&, double, int, int) {}
