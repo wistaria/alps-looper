@@ -81,7 +81,7 @@ public:
 
 protected:
   template<typename FIELD, typename SIGN, typename IMPROVE, typename COLLECTOR>
-  void run_impl(alps::ObservableSet& obs, COLLECTOR& coll);
+  void dispatch(alps::ObservableSet& obs, COLLECTOR& coll);
 
 private:
   // helpers
@@ -140,7 +140,7 @@ loop_worker::loop_worker(alps::Parameters const& p)
   perm.resize(max_virtual_sites(lattice));
 
   // initialize estimators
-  estimator.initialize(p, lattice, model.is_signed());
+  estimator.initialize(p, lattice, model.is_signed(), enable_improved_estimator);
 }
 
 void loop_worker::init_observables(alps::Parameters const&, alps::ObservableSet& obs) {
@@ -165,19 +165,19 @@ void loop_worker::run(alps::ObservableSet& obs) {
   beta = 1.0 / temperature(mcs());
 
   //       FIELD               SIGN                IMPROVE
-  run_impl<boost::mpl::true_,  boost::mpl::true_,  boost::mpl::true_ >(obs, coll_imp);
-  run_impl<boost::mpl::true_,  boost::mpl::true_,  boost::mpl::false_>(obs, coll_norm);
-  run_impl<boost::mpl::true_,  boost::mpl::false_, boost::mpl::true_ >(obs, coll_imp);
-  run_impl<boost::mpl::true_,  boost::mpl::false_, boost::mpl::false_>(obs, coll_norm);
-  run_impl<boost::mpl::false_, boost::mpl::true_,  boost::mpl::true_ >(obs, coll_imp);
-  run_impl<boost::mpl::false_, boost::mpl::true_,  boost::mpl::false_>(obs, coll_norm);
-  run_impl<boost::mpl::false_, boost::mpl::false_, boost::mpl::true_ >(obs, coll_imp);
-  run_impl<boost::mpl::false_, boost::mpl::false_, boost::mpl::false_>(obs, coll_norm);
+  dispatch<boost::mpl::true_,  boost::mpl::true_,  boost::mpl::true_ >(obs, coll_imp);
+  dispatch<boost::mpl::true_,  boost::mpl::true_,  boost::mpl::false_>(obs, coll_norm);
+  dispatch<boost::mpl::true_,  boost::mpl::false_, boost::mpl::true_ >(obs, coll_imp);
+  dispatch<boost::mpl::true_,  boost::mpl::false_, boost::mpl::false_>(obs, coll_norm);
+  dispatch<boost::mpl::false_, boost::mpl::true_,  boost::mpl::true_ >(obs, coll_imp);
+  dispatch<boost::mpl::false_, boost::mpl::true_,  boost::mpl::false_>(obs, coll_norm);
+  dispatch<boost::mpl::false_, boost::mpl::false_, boost::mpl::true_ >(obs, coll_imp);
+  dispatch<boost::mpl::false_, boost::mpl::false_, boost::mpl::false_>(obs, coll_norm);
 }
 
 
 template<typename FIELD, typename SIGN, typename IMPROVE, typename COLLECTOR>
-void loop_worker::run_impl(alps::ObservableSet& obs, COLLECTOR& coll) {
+void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll) {
   if (model.has_field() != FIELD() ||
       model.is_signed() != SIGN() ||
       enable_improved_estimator != IMPROVE()) return;

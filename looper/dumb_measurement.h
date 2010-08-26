@@ -39,13 +39,14 @@ struct dumb_measurement : public has_improved_estimator_tag, public has_normal_e
   struct estimator {
     typedef estimator<MC, LAT, TIME> estimator_t;
     typedef LAT lattice_t;
-    void initialize(alps::Parameters const&, lattice_t const& lat, bool /* is_signed */) {}
+    void initialize(alps::Parameters const&, lattice_t const& lat, bool /* is_signed */,
+      bool /* enable_improved_estimator */) {}
     template<typename M>
     void init_observables(M&, bool /* is_signed */, bool /* enable_improved_estimator */) {}
 
     struct improved_estimator {
       struct estimate {
-        void reset() {}
+        void reset(estimator_t const&) {}
         estimate& operator+=(estimate const&) { return *this; }
         void begin_s(estimator_t const&, lattice_t const&, double, int, int) {}
         void begin_bs(estimator_t const&, lattice_t const&, double, int, int) {}
@@ -59,8 +60,7 @@ struct dumb_measurement : public has_improved_estimator_tag, public has_normal_e
         void stop(estimator_t const&, lattice_t const&, double, int, int) {}
       };
       struct collector {
-        collector() {}
-        void reset() {}
+        void reset(estimator_t const&) {}
         collector& operator+=(collector const&) { return *this; }
         collector& operator+=(estimate const&) { return *this; }
         template<typename M>
@@ -71,8 +71,7 @@ struct dumb_measurement : public has_improved_estimator_tag, public has_normal_e
 
     struct normal_estimator {
       struct collector {
-        collector() {}
-        void reset() {}
+        void reset(estimator_t const&) {}
         collector& operator+=(collector const&) { return *this; }
         void begin_s(estimator_t const&, lattice_t const&, double /* t */, int /* s */,
           int /* c */) {}

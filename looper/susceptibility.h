@@ -40,12 +40,13 @@ struct susceptibility : public has_improved_estimator_tag, public has_normal_est
     typedef TIME time_t;
     typedef estimator<mc_type, lattice_t, time_t> estimator_t;
     typedef typename alps::property_map<gauge_t, const typename lattice_t::virtual_graph_type,
-              double>::type gauge_map_t;
+      double>::type gauge_map_t;
 
     bool bipartite;
     gauge_map_t gauge;
 
-    void initialize(alps::Parameters const&, lattice_t const& lat, bool /* is_signed */) {
+    void initialize(alps::Parameters const&, lattice_t const& lat, bool /* is_signed */,
+      bool /* enable_improved_estimator */) {
       bipartite = is_bipartite(lat);
       gauge = alps::get_or_default(gauge_t(), lat.vg(), 0);
     }
@@ -93,7 +94,7 @@ struct susceptibility : public has_improved_estimator_tag, public has_normal_est
         double ssize0, smag0, ssize, smag;
         estimate() : usize0(0), umag0(0), usize(0), umag(0), ssize0(0), smag0(0), ssize(0),
           smag(0) {}
-        void reset() {
+        void reset(estimator_t const&) {
           usize0 = umag0 = usize = umag = 0;
           ssize0 = smag0 = ssize = smag = 0;
         }
@@ -152,7 +153,7 @@ struct susceptibility : public has_improved_estimator_tag, public has_normal_est
       struct collector {
         double umag0, usize2, umag2, usize4, umag4, usize, umag;
         double smag0, ssize2, smag2, ssize4, smag4, ssize, smag;
-        void reset() {
+        void reset(estimator_t const&) {
           umag0 = usize2 = umag2 = usize4 = umag4 = usize = umag = 0;
           smag0 = ssize2 = smag2 = ssize4 = smag4 = ssize = smag = 0;
         }
@@ -252,7 +253,7 @@ struct susceptibility : public has_improved_estimator_tag, public has_normal_est
       struct collector {
         double umag, smag, umag_a, smag_a;
         collector() : umag(0), smag(0), umag_a(0), smag_a(0) {}
-        void reset() { umag = smag = umag_a = smag_a = 0; }
+        void reset(estimator_t const&) { umag = smag = umag_a = smag_a = 0; }
         collector& operator+=(collector const& rhs) {
           umag += rhs.umag;
           smag += rhs.smag;
@@ -270,8 +271,8 @@ struct susceptibility : public has_improved_estimator_tag, public has_normal_est
           begin_s(emt, lat, t, s, c);
         }
         void end_s(estimator_t const& emt, lattice_t const&, double t, int s, int c) {
-          umag  += t * (0.5-c);
-          smag  += emt.gauge[s] * t * (0.5-c);
+          umag_a += t * (0.5-c);
+          smag_a += emt.gauge[s] * t * (0.5-c);
         }
         void end_bs(estimator_t const& emt, lattice_t const& lat, double t, int, int s, int c) {
           end_s(emt, lat, t, s, c);

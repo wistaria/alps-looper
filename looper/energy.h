@@ -38,7 +38,8 @@ struct energy : public has_normal_estimator_tag, public has_evaluator_tag {
     typedef TIME time_t;
     typedef estimator<mc_type, lattice_t, time_t> estimator_t;
 
-    void initialize(alps::Parameters const&, lattice_t const&, bool /* is_signed */) {}
+    void initialize(alps::Parameters const&, lattice_t const&, bool /* is_signed */,
+      bool /* enable_improved_estimator */) {}
     template<typename M>
     void init_observables(M& m, bool is_signed, bool /* enable_improved_estimator */) {
       add_scalar_obs(m, "Energy", is_signed);
@@ -50,7 +51,7 @@ struct energy : public has_normal_estimator_tag, public has_evaluator_tag {
       struct collector {
         double ene_;
         collector() : ene_(0) {}
-        void reset() { ene_ = 0; }
+        void reset(estimator_t const&) { ene_ = 0; }
         collector& operator+=(collector const& rhs) {
           ene_ += rhs.ene_;
           return *this;
