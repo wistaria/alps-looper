@@ -86,7 +86,7 @@ struct susceptibility : public has_improved_estimator_tag, public has_normal_est
         }
       }
     }
-    
+
     struct improved_estimator {
       struct estimate {
         double usize0, umag0, usize, umag;
@@ -191,7 +191,7 @@ struct susceptibility : public has_improved_estimator_tag, public has_normal_est
           return *this;
         }
         template<typename M>
-        void commit(M& m, lattice_t const& lat, double beta, double sign, int nop) const {
+        void commit(M& m, lattice_t const& lat, double beta, double sign, double nop) const {
           double vol = lat.volume();
           m["Magnetization"] << 0.0;
           m["Magnetization Density"] << 0.0;
@@ -294,7 +294,7 @@ struct susceptibility : public has_improved_estimator_tag, public has_normal_est
           end_s(emt, lat, t, s, c);
         }
         template<typename M>
-        void commit(M& m, lattice_t const& lat, double beta, double sign, int nop) const {
+        void commit(M& m, lattice_t const& lat, double beta, double sign, double nop) const {
           double vol = lat.volume();
           m["Magnetization"] << sign * umag;
           m["Magnetization Density"] << sign * umag / vol;
@@ -319,7 +319,7 @@ struct susceptibility : public has_improved_estimator_tag, public has_normal_est
                 sign * beta * (dip(power2(umag_a), nop) + power2(umag)) / (nop + 1) / vol :
                 sign * beta * power2(umag_a) / vol);
           if (is_bipartite(lat)) {
-            m["Staggered Susceptibility"] 
+            m["Staggered Susceptibility"]
               << (typename is_sse<mc_type>::type() ?
                   sign * beta * (dip(power2(smag_a), nop) + power2(smag)) / (nop + 1) / vol :
                   sign * beta * power2(smag_a) / vol);

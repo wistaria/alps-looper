@@ -137,7 +137,7 @@ struct improved_estimator_selector {
     dumb_collector& operator+=(T const&) { return *this; }
     template<typename M>
     void commit(M&, lattice_t const&, double /* beta */, double /* sign */,
-      int /* nop */) const {}
+      double /* nop */) const {}
   };
 
   typedef improved_estimator_selector_helper<estimator_t, dumb_estimate,
@@ -176,7 +176,7 @@ struct normal_estimator_selector {
     void stop_top(estimator_t const&, lattice_t const&, double, int, int) {}
     void stop(estimator_t const&, lattice_t const&, double, int, int) {}
     template<typename M>
-    void commit(M&, lattice_t const&, double /* beta */, double /* sign */, int /* nop */) const {}
+    void commit(M&, lattice_t const&, double /* beta */, double /* sign */, double /* nop */) const {}
   };
 
   typedef typename normal_estimator_selector_helper<estimator_t, dumb_collector,
@@ -206,13 +206,13 @@ struct collector_selector {
       return *this;
     }
     template<typename M>
-    void commit(M& m, lattice_t const& lat, double beta, double sign, int nop) const {
+    void commit(M& m, lattice_t const& lat, double beta, double sign, double nop) const {
       improved_collector::commit(m, lat, beta, sign, nop);
       normal_collector::commit(m, lat, beta, sign, nop);
     }
   };
 };
-  
+
 template<typename MEASUREMENT, typename MC, typename LAT, typename TIME>
 struct collector_selector<MEASUREMENT, MC, LAT, TIME, true, true> {
   typedef typename improved_estimator_selector<MEASUREMENT, MC, LAT, TIME>::collector improved_collector;
@@ -235,13 +235,13 @@ struct collector_selector<MEASUREMENT, MC, LAT, TIME, true, true> {
       return *this;
     }
     template<typename M>
-    void commit(M& m, lattice_t const& lat, double beta, double sign, int nop) const {
+    void commit(M& m, lattice_t const& lat, double beta, double sign, double nop) const {
       improved_collector::commit(m, lat, beta, sign, nop);
       normal_collector::commit(m, lat, beta, sign, nop);
     }
   };
 };
-  
+
 template<typename MEASUREMENT, typename MC, typename LAT, typename TIME>
 struct collector_selector<MEASUREMENT, MC, LAT, TIME, true, false> {
   typedef typename improved_estimator_selector<MEASUREMENT, MC, LAT, TIME>::collector improved_collector;
@@ -264,13 +264,13 @@ struct collector_selector<MEASUREMENT, MC, LAT, TIME, true, false> {
       return *this;
     }
     template<typename M>
-    void commit(M& m, lattice_t const& lat, double beta, double sign, int nop) const {
+    void commit(M& m, lattice_t const& lat, double beta, double sign, double nop) const {
       improved_collector::commit(m, lat, beta, sign, nop);
       normal_collector::commit(m, lat, beta, sign, nop);
     }
   };
 };
-  
+
 template<typename MEASUREMENT, typename MC, typename LAT, typename TIME>
 struct collector_selector<MEASUREMENT, MC, LAT, TIME, false, true> {
   typedef typename improved_estimator_selector<MEASUREMENT, MC, LAT, TIME>::dumb_collector improved_collector;
@@ -293,13 +293,13 @@ struct collector_selector<MEASUREMENT, MC, LAT, TIME, false, true> {
       return *this;
     }
     template<typename M>
-    void commit(M& m, lattice_t const& lat, double beta, double sign, int nop) const {
+    void commit(M& m, lattice_t const& lat, double beta, double sign, double nop) const {
       improved_collector::commit(m, lat, beta, sign, nop);
       normal_collector::commit(m, lat, beta, sign, nop);
     }
   };
 };
-  
+
 template<typename MEASUREMENT, typename DUMB_PRE_EVALUATOR, bool HAS_PRE_EVALUATOR>
 struct pre_evaluator_selector_helper {
   typedef DUMB_PRE_EVALUATOR pre_evaluator;
@@ -308,7 +308,7 @@ template<typename MEASUREMENT, typename DUMB_PRE_EVALUATOR>
 struct pre_evaluator_selector_helper<MEASUREMENT, DUMB_PRE_EVALUATOR, true> {
   typedef typename MEASUREMENT::pre_evaluator pre_evaluator;
 };
-  
+
 template<typename MEASUREMENT>
 struct pre_evaluator_selector {
   typedef MEASUREMENT measurement_t;
@@ -327,7 +327,7 @@ template<typename MEASUREMENT, typename DUMB_EVALUATOR>
 struct evaluator_selector_helper<MEASUREMENT, DUMB_EVALUATOR, true> {
   typedef typename MEASUREMENT::evaluator evaluator;
 };
-  
+
 template<typename MEASUREMENT>
 struct evaluator_selector {
   typedef MEASUREMENT measurement_t;
@@ -482,8 +482,8 @@ struct base_measurement : public has_normal_estimator_tag {
         void end_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
         void start_bottom(estimator_t const&, lattice_t const&, double, int, int) {}
         void start(estimator_t const&, lattice_t const&, double, int, int) {}
-        void end_top(estimator_t const&, lattice_t const&, double, int, int) {}
-        void end(estimator_t const&, lattice_t const&, double, int, int) {}
+        void stop_top(estimator_t const&, lattice_t const&, double, int, int) {}
+        void stop(estimator_t const&, lattice_t const&, double, int, int) {}
         // additional functions
         void set_num_clusters(unsigned int n) { nc_ = n; }
         void inc_num_clusters(unsigned int n) { nc_ += n; }
@@ -498,7 +498,7 @@ struct base_measurement : public has_normal_estimator_tag {
         std::pair<int, int> const& range() const { return range_; }
         bool empty() const { return range_.first > range_.second; }
         template<typename M>
-        void commit(M&, lattice_t const&, double, double, int) const {}
+        void commit(M&, lattice_t const&, double, double, double) const {}
       };
     };
   };
@@ -723,7 +723,7 @@ struct composite_measurement {
           return *this;
         }
         template<typename M>
-        void commit(M& m, lattice_t const& lat, double beta, double sign, int nop) const {
+        void commit(M& m, lattice_t const& lat, double beta, double sign, double nop) const {
           collector1::commit(m, lat, beta, sign, nop);
           collector2::commit(m, lat, beta, sign, nop);
         }
@@ -793,7 +793,7 @@ struct composite_measurement {
           collector2::stop_top(emt, lat, t, s, c);
         }
         template<typename M>
-        void commit(M& m, lattice_t const& lat, double beta, double sign, int nop) const {
+        void commit(M& m, lattice_t const& lat, double beta, double sign, double nop) const {
           collector1::commit(m, lat, beta, sign, nop);
           collector2::commit(m, lat, beta, sign, nop);
         }
