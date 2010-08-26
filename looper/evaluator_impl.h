@@ -39,24 +39,21 @@ public:
   evaluator(alps::Parameters const& p) : params(p) {}
   void pre_evaluate(alps::ObservableSet& m, alps::Parameters const& p,
     alps::ObservableSet const& m_in) const {
-    pre_evaluator_selector<measurement_t>::pre_evaluate(m, p, m_in);
+    measurement_t::pre_evaluator::pre_evaluate(m, p, m_in);
   }
   void evaluate(alps::scheduler::MCSimulation& sim, alps::Parameters const& p,
     boost::filesystem::path const&) const {
     alps::ObservableSet m;
-    energy_evaluator::evaluate(m, sim.get_measurements());
-    evaluator_selector<measurement_t>::evaluate(m, p, sim.get_measurements());
+    measurement_t::evaluator::evaluate(m, p, sim.get_measurements());
     BOOST_FOREACH(alps::ObservableSet::iterator::value_type const& v, m)
       sim.addObservable(*(v.second));
   }
   void evaluate(alps::ObservableSet& m, alps::Parameters const& p,
     alps::ObservableSet const& m_in) const {
-    energy_evaluator::evaluate(m, m_in);
-    evaluator_selector<measurement_t>::evaluate(m, p, m_in);
+    measurement_t::evaluator::evaluate(m, p, m_in);
   }
   void evaluate(alps::ObservableSet& m) const {
-    energy_evaluator::evaluate(m, m);
-    evaluator_selector<measurement_t>::evaluate(m, params, m);
+    measurement_t::evaluator::evaluate(m, params, m);
   }
 private:
   alps::Parameters params;

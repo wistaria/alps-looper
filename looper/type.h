@@ -42,20 +42,25 @@ struct sse {};
 //
 
 template<typename QMC>
-struct is_path_integral
-{ typedef boost::mpl::false_ type; };
+struct is_path_integral { typedef boost::mpl::false_ type; };
 
 template<>
-struct is_path_integral<path_integral>
-{ typedef boost::mpl::true_ type; };
+struct is_path_integral<path_integral> { typedef boost::mpl::true_ type; };
 
 template<typename QMC>
-struct is_sse
-{ typedef boost::mpl::false_ type; };
+struct is_sse { typedef boost::mpl::false_ type; };
 
 template<>
-struct is_sse<sse>
-{ typedef boost::mpl::true_ type; };
+struct is_sse<sse> { typedef boost::mpl::true_ type; };
+
+//
+// measurement tags
+//
+
+struct has_improved_estimator_tag {};
+struct has_normal_estimator_tag {};
+struct has_pre_evaluator_tag {};
+struct has_evaluator_tag {};
 
 } // end namepspace looper
 

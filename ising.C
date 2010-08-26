@@ -142,7 +142,7 @@ void loop_worker::init_observables(alps::Parameters const&, alps::ObservableSet&
   obs << make_observable(alps::SimpleRealObservable("Number of Sites"));
   obs << make_observable(alps::SimpleRealObservable("Number of Clusters"));
   looper::energy_estimator::init_observables(obs, false);
-  estimator.init_observables(obs, false);
+  estimator.init_observables(obs, false, use_improved_estiamtor);
 }
 
 void loop_worker::run(alps::ObservableSet& obs) {

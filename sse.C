@@ -159,7 +159,7 @@ void loop_worker::init_observables(alps::Parameters const&, alps::ObservableSet&
     }
   }
   looper::energy_estimator::init_observables(obs, model.is_signed());
-  estimator.init_observables(obs, model.is_signed());
+  estimator.init_observables(obs, model.is_signed(), use_improved_estiamtor);
 }
 
 void loop_worker::run(alps::ObservableSet& obs) {
