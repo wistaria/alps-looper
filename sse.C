@@ -187,8 +187,12 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
   for (int s = 0; s < nvs; ++s) spins_c[s] = spins[s];
 
   // initialize cluster information (setup cluster fragments)
-  fragments.resize(0); fragments.resize(nvs);
-  for (int s = 0; s < nvs; ++s) current[s] = s;
+  int fragment_offset = nvs;
+  looper::expand(fragments, fragment_offset);
+  for (int s = 0; s < nvs; ++s) {
+    fragments[s] = cluster_fragment_t();
+    current[s] = s;
+  }
 
   // intialize measurements
   coll.reset(estimator);
@@ -197,6 +201,7 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
   int negop = 0; // number of operators with negative weights
 
   int t = 0;
+  int fid = fragment_offset;
   double bw = beta * model.graph_weight();
   bool try_gap = true;
   for (operator_iterator opi = operators_p.begin(); try_gap || opi != operators_p.end();) {
@@ -246,6 +251,8 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
     }
 
     operator_iterator oi = operators.end() - 1;
+    looper::expand(fragments, fid+1);
+    fragments[fid+1] = cluster_fragment_t();
     if (oi->is_bond()) {
       int b = oi->pos();
       int s0 = source(b, lattice.vg());
@@ -257,8 +264,8 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
         accum_n.begin_b(t, b, s0, s1, spins_c[s0], spins_c[s1]);
         if (SIGN()) negop += model.bond_sign(oi->pos());
       }
-      boost::tie(current[s0], current[s1], oi->loop0, oi->loop1) =
-        reconnect(fragments, oi->graph(), current[s0], current[s1]);
+      boost::tie(fid, current[s0], current[s1], oi->loop0, oi->loop1) =
+        reconnect(fragments, fid, oi->graph(), current[s0], current[s1]);
     } else {
       int s = oi->pos();
       if (oi->is_offdiagonal()) {
@@ -267,12 +274,14 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
         accum_n.begin_s(t, s, spins_c[s]);
         if (SIGN()) negop += model.site_sign(oi->pos());
       }
-      boost::tie(current[s], oi->loop0, oi->loop1) = reconnect(fragments, oi->graph(), current[s]);
+      boost::tie(fid, current[s], oi->loop0, oi->loop1) =
+        reconnect(fragments, fid, oi->graph(), current[s]);
     }
     ++t;
   }
   for (int s = 0; s < nvs; ++s) accum_n.stop_top(time_t(operators.size()), s, spins_c[s]);
   double sign = ((negop & 1) == 1) ? -1 : 1;
+  int num_fragments = fid - fragment_offset;
 
   // symmetrize spins
   if (max_virtual_sites(lattice) == 1) {
@@ -295,8 +304,8 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
   //
 
   // assign cluster id
-  int nc = set_id(fragments, 0, fragments.size(), 0);
-  copy_id(fragments, 0, fragments.size());
+  int nc = set_id(fragments, 0, fragment_offset + num_fragments, 0);
+  copy_id(fragments, 0, fragment_offset + num_fragments);
 
   // accumulate physical property of clusters
   looper::expand(clusters, nc);
@@ -396,7 +405,7 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
   double ene = model.energy_offset() - nop / beta;
   coll.set_energy(ene);
 
-  coll.commit(obs, lattice, beta, improved_sign, nop);
+  coll.commit(obs, estimator, lattice, beta, improved_sign, nop);
 }
 
 //

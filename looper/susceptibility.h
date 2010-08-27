@@ -192,7 +192,8 @@ struct susceptibility : public has_improved_estimator_tag, public has_normal_est
           return *this;
         }
         template<typename M>
-        void commit(M& m, lattice_t const& lat, double beta, double sign, double nop) const {
+        void commit(M& m, estimator_t const&, lattice_t const& lat, double beta, double sign,
+          double nop) const {
           double vol = lat.volume();
           m["Magnetization"] << 0.0;
           m["Magnetization Density"] << 0.0;
@@ -295,7 +296,8 @@ struct susceptibility : public has_improved_estimator_tag, public has_normal_est
           end_s(emt, lat, t, s, c);
         }
         template<typename M>
-        void commit(M& m, lattice_t const& lat, double beta, double sign, double nop) const {
+        void commit(M& m, estimator_t const&, lattice_t const& lat, double beta, double sign,
+          double nop) const {
           double vol = lat.volume();
           m["Magnetization"] << sign * umag;
           m["Magnetization Density"] << sign * umag / vol;

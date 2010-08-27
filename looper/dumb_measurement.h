@@ -64,7 +64,7 @@ struct dumb_measurement : public has_improved_estimator_tag, public has_normal_e
         collector& operator+=(collector const&) { return *this; }
         collector& operator+=(estimate const&) { return *this; }
         template<typename M>
-        void commit(M&, lattice_t const&, double /* beta */, double /* sign */,
+        void commit(M&, estimator_t const&, lattice_t const&, double /* beta */, double /* sign */,
           double /* nop */) const {}
       };
     };
@@ -85,7 +85,7 @@ struct dumb_measurement : public has_improved_estimator_tag, public has_normal_e
         void stop_top(estimator_t const&, lattice_t const&, double, int, int) {}
         void stop(estimator_t const&, lattice_t const&, double, int, int) {}
         template<typename M>
-        void commit(M&, lattice_t const&, double /* beta */, double /* sign */,
+        void commit(M&, estimator_t const&, lattice_t const&, double /* beta */, double /* sign */,
           double /* nop */) const {}
       };
     };

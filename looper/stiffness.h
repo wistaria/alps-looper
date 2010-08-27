@@ -106,30 +106,28 @@ struct stiffness : public has_improved_estimator_tag, public has_normal_estimato
       };
 
       struct collector {
-        unsigned int dim;
         double w2;
-        void reset(estimator_t const& emt) { dim = emt.dim; w2 = 0; }
+        void reset(estimator_t const& emt) { w2 = 0; }
         collector& operator+=(collector const& rhs) {
-          for (int i = 0; i < dim; ++i) w2 += rhs.w2;
+          for (int i = 0; i < MAX_DIM; ++i) w2 += rhs.w2;
           return *this;
         }
         collector& operator+=(estimate const& rhs) {
-          for (int i = 0; i < dim; ++i) w2 += power2(0.5 * rhs.winding[i]);
+          for (int i = 0; i < MAX_DIM; ++i) w2 += power2(0.5 * rhs.winding[i]);
           return *this;
         }
         template<typename M>
-        void commit(M& m, lattice_t const&, double beta, double sign, double) const {
-          if (dim > 0) m["Stiffness"] << sign * w2 / (beta * dim);
+        void commit(M& m, estimator_t const& emt, lattice_t const&, double beta, double sign,
+          double) const {
+          if (emt.dim > 0) m["Stiffness"] << sign * w2 / (beta * emt.dim);
         }
       };
     };
 
     struct normal_estimator {
       struct collector {
-        unsigned int dim;
         double winding[MAX_DIM];
         void reset(estimator_t const& emt) {
-          dim = emt.dim;
           for (int i = 0; i < MAX_DIM; ++i) winding[i] = 0;
         }
         collector& operator+=(collector const& rhs) {
@@ -155,10 +153,11 @@ struct stiffness : public has_improved_estimator_tag, public has_normal_estimato
         void stop(estimator_t const&, lattice_t const&, double, int, int) const {}
         void stop_top(estimator_t const&, lattice_t const&, double, int, int) const {}
         template<typename M>
-        void commit(M& m, lattice_t const&, double beta, double sign, double) const {
+        void commit(M& m, estimator_t const& emt, lattice_t const&, double beta, double sign,
+          double) const {
           double w2 = 0;
-          for (int i = 0; i < dim; ++i) w2 += power2(0.5 * winding[i]);
-          if (dim > 0) m["Stiffness"] << sign * w2 / (beta * dim);
+          for (int i = 0; i < emt.dim; ++i) w2 += power2(0.5 * winding[i]);
+          if (emt.dim > 0) m["Stiffness"] << sign * w2 / (beta * emt.dim);
         }
       };
     };

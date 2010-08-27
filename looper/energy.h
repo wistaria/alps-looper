@@ -68,7 +68,8 @@ struct energy : public has_normal_estimator_tag, public has_evaluator_tag {
         void stop(estimator_t const&, lattice_t const&, double, int, int) {}
         void set_energy(double ene) { ene_ = ene; }
         template<typename M>
-        void commit(M& m, lattice_t const& lat, double beta, double sign, double nop) const {
+        void commit(M& m, estimator_t const&, lattice_t const& lat, double beta, double sign,
+          double nop) const {
           m["Energy"] << sign * ene_;
           m["Energy Density"] << sign * ene_ / lat.volume();
           m["Energy^2"] << sign * (power2(ene_) - nop / power2(beta));

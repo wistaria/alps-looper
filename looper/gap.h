@@ -184,7 +184,7 @@ struct gap : public has_improved_estimator_tag, public has_normal_estimator_tag,
           int s, int c) {
           end_s(emt, lat, t, s, c);
         }
-    };
+      };
 
       struct collector {
         double upsize2, upmag2, spsize2, spmag2;
@@ -209,7 +209,8 @@ struct gap : public has_improved_estimator_tag, public has_normal_estimator_tag,
           return *this;
         }
         template<typename M>
-        void commit(M& m, lattice_t const& lat, double beta, double sign, double) const {
+        void commit(M& m, estimator_t const&, lattice_t const& lat, double beta, double sign,
+          double) const {
           m["Susceptibility [w=2pi/beta]"] << sign * beta * upmag2 / power2(2*M_PI) / lat.volume();
           m["Generalized Susceptibility [w=2pi/beta]"]
             << sign * beta * upsize2 / power2(2*M_PI) / lat.volume();
@@ -326,7 +327,8 @@ struct gap : public has_improved_estimator_tag, public has_normal_estimator_tag,
           end_s(emt, lat, t, s, c);
         }
         template<typename M>
-        void commit(M& m, lattice_t const& lat, double beta, double sign, double) const {
+        void commit(M& m, estimator_t const&, lattice_t const& lat, double beta, double sign,
+          double) const {
           m["Susceptibility [w=2pi/beta]"] <<
             sign * beta * power2(umag_a) / power2(2*M_PI) / lat.volume();
           if (is_bipartite(lat))
@@ -589,7 +591,8 @@ struct gap4 : public has_improved_estimator_tag, public has_normal_estimator_tag
           return *this;
         }
         template<typename M>
-        void commit(M& m, lattice_t const& lat, double beta, double sign, double) const {
+        void commit(M& m, estimator_t const&, lattice_t const& lat, double beta, double sign,
+          double) const {
           m["Susceptibility [w=2pi/beta]"]
             << sign * beta * upmag2 / power2(2*M_PI) / lat.volume();
           m["Susceptibility [w=4pi/beta]"]
@@ -727,7 +730,8 @@ struct gap4 : public has_improved_estimator_tag, public has_normal_estimator_tag
           int c) {
         }
         template<typename M>
-        void commit(M& m, lattice_t const& lat, double beta, double sign, double) const {
+        void commit(M& m, estimator_t const&, lattice_t const& lat, double beta, double sign,
+          double) const {
           m["Susceptibility [w=2pi/beta]"] <<
             sign * beta * power2(umag_a) / power2(2*M_PI) / lat.volume();
           m["Susceptibility [w=4pi/beta]"] <<
@@ -1051,7 +1055,8 @@ struct generalized_gap4_and_correlation_length : public has_improved_estimator_t
           return *this;
         }
         template<typename M>
-        void commit(M& m, lattice_t const& lat, double beta, double sign, double) const {
+        void commit(M& m, estimator_t const&, lattice_t const& lat, double beta, double sign,
+          double) const {
           m["Generalized Susceptibility [w=2pi/beta]"]
             << sign * beta * upsize2 / power2(2*M_PI) / lat.volume();
           m["Generalized Susceptibility [w=4pi/beta]"]

@@ -397,7 +397,7 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
       ene += (estimates[c].to_flip ? -clusters[c].weight : clusters[c].weight);
   coll.set_energy(ene);
 
-  coll.commit(obs, lattice, beta, improved_sign, nop);
+  coll.commit(obs, estimator, lattice, beta, improved_sign, nop);
 }
 
 typedef looper::evaluator<loop_config::measurement_set> loop_evaluator;
