@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2010 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -161,6 +161,27 @@ inline void output(std::vector<T> const& v, std::ostream& os = std::cout) {
       }
     }
   }
+}
+
+template<typename T>
+int count_root(std::vector<T>& v, int start, int n) {
+  int nc = 0;
+  for (int i = start; i < start + n; ++i)
+    if (v[i].is_root()) ++nc;
+  return nc;
+}
+
+template<typename T>
+int set_id(std::vector<T>& v, int start, int n, int nc) {
+  for (int i = start; i < start + n; ++i)
+    if (v[i].is_root()) v[i].set_id(nc++);
+  return nc;
+}
+
+template<typename T>
+void copy_id(std::vector<T>& v, int start, int n) {
+  for (int i = start; i < start + n; ++i)
+    v[i].set_id(cluster_id(v, i));
 }
 
 } // end namespace union_find

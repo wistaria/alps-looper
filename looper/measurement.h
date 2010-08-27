@@ -567,9 +567,7 @@ struct normal_accumulator {
   typedef typename estimator_t::lattice_t lattice_t;
   typedef typename boost::call_traits<typename estimator_t::time_t>::param_type time_pt;
   normal_accumulator(collector_t& cl, lattice_t const& lt, estimator_t const& emt) :
-    coll(cl), lat(lt), estimator(emt) {
-    coll.reset(emt);
-  }
+    coll(cl), lat(lt), estimator(emt) {}
   void begin_s(time_pt t, int s, int c) {
     coll.begin_s(estimator, lat, t, s, c);
   }
@@ -607,7 +605,7 @@ struct normal_accumulator<ESTIMATOR, boost::mpl::true_> {
   typedef typename estimator_t::improved_estimator::collector collector_t;
   typedef typename estimator_t::lattice_t lattice_t;
   typedef typename boost::call_traits<typename estimator_t::time_t>::param_type time_pt;
-  normal_accumulator(collector_t& cl, lattice_t const&, estimator_t const& emt) { cl.reset(emt); }
+  normal_accumulator(collector_t&, lattice_t const&, estimator_t const&) {}
   void begin_s(time_pt, int, int) {}
   void begin_b(time_pt, int, int, int, int, int) {}
   void end_s(time_pt, int, int) {}
@@ -627,11 +625,8 @@ struct improved_accumulator {
   typedef ESTIMATE estimate_t;
   typedef typename estimator_t::lattice_t lattice_t;
   typedef typename boost::call_traits<typename estimator_t::time_t>::param_type time_pt;
-  improved_accumulator(std::vector<estimate_t>& estimates, int nc, lattice_t const&,
-    estimator_t const& emt, std::vector<fragment_t> const&) {
-    estimates.resize(nc);
-    for (int i = 0; i < nc; ++i) estimates[i].reset(emt);
-  }
+  improved_accumulator(std::vector<estimate_t>&, lattice_t const&, estimator_t const&,
+    std::vector<fragment_t> const&) {}
   void begin_s(int, time_pt, int, int) {}
   void begin_b(int, int, time_pt, int, int, int, int, int) {}
   void end_s(int, time_pt, int, int) {}
@@ -649,12 +644,9 @@ struct improved_accumulator<ESTIMATOR, FRAGMENT, ESTIMATE, boost::mpl::true_> {
   typedef ESTIMATE estimate_t;
   typedef typename estimator_t::lattice_t lattice_t;
   typedef typename boost::call_traits<typename estimator_t::time_t>::param_type time_pt;
-  improved_accumulator(std::vector<estimate_t>& es, int nc, lattice_t const& lt,
+  improved_accumulator(std::vector<estimate_t>& es, lattice_t const& lt,
     estimator_t const& emt, std::vector<fragment_t> const& fr) :
-    estimates(es), lat(lt), estimator(emt), fragments(fr) {
-    estimates.resize(nc);
-    for (int i = 0; i < nc; ++i) estimates[i].reset(emt);
-  }
+    estimates(es), lat(lt), estimator(emt), fragments(fr) {}
   void begin_s(int p, time_pt t, int s, int c) {
     estimates[fragments[p].id()].begin_s(estimator, lat, t, s, c);
   }

@@ -25,28 +25,18 @@
 #include "loop_config.h"
 #include <looper/cluster.h>
 #include <looper/evaluator_impl.h>
+#include <looper/expand.h>
 #include <looper/montecarlo.h>
 #include <looper/operator.h>
 #include <looper/permutation.h>
 #include <looper/temperature.h>
 #include <looper/type.h>
 #include <looper/union_find.h>
-#ifdef HAVE_PARAPACK_13
-# include <alps/parapack/serial.h>
-# include <alps/math.hpp>
-#else
-# include <alps/parapack/worker.h>
-# include <alps/numeric/is_zero.hpp>
-#endif
+#include <alps/parapack/worker.h>
+#include <alps/numeric/is_zero.hpp>
 #include <alps/parapack/exchange.h>
 
 #ifndef LOOPER_ONLY_PATH_INTEGRAL
-
-#ifdef HAVE_PARAPACK_13
-using alps::is_zero;
-#else
-using alps::numeric::is_zero;
-#endif
 
 namespace {
 
@@ -55,7 +45,7 @@ public:
   typedef looper::sse mc_type;
 
   typedef int time_t;
-  typedef looper::local_operator<mc_type, model_t::local_graph_t, time_t> local_operator_t;
+  typedef looper::local_operator<mc_type, loop_graph_t, time_t> local_operator_t;
   typedef std::vector<local_operator_t> operator_string_t;
   typedef operator_string_t::iterator operator_iterator;
 
@@ -68,6 +58,8 @@ public:
   typedef double weight_parameter_type;
 
   loop_worker(alps::Parameters const& p);
+  virtual ~loop_worker() {}
+
   void init_observables(alps::Parameters const& params, alps::ObservableSet& obs);
 
   bool is_thermalized() const { return mcs.is_thermalized(); }
@@ -103,7 +95,6 @@ private:
   std::vector<local_operator_t> operators;
 
   // observables
-  double sign;
   estimator_t estimator;
   estimator_t::improved_estimator::collector coll_i;
   estimator_t::normal_estimator::collector coll_n;
@@ -183,21 +174,24 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
       model.is_signed() != SIGN() ||
       enable_improved_estimator != IMPROVE()) return;
 
+  int nrs = num_sites(lattice.rg());
+  int nvs = num_sites(lattice.vg());
+
   //
   // diagonal update and cluster construction
   //
 
   // initialize spin & operator information
   int nop = operators.size();
-  std::copy(spins.begin(), spins.end(), spins_c.begin());
   std::swap(operators, operators_p); operators.resize(0);
+  for (int s = 0; s < nvs; ++s) spins_c[s] = spins[s];
 
   // initialize cluster information (setup cluster fragments)
-  int nvs = num_sites(lattice.vg());
   fragments.resize(0); fragments.resize(nvs);
   for (int s = 0; s < nvs; ++s) current[s] = s;
 
   // intialize measurements
+  coll.reset(estimator);
   looper::normal_accumulator<estimator_t, IMPROVE> accum_n(coll, lattice, estimator);
   for (int s = 0; s < nvs; ++s) accum_n.start_bottom(time_t(0), s, spins_c[s]);
   int negop = 0; // number of operators with negative weights
@@ -278,13 +272,13 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
     ++t;
   }
   for (int s = 0; s < nvs; ++s) accum_n.stop_top(time_t(operators.size()), s, spins_c[s]);
-  sign = ((negop & 1) == 1) ? -1 : 1;
+  double sign = ((negop & 1) == 1) ? -1 : 1;
 
   // symmetrize spins
   if (max_virtual_sites(lattice) == 1) {
-    for (int i = 0; i < nvs; ++i) unify(fragments, i, current[i]);
+    for (int s = 0; s < nvs; ++s) unify(fragments, s, current[s]);
   } else {
-    BOOST_FOREACH(looper::real_site_descriptor<lattice_t>::type rs, sites(lattice.rg())) {
+    for (int rs = 0; rs < nrs; ++rs) {
       looper::virtual_site_iterator<lattice_t>::type vsi, vsi_end;
       boost::tie(vsi, vsi_end) = sites(lattice, rs);
       int offset = *vsi;
@@ -301,45 +295,51 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
   //
 
   // assign cluster id
-  int nc = 0;
-  BOOST_FOREACH(cluster_fragment_t& f, fragments) if (f.is_root()) f.set_id(nc++);
-  BOOST_FOREACH(cluster_fragment_t& f, fragments) f.set_id(cluster_id(fragments, f));
-  clusters.resize(0); clusters.resize(nc);
+  int nc = set_id(fragments, 0, fragments.size(), 0);
+  copy_id(fragments, 0, fragments.size());
 
-  cluster_info_t::accumulator<cluster_fragment_t, FIELD, SIGN, IMPROVE>
-    weight(clusters, fragments, model.field(), model.bond_sign(), model.site_sign());
-  looper::improved_accumulator<estimator_t, cluster_fragment_t, ESTIMATE, IMPROVE>
-    accum_i(estimates, nc, lattice, estimator, fragments);
+  // accumulate physical property of clusters
+  looper::expand(clusters, nc);
+  looper::expand(estimates, nc);
+  for (int c = 0; c < nc; ++c) {
+    clusters[c] = cluster_info_t();
+    estimates[c].reset(estimator);
+  }
   if (IMPROVE() || FIELD()) {
-    std::copy(spins.begin(), spins.end(), spins_c.begin());
+    for (int s = 0; s < nvs; ++s) spins_c[s] = spins[s];
+    cluster_info_t::accumulator<cluster_fragment_t, FIELD, SIGN, IMPROVE>
+      weight(clusters, fragments, model.field(), model.bond_sign(), model.site_sign());
+    looper::improved_accumulator<estimator_t, cluster_fragment_t, ESTIMATE, IMPROVE>
+      accum_i(estimates, lattice, estimator, fragments);
     for (int s = 0; s < nvs; ++s) {
       weight.start_bottom(s, time_t(0), s, spins_c[s]);
       accum_i.start_bottom(s, time_t(0), s, spins_c[s]);
     }
     t = 0;
-    BOOST_FOREACH(local_operator_t& op, operators) {
-      if (op.is_bond()) {
-        if (!op.is_frozen_bond_graph()) {
-          int b = op.pos();
+    for (std::vector<local_operator_t>::iterator opi = operators.begin(); opi != operators.end();
+         ++opi) {
+      if (opi->is_bond()) {
+        if (!opi->is_frozen_bond_graph()) {
+          int b = opi->pos();
           int s0 = source(b, lattice.vg());
           int s1 = target(b, lattice.vg());
-          weight.end_b(op.loop_l0(), op.loop_l1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
-          accum_i.end_b(op.loop_l0(), op.loop_l1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
-          if (op.is_offdiagonal()) {
+          weight.end_b(opi->loop_l0(), opi->loop_l1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
+          accum_i.end_b(opi->loop_l0(), opi->loop_l1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
+          if (opi->is_offdiagonal()) {
             spins_c[s0] ^= 1;
             spins_c[s1] ^= 1;
           }
-          weight.begin_b(op.loop_u0(), op.loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
-          accum_i.begin_b(op.loop_u0(), op.loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
+          weight.begin_b(opi->loop_u0(), opi->loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
+          accum_i.begin_b(opi->loop_u0(), opi->loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
         }
       } else {
-        if (!op.is_frozen_site_graph()) {
-          int s = op.pos();
-          weight.end_s(op.loop_l(), t, s, spins_c[s]);
-          accum_i.end_s(op.loop_l(), t, s, spins_c[s]);
-          if (op.is_offdiagonal()) spins_c[s] ^= 1;
-          weight.begin_s(op.loop_u(), t, s, spins_c[s]);
-          accum_i.begin_s(op.loop_u(), t, s, spins_c[s]);
+        if (!opi->is_frozen_site_graph()) {
+          int s = opi->pos();
+          weight.end_s(opi->loop_l(), t, s, spins_c[s]);
+          accum_i.end_s(opi->loop_l(), t, s, spins_c[s]);
+          if (opi->is_offdiagonal()) spins_c[s] ^= 1;
+          weight.begin_s(opi->loop_u(), t, s, spins_c[s]);
+          accum_i.begin_s(opi->loop_u(), t, s, spins_c[s]);
         }
       }
       ++t;
@@ -353,20 +353,23 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
   // accumulate cluster properties
   coll.set_num_operators(operators.size());
   coll.set_num_clusters(nc);
-  if (IMPROVE()) BOOST_FOREACH(ESTIMATE const& est, estimates) { coll += est; }
+  if (IMPROVE()) for (int c = 0; c < nc; ++c) coll += estimates[c];
 
   // determine whether clusters are flipped or not
   double improved_sign = sign;
-  for (int c = 0; c < clusters.size(); ++c) {
+  for (int c = 0; c < nc; ++c) {
     estimates[c].to_flip = ((2*uniform_01()-1) < 0);
     if (SIGN() && IMPROVE() && (clusters[c].sign & 1) == 1) improved_sign = 0;
   }
 
   // flip operators & spins
-  BOOST_FOREACH(local_operator_t& op, operators)
-    if (estimates[fragments[op.loop_0()].id()].to_flip ^
-        estimates[fragments[op.loop_1()].id()].to_flip) op.flip();
-  for (int s = 0; s < nvs; ++s) if (estimates[fragments[s].id()].to_flip) spins[s] ^= 1;
+  for (std::vector<local_operator_t>::iterator opi = operators.begin(); opi != operators.end();
+       ++opi) {
+    if (estimates[fragments[opi->loop_0()].id()].to_flip ^
+        estimates[fragments[opi->loop_1()].id()].to_flip) opi->flip();
+  }
+  for (int s = 0; s < nvs; ++s)
+    if (estimates[fragments[s].id()].to_flip) spins[s] ^= 1;
 
   //
   // measurement
@@ -375,14 +378,12 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
   obs["Temperature"] << 1/beta;
   obs["Inverse Temperature"] << beta;
   obs["Volume"] << (double)lattice.volume();
-  obs["Number of Sites"] << (double)num_sites(lattice.rg());
+  obs["Number of Sites"] << (double)nrs;
   obs["Number of Clusters"] << coll.num_clusters();
-
-  // sign
   if (SIGN()) {
     if (IMPROVE()) {
       obs["Sign"] << improved_sign;
-      if (is_zero(improved_sign)) {
+      if (alps::numeric::is_zero(improved_sign)) {
         obs["Weight of Zero-Meron Sector"] << 0.;
       } else {
         obs["Weight of Zero-Meron Sector"] << 1.;
@@ -392,8 +393,6 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
       obs["Sign"] << sign;
     }
   }
-
-  // energy
   double ene = model.energy_offset() - nop / beta;
   coll.set_energy(ene);
 

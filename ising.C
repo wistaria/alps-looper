@@ -25,15 +25,12 @@
 #include "loop_config.h"
 #include <looper/cluster.h>
 #include <looper/evaluator_impl.h>
+#include <looper/expand.h>
 #include <looper/montecarlo.h>
 #include <looper/permutation.h>
 #include <looper/union_find.h>
 #include <looper/temperature.h>
-#ifdef HAVE_PARAPACK_13
-# include <alps/parapack/serial.h>
-#else
-# include <alps/parapack/worker.h>
-#endif
+#include <alps/parapack/worker.h>
 #include <alps/parapack/exchange.h>
 
 #ifndef LOOPER_ONLY_PATH_INTEGRAL
@@ -62,6 +59,8 @@ public:
   typedef double weight_parameter_type;
 
   loop_worker(alps::Parameters const& p);
+  virtual ~loop_worker() {}
+
   void init_observables(alps::Parameters const& params, alps::ObservableSet& obs);
 
   bool is_thermalized() const { return mcs.is_thermalized(); }
@@ -165,15 +164,18 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
   if (model.has_field() != FIELD() ||
       enable_improved_estimator != IMPROVE()) return;
 
+  int nrs = num_sites(lattice.rg());
+  int nvs = num_sites(lattice.vg());
+
   //
   // cluster construction
   //
 
   // initialize cluster information (setup cluster fragments)
-  int nvs = num_sites(lattice.vg());
   fragments.resize(0); fragments.resize(nvs);
 
-  // normal measurements
+  // initialize measurements
+  coll.reset(estimator);
   looper::normal_accumulator<estimator_t, IMPROVE> accum_n(coll, lattice, estimator);
   if (!IMPROVE()) {
     for (int s = 0; s < nvs; ++s) {
@@ -200,7 +202,7 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
 
   // symmetrize spins
   if (max_virtual_sites(lattice) > 1) {
-    BOOST_FOREACH(looper::real_site_descriptor<lattice_t>::type rs, sites(lattice.rg())) {
+    for (int rs = 0; rs < nrs; ++rs) {
       looper::virtual_site_iterator<lattice_t>::type vsi, vsi_end;
       boost::tie(vsi, vsi_end) = sites(lattice, rs);
       int offset = *vsi;
@@ -217,16 +219,22 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
   //
 
   // assign cluster id
-  int nc = 0;
-  BOOST_FOREACH(cluster_fragment_t& f, fragments) if (f.is_root()) f.set_id(nc++);
-  BOOST_FOREACH(cluster_fragment_t& f, fragments) f.set_id(cluster_id(fragments, f));
-  clusters.resize(0); clusters.resize(nc);
+  int nc = set_id(fragments, 0, fragments.size(), 0);
+  copy_id(fragments, 0, fragments.size());
 
-  cluster_info_t::accumulator<cluster_fragment_t, FIELD,
-    boost::mpl::false_, IMPROVE> weight(clusters, fragments, model.field(), 0, 0);
-  looper::improved_accumulator<estimator_t, cluster_fragment_t, ESTIMATE, IMPROVE>
-    accum_i(estimates, nc, lattice, estimator, fragments);
+  // accumulate physical property of clusters
+  looper::expand(clusters, nc);
+  looper::expand(estimates, nc);
+  for (int c = 0; c < nc; ++c) {
+    clusters[c] = cluster_info_t();
+    estimates[c].reset(estimator);
+  }
+
   if (IMPROVE() || FIELD()) {
+    cluster_info_t::accumulator<cluster_fragment_t, FIELD,
+      boost::mpl::false_, IMPROVE> weight(clusters, fragments, model.field(), 0, 0);
+    looper::improved_accumulator<estimator_t, cluster_fragment_t, ESTIMATE, IMPROVE>
+      accum_i(estimates, lattice, estimator, fragments);
     for (int s = 0; s < nvs; ++s) {
       weight.start_bottom(s, time_t(0), s, spins[s]);
       accum_i.start_bottom(s, time_t(0), s, spins[s]);
@@ -236,10 +244,11 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
   }
 
   // accumulate cluster properties
-  if (IMPROVE()) BOOST_FOREACH(ESTIMATE const& est, estimates) { coll += est; }
+  coll.set_num_clusters(nc);
+  if (IMPROVE()) for (int c = 0; c < nc; ++c) coll += estimates[c];
 
   // determine whether clusters are flipped or not
-  for (int c = 0; c < clusters.size(); ++c)
+  for (int c = 0; c < nc; ++c)
     estimates[c].to_flip = ((2*uniform_01()-1) < (FIELD() ? std::tanh(clusters[c].weight) : 0));
 
   // flip spins
@@ -252,13 +261,11 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
   obs["Temperature"] << 1/beta;
   obs["Inverse Temperature"] << beta;
   obs["Volume"] << (double)lattice.volume();
-  obs["Number of Sites"] << (double)num_sites(lattice.rg());
-  obs["Number of Clusters"] << (double)clusters.size();
-
-  // energy
+  obs["Number of Sites"] << (double)nrs;
+  obs["Number of Clusters"] << (double)coll.num_clusters();
   double ene = model.energy_offset() - nop / beta;
   if (model.has_field())
-    for (int c = 0; c < clusters.size(); ++c)
+    for (int c = 0; c < nc; ++c)
       ene += (estimates[c].to_flip ? -clusters[c].weight : clusters[c].weight);
   coll.set_energy(ene);
 

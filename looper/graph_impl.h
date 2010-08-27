@@ -60,10 +60,25 @@ struct site_graph_type {
   static bool is_compatible(int /* g */, int /* c */) { return true; }
   static bool is_frozen(int /* g */) { return false; }
   template<class T>
+  // obsolete interface
   static boost::tuple<int /* curr */, int /* loop0 */, int /* loop1 */>
   reconnect(int /* g */, std::vector<T>& fragments, int curr) {
     int loop1 = add(fragments);
     return boost::make_tuple(loop1, curr, loop1);
+  }
+  // current interface
+  template<class T>
+  static boost::tuple<int /* fid */, int /* curr */, int /* loop0 */, int /* loop1 */>
+  reconnect(int /* g */, std::vector<T>& fragments, int fid, int curr) {
+    fragments[fid] = T();
+    int loop1 = fid;
+    ++fid;
+    return boost::make_tuple(fid, loop1, curr, loop1);
+  }
+  template<class T>
+  static boost::tuple<int /* fid */, int /* curr */, int /* loop0 */, int /* loop1 */>
+  reconnect_omp(int g, std::vector<T>& fragments, int fid, int curr) {
+    return reconnect(g, fragments, fid, curr);
   }
 };
 
@@ -89,11 +104,27 @@ struct ising_bond_graph_type {
   static bool is_valid_gid(int g) { return g == 2 || g == 3; }
   static bool is_compatible(int g, int c0, int c1) { return (g & 1) ^ c0 ^ c1; }
   static bool is_frozen(int /* g */) { return true; }
+  // obsolete interface
   template<class T>
   static boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
   reconnect(int g, std::vector<T>& fragments, int curr0, int curr1) {
     int loop = unify(fragments, curr0, curr1);
     return boost::make_tuple(loop, loop, loop, loop);
+  }
+  // current interface
+  template<class T>
+  static boost::tuple<int /* fid */, int /* curr0 */, int /* curr1 */, int /* loop0 */,
+                      int /* loop1 */>
+  reconnect(int g, std::vector<T>& fragments, int fid, int curr0, int curr1) {
+    int loop = unify(fragments, curr0, curr1);
+    return boost::make_tuple(fid, loop, loop, loop, loop);
+  }
+  template<class T>
+  static boost::tuple<int /* fid */, int /* curr0 */, int /* curr1 */, int /* loop0 */,
+                      int /* loop1 */>
+  reconnect_omp(int g, std::vector<T>& fragments, int fid, int curr0, int curr1) {
+    int loop = unify_omp(fragments, curr0, curr1);
+    return boost::make_tuple(fid, loop, loop, loop, loop);
   }
 
   static bool has_nontrivial_diagonal_choice_helper() { return false; }
@@ -128,12 +159,34 @@ struct haf_bond_graph_type {
   static bool is_valid_gid(int g) { return g == 0; }
   static bool is_compatible(int /* g */, int c0, int c1) { return c0 != c1; }
   static bool is_frozen(int /* g */) { return false; }
+  // obsolete interface
   template<class T>
   static boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
   reconnect(int g, std::vector<T>& fragments, int curr0, int curr1) {
     int loop0 = unify(fragments, curr0, curr1);
     int loop1 = curr0 = curr1 = add(fragments);
     return boost::make_tuple(curr0, curr1, loop0, loop1);
+  }
+  // current interface
+  template<class T>
+  static boost::tuple<int /* fid */, int /* curr0 */, int /* curr1 */, int /* loop0 */,
+                      int /* loop1 */>
+  reconnect(int g, std::vector<T>& fragments, int fid, int curr0, int curr1) {
+    fragments[fid] = T();
+    int loop0 = unify(fragments, curr0, curr1);
+    int loop1 = curr0 = curr1 = fid;
+    ++fid;
+    return boost::make_tuple(fid, curr0, curr1, loop0, loop1);
+  }
+  template<class T>
+  static boost::tuple<int /* fid */, int /* curr0 */, int /* curr1 */, int /* loop0 */,
+                      int /* loop1 */>
+  reconnect_omp(int g, std::vector<T>& fragments, int fid, int curr0, int curr1) {
+    fragments[fid] = T();
+    int loop0 = unify_omp(fragments, curr0, curr1);
+    int loop1 = curr0 = curr1 = fid;
+    ++fid;
+    return boost::make_tuple(fid, curr0, curr1, loop0, loop1);
   }
 
   static bool has_nontrivial_diagonal_choice_helper() { return false; }
@@ -166,6 +219,7 @@ struct hf_bond_graph_type {
   static bool is_valid_gid(int g) { return g == 1; }
   static bool is_compatible(int c0, int c1) { return c0 == c1; }
   static bool is_frozen(int /* g */) { return false; }
+  // obsolete interface
   template<class T>
   static boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
   reconnect(int g, std::vector<T>& fragments, int curr0, int curr1) {
@@ -173,6 +227,22 @@ struct hf_bond_graph_type {
     int loop1 = curr1;
     std::swap(curr0, curr1);
     return boost::make_tuple(curr0, curr1, loop0, loop1);
+  }
+  // current interface
+  template<class T>
+  static boost::tuple<int /* fid */, int /* curr0 */, int /* curr1 */, int /* loop0 */,
+                      int /* loop1 */>
+  reconnect(int g, std::vector<T>& fragments, int fid, int curr0, int curr1) {
+    int loop0 = curr0;
+    int loop1 = curr1;
+    std::swap(curr0, curr1);
+    return boost::make_tuple(fid, curr0, curr1, loop0, loop1);
+  }
+  template<class T>
+  static boost::tuple<int /* fid */, int /* curr0 */, int /* curr1 */, int /* loop0 */,
+                      int /* loop1 */>
+  reconnect_omp(int g, std::vector<T>& fragments, int fid, int curr0, int curr1) {
+    return reconnect(g, fragments, fid, curr0, curr1);
   }
 
   static bool has_nontrivial_diagonal_choice_helper() { return false; }
@@ -205,6 +275,7 @@ struct xxz_bond_graph_type {
   static bool is_valid_gid(int g) { return g >= 0 && g <= 3; }
   static bool is_compatible(int g, int c0, int c1) { return (g & 1) ^ c0 ^ c1; }
   static bool is_frozen(int g) { return ((g & 2) == 2); }
+  // obsolete interface
   template<class T>
   static boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
   reconnect(int g, std::vector<T>& fragments, int curr0, int curr1) {
@@ -220,6 +291,26 @@ struct xxz_bond_graph_type {
       std::swap(curr0, curr1);
     }
     return boost::make_tuple(curr0, curr1, loop0, loop1);
+  }
+  // current interface
+  template<class T>
+  static boost::tuple<int /* fid */, int /* curr0 */, int /* curr1 */, int /* loop0 */,
+                      int /* loop1 */>
+  reconnect(int g, std::vector<T>& fragments, int fid, int curr0, int curr1) {
+    int loop0, loop1;
+    if ((g & 2) == 2) {
+      loop0 = loop1 = curr0 = curr1 = unify(fragments, curr0, curr1);
+    } else if (g == 0) {
+      fragments[fid] = T();
+      loop0 = unify(fragments, curr0, curr1);
+      loop1 = curr0 = curr1 = fid;
+      ++fid;
+    } else {
+      loop0 = curr0;
+      loop1 = curr1;
+      std::swap(curr0, curr1);
+    }
+    return boost::make_tuple(fid, curr0, curr1, loop0, loop1);
   }
 
   static bool has_nontrivial_diagonal_choice_helper() { return true; }
@@ -261,6 +352,7 @@ struct xyz_bond_graph_type {
   static bool is_valid_gid(int g) { return g >= 0 && g <= 5; }
   static bool is_compatible(int g, int c0, int c1) { return (g & 1) ^ c0 ^ c1; }
   static bool is_frozen(int g) { return ((g & 2) == 2); }
+  // obsolete interface
   template<typename T>
   static boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
   reconnect(int g, std::vector<T>& fragments, int curr0, int curr1) {
@@ -276,6 +368,26 @@ struct xyz_bond_graph_type {
       std::swap(curr0, curr1);
     }
     return boost::make_tuple(curr0, curr1, loop0, loop1);
+  }
+  // current interface
+  template<typename T>
+  static boost::tuple<int /* fid */, int /* curr0 */, int /* curr1 */, int /* loop0 */,
+                      int /* loop1 */>
+  reconnect(int g, std::vector<T>& fragments, int fid, int curr0, int curr1) {
+    int loop0, loop1;
+    if ((g & 2) == 2) {
+      loop0 = loop1 = curr0 = curr1 = unify(fragments, curr0, curr1);
+    } else if (g == 0 || g == 5) {
+      fragments[fid] = T();
+      loop0 = unify(fragments, curr0, curr1);
+      loop1 = curr0 = curr1 = fid;
+      ++fid;
+    } else {
+      loop0 = curr0;
+      loop1 = curr1;
+      std::swap(curr0, curr1);
+    }
+    return boost::make_tuple(fid, curr0, curr1, loop0, loop1);
   }
 
   static bool has_nontrivial_diagonal_choice_helper() { return true; }
@@ -367,24 +479,30 @@ public:
   bool is_bond() const { return loc_.is_bond(); }
   bool is_site() const { return loc_.is_site(); }
 
+  // obsolete interface
   template<class T>
   boost::tuple<int /* curr */, int /* loop0 */, int /* loop1 */>
   reconnect(std::vector<T>& fragments, int curr) const {
-#ifndef NDEBUG
-    if (!is_site())
-      boost::throw_exception(std::logic_error("local_graph<>::reconnect"));
-#endif
     return site_graph_t::reconnect(type_, fragments, curr);
   }
+  // current interface
+  template<class T>
+  boost::tuple<int /* fid */, int /* curr */, int /* loop0 */, int /* loop1 */>
+  reconnect_site(std::vector<T>& fragments, int fid, int curr) const {
+    return site_graph_t::reconnect(type_, fragments, fid, curr);
+  }
 
+  // obsolete interface
   template<class T>
   boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
   reconnect(std::vector<T>& fragments, int curr0, int curr1) const {
-#ifndef NDEBUG
-    if (!is_bond())
-      boost::throw_exception(std::logic_error("local_graph<>::reconnect"));
-#endif
     return bond_graph_t::reconnect(type_, fragments, curr0, curr1);
+  }
+  // current interface
+  template<class T>
+  boost::tuple<int /* fid */, int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
+  reconnect_bond(std::vector<T>& fragments, int fid, int curr0, int curr1) const {
+    return bond_graph_t::reconnect(type_, fragments, fid, curr0, curr1);
   }
 
   static int loop_l(int /* t */, int loop0, int /* loop1 */) { return loop0; }
@@ -417,16 +535,34 @@ inline bool is_site(const local_graph<SITE, BOND, LOC>& g) { return g.is_site();
 template<typename SITE, typename BOND, typename LOC>
 inline bool is_bond(const local_graph<SITE, BOND, LOC>& g) { return g.is_bond(); }
 
+// obsolete interface
 template<typename T, typename SITE, typename BOND, typename LOC>
 boost::tuple<int /* curr */, int /* loop0 */, int /* loop1 */>
-reconnect(std::vector<T>& fragments, const local_graph<SITE, BOND, LOC>& g, int curr) {
+reconnect(std::vector<T>& fragments, const local_graph<SITE, BOND, LOC>& g,
+  int curr) {
   return g.reconnect(fragments, curr);
 }
+// current interface
+template<typename T, typename SITE, typename BOND, typename LOC>
+boost::tuple<int /* fid */, int /* curr */, int /* loop0 */, int /* loop1 */>
+reconnect(std::vector<T>& fragments, int fid, const local_graph<SITE, BOND, LOC>& g,
+  int curr) {
+  return g.reconnect_site(fragments, fid, curr);
+}
 
+// obsolete interface
 template<typename T, typename SITE, typename BOND, typename LOC>
 boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
-reconnect(std::vector<T>& fragments, const local_graph<SITE, BOND, LOC>& g, int curr0, int curr1) {
+reconnect(std::vector<T>& fragments, const local_graph<SITE, BOND, LOC>& g,
+  int curr0, int curr1) {
   return g.reconnect(fragments, curr0, curr1);
+}
+// current interface
+template<typename T, typename SITE, typename BOND, typename LOC>
+boost::tuple<int /* fid */, int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
+reconnect(std::vector<T>& fragments, int fid, const local_graph<SITE, BOND, LOC>& g,
+  int curr0, int curr1) {
+  return g.reconnect_bond(fragments, fid, curr0, curr1);
 }
 
 
