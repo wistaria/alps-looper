@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2006-2008 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 2006-2010 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -30,6 +30,9 @@
 #include <looper/model.h>
 #include <looper/time.h>
 
+// measurement
+#include <looper/measurement.h>
+#include <looper/energy.h>
 #include <looper/gap.h>
 #include <looper/susceptibility.h>
 
@@ -55,6 +58,8 @@ struct loop_config {
 
  // measurements
   typedef looper::measurement_set<
+    looper::base_measurement,
+    looper::energy,
     looper::gap,
     looper::susceptibility
   > measurement_set;

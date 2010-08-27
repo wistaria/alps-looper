@@ -58,6 +58,7 @@ public:
 
   typedef looper::estimator<measurement_set, mc_type, lattice_t, time_t>::type estimator_t;
   typedef estimator_t::improved_estimator::estimate estimate_t;
+  typedef estimator_t::improved_estimator::minimal_estimate minimal_estimate_t;
   typedef double weight_parameter_type;
 
   loop_worker(alps::Parameters const& p);
@@ -77,8 +78,8 @@ public:
   void load(alps::IDump& dp) { dp >> mcs >> spins; }
 
 protected:
-  template<typename FIELD, typename IMPROVE, typename COLLECTOR>
-  void dispatch(alps::ObservableSet& obs, COLLECTOR& coll);
+  template<typename FIELD, typename IMPROVE, typename COLLECTOR, typename ESTIMATE>
+  void dispatch(alps::ObservableSet& obs, COLLECTOR& coll, std::vector<ESTIMATE>& estimates);
 
 private:
   // helpers
@@ -94,16 +95,18 @@ private:
   looper::mc_steps mcs;
   std::vector<int> spins;
 
+  // observables
   estimator_t estimator;
-  estimator_t::improved_estimator::collector coll_imp;
-  estimator_t::normal_estimator::collector coll_norm;
+  estimator_t::improved_estimator::collector coll_i;
+  estimator_t::normal_estimator::collector coll_n;
 
   // working vectors
   int nop;
   std::vector<cluster_fragment_t> fragments;
   std::vector<bool> to_flip;
   std::vector<cluster_info_t> clusters;
-  std::vector<estimate_t> estimates;
+  std::vector<estimate_t> estimates_i;
+  std::vector<minimal_estimate_t> estimates_m;
   std::vector<int> perm;
 };
 
@@ -150,15 +153,16 @@ void loop_worker::run(alps::ObservableSet& obs) {
   beta = 1.0 / temperature(mcs());
 
   //       FIELD               IMPROVE
-  dispatch<boost::mpl::true_,  boost::mpl::true_ >(obs, coll_imp);
-  dispatch<boost::mpl::true_,  boost::mpl::false_>(obs, coll_norm);
-  dispatch<boost::mpl::false_, boost::mpl::true_ >(obs, coll_imp);
-  dispatch<boost::mpl::false_, boost::mpl::false_>(obs, coll_norm);
+  dispatch<boost::mpl::true_,  boost::mpl::true_ >(obs, coll_i, estimates_i);
+  dispatch<boost::mpl::true_,  boost::mpl::false_>(obs, coll_n, estimates_m);
+  dispatch<boost::mpl::false_, boost::mpl::true_ >(obs, coll_i, estimates_i);
+  dispatch<boost::mpl::false_, boost::mpl::false_>(obs, coll_n, estimates_m);
 }
 
 
-template<typename FIELD, typename IMPROVE, typename COLLECTOR>
-void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll) {
+template<typename FIELD, typename IMPROVE, typename COLLECTOR, typename ESTIMATE>
+void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
+  std::vector<ESTIMATE>& estimates) {
   if (model.has_field() != FIELD() ||
       enable_improved_estimator != IMPROVE()) return;
 
@@ -169,6 +173,15 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll) {
   // initialize cluster information (setup cluster fragments)
   int nvs = num_sites(lattice.vg());
   fragments.resize(0); fragments.resize(nvs);
+
+  // normal measurements
+  looper::normal_accumulator<estimator_t, IMPROVE> accum_n(coll, lattice, estimator);
+  if (!IMPROVE()) {
+    for (int s = 0; s < nvs; ++s) {
+      accum_n.start_bottom(time_t(0), s, spins[s]);
+      accum_n.stop_top(time_t(1), s, spins[s]);
+    }
+  }
 
   // building up clusters
   nop = 0;
@@ -213,23 +226,22 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll) {
 
   cluster_info_t::accumulator<cluster_fragment_t, FIELD,
     boost::mpl::false_, IMPROVE> weight(clusters, fragments, model.field(), 0, 0);
-  looper::accumulator<estimator_t, cluster_fragment_t, IMPROVE>
-    accum(coll, estimates, nc, lattice, estimator, fragments);
-  for (unsigned int s = 0; s < nvs; ++s) {
-    weight.start_bottom(s, time_t(0), s, spins[s]);
-    accum.start_bottom(s, time_t(0), s, spins[s]);
-  }
-  for (unsigned int s = 0; s < nvs; ++s) {
-    weight.stop_top(s, time_t(1), s, spins[s]);
-    accum.stop_top(s, time_t(1), s, spins[s]);
+  looper::improved_accumulator<estimator_t, cluster_fragment_t, ESTIMATE, IMPROVE>
+    accum_i(estimates, nc, lattice, estimator, fragments);
+  if (IMPROVE() || FIELD()) {
+    for (int s = 0; s < nvs; ++s) {
+      weight.start_bottom(s, time_t(0), s, spins[s]);
+      accum_i.start_bottom(s, time_t(0), s, spins[s]);
+      weight.stop_top(s, time_t(1), s, spins[s]);
+      accum_i.stop_top(s, time_t(1), s, spins[s]);
+    }
   }
 
   // accumulate cluster properties
-  if (IMPROVE())
-    BOOST_FOREACH(estimate_t const& est, estimates) { coll += est; }
+  if (IMPROVE()) BOOST_FOREACH(ESTIMATE const& est, estimates) { coll += est; }
 
   // determine whether clusters are flipped or not
-  for (unsigned int c = 0; c < clusters.size(); ++c)
+  for (int c = 0; c < clusters.size(); ++c)
     to_flip[c] = ((2*uniform_01()-1) < (FIELD() ? std::tanh(clusters[c].weight) : 0));
 
   // flip spins
@@ -248,11 +260,10 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll) {
   // energy
   double ene = model.energy_offset() - nop / beta;
   if (model.has_field())
-    for (unsigned int c = 0; c < clusters.size(); ++c)
+    for (int c = 0; c < clusters.size(); ++c)
       ene += (to_flip[c] ? -clusters[c].weight : clusters[c].weight);
-
-  // normal measurement
   coll.set_energy(ene);
+
   coll.commit(obs, lattice, beta, 1, nop);
 }
 

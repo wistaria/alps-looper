@@ -57,16 +57,6 @@ void add_vector_obs(alps::ObservableSet& m, std::string const& name,
   if (!m.has(name)) m << make_observable(alps::RealVectorObservable(name, label), is_signed);
 }
 
-// // for path integral
-// template<typename OP>
-// inline void proceed(boost::mpl::true_, double& t, OP const& op) { t = op.time(); }
-// template<typename OP>
-// inline void proceed(boost::mpl::false_, double, OP const&) {}
-
-// // for sse
-// inline void proceed(boost::mpl::true_, double& t) { t += 1; }
-// inline void proceed(boost::mpl::false_, double) {}
-
 
 //
 // measurement_set
@@ -176,19 +166,22 @@ struct normal_estimator_selector {
     void stop_top(estimator_t const&, lattice_t const&, double, int, int) {}
     void stop(estimator_t const&, lattice_t const&, double, int, int) {}
     template<typename M>
-    void commit(M&, lattice_t const&, double /* beta */, double /* sign */, double /* nop */) const {}
+    void commit(M&, lattice_t const&, double /* beta */, double /* sign */,
+      double /* nop */) const {}
   };
 
   typedef typename normal_estimator_selector_helper<estimator_t, dumb_collector,
     boost::is_base_of<has_normal_estimator_tag, measurement_t>::value>::collector collector;
 };
 
-template<typename MEASUREMENT, typename MC, typename LAT, typename TIME, bool NEED_IMPROVED_COLLECTOR,
-  bool NEED_NORMALCOLLECTOR>
+template<typename MEASUREMENT, typename MC, typename LAT, typename TIME,
+  bool NEED_IMPROVED_COLLECTOR, bool NEED_NORMALCOLLECTOR>
 struct collector_selector {
   typedef typename MEASUREMENT::template estimator<MC, LAT, TIME> estimator_t;
-  typedef typename improved_estimator_selector<MEASUREMENT, MC, LAT, TIME>::dumb_collector improved_collector;
-  typedef typename normal_estimator_selector<MEASUREMENT, MC, LAT, TIME>::dumb_collector normal_collector;
+  typedef typename improved_estimator_selector<MEASUREMENT, MC, LAT, TIME>::dumb_collector
+    improved_collector;
+  typedef typename normal_estimator_selector<MEASUREMENT, MC, LAT, TIME>::dumb_collector
+    normal_collector;
   struct collector : public improved_collector, public normal_collector {
     typedef LAT lattice_t;
     collector() : improved_collector(), normal_collector() {}
@@ -217,8 +210,10 @@ struct collector_selector {
 template<typename MEASUREMENT, typename MC, typename LAT, typename TIME>
 struct collector_selector<MEASUREMENT, MC, LAT, TIME, true, true> {
   typedef typename MEASUREMENT::template estimator<MC, LAT, TIME> estimator_t;
-  typedef typename improved_estimator_selector<MEASUREMENT, MC, LAT, TIME>::collector improved_collector;
-  typedef typename normal_estimator_selector<MEASUREMENT, MC, LAT, TIME>::collector normal_collector;
+  typedef typename improved_estimator_selector<MEASUREMENT, MC, LAT, TIME>::collector
+    improved_collector;
+  typedef typename normal_estimator_selector<MEASUREMENT, MC, LAT, TIME>::collector
+    normal_collector;
   struct collector : public improved_collector, public normal_collector {
     typedef LAT lattice_t;
     collector() : improved_collector(), normal_collector() {}
@@ -247,8 +242,10 @@ struct collector_selector<MEASUREMENT, MC, LAT, TIME, true, true> {
 template<typename MEASUREMENT, typename MC, typename LAT, typename TIME>
 struct collector_selector<MEASUREMENT, MC, LAT, TIME, true, false> {
   typedef typename MEASUREMENT::template estimator<MC, LAT, TIME> estimator_t;
-  typedef typename improved_estimator_selector<MEASUREMENT, MC, LAT, TIME>::collector improved_collector;
-  typedef typename normal_estimator_selector<MEASUREMENT, MC, LAT, TIME>::dumb_collector normal_collector;
+  typedef typename improved_estimator_selector<MEASUREMENT, MC, LAT, TIME>::collector
+    improved_collector;
+  typedef typename normal_estimator_selector<MEASUREMENT, MC, LAT, TIME>::dumb_collector
+    normal_collector;
   struct collector : public improved_collector, public normal_collector {
     typedef LAT lattice_t;
     collector() : improved_collector(), normal_collector() {}
@@ -277,8 +274,10 @@ struct collector_selector<MEASUREMENT, MC, LAT, TIME, true, false> {
 template<typename MEASUREMENT, typename MC, typename LAT, typename TIME>
 struct collector_selector<MEASUREMENT, MC, LAT, TIME, false, true> {
   typedef typename MEASUREMENT::template estimator<MC, LAT, TIME> estimator_t;
-  typedef typename improved_estimator_selector<MEASUREMENT, MC, LAT, TIME>::dumb_collector improved_collector;
-  typedef typename normal_estimator_selector<MEASUREMENT, MC, LAT, TIME>::collector normal_collector;
+  typedef typename improved_estimator_selector<MEASUREMENT, MC, LAT, TIME>::dumb_collector
+    improved_collector;
+  typedef typename normal_estimator_selector<MEASUREMENT, MC, LAT, TIME>::collector
+    normal_collector;
   struct collector : public improved_collector, public normal_collector {
     typedef LAT lattice_t;
     collector() : improved_collector(), normal_collector() {}
@@ -317,7 +316,8 @@ template<typename MEASUREMENT>
 struct pre_evaluator_selector {
   typedef MEASUREMENT measurement_t;
   struct dumb_pre_evaluator {
-    static void pre_evaluate(alps::ObservableSet&, alps::Parameters const&, alps::ObservableSet const&) {}
+    static void pre_evaluate(alps::ObservableSet&, alps::Parameters const&,
+      alps::ObservableSet const&) {}
   };
   typedef typename pre_evaluator_selector_helper<measurement_t, dumb_pre_evaluator,
     boost::is_base_of<has_pre_evaluator_tag, MEASUREMENT>::value>::pre_evaluator pre_evaluator;
@@ -336,7 +336,8 @@ template<typename MEASUREMENT>
 struct evaluator_selector {
   typedef MEASUREMENT measurement_t;
   struct dumb_evaluator {
-    static void evaluate(alps::ObservableSet&, alps::Parameters const&, alps::ObservableSet const&) {}
+    static void evaluate(alps::ObservableSet&, alps::Parameters const&,
+      alps::ObservableSet const&) {}
   };
   typedef typename evaluator_selector_helper<measurement_t, dumb_evaluator,
     boost::is_base_of<has_evaluator_tag, MEASUREMENT>::value>::evaluator evaluator;
@@ -351,7 +352,8 @@ struct measurement_wrapper {
     typedef LAT lattice_t;
     typedef TIME time_t;
     struct improved_estimator {
-      typedef typename improved_estimator_selector<measurement_t, mc_type, lattice_t, time_t>::estimate estimate;
+      typedef typename improved_estimator_selector<measurement_t, mc_type, lattice_t, time_t>::
+        estimate estimate;
       typedef typename collector_selector<measurement_t, mc_type, lattice_t, time_t,
         boost::is_base_of<has_improved_estimator_tag, MEASUREMENT>::value,
         (!boost::is_base_of<has_improved_estimator_tag, MEASUREMENT>::value &&
@@ -359,7 +361,8 @@ struct measurement_wrapper {
     };
     struct normal_estimator {
       typedef typename collector_selector<measurement_t, mc_type, lattice_t, time_t,
-        false, boost::is_base_of<has_normal_estimator_tag, MEASUREMENT>::value>::collector collector;
+        false, boost::is_base_of<has_normal_estimator_tag, MEASUREMENT>::value>::collector
+        collector;
     };
     // inputs:
     //   has_improved_estimator        1    1    1    1    0    0    0    0
@@ -396,38 +399,40 @@ struct measurement<measurement_set<M1, M2, null_measurement, null_measurement, n
 template<typename M1, typename M2, typename M3>
 struct measurement<measurement_set<M1, M2, M3, null_measurement, null_measurement,
   null_measurement, null_measurement, null_measurement> > {
-  typedef composite_measurement<composite_measurement<measurement_wrapper<M1>, measurement_wrapper<M2> >,
-    measurement_wrapper<M3> > type;
+  typedef composite_measurement<composite_measurement<measurement_wrapper<M1>,
+    measurement_wrapper<M2> >, measurement_wrapper<M3> > type;
 };
 
 template<typename M1, typename M2, typename M3, typename M4>
 struct measurement<measurement_set<M1, M2, M3, M4, null_measurement, null_measurement,
   null_measurement, null_measurement> > {
-  typedef composite_measurement<composite_measurement<composite_measurement<measurement_wrapper<M1>,
-    measurement_wrapper<M2> >, measurement_wrapper<M3> >, measurement_wrapper<M4> > type;
+  typedef composite_measurement<composite_measurement<composite_measurement<
+    measurement_wrapper<M1>, measurement_wrapper<M2> >, measurement_wrapper<M3> >,
+    measurement_wrapper<M4> > type;
 };
 
 template<typename M1, typename M2, typename M3, typename M4, typename M5>
 struct measurement<measurement_set<M1, M2, M3, M4, M5, null_measurement, null_measurement,
   null_measurement> > {
   typedef composite_measurement<composite_measurement<composite_measurement<composite_measurement<
-    measurement_wrapper<M1>, measurement_wrapper<M2> >, measurement_wrapper<M3> >, measurement_wrapper<M4> >,
-    measurement_wrapper<M5> > type;
+    measurement_wrapper<M1>, measurement_wrapper<M2> >, measurement_wrapper<M3> >,
+    measurement_wrapper<M4> >, measurement_wrapper<M5> > type;
 };
 
 template<typename M1, typename M2, typename M3, typename M4, typename M5, typename M6>
 struct measurement<measurement_set<M1, M2, M3, M4, M5, M6, null_measurement, null_measurement> > {
   typedef composite_measurement<composite_measurement<composite_measurement<composite_measurement<
-    composite_measurement<measurement_wrapper<M1>, measurement_wrapper<M2> >, measurement_wrapper<M3> >,
-    measurement_wrapper<M4> >, measurement_wrapper<M5> >, measurement_wrapper<M6> > type;
+    composite_measurement<measurement_wrapper<M1>, measurement_wrapper<M2> >,
+    measurement_wrapper<M3> >, measurement_wrapper<M4> >, measurement_wrapper<M5> >,
+    measurement_wrapper<M6> > type;
 };
 
 template<typename M1, typename M2, typename M3, typename M4, typename M5, typename M6, typename M7>
 struct measurement<measurement_set<M1, M2, M3, M4, M5, M6, M7, null_measurement> > {
   typedef composite_measurement<composite_measurement<composite_measurement<composite_measurement<
     composite_measurement<composite_measurement<measurement_wrapper<M1>, measurement_wrapper<M2> >,
-    measurement_wrapper<M3> >, measurement_wrapper<M4> >, measurement_wrapper<M5> >, measurement_wrapper<M6> >,
-    measurement_wrapper<M7> > type;
+    measurement_wrapper<M3> >, measurement_wrapper<M4> >, measurement_wrapper<M5> >,
+    measurement_wrapper<M6> >, measurement_wrapper<M7> > type;
 };
 
 template<typename M1, typename M2, typename M3, typename M4, typename M5, typename M6, typename M7,
@@ -435,8 +440,9 @@ template<typename M1, typename M2, typename M3, typename M4, typename M5, typena
 struct measurement<measurement_set<M1, M2, M3, M4, M5, M6, M7, M8> > {
   typedef composite_measurement<composite_measurement<composite_measurement<composite_measurement<
     composite_measurement<composite_measurement<composite_measurement<measurement_wrapper<M1>,
-    measurement_wrapper<M2> >, measurement_wrapper<M3> >, measurement_wrapper<M4> >, measurement_wrapper<M5> >,
-    measurement_wrapper<M6> >, measurement_wrapper<M7> >, measurement_wrapper<M8> > type;
+    measurement_wrapper<M2> >, measurement_wrapper<M3> >, measurement_wrapper<M4> >,
+    measurement_wrapper<M5> >, measurement_wrapper<M6> >, measurement_wrapper<M7> >,
+    measurement_wrapper<M8> > type;
 };
 
 
@@ -463,6 +469,36 @@ struct base_measurement : public has_normal_estimator_tag {
     void initialize(alps::Parameters const&, lattice_t const&, bool, bool) {}
     template<typename M>
     void init_observables(M&, bool, bool) {}
+
+    struct improved_estimator {
+      struct estimate {
+        bool to_flip;
+        void reset(estimator_t const&) {}
+        estimate& operator+=(estimate const& rhs) {
+          to_flip ^= rhs.to_flip;
+          return *this;
+        }
+        void begin_s(estimator_t const&, lattice_t const&, double, int, int) {}
+        void begin_bs(estimator_t const&, lattice_t const&, double, int, int) {}
+        void begin_bt(estimator_t const&, lattice_t const&, double, int, int) {}
+        void end_s(estimator_t const&, lattice_t const&, double, int, int) {}
+        void end_bs(estimator_t const&, lattice_t const&, double, int, int) {}
+        void end_bt(estimator_t const&, lattice_t const&, double, int, int) {}
+        void start_bottom(estimator_t const&, lattice_t const&, double, int, int) {}
+        void start(estimator_t const&, lattice_t const&, double, int, int) {}
+        void stop_top(estimator_t const&, lattice_t const&, double, int, int) {}
+        void stop(estimator_t const&, lattice_t const&, double, int, int) {}
+      };
+      struct collector {
+        void reset(estimator_t const&) {}
+        collector& operator+=(collector const&) { return *this; }
+        collector& operator+=(estimate const&) { return *this; }
+        template<typename M>
+        void commit(M&, lattice_t const&, double /* beta */, double /* sign */,
+          double /* nop */) const {}
+      };
+    };
+
     struct normal_estimator {
       struct collector {
         double nop_; // total number of operators
@@ -515,104 +551,124 @@ struct base_measurement : public has_normal_estimator_tag {
 // accumulator
 //
 
-template<typename ESTIMATOR, typename FRAGMENT, typename ENABLE_IMPROVED_ESTIMATOR>
-struct accumulator {
+template<typename ESTIMATOR, typename ENABLE_IMPROVED_ESTIMATOR>
+struct normal_accumulator {
   typedef ESTIMATOR estimator_t;
   typedef typename estimator_t::normal_estimator::collector collector_t;
-  typedef typename estimator_t::improved_estimator::estimate estimate_t;
   typedef typename estimator_t::lattice_t lattice_t;
   typedef typename boost::call_traits<typename estimator_t::time_t>::param_type time_pt;
-  typedef FRAGMENT fragment_t;
-  accumulator(collector_t& cl, std::vector<estimate_t>&, int, lattice_t const& lt,
-    estimator_t const& emt, std::vector<fragment_t> const&) :
+  normal_accumulator(collector_t& cl, lattice_t const& lt, estimator_t const& emt) :
     coll(cl), lat(lt), estimator(emt) {
     coll.reset(emt);
   }
-  void begin_s(int, time_pt t, int s, int c) {
+  void begin_s(time_pt t, int s, int c) {
     coll.begin_s(estimator, lat, t, s, c);
   }
-  void begin_b(int, int, time_pt t, int b, int s0, int s1, int c0, int c1) {
+  void begin_b(time_pt t, int b, int s0, int s1, int c0, int c1) {
     coll.begin_bs(estimator, lat, t, b, s0, c0);
     coll.begin_bt(estimator, lat, t, b, s1, c1);
   }
-  void end_s(int, time_pt t, int s, int c) {
+  void end_s(time_pt t, int s, int c) {
     coll.end_s(estimator, lat, t, s, c);
   }
-  void end_b(int, int, time_pt t, int b, int s0, int s1, int c0, int c1) {
+  void end_b(time_pt t, int b, int s0, int s1, int c0, int c1) {
     coll.end_bs(estimator, lat, t, b, s0, c0);
     coll.end_bt(estimator, lat, t, b, s1, c1);
   }
-  void start_bottom(int, time_pt t, int s, int c) {
+  void start_bottom(time_pt t, int s, int c) {
     coll.start_bottom(estimator, lat, t, s, c);
   }
-  void start(int, time_pt t, int s, int c) {
+  void start(time_pt t, int s, int c) {
     coll.start(estimator, lat, t, s, c);
   }
-  void stop(int, time_pt t, int s, int c) {
+  void stop(time_pt t, int s, int c) {
     coll.stop(estimator, lat, t, s, c);
   }
-  void stop_top(int, time_pt t, int s, int c) {
+  void stop_top(time_pt t, int s, int c) {
     coll.stop_top(estimator, lat, t, s, c);
   }
-
   collector_t& coll;
   lattice_t const& lat;
   estimator_t const& estimator;
 };
 
-template<typename ESTIMATOR, typename FRAGMENT>
-struct accumulator<ESTIMATOR, FRAGMENT, boost::mpl::true_> {
+template<typename ESTIMATOR>
+struct normal_accumulator<ESTIMATOR, boost::mpl::true_> {
   typedef ESTIMATOR estimator_t;
   typedef typename estimator_t::improved_estimator::collector collector_t;
-  typedef typename estimator_t::improved_estimator::estimate estimate_t;
   typedef typename estimator_t::lattice_t lattice_t;
   typedef typename boost::call_traits<typename estimator_t::time_t>::param_type time_pt;
+  normal_accumulator(collector_t& cl, lattice_t const&, estimator_t const& emt) { cl.reset(emt); }
+  void begin_s(time_pt, int, int) {}
+  void begin_b(time_pt, int, int, int, int, int) {}
+  void end_s(time_pt, int, int) {}
+  void end_b(time_pt, int, int, int, int, int) {}
+  void start_bottom(time_pt, int, int) {}
+  void start(time_pt, int, int) {}
+  void stop(time_pt, int, int) {}
+  void stop_top(time_pt, int, int) {}
+};
+
+
+template<typename ESTIMATOR, typename FRAGMENT, typename ESTIMATE,
+  typename ENABLE_IMPROVED_ESTIMATOR>
+struct improved_accumulator {
+  typedef ESTIMATOR estimator_t;
   typedef FRAGMENT fragment_t;
-  accumulator(collector_t& cl, std::vector<estimate_t>& es, int nc, lattice_t const& lt,
+  typedef ESTIMATE estimate_t;
+  typedef typename estimator_t::lattice_t lattice_t;
+  typedef typename boost::call_traits<typename estimator_t::time_t>::param_type time_pt;
+  improved_accumulator(std::vector<estimate_t>&, int /* noc */, lattice_t const&,
+    estimator_t const&, std::vector<fragment_t> const&) {}
+  void begin_s(int, time_pt, int, int) {}
+  void begin_b(int, int, time_pt, int, int, int, int, int) {}
+  void end_s(int, time_pt, int, int) {}
+  void end_b(int, int, time_pt, int, int, int, int, int) {}
+  void start_bottom(int, time_pt, int, int) {}
+  void start(int, time_pt, int, int) {}
+  void stop(int, time_pt, int, int) {}
+  void stop_top(int, time_pt, int, int) {}
+};
+
+template<typename ESTIMATOR, typename FRAGMENT, typename ESTIMATE>
+struct improved_accumulator<ESTIMATOR, FRAGMENT, ESTIMATE, boost::mpl::true_> {
+  typedef ESTIMATOR estimator_t;
+  typedef FRAGMENT fragment_t;
+  typedef ESTIMATE estimate_t;
+  typedef typename estimator_t::lattice_t lattice_t;
+  typedef typename boost::call_traits<typename estimator_t::time_t>::param_type time_pt;
+  improved_accumulator(std::vector<estimate_t>& es, int nc, lattice_t const& lt,
     estimator_t const& emt, std::vector<fragment_t> const& fr) :
-    coll(cl), estimates(es), lat(lt), estimator(emt), fragments(fr) {
-    coll.reset(emt);
+    estimates(es), lat(lt), estimator(emt), fragments(fr) {
     estimates.resize(nc);
     for (int i = 0; i < nc; ++i) estimates[i].reset(emt);
   }
   void begin_s(int p, time_pt t, int s, int c) {
-    coll.begin_s(estimator, lat, t, s, c);
     estimates[fragments[p].id()].begin_s(estimator, lat, t, s, c);
   }
   void begin_b(int p0, int p1, time_pt t, int b, int s0, int s1, int c0, int c1) {
-    coll.begin_bs(estimator, lat, t, b, s0, c0);
-    coll.begin_bt(estimator, lat, t, b, s1, c1);
     estimates[fragments[p0].id()].begin_bs(estimator, lat, t, b, s0, c0);
     estimates[fragments[p1].id()].begin_bt(estimator, lat, t, b, s1, c1);
   }
   void end_s(int p, time_pt t, int s, int c) {
-    coll.end_s(estimator, lat, t, s, c);
     estimates[fragments[p].id()].end_s(estimator, lat, t, s, c);
   }
   void end_b(int p0, int p1, time_pt t, int b, int s0, int s1, int c0, int c1) {
-    coll.end_bs(estimator, lat, t, b, s0, c0);
-    coll.end_bt(estimator, lat, t, b, s1, c1);
     estimates[fragments[p0].id()].end_bs(estimator, lat, t, b, s0, c0);
     estimates[fragments[p1].id()].end_bt(estimator, lat, t, b, s1, c1);
   }
   void start_bottom(int p, time_pt t, int s, int c) {
-    coll.start_bottom(estimator, lat, t, s, c);
     estimates[fragments[p].id()].start_bottom(estimator, lat, t, s, c);
   }
   void start(int p, time_pt t, int s, int c) {
-    coll.start(estimator, lat, t, s, c);
     estimates[fragments[p].id()].start(estimator, lat, t, s, c);
   }
   void stop(int p, time_pt t, int s, int c) {
-    coll.stop(estimator, lat, t, s, c);
     estimates[fragments[p].id()].stop(estimator, lat, t, s, c);
   }
   void stop_top(int p, time_pt t, int s, int c) {
-    coll.stop_top(estimator, lat, t, s, c);
     estimates[fragments[p].id()].stop_top(estimator, lat, t, s, c);
   }
-
-  collector_t& coll;
   std::vector<estimate_t>& estimates;
   lattice_t const& lat;
   estimator_t const& estimator;
@@ -654,6 +710,8 @@ struct composite_measurement {
     }
 
     struct improved_estimator {
+      typedef typename base_measurement::estimator<MC, LAT, TIME>::improved_estimator::estimate
+        minimal_estimate;
       typedef typename estimator1::improved_estimator::estimate estimate1;
       typedef typename estimator2::improved_estimator::estimate estimate2;
       struct estimate : public estimate1, public estimate2 {

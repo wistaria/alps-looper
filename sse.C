@@ -64,6 +64,7 @@ public:
 
   typedef looper::estimator<measurement_set, mc_type, lattice_t, time_t>::type estimator_t;
   typedef estimator_t::improved_estimator::estimate estimate_t;
+  typedef estimator_t::improved_estimator::minimal_estimate minimal_estimate_t;
   typedef double weight_parameter_type;
 
   loop_worker(alps::Parameters const& p);
@@ -83,8 +84,8 @@ public:
   void load(alps::IDump& dp) { dp >> mcs >> spins >> operators; }
 
 protected:
-  template<typename FIELD, typename SIGN, typename IMPROVE, typename COLLECTOR>
-  void dispatch(alps::ObservableSet& obs, COLLECTOR& coll);
+  template<typename FIELD, typename SIGN, typename IMPROVE, typename COLLECTOR, typename ESTIMATE>
+  void dispatch(alps::ObservableSet& obs, COLLECTOR& coll, std::vector<ESTIMATE>& estimates);
 
 private:
   // helpers
@@ -104,8 +105,8 @@ private:
   // observables
   double sign;
   estimator_t estimator;
-  estimator_t::improved_estimator::collector coll_imp;
-  estimator_t::normal_estimator::collector coll_norm;
+  estimator_t::improved_estimator::collector coll_i;
+  estimator_t::normal_estimator::collector coll_n;
 
   // working vectors
   std::vector<int> spins_c;
@@ -114,7 +115,8 @@ private:
   std::vector<int> current;
   std::vector<bool> to_flip;
   std::vector<cluster_info_t> clusters;
-  std::vector<estimate_t> estimates;
+  std::vector<estimate_t> estimates_i;
+  std::vector<minimal_estimate_t> estimates_m;
   std::vector<int> perm;
 };
 
@@ -168,19 +170,16 @@ void loop_worker::run(alps::ObservableSet& obs) {
   beta = 1.0 / temperature(mcs());
 
   //       FIELD               SIGN                IMPROVE
-  dispatch<boost::mpl::true_,  boost::mpl::true_,  boost::mpl::true_ >(obs, coll_imp);
-  dispatch<boost::mpl::true_,  boost::mpl::true_,  boost::mpl::false_>(obs, coll_norm);
-  dispatch<boost::mpl::true_,  boost::mpl::false_, boost::mpl::true_ >(obs, coll_imp);
-  dispatch<boost::mpl::true_,  boost::mpl::false_, boost::mpl::false_>(obs, coll_norm);
-  dispatch<boost::mpl::false_, boost::mpl::true_,  boost::mpl::true_ >(obs, coll_imp);
-  dispatch<boost::mpl::false_, boost::mpl::true_,  boost::mpl::false_>(obs, coll_norm);
-  dispatch<boost::mpl::false_, boost::mpl::false_, boost::mpl::true_ >(obs, coll_imp);
-  dispatch<boost::mpl::false_, boost::mpl::false_, boost::mpl::false_>(obs, coll_norm);
+  dispatch<boost::mpl::false_, boost::mpl::true_,  boost::mpl::true_ >(obs, coll_i, estimates_i);
+  dispatch<boost::mpl::false_, boost::mpl::true_,  boost::mpl::false_>(obs, coll_n, estimates_m);
+  dispatch<boost::mpl::false_, boost::mpl::false_, boost::mpl::true_ >(obs, coll_i, estimates_i);
+  dispatch<boost::mpl::false_, boost::mpl::false_, boost::mpl::false_>(obs, coll_n, estimates_m);
 }
 
 
-template<typename FIELD, typename SIGN, typename IMPROVE, typename COLLECTOR>
-void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll) {
+template<typename FIELD, typename SIGN, typename IMPROVE, typename COLLECTOR, typename ESTIMATE>
+void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
+  std::vector<ESTIMATE>& estimates) {
   if (model.has_field() != FIELD() ||
       model.is_signed() != SIGN() ||
       enable_improved_estimator != IMPROVE()) return;
@@ -199,6 +198,12 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll) {
   fragments.resize(0); fragments.resize(nvs);
   for (int s = 0; s < nvs; ++s) current[s] = s;
 
+  // intialize measurements
+  looper::normal_accumulator<estimator_t, IMPROVE> accum_n(coll, lattice, estimator);
+  for (int s = 0; s < nvs; ++s) accum_n.start_bottom(time_t(0), s, spins_c[s]);
+  int negop = 0; // number of operators with negative weights
+
+  int t = 0;
   double bw = beta * model.graph_weight();
   bool try_gap = true;
   for (operator_iterator opi = operators_p.begin(); try_gap || opi != operators_p.end();) {
@@ -249,20 +254,32 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll) {
 
     operator_iterator oi = operators.end() - 1;
     if (oi->is_bond()) {
-      int s0 = source(oi->pos(), lattice.vg());
-      int s1 = target(oi->pos(), lattice.vg());
+      int b = oi->pos();
+      int s0 = source(b, lattice.vg());
+      int s1 = target(b, lattice.vg());
       if (oi->is_offdiagonal()) {
+        accum_n.end_b(t, b, s0, s1, spins_c[s0], spins_c[s1]);
         spins_c[s0] ^= 1;
         spins_c[s1] ^= 1;
+        accum_n.begin_b(t, b, s0, s1, spins_c[s0], spins_c[s1]);
+        if (SIGN()) negop += model.bond_sign(oi->pos());
       }
       boost::tie(current[s0], current[s1], oi->loop0, oi->loop1) =
         reconnect(fragments, oi->graph(), current[s0], current[s1]);
     } else {
       int s = oi->pos();
-      if (oi->is_offdiagonal()) spins_c[s] ^= 1;
+      if (oi->is_offdiagonal()) {
+        accum_n.end_s(t, s, spins_c[s]);
+        spins_c[s] ^= 1;
+        accum_n.begin_s(t, s, spins_c[s]);
+        if (SIGN()) negop += model.site_sign(oi->pos());
+      }
       boost::tie(current[s], oi->loop0, oi->loop1) = reconnect(fragments, oi->graph(), current[s]);
     }
+    ++t;
   }
+  for (int s = 0; s < nvs; ++s) accum_n.stop_top(time_t(operators.size()), s, spins_c[s]);
+  sign = ((negop & 1) == 1) ? -1 : 1;
 
   // symmetrize spins
   if (max_virtual_sites(lattice) == 1) {
@@ -291,63 +308,58 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll) {
   to_flip.resize(nc);
   clusters.resize(0); clusters.resize(nc);
 
-  std::copy(spins.begin(), spins.end(), spins_c.begin());
   cluster_info_t::accumulator<cluster_fragment_t, FIELD, SIGN, IMPROVE>
     weight(clusters, fragments, model.field(), model.bond_sign(), model.site_sign());
-  looper::accumulator<estimator_t, cluster_fragment_t, IMPROVE>
-    accum(coll, estimates, nc, lattice, estimator, fragments);
-  for (unsigned int s = 0; s < nvs; ++s) {
-    weight.start_bottom(s, time_t(0), s, spins_c[s]);
-    accum.start_bottom(s, time_t(0), s, spins_c[s]);
-  }
-  int t = 0;
-  int negop = 0; // number of operators with negative weights
-  BOOST_FOREACH(local_operator_t& op, operators) {
-    if (op.is_bond()) {
-      if (!op.is_frozen_bond_graph()) {
-        int b = op.pos();
-        int s0 = source(b, lattice.vg());
-        int s1 = target(b, lattice.vg());
-        weight.end_b(op.loop_l0(), op.loop_l1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
-        accum.end_b(op.loop_l0(), op.loop_l1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
-        if (op.is_offdiagonal()) {
-          spins_c[s0] ^= 1;
-          spins_c[s1] ^= 1;
-          if (SIGN()) negop += model.bond_sign(op.pos());
-        }
-        weight.begin_b(op.loop_u0(), op.loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
-        accum.begin_b(op.loop_u0(), op.loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
-      }
-    } else {
-      if (!op.is_frozen_site_graph()) {
-        int s = op.pos();
-        weight.end_s(op.loop_l(), t, s, spins_c[s]);
-        accum.end_s(op.loop_l(), t, s, spins_c[s]);
-        if (op.is_offdiagonal()) {
-          spins_c[s] ^= 1;
-          if (SIGN()) negop += model.site_sign(op.pos());
-        }
-        weight.begin_s(op.loop_u(), t, s, spins_c[s]);
-        accum.begin_s(op.loop_u(), t, s, spins_c[s]);
-      }
+  looper::improved_accumulator<estimator_t, cluster_fragment_t, ESTIMATE, IMPROVE>
+    accum_i(estimates, nc, lattice, estimator, fragments);
+  if (IMPROVE() || FIELD()) {
+    std::copy(spins.begin(), spins.end(), spins_c.begin());
+    for (int s = 0; s < nvs; ++s) {
+      weight.start_bottom(s, time_t(0), s, spins_c[s]);
+      accum_i.start_bottom(s, time_t(0), s, spins_c[s]);
     }
-    ++t;
+    t = 0;
+    BOOST_FOREACH(local_operator_t& op, operators) {
+      if (op.is_bond()) {
+        if (!op.is_frozen_bond_graph()) {
+          int b = op.pos();
+          int s0 = source(b, lattice.vg());
+          int s1 = target(b, lattice.vg());
+          weight.end_b(op.loop_l0(), op.loop_l1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
+          accum_i.end_b(op.loop_l0(), op.loop_l1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
+          if (op.is_offdiagonal()) {
+            spins_c[s0] ^= 1;
+            spins_c[s1] ^= 1;
+          }
+          weight.begin_b(op.loop_u0(), op.loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
+          accum_i.begin_b(op.loop_u0(), op.loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
+        }
+      } else {
+        if (!op.is_frozen_site_graph()) {
+          int s = op.pos();
+          weight.end_s(op.loop_l(), t, s, spins_c[s]);
+          accum_i.end_s(op.loop_l(), t, s, spins_c[s]);
+          if (op.is_offdiagonal()) spins_c[s] ^= 1;
+          weight.begin_s(op.loop_u(), t, s, spins_c[s]);
+          accum_i.begin_s(op.loop_u(), t, s, spins_c[s]);
+        }
+      }
+      ++t;
+    }
+    for (int s = 0; s < nvs; ++s) {
+      weight.stop_top(current[s], time_t(operators.size()), s, spins_c[s]);
+      accum_i.stop_top(current[s], time_t(operators.size()), s, spins_c[s]);
+    }
   }
-  for (unsigned int s = 0; s < nvs; ++s) {
-    weight.stop_top(current[s], time_t(operators.size()), s, spins_c[s]);
-    accum.stop_top(current[s], time_t(operators.size()), s, spins_c[s]);
-  }
-  sign = ((negop & 1) == 1) ? -1 : 1;
 
   // accumulate cluster properties
   coll.set_num_operators(operators.size());
   coll.set_num_clusters(nc);
-  if (IMPROVE())
-    BOOST_FOREACH(estimate_t const& est, estimates) { coll += est; }
+  if (IMPROVE()) BOOST_FOREACH(ESTIMATE const& est, estimates) { coll += est; }
 
   // determine whether clusters are flipped or not
   double improved_sign = sign;
-  for (unsigned int c = 0; c < clusters.size(); ++c) {
+  for (int c = 0; c < clusters.size(); ++c) {
     to_flip[c] = ((2*uniform_01()-1) < 0);
     if (SIGN() && IMPROVE() && (clusters[c].sign & 1) == 1) improved_sign = 0;
   }
@@ -384,9 +396,8 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll) {
 
   // energy
   double ene = model.energy_offset() - nop / beta;
-
-  // normal measurement
   coll.set_energy(ene);
+
   coll.commit(obs, lattice, beta, improved_sign, nop);
 }
 
