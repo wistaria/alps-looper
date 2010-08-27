@@ -461,7 +461,7 @@ struct estimator {
 // struct base_measurement
 //
 
-struct base_measurement : public has_normal_estimator_tag {
+  struct base_measurement : public has_improved_estimator_tag, public has_normal_estimator_tag {
   template<typename MC, typename LAT, typename TIME>
   struct estimator {
     typedef estimator<MC, LAT, TIME> estimator_t;
@@ -470,50 +470,44 @@ struct base_measurement : public has_normal_estimator_tag {
     template<typename M>
     void init_observables(M&, bool, bool) {}
 
+    struct collector_common {
+      double nop_; // total number of operators
+      double nc_; // total number of (closed) clusters
+      std::pair<int, int> range_; // configuration range (for parallel QMC)
+      unsigned int noc_; // number of open clusters (for parallel QMC)
+      collector_common() : nop_(0), nc_(0), range_(std::make_pair(1, 0)), noc_(0) {}
+      void reset(estimator_t const&) {
+        nop_ = 0; nc_= 0; range_ = std::make_pair(1, 0);  noc_ = 0;
+      }
+      collector_common& operator+=(collector_common const& rhs) {
+        nop_ += rhs.nop_;
+        nc_ += rhs.nc_;
+        range_ = std::make_pair(std::min(range_.first, rhs.range_.first),
+                                std::max(range_.second, rhs.range_.second));
+        return *this;
+      }
+      void set_num_clusters(unsigned int n) { nc_ = n; }
+      void inc_num_clusters(unsigned int n) { nc_ += n; }
+      double num_clusters() const { return nc_; }
+      void set_num_operators(unsigned int n) { nop_ = n; }
+      double num_operators() const { return nop_; }
+      // for parallel QMC
+      void set_num_open_clusters(unsigned int n) { noc_ = n; }
+      unsigned int num_open_clusters() const { return noc_; }
+      void clear_range() { range_ = std::make_pair(1, 0); }
+      void set_range(int pos) { range_ = std::make_pair(pos, pos); }
+      std::pair<int, int> const& range() const { return range_; }
+      bool empty() const { return range_.first > range_.second; }
+      template<typename M>
+      void commit(M&, lattice_t const&, double, double, double) const {}
+    };
+
     struct improved_estimator {
       struct estimate {
         bool to_flip;
         void reset(estimator_t const&) {}
         estimate& operator+=(estimate const& rhs) {
           to_flip ^= rhs.to_flip;
-          return *this;
-        }
-        void begin_s(estimator_t const&, lattice_t const&, double, int, int) {}
-        void begin_bs(estimator_t const&, lattice_t const&, double, int, int) {}
-        void begin_bt(estimator_t const&, lattice_t const&, double, int, int) {}
-        void end_s(estimator_t const&, lattice_t const&, double, int, int) {}
-        void end_bs(estimator_t const&, lattice_t const&, double, int, int) {}
-        void end_bt(estimator_t const&, lattice_t const&, double, int, int) {}
-        void start_bottom(estimator_t const&, lattice_t const&, double, int, int) {}
-        void start(estimator_t const&, lattice_t const&, double, int, int) {}
-        void stop_top(estimator_t const&, lattice_t const&, double, int, int) {}
-        void stop(estimator_t const&, lattice_t const&, double, int, int) {}
-      };
-      struct collector {
-        void reset(estimator_t const&) {}
-        collector& operator+=(collector const&) { return *this; }
-        collector& operator+=(estimate const&) { return *this; }
-        template<typename M>
-        void commit(M&, lattice_t const&, double /* beta */, double /* sign */,
-          double /* nop */) const {}
-      };
-    };
-
-    struct normal_estimator {
-      struct collector {
-        double nop_; // total number of operators
-        double nc_; // total number of (closed) clusters
-        std::pair<int, int> range_; // configuration range (for parallel QMC)
-        unsigned int noc_; // number of open clusters (for parallel QMC)
-        collector() : nop_(0), nc_(0), range_(std::make_pair(1, 0)), noc_(0) {}
-        void reset(estimator_t const&) {
-          nop_ = 0; nc_= 0; range_ = std::make_pair(1, 0);  noc_ = 0;
-        }
-        collector& operator+=(collector const& rhs) {
-          nop_ += rhs.nop_;
-          nc_ += rhs.nc_;
-          range_ = std::make_pair(std::min(range_.first, rhs.range_.first),
-                              std::max(range_.second, rhs.range_.second));
           return *this;
         }
         void begin_s(estimator_t const&, lattice_t const&, double, int, int) {}
@@ -526,21 +520,36 @@ struct base_measurement : public has_normal_estimator_tag {
         void start(estimator_t const&, lattice_t const&, double, int, int) {}
         void stop_top(estimator_t const&, lattice_t const&, double, int, int) {}
         void stop(estimator_t const&, lattice_t const&, double, int, int) {}
-        // additional functions
-        void set_num_clusters(unsigned int n) { nc_ = n; }
-        void inc_num_clusters(unsigned int n) { nc_ += n; }
-        double num_clusters() const { return nc_; }
-        void set_num_operators(unsigned int n) { nop_ = n; }
-        double num_operators() const { return nop_; }
-        // for parallel QMC
-        void set_num_open_clusters(unsigned int n) { noc_ = n; }
-        unsigned int num_open_clusters() const { return noc_; }
-        void clear_range() { range_ = std::make_pair(1, 0); }
-        void set_range(int pos) { range_ = std::make_pair(pos, pos); }
-        std::pair<int, int> const& range() const { return range_; }
-        bool empty() const { return range_.first > range_.second; }
-        template<typename M>
-        void commit(M&, lattice_t const&, double, double, double) const {}
+      };
+      struct collector : public collector_common {
+        typedef collector_common base_type;
+        collector() : base_type() {}
+        collector& operator+=(estimate const&) { return *this; }
+        collector& operator+=(collector const& rhs) {
+          base_type::operator+=(rhs);
+          return *this;
+        }
+      };
+    };
+
+    struct normal_estimator {
+      struct collector : public collector_common {
+        typedef collector_common base_type;
+        collector() : base_type() {}
+        collector& operator+=(collector const& rhs) {
+          base_type::operator+=(rhs);
+          return *this;
+        }
+        void begin_s(estimator_t const&, lattice_t const&, double, int, int) {}
+        void begin_bs(estimator_t const&, lattice_t const&, double, int, int, int) {}
+        void begin_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
+        void end_s(estimator_t const&, lattice_t const&, double, int, int) {}
+        void end_bs(estimator_t const&, lattice_t const&, double, int, int, int) {}
+        void end_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
+        void start_bottom(estimator_t const&, lattice_t const&, double, int, int) {}
+        void start(estimator_t const&, lattice_t const&, double, int, int) {}
+        void stop_top(estimator_t const&, lattice_t const&, double, int, int) {}
+        void stop(estimator_t const&, lattice_t const&, double, int, int) {}
       };
     };
   };
@@ -618,8 +627,11 @@ struct improved_accumulator {
   typedef ESTIMATE estimate_t;
   typedef typename estimator_t::lattice_t lattice_t;
   typedef typename boost::call_traits<typename estimator_t::time_t>::param_type time_pt;
-  improved_accumulator(std::vector<estimate_t>&, int /* noc */, lattice_t const&,
-    estimator_t const&, std::vector<fragment_t> const&) {}
+  improved_accumulator(std::vector<estimate_t>& estimates, int nc, lattice_t const&,
+    estimator_t const& emt, std::vector<fragment_t> const&) {
+    estimates.resize(nc);
+    for (int i = 0; i < nc; ++i) estimates[i].reset(emt);
+  }
   void begin_s(int, time_pt, int, int) {}
   void begin_b(int, int, time_pt, int, int, int, int, int) {}
   void end_s(int, time_pt, int, int) {}

@@ -110,7 +110,6 @@ private:
   std::vector<local_operator_t> operators_p;
   std::vector<cluster_fragment_t> fragments;
   std::vector<int> current;
-  std::vector<bool> to_flip;
   std::vector<cluster_info_t> clusters;
   std::vector<estimate_t> estimates_i;
   std::vector<minimal_estimate_t> estimates_m;
@@ -284,7 +283,6 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
   int nc = 0;
   BOOST_FOREACH(cluster_fragment_t& f, fragments) if (f.is_root()) f.set_id(nc++);
   BOOST_FOREACH(cluster_fragment_t& f, fragments) f.set_id(cluster_id(fragments, f));
-  to_flip.resize(nc);
   clusters.resize(0); clusters.resize(nc);
 
   cluster_info_t::accumulator<cluster_fragment_t, FIELD, SIGN, IMPROVE>
@@ -338,14 +336,16 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
   // determine whether clusters are flipped or not
   double improved_sign = sign;
   for (int c = 0; c < clusters.size(); ++c) {
-    to_flip[c] = ((2*uniform_01()-1) < (FIELD() ? std::tanh(beta * clusters[c].weight) : 0));
+    estimates[c].to_flip =
+      ((2*uniform_01()-1) < (FIELD() ? std::tanh(beta * clusters[c].weight) : 0));
     if (SIGN() && IMPROVE() && (clusters[c].sign & 1) == 1) improved_sign = 0;
   }
 
   // flip operators & spins
   BOOST_FOREACH(local_operator_t& op, operators)
-    if (to_flip[fragments[op.loop_0()].id()] ^ to_flip[fragments[op.loop_1()].id()]) op.flip();
-  for (int s = 0; s < nvs; ++s) if (to_flip[fragments[s].id()]) spins[s] ^= 1;
+    if (estimates[fragments[op.loop_0()].id()].to_flip ^
+        estimates[fragments[op.loop_1()].id()].to_flip) op.flip();
+  for (int s = 0; s < nvs; ++s) if (estimates[fragments[s].id()].to_flip) spins[s] ^= 1;
 
   //
   // measurement
@@ -377,7 +377,7 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
   double ene = model.energy_offset() - nop / beta;
   if (FIELD())
     for (int c = 0; c < clusters.size(); ++c)
-      ene += (to_flip[c] ? -clusters[c].weight : clusters[c].weight);
+      ene += (estimates[c].to_flip ? -clusters[c].weight : clusters[c].weight);
   coll.set_energy(ene);
 
   coll.commit(obs, lattice, beta, improved_sign, nop);

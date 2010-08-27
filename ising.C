@@ -103,7 +103,6 @@ private:
   // working vectors
   int nop;
   std::vector<cluster_fragment_t> fragments;
-  std::vector<bool> to_flip;
   std::vector<cluster_info_t> clusters;
   std::vector<estimate_t> estimates_i;
   std::vector<minimal_estimate_t> estimates_m;
@@ -221,7 +220,6 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
   int nc = 0;
   BOOST_FOREACH(cluster_fragment_t& f, fragments) if (f.is_root()) f.set_id(nc++);
   BOOST_FOREACH(cluster_fragment_t& f, fragments) f.set_id(cluster_id(fragments, f));
-  to_flip.resize(nc);
   clusters.resize(0); clusters.resize(nc);
 
   cluster_info_t::accumulator<cluster_fragment_t, FIELD,
@@ -242,10 +240,10 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
 
   // determine whether clusters are flipped or not
   for (int c = 0; c < clusters.size(); ++c)
-    to_flip[c] = ((2*uniform_01()-1) < (FIELD() ? std::tanh(clusters[c].weight) : 0));
+    estimates[c].to_flip = ((2*uniform_01()-1) < (FIELD() ? std::tanh(clusters[c].weight) : 0));
 
   // flip spins
-  for (int s = 0; s < nvs; ++s) if (to_flip[fragments[s].id()]) spins[s] ^= 1;
+  for (int s = 0; s < nvs; ++s) if (estimates[fragments[s].id()].to_flip) spins[s] ^= 1;
 
   //
   // measurement
@@ -261,7 +259,7 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
   double ene = model.energy_offset() - nop / beta;
   if (model.has_field())
     for (int c = 0; c < clusters.size(); ++c)
-      ene += (to_flip[c] ? -clusters[c].weight : clusters[c].weight);
+      ene += (estimates[c].to_flip ? -clusters[c].weight : clusters[c].weight);
   coll.set_energy(ene);
 
   coll.commit(obs, lattice, beta, 1, nop);
