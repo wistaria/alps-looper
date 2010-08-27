@@ -325,8 +325,7 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
       accum_i.start_bottom(s, time_t(0), s, spins_c[s]);
     }
     t = 0;
-    for (std::vector<local_operator_t>::iterator opi = operators.begin(); opi != operators.end();
-         ++opi) {
+    for (operator_iterator opi = operators.begin(); opi != operators.end(); ++opi) {
       if (opi->is_bond()) {
         if (!opi->is_frozen_bond_graph()) {
           int b = opi->pos();
@@ -372,8 +371,7 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
   }
 
   // flip operators & spins
-  for (std::vector<local_operator_t>::iterator opi = operators.begin(); opi != operators.end();
-       ++opi) {
+  for (operator_iterator opi = operators.begin(); opi != operators.end(); ++opi) {
     if (estimates[fragments[opi->loop_0()].id()].to_flip ^
         estimates[fragments[opi->loop_1()].id()].to_flip) opi->flip();
   }
