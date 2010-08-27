@@ -33,8 +33,8 @@
 #include <looper/type.h>
 #include <looper/union_find.h>
 #include <alps/parapack/worker.h>
-#include <alps/numeric/is_zero.hpp>
 #include <alps/parapack/exchange.h>
+#include <alps/numeric/is_zero.hpp>
 
 namespace {
 
@@ -348,8 +348,8 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
 
   // accumulate cluster properties
   coll.set_num_operators(operators.size());
-  coll.set_num_clusters(nc);
   if (IMPROVE()) for (int c = 0; c < nc; ++c) coll += estimates[c];
+  coll.set_num_clusters(nc);
 
   // determine whether clusters are flipped or not
   double improved_sign = sign;

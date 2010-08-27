@@ -26,6 +26,7 @@
 #define LOOPER_CUSTOM_H
 
 #include "measurement.h"
+#include "dumb_measurement.h"
 #include <alps/scheduler/measurement_operators.h>
 #include <boost/foreach.hpp>
 #include <boost/optional.hpp>

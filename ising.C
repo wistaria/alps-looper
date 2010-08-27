@@ -244,8 +244,8 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
   }
 
   // accumulate cluster properties
-  coll.set_num_clusters(nc);
   if (IMPROVE()) for (int c = 0; c < nc; ++c) coll += estimates[c];
+  coll.set_num_clusters(nc);
 
   // determine whether clusters are flipped or not
   for (int c = 0; c < nc; ++c)

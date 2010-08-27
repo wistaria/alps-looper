@@ -25,7 +25,6 @@
 #ifndef LOOPER_MEASUREMENT_H
 #define LOOPER_MEASUREMENT_H
 
-#include "dumb_measurement.h"
 #include "lattice.h"
 #include "power.h"
 #include "type.h"
