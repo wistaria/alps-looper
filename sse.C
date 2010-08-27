@@ -204,7 +204,7 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
     // diagonal update & labeling
     if (try_gap) {
       if ((nop+1) * uniform_01() < bw) {
-        model_t::local_graph_t g = model.choose_graph(generator_01());
+        loop_graph_t g = model.choose_graph(generator_01());
         if ((is_bond(g) && is_compatible(g, spins_c[source(pos(g), lattice.vg())],
                                             spins_c[target(pos(g), lattice.vg())])) ||
             (is_site(g) && is_compatible(g, spins_c[pos(g)]))) {

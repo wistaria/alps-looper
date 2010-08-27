@@ -62,7 +62,7 @@ include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR})
 
 set(LOOP_SRC loop.C loop_custom.C loop_model.C)
 if(LOOPER_ENABLE_DIAG)
- set(LOOP_SRC diag.C ${LOOP_SRC})
+  set(LOOP_SRC diag.C ${LOOP_SRC})
 endif(LOOPER_ENABLE_DIAG)
 if(LOOPER_ENABLE_ISING)
   set(LOOP_SRC ising.C ${LOOP_SRC})
