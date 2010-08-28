@@ -865,7 +865,7 @@ struct gap4 : public has_improved_estimator_tag, public has_normal_estimator_tag
 };
 
 struct generalized_gap4_and_correlation_length : public has_improved_estimator_tag,
-  public has_evaluator_tag {
+  public has_normal_estimator_tag, public has_evaluator_tag {
 
   template<typename MC, typename LAT, typename TIME>
   struct estimator {
@@ -877,10 +877,17 @@ struct generalized_gap4_and_correlation_length : public has_improved_estimator_t
       double>::type gauge_map_t;
 
     double dq_abs;
+    gauge_map_t gauge;
     std::vector<std::complex<double> > phase1;
 
     void initialize(alps::Parameters const& params, lattice_t const& lat, bool /* is_signed */,
       bool /* enable_improved_estimator */) {
+      if (!is_bipartite(lat)) {
+        std::cerr << "Error: gap4_and_correlation_length: lattice is not bipartite\n";
+        boost::throw_exception(std::invalid_argument("gap4_and_correlation_length: lattice is not bipartite"));
+      }
+      gauge = alps::get_or_default(gauge_t(), lat.vg(), 0);
+
       int dim = lat.graph_helper().dimension();
       int nvs = num_sites(lat.vg());
 
@@ -896,7 +903,6 @@ struct generalized_gap4_and_correlation_length : public has_improved_estimator_t
         std::cerr << "inconsistent dimension of DQ_OVER_TWO_PI (dq/2pi)\n";
         boost::throw_exception(std::invalid_argument("correlation_length::initialize"));
       }
-      //// std::clog << "info: calculating generalized correlation length with dq = (" << alps::write_vector(dq) << ")\n";
 
       phase1.resize(nvs);
       typename alps::graph_helper<typename lattice_t::real_graph_type>::vector_type coord;
@@ -922,7 +928,14 @@ struct generalized_gap4_and_correlation_length : public has_improved_estimator_t
         add_scalar_obs(m, "Generalized Spin Dynamic Structure Factor at (q,w) = (dq,0)",
           is_signed);
         add_scalar_obs(m, "|dq|");
+      } else {
+        add_scalar_obs(m, "Staggered Susceptibility", is_signed);
+        add_scalar_obs(m, "Staggered Susceptibility [w=2pi/beta]", is_signed);
+        add_scalar_obs(m, "Staggered Susceptibility [w=4pi/beta]", is_signed);
+        add_scalar_obs(m, "Staggered Spin Dynamic Structure Factor at (q,w) = (dq,0)",
+          is_signed);
       }
+      add_scalar_obs(m, "|dq|");
     }
 
     struct improved_estimator {
@@ -977,8 +990,8 @@ struct generalized_gap4_and_correlation_length : public has_improved_estimator_t
         }
         void end_s(estimator_t const& emt, lattice_t const&, double t,
           std::complex<double> const& ct, std::complex<double> const& ct2, int s, int c) {
-          upsize += ct * 0.5;
-          up2size += ct2 * 0.5;
+          upsize += ct;
+          up2size += ct2;
           sq1 += emt.phase1[s] * t;
           usize += t;
         }
@@ -1055,21 +1068,151 @@ struct generalized_gap4_and_correlation_length : public has_improved_estimator_t
           return *this;
         }
         template<typename M>
-        void commit(M& m, estimator_t const&, lattice_t const& lat, double beta, double sign,
+        void commit(M& m, estimator_t const& emt, lattice_t const& lat, double beta, double sign,
           double) const {
+          m["|dq|"] << emt.dq_abs;
           m["Generalized Susceptibility [w=2pi/beta]"]
-            << sign * beta * upsize2 / power2(2*M_PI) / lat.volume();
+            << sign * 0.25 * beta * upsize2 / power2(2*M_PI) / lat.volume();
           m["Generalized Susceptibility [w=4pi/beta]"]
-            << sign * beta * up2size2 / power2(4*M_PI) / lat.volume();
+            << sign * 0.25 * beta * up2size2 / power2(4*M_PI) / lat.volume();
           m["Generalized Spin Dynamic Structure Factor at (q,w) = (dq,0)"]
-            << sign * beta * str1 / lat.volume();
+            << sign * 0.25 * beta * str1 / lat.volume();
           m["Generalized Susceptibility"]
-            << sign * beta * usize2 / lat.volume();
+            << sign * 0.25 * beta * usize2 / lat.volume();
 #ifdef STD_OUTPUT
-        std::cout << sign * beta * upsize2 / power2(2*M_PI) / lat.volume() << ' '
-                  << sign * beta * up2size2 / power2(4*M_PI) / lat.volume() << ' '
-                  << sign * beta * str1 / lat.volume() << ' '
-                  << sign * beta * usize2 / lat.volume() << ' ';
+        std::cout << sign * 0.25 * beta * upsize2 / power2(2*M_PI) / lat.volume() << ' '
+                  << sign * 0.25 * beta * up2size2 / power2(4*M_PI) / lat.volume() << ' '
+                  << sign * 0.25 * beta * str1 / lat.volume() << ' '
+                  << sign * 0.25 * beta * usize2 / lat.volume() << ' ';
+#endif
+        }
+      };
+    };
+    struct normal_estimator {
+      struct collector {
+        double smag_a;
+        std::complex<double> qmag_a, q2mag_a, sq1;
+        collector() : smag_a(0), qmag_a(std::complex<double>(0,0)),
+          q2mag_a(std::complex<double>(0,0)), sq1(std::complex<double>(0,0)) {}
+        void reset(estimator_t const&) {
+          smag_a = 0;
+          qmag_a = std::complex<double>(0,0);
+          q2mag_a = std::complex<double>(0,0);
+          sq1 = std::complex<double>(0,0);
+        }
+        collector& operator+=(collector const& rhs) {
+          smag_a += rhs.smag_a;
+          qmag_a += rhs.qmag_a;
+          q2mag_a += rhs.q2mag_a;
+          sq1 += rhs.sq1;
+          return *this;
+        }
+        void begin_s(estimator_t const& emt, lattice_t const& lat, double t, int s, int c) {
+          end_s(emt, lat, -t, -ctime(t), -ctime2(t), s, c);
+        }
+        template<bool T>
+        void begin_s(estimator_t const& emt, lattice_t const& lat, imaginary_time<T> const& t,
+          int s, int c) {
+          end_s(emt, lat, -t, -ctime(t), -ctime2(t), s, c);
+        }
+        void begin_bs(estimator_t const& emt, lattice_t const& lat, double t, int, int s, int c) {
+          begin_s(emt, lat, t, s, c);
+        }
+        void begin_bt(estimator_t const& emt, lattice_t const& lat, double t, int, int s, int c) {
+          begin_s(emt, lat, t, s, c);
+        }
+        template<bool T>
+        void begin_bs(estimator_t const& emt, lattice_t const& lat, imaginary_time<T> const& t,
+          int, int s, int c) {
+          begin_s(emt, lat, t, s, c);
+        }
+        template<bool T>
+        void begin_bt(estimator_t const& emt, lattice_t const& lat, imaginary_time<T> const& t,
+          int, int s, int c) {
+          begin_s(emt, lat, t, s, c);
+        }
+        void end_s(estimator_t const& emt, lattice_t const& lat, double t, int s, int c) {
+          end_s(emt, lat, t, ctime(t), ctime2(t), s, c);
+        }
+        template<bool T>
+        void end_s(estimator_t const& emt, lattice_t const& lat, imaginary_time<T> const& t, int s,
+          int c) {
+          end_s(emt, lat, t, ctime(t), ctime2(t), s, c);
+        }
+        void end_s(estimator_t const& emt, lattice_t const&, double t,
+          std::complex<double> const& ct, std::complex<double> const& ct2, int s, int c) {
+          double gg = emt.gauge[s];
+          smag_a += gg * t * (0.5-c);
+          qmag_a += gg * ct * (0.5-c);
+          q2mag_a += gg * ct2 * (0.5-c);
+          sq1 += gg * emt.phase1[s] * t * (0.5-c);
+        }
+        void end_bs(estimator_t const& emt, lattice_t const& lat, double t, int, int s, int c) {
+          end_s(emt, lat, t, s, c);
+        }
+        void end_bt(estimator_t const& emt, lattice_t const& lat, double t, int, int s, int c) {
+          end_s(emt, lat, t, s, c);
+        }
+        template<bool T>
+        void end_bs(estimator_t const& emt, lattice_t const& lat, imaginary_time<T> const& t, int,
+          int s, int c) {
+          end_s(emt, lat, t, s, c);
+        }
+        template<bool T>
+        void end_bt(estimator_t const& emt, lattice_t const& lat, imaginary_time<T> const& t, int,
+          int s, int c) {
+          end_s(emt, lat, t, s, c);
+        }
+        void start_bottom(estimator_t const& emt, lattice_t const& lat, double t, int s, int c) {
+          begin_s(emt, lat, t, s, c);
+        }
+        template<bool T>
+        void start_bottom(estimator_t const& emt, lattice_t const& lat, imaginary_time<T> const& t,
+          int s, int c) {
+          begin_s(emt, lat, t, s, c);
+        }
+        void start(estimator_t const& emt, lattice_t const& lat, double t, int s, int c) {
+          begin_s(emt, lat, t, s, c);
+        }
+        template<bool T>
+        void start(estimator_t const& emt, lattice_t const& lat, imaginary_time<T> const& t, int s,
+          int c) {
+          begin_s(emt, lat, t, s, c);
+        }
+        void stop(estimator_t const& emt, lattice_t const& lat, double t, int s, int c) {
+          end_s(emt, lat, t, s, c);
+        }
+        template<bool T>
+        void stop(estimator_t const& emt, lattice_t const& lat, imaginary_time<T> const& t, int s,
+          int c) {
+          end_s(emt, lat, t, s, c);
+        }
+        void stop_top(estimator_t const& emt, lattice_t const& lat, double t, int s, int c) {
+          end_s(emt, lat, t, s, c);
+        }
+        template<bool T>
+        void stop_top(estimator_t const& emt, lattice_t const& lat, imaginary_time<T> const& t,
+          int s, int c) {
+          end_s(emt, lat, t, s, c);
+        }
+        template<typename M>
+        void commit(M& m, estimator_t const& emt, lattice_t const& lat, double beta, double sign,
+          double) const {
+          m["|dq|"] << emt.dq_abs;
+          m["Staggered Susceptibility [w=2pi/beta]"] <<
+            sign * beta * power2(qmag_a) / power2(2*M_PI) / lat.volume();
+          m["Staggered Susceptibility [w=4pi/beta]"] <<
+            sign * beta * power2(q2mag_a) / power2(4*M_PI) / lat.volume();
+          m["Staggered Spin Dynamic Structure Factor at (q,w) = (dq,0)"] <<
+            sign * beta * power2(sq1) / lat.volume();
+          m["Staggered Susceptibility"] <<
+            sign * beta * power2(smag_a) / lat.volume();
+#ifdef STD_OUTPUT
+        std::cout
+          << sign * beta * power2(qmag_a) / power2(2*M_PI) / lat.volume()
+          << sign * beta * power2(q2mag_a) / power2(4*M_PI) / lat.volume()
+          << sign * beta * power2(sq1) / lat.volume()
+          << sign * beta * power2(smag_a) / lat.volume();
 #endif
         }
       };
@@ -1113,6 +1256,40 @@ struct generalized_gap4_and_correlation_length : public has_improved_estimator_t
         alps::RealObsevaluator dq_abs_eval(m_in["|dq|"]);
         alps::RealObsevaluator obse_s0(m_in["Generalized Susceptibility"]);
         alps::RealObsevaluator obse_s1(m_in["Generalized Spin Dynamic Structure Factor at (q,w) = (dq,0)"]);
+        double dq_abs = dq_abs_eval.mean();
+        alps::RealObsevaluator eval("Correlation Length");
+        eval = sqrt(obse_s0 / obse_s1 - 1) / dq_abs;
+        m.addObservable(eval);
+      } catch (...) {}
+      try {
+        alps::RealObsevaluator obse_s0 = m_in["Staggered Susceptibility"];
+        alps::RealObsevaluator obse_s2 = m_in["Staggered Susceptibility [w=2pi/beta]"];
+        alps::RealObsevaluator eval0("Inverse Gap [k=pi]");
+        alps::RealObsevaluator eval1("Gap [k=pi]");
+        if (alps::numeric::is_nonzero<1>(obse_s2.mean())) {
+          eval0 = sqrt(obse_s0/obse_s2 - 1) / (2*M_PI/beta);
+          eval1 = 1.0 / eval0;
+          m.addObservable(eval0);
+          m.addObservable(eval1);
+        }
+      } catch (...) {}
+      try {
+        alps::RealObsevaluator obse_s0 = m_in["Staggered Susceptibility"];
+        alps::RealObsevaluator obse_s2 = m_in["Staggered Susceptibility [w=2pi/beta]"];
+        alps::RealObsevaluator obse_s4 = m_in["Staggered Susceptibility [w=4pi/beta]"];
+        alps::RealObsevaluator eval0("Inverse Gap (4th moment estimator) [k=pi]");
+        alps::RealObsevaluator eval1("Gap (4th moment estimator) [k=pi]");
+        if (alps::numeric::is_nonzero<1>(obse_s2.mean() - obse_s4.mean())) {
+          eval0 = sqrt(3.0*(obse_s0-obse_s2)/(obse_s2-obse_s4) - 1) / (4*M_PI/beta);
+          eval1 = 1.0 / eval0;
+          m.addObservable(eval0);
+          m.addObservable(eval1);
+        }
+      } catch (...) {}
+      try {
+        alps::RealObsevaluator dq_abs_eval(m_in["|dq|"]);
+        alps::RealObsevaluator obse_s0(m_in["Staggered Susceptibility"]);
+        alps::RealObsevaluator obse_s1(m_in["Staggered Spin Dynamic Structure Factor at (q,w) = (dq,0)"]);
         double dq_abs = dq_abs_eval.mean();
         alps::RealObsevaluator eval("Correlation Length");
         eval = sqrt(obse_s0 / obse_s1 - 1) / dq_abs;
