@@ -35,19 +35,30 @@
 #include <vector>
 #include <iostream>
 
+#include "atomic.h"
+
 namespace looper {
 namespace union_find {
 
 class node {
 public:
   node() : parent_(-1) {} // root node with weight = 1
-  bool is_root() const { return parent_ < 0; }
-  void set_parent(int parent) { parent_ = parent; }
-  int parent() const { return parent_; }
-  int add_weight(node const& n) { return parent_ += n.parent_; }
+  bool is_root() const { return parent_ <= 0; }
+  void set_parent(int parent) { parent_ = parent + 1; }
+  int parent() const { return parent_ - 1; }
+  void set_weight(int w) { parent_ = -w; }
   int weight() const { return -parent_; }
   void set_id(int id) { id_ = id; }
   int id() const { return id_; }
+  int lock_root() {
+    int p = parent_;
+    if (p < 0 && compare_and_swap(parent_, p, 0)) {
+      return -p;
+    } else {
+      return 0;
+    }
+  }
+  // unlock can be done by set_parent or set_weight
 private:
   int parent_; // negative for root fragment
   int id_;
@@ -56,25 +67,60 @@ private:
 class node_noweight {
 public:
   node_noweight() : parent_(id_mask) {} // root note with id = 0
-  bool is_root() const { return parent_ < 0; }
-  void set_parent(int parent) { parent_ = parent; }
-  int parent() const { return parent_; }
+  bool is_root() const { return parent_ <= 0; }
+  void set_parent(int parent) { parent_ = parent + 1; }
+  int parent() const { return parent_ - 1; }
   void set_id(int id) { parent_ = id ^ id_mask; }
   int id() const { return parent_ ^ id_mask; }
+  int lock_root() {
+    int p = parent_;
+    if (p < 0 && compare_and_swap(parent_, p, 0)) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+  // unlock can be done by set_parent or set_id
 private:
   static const int id_mask = -1;
   int parent_; // negative for root fragment
 };
 
+// thread-unsafe
 template<class T>
 inline int add(std::vector<T>& v) {
   v.push_back(T());
   return v.size() - 1; // return index of new node
 }
 
+// thread-unsafe
 template<class T>
 inline int root_index(std::vector<T> const& v, int g) {
   while (!v[g].is_root()) g = v[g].parent(); return g;
+}
+
+// thread-safe
+template<class T>
+inline int root_index_omp(std::vector<T> const& v, int g) {
+  T c = v[g];
+  while (!c.is_root()) {
+    g = c.parent();
+    c = v[g];
+  }
+  return g;
+}
+
+// root_index with path-halving
+// Note: this is not thread-safe, but is really safe as long as called from unify_*_omp
+template<class T>
+inline int root_index_ph(std::vector<T>& v, int g) {
+  if (v[g].is_root()) return g;
+  while (true) {
+    int p = v[g].parent();
+    if (v[p].is_root()) return p;
+    v[g].set_parent(v[p].parent());
+    g = p;
+  }
 }
 
 template<class T>
@@ -100,6 +146,39 @@ inline void set_root(std::vector<T>& v, int g) {
   }
 }
 
+// thread-safe version of set_root
+inline void set_root_omp(std::vector<node>& v, int g) {
+  while(true) {
+    int r = root_index_omp(v, g);
+    if (r == g) {
+      return;
+    } else {
+      int w = v[r].lock_root();
+      if (w != 0) {
+        v[g].set_weight(w);
+        v[r].set_parent(g); // release lock
+        return;
+      }
+    }
+  }
+}
+
+inline void set_root_omp(std::vector<node_noweight>& v, int g) {
+  while(true) {
+    int r = root_index_omp(v, g);
+    if (r == g) {
+      return;
+    } else {
+      int w = v[r].lock_root();
+      if (w != 0) {
+        v[g].set_id(0);
+        v[r].set_parent(g); // release lock
+        return;
+      }
+    }
+  }
+}
+
 template<class T>
 inline void update_link(std::vector<T>& v, int g, int r) {
   while (g != r) {
@@ -110,13 +189,13 @@ inline void update_link(std::vector<T>& v, int g, int r) {
 }
 
 template<class T>
-inline int unify_weight(std::vector<T>& v, int g0, int g1) {
+inline int unify_weight_compress(std::vector<T>& v, int g0, int g1) {
   using std::swap;
   int r0 = root_index(v, g0);
   int r1 = root_index(v, g1);
   if (r0 != r1) {
     if (v[r0].weight() < v[r1].weight()) swap(r0, r1);
-    v[r0].add_weight(v[r1]);
+    v[r0].set_weight(v[r0].weight() + v[r1].weight());
     v[r1].set_parent(r0);
   }
   update_link(v, g0, r0);
@@ -125,7 +204,44 @@ inline int unify_weight(std::vector<T>& v, int g0, int g1) {
 }
 
 template<class T>
-inline int unify_noweight(std::vector<T>& v, int g0, int g1) {
+inline int unify_weight_ph(std::vector<T>& v, int g0, int g1) {
+  using std::swap;
+  int r0 = root_index_ph(v, g0);
+  int r1 = root_index_ph(v, g1);
+  if (r0 != r1) {
+    if (v[r0].weight() < v[r1].weight()) swap(r0, r1);
+    v[r0].set_weight(v[r0].weight() + v[r1].weight());
+    v[r1].set_parent(r0);
+  }
+  return r0; // return (new) root node
+}
+
+// thread safe version of unify_weight
+template<class T>
+inline int unify_weight_omp(std::vector<T>& v, int g0, int g1) {
+  using std::swap;
+  int r0 = g0;
+  int w0 = 0;
+  int r1 = g1;
+  int w1 = 0;
+  while (true) {
+    r0 = root_index_ph(v, g0);
+    r1 = root_index_ph(v, g1);
+    if (r1 == r0) return r0; // g0 and g1 belong to the same cluster
+    w0 = v[r0].lock_root();
+    w1 = v[r1].lock_root();
+    if (w0 != 0 && w1 != 0) break;
+    if (w0 != 0) v[r0].set_weight(w0); // release lock
+    if (w1 != 0) v[r1].set_weight(w1); // release lock
+  }
+  if (w0 < w1) swap(r0, r1);
+  v[r0].set_weight(w0 + w1); // release lock
+  v[r1].set_parent(r0); // release lock
+  return r0; // return (new) root node
+}
+
+template<class T>
+inline int unify_noweight_compress(std::vector<T>& v, int g0, int g1) {
   int r0 = root_index(v, g0);
   int r1 = root_index(v, g1);
   if (r0 != r1) v[r1].set_parent(r0);
@@ -134,12 +250,51 @@ inline int unify_noweight(std::vector<T>& v, int g0, int g1) {
   return r0; // return (new) root node
 }
 
+template<class T>
+inline int unify_noweight_ph(std::vector<T>& v, int g0, int g1) {
+  int r0 = root_index_ph(v, g0);
+  int r1 = root_index_ph(v, g1);
+  if (r0 != r1) v[r1].set_parent(r0);
+  return r0; // return (new) root node
+}
+
+// thread safe version of unify_noweight
+template<class T>
+inline int unify_noweight_omp(std::vector<T>& v, int g0, int g1) {
+  using std::swap;
+  int r0 = g0;
+  int w0 = 0;
+  int r1 = g1;
+  int w1 = 0;
+  while (true) {
+    r0 = root_index_ph(v, g0);
+    r1 = root_index_ph(v, g1);
+    if (r1 == r0) return r0; // g0 and g1 belong to the same cluster
+    w0 = v[r0].lock_root();
+    w1 = v[r1].lock_root();
+    if (w0 != 0 && w1 != 0) break;
+    if (w0 != 0) v[r0].set_id(0); // release lock
+    if (w1 != 0) v[r1].set_id(0); // release lock
+  }
+  v[r0].set_id(0); // release lock
+  v[r1].set_parent(r0); // release lock
+  return r0; // return (new) root node
+}
+
 inline int unify(std::vector<node>& v, int g0, int g1) {
-  return unify_weight(v, g0, g1);
+  return unify_weight_ph(v, g0, g1);
+}
+
+inline int unify_omp(std::vector<node>& v, int g0, int g1) {
+  return unify_weight_omp(v, g0, g1);
 }
 
 inline int unify(std::vector<node_noweight>& v, int g0, int g1) {
-  return unify_noweight(v, g0, g1);
+  return unify_noweight_ph(v, g0, g1);
+}
+
+inline int unify_omp(std::vector<node_noweight>& v, int g0, int g1) {
+  return unify_noweight_omp(v, g0, g1);
 }
 
 template<class T>
@@ -172,6 +327,15 @@ int count_root(std::vector<T>& v, int start, int n) {
 }
 
 template<typename T>
+int count_root_p(std::vector<T>& v, int start, int n) {
+  int nc = 0;
+  #pragma omp for schedule(static) nowait
+  for (int i = start; i < start + n; ++i)
+    if (v[i].is_root()) ++nc;
+  return nc;
+}
+
+template<typename T>
 int set_id(std::vector<T>& v, int start, int n, int nc) {
   for (int i = start; i < start + n; ++i)
     if (v[i].is_root()) v[i].set_id(nc++);
@@ -179,7 +343,22 @@ int set_id(std::vector<T>& v, int start, int n, int nc) {
 }
 
 template<typename T>
+int set_id_p(std::vector<T>& v, int start, int n, int nc) {
+  #pragma omp for schedule(static) nowait
+  for (int i = start; i < start + n; ++i)
+    if (v[i].is_root()) v[i].set_id(nc++);
+  return nc;
+}
+
+template<typename T>
 void copy_id(std::vector<T>& v, int start, int n) {
+  for (int i = start; i < start + n; ++i)
+    v[i].set_id(cluster_id(v, i));
+}
+
+template<typename T>
+void copy_id_p(std::vector<T>& v, int start, int n) {
+  #pragma omp for schedule(static) nowait
   for (int i = start; i < start + n; ++i)
     v[i].set_id(cluster_id(v, i));
 }

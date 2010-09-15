@@ -28,10 +28,8 @@
 #include <alps/lattice.h>
 #include <looper/graph.h>
 #include <looper/model.h>
-#include <looper/time.h>
 
 // measurement
-#include <looper/measurement.h>
 #include <looper/energy.h>
 #include <looper/gap.h>
 #include <looper/susceptibility.h>
@@ -58,7 +56,6 @@ struct loop_config {
 
  // measurements
   typedef looper::measurement_set<
-    looper::base_measurement,
     looper::energy,
     looper::gap,
     looper::susceptibility

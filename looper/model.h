@@ -48,8 +48,16 @@ public:
   spinmodel_helper(alps::Parameters const& p, lattice_t& lat, bool is_path_integral = true) {
     init(p, lat, is_path_integral);
   }
+  template<typename SHARING>
+  spinmodel_helper(alps::Parameters const& p, lattice_t& lat, SHARING& sharing,
+                   bool is_path_integral = true) {
+    init(p, lat, sharing, is_path_integral);
+  }
 
   void init(alps::Parameters const& p, lattice_t& lat, bool is_path_integral = true);
+  template<typename SHARING>
+  void init(alps::Parameters const& p, lattice_t& lat, SHARING& sharing,
+            bool is_path_integral = true);
 
   void check_parameter(bool support_longitudinal_field, bool support_negative_sign) const {
     if (has_field()) {
@@ -90,6 +98,8 @@ public:
   template<typename RNG>
   local_graph_t const& choose_graph(RNG& rng) const { return chooser_.graph(rng); }
   template<typename RNG>
+  local_graph_t const& choose_graph(RNG& rng, int tid) const { return chooser_.graph(rng, tid); }
+  template<typename RNG>
   local_graph_t choose_diagonal(RNG& rng, location_t const& loc, int c) const {
     return chooser_.diagonal(rng, loc, c);
   }
@@ -102,6 +112,7 @@ public:
     return chooser_.offdiagonal(rng, loc, c0, c1);
   }
   double graph_weight() const { return chooser_.weight(); }
+  double graph_weight(int tid) const { return chooser_.weight(tid); }
 
 private:
   bool quantal_;
@@ -113,85 +124,6 @@ private:
   bool signed_;
   std::vector<int> site_sign_;
   std::vector<int> bond_sign_;
-};
-
-
-template<typename RG>
-class uniform_haf_spinmodel_helper {
-public:
-  typedef RG real_graph_t;
-  typedef local_graph<site_graph_type, haf_bond_graph_type, location_bond> local_graph_t;
-
-  typedef lattice_helper<real_graph_t> lattice_t;
-  typedef typename local_graph_t::location_t location_t;
-
-  uniform_haf_spinmodel_helper(alps::Parameters const& p, lattice_t& lat,
-    bool is_path_integral = true) {
-    init(p, lat, is_path_integral);
-  }
-
-  void init(alps::Parameters const& p, lattice_t& lat, bool is_path_integral = true);
-
-  void check_parameter(bool support_longitudinal_field, bool support_negative_sign) const {
-    if (has_field()) {
-      if (support_longitudinal_field) {
-        std::cerr << "WARNING: model has a magnetic field\n";
-      } else {
-        boost::throw_exception(std::invalid_argument("longitudinal magnetic field not supported"));
-      }
-    }
-    if (is_frustrated()) {
-      std::cerr << "WARNING: model is classically frustrated\n";
-    }
-    if (is_signed()) {
-      if (support_negative_sign) {
-        std::cerr << "WARNING: model has negative signs\n";
-      } else {
-        boost::throw_exception(std::invalid_argument("negative signs not supported"));
-      }
-    }
-  }
-
-  bool is_quantal() const { return true; }
-  bool is_frustrated() const { return false; }
-  double energy_offset() const { return site_energy_offset() + bond_energy_offset(); }
-  double site_energy_offset() const { return 0.0; }
-  double bond_energy_offset() const { return 0.5 * num_virtual_bonds_; }
-
-  bool has_field() const { return false; }
-  std::vector<double> const& field() const { return field_; }
-
-  bool is_signed() const { return false; }
-  std::vector<int> const& site_sign() const { return site_sign_; }
-  int site_sign(int) const { return 1; }
-  std::vector<int> const& bond_sign() const { return bond_sign_; }
-  int bond_sign(int) const { return 1; }
-
-  // from graph_chooser
-  template<typename RNG>
-  local_graph_t const& choose_graph(RNG& rng) const {
-    return local_graph_t(/* type = */ 0, location_t(num_virtual_bonds_ * rng(), /* bond = */ true));
-  }
-  template<typename RNG>
-  local_graph_t choose_diagonal(RNG& rng, location_t const& loc, int /* c */) const {
-    boost::throw_exception(std::logic_error("uniform_haf_spinmodel_helper"));
-    return local_graph_t();
-  }
-  template<typename RNG>
-  local_graph_t choose_diagonal(RNG& rng, location_t const& loc, int, int) const {
-    return local_graph_t(0, loc);
-  }
-  template<typename RNG>
-  local_graph_t choose_offdiagonal(RNG& rng, const location_t& loc, int, int) const {
-    return local_graph_t(0, loc);
-  }
-  double graph_weight() const { return 0.5 * num_virtual_bonds_; }
-
-private:
-  int num_virtual_bonds_;
-  std::vector<double> field_; // not used
-  std::vector<int> site_sign_; // not used
-  std::vector<int> bond_sign_; // not used
 };
 
 } // end namespace looper

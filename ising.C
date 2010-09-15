@@ -54,8 +54,6 @@ public:
   typedef looper::cluster_info cluster_info_t;
 
   typedef looper::estimator<measurement_set, mc_type, lattice_t, time_t>::type estimator_t;
-  typedef estimator_t::improved_estimator::estimate estimate_t;
-  typedef estimator_t::improved_estimator::minimal_estimate minimal_estimate_t;
   typedef double weight_parameter_type;
 
   loop_worker(alps::Parameters const& p);
@@ -103,8 +101,8 @@ private:
   int nop;
   std::vector<cluster_fragment_t> fragments;
   std::vector<cluster_info_t> clusters;
-  std::vector<estimate_t> estimates_i;
-  std::vector<minimal_estimate_t> estimates_m;
+  std::vector<estimator_t::improved_estimator::estimate> estimates_i;
+  std::vector<estimator_t::normal_estimator::estimate> estimates_n;
   std::vector<int> perm;
 };
 
@@ -152,9 +150,9 @@ void loop_worker::run(alps::ObservableSet& obs) {
 
   //       FIELD               IMPROVE
   dispatch<boost::mpl::true_,  boost::mpl::true_ >(obs, coll_i, estimates_i);
-  dispatch<boost::mpl::true_,  boost::mpl::false_>(obs, coll_n, estimates_m);
+  dispatch<boost::mpl::true_,  boost::mpl::false_>(obs, coll_n, estimates_n);
   dispatch<boost::mpl::false_, boost::mpl::true_ >(obs, coll_i, estimates_i);
-  dispatch<boost::mpl::false_, boost::mpl::false_>(obs, coll_n, estimates_m);
+  dispatch<boost::mpl::false_, boost::mpl::false_>(obs, coll_n, estimates_n);
 }
 
 

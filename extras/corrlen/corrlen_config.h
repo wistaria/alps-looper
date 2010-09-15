@@ -28,7 +28,6 @@
 #include <alps/lattice.h>
 #include <looper/graph.h>
 #include <looper/model.h>
-#include <looper/time.h>
 
 #include <looper/energy.h>
 // #include <looper/correlation.h>
@@ -56,7 +55,6 @@ struct loop_config {
 
   // measurements
   typedef looper::measurement_set<
-    looper::base_measurement,
     looper::energy,
     // looper::correlation,
     looper::correlation_length

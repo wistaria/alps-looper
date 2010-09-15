@@ -108,14 +108,14 @@ node 1's parent is 2 and its root is 2
 node 2 is root and tree size is 81
 node 3's parent is 2 and its root is 2
 node 4's parent is 2 and its root is 2
-node 5's parent is 2 and its root is 2
+node 5's parent is 23 and its root is 2
 node 6's parent is 78 and its root is 2
 node 7's parent is 78 and its root is 2
 node 8's parent is 2 and its root is 2
 node 9's parent is 2 and its root is 2
 node 10's parent is 78 and its root is 2
-node 11's parent is 78 and its root is 2
-node 12's parent is 2 and its root is 2
+node 11's parent is 7 and its root is 2
+node 12's parent is 86 and its root is 2
 node 13's parent is 2 and its root is 2
 node 14's parent is 2 and its root is 2
 node 15's parent is 12 and its root is 2
@@ -128,8 +128,8 @@ node 21 is root and tree size is 1
 node 22's parent is 79 and its root is 79
 node 23's parent is 2 and its root is 2
 node 24's parent is 78 and its root is 2
-node 25's parent is 69 and its root is 2
-node 26's parent is 2 and its root is 2
+node 25's parent is 92 and its root is 2
+node 26's parent is 9 and its root is 2
 node 27 is root and tree size is 1
 node 28's parent is 30 and its root is 2
 node 29's parent is 2 and its root is 2
@@ -138,13 +138,13 @@ node 31's parent is 2 and its root is 2
 node 32's parent is 1 and its root is 2
 node 33's parent is 2 and its root is 2
 node 34's parent is 2 and its root is 2
-node 35's parent is 78 and its root is 2
+node 35's parent is 2 and its root is 2
 node 36's parent is 2 and its root is 2
 node 37's parent is 2 and its root is 2
 node 38's parent is 2 and its root is 2
 node 39's parent is 2 and its root is 2
 node 40's parent is 2 and its root is 2
-node 41's parent is 2 and its root is 2
+node 41's parent is 8 and its root is 2
 node 42 is root and tree size is 1
 node 43's parent is 7 and its root is 2
 node 44's parent is 2 and its root is 2
@@ -178,9 +178,9 @@ node 71 is root and tree size is 1
 node 72's parent is 86 and its root is 2
 node 73's parent is 2 and its root is 2
 node 74's parent is 2 and its root is 2
-node 75's parent is 79 and its root is 79
+node 75's parent is 59 and its root is 79
 node 76's parent is 9 and its root is 2
-node 77's parent is 2 and its root is 2
+node 77's parent is 78 and its root is 2
 node 78's parent is 2 and its root is 2
 node 79 is root and tree size is 4
 node 80's parent is 12 and its root is 2
@@ -194,9 +194,9 @@ node 87's parent is 2 and its root is 2
 node 88's parent is 86 and its root is 2
 node 89's parent is 2 and its root is 2
 node 90's parent is 2 and its root is 2
-node 91's parent is 2 and its root is 2
+node 91's parent is 30 and its root is 2
 node 92's parent is 2 and its root is 2
-node 93's parent is 2 and its root is 2
+node 93's parent is 78 and its root is 2
 node 94 is root and tree size is 1
 node 95's parent is 40 and its root is 2
 node 96's parent is 2 and its root is 2
@@ -208,14 +208,14 @@ node 1's parent is 2 and its root is 2
 node 2 is root
 node 3's parent is 2 and its root is 2
 node 4's parent is 2 and its root is 2
-node 5's parent is 2 and its root is 2
+node 5's parent is 23 and its root is 2
 node 6's parent is 78 and its root is 2
 node 7's parent is 78 and its root is 2
 node 8's parent is 2 and its root is 2
 node 9's parent is 2 and its root is 2
 node 10's parent is 78 and its root is 2
-node 11's parent is 78 and its root is 2
-node 12's parent is 2 and its root is 2
+node 11's parent is 7 and its root is 2
+node 12's parent is 86 and its root is 2
 node 13's parent is 2 and its root is 2
 node 14's parent is 2 and its root is 2
 node 15's parent is 12 and its root is 2
@@ -228,8 +228,8 @@ node 21 is root
 node 22's parent is 79 and its root is 79
 node 23's parent is 2 and its root is 2
 node 24's parent is 78 and its root is 2
-node 25's parent is 69 and its root is 2
-node 26's parent is 2 and its root is 2
+node 25's parent is 92 and its root is 2
+node 26's parent is 9 and its root is 2
 node 27 is root
 node 28's parent is 30 and its root is 2
 node 29's parent is 2 and its root is 2
@@ -238,13 +238,13 @@ node 31's parent is 2 and its root is 2
 node 32's parent is 1 and its root is 2
 node 33's parent is 2 and its root is 2
 node 34's parent is 2 and its root is 2
-node 35's parent is 78 and its root is 2
+node 35's parent is 2 and its root is 2
 node 36's parent is 2 and its root is 2
 node 37's parent is 2 and its root is 2
 node 38's parent is 2 and its root is 2
 node 39's parent is 2 and its root is 2
 node 40's parent is 2 and its root is 2
-node 41's parent is 2 and its root is 2
+node 41's parent is 8 and its root is 2
 node 42 is root
 node 43's parent is 7 and its root is 2
 node 44's parent is 2 and its root is 2
@@ -278,9 +278,9 @@ node 71 is root
 node 72's parent is 86 and its root is 2
 node 73's parent is 2 and its root is 2
 node 74's parent is 2 and its root is 2
-node 75's parent is 79 and its root is 79
+node 75's parent is 59 and its root is 79
 node 76's parent is 9 and its root is 2
-node 77's parent is 2 and its root is 2
+node 77's parent is 78 and its root is 2
 node 78's parent is 2 and its root is 2
 node 79 is root
 node 80's parent is 12 and its root is 2
@@ -294,9 +294,9 @@ node 87's parent is 2 and its root is 2
 node 88's parent is 86 and its root is 2
 node 89's parent is 2 and its root is 2
 node 90's parent is 2 and its root is 2
-node 91's parent is 2 and its root is 2
+node 91's parent is 30 and its root is 2
 node 92's parent is 2 and its root is 2
-node 93's parent is 2 and its root is 2
+node 93's parent is 78 and its root is 2
 node 94 is root
 node 95's parent is 40 and its root is 2
 node 96's parent is 2 and its root is 2

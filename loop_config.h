@@ -33,8 +33,6 @@
 #include <looper/graph.h>
 #include <looper/model.h>
 
-// measurements
-#include <looper/measurement.h>
 #include <looper/energy.h>
 // #include <looper/correlation.h>
 // #include <looper/custom.h>
@@ -63,7 +61,6 @@ struct loop_config {
 
   // measurements
   typedef looper::measurement_set<
-    looper::base_measurement,
     looper::energy,
     /* looper::correlation,
        looper::custom_measurement, */

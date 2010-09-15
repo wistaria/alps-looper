@@ -27,6 +27,7 @@
 
 #include "graph.h"
 #include "location_impl.h"
+#include "openmp.h"
 #include "random_choice.h"
 #ifdef HAVE_PARAPACK_13
 # include <alps/math.hpp>
@@ -312,6 +313,25 @@ struct xxz_bond_graph_type {
     }
     return boost::make_tuple(fid, curr0, curr1, loop0, loop1);
   }
+  template<class T>
+  static boost::tuple<int /* fid */, int /* curr0 */, int /* curr1 */, int /* loop0 */,
+                      int /* loop1 */>
+  reconnect_omp(int g, std::vector<T>& fragments, int fid, int curr0, int curr1) {
+    int loop0, loop1;
+    if ((g & 2) == 2) {
+      loop0 = loop1 = curr0 = curr1 = unify_omp(fragments, curr0, curr1);
+    } else if (g == 0) {
+      fragments[fid] = T();
+      loop0 = unify_omp(fragments, curr0, curr1);
+      loop1 = curr0 = curr1 = fid;
+      ++fid;
+    } else {
+      loop0 = curr0;
+      loop1 = curr1;
+      std::swap(curr0, curr1);
+    }
+    return boost::make_tuple(fid, curr0, curr1, loop0, loop1);
+  }
 
   static bool has_nontrivial_diagonal_choice_helper() { return true; }
   struct diagonal_choice_helper {
@@ -380,6 +400,25 @@ struct xyz_bond_graph_type {
     } else if (g == 0 || g == 5) {
       fragments[fid] = T();
       loop0 = unify(fragments, curr0, curr1);
+      loop1 = curr0 = curr1 = fid;
+      ++fid;
+    } else {
+      loop0 = curr0;
+      loop1 = curr1;
+      std::swap(curr0, curr1);
+    }
+    return boost::make_tuple(fid, curr0, curr1, loop0, loop1);
+  }
+  template<typename T>
+  static boost::tuple<int /* fid */, int /* curr0 */, int /* curr1 */, int /* loop0 */,
+                      int /* loop1 */>
+  reconnect_omp(int g, std::vector<T>& fragments, int fid, int curr0, int curr1) {
+    int loop0, loop1;
+    if ((g & 2) == 2) {
+      loop0 = loop1 = curr0 = curr1 = unify_omp(fragments, curr0, curr1);
+    } else if (g == 0 || g == 5) {
+      fragments[fid] = T();
+      loop0 = unify_omp(fragments, curr0, curr1);
       loop1 = curr0 = curr1 = fid;
       ++fid;
     } else {
@@ -491,6 +530,11 @@ public:
   reconnect_site(std::vector<T>& fragments, int fid, int curr) const {
     return site_graph_t::reconnect(type_, fragments, fid, curr);
   }
+  template<class T>
+  boost::tuple<int /* fid */, int /* curr */, int /* loop0 */, int /* loop1 */>
+  reconnect_site_omp(std::vector<T>& fragments, int fid, int curr) const {
+    return site_graph_t::reconnect_omp(type_, fragments, fid, curr);
+  }
 
   // obsolete interface
   template<class T>
@@ -503,6 +547,11 @@ public:
   boost::tuple<int /* fid */, int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
   reconnect_bond(std::vector<T>& fragments, int fid, int curr0, int curr1) const {
     return bond_graph_t::reconnect(type_, fragments, fid, curr0, curr1);
+  }
+  template<class T>
+  boost::tuple<int /* fid */, int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
+  reconnect_bond_omp(std::vector<T>& fragments, int fid, int curr0, int curr1) const {
+    return bond_graph_t::reconnect_omp(type_, fragments, fid, curr0, curr1);
   }
 
   static int loop_l(int /* t */, int loop0, int /* loop1 */) { return loop0; }
@@ -539,30 +588,42 @@ inline bool is_bond(const local_graph<SITE, BOND, LOC>& g) { return g.is_bond();
 template<typename T, typename SITE, typename BOND, typename LOC>
 boost::tuple<int /* curr */, int /* loop0 */, int /* loop1 */>
 reconnect(std::vector<T>& fragments, const local_graph<SITE, BOND, LOC>& g,
-  int curr) {
+          int curr) {
   return g.reconnect(fragments, curr);
 }
 // current interface
 template<typename T, typename SITE, typename BOND, typename LOC>
 boost::tuple<int /* fid */, int /* curr */, int /* loop0 */, int /* loop1 */>
 reconnect(std::vector<T>& fragments, int fid, const local_graph<SITE, BOND, LOC>& g,
-  int curr) {
+          int curr) {
   return g.reconnect_site(fragments, fid, curr);
+}
+template<typename T, typename SITE, typename BOND, typename LOC>
+boost::tuple<int /* fid */, int /* curr */, int /* loop0 */, int /* loop1 */>
+reconnect_omp(std::vector<T>& fragments, int fid, const local_graph<SITE, BOND, LOC>& g,
+              int curr) {
+  return g.reconnect_site_omp(fragments, fid, curr);
 }
 
 // obsolete interface
 template<typename T, typename SITE, typename BOND, typename LOC>
 boost::tuple<int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
 reconnect(std::vector<T>& fragments, const local_graph<SITE, BOND, LOC>& g,
-  int curr0, int curr1) {
+          int curr0, int curr1) {
   return g.reconnect(fragments, curr0, curr1);
 }
 // current interface
 template<typename T, typename SITE, typename BOND, typename LOC>
 boost::tuple<int /* fid */, int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
 reconnect(std::vector<T>& fragments, int fid, const local_graph<SITE, BOND, LOC>& g,
-  int curr0, int curr1) {
+          int curr0, int curr1) {
   return g.reconnect_bond(fragments, fid, curr0, curr1);
+}
+template<typename T, typename SITE, typename BOND, typename LOC>
+boost::tuple<int /* fid */, int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
+reconnect_omp(std::vector<T>& fragments, int fid, const local_graph<SITE, BOND, LOC>& g,
+          int curr0, int curr1) {
+  return g.reconnect_bond_omp(fragments, fid, curr0, curr1);
 }
 
 
@@ -580,26 +641,33 @@ public:
   typedef LOC location_t;
   typedef local_graph<site_graph_t, bond_graph_t, location_t> local_graph_t;
 
-  graph_chooser() : dist_graph_() {}
-  template<class WEIGHT_TABLE>
-  graph_chooser(const WEIGHT_TABLE& wt, bool is_path_integral) : dist_graph_() {
+  graph_chooser() {}
+  template<typename WEIGHT_TABLE>
+  graph_chooser(const WEIGHT_TABLE& wt, bool is_path_integral) {
     init(wt, is_path_integral);
   }
+  template<class WEIGHT_TABLE, typename SHARING>
+  graph_chooser(const WEIGHT_TABLE& wt, SHARING const& sharing, bool is_path_integral) {
+    init(wt, sharing, is_path_integral);
+  }
 
-  template<class WEIGHT_TABLE>
+  template<typename WEIGHT_TABLE>
   void init(const WEIGHT_TABLE& wt, bool is_path_integral) {
-    graph_.resize(0);
+    dist_graph_.resize(omp_get_max_threads());
+    graph_.resize(omp_get_max_threads());
+    for (int i = 0; i < graph_.size(); ++i) graph_[i].resize(0);
     diag_.resize(0);
     offdiag_.resize(0);
     std::vector<double> w;
-    weight_ = 0;
+    weight_.resize(omp_get_max_threads());
+    for (int i = 0; i < graph_.size(); ++i) weight_[i] = 0;
     BOOST_FOREACH(typename WEIGHT_TABLE::site_weight_t const& sw, wt.site_weights()) {
       for (int g = 0; g < WEIGHT_TABLE::num_site_graphs; ++g) {
         if (is_nonzero<1>(sw.second.v[g])) {
           if (site_graph_t::is_valid_gid(g)) {
-            graph_.push_back(local_graph_t(g, location_t::site_location(sw.first)));
+            graph_[0].push_back(local_graph_t(g, location_t::site_location(sw.first)));
             w.push_back(sw.second.v[g]);
-            weight_ += sw.second.v[g];
+            weight_[0] += sw.second.v[g];
           } else {
             boost::throw_exception(std::runtime_error("graph_chooser::init"));
           }
@@ -610,9 +678,9 @@ public:
       for (int g = 0; g < WEIGHT_TABLE::num_bond_graphs; ++g) {
         if (is_nonzero<1>(bw.second.v[g])) {
           if (bond_graph_t::is_valid_gid(g)) {
-            graph_.push_back(local_graph_t(g, location_t::bond_location(bw.first)));
+            graph_[0].push_back(local_graph_t(g, location_t::bond_location(bw.first)));
             w.push_back(bw.second.v[g]);
-            weight_ += bw.second.v[g];
+            weight_[0] += bw.second.v[g];
           } else {
             boost::throw_exception(std::runtime_error("graph_chooser::init"));
           }
@@ -623,12 +691,60 @@ public:
       if (bond_graph_t::has_nontrivial_offdiagonal_choice_helper())
         offdiag_.push_back(typename bond_graph_t::offdiagonal_choice_helper(bw.second.v));
     }
-    if (w.size()) dist_graph_.init(w);
-    if (is_zero<2>(weight_)) weight_ = 1.0e-20;
+    if (w.size()) dist_graph_[0].init(w);
+    if (is_zero<2>(weight_[0])) weight_[0] = 1.0e-20;
+  }
+
+  template<typename WEIGHT_TABLE, typename SHARING>
+  void init(const WEIGHT_TABLE& wt, SHARING const& sharing, bool is_path_integral) {
+    int num_threads = omp_get_max_threads();
+    dist_graph_.resize(num_threads);
+    graph_.resize(num_threads);
+    diag_.resize(0);
+    offdiag_.resize(0);
+    weight_.resize(num_threads);
+    std::vector<std::vector<double> > w(num_threads);
+    #pragma omp parallel
+    {
+      int tid = omp_get_thread_num();
+      graph_[tid].resize(0);
+      weight_[tid] = 0;
+      // site weight is not supported
+      //// BOOST_FOREACH(typename WEIGHT_TABLE::bond_weight_t const& bw, wt.bond_weights()) {
+      typename WEIGHT_TABLE::bond_weight_iterator bwi, bwi_end;
+      for (boost::tie(bwi, bwi_end) = wt.bond_weights(); bwi != bwi_end; ++bwi) {
+        if (bwi->first >= sharing.bond_offset(tid) &&
+            bwi->first < sharing.bond_offset(tid) + sharing.num_bonds_local(tid)) {
+          for (int g = 0; g < WEIGHT_TABLE::num_bond_graphs; ++g) {
+            if (is_nonzero<1>(bwi->second.v[g])) {
+              if (bond_graph_t::is_valid_gid(g)) {
+                graph_[tid].push_back(local_graph_t(g, location_t::bond_location(bwi->first)));
+                w[tid].push_back(bwi->second.v[g]);
+                weight_[tid] += bwi->second.v[g];
+              } else {
+                boost::throw_exception(std::runtime_error("graph_chooser::init"));
+              }
+            }
+          }
+        }
+      }
+      if (w[tid].size()) dist_graph_[tid].init(w[tid]);
+      if (is_zero<2>(weight_[tid])) weight_[tid] = 1.0e-20;
+    } // end omp parallel
+    //// BOOST_FOREACH(typename WEIGHT_TABLE::bond_weight_t const& bw, wt.bond_weights()) {
+    typename WEIGHT_TABLE::bond_weight_iterator bwi, bwi_end;
+    for (boost::tie(bwi, bwi_end) = wt.bond_weights(); bwi != bwi_end; ++bwi) {
+      if (!is_path_integral && bond_graph_t::has_nontrivial_diagonal_choice_helper())
+        diag_.push_back(typename bond_graph_t::diagonal_choice_helper(bwi->second.v));
+      if (bond_graph_t::has_nontrivial_offdiagonal_choice_helper())
+        offdiag_.push_back(typename bond_graph_t::offdiagonal_choice_helper(bwi->second.v));
+    }
   }
 
   template<typename RNG>
-  const local_graph_t& graph(RNG& rng) const { return graph_[dist_graph_(rng)]; }
+  const local_graph_t& graph(RNG& rng) const { return graph_[0][dist_graph_[0](rng)]; }
+  template<typename RNG>
+  const local_graph_t& graph(RNG& rng, int tid) const { return graph_[tid][dist_graph_[tid](rng)]; }
   template<typename RNG>
   local_graph_t diagonal(RNG& /* rng */, const location_t& loc, int /* c */) const {
     return local_graph_t(0, loc);
@@ -641,12 +757,13 @@ public:
   local_graph_t offdiagonal(RNG& rng, const location_t& loc, int c0, int c1) const {
     return local_graph_t(bond_graph_t::choose_offdiagonal(rng, offdiag_, pos(loc), c0, c1), loc);
   }
-  double weight() const { return weight_; }
+  double weight() const { return weight_[0]; }
+  double weight(int tid) const { return weight_[tid]; }
 
 private:
-  random_choice_walker_d<> dist_graph_;
-  double weight_;
-  std::vector<local_graph_t> graph_;
+  std::vector<random_choice_walker_d<> > dist_graph_;
+  std::vector<double> weight_;
+  std::vector<std::vector<local_graph_t> > graph_;
   std::vector<typename bond_graph_t::diagonal_choice_helper> diag_;
   std::vector<typename bond_graph_t::offdiagonal_choice_helper> offdiag_;
 };

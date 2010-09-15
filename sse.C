@@ -53,8 +53,6 @@ public:
   typedef looper::cluster_info cluster_info_t;
 
   typedef looper::estimator<measurement_set, mc_type, lattice_t, time_t>::type estimator_t;
-  typedef estimator_t::improved_estimator::estimate estimate_t;
-  typedef estimator_t::improved_estimator::minimal_estimate minimal_estimate_t;
   typedef double weight_parameter_type;
 
   loop_worker(alps::Parameters const& p);
@@ -105,8 +103,8 @@ private:
   std::vector<cluster_fragment_t> fragments;
   std::vector<int> current;
   std::vector<cluster_info_t> clusters;
-  std::vector<estimate_t> estimates_i;
-  std::vector<minimal_estimate_t> estimates_m;
+  std::vector<estimator_t::improved_estimator::estimate> estimates_i;
+  std::vector<estimator_t::normal_estimator::estimate> estimates_n;
   std::vector<int> perm;
 };
 
@@ -161,9 +159,9 @@ void loop_worker::run(alps::ObservableSet& obs) {
 
   //       FIELD               SIGN                IMPROVE
   dispatch<boost::mpl::false_, boost::mpl::true_,  boost::mpl::true_ >(obs, coll_i, estimates_i);
-  dispatch<boost::mpl::false_, boost::mpl::true_,  boost::mpl::false_>(obs, coll_n, estimates_m);
+  dispatch<boost::mpl::false_, boost::mpl::true_,  boost::mpl::false_>(obs, coll_n, estimates_n);
   dispatch<boost::mpl::false_, boost::mpl::false_, boost::mpl::true_ >(obs, coll_i, estimates_i);
-  dispatch<boost::mpl::false_, boost::mpl::false_, boost::mpl::false_>(obs, coll_n, estimates_m);
+  dispatch<boost::mpl::false_, boost::mpl::false_, boost::mpl::false_>(obs, coll_n, estimates_n);
 }
 
 
@@ -325,7 +323,8 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
       accum_i.start_bottom(s, time_t(0), s, spins_c[s]);
     }
     t = 0;
-    for (operator_iterator opi = operators.begin(); opi != operators.end(); ++opi) {
+    for (std::vector<local_operator_t>::iterator opi = operators.begin(); opi != operators.end();
+         ++opi) {
       if (opi->is_bond()) {
         if (!opi->is_frozen_bond_graph()) {
           int b = opi->pos();
@@ -371,7 +370,8 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
   }
 
   // flip operators & spins
-  for (operator_iterator opi = operators.begin(); opi != operators.end(); ++opi) {
+  for (std::vector<local_operator_t>::iterator opi = operators.begin(); opi != operators.end();
+       ++opi) {
     if (estimates[fragments[opi->loop_0()].id()].to_flip ^
         estimates[fragments[opi->loop_1()].id()].to_flip) opi->flip();
   }
