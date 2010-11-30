@@ -63,7 +63,7 @@ struct stiffness : public has_improved_estimator_tag, public has_normal_estimato
         coordinate_type());
       dim = get_property(lat.rg(), dimension_t());
       if (enable_improved_estimator && dim > MAX_DIM) {
-        std::cerr << "Spatial dimension (=" << dim << ") is too large.  "
+        std::cout << "WARNING: Spatial dimension (=" << dim << ") is too large.  "
                   << "Stiffness will be measured only for the first "
                   << MAX_DIM << " dimensions\n";
         dim = MAX_DIM;
