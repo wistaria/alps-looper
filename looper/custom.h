@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2009 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2011 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -32,6 +32,11 @@
 #include <boost/optional.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <vector>
+
+// workaround for SuSE 11.4, which defines macro TIME in pyconfig.h
+#ifdef TIME
+# undef TIME
+#endif
 
 namespace looper {
 
