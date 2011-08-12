@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2011 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -64,7 +64,7 @@ int main() {
   for (unsigned int t = 0; t < trial2; t++) {
     vector_type config0(n);
     for (unsigned int i = 0; i < n; i++) {
-      config0[i] = boost::uniform_smallint<>(0, 1)(rng);
+      config0[i] = 2 * random();
     }
     vector_type config1(config0);
     looper::random_shuffle(config1.begin(), config1.end(), random);

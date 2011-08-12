@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2004-2007 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 2004-2011 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -38,9 +38,10 @@ int main() {
   // random number generator
   //
 
-  boost::mt19937 engine;
-  boost::variate_generator<boost::mt19937, looper::poisson_distribution<> >
-    rng(engine, looper::poisson_distribution<>(mean));
+  boost::mt19937 eng;
+  boost::variate_generator<boost::mt19937&, boost::uniform_real<> >
+    rng(eng, boost::uniform_real<>());
+  looper::poisson_distribution<> dist = looper::poisson_distribution<>(mean);
 
   //
   // test
@@ -49,7 +50,7 @@ int main() {
   std::vector<int> bins(int(5 * mean), 0);
   boost::posix_time::ptime start = boost::posix_time::microsec_clock::universal_time();
   for (int c = 0; c < count; ++c) {
-    int r = rng();
+    int r = dist(rng);
     if (r < 5 * mean) ++bins[r];
   }
   boost::posix_time::ptime stop = boost::posix_time::microsec_clock::universal_time();

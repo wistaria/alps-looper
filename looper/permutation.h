@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2006 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2011 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -27,7 +27,6 @@
 
 #include <algorithm>
 #include <boost/random/uniform_real.hpp>
-#include <boost/random/variate_generator.hpp>
 #include <iterator>
 
 namespace looper {
@@ -37,8 +36,6 @@ void random_shuffle(RandomAccessIter first, RandomAccessIter last,
                     RandomNumberGenerator& rng)
 {
   using std::iter_swap;
-//   boost::variate_generator<RandomNumberGenerator&,
-//     boost::uniform_real<> > random(rng, boost::uniform_real<>(0, 1));
   for (typename std::iterator_traits<RandomAccessIter>::difference_type
          n = last - first; n > 1; ++first, --n)
     iter_swap(first, first + (int)(n * rng()));

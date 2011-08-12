@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2007 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2011 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -53,11 +53,10 @@ try {
   // double-base version
   {
     // random_choice
-    boost::variate_generator<boost::mt19937&, looper::random_choice_walker_d<> >
-      rc(eng, looper::random_choice_walker_d<>(weights));
+    looper::random_choice_walker_d<> dist(weights);
 
     // check
-    if (rc.distribution().check(weights)) {
+    if (dist.check(weights)) {
       std::cout << "check succeeded\n";
     } else {
       std::cout << "check failed\n";
@@ -65,7 +64,7 @@ try {
     }
 
     std::vector<double> accum(n, 0);
-    for (unsigned int t = 0; t < samples; ++t) ++accum[rc()];
+    for (unsigned int t = 0; t < samples; ++t) ++accum[dist(rng)];
 
     std::cout << "bin\tweight\t\tresult\t\tdiff\t\tsigma\t\tdiff/sigma\n";
     for (unsigned int i = 0; i < n; ++i) {
@@ -80,11 +79,10 @@ try {
   // integer-base version
   {
     // random_choice
-    boost::variate_generator<boost::mt19937&, looper::random_choice_walker_i<> >
-      rc(eng, looper::random_choice_walker_i<> (weights));
+    looper::random_choice_walker_i<> dist(weights);
 
     // check
-    if (rc.distribution().check(weights)) {
+    if (dist.check(weights)) {
       std::cout << "check succeeded\n";
     } else {
       std::cout << "check failed\n";
@@ -92,7 +90,7 @@ try {
     }
 
     std::vector<double> accum(n, 0);
-    for (unsigned int t = 0; t < samples; ++t) ++accum[rc()];
+    for (unsigned int t = 0; t < samples; ++t) ++accum[dist(eng)];
 
     std::cout << "bin\tweight\t\tresult\t\tdiff\t\tsigma\t\tdiff/sigma\n";
     for (unsigned int i = 0; i < n; ++i) {
