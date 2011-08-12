@@ -11,6 +11,7 @@ DIR_NAME = .;
 BASE_NAME = task1;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
+Warning: unknown evaluator: "loop; path integral".  The only evaluator "loop" will be used instead.
 [results]
 Binder Ratio of Generalized Magnetization: 0.659897 +/- 0.00915 WARNING: ERRORS NOT CONVERGED!!!
 Binder Ratio of Generalized Staggered Magnetization: 0.0449219 +/- 0.00784 WARNING: ERRORS NOT CONVERGED!!!
@@ -215,6 +216,7 @@ DIR_NAME = .;
 BASE_NAME = task2;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
+Warning: unknown evaluator: "loop; path integral".  The only evaluator "loop" will be used instead.
 [results]
 Binder Ratio of Generalized Magnetization: 0.579272 +/- 0.00641 WARNING: check error convergence
 Binder Ratio of Generalized Staggered Magnetization: 0.0327148 +/- 0.0071 WARNING: ERRORS NOT CONVERGED!!!
@@ -418,6 +420,7 @@ DIR_NAME = .;
 BASE_NAME = task3;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
+Warning: unknown evaluator: "loop; path integral".  The only evaluator "loop" will be used instead.
 [results]
 Binder Ratio of Generalized Magnetization: 1 +/- 0
 Binder Ratio of Generalized Staggered Magnetization: 1 +/- 0
@@ -628,6 +631,7 @@ DIR_NAME = .;
 BASE_NAME = task4;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
+Warning: unknown evaluator: "loop; path integral".  The only evaluator "loop" will be used instead.
 [results]
 Binder Ratio of Generalized Magnetization: 0.5018 +/- 0.00496
 Binder Ratio of Generalized Staggered Magnetization: 0.343777 +/- 0.00389 WARNING: check error convergence
@@ -836,6 +840,8 @@ DIR_NAME = .;
 BASE_NAME = task5;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
+WARNING: improved estimator is disabled
+Warning: unknown evaluator: "loop; path integral".  The only evaluator "loop" will be used instead.
 [results]
 Binder Ratio of Magnetization: 0.0458984 +/- 0.0102 WARNING: ERRORS NOT CONVERGED!!!
 Binder Ratio of Staggered Magnetization: 0.669602 +/- 0.0179 WARNING: ERRORS NOT CONVERGED!!!
@@ -977,6 +983,8 @@ DIR_NAME = .;
 BASE_NAME = task6;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
+WARNING: improved estimator is disabled
+Warning: unknown evaluator: "loop; path integral".  The only evaluator "loop" will be used instead.
 [results]
 Binder Ratio of Magnetization: 0.0390625 +/- 0.0106 WARNING: ERRORS NOT CONVERGED!!!
 Binder Ratio of Staggered Magnetization: 0.569465 +/- 0.0133
@@ -1117,6 +1125,8 @@ DIR_NAME = .;
 BASE_NAME = task7;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
+WARNING: improved estimator is disabled
+Warning: unknown evaluator: "loop; path integral".  The only evaluator "loop" will be used instead.
 [results]
 Binder Ratio of Magnetization: 1 +/- 0
 Binder Ratio of Staggered Magnetization: 1 +/- 0
@@ -1260,6 +1270,8 @@ DIR_NAME = .;
 BASE_NAME = task8;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
+WARNING: improved estimator is disabled
+Warning: unknown evaluator: "loop; path integral".  The only evaluator "loop" will be used instead.
 [results]
 Binder Ratio of Magnetization: 0.361614 +/- 0.0122 WARNING: check error convergence
 Binder Ratio of Staggered Magnetization: 0.49096 +/- 0.0112 WARNING: check error convergence
