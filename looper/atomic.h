@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2009-2010 by Synge Todo <wistaria@comp-phys.org>,
+* Copyright (C) 2009-2011 by Synge Todo <wistaria@comp-phys.org>,
 *                            Haruhiko Matsuo <halm@looper.t.u-tokyo.ac.jp>
 *
 * This software is published under the ALPS Application License; you
@@ -27,17 +27,67 @@
 #define LOOPER_ATOMIC_H
 
 //
-// compare-and-swap
+// compare_and_swap
 //
+
+#if defined(__linux__) && defined(__x86_64__) && defined(__FCC_VERSION)
+
+namespace looper {
+  extern "C"
+  bool compare_and_swap(int& variable, int oldval, int newval);
+}
+
+#elif defined(__linux__) && defined(__sparc) && defined(__FCC_VERSION) && !defined(_GNU_SOURCE)
+
+#include <boost/static_assert.hpp>
+typedef unsigned int uint_t;
+
+namespace looper {
+  extern "C"
+  uint_t atomic_cas_uint(volatile uint_t* variable, uint_t oldval, uint_t newval);
+}
+
+// Doesn't work!
+// namespace looper {
+//   extern "C"
+//   inline uint_t atomic_cas_uint(volatile uint_t* variable, uint_t oldval, uint_t newval) {
+//     asm("      cas   [%i0],%i1,%i2");
+//     asm("      mov   %i2,%i0");
+//   }
+// }
+ 
+namespace looper {
+inline bool compare_and_swap(int& variable, int oldval, int newval) {
+  BOOST_STATIC_ASSERT(sizeof(int) == sizeof(uint_t));
+  int res = atomic_cas_uint((uint_t*)&variable, oldval, newval);
+  return res == oldval;
+} 
+}
+
+#elif defined(__linux__) && defined(__sparc) && defined(__FCC_VERSION) && defined(_GNU_SOURCE)
+
+namespace looper {
+inline bool compare_and_swap(int& variable, int oldval, volatile int newval) {
+  __asm__ volatile (
+                    "cas %0,%2,%1"
+                    : "+m" (variable), "+r" (newval)
+                    : "r" (oldval)
+                    : "memory");
+  return (oldval == newval);
+}
+}
+
+#else
 
 namespace looper {
 bool compare_and_swap(int& variable, int oldval, int newval);
 }
 
-#if defined(__linux__) && defined(__x86_64__)
+#if defined(__linux__)
 
 // Linux on X86_64
-#if (__GNUC__ >= 4) && (__GNUC_MINOR__ >= 1) && !defined(__ICC)
+// Formally, archs i486 and below don't have 'CMPXCHG' instruction.
+#if !defined(__ICC) && (__GNUC__ >= 4) && (__GNUC_MINOR__ >= 1) && (defined(__x86_64__) ||  defined(__i568__) || defined(__i686__))
 
 // for GCC 4.1 or later
 namespace looper {
@@ -46,7 +96,9 @@ inline bool compare_and_swap(int& variable, int oldval, int newval) {
 }
 }
 
-#else
+// Including i368,i486 here is a workaround. Some binary packages
+// of Linux doesn't set their proper architecture id.
+#elif defined(__x86_64__) ||  defined(__i368__) || defined(__i486__) || defined(__i586__) || defined(__i686__)
 
 // taken from http://stackoverflow.com/questions/833122/xchg-example-for-64-bit-integer
 namespace looper {
@@ -76,7 +128,7 @@ inline bool compare_and_swap(int& variable, int oldval, int newval) {
 }
 }
 
-#elif defined(__FCC_VERSION)
+#elif defined(__sun) && defined(__FCC_VERSION)
 
 // for Solaris
 #include <atomic.h>
@@ -92,6 +144,8 @@ inline bool compare_and_swap(int& variable, int oldval, int newval) {
 #else
 
 #error "atomic operations are not defined for the present architecture"
+
+#endif
 
 #endif
 
