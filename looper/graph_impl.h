@@ -25,9 +25,13 @@
 #ifndef LOOPER_GRAPH_IMPL_H
 #define LOOPER_GRAPH_IMPL_H
 
+#include <alps/config.h>
+#if defined(LOOPER_ENABLE_OPENMP) && defined(ALPS_ENABLE_OPENMP_WORKER) && !defined(LOOPER_OPENMP)
+# define LOOPER_OPENMP
+#endif
+
 #include "graph.h"
 #include "location_impl.h"
-#include "openmp.h"
 #include "random_choice.h"
 #ifdef HAVE_PARAPACK_13
 # include <alps/math.hpp>
@@ -39,6 +43,10 @@
 #include <boost/throw_exception.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <stdexcept>
+
+#ifdef LOOPER_OPENMP
+# include <omp.h>
+#endif
 
 #ifdef HAVE_PARAPACK_13
 using alps::is_nonzero;
@@ -75,11 +83,6 @@ struct site_graph_type {
     int loop1 = fid;
     ++fid;
     return boost::make_tuple(fid, loop1, curr, loop1);
-  }
-  template<class T>
-  static boost::tuple<int /* fid */, int /* curr */, int /* loop0 */, int /* loop1 */>
-  reconnect_omp(int g, std::vector<T>& fragments, int fid, int curr) {
-    return reconnect(g, fragments, fid, curr);
   }
 };
 
@@ -118,13 +121,6 @@ struct ising_bond_graph_type {
                       int /* loop1 */>
   reconnect(int g, std::vector<T>& fragments, int fid, int curr0, int curr1) {
     int loop = unify(fragments, curr0, curr1);
-    return boost::make_tuple(fid, loop, loop, loop, loop);
-  }
-  template<class T>
-  static boost::tuple<int /* fid */, int /* curr0 */, int /* curr1 */, int /* loop0 */,
-                      int /* loop1 */>
-  reconnect_omp(int g, std::vector<T>& fragments, int fid, int curr0, int curr1) {
-    int loop = unify_omp(fragments, curr0, curr1);
     return boost::make_tuple(fid, loop, loop, loop, loop);
   }
 
@@ -179,16 +175,6 @@ struct haf_bond_graph_type {
     ++fid;
     return boost::make_tuple(fid, curr0, curr1, loop0, loop1);
   }
-  template<class T>
-  static boost::tuple<int /* fid */, int /* curr0 */, int /* curr1 */, int /* loop0 */,
-                      int /* loop1 */>
-  reconnect_omp(int g, std::vector<T>& fragments, int fid, int curr0, int curr1) {
-    fragments[fid] = T();
-    int loop0 = unify_omp(fragments, curr0, curr1);
-    int loop1 = curr0 = curr1 = fid;
-    ++fid;
-    return boost::make_tuple(fid, curr0, curr1, loop0, loop1);
-  }
 
   static bool has_nontrivial_diagonal_choice_helper() { return false; }
   struct diagonal_choice_helper {
@@ -238,12 +224,6 @@ struct hf_bond_graph_type {
     int loop1 = curr1;
     std::swap(curr0, curr1);
     return boost::make_tuple(fid, curr0, curr1, loop0, loop1);
-  }
-  template<class T>
-  static boost::tuple<int /* fid */, int /* curr0 */, int /* curr1 */, int /* loop0 */,
-                      int /* loop1 */>
-  reconnect_omp(int g, std::vector<T>& fragments, int fid, int curr0, int curr1) {
-    return reconnect(g, fragments, fid, curr0, curr1);
   }
 
   static bool has_nontrivial_diagonal_choice_helper() { return false; }
@@ -304,25 +284,6 @@ struct xxz_bond_graph_type {
     } else if (g == 0) {
       fragments[fid] = T();
       loop0 = unify(fragments, curr0, curr1);
-      loop1 = curr0 = curr1 = fid;
-      ++fid;
-    } else {
-      loop0 = curr0;
-      loop1 = curr1;
-      std::swap(curr0, curr1);
-    }
-    return boost::make_tuple(fid, curr0, curr1, loop0, loop1);
-  }
-  template<class T>
-  static boost::tuple<int /* fid */, int /* curr0 */, int /* curr1 */, int /* loop0 */,
-                      int /* loop1 */>
-  reconnect_omp(int g, std::vector<T>& fragments, int fid, int curr0, int curr1) {
-    int loop0, loop1;
-    if ((g & 2) == 2) {
-      loop0 = loop1 = curr0 = curr1 = unify_omp(fragments, curr0, curr1);
-    } else if (g == 0) {
-      fragments[fid] = T();
-      loop0 = unify_omp(fragments, curr0, curr1);
       loop1 = curr0 = curr1 = fid;
       ++fid;
     } else {
@@ -400,25 +361,6 @@ struct xyz_bond_graph_type {
     } else if (g == 0 || g == 5) {
       fragments[fid] = T();
       loop0 = unify(fragments, curr0, curr1);
-      loop1 = curr0 = curr1 = fid;
-      ++fid;
-    } else {
-      loop0 = curr0;
-      loop1 = curr1;
-      std::swap(curr0, curr1);
-    }
-    return boost::make_tuple(fid, curr0, curr1, loop0, loop1);
-  }
-  template<typename T>
-  static boost::tuple<int /* fid */, int /* curr0 */, int /* curr1 */, int /* loop0 */,
-                      int /* loop1 */>
-  reconnect_omp(int g, std::vector<T>& fragments, int fid, int curr0, int curr1) {
-    int loop0, loop1;
-    if ((g & 2) == 2) {
-      loop0 = loop1 = curr0 = curr1 = unify_omp(fragments, curr0, curr1);
-    } else if (g == 0 || g == 5) {
-      fragments[fid] = T();
-      loop0 = unify_omp(fragments, curr0, curr1);
       loop1 = curr0 = curr1 = fid;
       ++fid;
     } else {
@@ -530,11 +472,6 @@ public:
   reconnect_site(std::vector<T>& fragments, int fid, int curr) const {
     return site_graph_t::reconnect(type_, fragments, fid, curr);
   }
-  template<class T>
-  boost::tuple<int /* fid */, int /* curr */, int /* loop0 */, int /* loop1 */>
-  reconnect_site_omp(std::vector<T>& fragments, int fid, int curr) const {
-    return site_graph_t::reconnect_omp(type_, fragments, fid, curr);
-  }
 
   // obsolete interface
   template<class T>
@@ -547,11 +484,6 @@ public:
   boost::tuple<int /* fid */, int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
   reconnect_bond(std::vector<T>& fragments, int fid, int curr0, int curr1) const {
     return bond_graph_t::reconnect(type_, fragments, fid, curr0, curr1);
-  }
-  template<class T>
-  boost::tuple<int /* fid */, int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
-  reconnect_bond_omp(std::vector<T>& fragments, int fid, int curr0, int curr1) const {
-    return bond_graph_t::reconnect_omp(type_, fragments, fid, curr0, curr1);
   }
 
   static int loop_l(int /* t */, int loop0, int /* loop1 */) { return loop0; }
@@ -598,12 +530,6 @@ reconnect(std::vector<T>& fragments, int fid, const local_graph<SITE, BOND, LOC>
           int curr) {
   return g.reconnect_site(fragments, fid, curr);
 }
-template<typename T, typename SITE, typename BOND, typename LOC>
-boost::tuple<int /* fid */, int /* curr */, int /* loop0 */, int /* loop1 */>
-reconnect_omp(std::vector<T>& fragments, int fid, const local_graph<SITE, BOND, LOC>& g,
-              int curr) {
-  return g.reconnect_site_omp(fragments, fid, curr);
-}
 
 // obsolete interface
 template<typename T, typename SITE, typename BOND, typename LOC>
@@ -618,12 +544,6 @@ boost::tuple<int /* fid */, int /* curr0 */, int /* curr1 */, int /* loop0 */, i
 reconnect(std::vector<T>& fragments, int fid, const local_graph<SITE, BOND, LOC>& g,
           int curr0, int curr1) {
   return g.reconnect_bond(fragments, fid, curr0, curr1);
-}
-template<typename T, typename SITE, typename BOND, typename LOC>
-boost::tuple<int /* fid */, int /* curr0 */, int /* curr1 */, int /* loop0 */, int /* loop1 */>
-reconnect_omp(std::vector<T>& fragments, int fid, const local_graph<SITE, BOND, LOC>& g,
-          int curr0, int curr1) {
-  return g.reconnect_bond_omp(fragments, fid, curr0, curr1);
 }
 
 
@@ -653,13 +573,14 @@ public:
 
   template<typename WEIGHT_TABLE>
   void init(const WEIGHT_TABLE& wt, bool is_path_integral) {
-    dist_graph_.resize(omp_get_max_threads());
-    graph_.resize(omp_get_max_threads());
+    int num_threads = 1;
+    dist_graph_.resize(num_threads);
+    graph_.resize(num_threads);
     for (int i = 0; i < graph_.size(); ++i) graph_[i].resize(0);
     diag_.resize(0);
     offdiag_.resize(0);
     std::vector<double> w;
-    weight_.resize(omp_get_max_threads());
+    weight_.resize(num_threads);
     for (int i = 0; i < graph_.size(); ++i) weight_[i] = 0;
     BOOST_FOREACH(typename WEIGHT_TABLE::site_weight_t const& sw, wt.site_weights()) {
       for (int g = 0; g < WEIGHT_TABLE::num_site_graphs; ++g) {
@@ -695,6 +616,7 @@ public:
     if (is_zero<2>(weight_[0])) weight_[0] = 1.0e-20;
   }
 
+#ifdef LOOPER_OPENMP
   template<typename WEIGHT_TABLE, typename SHARING>
   void init(const WEIGHT_TABLE& wt, SHARING const& sharing, bool is_path_integral) {
     int num_threads = omp_get_max_threads();
@@ -740,6 +662,7 @@ public:
         offdiag_.push_back(typename bond_graph_t::offdiagonal_choice_helper(bwi->second.v));
     }
   }
+#endif
 
   template<typename RNG>
   const local_graph_t& graph(RNG& rng) const { return graph_[0][dist_graph_[0](rng)]; }

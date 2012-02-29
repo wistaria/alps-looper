@@ -11,6 +11,7 @@ DIR_NAME = .;
 BASE_NAME = task1;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
+start diagonalization... done
 Warning: unknown evaluator: "diagonalization".  The only evaluator "loop" will be used instead.
 [results]
 Binder Ratio of Magnetization: 0.0358335 +/- inf
@@ -568,6 +569,7 @@ DIR_NAME = .;
 BASE_NAME = task4;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
+start diagonalization... done
 Warning: unknown evaluator: "diagonalization".  The only evaluator "loop" will be used instead.
 [results]
 Binder Ratio of Magnetization: 0.0346634 +/- inf
@@ -1128,6 +1130,7 @@ DIR_NAME = .;
 BASE_NAME = task7;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
+start diagonalization... done
 Warning: unknown evaluator: "diagonalization".  The only evaluator "loop" will be used instead.
 [results]
 Binder Ratio of Magnetization: 0.50899 +/- inf
@@ -1688,6 +1691,7 @@ DIR_NAME = .;
 BASE_NAME = task10;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
+start diagonalization... done
 Warning: unknown evaluator: "diagonalization".  The only evaluator "loop" will be used instead.
 [results]
 Binder Ratio of Magnetization: 0.783611 +/- inf
@@ -1929,6 +1933,7 @@ DIR_NAME = .;
 BASE_NAME = task12;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
+start diagonalization... done
 Warning: unknown evaluator: "diagonalization".  The only evaluator "loop" will be used instead.
 [results]
 Binder Ratio of Magnetization: 0.247339 +/- inf
@@ -2751,6 +2756,7 @@ DIR_NAME = .;
 BASE_NAME = task16;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
+start diagonalization... done
 Warning: unknown evaluator: "diagonalization".  The only evaluator "loop" will be used instead.
 [results]
 Binder Ratio of Magnetization: 0.521766 +/- inf

@@ -369,9 +369,9 @@ void diag_worker::run(alps::ObservableSet& obs) {
 
   // diagonalization
   vector_type evals(dim);
-  std::cerr << "start diagonalization... " << std::flush;
+  std::cout << "start diagonalization... " << std::flush;
   looper::diagonalize(hamiltonian, evals);
-  std::cerr << "done\n";
+  std::cout << "done\n";
 
   // partition function, energy and specific heat
   double gs_ene = evals(0);

@@ -31,6 +31,10 @@ namespace looper {
 
 struct cluster_info {
   cluster_info() : weight(0), sign(0) {}
+  cluster_info& operator+=(cluster_info const& rhs) {
+    weight += rhs.weight;
+    sign += rhs.sign;
+  }
   double weight;
   int sign;
 

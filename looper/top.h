@@ -26,22 +26,13 @@
 #define LOOPER_TOP_H
 
 #include "measurement.h"
-#ifdef HAVE_PARAPACK_13
-# include <alps/math.hpp>
-#else
-# include <alps/numeric/is_nonzero.hpp>
-# include <alps/numeric/is_zero.hpp>
-#endif
+#include <alps/numeric/is_nonzero.hpp>
+#include <alps/numeric/is_zero.hpp>
 #include <boost/foreach.hpp>
 #include <complex>
 
-#ifdef HAVE_PARAPACK_13
-using alps::is_nonzero;
-using alps::is_zero;
-#else
 using alps::numeric::is_nonzero;
 using alps::numeric::is_zero;
-#endif
 
 // workaround for SuSE 11.4, which defines macro TIME in pyconfig.h
 #ifdef TIME

@@ -25,14 +25,22 @@
 #ifndef LOOPER_LATTICE_H_
 #define LOOPER_LATTICE_H_
 
+#include <alps/config.h>
+#if defined(LOOPER_ENABLE_OPENMP) && defined(ALPS_ENABLE_OPENMP_WORKER) && !defined(LOOPER_OPENMP)
+# define LOOPER_OPENMP
+#endif
+
 #include "alternating_tensor.h"
-#include "openmp.h"
 #include <alps/lattice.h>
 #include <alps/parapack/integer_range.h>
 #include <boost/throw_exception.hpp>
 #include <stdexcept>
 #include <utility>                 // std::pair, std::make_pair
 #include <vector>                  // std::vector
+
+#ifdef LOOPER_OPENMP
+# include <omp.h>
+#endif
 
 //
 // extension to boost
@@ -342,7 +350,7 @@ protected:
               f += alternating_tensor(i,j,k) * vecs[0][i] * vecs[1][j] * vecs[2][k];
         break;
       default :
-        std::cout << "WARNING: can not calculate unit lattice volume.  Assume 1.\n";
+        std::cerr << "WARNING: can not calculate unit lattice volume.  Assume 1.\n";
         f = 1;
       }
       vol *= std::abs(f);
@@ -672,6 +680,7 @@ void lattice_helper<RG>::convert_type(alps::Parameters const& p) {
   }
 }
 
+#ifdef LOOPER_OPENMP
 class simple_lattice_sharing {
 public:
   simple_lattice_sharing() {}
@@ -771,6 +780,7 @@ private:
   std::vector<int> num_bonds_local_;
   std::vector<int> share_;
 };
+#endif
 
 } // end namespace looper
 

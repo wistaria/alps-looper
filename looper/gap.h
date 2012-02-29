@@ -33,18 +33,10 @@
 #include "correlation_length.h"
 #include "time.h"
 #include "type.h"
-#ifdef HAVE_PARAPACK_13
-# include <alps/math.hpp>
-#else
-# include <alps/numeric/is_nonzero.hpp>
-#endif
+#include <alps/numeric/is_nonzero.hpp>
 #include <complex>
 
-#ifdef HAVE_PARAPACK_13
-using alps::is_nonzero;
-#else
 using alps::numeric::is_nonzero;
-#endif
 
 // workaround for SuSE 11.4, which defines macro TIME in pyconfig.h
 #ifdef TIME
