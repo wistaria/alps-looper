@@ -43,6 +43,7 @@
 // #define COMMUNICATION_DEBUG_OUTPUT
 
 #include "expand.h"
+#include "prime_factorization.h"
 #include "union_find.h"
 #include "timer_mpi.hpp"
 
@@ -68,28 +69,6 @@
 namespace looper {
 
 namespace parallel {
-
-inline std::vector<int> prime_factorization(int n) {
-  int num_primes = 6;
-  int primes[] = { 2, 3, 5, 7, 11, 13 };
-  std::vector<int> factors;
-  if (n <= 1) {
-    factors.push_back(n);
-  } else {
-    for (int i = 0; i < num_primes; ++i) {
-      int p = primes[i];
-      while (n % p == 0) {
-        n = n / p;
-        factors.push_back(p);
-      }
-    }
-    while (n > 1) {
-      n = ((n - 1) / 2) + 1;
-      factors.insert(factors.begin(), 2);
-    }
-  }
-  return factors;
-}
 
 template<typename LINK, typename COLLECTOR, typename ESTIMATE>
 class chunk {
@@ -1474,7 +1453,7 @@ public:
     timer.start(37);
     extents_.clear();
     if (partition_str.empty()) {
-      extents_ = parallel::prime_factorization(num_processes_); // automatic partition
+      extents_ = looper::prime_factorization(num_processes_); // automatic partition
     } else {
       if (!parse(partition_str.c_str(),
                  (

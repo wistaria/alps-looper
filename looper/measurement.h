@@ -146,11 +146,11 @@ struct improved_collector_wrapper<ESTIMATOR, true, HAS_NORMAL_ESTIMATOR> {
     typedef typename estimator_t::improved_estimator::collector base_type;
     collector() : base_type() {}
     void begin_s(estimator_t const&, lattice_t const&, double, int , int) {}
-    void begin_bs(estimator_t const&, lattice_t const&, double, int, int) {}
-    void begin_bt(estimator_t const&, lattice_t const&, double, int, int) {}
+    void begin_bs(estimator_t const&, lattice_t const&, double, int, int, int) {}
+    void begin_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
     void end_s(estimator_t const&, lattice_t const&, double, int, int) {}
-    void end_bs(estimator_t const&, lattice_t const&, double, int, int) {}
-    void end_bt(estimator_t const&, lattice_t const&, double, int, int) {}
+    void end_bs(estimator_t const&, lattice_t const&, double, int, int, int) {}
+    void end_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
     void start_bottom(estimator_t const&, lattice_t const&, double, int, int) {}
     void start(estimator_t const&, lattice_t const&, double, int, int) {}
     void stop_top(estimator_t const&, lattice_t const&, double, int, int) {}
@@ -180,17 +180,18 @@ struct improved_collector_wrapper<ESTIMATOR, false, false> {
     collector& operator+=(collector const&) { return *this; }
     collector& operator+=(estimate const&) { return *this; }
     void begin_s(estimator_t const&, lattice_t const&, double, int , int) {}
-    void begin_bs(estimator_t const&, lattice_t const&, double, int, int) {}
-    void begin_bt(estimator_t const&, lattice_t const&, double, int, int) {}
+    void begin_bs(estimator_t const&, lattice_t const&, double, int, int, int) {}
+    void begin_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
     void end_s(estimator_t const&, lattice_t const&, double, int, int) {}
-    void end_bs(estimator_t const&, lattice_t const&, double, int, int) {}
-    void end_bt(estimator_t const&, lattice_t const&, double, int, int) {}
+    void end_bs(estimator_t const&, lattice_t const&, double, int, int, int) {}
+    void end_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
     void start_bottom(estimator_t const&, lattice_t const&, double, int, int) {}
     void start(estimator_t const&, lattice_t const&, double, int, int) {}
     void stop_top(estimator_t const&, lattice_t const&, double, int, int) {}
     void stop(estimator_t const&, lattice_t const&, double, int, int) {}
     template<typename M>
-    void commit(M&, estimator_t const&, lattice_t const&, double, double, double) const {}
+    void commit(M&, estimator_t const&, lattice_t const&, double, double, double,
+      std::vector<int> const&) const {}
   };
 };
 
@@ -241,17 +242,18 @@ struct normal_collector_wrapper<ESTIMATOR, HAS_IMPROVED_ESTIMATOR, false> {
     collector& operator+=(collector const&) { return *this; }
     collector& operator+=(estimate const&) { return *this; }
     void begin_s(estimator_t const&, lattice_t const&, double, int , int) {}
-    void begin_bs(estimator_t const&, lattice_t const&, double, int, int) {}
-    void begin_bt(estimator_t const&, lattice_t const&, double, int, int) {}
+    void begin_bs(estimator_t const&, lattice_t const&, double, int, int, int) {}
+    void begin_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
     void end_s(estimator_t const&, lattice_t const&, double, int, int) {}
-    void end_bs(estimator_t const&, lattice_t const&, double, int, int) {}
-    void end_bt(estimator_t const&, lattice_t const&, double, int, int) {}
+    void end_bs(estimator_t const&, lattice_t const&, double, int, int, int) {}
+    void end_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
     void start_bottom(estimator_t const&, lattice_t const&, double, int, int) {}
     void start(estimator_t const&, lattice_t const&, double, int, int) {}
     void stop_top(estimator_t const&, lattice_t const&, double, int, int) {}
     void stop(estimator_t const&, lattice_t const&, double, int, int) {}
     template<typename M>
-    void commit(M&, estimator_t const&, lattice_t const&, double, double, double) const {}
+    void commit(M&, estimator_t const&, lattice_t const&, double, double, double,
+      std::vector<int> const&) const {}
   };
 };
 
@@ -320,6 +322,9 @@ struct measurement_wrapper {
         boost::is_base_of<has_improved_estimator_tag, measurement_t>::value,
         boost::is_base_of<has_normal_estimator_tag, measurement_t>::value>::collector collector;
     };
+//     typedef typename static_estimator_selector<base_estimator,
+//       boost::is_base_of<has_static_estimator_tag, measurement_t>::value>::static_estimator
+//       static_estimator;
   };
   typedef typename pre_evaluator_selector<measurement_t>::pre_evaluator pre_evaluator;
   typedef typename evaluator_selector<measurement_t>::evaluator evaluator;
@@ -343,10 +348,10 @@ struct basic_measurement {
 
     struct improved_estimator {
       struct estimate {
-        bool to_flip;
+        unsigned int to_flip;
         void reset(estimator_t const&) {}
         estimate& operator+=(estimate const& rhs) {
-          to_flip ^= rhs.to_flip;
+          to_flip += rhs.to_flip;
           return *this;
         }
         void begin_s(estimator_t const&, lattice_t const&, double, int, int) {}
@@ -388,7 +393,8 @@ struct basic_measurement {
         void stop_top(estimator_t const&, lattice_t const&, double, int, int) {}
         void stop(estimator_t const&, lattice_t const&, double, int, int) {}
         template<typename M>
-        void commit(M&, estimator_t const&, lattice_t const&, double, double, double) const {}
+        void commit(M&, estimator_t const&, lattice_t const&, double, double, double,
+          std::vector<int> const&) const {}
 
         void set_num_clusters(unsigned int n) { nc_ = n; }
         void inc_num_clusters(unsigned int n) { nc_ += n; }
@@ -798,9 +804,9 @@ struct composite_measurement {
         }
         template<typename M>
         void commit(M& m, estimator_t const& emt, lattice_t const& lat, double beta, double sign,
-          double nop) const {
-          collector1::commit(m, emt, lat, beta, sign, nop);
-          collector2::commit(m, emt, lat, beta, sign, nop);
+          double nop, std::vector<int> const& spins) const {
+          collector1::commit(m, emt, lat, beta, sign, nop, spins);
+          collector2::commit(m, emt, lat, beta, sign, nop, spins);
         }
       };
     };
@@ -925,9 +931,9 @@ struct composite_measurement {
         }
         template<typename M>
         void commit(M& m, estimator_t const& emt, lattice_t const& lat, double beta, double sign,
-          double nop) const {
-          collector1::commit(m, emt, lat, beta, sign, nop);
-          collector2::commit(m, emt, lat, beta, sign, nop);
+          double nop, std::vector<int> const& spins) const {
+          collector1::commit(m, emt, lat, beta, sign, nop, spins);
+          collector2::commit(m, emt, lat, beta, sign, nop, spins);
         }
       };
     };

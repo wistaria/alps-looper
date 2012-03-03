@@ -153,8 +153,6 @@ void loop_worker::init_observables(alps::Parameters const&, alps::ObservableSet&
 }
 
 void loop_worker::run(alps::ObservableSet& obs) {
-  // if (!mcs.can_work()) return;
-  ++mcs;
   beta = 1.0 / temperature(mcs());
 
   //       FIELD               SIGN                IMPROVE
@@ -162,6 +160,8 @@ void loop_worker::run(alps::ObservableSet& obs) {
   dispatch<boost::mpl::false_, boost::mpl::true_,  boost::mpl::false_>(obs, coll_n, estimates_n);
   dispatch<boost::mpl::false_, boost::mpl::false_, boost::mpl::true_ >(obs, coll_i, estimates_i);
   dispatch<boost::mpl::false_, boost::mpl::false_, boost::mpl::false_>(obs, coll_n, estimates_n);
+
+  ++mcs;
 }
 
 
@@ -403,7 +403,7 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
   double ene = model.energy_offset() - nop / beta;
   coll.set_energy(ene);
 
-  coll.commit(obs, estimator, lattice, beta, improved_sign, nop);
+  coll.commit(obs, estimator, lattice, beta, improved_sign, nop, spins);
 }
 
 //

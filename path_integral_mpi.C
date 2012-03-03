@@ -2,7 +2,8 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2011 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2011 by Synge Todo <wistaria@comp-phys.org>,
+*                            Haruhiko Matsuo <halm@looper.t.u-tokyo.ac.jp>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -29,6 +30,7 @@
 
 // #define ALPS_ENABLE_TIMER
 // #define ALPS_TRACE_TIMER
+// #define STD_OUTPUT 1
 
 #include "loop_config.h"
 #include <looper/cluster.h>
@@ -38,12 +40,11 @@
 #include <looper/operator.h>
 #include <looper/permutation.h>
 #include <looper/temperature.h>
-#include <looper/timer.hpp>
+#include <looper/timer_mpi.hpp>
 #include <looper/type.h>
 #include <looper/union_find.h>
+#include <looper/parallel.h>
 #include <alps/parapack/worker.h>
-#include <alps/parapack/exchange.h>
-#include <alps/numeric/is_zero.hpp>
 
 #ifdef LOOPER_OPENMP
 # include <looper/padded_vector.h>
@@ -52,6 +53,8 @@
 #endif
 
 namespace {
+
+namespace mpi = boost::mpi;
 
 class loop_worker : public alps::parapack::mc_worker, private loop_config {
 public:
@@ -65,11 +68,10 @@ public:
   typedef looper::cluster_info cluster_info_t;
 
   typedef looper::estimator<measurement_set, mc_type, lattice_t, time_t>::type estimator_t;
-  typedef double weight_parameter_type;
 
   typedef boost::exponential_distribution<> expdist_t;
 
-  loop_worker(alps::Parameters const& p);
+  loop_worker(mpi::communicator const& c, alps::Parameters const& p);
   virtual ~loop_worker() { timer.stop(1); timer.summarize(); }
 
   void init_observables(alps::Parameters const& params, alps::ObservableSet& obs);
@@ -79,61 +81,63 @@ public:
 
   void run(alps::ObservableSet& obs);
 
-  // for exchange Monte Carlo
-  void set_beta(double beta) { temperature.set_beta(beta); }
-  double weight_parameter() const {
-#ifdef LOOPER_OPENMP
-    int num_threads = omp_get_max_threads();
-    int n = 0;
-    for (int p = 0; p < num_threads; ++p) n += operators_g[p].size();
-    return n;
-#else
-    return operators.size();
-#endif
-  }
-  static double log_weight(double gw, double beta) { return std::log(beta) * gw; }
-
   void save(alps::ODump& dp) const {
 #ifdef LOOPER_OPENMP
-    dp << mcs << spins << operators_g;
+    dp << mcs << spins << spins_t << operators_g;
 #else
-    dp << mcs << spins << operators;
+    dp << mcs << spins << spins_t << operators;
 #endif
   }
   void load(alps::IDump& dp) {
 #ifdef LOOPER_OPENMP
-    dp >> mcs >> spins >> operators_g;
+    dp >> mcs >> spins >> spins_t >> operators_g;
 #else
-    dp >> mcs >> spins >> operators;
+    dp >> mcs >> spins >> spins_t >> operators;
 #endif
   }
 
 protected:
 #ifdef LOOPER_OPENMP
-  template<typename FIELD, typename SIGN, typename IMPROVE, typename COLLECTOR, typename ESTIMATE>
+  template<typename FIELD, typename SIGN, typename IMPROVE, typename COLLECTOR, typename ESTIMATE,
+    typename UNIFIER>
   void dispatch(alps::ObservableSet& obs, std::vector<COLLECTOR>& coll,
-    std::vector<std::vector<ESTIMATE> >& estimates);
+    std::vector<std::vector<ESTIMATE> >& estimates, UNIFIER& unifier);
 #else
-  template<typename FIELD, typename SIGN, typename IMPROVE, typename COLLECTOR, typename ESTIMATE>
-  void dispatch(alps::ObservableSet& obs, COLLECTOR& coll, std::vector<ESTIMATE>& estimates);
+  template<typename FIELD, typename SIGN, typename IMPROVE, typename COLLECTOR, typename ESTIMATE,
+    typename UNIFIER>
+  void dispatch(alps::ObservableSet& obs, COLLECTOR& coll, std::vector<ESTIMATE>& estimates,
+    UNIFIER& unifier);
 #endif
+
+  boost::tuple<int, int> real_site_range(int nrs, int nprocs, int rank) const;
 
 private:
   // helpers
+  mpi::communicator comm;
   lattice_t lattice;
 #ifdef LOOPER_OPENMP
   looper::simple_lattice_sharing sharing;
 #endif
   model_t model;
+  looper::parallel_cluster_unifier<estimator_t::improved_estimator::estimate,
+    estimator_t::improved_estimator::collector> unifier_i;
+  looper::parallel_cluster_unifier<estimator_t::normal_estimator::estimate,
+    estimator_t::normal_estimator::collector> unifier_n;
 
   // parameters
   looper::temperature temperature;
   double beta;
+  double tau0, tau1;
   bool enable_improved_estimator;
+
+  // index for parallel
+  int rs_local_begin, rs_local_end;
+  int vs_local_begin, vs_local_end, nvs_local;
 
   // configuration (checkpoint)
   looper::mc_steps mcs;
   std::vector<int> spins;
+  std::vector<int> spins_t;
 #ifdef LOOPER_OPENMP
   std::vector<std::vector<local_operator_t> > operators_g;
 #else
@@ -159,8 +163,8 @@ private:
   std::vector<std::vector<double> > times_g;
   std::vector<int> fragment_offset_g;
   std::vector<int> num_fragments_g;
-  std::vector<int> nc_g;
-  std::vector<std::vector<cluster_info_t> > clusters_g;
+  std::vector<int> noc_g;
+  std::vector<int> ncc_g;
   std::vector<std::vector<estimator_t::improved_estimator::estimate> > estimates_ig;
   std::vector<std::vector<estimator_t::normal_estimator::estimate> > estimates_ng;
   std::vector<std::vector<int> > perm_g;
@@ -169,13 +173,12 @@ private:
   std::vector<double> times;
   int fragment_offset;
   int num_fragments;
-  std::vector<cluster_info_t> clusters;
   std::vector<estimator_t::improved_estimator::estimate> estimates_i;
   std::vector<estimator_t::normal_estimator::estimate> estimates_n;
   std::vector<int> perm;
 #endif
 
-  alps::parapack::timer timer;
+  alps::parapack::timer_mpi timer;
 };
 
 
@@ -183,30 +186,45 @@ private:
 // member functions of loop_worker
 //
 
-loop_worker::loop_worker(alps::Parameters const& p)
-  : alps::parapack::mc_worker(p), lattice(p),
+loop_worker::loop_worker(mpi::communicator const& c, alps::Parameters const& p)
+  : alps::parapack::mc_worker(p), comm(c), lattice(p),
 #ifdef LOOPER_OPENMP
     sharing(/* will be initialized in model */),
     model(p, lattice, sharing, /* is_path_integral = */ true),
 #else
     model(p, lattice, /* is_path_integral = */ true),
 #endif
-    temperature(p), mcs(p), timer() {
+    unifier_i(comm), unifier_n(comm),
+    temperature(p), mcs(p), timer(comm) {
 
   if (temperature.annealing_steps() > mcs.thermalization())
     boost::throw_exception(std::invalid_argument("longer annealing steps than thermalization"));
 
-  model.check_parameter(support_longitudinal_field, support_negative_sign);
+  model.check_parameter(/* support_longitudinal_field = */ false,
+                        /* support_negative_sign = */ false);
 
   enable_improved_estimator = (!model.has_field()) && (!p.defined("DISABLE_IMPROVED_ESTIMATOR"));
-  if (!enable_improved_estimator) std::cout << "WARNING: improved estimator is disabled\n";
+  if (!enable_improved_estimator && comm.rank() == 0)
+    std::cout << "WARNING: improved estimator is disabled\n";
+
+  tau0 = 1.0 * comm.rank() / comm.size();
+  tau1 = 1.0 * (comm.rank() + 1) / comm.size();
 
   // configuration
 #ifdef LOOPER_OPENMP
   int num_threads = omp_get_max_threads();
+  if (comm.rank() == 0)
+    std::cout << "Info: hybrid: " << c.size() << " x " << num_threads << std::endl;
 #endif
+  int nrs = num_sites(lattice.rg());
   int nvs = num_sites(lattice.vg());
+  boost::tie(rs_local_begin, rs_local_end) = real_site_range(nrs, comm.size(), comm.rank());
+  looper::virtual_site_iterator<lattice_t>::type vs, ve;
+  boost::tie(vs, ve) = sites(lattice, rs_local_begin); vs_local_begin = *vs;
+  boost::tie(vs, ve) = sites(lattice, rs_local_end-1); vs_local_end = *ve;
+  nvs_local = vs_local_end - vs_local_begin;
   spins.resize(nvs); std::fill(spins.begin(), spins.end(), 0 /* all up */);
+  spins_t.resize(nvs_local); std::fill(spins_t.begin(), spins_t.end(), 0 /* all up */);
   spins_c.resize(nvs);
   current.resize(nvs);
 #ifdef LOOPER_OPENMP
@@ -222,19 +240,18 @@ loop_worker::loop_worker(alps::Parameters const& p)
 
   // working vectors
 #ifdef LOOPER_OPENMP
+  times_g.resize(num_threads);
   fragment_offset_g.resize(num_threads + 1);
   num_fragments_g.resize(num_threads);
-  nc_g.resize(num_threads);
-  times_g.resize(num_threads);
-  clusters_g.resize(num_threads);
+  noc_g.resize(num_threads);
+  ncc_g.resize(num_threads);
   estimates_ig.resize(num_threads);
   estimates_ng.resize(num_threads);
 #endif
 
-  // initialize estimators
-  estimator.initialize(p, lattice, model.is_signed(), enable_improved_estimator);
+  // initialize timer
   timer.registrate( 1, "alps::parapack::scheduler::start");
-  timer.registrate( 2, " loop_worker_mpi::run,all");
+  timer.registrate( 2, " loop_worker::run,all");
   timer.registrate( 3, "  dispatch,all");
   timer.registrate( 4, "   dispatch,init_spin&operator_info");
   timer.registrate( 5, "   dispatch,fill_times");
@@ -249,58 +266,89 @@ loop_worker::loop_worker(alps::Parameters const& p)
   timer.registrate(14, "   dispatch,determine_flip");
   timer.registrate(15, "   dispatch,flip_operator&spins");
   timer.registrate(16, "   dispatch,measurement");
+  unifier_i.init_timer(timer);
+
+  // initialize parallel cluster unifier
+  if (enable_improved_estimator)
+    unifier_i.initialize(timer, num_sites(lattice.vg()), p.value_or_default("PARTITION", ""),
+                         p.value_or_default("DUPLEX", true));
+  else
+    unifier_n.initialize(timer, num_sites(lattice.vg()), p.value_or_default("PARTITION", ""),
+                         p.value_or_default("DUPLEX", true));
+
+  // initialize estimators
+  estimator.initialize(p, lattice, model.is_signed(), enable_improved_estimator);
+
   timer.start(1);
+
+#ifdef STD_OUTPUT
+  if (comm.rank() == 0) {
+    std::cout << std::setprecision(12);
+    std::cout << "initialization done\n";
+  }
+#endif
 }
 
 void loop_worker::init_observables(alps::Parameters const&, alps::ObservableSet& obs) {
-  obs << make_observable(alps::SimpleRealObservable("Temperature"));
-  obs << make_observable(alps::SimpleRealObservable("Inverse Temperature"));
-  obs << make_observable(alps::SimpleRealObservable("Volume"));
-  obs << make_observable(alps::SimpleRealObservable("Number of Sites"));
-  obs << make_observable(alps::SimpleRealObservable("Number of Clusters"));
-  if (model.is_signed()) {
-    obs << alps::RealObservable("Sign");
-    if (enable_improved_estimator) {
-      obs << alps::RealObservable("Weight of Zero-Meron Sector");
-      obs << alps::RealObservable("Sign in Zero-Meron Sector");
+  if (comm.rank() == 0) {
+    obs << make_observable(alps::SimpleRealObservable("Temperature"));
+    obs << make_observable(alps::SimpleRealObservable("Inverse Temperature"));
+    obs << make_observable(alps::SimpleRealObservable("Volume"));
+    obs << make_observable(alps::SimpleRealObservable("Number of Sites"));
+    obs << make_observable(alps::SimpleRealObservable("Number of Clusters"));
+    if (model.is_signed()) {
+      obs << alps::RealObservable("Sign");
+      if (enable_improved_estimator) {
+        obs << alps::RealObservable("Weight of Zero-Meron Sector");
+        obs << alps::RealObservable("Sign in Zero-Meron Sector");
+      }
     }
   }
   estimator.init_observables(obs, model.is_signed(), enable_improved_estimator);
 }
 
 void loop_worker::run(alps::ObservableSet& obs) {
+#ifdef STD_OUTPUT
+  if (comm.rank() == 0) std::cout << "MCS: " << mcs() << ' ';
+#endif
   timer.start(2);
   beta = 1.0 / temperature(mcs());
+  tau0 = 1.0 * comm.rank() / comm.size();
+  tau1 = 1.0 * (comm.rank() + 1) / comm.size();
 
   //       FIELD               SIGN                IMPROVE
 #ifdef LOOPER_OPENMP
-  dispatch<boost::mpl::false_, boost::mpl::false_, boost::mpl::true_ >(obs, coll_ig, estimates_ig);
-  dispatch<boost::mpl::false_, boost::mpl::false_, boost::mpl::false_>(obs, coll_ng, estimates_ng);
+  dispatch<boost::mpl::false_, boost::mpl::false_, boost::mpl::true_ >(obs, coll_ig, estimates_ig,
+    unifier_i);
+  dispatch<boost::mpl::false_, boost::mpl::false_, boost::mpl::false_>(obs, coll_ng, estimates_ng,
+    unifier_n);
 #else
-  dispatch<boost::mpl::true_,  boost::mpl::true_,  boost::mpl::true_ >(obs, coll_i, estimates_i);
-  dispatch<boost::mpl::true_,  boost::mpl::true_,  boost::mpl::false_>(obs, coll_n, estimates_n);
-  dispatch<boost::mpl::true_,  boost::mpl::false_, boost::mpl::true_ >(obs, coll_i, estimates_i);
-  dispatch<boost::mpl::true_,  boost::mpl::false_, boost::mpl::false_>(obs, coll_n, estimates_n);
-  dispatch<boost::mpl::false_, boost::mpl::true_,  boost::mpl::true_ >(obs, coll_i, estimates_i);
-  dispatch<boost::mpl::false_, boost::mpl::true_,  boost::mpl::false_>(obs, coll_n, estimates_n);
-  dispatch<boost::mpl::false_, boost::mpl::false_, boost::mpl::true_ >(obs, coll_i, estimates_i);
-  dispatch<boost::mpl::false_, boost::mpl::false_, boost::mpl::false_>(obs, coll_n, estimates_n);
+  dispatch<boost::mpl::false_, boost::mpl::false_, boost::mpl::true_ >(obs, coll_i, estimates_i,
+    unifier_i);
+  dispatch<boost::mpl::false_, boost::mpl::false_, boost::mpl::false_>(obs, coll_n, estimates_n,
+    unifier_n);
 #endif
 
   timer.stop(2);
+#ifdef STD_OUTPUT
+  if (comm.rank() == 0) std::cout << std::endl << std::flush;
+  timer.summarize(std::cerr);
+#endif
   if (!mcs.is_thermalized()) timer.clear();
   ++mcs;
 }
 
 
 #ifdef LOOPER_OPENMP
-template<typename FIELD, typename SIGN, typename IMPROVE, typename COLLECTOR, typename ESTIMATE>
+template<typename FIELD, typename SIGN, typename IMPROVE, typename COLLECTOR, typename ESTIMATE,
+  typename UNIFIER>
 void loop_worker::dispatch(alps::ObservableSet& obs, std::vector<COLLECTOR>& coll_g,
-  std::vector<std::vector<ESTIMATE> >& estimates_g) {
+  std::vector<std::vector<ESTIMATE> >& estimates_g, UNIFIER& unifier) {
 #else
-template<typename FIELD, typename SIGN, typename IMPROVE, typename COLLECTOR, typename ESTIMATE>
+template<typename FIELD, typename SIGN, typename IMPROVE, typename COLLECTOR, typename ESTIMATE,
+  typename UNIFIER>
 void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
-  std::vector<ESTIMATE>& estimates) {
+  std::vector<ESTIMATE>& estimates, UNIFIER& unifier) {
 #endif
   if (model.has_field() != FIELD() ||
       model.is_signed() != SIGN() ||
@@ -309,6 +357,8 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
   typedef ESTIMATE estimate_t;
 
   timer.start(3);
+  int comm_rank = comm.rank(); // make temperary since comm.rank() and comm.size() are
+  int comm_size = comm.size(); // not thread-safe
 #ifdef LOOPER_OPENMP
   int num_threads = omp_get_max_threads();
 #endif
@@ -330,16 +380,16 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
     int tid = omp_get_thread_num();
     std::vector<local_operator_t>& operators = operators_g[tid];
     std::vector<local_operator_t>& operators_p = operators_pg[tid];
-    current_times[tid] = 0;
+    current_times[tid] = tau0;
     #endif
     std::swap(operators, operators_p); operators.resize(0);
     // insert a diagonal operator at the end of operators_p
-    operators_p.push_back(local_operator_t(0, local_operator_t::location_t(), 1));
+    operators_p.push_back(local_operator_t(0, local_operator_t::location_t(), tau1));
     #ifdef LOOPER_OPENMP
     #pragma omp for schedule(static)
     #endif
     for (int s = 0; s < nvs; ++s) spins_c[s] = spins[s];
-  }
+  } // end omp parallel
   timer.stop(4);
 
   // fill times
@@ -358,46 +408,64 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
     expdist_t expdist(beta * model.graph_weight());
     #endif
     times.resize(0);
-    double t = 0;
-    while (t < 1) {
+    double t = tau0;
+    while (t < tau1) {
       t += expdist(generator);
       times.push_back(t);
-    } // a sentinel (t >= 1) will be appended
-  }
+    } // a sentinel (t >= tau1) will be appended
+  } // end omp parallel
   timer.stop(5);
 
   // initialize cluster information (setup cluster fragments)
   timer.start(6);
+  int boundary_offset = nvs;
+  int local_offset = boundary_offset + nvs - vs_local_begin;
 #ifdef LOOPER_OPENMP
-  fragment_offset_g[0] = nvs;
+  fragment_offset_g[0] = boundary_offset + nvs + nvs_local;
   for (int p = 1; p < num_threads + 1; ++p) {
     int n = operators_pg[p-1].size() + times_g[p-1].size();
     fragment_offset_g[p] = fragment_offset_g[p-1] + n;
   }
   looper::expand(fragments, fragment_offset_g[num_threads]);
 #else
-  fragment_offset = nvs;
+  int fragment_offset = boundary_offset + nvs + nvs_local;
   looper::expand(fragments, fragment_offset + operators_p.size() + times.size());
 #endif
   #ifdef LOOPER_OPENMP
   #pragma omp parallel
   #endif
   {
+    #ifdef LOOPER_OPENMP
+    int& fragment_offset = fragment_offset_g[0];
+    #endif
     cluster_fragment_t fragment_init;
+    #ifdef LOOPER_OPENMP
+    #pragma omp for schedule(static) nowait
+    #endif
+    for (int s = 0; s < fragment_offset; ++s) fragments[s] = fragment_init;
+    // not necessary??
+    // #ifdef LOOPER_OPENMP
+    // #pragma omp for schedule(static) nowait
+    // #endif
+    // for (int s = boundary_offset; s < boundary_offset + nvs; ++s) fragments[s] = fragment_init;
+    #ifdef LOOPER_OPENMP
+    #pragma omp for schedule(static) nowait
+    #endif
+    for (int s = 0; s < vs_local_begin; ++s) current[s] = s;
+    #ifdef LOOPER_OPENMP
+    #pragma omp for schedule(static) nowait
+    #endif
+    for (int s = vs_local_begin; s < vs_local_end; ++s) current[s] = local_offset + s;
     #ifdef LOOPER_OPENMP
     #pragma omp for schedule(static)
     #endif
-    for (int s = 0; s < nvs; ++s) {
-      fragments[s] = fragment_init;
-      current[s] = s;
-    }
-  }
+    for (int s = vs_local_end; s < nvs; ++s) current[s] = s;
+  } // end omp parallel
   timer.stop(6);
 
   timer.start(7);
-  int negop = 0; // number of operators with negative weights
   #ifdef LOOPER_OPENMP
-  #pragma omp parallel reduction(+:negop)
+  #pragma omp parallel
   #endif
   {
     #ifdef LOOPER_OPENMP
@@ -416,10 +484,17 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
     // intialize measurements
     coll.reset(estimator);
     looper::normal_accumulator<estimator_t, IMPROVE> accum_n(coll, lattice, estimator);
-    #ifdef LOOPER_OPENMP
-    #pragma omp for schedule(static)
-    #endif
-    for (int s = 0; s < nvs; ++s) accum_n.start_bottom(time_t(0), s, spins_c[s]);
+    if (comm_rank == 0) {
+      #ifdef LOOPER_OPENMP
+      #pragma omp for schedule(static)
+      #endif
+      for (int s = 0; s < nvs; ++s) accum_n.start_bottom(time_t(tau0), s, spins_c[s]);
+    } else {
+      #ifdef LOOPER_OPENMP
+      #pragma omp for schedule(static)
+      #endif
+      for (int s = 0; s < nvs; ++s) accum_n.start(time_t(tau0), s, spins_c[s]);
+    }
 
     int fid = fragment_offset;
     std::vector<double>::iterator tmi = times.begin();
@@ -498,7 +573,6 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
           spins_c[s0] ^= 1;
           spins_c[s1] ^= 1;
           accum_n.begin_b(oi->time(), b, s0, s1, spins_c[s0], spins_c[s1]);
-          if (SIGN()) negop += model.bond_sign(oi->pos());
         }
         boost::tie(fid, current[s0], current[s1], oi->loop0, oi->loop1) =
           reconnect(fragments, fid, oi->graph(), current[s0], current[s1]);
@@ -508,25 +582,35 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
           accum_n.end_s(oi->time(), s, spins_c[s]);
           spins_c[s] ^= 1;
           accum_n.begin_s(oi->time(), s, spins_c[s]);
-          if (SIGN()) negop += model.site_sign(oi->pos());
         }
         boost::tie(fid, current[s], oi->loop0, oi->loop1) =
           reconnect(fragments, fid, oi->graph(), current[s]);
       }
     }
-    #ifdef LOOPER_OPENMP
-    #pragma omp for schedule(static)
-    #endif
-    for (int s = 0; s < nvs; ++s) accum_n.stop_top(time_t(1), s, spins_c[s]);
+    if (comm_rank == (comm_size - 1)) {
+      #ifdef LOOPER_OPENMP
+      #pragma omp for schedule(static)
+      #endif
+      for (int s = 0; s < nvs; ++s) accum_n.stop_top(time_t(tau1), s, spins_c[s]);
+    } else {
+      #ifdef LOOPER_OPENMP
+      #pragma omp for schedule(static)
+      #endif
+      for (int s = 0; s < nvs; ++s) accum_n.stop(time_t(tau1), s, spins_c[s]);
+    }
     num_fragments = fid - fragment_offset;
     #ifdef LOOPER_OPENMP
     coll_g[tid] = coll; // write back to global array
     #endif
   }
-  double sign = ((negop & 1) == 1) ? -1 : 1;
   timer.stop(7);
 
+  // connect to top
   timer.start(8);
+  #ifdef LOOPER_OPENMP
+  #pragma omp parallel for schedule(static)
+  #endif
+  for (int s = 0; s < nvs; ++s) unify(fragments, current[s], boundary_offset + s);
   timer.stop(8);
 
   // symmetrize spins
@@ -535,7 +619,7 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
     #ifdef LOOPER_OPENMP
     #pragma omp parallel for schedule(static)
     #endif
-    for (int s = 0; s < nvs; ++s) unify(fragments, s, current[s]);
+    for (int s = vs_local_begin; s < vs_local_end; ++s) unify(fragments, s, local_offset + s);
   } else {
     #ifdef LOOPER_OPENMP
     #pragma omp parallel
@@ -551,21 +635,31 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
       #ifdef LOOPER_OPENMP
       #pragma omp for schedule(static)
       #endif
-      for (int rs = 0; rs < nrs; ++rs) {
+      for (int rs = rs_local_begin; rs < rs_local_end; ++rs) {
         looper::virtual_site_iterator<lattice_t>::type vsi, vsi_end;
         boost::tie(vsi, vsi_end) = sites(lattice, rs);
-        int offset = *vsi;
+        int offset1 = *vsi;
+        int offset2 = *vsi - vs_local_begin;
         int s2 = *vsi_end - *vsi;
         for (int i = 0; i < s2; ++i) perm[i] = i;
         looper::partitioned_random_shuffle(perm.begin(), perm.begin() + s2,
-          spins.begin() + offset, spins_c.begin() + offset, generator);
-        for (int i = 0; i < s2; ++i) unify(fragments, offset+i, current[offset+perm[i]]);
+          spins_t.begin() + offset2, spins.begin() + offset1, generator);
+        for (int i = 0; i < s2; ++i)
+          unify(fragments, offset1 + i, local_offset + vs_local_begin + offset2 + perm[i]);
       }
     }
   }
   timer.stop(9);
 
   timer.start(10);
+  if (comm_size == 1) {
+    #ifdef LOOPER_OPENMP
+    #pragma omp parallel for schedule(static)
+    #endif
+    for (int s = 0; s < nvs; ++s) unify(fragments, s, boundary_offset + s);
+  } else {
+    pack_tree(fragments, 2 * nvs);
+  }
   timer.stop(10);
 
   //
@@ -574,26 +668,43 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
 
   // assign cluster id
   timer.start(11);
-  int nc;
+  int nc, noc;
 #ifdef LOOPER_OPENMP
   #pragma omp parallel
   {
     int tid = omp_get_thread_num();
     int ncl;
-    nc_g[tid] = count_root_p(fragments, 0, nvs) +
+    noc_g[tid] = count_root_p(fragments, 0, nvs) +
+      count_root_p(fragments, boundary_offset, nvs);
+    ncc_g[tid] = count_root_p(fragments, local_offset + vs_local_begin, nvs_local) +
       count_root(fragments, fragment_offset_g[tid], num_fragments_g[tid]);
     #pragma omp barrier
-    ncl = looper::subaccumulate(nc_g, tid);
+    ncl = looper::subaccumulate(noc_g, tid);
     ncl = set_id_p(fragments, 0, nvs, ncl);
+    ncl = set_id_p(fragments, boundary_offset, nvs, ncl);
+    if (tid + 1 == num_threads) noc = ncl;
+    #pragma omp barrier
+    ncl = noc + looper::subaccumulate(ncc_g, tid);
+    ncl = set_id_p(fragments, local_offset + vs_local_begin, nvs_local, ncl);
     ncl = set_id(fragments, fragment_offset_g[tid], num_fragments_g[tid], ncl);
     if (tid + 1 == num_threads) nc = ncl;
     #pragma omp barrier
     copy_id_p(fragments, 0, nvs);
+    copy_id_p(fragments, boundary_offset, nvs);
+    copy_id_p(fragments, local_offset + vs_local_begin, nvs_local);
     copy_id(fragments, fragment_offset_g[tid], num_fragments_g[tid]);
   }
+  if (comm_size == 1) noc = 0;
 #else
-  nc = set_id(fragments, 0, fragment_offset + num_fragments, 0);
-  copy_id(fragments, 0, fragment_offset + num_fragments);
+  nc = set_id(fragments, 0, nvs, 0);
+  nc = set_id(fragments, boundary_offset, nvs, nc);
+  noc = (comm_size == 1) ? 0 : nc;
+  nc = set_id(fragments, local_offset + vs_local_begin, nvs_local, nc);
+  nc = set_id(fragments, fragment_offset, num_fragments, nc);
+  copy_id(fragments, 0, nvs);
+  copy_id(fragments, boundary_offset, nvs);
+  copy_id(fragments, local_offset + vs_local_begin, nvs_local);
+  copy_id(fragments, fragment_offset, num_fragments);
 #endif
   timer.stop(11);
 
@@ -605,16 +716,12 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
   {
     #ifdef LOOPER_OPENMP
     int tid = omp_get_thread_num();
-    current_times[tid] = 0;
+    current_times[tid] = tau0;
     std::vector<local_operator_t>& operators = operators_g[tid];
-    std::vector<cluster_info_t >& clusters = clusters_g[tid];
     std::vector<estimate_t>& estimates = estimates_g[tid];
     #endif
-    looper::expand(clusters, nc);
-    looper::expand(estimates, nc);
-    cluster_info_t cluster_init;
+  looper::expand(estimates, nc);
     for (int c = 0; c < nc; ++c) {
-      clusters[c] = cluster_init;
       estimates[c].reset(estimator);
     }
     if (IMPROVE() || FIELD()) {
@@ -622,16 +729,40 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
       #pragma omp for schedule(static)
       #endif
       for (int s = 0; s < nvs; ++s) spins_c[s] = spins[s];
-      cluster_info_t::accumulator<cluster_fragment_t, FIELD, SIGN, IMPROVE>
-        weight(clusters, fragments, model.field(), model.bond_sign(), model.site_sign());
       looper::improved_accumulator<estimator_t, cluster_fragment_t, ESTIMATE, IMPROVE>
         accum_i(estimates, lattice, estimator, fragments);
-      #ifdef LOOPER_OPENMP
-      #pragma omp for schedule(static)
-      #endif
-      for (int s = 0; s < nvs; ++s) {
-        weight.start_bottom(s, time_t(0), s, spins_c[s]);
-        accum_i.start_bottom(s, time_t(0), s, spins_c[s]);
+      if (comm_rank == 0) {
+        #ifdef LOOPER_OPENMP
+        #pragma omp for schedule(static) nowait
+        #endif
+        for (int s = 0; s < vs_local_begin; ++s)
+          accum_i.start_bottom(s, time_t(tau0), s, spins_c[s]);
+        #ifdef LOOPER_OPENMP
+        #pragma omp for schedule(static) nowait
+        #endif
+        for (int s = vs_local_begin; s < vs_local_end; ++s)
+          accum_i.start_bottom(local_offset+s, time_t(tau0), s, spins_c[s]);
+        #ifdef LOOPER_OPENMP
+        #pragma omp for schedule(static)
+        #endif
+        for (int s = vs_local_end; s < nvs; ++s)
+          accum_i.start_bottom(s, time_t(tau0), s, spins_c[s]);
+      } else {
+        #ifdef LOOPER_OPENMP
+        #pragma omp for schedule(static) nowait
+        #endif
+        for (int s = 0; s < vs_local_begin; ++s)
+          accum_i.start(s, time_t(tau0), s, spins_c[s]);
+        #ifdef LOOPER_OPENMP
+        #pragma omp for schedule(static) nowait
+        #endif
+        for (int s = vs_local_begin; s < vs_local_end; ++s)
+          accum_i.start(local_offset+s, time_t(tau0), s, spins_c[s]);
+        #ifdef LOOPER_OPENMP
+        #pragma omp for schedule(static)
+        #endif
+        for (int s = vs_local_end; s < nvs; ++s)
+          accum_i.start(s, time_t(tau0), s, spins_c[s]);
       }
       for (operator_iterator opi = operators.begin(); opi != operators.end(); ++opi) {
         time_t t = opi->time();
@@ -652,13 +783,11 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
               } while (current_times[nid] < t);
             }
             #endif
-            weight.end_b(opi->loop_l0(), opi->loop_l1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
             accum_i.end_b(opi->loop_l0(), opi->loop_l1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
             if (opi->is_offdiagonal()) {
               spins_c[s0] ^= 1;
               spins_c[s1] ^= 1;
             }
-            weight.begin_b(opi->loop_u0(), opi->loop_u1(), t, b, s0, s1, spins_c[s0], spins_c[s1]);
             accum_i.begin_b(opi->loop_u0(), opi->loop_u1(), t, b, s0, s1, spins_c[s0],
               spins_c[s1]);
           }
@@ -666,21 +795,29 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
           if (!opi->is_frozen_site_graph()) {
             //// not thread safe !!!!
             int s = opi->pos();
-            weight.end_s(opi->loop_l(), t, s, spins_c[s]);
             accum_i.end_s(opi->loop_l(), t, s, spins_c[s]);
-            if (opi->is_offdiagonal()) spins_c[s] ^= 1;
-            weight.begin_s(opi->loop_u(), t, s, spins_c[s]);
+            if (opi->is_offdiagonal()) {
+              spins_c[s] ^= 1;
+            }
             accum_i.begin_s(opi->loop_u(), t, s, spins_c[s]);
           }
         }
       }
       #ifdef LOOPER_OPENMP
-      current_times[tid] = 1;
-      #pragma omp for schedule(static)
+      current_times[tid] = tau1;
       #endif
-      for (int s = 0; s < nvs; ++s) {
-        weight.stop_top(current[s], time_t(1), s, spins_c[s]);
-        accum_i.stop_top(current[s], time_t(1), s, spins_c[s]);
+      if (comm_rank == (comm_size - 1)) {
+        #ifdef LOOPER_OPENMP
+        #pragma omp for schedule(static)
+        #endif
+        for (int s = 0; s < nvs; ++s)
+          accum_i.stop_top(boundary_offset + s, time_t(tau1), s, spins_c[s]);
+      } else {
+        #ifdef LOOPER_OPENMP
+        #pragma omp for schedule(static)
+        #endif
+        for (int s = 0; s < nvs; ++s)
+          accum_i.stop(boundary_offset + s, time_t(tau1), s, spins_c[s]);
       }
     }
   }
@@ -697,12 +834,10 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
       coll.set_num_operators(operators_g[tid].size());
       #pragma omp for schedule(static)
       for (int c = 0; c < nc; ++c) {
-        for (int p = 1; p < num_threads; ++p) {
-          clusters_g[0][c] += clusters_g[p][c];
-          estimates_g[0][c] += estimates_g[p][c];
-        }
-        coll += estimates_g[0][c];
+        for (int p = 1; p < num_threads; ++p) estimates_g[0][c] += estimates_g[p][c];
       }
+      #pragma omp for schedule(static)
+      for (int c = noc; c < nc; ++c) coll += estimates_g[0][c];
       coll_g[tid] = coll; // write back to global array
     } // end omp parallel
   } else {
@@ -710,28 +845,23 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
     {
       int tid = omp_get_thread_num();
       coll_g[tid].set_num_operators(operators_g[tid].size());
-      #pragma omp for schedule(static)
-      for (int c = 0; c < nc; ++c) {
-        for (int p = 1; p < num_threads; ++p) clusters_g[0][c] += clusters_g[p][c];
-      }
     }
   }
-  std::vector<cluster_info_t>& clusters = clusters_g[0];
   std::vector<estimate_t>& estimates = estimates_g[0];
   collector_t& coll = coll_g[0];
   for (int p = 1; p < num_threads; ++p) coll += coll_g[p];
 #else
   coll.set_num_operators(operators.size());
-  if (IMPROVE()) for (int c = 0; c < nc; ++c) coll += estimates[c];
+  if (IMPROVE()) for (int c = noc; c < nc; ++c) coll += estimates[c];
 #endif
-  coll.set_num_clusters(nc);
+  coll.set_num_open_clusters(noc);
+  coll.set_num_clusters(nc - noc);
   timer.stop(13);
 
   // determine whether clusters are flipped or not
   timer.start(14);
-  negop = 0;
   #ifdef LOOPER_OPENMP
-  #pragma omp parallel reduction(+:negop)
+  #pragma omp parallel
   #endif
   {
     #ifdef LOOPER_OPENMP
@@ -743,13 +873,15 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
     #ifdef LOOPER_OPENMP
     #pragma omp for schedule(static)
     #endif
-    for (int c = 0; c < nc; ++c) {
-      estimates[c].to_flip =
-        ((2*generator()-1) < (FIELD() ? std::tanh(beta * clusters[c].weight) : 0));
-      if (SIGN() && IMPROVE()) negop += clusters[c].sign;
-    }
+    for (int c = 0; c < nc; ++c) estimates[c].to_flip = (generator() < 0.5);
   }
-  double improved_sign = ((negop & 1) == 1) ? 0 : sign;
+  if (comm_size > 1) {
+    #ifdef LOOPER_OPENMP
+    unifier.unify(coll, fragments, 0, boundary_offset, estimates_g, timer);
+    #else
+    unifier.unify(coll, fragments, 0, boundary_offset, estimates, timer);
+    #endif
+  }
   timer.stop(14);
 
   // flip operators & spins
@@ -769,7 +901,19 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
     #ifdef LOOPER_OPENMP
     #pragma omp for schedule(static)
     #endif
-    for (int s = 0; s < nvs; ++s)
+    for (int s = 0; s < vs_local_begin; ++s)
+      if (estimates[fragments[s].id()].to_flip & 1) spins[s] ^= 1;
+    #ifdef LOOPER_OPENMP
+    #pragma omp for schedule(static)
+    #endif
+    for (int s = vs_local_begin; s < vs_local_end; ++s) {
+      if (estimates[fragments[s].id()].to_flip & 1) spins_t[s - vs_local_begin] ^= 1;
+      if (estimates[fragments[local_offset + s].id()].to_flip & 1) spins[s] ^= 1;
+    }
+    #ifdef LOOPER_OPENMP
+    #pragma omp for schedule(static)
+    #endif
+    for (int s = vs_local_end; s < nvs; ++s)
       if (estimates[fragments[s].id()].to_flip & 1) spins[s] ^= 1;
   }
   timer.stop(15);
@@ -779,38 +923,35 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
   //
 
   timer.start(16);
-  obs["Temperature"] << 1/beta;
-  obs["Inverse Temperature"] << beta;
-  obs["Volume"] << (double)lattice.volume();
-  obs["Number of Sites"] << (double)nrs;
-  obs["Number of Clusters"] << coll.num_clusters();
-  if (SIGN()) {
-    if (IMPROVE()) {
-      obs["Sign"] << improved_sign;
-      if (alps::numeric::is_zero(improved_sign)) {
-        obs["Weight of Zero-Meron Sector"] << 0.;
-      } else {
-        obs["Weight of Zero-Meron Sector"] << 1.;
-        obs["Sign in Zero-Meron Sector"] << improved_sign;
-      }
-    } else {
-      obs["Sign"] << sign;
-    }
+  if (comm_rank == 0) {
+    obs["Temperature"] << 1/beta;
+    obs["Inverse Temperature"] << beta;
+    obs["Volume"] << (double)lattice.volume();
+    obs["Number of Sites"] << (double)nrs;
+    obs["Number of Clusters"] << coll.num_clusters();
+#ifdef STD_OUTPUT
+    std::cout << 1/beta << ' '
+              << beta << ' '
+              << (double)lattice.volume() << ' '
+              << (double)num_sites(lattice.rg()) << ' '
+              << coll.num_clusters() << ' ';
+#endif
+    double nop = coll.num_operators();
+    double ene = model.energy_offset() - nop / beta;
+    coll.set_energy(ene);
+
+    coll.commit(obs, estimator, lattice, beta, 1, nop, spins);
   }
-  double nop = coll.num_operators();
-  double ene = model.energy_offset() - nop / beta;
-  if (FIELD()) {
-    #ifdef LOOPER_OPENMP
-    #pragma omp parallel for schedule(static)
-    #endif
-    for (int c = 0; c < nc; ++c) {
-      ene += ((estimates[c].to_flip & 1) ? -clusters[c].weight : clusters[c].weight);
-    }
-  }
-  coll.set_energy(ene);
-  coll.commit(obs, estimator, lattice, beta, improved_sign, nop, spins);
   timer.stop(16);
   timer.stop(3);
+}
+
+boost::tuple<int, int> loop_worker::real_site_range(int nrs, int nprocs, int rank) const {
+  int nrs_local = nrs / nprocs;
+  int nextra = nrs % nprocs;
+  int rs_begin = rank * nrs_local + (rank < nextra ? rank : nextra);
+  int rs_local_end = rs_begin + nrs_local + (rank < nextra ? 1 : 0);
+  return boost::make_tuple(rs_begin, rs_local_end);
 }
 
 typedef looper::evaluator<loop_config::measurement_set> loop_evaluator;
@@ -819,10 +960,6 @@ typedef looper::evaluator<loop_config::measurement_set> loop_evaluator;
 // dynamic registration to the factories
 //
 
-PARAPACK_REGISTER_ALGORITHM(loop_worker, "loop");
-PARAPACK_REGISTER_ALGORITHM(loop_worker, "loop; path integral");
-PARAPACK_REGISTER_ALGORITHM(alps::parapack::single_exchange_worker<loop_worker>, "loop; exchange");
-PARAPACK_REGISTER_ALGORITHM(alps::parapack::single_exchange_worker<loop_worker>, "loop; path integral; exchange");
-PARAPACK_REGISTER_EVALUATOR(loop_evaluator, "loop");
+PARAPACK_REGISTER_PARALLEL_ALGORITHM(loop_worker, "loop; path integral");
 
 } // end namespace

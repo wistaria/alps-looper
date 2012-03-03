@@ -31,9 +31,6 @@
 #include <boost/foreach.hpp>
 #include <cmath>
 
-using alps::numeric::is_nonzero;
-using alps::numeric::is_zero;
-
 // workaround for SuSE 11.4, which defines macro TIME in pyconfig.h
 #ifdef TIME
 # undef TIME
@@ -41,23 +38,21 @@ using alps::numeric::is_zero;
 
 namespace looper {
 
-struct string_order_parameter {
-
-  typedef dumb_measurement<string_order_parameter> dumb;
+struct string_order_parameter : public has_normal_estimator_tag {
 
   template<typename MC, typename LAT, typename TIME>
   struct estimator {
     typedef MC   mc_type;
     typedef LAT lattice_t;
     typedef TIME time_t;
+    typedef estimator<mc_type, lattice_t, time_t> estimator_t;
 
     int p_left;
     int p_right;
     std::string label;
 
     void initialize(alps::Parameters const& params, lattice_t const& lat,
-      bool /* is_signed */, bool /* use_improved_estimator */) {
-
+      bool /* is_signed */, bool /* enable_improved_estimator */) {
       p_left = 1;
       p_right = 1;
       if (params.defined("SOP_M") && params.defined("SOP_N")) {
@@ -70,7 +65,7 @@ struct string_order_parameter {
       BOOST_FOREACH(std::vector<double> const& v, lat.graph_helper().basis_vectors()) {
         int j = 0;
         BOOST_FOREACH(double x, v) {
-          if ((j == i && is_zero(x)) || (j != i && is_nonzero(x)))
+          if ((j == i && alps::numeric::is_zero(x)) || (j != i && alps::numeric::is_nonzero(x)))
             boost::throw_exception(std::runtime_error("basis vector check failed"));
           ++j;
         }
@@ -99,57 +94,59 @@ struct string_order_parameter {
           boost::lexical_cast<std::string>(p_right) + ")";
     }
     template<typename M>
-    void init_observables(M& m, bool is_signed) {
+    void init_observables(M& m, bool is_signed, bool /* enable_improved_estimator */) {
       add_scalar_obs(m, label, is_signed);
     }
 
-    // improved estimator
+    struct normal_estimator {
+      struct collector {
+        collector() {}
+        void reset(estimator_t const&) {}
+        collector& operator+=(collector const& rhs) { return *this; }
+        void begin_s(estimator_t const&, lattice_t const&, double, int, int) {}
+        void begin_bs(estimator_t const&, lattice_t const&, double, int, int, int) {}
+        void begin_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
+        void end_s(estimator_t const&, lattice_t const&, double, int, int) {}
+        void end_bs(estimator_t const&, lattice_t const&, double, int, int, int) {}
+        void end_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
+        void start_bottom(estimator_t const& emt, lattice_t const&, double, int s, int c) {}
+        void start(estimator_t const&, lattice_t const&, double, int, int) {}
+        void stop(estimator_t const&, lattice_t const&, double, int, int) {}
+        void stop_top(estimator_t const&, lattice_t const&, double, int, int) {}
+        template<typename M>
+        void commit(M& m, estimator_t const& emt, lattice_t const& lat, double /* beta */, double sign, double,
+          std::vector<int> const& spins) const {
+          using std::cos; using std::pow;
+          int left = 0;
+          int right = num_sites(lat.rg()) / 2;
+          int regsz2 = 0; // sum of 2Sz in the region between left and right
+          for (int r = left; r < right; ++r)
+            BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type v, sites(lat, r))
+              regsz2 += 1 - 2 * spins[v];
 
-    typedef typename dumb::template estimator<MC, LAT, TIME>::estimate estimate;
-    void init_estimate(estimate&) const {}
-
-    typedef typename dumb::template estimator<MC, LAT, TIME>::collector collector;
-    void init_collector(collector&) const {}
-
-    template<typename M, typename OP, typename FRAGMENT>
-    void improved_measurement(M&, lattice_t const&, double, double, std::vector<int> const&,
-      std::vector<OP> const&, std::vector<int> const&, std::vector<FRAGMENT> const&,
-      collector const&) {}
-
-    template<typename M, typename OP>
-    void normal_measurement(M& m, lattice_t const& lat, double /* beta */, double sign,
-      std::vector<int> const& spins, std::vector<OP> const& /* operators */,
-      std::vector<int>& /* spins_c */) {
-
-      using std::cos; using std::pow;
-
-      int left = 0;
-      int right = num_sites(lat.rg()) / 2;
-      int regsz2 = 0; // sum of 2Sz in the region between left and right
-      for (int r = left; r < right; ++r)
-        BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type v, sites(lat, r))
-          regsz2 += 1 - 2 * spins[v];
-
-      double sum = 0;
-      for (int s = 0; s < num_sites(lat.rg()); ++s) {
-        int lsz2 = 0;
-        BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type v, sites(lat, left))
-          lsz2 += 1 - 2 * spins[v];
-        int rsz2 = 0;
-        BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type v, sites(lat, right))
-          rsz2 += 1 - 2 * spins[v];
-        regsz2 -= lsz2;
-        if ((left & 1) == 0) {
-          sum += pow(0.5 * lsz2, (double)p_left) * cos(0.5 * M_PI * (regsz2 + p_left + p_right)) *
-            pow(0.5 * rsz2, (double)p_right);
+          double sum = 0;
+          for (int s = 0; s < num_sites(lat.rg()); ++s) {
+            int lsz2 = 0;
+            BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type v, sites(lat, left))
+              lsz2 += 1 - 2 * spins[v];
+            int rsz2 = 0;
+            BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type v, sites(lat, right))
+              rsz2 += 1 - 2 * spins[v];
+            regsz2 -= lsz2;
+            if ((left & 1) == 0) {
+              sum += pow(0.5 * lsz2, (double)emt.p_left) *
+                cos(0.5 * M_PI * (regsz2 + emt.p_left + emt.p_right)) *
+                pow(0.5 * rsz2, (double)emt.p_right);
+            }
+            regsz2 += rsz2;
+            ++left;
+            ++right;
+            if (right == num_sites(lat.rg())) right = 0;
+          }
+          m[emt.label] << sign * sum / (num_sites(lat.rg()) / 2);
         }
-        regsz2 += rsz2;
-        ++left;
-        ++right;
-        if (right == num_sites(lat.rg())) right = 0;
-      }
-      m[label] << sign * sum / (num_sites(lat.rg()) / 2);
-    }
+      };
+    };
   };
 };
 

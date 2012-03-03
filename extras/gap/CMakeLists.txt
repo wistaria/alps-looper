@@ -1,9 +1,13 @@
 add_definitions(-DLOOP_CONFIG_HEADER="extras/gap/gap_config.h")
 
-add_executable(gap ${PROJECT_SOURCE_DIR}/loop.C ${PROJECT_SOURCE_DIR}/loop_model.C
-  ${PROJECT_SOURCE_DIR}/path_integral.C)
+set(LOOP_SRC ${PROJECT_SOURCE_DIR}/loop.C ${PROJECT_SOURCE_DIR}/loop_model.C
+  ${PROJECT_SOURCE_DIR}/diag.C ${PROJECT_SOURCE_DIR}/path_integral.C ${PROJECT_SOURCE_DIR}/path_integral_mpi.C)
+if(CMAKE_ASM_COMPILER)
+  enable_language(ASM)
+  set_property(SOURCE ${PROJECT_SOURCE_DIR}/looper/atomic.s PROPERTY LANGUAGE ASM)
+  set(LOOP_SRC ${LOOP_SRC} ${PROJECT_SOURCE_DIR}/looper/atomic.s)
+endif(CMAKE_ASM_COMPILER)
+add_executable(gap ${LOOP_SRC})
 target_link_libraries(gap ${ALPS_LIBRARIES})
 
-if(LOOPER_BUILD_TESTS)
-  add_alps_test(gap)
-endif(LOOPER_BUILD_TESTS)
+add_alps_test(gap)

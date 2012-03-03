@@ -137,7 +137,7 @@ loop_worker::loop_worker(alps::Parameters const& p, alps::ObservableSet& obs) :
 
   use_improved_estimator = !model.has_field() && !p.defined("DISABLE_IMPROVED_ESTIMATOR");
   if (!use_improved_estimator)
-    std::cerr << "WARNING: improved estimator is disabled\n";
+    std::cout << "WARNING: improved estimator is disabled\n";
 
   // Wang Landau parameters
   if (exp_range.min() < 0)
@@ -204,7 +204,7 @@ void loop_worker::run(ENGINE& eng, alps::ObservableSet& obs) {
 
   if (!mcs.doing_multicanonical() && mcs() == mcs.block()) {
     if (histogram.check_flatness(flatness) && histogram.check_visit(min_visit)) {
-      std::cerr << "stage " << mcs.stage() << ": histogram becomes flat\n";
+      std::cout << "stage " << mcs.stage() << ": histogram becomes flat\n";
       histogram.subtract();
       if (store_all_histograms) {
         std::string suffix = "(iteration #" + boost::lexical_cast<std::string>(mcs.stage()) + ")";
@@ -216,7 +216,7 @@ void loop_worker::run(ENGINE& eng, alps::ObservableSet& obs) {
       histogram.clear();
       mcs.next_stage();
     } else {
-      std::cerr << "stage " << mcs.stage() << ": histogram is not flat yet\n";
+      std::cout << "stage " << mcs.stage() << ": histogram is not flat yet\n";
       histogram.subtract();
       mcs.reset_stage();
     }

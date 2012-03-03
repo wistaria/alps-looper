@@ -38,7 +38,7 @@
 
 namespace looper {
 
-struct transverse_magnetization {
+struct transverse_magnetization : public has_improved_estimator_tag {
   template<typename MC, typename LAT, typename TIME>
   struct estimator {
     typedef MC   mc_type;
@@ -46,78 +46,73 @@ struct transverse_magnetization {
     typedef TIME time_t;
     typedef estimator<mc_type, lattice_t, time_t> estimator_t;
 
-    bool improved;
-
     void initialize(alps::Parameters const& /* params */, lattice_t const& /* lat */,
-      bool /* is_signed */, bool use_improved_estimator) {
-      improved = use_improved_estimator;
+      bool /* is_signed */, bool enable_improved_estimator) {
+      if (!enable_improved_estimator)
+        std::cout << "Warning: transverse magnetization measurement is disabled.\n";
     }
     template<typename M>
-    void init_observables(M& m, bool is_signed) {
-      if (improved) {
+    void init_observables(M& m, bool is_signed, bool enable_improved_estimator) {
+      if (enable_improved_estimator) {
         add_scalar_obs(m, "Transverse Magnetization", is_signed);
         add_scalar_obs(m, "Transverse Magnetization Density", is_signed);
       }
     }
 
-    // improved estimator
+    struct improved_estimator {
+      struct estimate {
+        double length;
+        bool closed;
+        estimate() : length(0), closed(true) {}
+        void reset(estimator_t const&) {
+          length = 0;
+          closed = true;
+        }
+        estimate& operator+=(estimate const& rhs) {
+          length += rhs.length;
+          closed &= rhs.closed;
+          return *this;
+        }
+        void begin_s(estimator_t const&, lattice_t const&, double t, int, int) {
+          length -= t;
+          closed = false;
+        }
+        void begin_bs(estimator_t const&, lattice_t const&, double t, int, int, int) {
+          length -= t;
+        }
+        void begin_bt(estimator_t const&, lattice_t const&, double t, int, int, int) {
+          length -= t;
+        }
+        void end_s(estimator_t const&, lattice_t const&, double t, int, int) {
+          length += t;
+          closed = false;
+        }
+        void end_bs(estimator_t const&, lattice_t const&, double t, int, int, int) { length += t; }
+        void end_bt(estimator_t const&, lattice_t const&, double t, int, int, int) { length += t; }
+        void start_bottom(estimator_t const&, lattice_t const&, double t, int, int) {
+          length -= t;
+        }
+        void start(estimator_t const&, lattice_t const&, double t, int, int) { length -= t; }
+        void stop(estimator_t const&, lattice_t const&, double t, int, int) { length += t; }
+        void stop_top(estimator_t const&, lattice_t const&, double t, int, int) { length += t; }
+      };
 
-    struct estimate {
-      double length;
-      bool closed;
-      estimate() : length(0), closed(true) {}
-      void init() {
-        length = 0;
-        closed = true;
-      }
-      void begin_s(estimator_t const&, lattice_t const&, double t, int, int) {
-        length -= t;
-        closed = false;
-      }
-      void begin_bs(estimator_t const&, lattice_t const&, double t, int, int, int) { length -= t; }
-      void begin_bt(estimator_t const&, lattice_t const&, double t, int, int, int) { length -= t; }
-      void end_s(estimator_t const&, lattice_t const&, double t, int, int) {
-        length += t;
-        closed = false;
-      }
-      void end_bs(estimator_t const&, lattice_t const&, double t, int, int, int) { length += t; }
-      void end_bt(estimator_t const&, lattice_t const&, double t, int, int, int) { length += t; }
-      void start_bottom(estimator_t const&, lattice_t const&, double t, int, int) { length -= t; }
-      void start(estimator_t const&, lattice_t const&, double t, int, int) { length -= t; }
-      void stop(estimator_t const&, lattice_t const&, double t, int, int) { length += t; }
-      void stop_top(estimator_t const&, lattice_t const&, double t, int, int) { length += t; }
+      struct collector {
+        double length;
+        void reset(estimator_t const&) { length = 0; }
+        collector& operator+=(collector const& coll) { length += coll.length; }
+        collector& operator+=(estimate const& est) {
+          length += (est.closed ? 0.0 : est.length);
+          return *this;
+        }
+        template<typename M>
+        void commit(M& m, estimator_t const&, lattice_t const& lat, double, double sign, double,
+          std::vector<int> const&) const {
+          m["Transverse Magnetization"] << 0.5 * sign * length;
+          m["Transverse Magnetization Density"] << 0.5 * sign * length / lat.volume();
+        }
+      };
     };
-    void init_estimate(estimate& es) const { es.init(); }
-
-    struct collector {
-      double length;
-      void init() { length = 0; }
-      collector& operator+=(estimate const& cm) {
-        if (!cm.closed) length += cm.length;
-        return *this;
-      }
-      template<typename M>
-      void commit(M& m, lattice_t const& lat, double, int, double sign) const {
-        m["Transverse Magnetization"] << 0.5 * sign * length;
-        m["Transverse Magnetization Density"] << 0.5 * sign * length / lat.volume();
-      }
-    };
-    void init_collector(collector& coll) const { coll.init(); }
-
-    template<typename M, typename OP, typename FRAGMENT>
-    void improved_measurement(M& m, lattice_t const& lat, double beta, double sign,
-      std::vector<int> const& /* spins */, std::vector<OP> const& operators,
-      std::vector<int> const& /* spins_c */, std::vector<FRAGMENT> const& /* fragments */,
-      collector const& coll) {
-      coll.commit(m, lat, beta, operators.size(), sign);
-    }
-
-    // normal estimator
-
-    template<typename M, typename OP>
-    void normal_measurement(M& /* m */, lattice_t const& /* lat */, double /* beta */,
-      double /* sign */, std::vector<int> const& /* spins */,
-      std::vector<OP> const& /* operators */, std::vector<int> const& /* spins_c */) {}
   };
 };
 

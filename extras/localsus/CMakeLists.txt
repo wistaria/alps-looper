@@ -4,6 +4,4 @@ add_executable(localsus ${PROJECT_SOURCE_DIR}/loop.C ${PROJECT_SOURCE_DIR}/loop_
   ${PROJECT_SOURCE_DIR}/path_integral.C)
 target_link_libraries(localsus ${ALPS_LIBRARIES})
 
-if(LOOPER_BUILD_TESTS)
-  add_alps_test(localsus)
-endif(LOOPER_BUILD_TESTS)
+add_alps_test(localsus)

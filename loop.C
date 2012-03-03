@@ -29,3 +29,6 @@ int main(int argc, char** argv) { return alps::parapack::start(argc, argv); }
 
 PARAPACK_SET_COPYRIGHT(LOOPER_COPYRIGHT)
 PARAPACK_SET_VERSION(LOOPER_VERSION_STRING)
+
+// implementation of compare_and_swap
+#include <looper/atomic_impl.h>

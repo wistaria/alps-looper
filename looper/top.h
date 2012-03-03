@@ -31,9 +31,6 @@
 #include <boost/foreach.hpp>
 #include <complex>
 
-using alps::numeric::is_nonzero;
-using alps::numeric::is_zero;
-
 // workaround for SuSE 11.4, which defines macro TIME in pyconfig.h
 #ifdef TIME
 # undef TIME
@@ -42,7 +39,8 @@ using alps::numeric::is_zero;
 namespace looper {
 
 template<unsigned int N>
-struct twist_order_parameter_n {
+struct twist_order_parameter_n : public has_improved_estimator_tag,
+  public has_normal_estimator_tag {
 
   BOOST_STATIC_ASSERT(N > 0);
 
@@ -53,14 +51,11 @@ struct twist_order_parameter_n {
     typedef TIME time_t;
     typedef estimator<mc_type, lattice_t, time_t> estimator_t;
 
-    bool improved;
     std::vector<double> phase;
     std::vector<std::string> label;
 
     void initialize(alps::Parameters const& /* params */, lattice_t const& lat,
-      bool /* is_signed */, bool use_improved_estimator) {
-      improved = use_improved_estimator;
-
+      bool /* is_signed */, bool /* enable_improved_estimator */) {
       // check basis vector
       int i = 0;
       BOOST_FOREACH(std::vector<double> const& v, lat.graph_helper().basis_vectors()) {
@@ -91,90 +86,88 @@ struct twist_order_parameter_n {
         label[i] = "Twist Order Parameter with p = " + boost::lexical_cast<std::string>(i+1);
     }
     template<typename M>
-    void init_observables(M& m, bool is_signed) {
+    void init_observables(M& m, bool is_signed, bool /* enable_improved_estimator */) {
       for (unsigned int i = 0; i < label.size(); ++i) {
         add_scalar_obs(m, label[i], is_signed);
         add_scalar_obs(m, label[i] + " (Imaginary Part)", is_signed);
       }
     }
 
-    // improved estimator
-
-    struct estimate {
-      double moment;
-      estimate() : moment(0) {}
-      void init() { moment = 0; }
-      void begin_s(estimator_t const&, lattice_t const&, double, int, int) {}
-      void begin_bs(estimator_t const&, lattice_t const&, double, int, int, int) {}
-      void begin_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
-      void end_s(estimator_t const&, lattice_t const&, double, int, int) {}
-      void end_bs(estimator_t const&, lattice_t const&, double, int, int, int) {}
-      void end_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
-      void start_bottom(estimator_t const& emt, lattice_t const&, double, int s, int c) {
-        moment += emt.phase[s] * (0.5-c);
-      }
-      void start(estimator_t const&, lattice_t const&, double, int, int) {}
-      void stop(estimator_t const&, lattice_t const&, double, int, int) {}
-      void stop_top(estimator_t const&, lattice_t const&, double, int, int) {}
-    };
-    void init_estimate(estimate& est) const { est.init(); }
-
-    struct collector {
-      const std::vector<std::string> *label_ptr;
-      double top;
-      void init(const std::vector<std::string> *l) {
-        label_ptr = l;
-        top = 1;
-      }
-      collector& operator+=(collector const& coll) {
-        top *= coll.top;
-        return *this;
-      }
-      collector& operator+=(estimate const& est) {
-        top *= std::cos(est.moment);
-        return *this;
-      }
-      template<typename M>
-      void commit(M& m, lattice_t const&, double, int, double sign) const {
-        double t = sign * top;
-        for (int i = 0; i < N; ++i) {
-          m[(*label_ptr)[i]] << t;
-          m[(*label_ptr)[i] + " (Imaginary Part)"] << 0.;
-          t *= top;
+    struct improved_estimator {
+      struct estimate {
+        double moment;
+        estimate() : moment(0) {}
+        void reset(estimator_t const&) { moment = 0; }
+        estimate& operator+=(estimate const& rhs) { moment += rhs.moment; }
+        void begin_s(estimator_t const&, lattice_t const&, double, int, int) {}
+        void begin_bs(estimator_t const&, lattice_t const&, double, int, int, int) {}
+        void begin_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
+        void end_s(estimator_t const&, lattice_t const&, double, int, int) {}
+        void end_bs(estimator_t const&, lattice_t const&, double, int, int, int) {}
+        void end_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
+        void start_bottom(estimator_t const& emt, lattice_t const&, double, int s, int c) {
+          moment += emt.phase[s] * (0.5-c);
         }
-      }
+        void start(estimator_t const&, lattice_t const&, double, int, int) {}
+        void stop(estimator_t const&, lattice_t const&, double, int, int) {}
+        void stop_top(estimator_t const&, lattice_t const&, double, int, int) {}
+      };
+
+      struct collector {
+        double top;
+        void reset(estimator_t const&) { top = 1; }
+        collector& operator+=(collector const& coll) {
+          top *= coll.top;
+          return *this;
+        }
+        collector& operator+=(estimate const& est) {
+          top *= std::cos(est.moment);
+          return *this;
+        }
+        template<typename M>
+        void commit(M& m, estimator_t const& emt, lattice_t const&, double, double sign,
+          double, std::vector<int> const&) const {
+          double t = sign * top;
+          for (int i = 0; i < N; ++i) {
+            m[emt.label[i]] << t;
+            m[emt.label[i] + " (Imaginary Part)"] << 0.;
+            t *= top;
+          }
+        }
+      };
     };
-    void init_collector(collector& coll) const { coll.init(&label); }
 
-    template<typename M, typename OP, typename FRAGMENT>
-    void improved_measurement(M& m,
-                              lattice_t const& lat,
-                              double beta, double sign,
-                              std::vector<int> const& /* spins */,
-                              std::vector<OP> const& operators,
-                              std::vector<int> const& /* spins_c */,
-                              std::vector<FRAGMENT> const& /* fragments */,
-                              collector const& coll) {
-      coll.commit(m, lat, beta, operators.size(), sign);
-    }
-
-    template<typename M, typename OP>
-    void normal_measurement(M& m, lattice_t const& lat,
-                            double /* beta */, double sign,
-                            std::vector<int> const& spins,
-                            std::vector<OP> const& /* operators */,
-                            std::vector<int>& /* spins_c */)
-    {
-      if (improved) return;
-
-      double total = 0;
-      BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type s, sites(lat.vg()))
-        total += phase[s] * (0.5-spins[s]);
-      for (int i = 0; i < N; ++i) {
-        m[label[i]] << sign * std::cos((i+1) * total);
-        m[label[i] + " (Imaginary Part)"] << sign * std::sin((i+1) * total);
-      }
-    }
+    struct normal_estimator {
+      struct collector {
+        double moment;
+        collector() : moment(0) {}
+        void reset(estimator_t const&) { moment = 0; }
+        collector& operator+=(collector const& rhs) {
+          moment += rhs.moment;
+          return *this;
+        }
+        void begin_s(estimator_t const&, lattice_t const&, double, int, int) {}
+        void begin_bs(estimator_t const&, lattice_t const&, double, int, int, int) {}
+        void begin_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
+        void end_s(estimator_t const&, lattice_t const&, double, int, int) {}
+        void end_bs(estimator_t const&, lattice_t const&, double, int, int, int) {}
+        void end_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
+        void start_bottom(estimator_t const& emt, lattice_t const&, double, int s, int c) {
+          moment += emt.phase[s] * (0.5-c);
+        }
+        void start(estimator_t const&, lattice_t const&, double, int, int) {}
+        void stop(estimator_t const&, lattice_t const&, double, int, int) {}
+        void stop_top(estimator_t const&, lattice_t const&, double, int, int) {}
+        template<typename M>
+        void commit(M& m, estimator_t const& emt, lattice_t const&, double, double sign,
+          double, std::vector<int> const&) const {
+          for (int i = 0; i < N; ++i) {
+            m[emt.label[i]] << sign * std::cos((i+1) * moment);
+            m[emt.label[i] + " (Imaginary Part)"] << sign * std::sin((i+1) * moment);
+          }
+        }
+      };
+    };
   };
 };
 

@@ -155,26 +155,31 @@ public:
       }
     }
   }
-  void detailed_report(std::ostream& os = std::clog) {
+  void detailed_report(std::size_t interval = 1, std::ostream& os = std::clog) {
     #ifdef ALPS_ENABLE_TIMER_DETAILED
     int np, rank;
     MPI_Comm_size(comm_, &np);
     MPI_Comm_rank(comm_, &rank);
-    int size = base_type::d_counts_.size();
-    if (rank == 0) {
-      int buff_size = size * np;
-      buff_counts_.resize(buff_size);
-      buff_sums_.resize(buff_size);
+    if (rank == 0 && base_type::d_count_ == 0) {
+      os << "timer: interval = " << interval << std::endl;
     }
-    MPI_Gather(&base_type::d_counts_[0], size, MPI_INT, &buff_counts_[0], size, MPI_INT, 0, comm_);
-    MPI_Gather(&base_type::d_sums_[0], size, MPI_DOUBLE, &buff_sums_[0], size, MPI_DOUBLE, 0, comm_);
-    if (rank == 0) {
-      for (int i = 0; i < base_type::labels_.size(); ++i) {
-        if (base_type::d_mapping_[i] >= 0) {
-          for (int p = 0; p < np; ++p) {
-            int k = size * p + base_type::d_mapping_[i];
-            os << boost::format("detail: %d %d %d %.10f %d\n")
-              % base_type::d_count_ % i % p % buff_sums_[k] % buff_counts_[k];
+    int size = base_type::d_counts_.size();
+    if ((base_type::d_count_ + 1) % interval == 0) {
+      if (rank == 0) {
+        int buff_size = size * np;
+        buff_counts_.resize(buff_size);
+        buff_sums_.resize(buff_size);
+      }
+      MPI_Gather(&base_type::d_counts_[0], size, MPI_INT, &buff_counts_[0], size, MPI_INT, 0, comm_);
+      MPI_Gather(&base_type::d_sums_[0], size, MPI_DOUBLE, &buff_sums_[0], size, MPI_DOUBLE, 0, comm_);
+      if (rank == 0) {
+        for (int i = 0; i < base_type::labels_.size(); ++i) {
+          if (base_type::d_mapping_[i] >= 0) {
+            for (int p = 0; p < np; ++p) {
+              int k = size * p + base_type::d_mapping_[i];
+              os << boost::format("detail: %d %d %d %.10f %d\n")
+                % base_type::d_count_ % i % p % buff_sums_[k] % buff_counts_[k];
+            }
           }
         }
       }

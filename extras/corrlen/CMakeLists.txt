@@ -1,9 +1,13 @@
 add_definitions(-DLOOP_CONFIG_HEADER="extras/corrlen/corrlen_config.h")
 
-add_executable(corrlen ${PROJECT_SOURCE_DIR}/loop.C ${PROJECT_SOURCE_DIR}/loop_model.C
-  ${PROJECT_SOURCE_DIR}/path_integral.C)
+set(LOOP_SRC ${PROJECT_SOURCE_DIR}/loop.C ${PROJECT_SOURCE_DIR}/loop_model.C
+  ${PROJECT_SOURCE_DIR}/diag.C ${PROJECT_SOURCE_DIR}/path_integral.C ${PROJECT_SOURCE_DIR}/path_integral_mpi.C)
+if(CMAKE_ASM_COMPILER)
+  enable_language(ASM)
+  set_property(SOURCE ${PROJECT_SOURCE_DIR}/looper/atomic.s PROPERTY LANGUAGE ASM)
+  set(LOOP_SRC ${LOOP_SRC} ${PROJECT_SOURCE_DIR}/looper/atomic.s)
+endif(CMAKE_ASM_COMPILER)
+add_executable(corrlen ${LOOP_SRC})
 target_link_libraries(corrlen ${ALPS_LIBRARIES})
 
-if(LOOPER_BUILD_TESTS)
-  add_alps_test(corrlen)
-endif(LOOPER_BUILD_TESTS)
+add_alps_test(corrlen)

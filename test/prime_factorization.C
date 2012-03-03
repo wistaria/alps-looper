@@ -23,8 +23,9 @@
 *****************************************************************************/
 
 #include <looper/expand.h>
-#include <looper/parallel.h>
+#include <looper/prime_factorization.h>
 #include <alps/utility/vectorio.hpp>
+#include <numeric>
 #include <cstdlib>
 #include <iostream>
 
@@ -39,7 +40,7 @@ try {
     std::cin >> n;
     if (!std::cin) break;
 
-    std::vector<int> factors = looper::parallel::prime_factorization(n);
+    std::vector<int> factors = looper::prime_factorization(n);
     int r = std::accumulate(factors.begin(), factors.end(), 1, std::multiplies<int>());
 
     if (r == n)

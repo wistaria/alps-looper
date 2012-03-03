@@ -26,7 +26,6 @@
 #define LOOPER_CUSTOM_H
 
 #include "measurement.h"
-#include "dumb_measurement.h"
 #include <alps/scheduler/measurement_operators.h>
 #include <boost/foreach.hpp>
 #include <boost/optional.hpp>
@@ -61,17 +60,18 @@ private:
   alps::Parameters const& params_;
 };
 
-struct custom_measurement {
-
-  typedef dumb_measurement<custom_measurement> dumb;
+struct custom_measurement : has_normal_estimator_tag {
 
   template<typename MC, typename LAT, typename TIME>
   struct estimator {
-    typedef LAT lattice_t;
+    typedef MC   mc_type;
+    typedef LAT  lattice_t;
+    typedef TIME time_t;
+    typedef estimator<mc_type, lattice_t, time_t> estimator_t;
     typedef typename custom_measurement_initializer<lattice_t>::s_elements_type s_elements_type;
     typedef typename custom_measurement_initializer<lattice_t>::p_elements_type p_elements_type;
     typedef typename alps::property_map<coordinate_t, const typename lattice_t::real_graph_type,
-              coordinate_type>::type coordinate_map_t;
+      coordinate_type>::type coordinate_map_t;
 
     std::vector<s_elements_type> average_elements;
     std::vector<s_elements_type> local_elements;
@@ -82,11 +82,11 @@ struct custom_measurement {
     std::valarray<double> mltplcty;
     std::vector<std::string> site_label, distance_label, momenta_label;
 
-    // working vector
-    std::valarray<double> local, corr, sfac;
+    // working vectors
+    mutable std::valarray<double> local, corr, sfac;
 
-    void initialize(alps::Parameters const& params, lattice_t const& lat,
-      bool /* is_signed */, bool /* use_improved_estimator */) {
+    void initialize(alps::Parameters const& params, lattice_t const& lat, bool /* is_signed */,
+      bool /* enable_improved_estimator */) {
       custom_measurement_initializer<lattice_t> initializer(params);
       initializer.init(lat, average_elements, local_elements, correlation_elements,
                        strfactor_elements);
@@ -112,7 +112,7 @@ struct custom_measurement {
       }
     }
     template<typename M>
-    void init_observables(M& m, bool is_signed) {
+    void init_observables(M& m, bool is_signed, bool /* enable_improved_estimator */) {
       BOOST_FOREACH(s_elements_type const& elms, average_elements)
         add_scalar_obs(m, elms.get<0>(), is_signed);
       if (local_elements.size()) {
@@ -129,116 +129,123 @@ struct custom_measurement {
       }
     }
 
-    typedef typename dumb::template estimator<MC, LAT, TIME>::estimate estimate;
-    void init_estimate(estimate const&) const {}
-
-    typedef typename dumb::template estimator<MC, LAT, TIME>::collector collector;
-    void init_collector(collector const&) const {}
-
-    template<typename M, typename OP, typename FRAGMENT>
-    void improved_measurement(M& /* m */, lattice_t const& /* lat */, double /* beta */,
-      double /* sign */, std::vector<int> const& /* spins */,
-      std::vector<OP> const& /* operators */, std::vector<int> const& /* spins_c */,
-      std::vector<FRAGMENT> const& /* fragments */, collector const& /* coll */) {}
-
-    template<typename M, typename OP>
-    void normal_measurement(M& m, lattice_t const& lat, double /* beta */, double sign,
-      std::vector<int> const& spins, std::vector<OP> const& /* operators */,
-      std::vector<int>& /* spins_c */) {
-
-      // average
-      BOOST_FOREACH(s_elements_type const& elms, average_elements) {
-        double v = 0;
-        BOOST_FOREACH(typename real_site_descriptor<lattice_t>::type const& rs,
-          sites(lat.rg())) {
-          int st = 0;
-          BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type const& vs,
-            sites(lat, rs))
-            st += (1 - spins[vs]);
-          v += elms.get<1>()[get(site_type_t(), lat.rg(), rs)][st];
-        }
-        m[elms.get<0>()] << sign * v / lat.volume();
-      }
-
-      // local
-      BOOST_FOREACH(s_elements_type const& elms, local_elements) {
-        local = 0;
-        BOOST_FOREACH(typename real_site_descriptor<lattice_t>::type const& rs,
-          sites(lat.rg())) {
-          int st = 0;
-          BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type const& vs,
-            sites(lat, rs))
-            st += (1 - spins[vs]);
-          local[rs] = sign * elms.get<1>()[get(site_type_t(), lat.rg(), rs)][st];
-        }
-        m[elms.get<0>()] << local;
-      }
-
-      // correlation
-      BOOST_FOREACH(p_elements_type const& elms, correlation_elements) {
-        corr = 0;
-        if (origin) {
-          int st0 = 0;
-          BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type const& vs0,
-            sites(lat, origin.get()))
-            st0 += (1 - spins[vs0]);
-          double v0 = elms.get<1>()[get(site_type_t(), lat.rg(), origin.get())][st0];
-          BOOST_FOREACH(typename real_site_descriptor<lattice_t>::type const& rs1,
-            sites(lat.rg())) {
-            int st1 = 0;
-            BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type const& vs1,
-              sites(lat, rs1))
-              st1 += (1 - spins[vs1]);
-            double v1 = elms.get<2>()[get(site_type_t(), lat.rg(), rs1)][st1];
-            corr[rs1] = sign * v0 * v1;
-          }
-        } else {
-          BOOST_FOREACH(typename real_site_descriptor<lattice_t>::type const& rs0,
-            sites(lat.rg())) {
-            int st0 = 0;
-            BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type const& vs0,
-              sites(lat, rs0))
-              st0 += (1 - spins[vs0]);
-            double v0 = elms.get<1>()[get(site_type_t(), lat.rg(), rs0)][st0];
-            BOOST_FOREACH(typename real_site_descriptor<lattice_t>::type const& rs1,
+    struct normal_estimator {
+      struct collector {
+        collector() {}
+        void reset(estimator_t const&) {}
+        collector& operator+=(collector const&) { return *this; }
+        void begin_s(estimator_t const&, lattice_t const&, double, int, int) {}
+        void begin_bs(estimator_t const&, lattice_t const&, double, int, int, int) {}
+        void begin_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
+        void end_s(estimator_t const&, lattice_t const&, double, int, int) {}
+        void end_bs(estimator_t const&, lattice_t const&, double, int, int, int) {}
+        void end_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
+        void start_bottom(estimator_t const&, lattice_t const&, double, int, int) {}
+        void start(estimator_t const&, lattice_t const&, double, int, int) {}
+        void stop(estimator_t const&, lattice_t const&, double, int, int) {}
+        void stop_top(estimator_t const&, lattice_t const&, double, int, int) {}
+        template<typename M>
+        void commit(M& m, estimator_t const& emt, lattice_t const& lat, double, double sign,
+          double, std::vector<int> const& spins) const {
+          // average
+          BOOST_FOREACH(s_elements_type const& elms, emt.average_elements) {
+            double v = 0;
+            BOOST_FOREACH(typename real_site_descriptor<lattice_t>::type const& rs,
               sites(lat.rg())) {
-              int st1 = 0;
-              BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type const& vs1,
-                sites(lat, rs1))
-                st1 += (1 - spins[vs1]);
-              double v1 = elms.get<2>()[get(site_type_t(), lat.rg(), rs1)][st1];
-              int d = distance(lat, rs0, rs1);
-              corr[d] += v0 * v1;
+              int st = 0;
+              BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type const& vs,
+                sites(lat, rs))
+                st += (1 - spins[vs]);
+              v += elms.get<1>()[get(site_type_t(), lat.rg(), rs)][st];
             }
+            m[elms.get<0>()] << sign * v / lat.volume();
           }
-          corr *= sign * mltplcty;
-        }
-        m[elms.get<0>()] << corr;
-      }
 
-      // structure factor
-      BOOST_FOREACH(p_elements_type const& elms, strfactor_elements) {
-        sfac = 0;
-        int k = 0;
-        typename momentum_iterator<lattice_t>::type mit, mit_end;
-        for (boost::tie(mit, mit_end) = momenta(lat); mit != mit_end; ++mit, ++k) {
-          std::complex<double> v0, v1;
-          BOOST_FOREACH(typename real_site_descriptor<lattice_t>::type const& rs,
-            sites(lat.rg())) {
-            int t = get(site_type_t(), lat.rg(), rs);
-            int st = 0;
-            BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type const& vs,
-              sites(lat, rs))
-              st += (1 - spins[vs]);
-            v0 += elms.get<1>()[t][st] * mit.phase(coordinate(rs));
-            v1 += elms.get<2>()[t][st] * mit.phase(coordinate(rs));
+          // local
+          std::valarray<double>& local = emt.local;
+          BOOST_FOREACH(s_elements_type const& elms, emt.local_elements) {
+            local = 0;
+            BOOST_FOREACH(typename real_site_descriptor<lattice_t>::type const& rs,
+              sites(lat.rg())) {
+              int st = 0;
+              BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type const& vs,
+                sites(lat, rs))
+                st += (1 - spins[vs]);
+              local[rs] = sign * elms.get<1>()[get(site_type_t(), lat.rg(), rs)][st];
+            }
+            m[elms.get<0>()] << local;
           }
-          sfac[k] = std::real(std::conj(v0) * v1);
+
+          // correlation
+          std::valarray<double>& corr = emt.corr;
+          BOOST_FOREACH(p_elements_type const& elms, emt.correlation_elements) {
+            corr = 0;
+            if (emt.origin) {
+              int origin = emt.origin.get();
+              int st0 = 0;
+              BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type const& vs0,
+                sites(lat, origin))
+                st0 += (1 - spins[vs0]);
+              double v0 = elms.get<1>()[get(site_type_t(), lat.rg(), origin)][st0];
+              BOOST_FOREACH(typename real_site_descriptor<lattice_t>::type const& rs1,
+                sites(lat.rg())) {
+                int st1 = 0;
+                BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type const& vs1,
+                  sites(lat, rs1))
+                  st1 += (1 - spins[vs1]);
+                double v1 = elms.get<2>()[get(site_type_t(), lat.rg(), rs1)][st1];
+                corr[rs1] = sign * v0 * v1;
+              }
+            } else {
+              BOOST_FOREACH(typename real_site_descriptor<lattice_t>::type const& rs0,
+                sites(lat.rg())) {
+                int st0 = 0;
+                BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type const& vs0,
+                  sites(lat, rs0))
+                  st0 += (1 - spins[vs0]);
+                double v0 = elms.get<1>()[get(site_type_t(), lat.rg(), rs0)][st0];
+                BOOST_FOREACH(typename real_site_descriptor<lattice_t>::type const& rs1,
+                  sites(lat.rg())) {
+                  int st1 = 0;
+                  BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type const& vs1,
+                    sites(lat, rs1))
+                    st1 += (1 - spins[vs1]);
+                  double v1 = elms.get<2>()[get(site_type_t(), lat.rg(), rs1)][st1];
+                  int d = distance(lat, rs0, rs1);
+                  corr[d] += v0 * v1;
+                }
+              }
+              corr *= sign * emt.mltplcty;
+            }
+            m[elms.get<0>()] << corr;
+          }
+
+          // structure factor
+          std::valarray<double>& sfac = emt.sfac;
+          BOOST_FOREACH(p_elements_type const& elms, emt.strfactor_elements) {
+            sfac = 0;
+            int k = 0;
+            typename momentum_iterator<lattice_t>::type mit, mit_end;
+            for (boost::tie(mit, mit_end) = momenta(lat); mit != mit_end; ++mit, ++k) {
+              std::complex<double> v0, v1;
+              BOOST_FOREACH(typename real_site_descriptor<lattice_t>::type const& rs,
+                sites(lat.rg())) {
+                int t = get(site_type_t(), lat.rg(), rs);
+                int st = 0;
+                BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type const& vs,
+                  sites(lat, rs))
+                  st += (1 - spins[vs]);
+                v0 += elms.get<1>()[t][st] * mit.phase(emt.coordinate(rs));
+                v1 += elms.get<2>()[t][st] * mit.phase(emt.coordinate(rs));
+              }
+              sfac[k] = std::real(std::conj(v0) * v1);
+            }
+            sfac *= (sign / lat.volume());
+            m[elms.get<0>()] << sfac;
+          }
         }
-        sfac *= (sign / lat.volume());
-        m[elms.get<0>()] << sfac;
-      }
-    }
+      };
+    };
   };
 };
 

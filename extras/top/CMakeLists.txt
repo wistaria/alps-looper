@@ -4,6 +4,4 @@ add_executable(top ${PROJECT_SOURCE_DIR}/loop.C ${PROJECT_SOURCE_DIR}/loop_model
   ${PROJECT_SOURCE_DIR}/path_integral.C)
 target_link_libraries(top ${ALPS_LIBRARIES})
 
-if(LOOPER_BUILD_TESTS)
-  add_alps_test(top)
-endif(LOOPER_BUILD_TESTS)
+add_alps_test(top)

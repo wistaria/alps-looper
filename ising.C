@@ -123,7 +123,7 @@ loop_worker::loop_worker(alps::Parameters const& p)
 
   enable_improved_estimator = !model.has_field() && !p.defined("DISABLE_IMPROVED_ESTIMATOR");
   if (!enable_improved_estimator)
-    std::cerr << "WARNING: improved estimator is disabled\n";
+    std::cout << "WARNING: improved estimator is disabled\n";
 
   // configuration
   int nvs = num_sites(lattice.vg());
@@ -144,8 +144,6 @@ void loop_worker::init_observables(alps::Parameters const&, alps::ObservableSet&
 }
 
 void loop_worker::run(alps::ObservableSet& obs) {
-  // if (!mcs.can_work()) return;
-  ++mcs;
   beta = 1.0 / temperature(mcs());
 
   //       FIELD               IMPROVE
@@ -153,6 +151,8 @@ void loop_worker::run(alps::ObservableSet& obs) {
   dispatch<boost::mpl::true_,  boost::mpl::false_>(obs, coll_n, estimates_n);
   dispatch<boost::mpl::false_, boost::mpl::true_ >(obs, coll_i, estimates_i);
   dispatch<boost::mpl::false_, boost::mpl::false_>(obs, coll_n, estimates_n);
+
+  ++mcs;
 }
 
 
@@ -267,7 +267,7 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
       ene += (estimates[c].to_flip ? -clusters[c].weight : clusters[c].weight);
   coll.set_energy(ene);
 
-  coll.commit(obs, estimator, lattice, beta, 1, nop);
+  coll.commit(obs, estimator, lattice, beta, 1, nop, spins);
 }
 
 typedef looper::evaluator<loop_config::measurement_set> loop_evaluator;

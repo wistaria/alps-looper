@@ -59,6 +59,7 @@ struct is_sse<sse> { typedef boost::mpl::true_ type; };
 
 struct has_improved_estimator_tag {};
 struct has_normal_estimator_tag {};
+// struct has_static_estimator_tag {};
 struct has_pre_evaluator_tag {};
 struct has_evaluator_tag {};
 

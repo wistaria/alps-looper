@@ -29,6 +29,7 @@
 #include <looper/graph.h>
 #include <looper/model.h>
 
+#include <looper/energy.h>
 #include <looper/transmag.h>
 
 struct loop_config {
@@ -53,6 +54,7 @@ struct loop_config {
 
   // measurements
   typedef looper::measurement_set<
+    looper::energy,
     looper::transverse_magnetization
   > measurement_set;
 };

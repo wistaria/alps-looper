@@ -2,7 +2,8 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2009 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2011 by Synge Todo <wistaria@comp-phys.org>,
+*                            Haruhiko Matsuo <halm@looper.t.u-tokyo.ac.jp>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -22,44 +23,35 @@
 *
 *****************************************************************************/
 
-#ifndef PARALLEL_CONFIG_H
-#define PARALLEL_CONFIG_H
+#ifndef LOOPER_PRIME_FACTORIZATION_H
+#define LOOPER_PRIME_FACTORIZATION_H
 
-#include <alps/lattice.h>
-#include <looper/graph.h>
-#include <looper/model.h>
+#include <vector>
 
-// measurements
-#include <looper/correlation_length.h>
-#include <looper/gap.h>
-#include <looper/susceptibility.h>
+namespace looper {
 
-struct loop_config {
-  // lattice structure
-  typedef alps::coordinate_graph_type lattice_graph_t;
-  typedef looper::lattice_helper<lattice_graph_t> lattice_t;
+inline std::vector<int> prime_factorization(int n) {
+  int num_primes = 6;
+  int primes[] = { 2, 3, 5, 7, 11, 13 };
+  std::vector<int> factors;
+  if (n <= 1) {
+    factors.push_back(n);
+  } else {
+    for (int i = 0; i < num_primes; ++i) {
+      int p = primes[i];
+      while (n % p == 0) {
+        n = n / p;
+        factors.push_back(p);
+      }
+    }
+    while (n > 1) {
+      n = ((n - 1) / 2) + 1;
+      factors.insert(factors.begin(), 2);
+    }
+  }
+  return factors;
+}
 
-  // imaginary time
-  typedef looper::imaginary_time<> time_t;
+} // end namespace looper
 
-  // graph for loops
-  typedef looper::local_graph<> loop_graph_t;
-
-  // model
-  typedef looper::spinmodel_helper<lattice_graph_t, loop_graph_t> model_t;
-
-  // whether longitudinal external field is supported or not
-  static const bool support_longitudinal_field = true;
-
-  // whether systems with negative signs are supported or not
-  static const bool support_negative_sign = true;
-
-  // measurements
-  typedef looper::measurement_set<
-    looper::correlation_length,
-    looper::gap,
-    looper::susceptibility
-  > measurement_set;
-};
-
-#endif // PARALLEL_CONFIG_H
+#endif // LOOPER_PRIME_FACTORIZATION_H

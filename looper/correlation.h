@@ -35,27 +35,22 @@
 
 namespace looper {
 
-struct correlation {
-  typedef dumb_measurement<correlation> dumb;
+struct correlation : public has_normal_estimator_tag {
 
   template<typename MC, typename LAT, typename TIME>
   struct estimator {
     typedef MC   mc_type;
     typedef LAT  lattice_t;
     typedef TIME time_t;
-    typedef typename alps::property_map<real_site_t,
-              const typename lattice_t::virtual_graph_type,
-              typename real_site_descriptor<lattice_t>::type>::type
-              real_site_map_t;
-    typedef typename alps::property_map<gauge_t,
-              const typename lattice_t::virtual_graph_type,
-              double>::type gauge_map_t;
-    typedef typename alps::property_map<coordinate_t,
-              const typename lattice_t::real_graph_type,
-              coordinate_type>::type coordinate_map_t;
+    typedef estimator<mc_type, lattice_t, time_t> estimator_t;
+    typedef typename alps::property_map<real_site_t, const typename lattice_t::virtual_graph_type,
+      typename real_site_descriptor<lattice_t>::type>::type real_site_map_t;
+    typedef typename alps::property_map<gauge_t, const typename lattice_t::virtual_graph_type,
+      double>::type gauge_map_t;
+    typedef typename alps::property_map<coordinate_t, const typename lattice_t::real_graph_type,
+      coordinate_type>::type coordinate_map_t;
 
-    bool measure_correlation, measure_green_function,
-      measure_structure_factor, bipartite, improved;
+    bool measure_correlation, measure_green_function, measure_structure_factor, bipartite;
     real_site_map_t real_site;
     gauge_map_t gauge;
     coordinate_map_t coordinate;
@@ -63,22 +58,22 @@ struct correlation {
     std::valarray<double> mltplcty;
     std::vector<std::string> distance_label, momenta_label;
 
-    // working vector
-    std::valarray<double> ucorr, scorr, gucorr, gscorr, gfunc, sfac;
+    // working vectors
+    mutable std::valarray<double> ucorr, scorr, gucorr, gscorr, gfunc, sfac;
 
-    void initialize(alps::Parameters const& params, lattice_t const& lat,
-      bool /* is_signed */, bool use_improved_estimator) {
-      measure_correlation =
-        params.value_or_default("MEASURE[Correlations]", false);
-      measure_green_function =
-        params.value_or_default("MEASURE[Green Function]", false);
-      measure_structure_factor =
-        params.value_or_default("MEASURE[Structure Factor]", false);
+    void initialize(alps::Parameters const& params, lattice_t const& lat, bool /* is_signed */,
+      bool enable_improved_estimator) {
+      measure_correlation = params.value_or_default("MEASURE[Correlations]", false);
+      measure_green_function = params.value_or_default("MEASURE[Green Function]", false);
+      measure_structure_factor = params.value_or_default("MEASURE[Structure Factor]", false);
       bipartite = is_bipartite(lat);
-      improved = use_improved_estimator;
 
-      if (measure_green_function && !improved) {
-        std::cout << "WARNING: Green funciton measurement is disabled\n";
+      if (measure_green_function && !enable_improved_estimator) {
+        std::cerr << "WARNING: Green funciton measurement is disabled\n";
+        measure_green_function = false;
+      }
+      if (measure_green_function) {
+        std::cerr << "WARNING: Green funciton measurement is not implemented yet\n";
         measure_green_function = false;
       }
 
@@ -100,10 +95,10 @@ struct correlation {
         }
         ucorr.resize(distance_label.size());
         scorr.resize(distance_label.size());
-        if (improved) {
-          gucorr.resize(distance_label.size());
-          gscorr.resize(distance_label.size());
-          gfunc.resize(distance_label.size());
+        if (enable_improved_estimator) {
+          // gucorr.resize(distance_label.size());
+          // gscorr.resize(distance_label.size());
+          // gfunc.resize(distance_label.size());
         }
       }
 
@@ -114,17 +109,18 @@ struct correlation {
       }
     }
     template<typename M>
-    void init_observables(M& m, bool is_signed) {
+    void init_observables(M& m, bool is_signed, bool enable_improved_estimator) {
       if (measure_correlation || measure_green_function) {
         if (measure_correlation) {
           add_vector_obs(m, "Spin Correlations", distance_label, is_signed);
           if (bipartite)
             add_vector_obs(m, "Staggered Spin Correlations", distance_label, is_signed);
-          if (improved) {
-            add_vector_obs(m, "Generalized Spin Correlations", distance_label, is_signed);
-            if (bipartite)
-              add_vector_obs(m, "Generalized Staggered Spin Correlations", distance_label,
-                             is_signed);
+          if (enable_improved_estimator) {
+            std::cerr << "WARNING: Generalized Spin Correlations are not implemented yet\n";
+            // add_vector_obs(m, "Generalized Spin Correlations", distance_label, is_signed);
+            // if (bipartite)
+            //   add_vector_obs(m, "Generalized Staggered Spin Correlations", distance_label,
+            //     is_signed);
           }
         }
         if (measure_green_function)
@@ -137,147 +133,164 @@ struct correlation {
 
     // improved estimator
 
-    typedef typename dumb::template estimator<MC, LAT, TIME>::estimate estimate;
-    void init_estimate(estimate const&) const {}
+//     typedef typename dumb::template estimator<MC, LAT, TIME>::estimate estimate;
+//     void init_estimate(estimate const&) const {}
 
-    typedef typename dumb::template estimator<MC, LAT, TIME>::collector collector;
-    void init_collector(collector const&) const {}
+//     typedef typename dumb::template estimator<MC, LAT, TIME>::collector collector;
+//     void init_collector(collector const&) const {}
 
-    template<typename M, typename OP, typename FRAGMENT>
-    void improved_measurement(M& m,
-                              lattice_t const& lat,
-                              double /* beta */, double sign,
-                              std::vector<int> const& spins,
-                              std::vector<OP> const& /* operators */,
-                              std::vector<int> const& /* spins_c */,
-                              std::vector<FRAGMENT> const& fragments,
-                              collector const& /* coll */) {
-      if ((measure_correlation || measure_green_function) && improved) {
-        ucorr = 0;
-        scorr = 0;
-        gucorr = 0;
-        gscorr = 0;
-        gfunc = 0;
-        if (origin) {
-          typename virtual_site_iterator<lattice_t>::type si0, si0_end;
-          for (boost::tie(si0, si0_end) = sites(lat, origin.get());
-               si0 != si0_end; ++si0) {
-            double us = 1-2*spins[*si0];
-            double ss = gauge[*si0] * (1-2*spins[*si0]);
-            double gss = gauge[*si0];
-            typename virtual_site_iterator<lattice_t>::type si1, si1_end;
-            for (boost::tie(si1, si1_end) = sites(lat.vg()); si1 != si1_end;
-                 ++si1) {
-              if (fragments[*si0].id() == fragments[*si1].id()) {
-                int r1 = real_site[*si1];
-                ucorr[r1] += us * (1-2*spins[*si1]);
-                scorr[r1] += ss * gauge[*si1] * (1-2*spins[*si1]);
-                gucorr[r1] += 1;
-                gscorr[r1] += gss * gauge[*si1];
+//     template<typename M, typename FRAGMENT>
+//     void improved_measurement(M& m,
+//                               lattice_t const& lat,
+//                               double /* beta */, double sign,
+//                               std::vector<int> const& spins,
+//                               int /* nop */,
+//                               std::vector<int> const& /* spins_c */,
+//                               std::vector<FRAGMENT> const& fragments,
+//                               collector const& /* coll */) {
+//       if ((measure_correlation || measure_green_function)) {
+//         ucorr = 0;
+//         scorr = 0;
+//         gucorr = 0;
+//         gscorr = 0;
+//         gfunc = 0;
+//         if (origin) {
+//           typename virtual_site_iterator<lattice_t>::type si0, si0_end;
+//           for (boost::tie(si0, si0_end) = sites(lat, origin.get());
+//                si0 != si0_end; ++si0) {
+//             double us = 1-2*spins[*si0];
+//             double ss = gauge[*si0] * (1-2*spins[*si0]);
+//             double gss = gauge[*si0];
+//             typename virtual_site_iterator<lattice_t>::type si1, si1_end;
+//             for (boost::tie(si1, si1_end) = sites(lat.vg()); si1 != si1_end;
+//                  ++si1) {
+//               if (fragments[*si0].id() == fragments[*si1].id()) {
+//                 int r1 = real_site[*si1];
+//                 ucorr[r1] += us * (1-2*spins[*si1]);
+//                 scorr[r1] += ss * gauge[*si1] * (1-2*spins[*si1]);
+//                 gucorr[r1] += 1;
+//                 gscorr[r1] += gss * gauge[*si1];
+//               }
+//             }
+//           }
+//           ucorr *= (0.25 * sign);
+//           scorr *= (0.25 * sign);
+//           gucorr *= (0.25 * sign);
+//           gscorr *= (0.25 * sign);
+//         } else {
+//           typename virtual_site_iterator<lattice_t>::type si0, si0_end;
+//           for (boost::tie(si0, si0_end) = sites(lat.vg()); si0 != si0_end;
+//                ++si0) {
+//             int r0 = real_site[*si0];
+//             double us = 1-2*spins[*si0];
+//             double ss = gauge[*si0] * (1-2*spins[*si0]);
+//             double gss = gauge[*si0];
+//             typename virtual_site_iterator<lattice_t>::type si1, si1_end;
+//             for (boost::tie(si1, si1_end) = sites(lat.vg()); si1 != si1_end;
+//                  ++si1) {
+//               if (fragments[*si0].id() == fragments[*si1].id()) {
+//                 int d = distance(lat, r0, real_site[*si1]);
+//                 ucorr[d] += us * (1-2*spins[*si1]);
+//                 scorr[d] += ss * gauge[*si1] * (1-2*spins[*si1]);
+//                 gucorr[d] += 1;
+//                 gscorr[d] += gss * gauge[*si1];
+//               }
+//             }
+//           }
+//           ucorr *= (0.25 * sign * mltplcty);
+//           scorr *= (0.25 * sign * mltplcty);
+//           gucorr *= (0.25 * sign * mltplcty);
+//           gscorr *= (0.25 * sign * mltplcty);
+//         }
+//         if (measure_correlation) {
+//           m["Spin Correlations"] << ucorr;
+//           m["Generalized Spin Correlations"] << gucorr;
+//           if (bipartite) {
+//             m["Staggered Spin Correlations"] << scorr;
+//             m["Generalized Staggered Spin Correlations"] << gscorr;
+//           }
+//         }
+//       }
+//     }
+
+//     template<typename EST, typename OP>
+//     void accumulate(EST&, lattice_t const&, std::vector<int> const&,
+//       std::vector<OP> const&, std::vector<int>&, double, double) {}
+    
+    struct normal_estimator {
+      struct collector {
+        collector() {}
+        void reset(estimator_t const&) {}
+        collector& operator+=(collector const&) { return *this; }
+        void begin_s(estimator_t const&, lattice_t const&, double, int, int) {}
+        void begin_bs(estimator_t const&, lattice_t const&, double, int, int, int) {}
+        void begin_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
+        void end_s(estimator_t const&, lattice_t const&, double, int, int) {}
+        void end_bs(estimator_t const&, lattice_t const&, double, int, int, int) {}
+        void end_bt(estimator_t const&, lattice_t const&, double, int, int, int) {}
+        void start_bottom(estimator_t const&, lattice_t const&, double, int, int) {}
+        void start(estimator_t const&, lattice_t const&, double, int, int) {}
+        void stop(estimator_t const&, lattice_t const&, double, int, int) {}
+        void stop_top(estimator_t const&, lattice_t const&, double, int, int) {}
+        template<typename M>
+        void commit(M& m, estimator_t const& emt, lattice_t const& lat, double, double sign,
+          double, std::vector<int> const& spins) const {
+          estimator_t::real_site_map_t const& real_site = emt.real_site;
+          estimator_t::gauge_map_t const& gauge = emt.gauge;
+          std::valarray<double>& ucorr = emt.ucorr;
+          std::valarray<double>& scorr = emt.scorr;
+          std::valarray<double>& sfac = emt.sfac;
+          if (emt.measure_correlation) {
+            ucorr = 0;
+            scorr = 0;
+            if (emt.origin) {
+              typename virtual_site_iterator<lattice_t>::type si0, si0_end;
+              for (boost::tie(si0, si0_end) = sites(lat, emt.origin.get()); si0 != si0_end; ++si0) {
+                double us = 1-2*spins[*si0];
+                double ss = gauge[*si0] * (1-2*spins[*si0]);
+                typename virtual_site_iterator<lattice_t>::type si1, si1_end;
+                for (boost::tie(si1, si1_end) = sites(lat.vg()); si1 != si1_end; ++si1) {
+                  int r1 = real_site[*si1];
+                  ucorr[r1] += us * (1-2*spins[*si1]);
+                  scorr[r1] += ss * gauge[*si1] * (1-2*spins[*si1]);
+                }
               }
-            }
-          }
-          ucorr *= (0.25 * sign);
-          scorr *= (0.25 * sign);
-          gucorr *= (0.25 * sign);
-          gscorr *= (0.25 * sign);
-        } else {
-          typename virtual_site_iterator<lattice_t>::type si0, si0_end;
-          for (boost::tie(si0, si0_end) = sites(lat.vg()); si0 != si0_end;
-               ++si0) {
-            int r0 = real_site[*si0];
-            double us = 1-2*spins[*si0];
-            double ss = gauge[*si0] * (1-2*spins[*si0]);
-            double gss = gauge[*si0];
-            typename virtual_site_iterator<lattice_t>::type si1, si1_end;
-            for (boost::tie(si1, si1_end) = sites(lat.vg()); si1 != si1_end;
-                 ++si1) {
-              if (fragments[*si0].id() == fragments[*si1].id()) {
-                int d = distance(lat, r0, real_site[*si1]);
-                ucorr[d] += us * (1-2*spins[*si1]);
-                scorr[d] += ss * gauge[*si1] * (1-2*spins[*si1]);
-                gucorr[d] += 1;
-                gscorr[d] += gss * gauge[*si1];
+              ucorr *= 0.25 * sign;
+              scorr *= 0.25 * sign;
+            } else {
+              typename virtual_site_iterator<lattice_t>::type si0, si0_end;
+              for (boost::tie(si0, si0_end) = sites(lat.vg()); si0 != si0_end; ++si0) {
+                int r0 = real_site[*si0];
+                double us = 1-2*spins[*si0];
+                double ss = gauge[*si0] * (1-2*spins[*si0]);
+                typename virtual_site_iterator<lattice_t>::type si1, si1_end;
+                for (boost::tie(si1, si1_end) = sites(lat.vg()); si1 != si1_end; ++si1) {
+                  int d = distance(lat, r0, real_site[*si1]);
+                  ucorr[d] += us * (1-2*spins[*si1]);
+                  scorr[d] += ss * gauge[*si1] * (1-2*spins[*si1]);
+                }
               }
+              ucorr *= 0.25 * sign * emt.mltplcty;
+              scorr *= 0.25 * sign * emt.mltplcty;
             }
+            m["Spin Correlations"] << ucorr;
+            if (emt.bipartite) m["Staggered Spin Correlations"] << scorr;
           }
-          ucorr *= (0.25 * sign * mltplcty);
-          scorr *= (0.25 * sign * mltplcty);
-          gucorr *= (0.25 * sign * mltplcty);
-          gscorr *= (0.25 * sign * mltplcty);
-        }
-        if (measure_correlation) {
-          m["Spin Correlations"] << ucorr;
-          m["Generalized Spin Correlations"] << gucorr;
-          if (bipartite) {
-            m["Staggered Spin Correlations"] << scorr;
-            m["Generalized Staggered Spin Correlations"] << gscorr;
-          }
-        }
-      }
-    }
-
-    template<typename M, typename OP>
-    void normal_measurement(M& m, lattice_t const& lat,
-                            double /* beta */, double sign,
-                            std::vector<int> const& spins,
-                            std::vector<OP> const& /* operators */,
-                            std::vector<int>& /* spins_c */) {
-      if (measure_correlation && !improved) {
-        ucorr = 0;
-        scorr = 0;
-        if (origin) {
-          typename virtual_site_iterator<lattice_t>::type si0, si0_end;
-          for (boost::tie(si0, si0_end) = sites(lat, origin.get());
-               si0 != si0_end; ++si0) {
-            double us = 1-2*spins[*si0];
-            double ss = gauge[*si0] * (1-2*spins[*si0]);
-            typename virtual_site_iterator<lattice_t>::type si1, si1_end;
-            for (boost::tie(si1, si1_end) = sites(lat.vg()); si1 != si1_end; ++si1) {
-              int r1 = real_site[*si1];
-              ucorr[r1] += us * (1-2*spins[*si1]);
-              scorr[r1] += ss * gauge[*si1] * (1-2*spins[*si1]);
+          if (emt.measure_structure_factor) {
+            sfac = 0;
+            int k = 0;
+            typename momentum_iterator<lattice_t>::type mit, mit_end;
+            for (boost::tie(mit, mit_end) = momenta(lat); mit != mit_end; ++mit, ++k) {
+              std::complex<double> val;
+              BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type s, sites(lat.vg()))
+                val += (0.5-spins[s])  * mit.phase(emt.coordinate[real_site[s]]);
+              sfac[k] = sign * power2(val) / lat.volume();
             }
+            m["Spin Structure Factor"] << sfac;
           }
-          ucorr *= 0.25 * sign;
-          scorr *= 0.25 * sign;
-        } else {
-          typename virtual_site_iterator<lattice_t>::type si0, si0_end;
-          for (boost::tie(si0, si0_end) = sites(lat.vg()); si0 != si0_end;
-               ++si0) {
-            int r0 = real_site[*si0];
-            double us = 1-2*spins[*si0];
-            double ss = gauge[*si0] * (1-2*spins[*si0]);
-            typename virtual_site_iterator<lattice_t>::type si1, si1_end;
-            for (boost::tie(si1, si1_end) = sites(lat.vg()); si1 != si1_end;
-                 ++si1) {
-              int d = distance(lat, r0, real_site[*si1]);
-              ucorr[d] += us * (1-2*spins[*si1]);
-              scorr[d] += ss * gauge[*si1] * (1-2*spins[*si1]);
-            }
-          }
-          ucorr *= 0.25 * sign * mltplcty;
-          scorr *= 0.25 * sign * mltplcty;
         }
-        m["Spin Correlations"] << ucorr;
-        if (bipartite)
-          m["Staggered Spin Correlations"] << scorr;
-      }
-
-      if (measure_structure_factor) {
-        sfac = 0;
-        int k = 0;
-        typename momentum_iterator<lattice_t>::type mit, mit_end;
-        for (boost::tie(mit, mit_end) = momenta(lat); mit != mit_end;
-             ++mit, ++k) {
-          std::complex<double> val;
-          BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type s, sites(lat.vg()))
-            val += (0.5-spins[s])  * mit.phase(coordinate[real_site[s]]);
-          sfac[k] = sign * power2(val) / lat.volume();
-        }
-        m["Spin Structure Factor"] << sfac;
-      }
-    }
+      };
+    };
   };
 };
 

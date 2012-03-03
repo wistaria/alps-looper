@@ -68,7 +68,7 @@ struct stiffness : public has_improved_estimator_tag, public has_normal_estimato
         coordinate_type());
       dim = get_property(lat.rg(), dimension_t());
       if (enable_improved_estimator && dim > MAX_DIM) {
-        std::cout << "WARNING: Spatial dimension (=" << dim << ") is too large.  "
+        std::cerr << "Spatial dimension (=" << dim << ") is too large.  "
                   << "Stiffness will be measured only for the first "
                   << MAX_DIM << " dimensions\n";
         dim = MAX_DIM;
@@ -123,7 +123,7 @@ struct stiffness : public has_improved_estimator_tag, public has_normal_estimato
         }
         template<typename M>
         void commit(M& m, estimator_t const& emt, lattice_t const&, double beta, double sign,
-          double) const {
+          double, std::vector<int> const&) const {
           if (emt.dim > 0) m["Stiffness"] << sign * w2 / (beta * emt.dim);
         }
       };
@@ -159,7 +159,7 @@ struct stiffness : public has_improved_estimator_tag, public has_normal_estimato
         void stop_top(estimator_t const&, lattice_t const&, double, int, int) const {}
         template<typename M>
         void commit(M& m, estimator_t const& emt, lattice_t const&, double beta, double sign,
-          double) const {
+          double, std::vector<int> const&) const {
           double w2 = 0;
           for (int i = 0; i < emt.dim; ++i) w2 += power2(0.5 * winding[i]);
           if (emt.dim > 0) m["Stiffness"] << sign * w2 / (beta * emt.dim);

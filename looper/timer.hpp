@@ -254,12 +254,17 @@ public:
     }
   }
 
-  void detailed_report(std::ostream& os = std::clog) const {
+  void detailed_report(std::size_t interval = 1, std::ostream& os = std::clog) const {
     #ifdef ALPS_ENABLE_TIMER_DETAILED
-    for (int i = 0; i < labels_.size(); ++i) {
-      if (d_mapping_[i] >= 0) {
-        os << boost::format("detail: %d %d %.3f %d\n")
-          % d_count_ % i % d_sums_[d_mapping_[i]] % d_counts_[d_mapping_[i]];
+    if (d_count_ == 0) {
+      os << "timer: interval = " << interval << std::endl;
+    }
+    if((d_count_ + 1) % interval == 0) {
+      for (int i = 0; i < labels_.size(); ++i) {
+        if (d_mapping_[i] >= 0) {
+          os << boost::format("detail: %d %d %.3f %d\n")
+            % d_count_ % i % d_sums_[d_mapping_[i]] % d_counts_[d_mapping_[i]];
+        }
       }
     }
     ++d_count_;
@@ -325,7 +330,7 @@ public:
   void start(std::size_t) {}
   void stop(std::size_t) {}
   void summarize(std::ostream& = std::clog) const {}
-  void detailed_report(std::ostream& = std::clog) const {}
+  void detailed_report(std::size_t = 1, std::ostream& = std::clog) const {}
   void prof_start() {}
   void prof_stop() {}
 #ifndef ALPS_INDEP_SOURCE

@@ -204,7 +204,7 @@ struct correlation_length : public has_improved_estimator_tag, public has_normal
         }
         template<typename M>
         void commit(M& m, estimator_t const& emt, lattice_t const& lat, double beta, double sign,
-          double /* nop */) const {
+          double /* nop */, std::vector<int> const&) const {
           double vol = lat.volume();
           m["|dq|"] << emt.dq_abs;
           m["Spin Dynamic Structure Factor at (q,w) = (q0,0)"] << sign * beta * str0 / vol;
@@ -259,7 +259,7 @@ struct correlation_length : public has_improved_estimator_tag, public has_normal
         }
         template<typename M>
         void commit(M& m, estimator_t const& emt, lattice_t const& lat, double beta, double sign,
-          double) const {
+          double, std::vector<int> const&) const {
           double vol = lat.volume();
           m["Spin Dynamic Structure Factor at (q,w) = (q0,0)"]
             << sign * beta * power2(sq0) / vol;
