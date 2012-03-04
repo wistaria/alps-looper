@@ -3,74 +3,57 @@
 ALPS/looper
 ===========
 
-The ALPS/looper package is one of the applications of the `ALPS
-Project`_.  The ALPS/looper is the successor of the `Looper Library
-version 2`_, which is the Fortran 90 library for quantum Monte Carlo
-method.
+ALPS/looper は `ALPSプロジェクト`_ のアプリケーションの一つとして開発されている. ALPS/looper は Fortran 90 で書かれた量子モンテカルロ法のライブラリ `Looperライブラリ バージョン2`_ の後継として開発された. 
 
-The ALPS/looper application provides multi-cluster quantum Monte Carlo
-algorithms for generic spin systems in the path-integral or SSE
-representations.  it supports generic spin models with arbitrary spin
-size *S* on arbitrary lattices.  The supported interactions are
+ALPS/looper は, 経路積分あるいはSSE表示でマルチクラスタ量子モンテカルロアルゴリズムを行うプログラムである. 任意の格子状の任意のスピン量子数 *S* からなるスピン系を扱うことができる. サポートしている相互作用は, 以下の通りである. 
 
-* XXZ two-spin interaction (Ising, Heisenberg, XY)
-* single-ion anisotropy (D-term) for *S* > 1/2
-* longitudinal magnetic field
-* transverse matnetic field
+* XXZ型の2体相互作用 (イジング, ハイゼンベルグ, XY)
+* *S* > 1/2 における単イオン異方性 (D項)
+* 縦磁場
+* 横磁場
 
-Since it supports so-called *freezing graphs*, models with easy-axis
-(Ising-like) anisotropy can also be simulated very efficiently.
+ALPS/looper は, 量子クラスタアルゴリズムにおける「フリージンググラフ」を扱うことができるので, 容易軸 (イジング) 型の異方性をもつ模型も非常に効率良くシミュレーションを行うことができる. 
 
-From version 4, it includes non-trivial hybrid parallelization by
-using MPI and OpenMP, which has been tested on several
-state-of-the-art supercomputers (The K Computer, T2K Open
-Supercomputers, SGI Altix, etc).
+バージョン 4 からは, MPI と OpenMP を用いたハイブリッド並列化されたコードを含んでいる. 並列版コードは, 京速コンピュータ「京」, T2K オープンスパコン, SGI Altix など最新のスーパーコンピュータの上でテストされている. 
 
-A stripped version of the ALPS/looper is distributed as a part of
-`ALPS`_.  The full version of ALPS/looper library (including
-test suites, etc) is available from
-http://wistaria.comp-phys.org/alps-looper/.
+ALPS/looper は, `ALPS`_ の一部として配布されている. テストプログラムなどを含む ALPS/looper の完全版は http://wistaria.comp-phys.org/alps-looper/ から入手できる. 
 
-History
+履歴
 -----------
 
-* March 1, 2012: Alpha version for ALPS/looper 4 (4.0a1)
+* 2012年3月1日: ALPS/looper バージョン 4.0a1 (アルファ版)
 
 ------------------------------------
 
-Installation
+インストール
 ============
 
-Note: This section applies only for the full version of ALPS/looper.
+以下のインストールに関する説明は, ALPS/looper 完全版についてのものである. 
 
-Prerequisites
+必要環境
 -------------
 
-* `Boost C++ Library <http://www.boost.org/>`__ -- version 1.48.0 or higher
-* `ALPS`_ -- version 2.0 or higher
-* `LAPACK Library <http://www.netlib.org/lapack/>`__
+* `Boost C++ ライブラリ <http://www.boost.org/>`__ -- バージョン 1.48.0 以降
+* `ALPS`_ -- バージョン 2.0 以降
+* `LAPACK ライブラリ <http://www.netlib.org/lapack/>`__
   
-Download
---------
+ダウンロード
+-------------
   
 http://wistaria.comp-phys.org/alps-looper/download
 
-Compilation
+コンパイル
 ---------------------------
 
-::
+以下 ``$ALPS_HOME`` は `ALPS`_ がインストールされているディレクトリ, ``$LOOPER_SRC_DIR`` は ALPS/looper のソースコードが置いてあるディレクトリとする. ::
 
   cmake -DCMAKE_INSTALL_PREFIX=$ALPS_HOME $LOOPER_SRC_DIR
   make
 
-where ``$ALPS_HOME`` denotes the top directory in which the `ALPS`_
-package is installed, ``$LOOPER_SRC_DIR`` is the directory where the
-source code of the ALPS/looper is located.
-
-CMake accepts the following configuration options:
+CMake には以下のオプションを指定できる.
 
 ============================= ===================== ===============================================
-**Name**                      **Default value**     **Descriptin**
+**オプション名**              **デフォルト値**      **説明**
 ----------------------------- --------------------- -----------------------------------------------
 LOOPER_BUILD_TESTS            ON                    Build looper tests
 LOOPER_BUILD_EXTRAS           OFF                   Build in extras subdirectory
@@ -84,11 +67,9 @@ LOOPER_TIMER_TRACE            OFF                   Turn on debug trace output o
 LOOPER_TIMER_DETAILED         OFF                   Turn on detailed timer report
 ============================= ===================== ===============================================
 
-Note: OpenMP (and hybrid parallelization) support will be enabled only
-if the ALPS library has been configured with ALPS_ENABLE_OPENMP=ON and
-ALPS_ENABLE_OPENMP_WORKER=ON.
+注: OpenMP (とハイブリッド並列化) は, ALPS ライブラリが ALPS_ENABLE_OPENMP=ON とALPS_ENABLE_OPENMP_WORKER=ON でコンパイルされている場合にのみ有効となる. 
 
-Running tests
+テスト実行
 -------------
 
 ::
@@ -97,14 +78,14 @@ Running tests
   
 ------------------------------------
 
-Running a simulation
-====================
+シミュレーションの実行
+=======================
 
-Command line options
---------------------
+コマンドラインオプション
+--------------------------
 
 ============================== ================== ==================================================================
-**Option**                     **Default value**  **Descriptin**
+**オプション**                 **デフォルト値**   **説明**
 ------------------------------ ------------------ ------------------------------------------------------------------
 -h [ --help ]                                     produce help message
 -l [ --license ]                                  print license conditions
@@ -126,11 +107,11 @@ Command line options
 --input-file arg                                  input master XML files
 ============================== ================== ==================================================================
 
-Parameters
-----------
+パラメータ
+------------------
 
 =================================  ===================================  =====================================================================================================
-**Name**                           **Default Value**                    **Description**
+**パラメータ名**                   **デフォルト値**                     **説明**
 ---------------------------------  -----------------------------------  -----------------------------------------------------------------------------------------------------
 ``NUM_CLONES``                     1                                    number of clones
 ``LATTICE_LIBRARY``                ``$PREFIX/lib/xml/lattices.xml``     path to a file containing lattice descriptions
@@ -140,8 +121,8 @@ Parameters
 ``ALGORITHM``                      *none*                               type of algorithm (``"loop"``, ``"loop; path integral"``, ``"loop; sse"``, ``"ising"``, or ``"diagonalization"``); 
 
 ``T``                              *none*                               temperature
-``T_START_#``                      *undefined*                          [optional] see `Temperature Annealing`_.
-``T_DURATION_#``                   *undefined*                          [optional] see `Temperature Annealing`_.
+``T_START_#``                      *undefined*                          [optional] see `温度アニーリング`_.
+``T_DURATION_#``                   *undefined*                          [optional] see `温度アニーリング`_.
 
 ``SWEEPS``                         65536                                Monte Carlo steps after thermalization
 ``THERMALIZATION``                 8192                                 Monte Carlo steps for thermalization
@@ -164,30 +145,18 @@ Parameters
 ``LOOPER_DEBUG[MODEL OUTPUT]``     *undefined*                          if defined, all the coupling constants will be printed out to *standard output* (``cout``) before calculation.  If the value is ``cerr``, the output will be made for *standard error* (``cerr``).
 =================================  ===================================  =====================================================================================================
 
-Note: when ``PARTITION`` is not specified, the number of MPI processes
-per clone should be factorable by 2, 3, 5, 7, 11, and 13.
+注: ``PARTITION`` が指定されない場合には, クローンあたりの MPI プロセス数は, 2, 3, 5, 7, 11, 13 で因数分解されなければならない. 
 
+上記に加えて, 格子や模型の指定に追加でパラメータが必要となる場合がある (例 ``L``, ``W``).
 
-In addition, the lattice/model descriptions can require further
-parameters (e.g. ``L`` or ``W``) as specified in the lattice (model)
-description file.
-
-Temperature Annealing
+温度アニーリング
 ---------------------
 
-Some models (typically models with competing interactions) have very
-long equilibration time.  In such cases, one might want to lower the
-temperature slowly during the thermalization steps.  Such temperature
-annealing process can be specified by using the parameters
-``T_START_#`` and ``T_DURATION_#`` (``# = 0, 1, 2,...``), where
-``T_START_#`` and ``T_DURATION_#`` specify the starting temperature
-and the duration of the ``#`` th block, respectively.
+競合する相互作用をもつ模型などでは, 平衡化時間が非常に長くなる. そのような系では, 平衡化ステップにおいて, ゆっくりと温度を下げることが有効となる場合がある. そのような温度アニーリングのスケジュールは, パラメータ ``T_START_#`` と ``T_DURATION_#`` (``# = 0, 1, 2,...``) を使って指定することができる. パラメータ ``T_START_#``は ``#`` 番目のブロックの最初の温度を, ``T_DURATION_#`` は ``#`` 番目のブロックの長さ(モンテカルロステップ)を表わす. 
 
 .. image:: anneal.jpg
 
-For example the protocol shown in the above figure can be realized by specifing the following parameter set.
-
-::
+上図の例の温度スケジュールを行うには, 以下のパラメータを指定すれば良い. ::
 
   T_START_0 = 2.0;
   T_DURATION_0 = 100;
@@ -196,16 +165,15 @@ For example the protocol shown in the above figure can be realized by specifing 
   THERMALIZATION = 1000;
   T = 1.2;
 
-Note that the sum of ``T_DURATION_#``'s must be less than or
-equal to ``THERMALIZATION``.
+なお, ``T_DURATION_#`` の和は ``THERMALIZATION`` と同じあるいはそれ以下でなければならない. 
 
-Measurements
+測定値
 ------------
 
-The following observables are measured by the ``loop`` application:
+``loop`` プログラムでは, 以下の物理量が測定される
 
 ===================================================  ========================================================================================== 
-**Name**                                             **Description**
+**物理量名**                                         **説明**
 ---------------------------------------------------  ------------------------------------------------------------------------------------------
 Energy                                               total energy
 Energy Density                                       energy per spin
@@ -264,22 +232,17 @@ Local Field Susceptibility                           local-field susceptibility 
 
 ===================================================  ========================================================================================== 
 
-.. [1] measured only for bipartite lattices
-.. [2] measured only by improved estimator
-.. [3] set ``MEASURE[Correlations]`` to ``true``
-.. [4] set ``MEASURE[Green Function]`` to ``true``
-.. [5] set ``MEASURE[Structure Factor]`` to ``true``
-.. [6] set ``MEASURE[Local Susceptiblity]`` to ``true``
+.. [1] 二部格子の時のみ測定が行われる
+.. [2] ``improved estimator`` でのみ測定が行われる
+.. [3] パラメータ ``MEASURE[Correlations]`` を ``true`` に設定する
+.. [4] パラメータ ``MEASURE[Green Function]`` を ``true`` に設定する
+.. [5] パラメータ ``MEASURE[Structure Factor]`` を ``true`` に設定する
+.. [6] パラメータ ``MEASURE[Local Susceptiblity]`` を ``true`` に設定する
 
-A few remarks concerning the generalized susceptibilities: The general
-idea is that the uniform generalized susceptibility is the
-susceptibility for the magnetic order supposed to be stronger.  The
-staggered generalized susceptibility is the staggered susceptibility
-of this specific order.  To be more precise, we have the following
-correspondance:
+``uniform generalized susceptibility`` は最も強い相関に対する応答関数である. それに対するスタッガードな応答関数が, ``staggered generalized susceptibility`` である. それぞれの模型における, 通常の帯磁率と一般化帯磁率の対応は以下の通りである. 
 
 ===============================================================  =========================================  =========================================================
-**Model**                                                        **Generalized Susceptibility**             **Generalized Staggered Susceptibility**
+**模型**                                                         **Generalized Susceptibility**             **Generalized Staggered Susceptibility**
 ---------------------------------------------------------------  -----------------------------------------  ---------------------------------------------------------
 Ferromagnetic model with Ising anisotropy (in the *Z* axis)      uniform *Z-Z* susceptibility               staggered *Z-Z* susceptibility<br>
 Ferromagnetic model (Heisenberg point)                           uniform *Z-Z* (or *X-X*) susceptibility    staggered *Z-Z* (or *X-X*) susceptibility
@@ -289,20 +252,14 @@ Antiferromagnetic model (Heisenberg point)                       staggered *Z-Z*
 Antiferromagnetic model with Ising anisotropy (in the *Z* axis)  staggered *Z-Z* susceptibility             uniform *Z-Z* susceptibility
 ===============================================================  =========================================  =========================================================
 
-Same considerations apply for the uniform and staggered magnetization to the square.
+一様磁化, スタッガード磁化についても同じ対応関係が成り立つ. 
   
 ------------------------------------
 
-License
-=======
+ライセンス
+===========
 
-The `license
-<http://alps.comp-phys.org/software/applications/LICENSE.txt>`__
-allows the use of the applications for non-commercial scientific use
-provided that the use of the ALPS/looper Library and the ALPS
-Libraries is acknowledged, and the papers listed below are referenced
-in any scientific publication.  For detail please see the `ALPS
-Applications Licence <http://alps.comp-phys.org/software/applications/LICENSE.txt>`__.
+ALPS/looper ライブラリは, `ALPS アプリケーションライセンス <http://alps.comp-phys.org/software/applications/LICENSE.txt>`__ に従って, 公開・配布されている. ALPS/looper は非営利の研究活動にのみ使用することができる. ALPS/looper を用いた結果を発表・出版の場合には, その論文中に ALPS/looper ライブラリ, ALPS ライブラリを使用した旨を記載するとともに, 下記の URL および論文を引用すること. 
 
 * reference
 
@@ -318,34 +275,31 @@ Applications Licence <http://alps.comp-phys.org/software/applications/LICENSE.tx
     J. Gukelberger, E. Gull, S. Guertler, A. Hehn, R. Igarashi,
     S.V. Isakov, D. Koop, P.N. Ma, P. Mates, H. Matsuo, O. Parcollet,
     G. Pawlowski, J.D. Picon, L. Pollet, E. Santos, V.W. Scarola,
-    U. Schollw�ck, C. Silva, B. Surer, S. Todo, S. Trebst, M. Troyer,
+    U. Schollwöck, C. Silva, B. Surer, S. Todo, S. Trebst, M. Troyer,
     M.L. Wall, P. Werner, S. Wessel, *The ALPS project release 2.0:
     Open source software for strongly correlated systems*, `Journal of
     Statistical Mechanics: Theory and Experiment, P05001 (2011)
     <http://iopscience.iop.org/1742-5468/2011/05/P05001>`__.
 
-Developers
+開発者
 ==========
 
-* Version 1: Synge Todo
-* Version 2: Synge Todo, Kiyoshi Kato, and Shigeru Koikegami
-* Version 3: Synge Todo
-* Version 4: Synge Todo, Haruhiko Matuo, and Hideyuki Shitara
+* バージョン 1: 藤堂眞治
+* バージョン 2: 藤堂眞治, 加藤清, 小池上繁
+* バージョン 3: 藤堂眞治
+* バージョン 4: 藤堂眞治, 松尾春彦, 設楽秀之
 
-Questions and request for support
+サポート
 ===================================
 
-can be addressed to Synge Todo <wistaria@comp-phys.org>.
+質問・リクエストなどは, 藤堂 <wistaria@comp-phys.org> まで.
 
-Acknowledgement
+謝辞
 ================
 
-I wish to thank M. Troyer and F. Alet for many useful comments and
-suggestions.  The development of ALPS/looper version 4 was supported
-by Grand Challenges in Next-Generation Integrated Nanoscience,
-Next-Generation Supercomputer Project, MEXT, Japan.
+Matthias Troyer と Fabien Alet の両氏には多くのコメントをいただいた. ALPS/looper バージョン 4 の開発は, 文部科学省「最先端・高性能汎用スーパーコンピュータの開発プロジェクト 次世代ナノ統合シミュレーションソフトウェアの研究開発」からサポートを受けている. 
 
-References
+参考文献
 ===========
 
 * H.G. Evertz, *The loop algorithm*, Adv. in Physics, **52**, 1 (2003).
@@ -358,19 +312,19 @@ References
   in Condensed-Matter Physics XV, ed D.P. Landau, S.P. Lewis, and
   H.-B. Schuettler (Springer-Verlag, Berlin, 2003) pp. 89-94.
 
-* F. Alet, P. Dayal, A. Grzesik, A. Honecker, M. K�rner, A. L�uchli,
+* F. Alet, P. Dayal, A. Grzesik, A. Honecker, M. Körner, A. Läuchli,
   S.R. Manmana, I.P. McCulloch, F. Michel, R.M. Noack, G. Schmid,
-  U. Schollw�ck, F. St�ckli, S. Todo, S. Trebst, M. Troyer, P. Werner,
+  U. Schollwöck, F. Stöckli, S. Todo, S. Trebst, M. Troyer, P. Werner,
   S. Wessel (ALPS collaboration), *The ALPS project: open source
   software for strongly correlated systems*,
   `J. Phys. Soc. Jpn. Suppl. 74, 30 (2005)
   <http://jpsj.ipap.jp/link?JPSJS/74S/30>`__.
 
 * A.F. Albuquerque, F. Alet, P. Corboz, P. Dayal, A. Feiguin,
-  L. Gamper, E. Gull, S G�rtler, A. Honecker, R. Igarashi, M. K�rner,
-  A. Kozhevnikov, A. L�uchli, S.R. Manmana, M. Matsumoto,
+  L. Gamper, E. Gull, S Gürtler, A. Honecker, R. Igarashi, M. Körner,
+  A. Kozhevnikov, A. Läuchli, S.R. Manmana, M. Matsumoto,
   I.P. McCulloch, F. Michel, R.M. Noack, G. Pawlowski, L. Pollet,
-  T. Pruschke, U. Schollw�ck, S. Todo, S. Trebst, M. Troyer,
+  T. Pruschke, U. Schollwöck, S. Todo, S. Trebst, M. Troyer,
   P. Werner, S. Wessel (ALPS collaboration), *The ALPS project release
   1.3: open source software for strongly correlated systems*,
   `J. Mag. Mag. Mat. 310, 1187 (2007)
@@ -380,7 +334,7 @@ References
   J. Gukelberger, E. Gull, S. Guertler, A. Hehn, R. Igarashi,
   S.V. Isakov, D. Koop, P.N. Ma, P. Mates, H. Matsuo, O. Parcollet,
   G. Pawlowski, J.D. Picon, L. Pollet, E. Santos, V.W. Scarola,
-  U. Schollw�ck, C. Silva, B. Surer, S. Todo, S. Trebst, M. Troyer,
+  U. Schollwöck, C. Silva, B. Surer, S. Todo, S. Trebst, M. Troyer,
   M.L. Wall, P. Werner, S. Wessel, *The ALPS project release 2.0: Open
   source software for strongly correlated systems*, `Journal of
   Statistical Mechanics: Theory and Experiment, P05001 (2011)
@@ -390,8 +344,8 @@ References
 
 Copyright (c) 1997-2012 by Synge Todo <wistaria@comp-phys.org>
 
-.. _`ALPS Project`: http://alps.comp-phys.org/
+.. _`ALPSプロジェクト`: http://alps.comp-phys.org/
 
 .. _`ALPS`: http://alps.comp-phys.org/
 
-.. _`Looper Library version 2`: http://wistaria.comp-phys.org/looper/
+.. _`Looperライブラリ バージョン2`: http://wistaria.comp-phys.org/looper/
