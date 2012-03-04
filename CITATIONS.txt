@@ -10,3 +10,4 @@ to check the ALPS web page http://alps.comp-phys.org/ for updates.
 - publications:
     S. Todo and K. Kato, Phys. Rev. Lett. 87 047203 (2001).
     A.F. Albuquerque et al., J. of Magn. and Magn. Materials 310, 1187 (2007).
+    B. Bauer et al., J. Stat. Mech. (2011) P05001.

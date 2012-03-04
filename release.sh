@@ -22,7 +22,7 @@ awk -v MAJOR=$MAJOR -v MINOR=$MINOR -v REV="r$REVISION" '$1=="set(LOOPER_VERSION
 mv -f $DIR/CMakeLists.txt.new $DIR/CMakeLists.txt
 
 # remove directories
-(cd $DIR && rm -rf check extras/localsus extras/simple *.sh standalone v3.1)
+(cd $DIR && rm -rf sse_qwl.C qwl_evaluate.C check extras/localsus extras/simple *.sh standalone v3.1)
 
 # make tar.bz2
 tar jcf $DIR.tar.bz2 $DIR

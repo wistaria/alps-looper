@@ -319,6 +319,16 @@ Applications Licence <http://alps.comp-phys.org/software/applications/LICENSE.tx
   - S. Todo and K. Kato, *Cluster Algorithms for General-S Quantum
     Spin Systems*, Phys. Rev. Lett., **87**, 047203 (2001).
 
+  - A.F. Albuquerque, F. Alet, P. Corboz, P. Dayal, A. Feiguin,
+    L. Gamper, E. Gull, S Gürtler, A. Honecker, R. Igarashi,
+    M. Körner, A. Kozhevnikov, A. Läuchli, S.R. Manmana, M. Matsumoto,
+    I.P. McCulloch, F. Michel, R.M. Noack, G. Pawlowski, L. Pollet,
+    T. Pruschke, U. Schollwöck, S. Todo, S. Trebst, M. Troyer,
+    P. Werner, S. Wessel (ALPS collaboration), *The ALPS project
+    release 1.3: open source software for strongly correlated
+    systems*, `J. Mag. Mag. Mat. 310, 1187 (2007)
+    <http://dx.doi.org/10.1016/j.jmmm.2006.10.304>`__.
+
   - B. Bauer, L. D. Carr, A. Feiguin, J. Freire, S. Fuchs, L. Gamper,
     J. Gukelberger, E. Gull, S. Guertler, A. Hehn, R. Igarashi,
     S.V. Isakov, D. Koop, P.N. Ma, P. Mates, H. Matsuo, O. Parcollet,
