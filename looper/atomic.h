@@ -55,13 +55,13 @@ namespace looper {
 //     asm("      mov   %i2,%i0");
 //   }
 // }
- 
+
 namespace looper {
 inline bool compare_and_swap(int& variable, int oldval, int newval) {
   BOOST_STATIC_ASSERT(sizeof(int) == sizeof(uint_t));
   int res = atomic_cas_uint((uint_t*)&variable, oldval, newval);
   return res == oldval;
-} 
+}
 }
 
 #elif defined(__linux__) && defined(__sparc) && defined(__FCC_VERSION) && defined(_GNU_SOURCE)

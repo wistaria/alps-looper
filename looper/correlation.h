@@ -216,7 +216,7 @@ struct correlation : public has_normal_estimator_tag {
 //     template<typename EST, typename OP>
 //     void accumulate(EST&, lattice_t const&, std::vector<int> const&,
 //       std::vector<OP> const&, std::vector<int>&, double, double) {}
-    
+
     struct normal_estimator {
       struct collector {
         collector() {}

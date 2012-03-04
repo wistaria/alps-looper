@@ -79,7 +79,7 @@ struct energy : public has_normal_estimator_tag, public has_evaluator_tag {
           m["Energy Density"] << sign * ene_ / lat.volume();
           m["Energy^2"] << sign * (power2(ene_) - nop / power2(beta));
 #ifdef STD_OUTPUT
-	  std::cout << sign * ene_  / lat.volume() << ' ';
+          std::cout << sign * ene_  / lat.volume() << ' ';
 #endif
         }
       };

@@ -8,6 +8,7 @@ ALPS/looper は `ALPSプロジェクト`_ のアプリケーションの一つ�
 ALPS/looper は, 経路積分あるいはSSE表示でマルチクラスタ量子モンテカルロアルゴリズムを行うプログラムである. 任意の格子状の任意のスピン量子数 *S* からなるスピン系を扱うことができる. サポートしている相互作用は, 以下の通りである. 
 
 * XXZ型の2体相互作用 (イジング, ハイゼンベルグ, XY)
+* XYZ型の2体相互作用 (要再コンパイル)
 * *S* > 1/2 における単イオン異方性 (D項)
 * 縦磁場
 * 横磁場
@@ -22,6 +23,7 @@ ALPS/looper は, `ALPS`_ の一部として配布されている. テストプ�
 -----------
 
 * 2012年3月1日: ALPS/looper バージョン 4.0a1 (アルファ版)
+* 2012年3月4日: ALPS/looper バージョン 4.0b1 (ベータ版)
 
 ------------------------------------
 
@@ -40,7 +42,7 @@ ALPS/looper は, `ALPS`_ の一部として配布されている. テストプ�
 ダウンロード
 -------------
   
-http://wistaria.comp-phys.org/alps-looper/download
+http://wistaria.comp-phys.org/archive/alps-looper/
 
 コンパイル
 ---------------------------
@@ -254,6 +256,11 @@ Antiferromagnetic model with Ising anisotropy (in the *Z* axis)  staggered *Z-Z*
 
 一様磁化, スタッガード磁化についても同じ対応関係が成り立つ. 
   
+チュートリアル
+--------------
+
+`ALPS Tutorials Page <http://alps.comp-phys.org/mediawiki/index.php/ALPS_2_Tutorials:MC-02_Susceptibilities>`_ に ALPS/looper のチュートリアルも用意されている.
+
 ------------------------------------
 
 ライセンス

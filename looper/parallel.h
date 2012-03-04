@@ -477,12 +477,12 @@ public:
   #ifdef LOOPER_OPENMP
   template<typename FLIP>
   static void unify(chunk const& chunk_in0, chunk const& chunk_in1, bool connect_periodic,
-    int flip_index, chunk& chunk_out, std::vector<FLIP>& flip_table, std::vector<int>& map_table, 
+    int flip_index, chunk& chunk_out, std::vector<FLIP>& flip_table, std::vector<int>& map_table,
     alps::parapack::timer_mpi& timer, std::vector<std::vector<estimate_t> >& estimates_tg) {
   #else
   template<typename FLIP>
   static void unify(chunk const& chunk_in0, chunk const& chunk_in1, bool connect_periodic,
-    int flip_index, chunk& chunk_out, std::vector<FLIP>& flip_table, std::vector<int>& map_table, 
+    int flip_index, chunk& chunk_out, std::vector<FLIP>& flip_table, std::vector<int>& map_table,
     alps::parapack::timer_mpi& timer) {
   #endif
     timer.start(51);
@@ -621,13 +621,13 @@ public:
   template<typename FLIP>
   static void unify(chunk const& chunk_in0, chunk const& chunk_in1, chunk const& chunk_in2,
     bool connect_periodic, int flip_index, chunk& chunk_out,  std::vector<FLIP>& flip_table,
-    std::vector<int>& map_table,                   
+    std::vector<int>& map_table,
     alps::parapack::timer_mpi& timer, std::vector<std::vector<estimate_t> >& estimates_tg) {
 #else
   template<typename FLIP>
   static void unify(chunk const& chunk_in0, chunk const& chunk_in1, chunk const& chunk_in2,
     bool connect_periodic, int flip_index, chunk& chunk_out,  std::vector<FLIP>& flip_table,
-    std::vector<int>& map_table,                   
+    std::vector<int>& map_table,
     alps::parapack::timer_mpi& timer) {
 #endif
     timer.start(71);

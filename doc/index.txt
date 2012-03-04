@@ -14,6 +14,7 @@ representations.  it supports generic spin models with arbitrary spin
 size *S* on arbitrary lattices.  The supported interactions are
 
 * XXZ two-spin interaction (Ising, Heisenberg, XY)
+* XYZ two-spin interaction (requires recompilation)
 * single-ion anisotropy (D-term) for *S* > 1/2
 * longitudinal magnetic field
 * transverse matnetic field
@@ -35,6 +36,7 @@ History
 -----------
 
 * March 1, 2012: Alpha version for ALPS/looper 4 (4.0a1)
+* March 4, 2012: First beta version for ALPS/looper 4 (4.0b1)
 
 ------------------------------------
 
@@ -53,7 +55,7 @@ Prerequisites
 Download
 --------
   
-http://wistaria.comp-phys.org/alps-looper/download
+http://wistaria.comp-phys.org/archive/alps-looper/
 
 Compilation
 ---------------------------
@@ -185,9 +187,7 @@ and the duration of the ``#`` th block, respectively.
 
 .. image:: anneal.jpg
 
-For example the protocol shown in the above figure can be realized by specifing the following parameter set.
-
-::
+For example the protocol shown in the above figure can be realized by specifing the following parameter set. ::
 
   T_START_0 = 2.0;
   T_DURATION_0 = 100;
@@ -290,7 +290,12 @@ Antiferromagnetic model with Ising anisotropy (in the *Z* axis)  staggered *Z-Z*
 ===============================================================  =========================================  =========================================================
 
 Same considerations apply for the uniform and staggered magnetization to the square.
-  
+
+Tutorials
+---------
+
+ALPS/looper tutorials can be found in `ALPS Tutorials Page <http://alps.comp-phys.org/mediawiki/index.php/ALPS_2_Tutorials:MC-02_Susceptibilities>`_.
+
 ------------------------------------
 
 License

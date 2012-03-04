@@ -1,0 +1,22 @@
+#!/bin/sh
+
+SOURCE_DIR=@CMAKE_CURRENT_SOURCE_DIR@
+
+set -x
+make -j parallel
+
+if test $? == 0; then
+  mpirun -np 1 parallel --mpi < $SOURCE_DIR/parallel.ip | diff $SOURCE_DIR/parallel.op -
+  mpirun -np 2 parallel --mpi < $SOURCE_DIR/parallel.ip | diff $SOURCE_DIR/parallel.op-2 -
+  mpirun -np 3 parallel --mpi < $SOURCE_DIR/parallel.ip | diff $SOURCE_DIR/parallel.op-3 -
+  mpirun -np 4 parallel --mpi < $SOURCE_DIR/parallel.ip-4 | diff $SOURCE_DIR/parallel.op-4 -
+  mpirun -np 4 parallel --mpi < $SOURCE_DIR/parallel.ip-22 | diff $SOURCE_DIR/parallel.op-4 -
+  mpirun -np 6 parallel --mpi < $SOURCE_DIR/parallel.ip-6 | diff $SOURCE_DIR/parallel.op-6 -
+  mpirun -np 6 parallel --mpi < $SOURCE_DIR/parallel.ip-23 | diff $SOURCE_DIR/parallel.op-6 -
+  mpirun -np 6 parallel --mpi < $SOURCE_DIR/parallel.ip-32 | diff $SOURCE_DIR/parallel.op-6 -
+  mpirun -np 8 parallel --mpi < $SOURCE_DIR/parallel.ip-8 | diff $SOURCE_DIR/parallel.op-8 -
+  mpirun -np 8 parallel --mpi < $SOURCE_DIR/parallel.ip-24 | diff $SOURCE_DIR/parallel.op-8 -
+  mpirun -np 8 parallel --mpi < $SOURCE_DIR/parallel.ip-42 | diff $SOURCE_DIR/parallel.op-8 -
+  mpirun -np 8 parallel --mpi < $SOURCE_DIR/parallel.ip-42s | diff $SOURCE_DIR/parallel.op-8 -
+  mpirun -np 8 parallel --mpi < $SOURCE_DIR/parallel.ip-222 | diff $SOURCE_DIR/parallel.op-8 -
+fi

@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2012 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2010 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -22,16 +22,42 @@
 *
 *****************************************************************************/
 
-#ifndef LOOPER_VERSION_H
-#define LOOPER_VERSION_H
+#ifndef PARALLEL_CONFIG_H
+#define PARALLEL_CONFIG_H
 
-#define LOOPER_VERSION "@LOOPER_VERSION@"
+#include <alps/lattice.h>
+#include <looper/graph.h>
+#include <looper/model.h>
 
-#define LOOPER_VERSION_STRING "ALPS/looper version " LOOPER_VERSION
+// measurements
+#include <looper/energy.h>
+#include <looper/gap.h>
 
-#define LOOPER_COPYRIGHT LOOPER_VERSION_STRING "\n" \
-  "  multi-cluster quantum Monte Carlo algorithms for spin systems\n" \
-  "  available from http://wistaria.comp-phys.org/alps-looper/\n" \
-  "  copyright (c) 1997-2012 by Synge Todo <wistaria@comp-phys.org>\n" \
+struct loop_config {
+  // lattice structure
+  typedef alps::coordinate_graph_type lattice_graph_t;
+  typedef looper::lattice_helper<lattice_graph_t> lattice_t;
 
-#endif // LOOPER_VERSION_H
+  // imaginary time
+  typedef looper::imaginary_time<> time_t;
+
+  // graph for loops
+  typedef looper::local_graph<> loop_graph_t;
+
+  // model
+  typedef looper::spinmodel_helper<lattice_graph_t, loop_graph_t> model_t;
+
+  // whether longitudinal external field is supported or not
+  static const bool support_longitudinal_field = false;
+
+  // whether systems with negative signs are supported or not
+  static const bool support_negative_sign = false;
+
+  // measurements
+  typedef looper::measurement_set<
+    looper::energy,
+    looper::generalized_gap4_and_correlation_length
+  > measurement_set;
+};
+
+#endif // PARALLEL_CONFIG_H

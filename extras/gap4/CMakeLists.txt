@@ -1,4 +1,4 @@
-add_definitions(-DLOOP_CONFIG_HEADER="extras/top/top_config.h")
+add_definitions(-DLOOP_CONFIG_HEADER="extras/gap4/gap4_config.h")
 
 set(LOOP_SRC ${PROJECT_SOURCE_DIR}/loop.C ${PROJECT_SOURCE_DIR}/loop_model.C
   ${PROJECT_SOURCE_DIR}/diag.C ${PROJECT_SOURCE_DIR}/path_integral.C)
@@ -10,7 +10,10 @@ if(CMAKE_ASM_COMPILER)
   set_property(SOURCE ${PROJECT_SOURCE_DIR}/looper/atomic.s PROPERTY LANGUAGE ASM)
   set(LOOP_SRC ${LOOP_SRC} ${PROJECT_SOURCE_DIR}/looper/atomic.s)
 endif(CMAKE_ASM_COMPILER)
-add_executable(top ${LOOP_SRC})
-target_link_libraries(top ${ALPS_LIBRARIES})
+add_executable(gap4 ${LOOP_SRC})
+target_link_libraries(gap4 ${ALPS_LIBRARIES})
 
-add_alps_test(top)
+add_alps_test(gap4)
+if(MPI_FOUND)
+  configure_file(test.sh.in test.sh)
+endif(MPI_FOUND)
