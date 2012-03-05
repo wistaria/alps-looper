@@ -36,7 +36,7 @@ History
 -----------
 
 * March 1, 2012: Alpha version for ALPS/looper 4 (4.0a1)
-* March 4, 2012: First beta version for ALPS/looper 4 (4.0b1)
+* March 5, 2012: First release of ALPS/looper 4 (4.0.0)
 
 ------------------------------------
 

@@ -9,7 +9,7 @@
 
 /*
 :Author: David Goodger (goodger@python.org)
-:Id: $Id: index.html 6025 2012-03-05 02:57:26Z wistaria $
+:Id: $Id: html4css1.css 7056 2011-06-17 10:50:48Z milde $
 :Copyright: This stylesheet has been placed in the public domain.
 
 Default cascading style sheet for the HTML output of Docutils.
@@ -320,65 +320,50 @@ ul.auto-toc {
 <!-- -*- mode: rst -*- -->
 <div class="section" id="alps-looper">
 <h1>ALPS/looper</h1>
-<p>The ALPS/looper package is one of the applications of the <a class="reference external" href="http://alps.comp-phys.org/">ALPS
-Project</a>.  The ALPS/looper is the successor of the <a class="reference external" href="http://wistaria.comp-phys.org/looper/">Looper Library
-version 2</a>, which is the Fortran 90 library for quantum Monte Carlo
-method.</p>
-<p>The ALPS/looper application provides multi-cluster quantum Monte Carlo
-algorithms for generic spin systems in the path-integral or SSE
-representations.  it supports generic spin models with arbitrary spin
-size <em>S</em> on arbitrary lattices.  The supported interactions are</p>
+<p>ALPS/looper は <a class="reference external" href="http://alps.comp-phys.org/">ALPSプロジェクト</a> のアプリケーションの一つとして開発されている. ALPS/looper は Fortran 90 で書かれた量子モンテカルロ法のライブラリ <a class="reference external" href="http://wistaria.comp-phys.org/looper/">Looperライブラリ バージョン2</a> の後継として開発された.</p>
+<p>ALPS/looper は, 経路積分あるいはSSE表示でマルチクラスタ量子モンテカルロアルゴリズムを行うプログラムである. 任意の格子状の任意のスピン量子数 <em>S</em> からなるスピン系を扱うことができる. サポートしている相互作用は, 以下の通りである.</p>
 <ul class="simple">
-<li>XXZ two-spin interaction (Ising, Heisenberg, XY)</li>
-<li>XYZ two-spin interaction (requires recompilation)</li>
-<li>single-ion anisotropy (D-term) for <em>S</em> &gt; 1/2</li>
-<li>longitudinal magnetic field</li>
-<li>transverse matnetic field</li>
+<li>XXZ型の2体相互作用 (イジング, ハイゼンベルグ, XY)</li>
+<li>XYZ型の2体相互作用 (要再コンパイル)</li>
+<li><em>S</em> &gt; 1/2 における単イオン異方性 (D項)</li>
+<li>縦磁場</li>
+<li>横磁場</li>
 </ul>
-<p>Since it supports so-called <em>freezing graphs</em>, models with easy-axis
-(Ising-like) anisotropy can also be simulated very efficiently.</p>
-<p>From version 4, it includes non-trivial hybrid parallelization by
-using MPI and OpenMP, which has been tested on several
-state-of-the-art supercomputers (The K Computer, T2K Open
-Supercomputers, SGI Altix, etc).</p>
-<p>A stripped version of the ALPS/looper is distributed as a part of
-<a class="reference external" href="http://alps.comp-phys.org/">ALPS</a>.  The full version of ALPS/looper library (including
-test suites, etc) is available from
-<a class="reference external" href="http://wistaria.comp-phys.org/alps-looper/">http://wistaria.comp-phys.org/alps-looper/</a>.</p>
-<div class="section" id="history">
-<h2>History</h2>
+<p>ALPS/looper は, 量子クラスタアルゴリズムにおける「フリージンググラフ」を扱うことができるので, 容易軸 (イジング) 型の異方性をもつ模型も非常に効率良くシミュレーションを行うことができる.</p>
+<p>バージョン 4 からは, MPI と OpenMP を用いたハイブリッド並列化されたコードを含んでいる. 並列版コードは, 京速コンピュータ「京」, T2K オープンスパコン, SGI Altix など最新のスーパーコンピュータの上でテストされている.</p>
+<p>ALPS/looper は, <a class="reference external" href="http://alps.comp-phys.org/">ALPS</a> の一部として配布されている. テストプログラムなどを含む ALPS/looper の完全版は <a class="reference external" href="http://wistaria.comp-phys.org/alps-looper/">http://wistaria.comp-phys.org/alps-looper/</a> から入手できる.</p>
+<div class="section" id="id1">
+<h2>履歴</h2>
 <ul class="simple">
-<li>March 1, 2012: Alpha version for ALPS/looper 4 (4.0a1)</li>
-<li>March 5, 2012: First release of ALPS/looper 4 (4.0.0)</li>
+<li>2012年3月1日: ALPS/looper バージョン 4.0a1 (アルファ版)</li>
+<li>2012年3月5日: ALPS/looper バージョン 4.0.0 公開</li>
 </ul>
 </div>
 </div>
 <hr class="docutils" />
-<div class="section" id="installation">
-<h1>Installation</h1>
-<p>Note: This section applies only for the full version of ALPS/looper.</p>
-<div class="section" id="prerequisites">
-<h2>Prerequisites</h2>
+<div class="section" id="id2">
+<h1>インストール</h1>
+<p>以下のインストールに関する説明は, ALPS/looper 完全版についてのものである.</p>
+<div class="section" id="id3">
+<h2>必要環境</h2>
 <ul class="simple">
-<li><a class="reference external" href="http://www.boost.org/">Boost C++ Library</a> -- version 1.48.0 or higher</li>
-<li><a class="reference external" href="http://alps.comp-phys.org/">ALPS</a> -- version 2.0 or higher</li>
-<li><a class="reference external" href="http://www.netlib.org/lapack/">LAPACK Library</a></li>
+<li><a class="reference external" href="http://www.boost.org/">Boost C++ ライブラリ</a> -- バージョン 1.48.0 以降</li>
+<li><a class="reference external" href="http://alps.comp-phys.org/">ALPS</a> -- バージョン 2.0 以降</li>
+<li><a class="reference external" href="http://www.netlib.org/lapack/">LAPACK ライブラリ</a></li>
 </ul>
 </div>
-<div class="section" id="download">
-<h2>Download</h2>
+<div class="section" id="id4">
+<h2>ダウンロード</h2>
 <p><a class="reference external" href="http://wistaria.comp-phys.org/archive/alps-looper/">http://wistaria.comp-phys.org/archive/alps-looper/</a></p>
 </div>
-<div class="section" id="compilation">
-<h2>Compilation</h2>
+<div class="section" id="id5">
+<h2>コンパイル</h2>
+<p>以下 <tt class="docutils literal">$ALPS_HOME</tt> は <a class="reference external" href="http://alps.comp-phys.org/">ALPS</a> がインストールされているディレクトリ, <tt class="docutils literal">$LOOPER_SRC_DIR</tt> は ALPS/looper のソースコードが置いてあるディレクトリとする.</p>
 <pre class="literal-block">
 cmake -DCMAKE_INSTALL_PREFIX=$ALPS_HOME $LOOPER_SRC_DIR
 make
 </pre>
-<p>where <tt class="docutils literal">$ALPS_HOME</tt> denotes the top directory in which the <a class="reference external" href="http://alps.comp-phys.org/">ALPS</a>
-package is installed, <tt class="docutils literal">$LOOPER_SRC_DIR</tt> is the directory where the
-source code of the ALPS/looper is located.</p>
-<p>CMake accepts the following configuration options:</p>
+<p>CMake には以下のオプションを指定できる.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="25%" />
@@ -386,9 +371,9 @@ source code of the ALPS/looper is located.</p>
 <col width="57%" />
 </colgroup>
 <tbody valign="top">
-<tr><td><strong>Name</strong></td>
-<td><strong>Default value</strong></td>
-<td><strong>Descriptin</strong></td>
+<tr><td><strong>オプション名</strong></td>
+<td><strong>デフォルト値</strong></td>
+<td><strong>説明</strong></td>
 </tr>
 <tr><td>LOOPER_BUILD_TESTS</td>
 <td>ON</td>
@@ -432,22 +417,20 @@ source code of the ALPS/looper is located.</p>
 </tr>
 </tbody>
 </table>
-<p>Note: OpenMP (and hybrid parallelization) support will be enabled only
-if the ALPS library has been configured with ALPS_ENABLE_OPENMP=ON and
-ALPS_ENABLE_OPENMP_WORKER=ON.</p>
+<p>注: OpenMP (とハイブリッド並列化) は, ALPS ライブラリが ALPS_ENABLE_OPENMP=ON とALPS_ENABLE_OPENMP_WORKER=ON でコンパイルされている場合にのみ有効となる.</p>
 </div>
-<div class="section" id="running-tests">
-<h2>Running tests</h2>
+<div class="section" id="id6">
+<h2>テスト実行</h2>
 <pre class="literal-block">
 ctest
 </pre>
 </div>
 </div>
 <hr class="docutils" />
-<div class="section" id="running-a-simulation">
-<h1>Running a simulation</h1>
-<div class="section" id="command-line-options">
-<h2>Command line options</h2>
+<div class="section" id="id7">
+<h1>シミュレーションの実行</h1>
+<div class="section" id="id8">
+<h2>コマンドラインオプション</h2>
 <table border="1" class="docutils">
 <colgroup>
 <col width="23%" />
@@ -455,9 +438,9 @@ ctest
 <col width="63%" />
 </colgroup>
 <tbody valign="top">
-<tr><td><strong>Option</strong></td>
-<td><strong>Default value</strong></td>
-<td><strong>Descriptin</strong></td>
+<tr><td><strong>オプション</strong></td>
+<td><strong>デフォルト値</strong></td>
+<td><strong>説明</strong></td>
 </tr>
 <tr><td>-h [ --help ]</td>
 <td>&nbsp;</td>
@@ -534,8 +517,8 @@ ctest
 </tbody>
 </table>
 </div>
-<div class="section" id="parameters">
-<h2>Parameters</h2>
+<div class="section" id="id9">
+<h2>パラメータ</h2>
 <table border="1" class="docutils">
 <colgroup>
 <col width="12%" />
@@ -543,9 +526,9 @@ ctest
 <col width="76%" />
 </colgroup>
 <tbody valign="top">
-<tr><td><strong>Name</strong></td>
-<td><strong>Default Value</strong></td>
-<td><strong>Description</strong></td>
+<tr><td><strong>パラメータ名</strong></td>
+<td><strong>デフォルト値</strong></td>
+<td><strong>説明</strong></td>
 </tr>
 <tr><td><tt class="docutils literal">NUM_CLONES</tt></td>
 <td>1</td>
@@ -577,11 +560,11 @@ ctest
 </tr>
 <tr><td><tt class="docutils literal">T_START_#</tt></td>
 <td><em>undefined</em></td>
-<td>[optional] see <a class="reference internal" href="#temperature-annealing">Temperature Annealing</a>.</td>
+<td>[optional] see <a class="reference internal" href="#id10">温度アニーリング</a>.</td>
 </tr>
 <tr><td><tt class="docutils literal">T_DURATION_#</tt></td>
 <td><em>undefined</em></td>
-<td>[optional] see <a class="reference internal" href="#temperature-annealing">Temperature Annealing</a>.</td>
+<td>[optional] see <a class="reference internal" href="#id10">温度アニーリング</a>.</td>
 </tr>
 <tr><td><tt class="docutils literal">SWEEPS</tt></td>
 <td>65536</td>
@@ -641,23 +624,14 @@ ctest
 </tr>
 </tbody>
 </table>
-<p>Note: when <tt class="docutils literal">PARTITION</tt> is not specified, the number of MPI processes
-per clone should be factorable by 2, 3, 5, 7, 11, and 13.</p>
-<p>In addition, the lattice/model descriptions can require further
-parameters (e.g. <tt class="docutils literal">L</tt> or <tt class="docutils literal">W</tt>) as specified in the lattice (model)
-description file.</p>
+<p>注: <tt class="docutils literal">PARTITION</tt> が指定されない場合には, クローンあたりの MPI プロセス数は, 2, 3, 5, 7, 11, 13 で因数分解されなければならない.</p>
+<p>上記に加えて, 格子や模型の指定に追加でパラメータが必要となる場合がある (例 <tt class="docutils literal">L</tt>, <tt class="docutils literal">W</tt>).</p>
 </div>
-<div class="section" id="temperature-annealing">
-<h2>Temperature Annealing</h2>
-<p>Some models (typically models with competing interactions) have very
-long equilibration time.  In such cases, one might want to lower the
-temperature slowly during the thermalization steps.  Such temperature
-annealing process can be specified by using the parameters
-<tt class="docutils literal">T_START_#</tt> and <tt class="docutils literal">T_DURATION_#</tt> (<tt class="docutils literal"># = 0, 1, <span class="pre">2,...</span></tt>), where
-<tt class="docutils literal">T_START_#</tt> and <tt class="docutils literal">T_DURATION_#</tt> specify the starting temperature
-and the duration of the <tt class="docutils literal">#</tt> th block, respectively.</p>
+<div class="section" id="id10">
+<h2>温度アニーリング</h2>
+<p>競合する相互作用をもつ模型などでは, 平衡化時間が非常に長くなる. そのような系では, 平衡化ステップにおいて, ゆっくりと温度を下げることが有効となる場合がある. そのような温度アニーリングのスケジュールは, パラメータ <tt class="docutils literal">T_START_#</tt> と <tt class="docutils literal">T_DURATION_#</tt> (<tt class="docutils literal"># = 0, 1, <span class="pre">2,...</span></tt>) を使って指定することができる. パラメータ <tt class="docutils literal"><span class="pre">T_START_#``は</span> ``#</tt> 番目のブロックの最初の温度を, <tt class="docutils literal">T_DURATION_#</tt> は <tt class="docutils literal">#</tt> 番目のブロックの長さ(モンテカルロステップ)を表わす.</p>
 <img alt="anneal.jpg" src="anneal.jpg" />
-<p>For example the protocol shown in the above figure can be realized by specifing the following parameter set.</p>
+<p>上図の例の温度スケジュールを行うには, 以下のパラメータを指定すれば良い.</p>
 <pre class="literal-block">
 T_START_0 = 2.0;
 T_DURATION_0 = 100;
@@ -666,20 +640,19 @@ T_DURATION_1 = 400;
 THERMALIZATION = 1000;
 T = 1.2;
 </pre>
-<p>Note that the sum of <tt class="docutils literal">T_DURATION_#</tt>'s must be less than or
-equal to <tt class="docutils literal">THERMALIZATION</tt>.</p>
+<p>なお, <tt class="docutils literal">T_DURATION_#</tt> の和は <tt class="docutils literal">THERMALIZATION</tt> と同じあるいはそれ以下でなければならない.</p>
 </div>
-<div class="section" id="measurements">
-<h2>Measurements</h2>
-<p>The following observables are measured by the <tt class="docutils literal">loop</tt> application:</p>
+<div class="section" id="id11">
+<h2>測定値</h2>
+<p><tt class="docutils literal">loop</tt> プログラムでは, 以下の物理量が測定される</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="22%" />
 <col width="78%" />
 </colgroup>
 <tbody valign="top">
-<tr><td><strong>Name</strong></td>
-<td><strong>Description</strong></td>
+<tr><td><strong>物理量名</strong></td>
+<td><strong>説明</strong></td>
 </tr>
 <tr><td>Energy</td>
 <td>total energy</td>
@@ -721,145 +694,140 @@ equal to <tt class="docutils literal">THERMALIZATION</tt>.</p>
 <td>uniform susceptibility</td>
 </tr>
 <tr><td>Staggered Magnetization</td>
-<td>total staggered magnetization <a class="footnote-reference" href="#id46" id="id1">[1]</a></td>
+<td>total staggered magnetization <a class="footnote-reference" href="#id57" id="id12">[1]</a></td>
 </tr>
 <tr><td>Staggered Magnetization^2</td>
-<td>square of total staggered magnetization <a class="footnote-reference" href="#id46" id="id2">[1]</a></td>
+<td>square of total staggered magnetization <a class="footnote-reference" href="#id57" id="id13">[1]</a></td>
 </tr>
 <tr><td>Staggered Magnetization^4</td>
-<td>4th power of total staggered magnetization <a class="footnote-reference" href="#id46" id="id3">[1]</a></td>
+<td>4th power of total staggered magnetization <a class="footnote-reference" href="#id57" id="id14">[1]</a></td>
 </tr>
 <tr><td>Staggered Magnetization Density</td>
-<td>staggered magnetization per spin <a class="footnote-reference" href="#id46" id="id4">[1]</a></td>
+<td>staggered magnetization per spin <a class="footnote-reference" href="#id57" id="id15">[1]</a></td>
 </tr>
 <tr><td>Staggered Magnetization Density^2</td>
-<td>square of staggered magnetization per spin <a class="footnote-reference" href="#id46" id="id5">[1]</a></td>
+<td>square of staggered magnetization per spin <a class="footnote-reference" href="#id57" id="id16">[1]</a></td>
 </tr>
 <tr><td>Staggered Magnetization Density^4</td>
-<td>4th power of staggered magnetization per spin <a class="footnote-reference" href="#id46" id="id6">[1]</a></td>
+<td>4th power of staggered magnetization per spin <a class="footnote-reference" href="#id57" id="id17">[1]</a></td>
 </tr>
 <tr><td>Staggered Susceptibility</td>
-<td>staggered susceptibility <a class="footnote-reference" href="#id46" id="id7">[1]</a></td>
+<td>staggered susceptibility <a class="footnote-reference" href="#id57" id="id18">[1]</a></td>
 </tr>
 <tr><td>Generalized Magnetization</td>
-<td>total generalized magnetization <a class="footnote-reference" href="#id47" id="id8">[2]</a></td>
+<td>total generalized magnetization <a class="footnote-reference" href="#id58" id="id19">[2]</a></td>
 </tr>
 <tr><td>Generalized Magnetization^2</td>
-<td>square of total generalized magnetization <a class="footnote-reference" href="#id47" id="id9">[2]</a></td>
+<td>square of total generalized magnetization <a class="footnote-reference" href="#id58" id="id20">[2]</a></td>
 </tr>
 <tr><td>Generalized Magnetization^4</td>
-<td>4th power of total generalized magnetization <a class="footnote-reference" href="#id47" id="id10">[2]</a></td>
+<td>4th power of total generalized magnetization <a class="footnote-reference" href="#id58" id="id21">[2]</a></td>
 </tr>
 <tr><td>Generalized Binder Ratio of Magnetization</td>
-<td>Binder ratio of generalized magnetization <a class="footnote-reference" href="#id47" id="id11">[2]</a></td>
+<td>Binder ratio of generalized magnetization <a class="footnote-reference" href="#id58" id="id22">[2]</a></td>
 </tr>
 <tr><td>Generalized Magnetization Density</td>
-<td>generalized magnetization per spin <a class="footnote-reference" href="#id47" id="id12">[2]</a></td>
+<td>generalized magnetization per spin <a class="footnote-reference" href="#id58" id="id23">[2]</a></td>
 </tr>
 <tr><td>Generalized Magnetization Density^2</td>
-<td>square of generalized magnetization per spin <a class="footnote-reference" href="#id47" id="id13">[2]</a></td>
+<td>square of generalized magnetization per spin <a class="footnote-reference" href="#id58" id="id24">[2]</a></td>
 </tr>
 <tr><td>Generalized Magnetization Density^4</td>
-<td>4th power of generalized magnetization per spin <a class="footnote-reference" href="#id47" id="id14">[2]</a></td>
+<td>4th power of generalized magnetization per spin <a class="footnote-reference" href="#id58" id="id25">[2]</a></td>
 </tr>
 <tr><td>Generalized Susceptibility</td>
-<td>generalized susceptibility <a class="footnote-reference" href="#id47" id="id15">[2]</a></td>
+<td>generalized susceptibility <a class="footnote-reference" href="#id58" id="id26">[2]</a></td>
 </tr>
 <tr><td>Generalized Staggered Magnetization</td>
-<td>total generalized staggered magnetization <a class="footnote-reference" href="#id46" id="id16">[1]</a> <a class="footnote-reference" href="#id47" id="id17">[2]</a></td>
+<td>total generalized staggered magnetization <a class="footnote-reference" href="#id57" id="id27">[1]</a> <a class="footnote-reference" href="#id58" id="id28">[2]</a></td>
 </tr>
 <tr><td>Generalized Staggered Magnetization^2</td>
-<td>square of total generalized staggered magnetization <a class="footnote-reference" href="#id46" id="id18">[1]</a> <a class="footnote-reference" href="#id47" id="id19">[2]</a></td>
+<td>square of total generalized staggered magnetization <a class="footnote-reference" href="#id57" id="id29">[1]</a> <a class="footnote-reference" href="#id58" id="id30">[2]</a></td>
 </tr>
 <tr><td>Generalized Staggered Magnetization^4</td>
-<td>4th power of total generalized staggered magnetization <a class="footnote-reference" href="#id46" id="id20">[1]</a> <a class="footnote-reference" href="#id47" id="id21">[2]</a></td>
+<td>4th power of total generalized staggered magnetization <a class="footnote-reference" href="#id57" id="id31">[1]</a> <a class="footnote-reference" href="#id58" id="id32">[2]</a></td>
 </tr>
 <tr><td>Generalized Staggered Magnetization Density</td>
-<td>generalized staggered magnetization per spin <a class="footnote-reference" href="#id46" id="id22">[1]</a> <a class="footnote-reference" href="#id47" id="id23">[2]</a></td>
+<td>generalized staggered magnetization per spin <a class="footnote-reference" href="#id57" id="id33">[1]</a> <a class="footnote-reference" href="#id58" id="id34">[2]</a></td>
 </tr>
 <tr><td>Generalized Staggered Magnetization Density^2</td>
-<td>square of generalized staggered magnetization per spin <a class="footnote-reference" href="#id46" id="id24">[1]</a> <a class="footnote-reference" href="#id47" id="id25">[2]</a></td>
+<td>square of generalized staggered magnetization per spin <a class="footnote-reference" href="#id57" id="id35">[1]</a> <a class="footnote-reference" href="#id58" id="id36">[2]</a></td>
 </tr>
 <tr><td>Generalized Staggered Magnetization Density^4</td>
-<td>4th power of generalized staggered magnetization per spin <a class="footnote-reference" href="#id46" id="id26">[1]</a> <a class="footnote-reference" href="#id47" id="id27">[2]</a></td>
+<td>4th power of generalized staggered magnetization per spin <a class="footnote-reference" href="#id57" id="id37">[1]</a> <a class="footnote-reference" href="#id58" id="id38">[2]</a></td>
 </tr>
 <tr><td>Generalized Staggered Susceptibility</td>
-<td>generalized staggered susceptibility <a class="footnote-reference" href="#id46" id="id28">[1]</a> <a class="footnote-reference" href="#id47" id="id29">[2]</a></td>
+<td>generalized staggered susceptibility <a class="footnote-reference" href="#id57" id="id39">[1]</a> <a class="footnote-reference" href="#id58" id="id40">[2]</a></td>
 </tr>
 <tr><td>Spin Correlations</td>
-<td>correlation functions <a class="footnote-reference" href="#id48" id="id30">[3]</a></td>
+<td>correlation functions <a class="footnote-reference" href="#id59" id="id41">[3]</a></td>
 </tr>
 <tr><td>Staggered Spin Correlations</td>
-<td>staggered correlation functions <a class="footnote-reference" href="#id46" id="id31">[1]</a> <a class="footnote-reference" href="#id48" id="id32">[3]</a></td>
+<td>staggered correlation functions <a class="footnote-reference" href="#id57" id="id42">[1]</a> <a class="footnote-reference" href="#id59" id="id43">[3]</a></td>
 </tr>
 <tr><td>Generalized Spin Correlations</td>
-<td>generalized correlation functions <a class="footnote-reference" href="#id47" id="id33">[2]</a> <a class="footnote-reference" href="#id48" id="id34">[3]</a></td>
+<td>generalized correlation functions <a class="footnote-reference" href="#id58" id="id44">[2]</a> <a class="footnote-reference" href="#id59" id="id45">[3]</a></td>
 </tr>
 <tr><td>Generalized Staggered Spin Correlations</td>
-<td>generalized staggered correlation function <a class="footnote-reference" href="#id46" id="id35">[1]</a> <a class="footnote-reference" href="#id47" id="id36">[2]</a> <a class="footnote-reference" href="#id48" id="id37">[3]</a></td>
+<td>generalized staggered correlation function <a class="footnote-reference" href="#id57" id="id46">[1]</a> <a class="footnote-reference" href="#id58" id="id47">[2]</a> <a class="footnote-reference" href="#id59" id="id48">[3]</a></td>
 </tr>
 <tr><td>Green's Function</td>
-<td>Green's function <a class="footnote-reference" href="#id47" id="id38">[2]</a> <a class="footnote-reference" href="#id49" id="id39">[4]</a></td>
+<td>Green's function <a class="footnote-reference" href="#id58" id="id49">[2]</a> <a class="footnote-reference" href="#id60" id="id50">[4]</a></td>
 </tr>
 <tr><td>Structure Factor</td>
-<td>static structure factor <a class="footnote-reference" href="#id50" id="id40">[5]</a></td>
+<td>static structure factor <a class="footnote-reference" href="#id61" id="id51">[5]</a></td>
 </tr>
 <tr><td>Local Magnetization</td>
-<td>local magnetization <a class="footnote-reference" href="#id51" id="id41">[6]</a></td>
+<td>local magnetization <a class="footnote-reference" href="#id62" id="id52">[6]</a></td>
 </tr>
 <tr><td>Local Susceptibility</td>
-<td>local susceptibility (i.e., response of uniform magnetization against local magnetic field or that of local magnetization against uniform magnetic field) <a class="footnote-reference" href="#id51" id="id42">[6]</a></td>
+<td>local susceptibility (i.e., response of uniform magnetization against local magnetic field or that of local magnetization against uniform magnetic field) <a class="footnote-reference" href="#id62" id="id53">[6]</a></td>
 </tr>
 <tr><td>Staggered Local Susceptibility</td>
-<td>statggered local susceptibility (i.e., response of staggered magnetization against local magnetic field or that of local magnetization against staggered magnetic field) <a class="footnote-reference" href="#id46" id="id43">[1]</a> <a class="footnote-reference" href="#id51" id="id44">[6]</a></td>
+<td>statggered local susceptibility (i.e., response of staggered magnetization against local magnetic field or that of local magnetization against staggered magnetic field) <a class="footnote-reference" href="#id57" id="id54">[1]</a> <a class="footnote-reference" href="#id62" id="id55">[6]</a></td>
 </tr>
 <tr><td>Local Field Susceptibility</td>
-<td>local-field susceptibility (i.e., response of local magnetization against local magnetic field) <a class="footnote-reference" href="#id51" id="id45">[6]</a></td>
+<td>local-field susceptibility (i.e., response of local magnetization against local magnetic field) <a class="footnote-reference" href="#id62" id="id56">[6]</a></td>
 </tr>
 </tbody>
 </table>
-<table class="docutils footnote" frame="void" id="id46" rules="none">
+<table class="docutils footnote" frame="void" id="id57" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id2">2</a>, <a class="fn-backref" href="#id3">3</a>, <a class="fn-backref" href="#id4">4</a>, <a class="fn-backref" href="#id5">5</a>, <a class="fn-backref" href="#id6">6</a>, <a class="fn-backref" href="#id7">7</a>, <a class="fn-backref" href="#id16">8</a>, <a class="fn-backref" href="#id18">9</a>, <a class="fn-backref" href="#id20">10</a>, <a class="fn-backref" href="#id22">11</a>, <a class="fn-backref" href="#id24">12</a>, <a class="fn-backref" href="#id26">13</a>, <a class="fn-backref" href="#id28">14</a>, <a class="fn-backref" href="#id31">15</a>, <a class="fn-backref" href="#id35">16</a>, <a class="fn-backref" href="#id43">17</a>)</em> measured only for bipartite lattices</td></tr>
+<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id12">1</a>, <a class="fn-backref" href="#id13">2</a>, <a class="fn-backref" href="#id14">3</a>, <a class="fn-backref" href="#id15">4</a>, <a class="fn-backref" href="#id16">5</a>, <a class="fn-backref" href="#id17">6</a>, <a class="fn-backref" href="#id18">7</a>, <a class="fn-backref" href="#id27">8</a>, <a class="fn-backref" href="#id29">9</a>, <a class="fn-backref" href="#id31">10</a>, <a class="fn-backref" href="#id33">11</a>, <a class="fn-backref" href="#id35">12</a>, <a class="fn-backref" href="#id37">13</a>, <a class="fn-backref" href="#id39">14</a>, <a class="fn-backref" href="#id42">15</a>, <a class="fn-backref" href="#id46">16</a>, <a class="fn-backref" href="#id54">17</a>)</em> 二部格子の時のみ測定が行われる</td></tr>
 </tbody>
 </table>
-<table class="docutils footnote" frame="void" id="id47" rules="none">
+<table class="docutils footnote" frame="void" id="id58" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[2]</td><td><em>(<a class="fn-backref" href="#id8">1</a>, <a class="fn-backref" href="#id9">2</a>, <a class="fn-backref" href="#id10">3</a>, <a class="fn-backref" href="#id11">4</a>, <a class="fn-backref" href="#id12">5</a>, <a class="fn-backref" href="#id13">6</a>, <a class="fn-backref" href="#id14">7</a>, <a class="fn-backref" href="#id15">8</a>, <a class="fn-backref" href="#id17">9</a>, <a class="fn-backref" href="#id19">10</a>, <a class="fn-backref" href="#id21">11</a>, <a class="fn-backref" href="#id23">12</a>, <a class="fn-backref" href="#id25">13</a>, <a class="fn-backref" href="#id27">14</a>, <a class="fn-backref" href="#id29">15</a>, <a class="fn-backref" href="#id33">16</a>, <a class="fn-backref" href="#id36">17</a>, <a class="fn-backref" href="#id38">18</a>)</em> measured only by improved estimator</td></tr>
+<tr><td class="label">[2]</td><td><em>(<a class="fn-backref" href="#id19">1</a>, <a class="fn-backref" href="#id20">2</a>, <a class="fn-backref" href="#id21">3</a>, <a class="fn-backref" href="#id22">4</a>, <a class="fn-backref" href="#id23">5</a>, <a class="fn-backref" href="#id24">6</a>, <a class="fn-backref" href="#id25">7</a>, <a class="fn-backref" href="#id26">8</a>, <a class="fn-backref" href="#id28">9</a>, <a class="fn-backref" href="#id30">10</a>, <a class="fn-backref" href="#id32">11</a>, <a class="fn-backref" href="#id34">12</a>, <a class="fn-backref" href="#id36">13</a>, <a class="fn-backref" href="#id38">14</a>, <a class="fn-backref" href="#id40">15</a>, <a class="fn-backref" href="#id44">16</a>, <a class="fn-backref" href="#id47">17</a>, <a class="fn-backref" href="#id49">18</a>)</em> <tt class="docutils literal">improved estimator</tt> でのみ測定が行われる</td></tr>
 </tbody>
 </table>
-<table class="docutils footnote" frame="void" id="id48" rules="none">
+<table class="docutils footnote" frame="void" id="id59" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[3]</td><td><em>(<a class="fn-backref" href="#id30">1</a>, <a class="fn-backref" href="#id32">2</a>, <a class="fn-backref" href="#id34">3</a>, <a class="fn-backref" href="#id37">4</a>)</em> set <tt class="docutils literal">MEASURE[Correlations]</tt> to <tt class="docutils literal">true</tt></td></tr>
+<tr><td class="label">[3]</td><td><em>(<a class="fn-backref" href="#id41">1</a>, <a class="fn-backref" href="#id43">2</a>, <a class="fn-backref" href="#id45">3</a>, <a class="fn-backref" href="#id48">4</a>)</em> パラメータ <tt class="docutils literal">MEASURE[Correlations]</tt> を <tt class="docutils literal">true</tt> に設定する</td></tr>
 </tbody>
 </table>
-<table class="docutils footnote" frame="void" id="id49" rules="none">
+<table class="docutils footnote" frame="void" id="id60" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id39">[4]</a></td><td>set <tt class="docutils literal">MEASURE[Green Function]</tt> to <tt class="docutils literal">true</tt></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id50">[4]</a></td><td>パラメータ <tt class="docutils literal">MEASURE[Green Function]</tt> を <tt class="docutils literal">true</tt> に設定する</td></tr>
 </tbody>
 </table>
-<table class="docutils footnote" frame="void" id="id50" rules="none">
+<table class="docutils footnote" frame="void" id="id61" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id40">[5]</a></td><td>set <tt class="docutils literal">MEASURE[Structure Factor]</tt> to <tt class="docutils literal">true</tt></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id51">[5]</a></td><td>パラメータ <tt class="docutils literal">MEASURE[Structure Factor]</tt> を <tt class="docutils literal">true</tt> に設定する</td></tr>
 </tbody>
 </table>
-<table class="docutils footnote" frame="void" id="id51" rules="none">
+<table class="docutils footnote" frame="void" id="id62" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[6]</td><td><em>(<a class="fn-backref" href="#id41">1</a>, <a class="fn-backref" href="#id42">2</a>, <a class="fn-backref" href="#id44">3</a>, <a class="fn-backref" href="#id45">4</a>)</em> set <tt class="docutils literal">MEASURE[Local Susceptiblity]</tt> to <tt class="docutils literal">true</tt></td></tr>
+<tr><td class="label">[6]</td><td><em>(<a class="fn-backref" href="#id52">1</a>, <a class="fn-backref" href="#id53">2</a>, <a class="fn-backref" href="#id55">3</a>, <a class="fn-backref" href="#id56">4</a>)</em> パラメータ <tt class="docutils literal">MEASURE[Local Susceptiblity]</tt> を <tt class="docutils literal">true</tt> に設定する</td></tr>
 </tbody>
 </table>
-<p>A few remarks concerning the generalized susceptibilities: The general
-idea is that the uniform generalized susceptibility is the
-susceptibility for the magnetic order supposed to be stronger.  The
-staggered generalized susceptibility is the staggered susceptibility
-of this specific order.  To be more precise, we have the following
-correspondance:</p>
+<p><tt class="docutils literal">uniform generalized susceptibility</tt> は最も強い相関に対する応答関数である. それに対するスタッガードな応答関数が, <tt class="docutils literal">staggered generalized susceptibility</tt> である. それぞれの模型における, 通常の帯磁率と一般化帯磁率の対応は以下の通りである.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="39%" />
@@ -867,7 +835,7 @@ correspondance:</p>
 <col width="35%" />
 </colgroup>
 <tbody valign="top">
-<tr><td><strong>Model</strong></td>
+<tr><td><strong>模型</strong></td>
 <td><strong>Generalized Susceptibility</strong></td>
 <td><strong>Generalized Staggered Susceptibility</strong></td>
 </tr>
@@ -897,22 +865,17 @@ correspondance:</p>
 </tr>
 </tbody>
 </table>
-<p>Same considerations apply for the uniform and staggered magnetization to the square.</p>
+<p>一様磁化, スタッガード磁化についても同じ対応関係が成り立つ.</p>
 </div>
-<div class="section" id="tutorials">
-<h2>Tutorials</h2>
-<p>ALPS/looper tutorials can be found in <a class="reference external" href="http://alps.comp-phys.org/mediawiki/index.php/ALPS_2_Tutorials:MC-02_Susceptibilities">ALPS Tutorials Page</a>.</p>
+<div class="section" id="id63">
+<h2>チュートリアル</h2>
+<p><a class="reference external" href="http://alps.comp-phys.org/mediawiki/index.php/ALPS_2_Tutorials:MC-02_Susceptibilities">ALPS Tutorials Page</a> に ALPS/looper のチュートリアルも用意されている.</p>
 </div>
 </div>
 <hr class="docutils" />
-<div class="section" id="license">
-<h1>License</h1>
-<p>The <a class="reference external" href="http://alps.comp-phys.org/software/applications/LICENSE.txt">license</a>
-allows the use of the applications for non-commercial scientific use
-provided that the use of the ALPS/looper Library and the ALPS
-Libraries is acknowledged, and the papers listed below are referenced
-in any scientific publication.  For detail please see the <a class="reference external" href="http://alps.comp-phys.org/software/applications/LICENSE.txt">ALPS
-Applications Licence</a>.</p>
+<div class="section" id="id64">
+<h1>ライセンス</h1>
+<p>ALPS/looper ライブラリは, <a class="reference external" href="http://alps.comp-phys.org/software/applications/LICENSE.txt">ALPS アプリケーションライセンス</a> に従い, 公開・配布されている. ALPS/looper は非営利の研究活動にのみ使用することができる. ALPS/looper を用いた結果を発表・出版の場合には, その論文中に ALPS/looper ライブラリ, ALPS ライブラリを使用した旨を記載するとともに, 下記の URL および論文の引用をお願いする。</p>
 <ul class="simple">
 <li>reference<ul>
 <li><a class="reference external" href="http://alps.comp-phys.org/">http://alps.comp-phys.org/</a></li>
@@ -923,10 +886,10 @@ Applications Licence</a>.</p>
 <li>S. Todo and K. Kato, <em>Cluster Algorithms for General-S Quantum
 Spin Systems</em>, Phys. Rev. Lett., <strong>87</strong>, 047203 (2001).</li>
 <li>A.F. Albuquerque, F. Alet, P. Corboz, P. Dayal, A. Feiguin,
-L. Gamper, E. Gull, S Gürtler, A. Honecker, R. Igarashi,
-M. Körner, A. Kozhevnikov, A. Läuchli, S.R. Manmana, M. Matsumoto,
+L. Gamper, E. Gull, S G?rtler, A. Honecker, R. Igarashi,
+M. K?rner, A. Kozhevnikov, A. L?uchli, S.R. Manmana, M. Matsumoto,
 I.P. McCulloch, F. Michel, R.M. Noack, G. Pawlowski, L. Pollet,
-T. Pruschke, U. Schollwöck, S. Todo, S. Trebst, M. Troyer,
+T. Pruschke, U. Schollw?ck, S. Todo, S. Trebst, M. Troyer,
 P. Werner, S. Wessel (ALPS collaboration), <em>The ALPS project
 release 1.3: open source software for strongly correlated
 systems</em>, <a class="reference external" href="http://dx.doi.org/10.1016/j.jmmm.2006.10.304">J. Mag. Mag. Mat. 310, 1187 (2007)</a>.</li>
@@ -942,28 +905,25 @@ Statistical Mechanics: Theory and Experiment, P05001 (2011)</a>.</li>
 </li>
 </ul>
 </div>
-<div class="section" id="developers">
-<h1>Developers</h1>
+<div class="section" id="id65">
+<h1>開発者</h1>
 <ul class="simple">
-<li>Version 1: Synge Todo</li>
-<li>Version 2: Synge Todo, Kiyoshi Kato, and Shigeru Koikegami</li>
-<li>Version 3: Synge Todo</li>
-<li>Version 4: Synge Todo, Haruhiko Matuo, and Hideyuki Shitara</li>
+<li>バージョン 1: 藤堂眞治</li>
+<li>バージョン 2: 藤堂眞治, 加藤清, 小池上繁</li>
+<li>バージョン 3: 藤堂眞治</li>
+<li>バージョン 4: 藤堂眞治, 松尾春彦, 設楽秀之</li>
 </ul>
 </div>
-<div class="section" id="questions-and-request-for-support">
-<h1>Questions and request for support</h1>
-<p>can be addressed to Synge Todo &lt;<a class="reference external" href="mailto:wistaria&#64;comp-phys.org">wistaria&#64;comp-phys.org</a>&gt;.</p>
+<div class="section" id="id66">
+<h1>サポート</h1>
+<p>質問・リクエストなどは, 藤堂 &lt;<a class="reference external" href="mailto:wistaria&#64;comp-phys.org">wistaria&#64;comp-phys.org</a>&gt; まで.</p>
 </div>
-<div class="section" id="acknowledgement">
-<h1>Acknowledgement</h1>
-<p>I wish to thank M. Troyer and F. Alet for many useful comments and
-suggestions.  The development of ALPS/looper version 4 was supported
-by Grand Challenges in Next-Generation Integrated Nanoscience,
-Next-Generation Supercomputer Project, MEXT, Japan.</p>
+<div class="section" id="id67">
+<h1>謝辞</h1>
+<p>Matthias Troyer と Fabien Alet の両氏には多くのコメントをいただいた. ALPS/looper バージョン 4 の開発は, 文部科学省「最先端・高性能汎用スーパーコンピュータの開発プロジェクト 次世代ナノ統合シミュレーションソフトウェアの研究開発」からサポートを受けている.</p>
 </div>
-<div class="section" id="references">
-<h1>References</h1>
+<div class="section" id="id68">
+<h1>参考文献</h1>
 <ul class="simple">
 <li>H.G. Evertz, <em>The loop algorithm</em>, Adv. in Physics, <strong>52</strong>, 1 (2003).</li>
 <li>S. Todo and K. Kato, <em>Cluster Algorithms for General-S Quantum
