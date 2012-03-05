@@ -10,6 +10,11 @@ if(LOOPER_BUILD_EXTRAS OR LOOPER_BUILD_EXTRAS_GAP)
   add_subdirectory(gap)
 endif(LOOPER_BUILD_EXTRAS OR LOOPER_BUILD_EXTRAS_GAP)
 
+option(LOOPER_BUILD_EXTRAS_GAP4 "Build in extras/gap4 subdirectory" OFF)
+if(LOOPER_BUILD_EXTRAS OR LOOPER_BUILD_EXTRAS_GAP4)
+  add_subdirectory(gap4)
+endif(LOOPER_BUILD_EXTRAS OR LOOPER_BUILD_EXTRAS_GAP4)
+
 # option(LOOPER_BUILD_EXTRAS_LOCALSUS "Build in extras/localsus subdirectory" OFF)
 # if(LOOPER_BUILD_EXTRAS OR LOOPER_BUILD_EXTRAS_LOCALSUS)
 #   add_subdirectory(localsus)

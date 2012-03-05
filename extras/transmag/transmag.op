@@ -10,37 +10,38 @@ DIR_NAME = .;
 BASE_NAME = task1;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
+Warning: unknown evaluator: "loop; path integral".  The only evaluator "loop" will be used instead.
 [results]
-Energy: -0.359961 +/- 0.0212; tau = 0.932 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0125114
-    bin #2   : 512      entries: error = 0.0153292
-    bin #3   : 256      entries: error = 0.0187416
-    bin #4   : 128      entries: error = 0.0211731
-Energy Density: -0.359961 +/- 0.0212; tau = 0.932 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0125114
-    bin #2   : 512      entries: error = 0.0153292
-    bin #3   : 256      entries: error = 0.0187416
-    bin #4   : 128      entries: error = 0.0211731
-Energy^2: 0.147559 +/- 0.017; tau = 0.65 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0112326
-    bin #2   : 512      entries: error = 0.0127831
-    bin #3   : 256      entries: error = 0.0155083
-    bin #4   : 128      entries: error = 0.0170352
+Energy: -0.318945 +/- 0.0202; tau = 0.939 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0119005
+    bin #2   : 512      entries: error = 0.0146864
+    bin #3   : 256      entries: error = 0.0172009
+    bin #4   : 128      entries: error = 0.0201875
+Energy Density: -0.318945 +/- 0.0202; tau = 0.939 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0119005
+    bin #2   : 512      entries: error = 0.0146864
+    bin #3   : 256      entries: error = 0.0172009
+    bin #4   : 128      entries: error = 0.0201875
+Energy^2: 0.112676 +/- 0.0143; tau = 0.732 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00914225
+    bin #2   : 512      entries: error = 0.0111251
+    bin #3   : 256      entries: error = 0.0125714
+    bin #4   : 128      entries: error = 0.0143494
 Inverse Temperature: 5 +/- 0
-Number of Clusters: 3.60547 +/- 0.0598
+Number of Clusters: 3.41016 +/- 0.0563
 Number of Sites: 1 +/- 0
-Specific Heat: 0.460864 +/- 0.225 WARNING: ERRORS NOT CONVERGED!!!
+Specific Heat: 0.28392 +/- 0.206 WARNING: ERRORS NOT CONVERGED!!!
 Temperature: 0.2 +/- 7.18e-10 Warning: potential error underflow. Errors might be smaller
-Transverse Magnetization: 0.472168 +/- 0.00415; tau = 0.17 WARNING: check error convergence
-    bin #1   : 1024     entries: error = 0.00358587
-    bin #2   : 512      entries: error = 0.00354833
-    bin #3   : 256      entries: error = 0.00380121
-    bin #4   : 128      entries: error = 0.00415044
-Transverse Magnetization Density: 0.472168 +/- 0.00415; tau = 0.17 WARNING: check error convergence
-    bin #1   : 1024     entries: error = 0.00358587
-    bin #2   : 512      entries: error = 0.00354833
-    bin #3   : 256      entries: error = 0.00380121
-    bin #4   : 128      entries: error = 0.00415044
+Transverse Magnetization: 0.467285 +/- 0.00465; tau = 0.223 WARNING: check error convergence
+    bin #1   : 1024     entries: error = 0.00386757
+    bin #2   : 512      entries: error = 0.00397962
+    bin #3   : 256      entries: error = 0.00430809
+    bin #4   : 128      entries: error = 0.0046509
+Transverse Magnetization Density: 0.467285 +/- 0.00465; tau = 0.223 WARNING: check error convergence
+    bin #1   : 1024     entries: error = 0.00386757
+    bin #2   : 512      entries: error = 0.00397962
+    bin #3   : 256      entries: error = 0.00430809
+    bin #4   : 128      entries: error = 0.0046509
 Volume: 1 +/- 0
 [input parameters]
 SEED = 23125;
@@ -54,37 +55,38 @@ DIR_NAME = .;
 BASE_NAME = task2;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
+Warning: unknown evaluator: "loop; path integral".  The only evaluator "loop" will be used instead.
 [results]
-Energy: -0.225684 +/- 0.031; tau = 0.796 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.019252
-    bin #2   : 512      entries: error = 0.0232574
-    bin #3   : 256      entries: error = 0.0274856
-    bin #4   : 128      entries: error = 0.0309999
-Energy Density: -0.225684 +/- 0.031; tau = 0.796 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.019252
-    bin #2   : 512      entries: error = 0.0232574
-    bin #3   : 256      entries: error = 0.0274856
-    bin #4   : 128      entries: error = 0.0309999
-Energy^2: 0.141885 +/- 0.0385; tau = 0.578 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0262353
-    bin #2   : 512      entries: error = 0.0287223
-    bin #3   : 256      entries: error = 0.0350867
-    bin #4   : 128      entries: error = 0.0385244
+Energy: -0.220313 +/- 0.0307; tau = 0.758 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0193523
+    bin #2   : 512      entries: error = 0.0237831
+    bin #3   : 256      entries: error = 0.0286543
+    bin #4   : 128      entries: error = 0.0306985
+Energy Density: -0.220313 +/- 0.0307; tau = 0.758 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0193523
+    bin #2   : 512      entries: error = 0.0237831
+    bin #3   : 256      entries: error = 0.0286543
+    bin #4   : 128      entries: error = 0.0306985
+Energy^2: 0.146133 +/- 0.0243; tau = 0.215 WARNING: check error convergence
+    bin #1   : 1024     entries: error = 0.0202909
+    bin #2   : 512      entries: error = 0.0223816
+    bin #3   : 256      entries: error = 0.0239488
+    bin #4   : 128      entries: error = 0.0242633
 Inverse Temperature: 2 +/- 0
-Number of Clusters: 1.53516 +/- 0.0291
+Number of Clusters: 1.53613 +/- 0.0291
 Number of Sites: 1 +/- 0
-Specific Heat: 0.367647 +/- 0.123 WARNING: ERRORS NOT CONVERGED!!!
+Specific Heat: 0.394147 +/- 0.0616 WARNING: check error convergence
 Temperature: 0.5 +/- 0
-Transverse Magnetization: 0.308105 +/- 0.00841; tau = 0.112
-    bin #1   : 1024     entries: error = 0.00760598
-    bin #2   : 512      entries: error = 0.00784444
-    bin #3   : 256      entries: error = 0.0082151
-    bin #4   : 128      entries: error = 0.00841453
-Transverse Magnetization Density: 0.308105 +/- 0.00841; tau = 0.112
-    bin #1   : 1024     entries: error = 0.00760598
-    bin #2   : 512      entries: error = 0.00784444
-    bin #3   : 256      entries: error = 0.0082151
-    bin #4   : 128      entries: error = 0.00841453
+Transverse Magnetization: 0.302246 +/- 0.0092; tau = 0.223 WARNING: check error convergence
+    bin #1   : 1024     entries: error = 0.00764746
+    bin #2   : 512      entries: error = 0.00798488
+    bin #3   : 256      entries: error = 0.00870495
+    bin #4   : 128      entries: error = 0.00919564
+Transverse Magnetization Density: 0.302246 +/- 0.0092; tau = 0.223 WARNING: check error convergence
+    bin #1   : 1024     entries: error = 0.00764746
+    bin #2   : 512      entries: error = 0.00798488
+    bin #3   : 256      entries: error = 0.00870495
+    bin #4   : 128      entries: error = 0.00919564
 Volume: 1 +/- 0
 [input parameters]
 SEED = 23125;
@@ -106,37 +108,38 @@ DIR_NAME = .;
 BASE_NAME = task3;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
+Warning: unknown evaluator: "loop; path integral".  The only evaluator "loop" will be used instead.
 [results]
-Energy: -2.22656 +/- 0.0352; tau = 0.399 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0262834
-    bin #2   : 512      entries: error = 0.0309528
-    bin #3   : 256      entries: error = 0.0348627
-    bin #4   : 128      entries: error = 0.0352437
-Energy Density: -0.556641 +/- 0.00881; tau = 0.399 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00657084
-    bin #2   : 512      entries: error = 0.0077382
-    bin #3   : 256      entries: error = 0.00871568
-    bin #4   : 128      entries: error = 0.00881093
-Energy^2: 4.89828 +/- 0.156; tau = 0.344
-    bin #1   : 1024     entries: error = 0.120109
-    bin #2   : 512      entries: error = 0.140236
-    bin #3   : 256      entries: error = 0.156921
-    bin #4   : 128      entries: error = 0.156056
+Energy: -2.25566 +/- 0.0416; tau = 0.697 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0268685
+    bin #2   : 512      entries: error = 0.0321773
+    bin #3   : 256      entries: error = 0.0376008
+    bin #4   : 128      entries: error = 0.0415719
+Energy Density: -0.563916 +/- 0.0104; tau = 0.697 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00671713
+    bin #2   : 512      entries: error = 0.00804432
+    bin #3   : 256      entries: error = 0.00940021
+    bin #4   : 128      entries: error = 0.010393
+Energy^2: 5.05469 +/- 0.183; tau = 0.617 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.12215
+    bin #2   : 512      entries: error = 0.144899
+    bin #3   : 256      entries: error = 0.165778
+    bin #4   : 128      entries: error = 0.182548
 Inverse Temperature: 5 +/- 0
-Number of Clusters: 11.6631 +/- 0.0972
+Number of Clusters: 11.6846 +/- 0.0969
 Number of Sites: 4 +/- 0
-Specific Heat: -0.362865 +/- 0.223
+Specific Heat: -0.19754 +/- 0.231 WARNING: ERRORS NOT CONVERGED!!!
 Temperature: 0.2 +/- 7.18e-10 Warning: potential error underflow. Errors might be smaller
-Transverse Magnetization: 1.20791 +/- 0.0218; tau = 0.644 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0144404
-    bin #2   : 512      entries: error = 0.016746
-    bin #3   : 256      entries: error = 0.0197446
-    bin #4   : 128      entries: error = 0.0218429
-Transverse Magnetization Density: 0.301977 +/- 0.00546; tau = 0.644 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00361011
-    bin #2   : 512      entries: error = 0.00418651
-    bin #3   : 256      entries: error = 0.00493615
-    bin #4   : 128      entries: error = 0.00546072
+Transverse Magnetization: 1.19739 +/- 0.0196; tau = 0.39 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0146875
+    bin #2   : 512      entries: error = 0.0162636
+    bin #3   : 256      entries: error = 0.0182754
+    bin #4   : 128      entries: error = 0.0195966
+Transverse Magnetization Density: 0.299347 +/- 0.0049; tau = 0.39 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00367187
+    bin #2   : 512      entries: error = 0.00406589
+    bin #3   : 256      entries: error = 0.00456886
+    bin #4   : 128      entries: error = 0.00489915
 Volume: 4 +/- 0
 [input parameters]
 SEED = 23125;
@@ -158,35 +161,36 @@ DIR_NAME = .;
 BASE_NAME = task4;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
+Warning: unknown evaluator: "loop; path integral".  The only evaluator "loop" will be used instead.
 [results]
-Energy: -1.94395 +/- 0.0799; tau = 0.936 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0471192
-    bin #2   : 512      entries: error = 0.0583614
-    bin #3   : 256      entries: error = 0.0711652
-    bin #4   : 128      entries: error = 0.0798629
-Energy Density: -0.485986 +/- 0.02; tau = 0.936 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0117798
-    bin #2   : 512      entries: error = 0.0145903
-    bin #3   : 256      entries: error = 0.0177913
-    bin #4   : 128      entries: error = 0.0199657
-Energy^2: 4.27602 +/- 0.328; tau = 0.783 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.204898
-    bin #2   : 512      entries: error = 0.247897
-    bin #3   : 256      entries: error = 0.300085
-    bin #4   : 128      entries: error = 0.328245
+Energy: -1.73838 +/- 0.0734; tau = 0.809 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.045373
+    bin #2   : 512      entries: error = 0.0559577
+    bin #3   : 256      entries: error = 0.0681921
+    bin #4   : 128      entries: error = 0.0734236
+Energy Density: -0.434595 +/- 0.0184; tau = 0.809 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0113433
+    bin #2   : 512      entries: error = 0.0139894
+    bin #3   : 256      entries: error = 0.017048
+    bin #4   : 128      entries: error = 0.0183559
+Energy^2: 3.45678 +/- 0.26; tau = 0.608 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.174857
+    bin #2   : 512      entries: error = 0.210528
+    bin #3   : 256      entries: error = 0.249955
+    bin #4   : 128      entries: error = 0.260296
 Inverse Temperature: 2 +/- 0
-Number of Clusters: 5.07129 +/- 0.0593
+Number of Clusters: 4.69043 +/- 0.0546
 Number of Sites: 4 +/- 0
-Specific Heat: 0.503464 +/- 0.127 WARNING: ERRORS NOT CONVERGED!!!
+Specific Heat: 0.440202 +/- 0.103 WARNING: ERRORS NOT CONVERGED!!!
 Temperature: 0.5 +/- 0
-Transverse Magnetization: 0.90771 +/- 0.0281; tau = 0.418 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.0207222
-    bin #2   : 512      entries: error = 0.0235899
-    bin #3   : 256      entries: error = 0.02488
-    bin #4   : 128      entries: error = 0.0280836
-Transverse Magnetization Density: 0.226928 +/- 0.00702; tau = 0.418 WARNING: ERRORS NOT CONVERGED!!!
-    bin #1   : 1024     entries: error = 0.00518056
-    bin #2   : 512      entries: error = 0.00589748
-    bin #3   : 256      entries: error = 0.00622001
-    bin #4   : 128      entries: error = 0.00702091
+Transverse Magnetization: 0.911799 +/- 0.0294; tau = 0.457 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0212327
+    bin #2   : 512      entries: error = 0.0235684
+    bin #3   : 256      entries: error = 0.0266853
+    bin #4   : 128      entries: error = 0.02938
+Transverse Magnetization Density: 0.22795 +/- 0.00735; tau = 0.457 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00530818
+    bin #2   : 512      entries: error = 0.00589211
+    bin #3   : 256      entries: error = 0.00667132
+    bin #4   : 128      entries: error = 0.007345
 Volume: 4 +/- 0
