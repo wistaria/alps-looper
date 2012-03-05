@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2010 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2012 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -620,12 +620,23 @@ public:
   template<typename WEIGHT_TABLE, typename SHARING>
   void init(const WEIGHT_TABLE& wt, SHARING const& sharing, bool is_path_integral) {
     int num_threads = omp_get_max_threads();
+    if (num_threads == 1) {
+      init(wt, is_path_integral);
+      return;
+    }
     dist_graph_.resize(num_threads);
     graph_.resize(num_threads);
     diag_.resize(0);
     offdiag_.resize(0);
     weight_.resize(num_threads);
     std::vector<std::vector<double> > w(num_threads);
+    // check for site operator
+    BOOST_FOREACH(typename WEIGHT_TABLE::site_weight_t const& sw, wt.site_weights()) {
+      for (int g = 0; g < WEIGHT_TABLE::num_site_graphs; ++g) {
+        if (is_nonzero<1>(sw.second.v[g]))
+          boost::throw_exception(std::runtime_error("graph_chooser::init() site operator is not supported in OpenMP parallelization"));
+      }
+    }
     #pragma omp parallel
     {
       int tid = omp_get_thread_num();

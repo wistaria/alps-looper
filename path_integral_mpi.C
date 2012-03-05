@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2011 by Synge Todo <wistaria@comp-phys.org>,
+* Copyright (C) 1997-2012 by Synge Todo <wistaria@comp-phys.org>,
 *                            Haruhiko Matsuo <halm@looper.t.u-tokyo.ac.jp>
 *
 * This software is published under the ALPS Application License; you
@@ -526,13 +526,8 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
             continue;
           }
         } else {
-          #ifdef LOOPER_OPENMP
-          std::cerr << "site operator is not supported by current OpenMP version\n";
-          boost::throw_exception(std::invalid_argument(""));
-          #else
           operators.push_back(local_operator_t(g, *tmi));
           ++tmi;
-          #endif
         }
       } else {
         #ifdef LOOPER_OPENMP
@@ -552,9 +547,6 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
                 #pragma omp flush (current_times)
               } while (current_times[nid] < opi->time());
             }
-          } else {
-            std::cerr << "site operator is not supported by current OpenMP version\n";
-            boost::throw_exception(std::invalid_argument(""));
           }
           #endif
           ++opi;
