@@ -31,6 +31,7 @@
 // #define ALPS_TRACE_TIMER
 
 #include "loop_config.h"
+#include <looper/capacity.h>
 #include <looper/cluster.h>
 #include <looper/evaluator_impl.h>
 #include <looper/expand.h>
@@ -70,7 +71,21 @@ public:
   typedef boost::exponential_distribution<> expdist_t;
 
   loop_worker(alps::Parameters const& p);
-  virtual ~loop_worker() { timer.stop(1); timer.summarize(); }
+  virtual ~loop_worker() {
+#ifdef LOOPER_OPENMP
+    if (reserved) {
+      looper::vector_capacity capacity(times_g, operators_g, operators_pg, estimates_ig, estimates_ng, fragments);
+      capacity.report();
+    }
+#else
+    if (reserved) {
+      looper::vector_capacity capacity(times, operators, operators_p, estimates_i, estimates_n, fragments);
+      capacity.report();
+    }
+#endif
+    timer.stop(1);
+    timer.summarize();
+  }
 
   void init_observables(alps::Parameters const& params, alps::ObservableSet& obs);
 
@@ -176,6 +191,7 @@ private:
 #endif
 
   alps::parapack::timer timer;
+  bool reserved;
 };
 
 
@@ -221,6 +237,11 @@ loop_worker::loop_worker(alps::Parameters const& p)
 #endif
 
   // working vectors
+  int reserve_times = p.value_or_default("RESERVE_TIMES", 0);
+  int reserve_operators = p.value_or_default("RESERVE_OPERATORS", 0);
+  int reserve_estimates = p.value_or_default("RESERVE_ESTIMATES", 0);
+  int reserve_fragments = p.value_or_default("RESERVE_FRAGMENTS", 0);
+  reserved = reserve_times || reserve_operators || reserve_estimates || reserve_fragments;
 #ifdef LOOPER_OPENMP
   fragment_offset_g.resize(num_threads + 1);
   num_fragments_g.resize(num_threads);
@@ -229,12 +250,39 @@ loop_worker::loop_worker(alps::Parameters const& p)
   clusters_g.resize(num_threads);
   estimates_ig.resize(num_threads);
   estimates_ng.resize(num_threads);
+  if (reserved) {
+    for (int tid = 0; tid < num_threads; ++tid) {
+      times_g[tid].reserve(reserve_times);
+      operators_g[tid].reserve(reserve_operators);
+      operators_pg[tid].reserve(reserve_operators);
+      if (enable_improved_estimator) {
+        estimates_ig[tid].reserve(reserve_estimates);
+      } else {
+        estimates_ng[tid].reserve(reserve_estimates);
+      }
+    }
+    fragments.reserve(reserve_fragments);
+    looper::vector_capacity capacity(times_g, operators_g, operators_pg, estimates_ig,
+      estimates_ng, fragments);
+    capacity.report();
+  }
+#else
+  times.reserve(reserve_times);
+  operators.reserve(reserve_operators);
+  operators_p.reserve(reserve_operators);
+  if (enable_improved_estimator) {
+    estimates_i.reserve(reserve_estimates);
+  } else {
+    estimates_n.reserve(reserve_estimates);
+  }
+  fragments.reserve(reserve_fragments);
+  looper::vector_capacity capacity(times, operators, operators_p, estimates_i, estimates_n,
+    fragments);
+  capacity.report();
 #endif
 
-  // initialize estimators
-  estimator.initialize(p, lattice, model.is_signed(), enable_improved_estimator);
   timer.registrate( 1, "alps::parapack::scheduler::start");
-  timer.registrate( 2, " loop_worker_mpi::run,all");
+  timer.registrate( 2, " loop_worker::run,all");
   timer.registrate( 3, "  dispatch,all");
   timer.registrate( 4, "   dispatch,init_spin&operator_info");
   timer.registrate( 5, "   dispatch,fill_times");
@@ -249,6 +297,10 @@ loop_worker::loop_worker(alps::Parameters const& p)
   timer.registrate(14, "   dispatch,determine_flip");
   timer.registrate(15, "   dispatch,flip_operator&spins");
   timer.registrate(16, "   dispatch,measurement");
+
+  // initialize estimators
+  estimator.initialize(p, lattice, model.is_signed(), enable_improved_estimator);
+
   timer.start(1);
 }
 

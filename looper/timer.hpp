@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2010-2011 by Synge Todo <wistaria@comp-phys.org>,
+* Copyright (C) 2010-2012 by Synge Todo <wistaria@comp-phys.org>,
 *                            Haruhiko Matsuo <halm@looper.t.u-tokyo.ac.jp>,
 *                            Hideyuki Shitara <shitara.hide@jp.fujitsu.com>
 *
@@ -88,7 +88,7 @@ class timer_base {
 private:
   typedef CLOCK clock_t;
   #if defined(ALPS_ENABLE_PA1)
-  static char msgs[512][128];
+  static char msgs[512][256];
   #endif
 public:
   BOOST_STATIC_CONSTANT(int, detailed = (1 << 0));
@@ -154,16 +154,12 @@ public:
     std::clog << "alps::parapack::timer: starting timer with id = " << id << std::endl;
     #endif
     starts_[id] = clock_t::get_time();
-    #if defined(ALPS_ENABLE_PA1)
-    if (fjtool) start_collection(msgs[id]);
-    #elif defined(ALPS_ENABLE_PA2)
+    #if defined(ALPS_ENABLE_PA2)
     if (fjtool) hpc_start(id);
     #endif
   }
   void stop(std::size_t id, bool fjtool = true) {
-    #if defined(ALPS_ENABLE_PA1)
-    if (fjtool) stop_collection(msgs[id]);
-    #elif defined(ALPS_ENABLE_PA2)
+    #if defined(ALPS_ENABLE_PA2)
     if (fjtool) hpc_stop(id);
     #endif
     double t = clock_t::get_time() - starts_[id];
@@ -259,7 +255,7 @@ public:
     if (d_count_ == 0) {
       os << "timer: interval = " << interval << std::endl;
     }
-    if((d_count_ + 1) % interval == 0) {
+    if ((d_count_ + 1) % interval == 0) {
       for (int i = 0; i < labels_.size(); ++i) {
         if (d_mapping_[i] >= 0) {
           os << boost::format("detail: %d %d %.3f %d\n")
@@ -275,14 +271,18 @@ public:
   }
 
   void prof_start(bool fjtool=false) {
-#ifdef ALPS_ENABLE_RANGEDSAMP
+    #if defined(ALPS_ENABLE_RANGEDSAMP)
     if (fjtool) fpcoll_start();
-#endif
+    #elif defined(ALPS_ENABLE_PA1)
+    if (fjtool) start_collection(msgs[id]);
+    #endif
   }
   void prof_stop(bool fjtool=false) {
-#ifdef ALPS_ENABLE_RANGEDSAMP
+    #if defined(ALPS_ENABLE_RANGEDSAMP)
     if (fjtool) fpcoll_stop();
-#endif
+    #elif defined(ALPS_ENABLE_PA1)
+    if (fjtool) stop_collection(msgs[id]);
+    #endif
   }
 
 #ifndef ALPS_INDEP_SOURCE
@@ -331,8 +331,8 @@ public:
   void stop(std::size_t) {}
   void summarize(std::ostream& = std::clog) const {}
   void detailed_report(std::size_t = 1, std::ostream& = std::clog) const {}
-  void prof_start() {}
-  void prof_stop() {}
+  void prof_start(bool = false) {}
+  void prof_stop(bool = false) {}
 #ifndef ALPS_INDEP_SOURCE
   timer(alps::Parameters const&) {}
   void init_observables(alps::ObservableSet&) const {}

@@ -33,6 +33,7 @@
 // #define STD_OUTPUT 1
 
 #include "loop_config.h"
+#include <looper/capacity_mpi.h>
 #include <looper/cluster.h>
 #include <looper/evaluator_impl.h>
 #include <looper/expand.h>
@@ -72,7 +73,26 @@ public:
   typedef boost::exponential_distribution<> expdist_t;
 
   loop_worker(mpi::communicator const& c, alps::Parameters const& p);
-  virtual ~loop_worker() { timer.stop(1); timer.summarize(); }
+  virtual ~loop_worker() {
+#ifdef LOOPER_OPENMP
+    if (reserved) {
+      looper::vector_capacity capacity(times_g, operators_g, operators_pg, estimates_ig, estimates_ng, fragments);
+      capacity.report(comm);
+    }
+#else
+    if (reserved) {
+      looper::vector_capacity capacity(times, operators, operators_p, estimates_i, estimates_n, fragments);
+      capacity.report(comm);
+    }
+#endif
+    if (enable_improved_estimator) {
+      unifier_i.capacity_report();
+    } else {
+      unifier_n.capacity_report();
+    }
+    timer.stop(1);
+    timer.summarize();
+  }
 
   void init_observables(alps::Parameters const& params, alps::ObservableSet& obs);
 
@@ -179,6 +199,7 @@ private:
 #endif
 
   alps::parapack::timer_mpi timer;
+  bool reserved;
 };
 
 
@@ -239,6 +260,11 @@ loop_worker::loop_worker(mpi::communicator const& c, alps::Parameters const& p)
 #endif
 
   // working vectors
+  int reserve_times = p.value_or_default("RESERVE_TIMES", 0);
+  int reserve_operators = p.value_or_default("RESERVE_OPERATORS", 0);
+  int reserve_estimates = p.value_or_default("RESERVE_ESTIMATES", 0);
+  int reserve_fragments = p.value_or_default("RESERVE_FRAGMENTS", 0);
+  reserved = reserve_times || reserve_operators || reserve_estimates || reserve_fragments;
 #ifdef LOOPER_OPENMP
   times_g.resize(num_threads);
   fragment_offset_g.resize(num_threads + 1);
@@ -247,6 +273,35 @@ loop_worker::loop_worker(mpi::communicator const& c, alps::Parameters const& p)
   ncc_g.resize(num_threads);
   estimates_ig.resize(num_threads);
   estimates_ng.resize(num_threads);
+  if (reserved) {
+    for (int tid = 0; tid < num_threads; ++tid) {
+      times_g[tid].reserve(reserve_times);
+      operators_g[tid].reserve(reserve_operators);
+      operators_pg[tid].reserve(reserve_operators);
+      if (enable_improved_estimator) {
+        estimates_ig[tid].reserve(reserve_estimates);
+      } else {
+        estimates_ng[tid].reserve(reserve_estimates);
+      }
+    }
+    fragments.reserve(reserve_fragments);
+    looper::vector_capacity capacity(times_g, operators_g, operators_pg, estimates_ig,
+      estimates_ng, fragments);
+    capacity.report(comm);
+  }
+#else
+  times.reserve(reserve_times);
+  operators.reserve(reserve_operators);
+  operators_p.reserve(reserve_operators);
+  if (enable_improved_estimator) {
+    estimates_i.reserve(reserve_estimates);
+  } else {
+    estimates_n.reserve(reserve_estimates);
+  }
+  fragments.reserve(reserve_fragments);
+  looper::vector_capacity capacity(times, operators, operators_p, estimates_i, estimates_n,
+    fragments);
+  capacity.report(comm);
 #endif
 
   // initialize timer
@@ -271,10 +326,12 @@ loop_worker::loop_worker(mpi::communicator const& c, alps::Parameters const& p)
   // initialize parallel cluster unifier
   if (enable_improved_estimator)
     unifier_i.initialize(timer, num_sites(lattice.vg()), p.value_or_default("PARTITION", ""),
-                         p.value_or_default("DUPLEX", true));
+      p.value_or_default("DUPLEX", true), p.value_or_default("RESERVE_CHUNK_LINKS", 0),
+      p.value_or_default("RESERVE_CHUNK_ESTIMATES", 0));
   else
     unifier_n.initialize(timer, num_sites(lattice.vg()), p.value_or_default("PARTITION", ""),
-                         p.value_or_default("DUPLEX", true));
+      p.value_or_default("DUPLEX", true), p.value_or_default("RESERVE_CHUNK_LINKS", 0),
+      p.value_or_default("RESERVE_CHUNK_ESTIMATES", 0));
 
   // initialize estimators
   estimator.initialize(p, lattice, model.is_signed(), enable_improved_estimator);

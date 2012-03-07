@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2010-2011 by Synge Todo <wistaria@comp-phys.org>,
+* Copyright (C) 2010-2012 by Synge Todo <wistaria@comp-phys.org>,
 *                            Haruhiko Matsuo <halm@looper.t.u-tokyo.ac.jp>,
 *                            Hideyuki Shitara <shitara.hide@jp.fujitsu.com>
 *
@@ -47,7 +47,7 @@ struct clock_mpi {
   }
 };
 
-template<class CLOCK>    
+template<class CLOCK>
 class timer_mpi : public timer_base<CLOCK> {
 private:
   typedef timer_base<CLOCK> base_type;
@@ -108,7 +108,7 @@ public:
     MPI_Reduce(&sums_tmp_[0], &sums_ave_[0], size, MPI_DOUBLE, MPI_SUM, 0, comm_);
     MPI_Reduce(&sums_tmp_[0], &sums_min_[0], size, MPI_DOUBLE, MPI_MIN, 0, comm_);
     MPI_Reduce(&sums_tmp_[0], &sums_max_[0], size, MPI_DOUBLE, MPI_MAX, 0, comm_);
-    
+
     counts_ave_ /= np;
     sums_ave_ /= np;
 
@@ -117,7 +117,7 @@ public:
       vm_ave_[i] /= np;
     }
 #endif
-    
+
     if (rank == 0) {
       os << "timer: enabled\n"
 #ifdef ALPS_ENABLE_TIMER_TRACE
@@ -134,14 +134,14 @@ public:
          << "timer: barrier synchronization = enabled"
 #else
          << "timer: barrier synchronization = disabled"
-      
+
 #endif
          << std::endl;
 #ifdef __linux
       for (int i = 0; i < 2; ++i) {
-	os << boost::format("memuse: %4d %-55s %12d %12d %12d %12d\n")
-	  % i % vm_labels_[i]
-	  % vm_tmp_[i] % vm_ave_[i] % vm_min_[i] % vm_max_[i];
+        os << boost::format("memuse: %4d %-55s %12d %12d %12d %12d\n")
+          % i % vm_labels_[i]
+          % vm_tmp_[i] % vm_ave_[i] % vm_min_[i] % vm_max_[i];
       }
 #endif
       for (int i = 0; i < size; ++i) {
@@ -204,7 +204,7 @@ private:
   std::vector<int> barrier_;
   #endif
 };
-  
+
 } // namespace detail
 
 typedef detail::timer_mpi<detail::clock_mpi> timer_mpi;
@@ -213,7 +213,7 @@ typedef detail::timer_mpi<detail::clock_mpi> timer_mpi;
 } // namespace alps
 
 #else
-  
+
 namespace alps {
 namespace parapack {
 

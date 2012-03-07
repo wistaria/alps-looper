@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2011 by Synge Todo <wistaria@comp-phys.org>,
+* Copyright (C) 1997-2012 by Synge Todo <wistaria@comp-phys.org>,
 *                            Haruhiko Matsuo <halm@looper.t.u-tokyo.ac.jp>,
 *                            Hideyuki Shitara <shitara.hide@jp.fujitsu.com>
 *
@@ -42,6 +42,7 @@
 // #define COMMUNICATION_TEST
 // #define COMMUNICATION_DEBUG_OUTPUT
 
+#include "capacity_mpi.h"
 #include "expand.h"
 #include "prime_factorization.h"
 #include "union_find.h"
@@ -91,18 +92,31 @@ public:
     coll_.clear_range();
 #endif
   }
+  void reserve(int reserve_links, int reserve_estimates) {
+    #ifndef COMMUNICATION_TEST
+    links_.reserve(reserve_links);
+    estimates_.reserve(reserve_estimates);
+    #endif
+  }
+  void capacity_report(MPI_Comm comm, std::string const& name) const {
+    #ifndef COMMUNICATION_TEST
+    unifier_capacity capacity(links_, estimates_);
+    capacity.report(comm, name);
+    #endif
+  }
+
   static void init_timer(alps::parapack::timer_mpi& timer) {
 #ifndef COMMUNICATION_TEST
     timer.registrate(51,  "      chunk::unify:0+1:all");
     timer.registrate(52,  "       chunk::unify:0+1:chunks_out.links_.resize");
-    timer.registrate(53,  "       chunk::unify:0+1:chunks_out.prepare_links", timer.detailed);
+    timer.registrate(53,  "       chunk::unify:0+1:chunks_out.prepare_links");
     timer.registrate(54,  "       chunk::unify:0+1:unify_omp", timer.detailed);
     timer.registrate(55,  "       chunk::unify:0+1:set_root_omp", timer.detailed);
     timer.registrate(56,  "       chunk::unify:0+1:assign_cid", timer.detailed);
     timer.registrate(57,  "       chunk::unify:0+1:init-estimates_tg", timer.detailed);
-    timer.registrate(58,  "       chunk::unify:0+1:collect_estimates", timer.detailed | timer.start_barrier);
-    timer.registrate(59,  "       chunk::unify:0+1:unify_estimates", timer.detailed | timer.start_barrier);
-    timer.registrate(60,  "       chunk::unify:0+1:construct_flip", timer.detailed | timer.start_barrier);
+    timer.registrate(58,  "       chunk::unify:0+1:collect_estimates", timer.detailed);
+    timer.registrate(59,  "       chunk::unify:0+1:unify_estimates", timer.detailed);
+    timer.registrate(60,  "       chunk::unify:0+1:construct_flip", timer.detailed);
     timer.registrate(61,  "       chunk::unify:0+1:accumulate_measurements");
     timer.registrate(62,  "       chunk::unify:0+1:links_.resize");
     timer.registrate(63,  "       chunk::unify:0+1:estimates_.resize");
@@ -495,12 +509,15 @@ public:
     looper::expand(chunk_out.links_, 2 * nb);
     timer.stop(52);
     timer.start(53);
+    timer.prof_start(true);
     chunk_out.prepare_links(chunk_in0.links_, 0, 3 * ns, timer);      // for [0L|0U]
     chunk_out.prepare_links(chunk_in1.links_, 2 * ns, 1 * ns, timer); // for [1L|1U]
+    timer.prof_stop(true);
     timer.stop(53);
 
     // connect between lower and upper part
     timer.start(54);
+    timer.prof_start(true);
     #ifdef LOOPER_OPENMP
     #pragma omp parallel for schedule(static)
     #endif
@@ -512,17 +529,22 @@ public:
       #endif
       for (int v = 0; v < ns; ++v) looper::union_find::unify(chunk_out.links_, v, ns + v);
     }
+    timer.prof_stop(true);
     timer.stop(54);
     timer.start(55);
+    timer.prof_start(true);
     pack_tree(chunk_out.links_, 2 * ns);
+    timer.prof_stop(true);
     timer.stop(55);
 
     // assign cluster ID
     timer.start(56);
+    timer.prof_start(true);
     int nc = 0; // total number of clusters
     nc = chunk_out.assign_cid(0, 2 * ns, 0, timer);
     int noc = connect_periodic ? 0 : nc; // number of open clusters
     nc = chunk_out.assign_cid(2 * ns, 4 * ns, nc, timer);
+    timer.prof_stop(true);
     timer.stop(56);
 
     // unify estimates
@@ -531,6 +553,7 @@ public:
     #pragma omp parallel
     #endif
     {
+      timer.prof_start(true);
       #ifdef LOOPER_OPENMP
       std::vector<estimate_t>& estimates = estimates_tg[omp_get_thread_num()];
       #else
@@ -539,6 +562,7 @@ public:
       looper::expand(estimates, nc);
       estimate_t estimate_init;
       for (int c = 0; c < nc; ++c) estimates[c] = estimate_init;
+      timer.prof_stop(true);
     }
     timer.stop(57);
     timer.start(58);
@@ -546,7 +570,7 @@ public:
     #pragma omp parallel
     #endif
     {
-      timer.prof_start();
+      timer.prof_start(true);
       #ifdef LOOPER_OPENMP
       std::vector<estimate_t>& estimates = estimates_tg[omp_get_thread_num()];
       #else
@@ -556,20 +580,20 @@ public:
       chunk_out.collect_estimates(chunk_in1, ns, 2 * ns, 0, estimates); // 1U
       chunk_out.collect_estimates(chunk_in1, 2 * ns, 3 * ns, 2 * ns, estimates); // 1L
       chunk_out.collect_estimates(chunk_in0, 3 * ns, 4 * ns, 2 * ns, estimates); // 0U
-      timer.prof_stop();
+      timer.prof_stop(true);
     }
     timer.stop(58);
     timer.start(59);
     #ifdef LOOPER_OPENMP
-    timer.prof_start();
+    timer.prof_start(true);
     chunk_out.unify_estimates(nc, estimates_tg, timer);
-    timer.prof_stop();
+    timer.prof_stop(true);
     #endif
     timer.stop(59);
 
     // construct flip table
     timer.start(60);
-    timer.prof_start();
+    timer.prof_start(true);
     if (flip_index == 0) {
       // for 0L and 0U
       chunk_out.construct_flip(chunk_in0.links_, flip_table, map_table, noc, 0, ns, 0, timer);
@@ -584,7 +608,7 @@ public:
       std::cerr << "invalid flip_index " << flip_index << " in unify\n";
       boost::throw_exception(std::logic_error("chunk::unify"));
     }
-    timer.prof_stop();
+    timer.prof_stop(true);
     timer.stop(60);
 
     // accumulate measurements of closed clusters
@@ -947,6 +971,16 @@ public:
     chunk0_.init(ns);
     chunk1_.init(ns);
     chunk_tmp_.init(ns);
+  }
+  void reserve(int reserve_links, int reserve_estimates) {
+    chunk0_.reserve(reserve_links, reserve_estimates);
+    chunk1_.reserve(reserve_links, reserve_estimates);
+    chunk_tmp_.reserve(reserve_links, reserve_estimates);
+  }
+  void capacity_report(MPI_Comm comm, std::string const& name) const {
+    chunk0_.capacity_report(comm, name + ".chunk0_");
+    chunk1_.capacity_report(comm, name + ".chunk1_");
+    chunk_tmp_.capacity_report(comm, name + ".chunk_tmp_");
   }
   static void init_timer(alps::parapack::timer_mpi& timer) {
 #ifndef COMMUNICATION_TEST
@@ -1421,23 +1455,22 @@ public:
     int flip_; // negative if cluster is still open
   };
 
-  parallel_cluster_unifier(MPI_Comm comm) : comm_(comm) {}
+  parallel_cluster_unifier(MPI_Comm comm) : comm_(comm), reserved_(false) {}
   parallel_cluster_unifier(MPI_Comm comm, alps::parapack::timer_mpi& timer, int num_sites, std::string const& partition_str = "",
-    bool duplex = true) : comm_(comm) {
-    initialize(timer, num_sites, partition_str, duplex);
+    bool duplex = true, int reserve_links = 0, int reserve_estimates = 0)
+    : comm_(comm), reserved_(false) {
+    initialize(timer, num_sites, partition_str, duplex, reserve_links, reserve_estimates);
   }
 
-  void initialize(alps::parapack::timer_mpi& timer, int num_sites, std::string const& partition_str = "", bool duplex = true) {
+  void initialize(alps::parapack::timer_mpi& timer, int num_sites, std::string const& partition_str = "", bool duplex = true,
+    int reserve_links = 0, int reserve_estimates = 0) {
     using namespace boost::spirit;
 
-    timer.start(36); // prepare chunks
+    // prepare chunks
+    timer.start(36);
     num_sites_ = num_sites;
     num_boundaries_ = 2 * num_sites;
     duplex_ = duplex;
-    chunks_.init(num_sites_);
-    chunks_r_.init(num_sites_);
-    chunks_s_.init(num_sites_);
-
     int info;
     if ((info = MPI_Comm_size(comm_, &num_processes_)) != 0) {
       boost::throw_exception(std::runtime_error(("Error " +
@@ -1447,13 +1480,23 @@ public:
       boost::throw_exception(std::runtime_error(("Error " +
         boost::lexical_cast<std::string>(info) + " in MPI_Comm_rank")));
     }
+    if (reserve_links || reserve_estimates) {
+      reserved_ = true;
+      chunks_.reserve(reserve_links, reserve_estimates);
+      chunks_r_.reserve(reserve_links, reserve_estimates);
+      chunks_s_.reserve(reserve_links, reserve_estimates);
+    }
+    capacity_report();
+    chunks_.init(num_sites_);
+    chunks_r_.init(num_sites_);
+    chunks_s_.init(num_sites_);
     timer.stop(36);
 
     // parse partition parameter
     timer.start(37);
     extents_.clear();
     if (partition_str.empty()) {
-      extents_ = looper::prime_factorization(num_processes_); // automatic partition
+      extents_ = prime_factorization(num_processes_); // automatic partition
     } else {
       if (!parse(partition_str.c_str(),
                  (
@@ -1524,19 +1567,27 @@ public:
     timer.registrate(25, "   unify:for_stage");
     timer.registrate(26, "    unify:chunks_r_.copy_from");
     timer.registrate(27, "    unify:for_step");
-    timer.registrate(28, "     unify:chunks_s_.move_from", timer.detailed);
-    timer.registrate(29, "     unify:chunks_t::sendrecv2_2way", timer.detailed | timer.start_barrier);
-    timer.registrate(30, "     unify:chunks_t::sendrecv2_1way", timer.detailed | timer.start_barrier);
-    timer.registrate(31, "     unify:chunks_t::sendrecv1_1way", timer.detailed | timer.start_barrier);
+    timer.registrate(28, "     unify:chunks_s_.move_from");
+    timer.registrate(29, "     unify:chunks_t::sendrecv2_2way", timer.barrier);
+    timer.registrate(30, "     unify:chunks_t::sendrecv2_1way", timer.barrier);
+    timer.registrate(31, "     unify:chunks_t::sendrecv1_1way", timer.barrier);
     timer.registrate(32, "     unify:chunks_insert", timer.detailed);
     timer.registrate(33, "     unify:update_flip_table");
     timer.registrate(34, "   unify:after_final_stage");
-    timer.registrate(35, "   unify:MPI_Barrier", timer.detailed);
+    timer.registrate(35, "   unify:MPI_Barrier");
     timer.registrate(36, "  unifier:initialize:prepare_chunks");
     timer.registrate(37, "  unifier:initialize:partition");
     timer.registrate(38, "  unifier:initialize:cartesian");
     timer.registrate(39, "  unifier:initialize:working_arrays");
     chunks_t::init_timer(timer);
+  }
+
+  void capacity_report() const {
+    if (reserved_) {
+      chunks_.capacity_report(comm_, "chunks_");
+      chunks_r_.capacity_report(comm_, "chunks_r_");
+      chunks_s_.capacity_report(comm_, "chunks_s_");
+    }
   }
 
   #ifdef LOOPER_OPENMP
@@ -1775,8 +1826,8 @@ private:
 
   int num_sites_; // number of (virtual) sites
   int num_boundaries_; // number of sites at imaginary-boundaries (2 * num_sites_)
-
   bool duplex_; // use duplex communication or simplex one
+  bool reserved_;
 
   // working areas
   chunks_t chunks_;
