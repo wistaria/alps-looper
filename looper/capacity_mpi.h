@@ -64,6 +64,21 @@ public:
   vector_capacity(std::vector<std::vector<double> > const& times_g,
     std::vector<std::vector<OP> > const& operators_g,
     std::vector<std::vector<OP> > const& operators_pg,
+    std::vector<EST> const& estimates,
+    std::vector<FRAG> const& fragments) {
+    for (int i = 0; i < 4; ++i) capacity_[i] = 0;
+    for (int tid = 0; tid < omp_get_max_threads(); ++tid) {
+      capacity_[0] = std::max(capacity_[0], times_g[tid].capacity());
+      capacity_[1] = std::max(capacity_[1], operators_g[tid].capacity());
+      capacity_[1] = std::max(capacity_[1], operators_pg[tid].capacity());
+    }
+    capacity_[2] = estimates.capacity();
+    capacity_[3] = fragments.capacity();
+  }
+  template<typename OP, typename EST, typename FRAG>
+  vector_capacity(std::vector<std::vector<double> > const& times_g,
+    std::vector<std::vector<OP> > const& operators_g,
+    std::vector<std::vector<OP> > const& operators_pg,
     std::vector<std::vector<EST> > const& estimates_g,
     std::vector<FRAG> const& fragments) {
     for (int i = 0; i < 4; ++i) capacity_[i] = 0;
