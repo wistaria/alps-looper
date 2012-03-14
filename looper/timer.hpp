@@ -46,6 +46,7 @@
 #ifdef ALPS_ENABLE_TIMER
 
 #include <boost/format.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/throw_exception.hpp>
 #include <stdexcept>
 #include <sys/time.h> /* gettimeofday */
