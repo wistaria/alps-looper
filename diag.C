@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2003-2010 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 2003-2012 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -67,7 +67,7 @@ void add_to_matrix(
   int dim = basis_set.size();
   int ds = basis_set.basis().get_site_basis(s).num_states();
 
-  boost::multi_array<value_type, 2>
+  alps::multi_array<value_type, 2>
     site_matrix(get_matrix(value_type(), hd.site_term(t), basis.site_basis(t), params));
 
   for (int i = 0; i < dim; ++i) {
@@ -105,7 +105,7 @@ void add_to_matrix(
   int ds0 = basis_set.basis().get_site_basis(s0).num_states();
   int ds1 = basis_set.basis().get_site_basis(s1).num_states();
 
-  boost::multi_array<value_type, 4>
+  alps::multi_array<value_type, 4>
     bond_matrix(alps::get_matrix(
       value_type(), hd.bond_term(t),
       basis.site_basis(st0), basis.site_basis(st1),
@@ -143,7 +143,7 @@ void add_to_diagonal_matrix(
   int dim = basis_set.size();
   int ds = basis_set.basis().get_site_basis(s).num_states();
 
-  boost::multi_array<value_type, 2>
+  alps::multi_array<value_type, 2>
     site_matrix(get_matrix(value_type(), term, basis.site_basis(t), params));
   for (int is = 0; is < ds; ++is)
     for (int js = 0; js < ds; ++js)
