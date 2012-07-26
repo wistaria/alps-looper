@@ -133,6 +133,7 @@ endif(LOOPER_ENABLE_SSE_QWL)
 
 add_executable(loop ${LOOP_SRC})
 target_link_libraries(loop ${ALPS_LIBRARIES})
+install(TARGETS loop RUNTIME DESTINATION bin RENAME loop_parallel)
 
 ######################################################################
 # test
