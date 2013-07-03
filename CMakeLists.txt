@@ -3,7 +3,7 @@
 #      (See http://www.boost.org/LICENSE_1_0.txt)
 
 cmake_minimum_required(VERSION 2.8.0 FATAL_ERROR)
-project(alps-looper-parallel)
+project(alps-looper-parallel NONE)
 
 ######################################################################
 # options
@@ -97,12 +97,15 @@ configure_file(looper/version.h.in ${PROJECT_BINARY_DIR}/looper/version.h)
 # find ALPS Library
 ######################################################################
 
-find_package(ALPS REQUIRED NO_SYSTEM_ENVIRONMENT_PATH)
-message(STATUS "ALPS version: ${ALPS_VERSION}")
+find_package(ALPS REQUIRED PATHS ${ALPS_ROOT_DIR} $ENV{ALPS_HOME} NO_SYSTEM_ENVIRONMENT_PATH)
+message(STATUS "Found ALPS: ${ALPS_ROOT_DIR} (revision: ${ALPS_VERSION})")
 include(${ALPS_USE_FILE})
 if(NOT LAPACK_FOUND)
   message(FATAL "loop will not be built since lapack library is not found")
 endif(NOT LAPACK_FOUND)
+
+# enable C++ compilers
+enable_language(CXX)
 
 ######################################################################
 # applications
