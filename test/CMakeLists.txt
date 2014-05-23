@@ -1,7 +1,7 @@
 set(TESTS alternating_tensor bond_matrix compatibility edge_type
     filtered_graph find_bridge generate_01 gesvd lattice llsp
     model_parameter omp_chunksize padding parse_vector permutation poisson_distribution
-    postorder prime_factorization random_choice sign site_matrix spinmodel_helper syev
+    postorder prime_factorization sign site_matrix spinmodel_helper syev
     temperature virtual_lattice weight)
 
 foreach(name ${TESTS})

@@ -32,13 +32,13 @@
 
 #include "graph.h"
 #include "location_impl.h"
-#include "random_choice.h"
 #ifdef HAVE_PARAPACK_13
 # include <alps/math.hpp>
 #else
 # include <alps/numeric/is_nonzero.hpp>
 # include <alps/numeric/is_zero.hpp>
 #endif
+#include <alps/random/random_choice.hpp>
 #include <boost/array.hpp>
 #include <boost/throw_exception.hpp>
 #include <boost/tuple/tuple.hpp>
@@ -695,7 +695,7 @@ public:
   double weight(int tid) const { return weight_[tid]; }
 
 private:
-  std::vector<random_choice_walker_d<> > dist_graph_;
+  std::vector<alps::random_choice<double> > dist_graph_;
   std::vector<double> weight_;
   std::vector<std::vector<local_graph_t> > graph_;
   std::vector<typename bond_graph_t::diagonal_choice_helper> diag_;
