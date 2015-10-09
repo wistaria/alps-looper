@@ -1,0 +1,18 @@
+Diagonalization of random real symmetric matrix
+n: dimension of matrix : 128
+r: seed for RNG        : 2837
+initialization... done
+diagonalization... done
+selected eigenvalues:
+    e(0)	= -6.30139
+    e(12)	= -4.59234
+    e(24)	= -3.40221
+    e(36)	= -2.17665
+    e(48)	= -1.0839
+    e(60)	= -0.236843
+    e(72)	= 0.601455
+    e(84)	= 1.56937
+    e(96)	= 2.61426
+    e(108)	= 3.80728
+    e(120)	= 5.31118
+    e(127)	= 6.19978

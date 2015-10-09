@@ -1,0 +1,12 @@
+1 can be factored: 1 = 1 = 1
+2 can be factored: 2 = 2 = 2
+3 can be factored: 3 = 3 = 3
+5 can be factored: 5 = 5 = 5
+8 can be factored: 8 = 2:2:2 = 8
+10 can be factored: 10 = 2:5 = 10
+15 can be factored: 15 = 3:5 = 15
+17 can not be factored: 17 < 2:2:2:2:2 = 32
+85 can not be factored: 85 < 2:2:2:2:2:5 = 160
+1710 can not be factored: 1710 < 2:2:2:2:2:2:3:3:5 = 2880
+8192 can be factored: 8192 = 2:2:2:2:2:2:2:2:2:2:2:2:2 = 8192
+10240 can be factored: 10240 = 2:2:2:2:2:2:2:2:2:2:2:5 = 10240

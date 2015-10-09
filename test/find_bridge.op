@@ -1,0 +1,42 @@
+add edge: 2 -- 11
+add edge: 1 -- 1
+add edge: 8 -- 1
+add edge: 5 -- 0
+add edge: 7 -- 1
+add edge: 9 -- 1
+add edge: 8 -- 8
+add edge: 6 -- 4
+add edge: 11 -- 7
+add edge: 8 -- 2
+add edge: 1 -- 6
+add edge: 6 -- 3
+add edge: 7 -- 3
+add edge: 7 -- 6
+add edge: 6 -- 5
+add edge: 10 -- 0
+tree edge (2 -- 11)
+tree edge (8 -- 1)
+tree edge (5 -- 0)
+tree edge (9 -- 1)
+tree edge (6 -- 4)
+tree edge (11 -- 7)
+tree edge (8 -- 2)
+tree edge (1 -- 6)
+tree edge (7 -- 3)
+tree edge (6 -- 5)
+tree edge (10 -- 0)
+vertices in postorder:  4 3 7 11 2 8 9 1 6 5 10 0
+finding all the bridges in a naive method (O(N^2)):
+  find a bridge (5 -- 0)
+  find a bridge (9 -- 1)
+  find a bridge (6 -- 4)
+  find a bridge (6 -- 5)
+  find a bridge (10 -- 0)
+  found 5 bridge(s)
+finding all the bridges by find_bridge() (O(N)):
+  find a bridge (1 -- 9)
+  find a bridge (6 -- 4)
+  find a bridge (5 -- 6)
+  find a bridge (0 -- 5)
+  find a bridge (0 -- 10)
+  found 5 bridge(s)

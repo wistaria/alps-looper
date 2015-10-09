@@ -1,0 +1,963 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.8.1: http://docutils.sourceforge.net/" />
+<title></title>
+<style type="text/css">
+
+/*
+:Author: David Goodger (goodger@python.org)
+:Id: $Id: html4css1.css 7056 2011-06-17 10:50:48Z milde $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+
+See http://docutils.sf.net/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+object[type="image/svg+xml"], object[type="application/x-shockwave-flash"] {
+  overflow: hidden;
+}
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin: 0 0 0.5em 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left, .figure.align-left, object.align-left {
+  clear: left ;
+  float: left ;
+  margin-right: 1em }
+
+img.align-right, .figure.align-right, object.align-right {
+  clear: right ;
+  float: right ;
+  margin-left: 1em }
+
+img.align-center, .figure.align-center, object.align-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.align-left {
+  text-align: left }
+
+.align-center {
+  clear: both ;
+  text-align: center }
+
+.align-right {
+  text-align: right }
+
+/* reset inner alignment in figures */
+div.align-right {
+  text-align: inherit }
+
+/* div.align-center * { */
+/*   text-align: left } */
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font: inherit }
+
+pre.literal-block, pre.doctest-block, pre.math {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+</head>
+<body>
+<div class="document">
+
+
+<!-- -*- mode: rst -*- -->
+<div class="section" id="alps-looper">
+<h1>ALPS/looper</h1>
+<p>ALPS/looper は <a class="reference external" href="http://alps.comp-phys.org/">ALPSプロジェクト</a> のアプリケーションの一つとして開発されている. ALPS/looper は Fortran 90 で書かれた量子モンテカルロ法のライブラリ <a class="reference external" href="http://wistaria.comp-phys.org/looper/">Looperライブラリ バージョン2</a> の後継として開発された.</p>
+<p>ALPS/looper は, 経路積分あるいはSSE表示でマルチクラスタ量子モンテカルロアルゴリズムを行うプログラムである. 任意の格子状の任意のスピン量子数 <em>S</em> からなるスピン系を扱うことができる. サポートしている相互作用は, 以下の通りである.</p>
+<ul class="simple">
+<li>XXZ型の2体相互作用 (イジング, ハイゼンベルグ, XY)</li>
+<li>XYZ型の2体相互作用 (要再コンパイル)</li>
+<li><em>S</em> &gt; 1/2 における単イオン異方性 (D項)</li>
+<li>縦磁場</li>
+<li>横磁場</li>
+</ul>
+<p>ALPS/looper は, 量子クラスタアルゴリズムにおける「フリージンググラフ」を扱うことができるので, 容易軸 (イジング) 型の異方性をもつ模型も非常に効率良くシミュレーションを行うことができる.</p>
+<p>バージョン 4 からは, MPI と OpenMP を用いたハイブリッド並列化されたコードを含んでいる. 並列版コードは, 京速コンピュータ「京」, T2K オープンスパコン, SGI Altix など最新のスーパーコンピュータの上でテストされている.</p>
+<p>ALPS/looper は, <a class="reference external" href="http://alps.comp-phys.org/">ALPS</a> の一部として配布されている. テストプログラムなどを含む ALPS/looper の完全版は <a class="reference external" href="http://wistaria.comp-phys.org/alps-looper/">http://wistaria.comp-phys.org/alps-looper/</a> から入手できる.</p>
+<div class="section" id="id1">
+<h2>履歴</h2>
+<ul class="simple">
+<li>2012年3月1日: ALPS/looper バージョン 4.0a1 (アルファ版)</li>
+<li>2012年3月5日: ALPS/looper バージョン 4.0.0 公開</li>
+</ul>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="id2">
+<h1>インストール</h1>
+<p>以下のインストールに関する説明は, ALPS/looper 完全版についてのものである.</p>
+<div class="section" id="id3">
+<h2>必要環境</h2>
+<ul class="simple">
+<li><a class="reference external" href="http://www.boost.org/">Boost C++ ライブラリ</a> -- バージョン 1.48.0 以降</li>
+<li><a class="reference external" href="http://alps.comp-phys.org/">ALPS</a> -- バージョン 2.0 以降</li>
+<li><a class="reference external" href="http://www.netlib.org/lapack/">LAPACK ライブラリ</a></li>
+</ul>
+</div>
+<div class="section" id="id4">
+<h2>ダウンロード</h2>
+<p><a class="reference external" href="http://wistaria.comp-phys.org/archive/alps-looper/">http://wistaria.comp-phys.org/archive/alps-looper/</a></p>
+</div>
+<div class="section" id="id5">
+<h2>コンパイル</h2>
+<p>以下 <tt class="docutils literal">$ALPS_HOME</tt> は <a class="reference external" href="http://alps.comp-phys.org/">ALPS</a> がインストールされているディレクトリ, <tt class="docutils literal">$LOOPER_SRC_DIR</tt> は ALPS/looper のソースコードが置いてあるディレクトリとする.</p>
+<pre class="literal-block">
+cmake -DCMAKE_INSTALL_PREFIX=$ALPS_HOME $LOOPER_SRC_DIR
+make
+</pre>
+<p>CMake には以下のオプションを指定できる.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="25%" />
+<col width="18%" />
+<col width="57%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><strong>オプション名</strong></td>
+<td><strong>デフォルト値</strong></td>
+<td><strong>説明</strong></td>
+</tr>
+<tr><td>LOOPER_BUILD_TESTS</td>
+<td>ON</td>
+<td>Build looper tests</td>
+</tr>
+<tr><td>LOOPER_BUILD_EXTRAS</td>
+<td>OFF</td>
+<td>Build in extras subdirectory</td>
+</tr>
+<tr><td>LOOPER_ENABLE_DIAG</td>
+<td>ON</td>
+<td>Enable exact diagonalization method</td>
+</tr>
+<tr><td>LOOPER_ENABLE_ISING</td>
+<td>ON</td>
+<td>Enable Swendsen-Wang algorithm for classical Ising model</td>
+</tr>
+<tr><td>LOOPER_ENABLE_PI</td>
+<td>ON</td>
+<td>Enable loop algorithm in path integral reprentation</td>
+</tr>
+<tr><td>LOOPER_ENABLE_SSE</td>
+<td>ON</td>
+<td>Enable loop algorithm in high-temperature expansion representation</td>
+</tr>
+<tr><td>LOOPER_ENABLE_OPENMP</td>
+<td>ON</td>
+<td>OpenMP (hybrid parallelization) support</td>
+</tr>
+<tr><td>LOOPER_ENABLE_TIMER</td>
+<td>OFF</td>
+<td>Perform time measurement of each section</td>
+</tr>
+<tr><td>LOOPER_TIMER_TRACE</td>
+<td>OFF</td>
+<td>Turn on debug trace output of timer</td>
+</tr>
+<tr><td>LOOPER_TIMER_DETAILED</td>
+<td>OFF</td>
+<td>Turn on detailed timer report</td>
+</tr>
+</tbody>
+</table>
+<p>注: OpenMP (とハイブリッド並列化) は, ALPS ライブラリが ALPS_ENABLE_OPENMP=ON とALPS_ENABLE_OPENMP_WORKER=ON でコンパイルされている場合にのみ有効となる.</p>
+</div>
+<div class="section" id="id6">
+<h2>テスト実行</h2>
+<pre class="literal-block">
+ctest
+</pre>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="id7">
+<h1>シミュレーションの実行</h1>
+<div class="section" id="id8">
+<h2>コマンドラインオプション</h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="14%" />
+<col width="63%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><strong>オプション</strong></td>
+<td><strong>デフォルト値</strong></td>
+<td><strong>説明</strong></td>
+</tr>
+<tr><td>-h [ --help ]</td>
+<td>&nbsp;</td>
+<td>produce help message</td>
+</tr>
+<tr><td>-l [ --license ]</td>
+<td>&nbsp;</td>
+<td>print license conditions</td>
+</tr>
+<tr><td>--auto-evaluate</td>
+<td>true</td>
+<td>evaluate observables upon halting [default = true]</td>
+</tr>
+<tr><td>--check-parameter</td>
+<td>&nbsp;</td>
+<td>perform parameter checking</td>
+</tr>
+<tr><td>--check-interval arg</td>
+<td>100</td>
+<td>time between internal status check [unit = millisec; default = 100ms]</td>
+</tr>
+<tr><td>--checkpoint-interval arg</td>
+<td>3600</td>
+<td>time between checkpointing [unit = sec; default = 3600s]</td>
+</tr>
+<tr><td>--evaluate</td>
+<td>&nbsp;</td>
+<td>only perform evaluation</td>
+</tr>
+<tr><td>--mpi</td>
+<td>&nbsp;</td>
+<td>run in parallel using MPI</td>
+</tr>
+<tr><td>--Nmin</td>
+<td>&nbsp;</td>
+<td>[obsolete]</td>
+</tr>
+<tr><td>--Nmax</td>
+<td>&nbsp;</td>
+<td>[obsolete]</td>
+</tr>
+<tr><td>--no-evaluate</td>
+<td>&nbsp;</td>
+<td>prevent evaluating observables upon halting</td>
+</tr>
+<tr><td>--report-interval arg</td>
+<td>600</td>
+<td>time between progress report of clones [unit = sec; default = 600s]</td>
+</tr>
+<tr><td>-T [ --time-limit ] arg</td>
+<td>unlimited</td>
+<td>time limit for the simulation [unit = sec; defulat = no time limit]</td>
+</tr>
+<tr><td>--Tmin</td>
+<td>&nbsp;</td>
+<td>[obsolete]</td>
+</tr>
+<tr><td>--Tmax</td>
+<td>&nbsp;</td>
+<td>[obsolete]</td>
+</tr>
+<tr><td>-p [ --threads-per-clone ] arg</td>
+<td>1</td>
+<td>number of threads for each clone [default = 1]</td>
+</tr>
+<tr><td>-r [ --total-threads ] arg</td>
+<td># of MPI processes</td>
+<td>total number of threads [integer or 'auto'; default = total number of processes]</td>
+</tr>
+<tr><td>--input-file arg</td>
+<td>&nbsp;</td>
+<td>input master XML files</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id9">
+<h2>パラメータ</h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="12%" />
+<col width="76%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><strong>パラメータ名</strong></td>
+<td><strong>デフォルト値</strong></td>
+<td><strong>説明</strong></td>
+</tr>
+<tr><td><tt class="docutils literal">NUM_CLONES</tt></td>
+<td>1</td>
+<td>number of clones</td>
+</tr>
+<tr><td><tt class="docutils literal">LATTICE_LIBRARY</tt></td>
+<td><tt class="docutils literal">$PREFIX/lib/xml/lattices.xml</tt></td>
+<td>path to a file containing lattice descriptions</td>
+</tr>
+<tr><td><tt class="docutils literal">LATTICE</tt></td>
+<td><em>none</em></td>
+<td>name of the lattice</td>
+</tr>
+<tr><td><tt class="docutils literal">MODEL_LIBRARY</tt></td>
+<td><tt class="docutils literal">$PREFIX/lib/xml/models.xml</tt></td>
+<td>path to a file containing model descriptions</td>
+</tr>
+<tr><td><tt class="docutils literal">MODEL</tt></td>
+<td><em>none</em></td>
+<td>name of the model</td>
+</tr>
+<tr><td><tt class="docutils literal">ALGORITHM</tt></td>
+<td><em>none</em></td>
+<td>type of algorithm (<tt class="docutils literal">&quot;loop&quot;</tt>, <tt class="docutils literal">&quot;loop; path integral&quot;</tt>, <tt class="docutils literal">&quot;loop; sse&quot;</tt>, <tt class="docutils literal">&quot;ising&quot;</tt>, or <tt class="docutils literal">&quot;diagonalization&quot;</tt>);</td>
+</tr>
+<tr><td><tt class="docutils literal">T</tt></td>
+<td><em>none</em></td>
+<td>temperature</td>
+</tr>
+<tr><td><tt class="docutils literal">T_START_#</tt></td>
+<td><em>undefined</em></td>
+<td>[optional] see <a class="reference internal" href="#id10">温度アニーリング</a>.</td>
+</tr>
+<tr><td><tt class="docutils literal">T_DURATION_#</tt></td>
+<td><em>undefined</em></td>
+<td>[optional] see <a class="reference internal" href="#id10">温度アニーリング</a>.</td>
+</tr>
+<tr><td><tt class="docutils literal">SWEEPS</tt></td>
+<td>65536</td>
+<td>Monte Carlo steps after thermalization</td>
+</tr>
+<tr><td><tt class="docutils literal">THERMALIZATION</tt></td>
+<td>8192</td>
+<td>Monte Carlo steps for thermalization</td>
+</tr>
+<tr><td><tt class="docutils literal">USE_SITE_INDICES_AS_TYPES</tt></td>
+<td>false</td>
+<td>if true, all sites will have distinct site types, which are identical to site indices (starting from 0).</td>
+</tr>
+<tr><td><tt class="docutils literal">USE_BOND_INDICES_AS_TYPES</tt></td>
+<td>false</td>
+<td>if true, all bonds will have distinct bond types, which are identical to bond indices (starting from 0).</td>
+</tr>
+<tr><td><tt class="docutils literal">PARTITION</tt></td>
+<td><em>none</em></td>
+<td>[parallel] list of number of processes (separated by <em>colons</em>) used in each stage of cluster unification (e.g. 2:3:3:2).  The product of all the factors should be equal to the total number of processes for each clone.</td>
+</tr>
+<tr><td><tt class="docutils literal">DUPLEX</tt></td>
+<td>true</td>
+<td>[parallel] if true, bidirectional communication is enabled.</td>
+</tr>
+<tr><td><tt class="docutils literal">MEASURE[Correlations]</tt></td>
+<td>false</td>
+<td>if true, correlation function will be calculated</td>
+</tr>
+<tr><td><tt class="docutils literal">MEASURE[Green Function]</tt></td>
+<td>false</td>
+<td>if true, Green's function will be calculated</td>
+</tr>
+<tr><td><tt class="docutils literal">INITIAL_SITE</tt></td>
+<td><em>undefined</em></td>
+<td>initical site from which correlation function and Green's function are measured.  If not defined, correlation between all possible site pairs will be calculated</td>
+</tr>
+<tr><td><tt class="docutils literal">MEASURE[Local Susceptibility]</tt></td>
+<td>false</td>
+<td>if true, local suscepbility and local magnetization will be calculated</td>
+</tr>
+<tr><td><tt class="docutils literal">MEASURE[Structure Factor]</tt></td>
+<td>false</td>
+<td>if true, structure factor for all possible k-values will be calculated</td>
+</tr>
+<tr><td><tt class="docutils literal">DISABLE_IMPROVED_ESTIMATOR</tt></td>
+<td>false</td>
+<td>[optional] use normal (i.e. unimproved) estimator for measurements (will be set to true automatically in the presence of longitudinal magnetic field)</td>
+</tr>
+<tr><td><tt class="docutils literal">FORCE_SCATTER</tt></td>
+<td>0</td>
+<td>[optional] minimum probability for forward scattering graph (will be set to 0.1 automatically for classically frustrated models in order to ensure the ergodicity</td>
+</tr>
+<tr><td><tt class="docutils literal">LOOPER_DEBUG[MODEL OUTPUT]</tt></td>
+<td><em>undefined</em></td>
+<td>if defined, all the coupling constants will be printed out to <em>standard output</em> (<tt class="docutils literal">cout</tt>) before calculation.  If the value is <tt class="docutils literal">cerr</tt>, the output will be made for <em>standard error</em> (<tt class="docutils literal">cerr</tt>).</td>
+</tr>
+</tbody>
+</table>
+<p>注: <tt class="docutils literal">PARTITION</tt> が指定されない場合には, クローンあたりの MPI プロセス数は, 2, 3, 5, 7, 11, 13 で因数分解されなければならない.</p>
+<p>上記に加えて, 格子や模型の指定に追加でパラメータが必要となる場合がある (例 <tt class="docutils literal">L</tt>, <tt class="docutils literal">W</tt>).</p>
+</div>
+<div class="section" id="id10">
+<h2>温度アニーリング</h2>
+<p>競合する相互作用をもつ模型などでは, 平衡化時間が非常に長くなる. そのような系では, 平衡化ステップにおいて, ゆっくりと温度を下げることが有効となる場合がある. そのような温度アニーリングのスケジュールは, パラメータ <tt class="docutils literal">T_START_#</tt> と <tt class="docutils literal">T_DURATION_#</tt> (<tt class="docutils literal"># = 0, 1, <span class="pre">2,...</span></tt>) を使って指定することができる. パラメータ <tt class="docutils literal"><span class="pre">T_START_#``は</span> ``#</tt> 番目のブロックの最初の温度を, <tt class="docutils literal">T_DURATION_#</tt> は <tt class="docutils literal">#</tt> 番目のブロックの長さ(モンテカルロステップ)を表わす.</p>
+<img alt="anneal.jpg" src="anneal.jpg" />
+<p>上図の例の温度スケジュールを行うには, 以下のパラメータを指定すれば良い.</p>
+<pre class="literal-block">
+T_START_0 = 2.0;
+T_DURATION_0 = 100;
+T_START_1 = 1.5;
+T_DURATION_1 = 400;
+THERMALIZATION = 1000;
+T = 1.2;
+</pre>
+<p>なお, <tt class="docutils literal">T_DURATION_#</tt> の和は <tt class="docutils literal">THERMALIZATION</tt> と同じあるいはそれ以下でなければならない.</p>
+</div>
+<div class="section" id="id11">
+<h2>測定値</h2>
+<p><tt class="docutils literal">loop</tt> プログラムでは, 以下の物理量が測定される</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="78%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><strong>物理量名</strong></td>
+<td><strong>説明</strong></td>
+</tr>
+<tr><td>Energy</td>
+<td>total energy</td>
+</tr>
+<tr><td>Energy Density</td>
+<td>energy per spin</td>
+</tr>
+<tr><td>Energy^2</td>
+<td>square of total energy</td>
+</tr>
+<tr><td>Specific Heat</td>
+<td>specific heat</td>
+</tr>
+<tr><td>Stiffness</td>
+<td>stiffness constant</td>
+</tr>
+<tr><td>Magnetization</td>
+<td>total uniform magnetization</td>
+</tr>
+<tr><td>Magnetization^2</td>
+<td>square of total uniform magnetization</td>
+</tr>
+<tr><td>Magnetization^4</td>
+<td>4th power of total uniform magnetization</td>
+</tr>
+<tr><td>Binder Ratio of Magnetization</td>
+<td>Binder ratio of uniform magnetization</td>
+</tr>
+<tr><td>Magnetization Density</td>
+<td>uniform magnetization per spin</td>
+</tr>
+<tr><td>Magnetization Density^2</td>
+<td>square of uniform magnetization per spin</td>
+</tr>
+<tr><td>Magnetization Density^4</td>
+<td>4th power of uniform magnetization per spin</td>
+</tr>
+<tr><td>Susceptibility</td>
+<td>uniform susceptibility</td>
+</tr>
+<tr><td>Staggered Magnetization</td>
+<td>total staggered magnetization <a class="footnote-reference" href="#id57" id="id12">[1]</a></td>
+</tr>
+<tr><td>Staggered Magnetization^2</td>
+<td>square of total staggered magnetization <a class="footnote-reference" href="#id57" id="id13">[1]</a></td>
+</tr>
+<tr><td>Staggered Magnetization^4</td>
+<td>4th power of total staggered magnetization <a class="footnote-reference" href="#id57" id="id14">[1]</a></td>
+</tr>
+<tr><td>Staggered Magnetization Density</td>
+<td>staggered magnetization per spin <a class="footnote-reference" href="#id57" id="id15">[1]</a></td>
+</tr>
+<tr><td>Staggered Magnetization Density^2</td>
+<td>square of staggered magnetization per spin <a class="footnote-reference" href="#id57" id="id16">[1]</a></td>
+</tr>
+<tr><td>Staggered Magnetization Density^4</td>
+<td>4th power of staggered magnetization per spin <a class="footnote-reference" href="#id57" id="id17">[1]</a></td>
+</tr>
+<tr><td>Staggered Susceptibility</td>
+<td>staggered susceptibility <a class="footnote-reference" href="#id57" id="id18">[1]</a></td>
+</tr>
+<tr><td>Generalized Magnetization</td>
+<td>total generalized magnetization <a class="footnote-reference" href="#id58" id="id19">[2]</a></td>
+</tr>
+<tr><td>Generalized Magnetization^2</td>
+<td>square of total generalized magnetization <a class="footnote-reference" href="#id58" id="id20">[2]</a></td>
+</tr>
+<tr><td>Generalized Magnetization^4</td>
+<td>4th power of total generalized magnetization <a class="footnote-reference" href="#id58" id="id21">[2]</a></td>
+</tr>
+<tr><td>Generalized Binder Ratio of Magnetization</td>
+<td>Binder ratio of generalized magnetization <a class="footnote-reference" href="#id58" id="id22">[2]</a></td>
+</tr>
+<tr><td>Generalized Magnetization Density</td>
+<td>generalized magnetization per spin <a class="footnote-reference" href="#id58" id="id23">[2]</a></td>
+</tr>
+<tr><td>Generalized Magnetization Density^2</td>
+<td>square of generalized magnetization per spin <a class="footnote-reference" href="#id58" id="id24">[2]</a></td>
+</tr>
+<tr><td>Generalized Magnetization Density^4</td>
+<td>4th power of generalized magnetization per spin <a class="footnote-reference" href="#id58" id="id25">[2]</a></td>
+</tr>
+<tr><td>Generalized Susceptibility</td>
+<td>generalized susceptibility <a class="footnote-reference" href="#id58" id="id26">[2]</a></td>
+</tr>
+<tr><td>Generalized Staggered Magnetization</td>
+<td>total generalized staggered magnetization <a class="footnote-reference" href="#id57" id="id27">[1]</a> <a class="footnote-reference" href="#id58" id="id28">[2]</a></td>
+</tr>
+<tr><td>Generalized Staggered Magnetization^2</td>
+<td>square of total generalized staggered magnetization <a class="footnote-reference" href="#id57" id="id29">[1]</a> <a class="footnote-reference" href="#id58" id="id30">[2]</a></td>
+</tr>
+<tr><td>Generalized Staggered Magnetization^4</td>
+<td>4th power of total generalized staggered magnetization <a class="footnote-reference" href="#id57" id="id31">[1]</a> <a class="footnote-reference" href="#id58" id="id32">[2]</a></td>
+</tr>
+<tr><td>Generalized Staggered Magnetization Density</td>
+<td>generalized staggered magnetization per spin <a class="footnote-reference" href="#id57" id="id33">[1]</a> <a class="footnote-reference" href="#id58" id="id34">[2]</a></td>
+</tr>
+<tr><td>Generalized Staggered Magnetization Density^2</td>
+<td>square of generalized staggered magnetization per spin <a class="footnote-reference" href="#id57" id="id35">[1]</a> <a class="footnote-reference" href="#id58" id="id36">[2]</a></td>
+</tr>
+<tr><td>Generalized Staggered Magnetization Density^4</td>
+<td>4th power of generalized staggered magnetization per spin <a class="footnote-reference" href="#id57" id="id37">[1]</a> <a class="footnote-reference" href="#id58" id="id38">[2]</a></td>
+</tr>
+<tr><td>Generalized Staggered Susceptibility</td>
+<td>generalized staggered susceptibility <a class="footnote-reference" href="#id57" id="id39">[1]</a> <a class="footnote-reference" href="#id58" id="id40">[2]</a></td>
+</tr>
+<tr><td>Spin Correlations</td>
+<td>correlation functions <a class="footnote-reference" href="#id59" id="id41">[3]</a></td>
+</tr>
+<tr><td>Staggered Spin Correlations</td>
+<td>staggered correlation functions <a class="footnote-reference" href="#id57" id="id42">[1]</a> <a class="footnote-reference" href="#id59" id="id43">[3]</a></td>
+</tr>
+<tr><td>Generalized Spin Correlations</td>
+<td>generalized correlation functions <a class="footnote-reference" href="#id58" id="id44">[2]</a> <a class="footnote-reference" href="#id59" id="id45">[3]</a></td>
+</tr>
+<tr><td>Generalized Staggered Spin Correlations</td>
+<td>generalized staggered correlation function <a class="footnote-reference" href="#id57" id="id46">[1]</a> <a class="footnote-reference" href="#id58" id="id47">[2]</a> <a class="footnote-reference" href="#id59" id="id48">[3]</a></td>
+</tr>
+<tr><td>Green's Function</td>
+<td>Green's function <a class="footnote-reference" href="#id58" id="id49">[2]</a> <a class="footnote-reference" href="#id60" id="id50">[4]</a></td>
+</tr>
+<tr><td>Structure Factor</td>
+<td>static structure factor <a class="footnote-reference" href="#id61" id="id51">[5]</a></td>
+</tr>
+<tr><td>Local Magnetization</td>
+<td>local magnetization <a class="footnote-reference" href="#id62" id="id52">[6]</a></td>
+</tr>
+<tr><td>Local Susceptibility</td>
+<td>local susceptibility (i.e., response of uniform magnetization against local magnetic field or that of local magnetization against uniform magnetic field) <a class="footnote-reference" href="#id62" id="id53">[6]</a></td>
+</tr>
+<tr><td>Staggered Local Susceptibility</td>
+<td>statggered local susceptibility (i.e., response of staggered magnetization against local magnetic field or that of local magnetization against staggered magnetic field) <a class="footnote-reference" href="#id57" id="id54">[1]</a> <a class="footnote-reference" href="#id62" id="id55">[6]</a></td>
+</tr>
+<tr><td>Local Field Susceptibility</td>
+<td>local-field susceptibility (i.e., response of local magnetization against local magnetic field) <a class="footnote-reference" href="#id62" id="id56">[6]</a></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id57" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id12">1</a>, <a class="fn-backref" href="#id13">2</a>, <a class="fn-backref" href="#id14">3</a>, <a class="fn-backref" href="#id15">4</a>, <a class="fn-backref" href="#id16">5</a>, <a class="fn-backref" href="#id17">6</a>, <a class="fn-backref" href="#id18">7</a>, <a class="fn-backref" href="#id27">8</a>, <a class="fn-backref" href="#id29">9</a>, <a class="fn-backref" href="#id31">10</a>, <a class="fn-backref" href="#id33">11</a>, <a class="fn-backref" href="#id35">12</a>, <a class="fn-backref" href="#id37">13</a>, <a class="fn-backref" href="#id39">14</a>, <a class="fn-backref" href="#id42">15</a>, <a class="fn-backref" href="#id46">16</a>, <a class="fn-backref" href="#id54">17</a>)</em> 二部格子の時のみ測定が行われる</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id58" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[2]</td><td><em>(<a class="fn-backref" href="#id19">1</a>, <a class="fn-backref" href="#id20">2</a>, <a class="fn-backref" href="#id21">3</a>, <a class="fn-backref" href="#id22">4</a>, <a class="fn-backref" href="#id23">5</a>, <a class="fn-backref" href="#id24">6</a>, <a class="fn-backref" href="#id25">7</a>, <a class="fn-backref" href="#id26">8</a>, <a class="fn-backref" href="#id28">9</a>, <a class="fn-backref" href="#id30">10</a>, <a class="fn-backref" href="#id32">11</a>, <a class="fn-backref" href="#id34">12</a>, <a class="fn-backref" href="#id36">13</a>, <a class="fn-backref" href="#id38">14</a>, <a class="fn-backref" href="#id40">15</a>, <a class="fn-backref" href="#id44">16</a>, <a class="fn-backref" href="#id47">17</a>, <a class="fn-backref" href="#id49">18</a>)</em> <tt class="docutils literal">improved estimator</tt> でのみ測定が行われる</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id59" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[3]</td><td><em>(<a class="fn-backref" href="#id41">1</a>, <a class="fn-backref" href="#id43">2</a>, <a class="fn-backref" href="#id45">3</a>, <a class="fn-backref" href="#id48">4</a>)</em> パラメータ <tt class="docutils literal">MEASURE[Correlations]</tt> を <tt class="docutils literal">true</tt> に設定する</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id60" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id50">[4]</a></td><td>パラメータ <tt class="docutils literal">MEASURE[Green Function]</tt> を <tt class="docutils literal">true</tt> に設定する</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id61" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id51">[5]</a></td><td>パラメータ <tt class="docutils literal">MEASURE[Structure Factor]</tt> を <tt class="docutils literal">true</tt> に設定する</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id62" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[6]</td><td><em>(<a class="fn-backref" href="#id52">1</a>, <a class="fn-backref" href="#id53">2</a>, <a class="fn-backref" href="#id55">3</a>, <a class="fn-backref" href="#id56">4</a>)</em> パラメータ <tt class="docutils literal">MEASURE[Local Susceptiblity]</tt> を <tt class="docutils literal">true</tt> に設定する</td></tr>
+</tbody>
+</table>
+<p><tt class="docutils literal">uniform generalized susceptibility</tt> は最も強い相関に対する応答関数である. それに対するスタッガードな応答関数が, <tt class="docutils literal">staggered generalized susceptibility</tt> である. それぞれの模型における, 通常の帯磁率と一般化帯磁率の対応は以下の通りである.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="39%" />
+<col width="25%" />
+<col width="35%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><strong>模型</strong></td>
+<td><strong>Generalized Susceptibility</strong></td>
+<td><strong>Generalized Staggered Susceptibility</strong></td>
+</tr>
+<tr><td>Ferromagnetic model with Ising anisotropy (in the <em>Z</em> axis)</td>
+<td>uniform <em>Z-Z</em> susceptibility</td>
+<td>staggered <em>Z-Z</em> susceptibility&lt;br&gt;</td>
+</tr>
+<tr><td>Ferromagnetic model (Heisenberg point)</td>
+<td>uniform <em>Z-Z</em> (or <em>X-X</em>) susceptibility</td>
+<td>staggered <em>Z-Z</em> (or <em>X-X</em>) susceptibility</td>
+</tr>
+<tr><td>Ferromagnetic model with XY anisotropy (in the <em>XY</em> plane)</td>
+<td>uniform <em>X-X</em> susceptibility</td>
+<td>staggered <em>X-X</em> susceptibility</td>
+</tr>
+<tr><td>Antiferromagnetic model with XY anisotropy (in the <em>XY</em> plane)</td>
+<td>staggered <em>X-X</em> susceptibility</td>
+<td>uniform <em>X-X</em> susceptibility</td>
+</tr>
+<tr><td>Antiferromagnetic model (Heisenberg point)</td>
+<td>staggered <em>Z-Z</em> (or <em>X-X</em>) susceptibility</td>
+<td>uniform <em>Z-Z</em> (or <em>X-X</em>) susceptibility</td>
+</tr>
+<tr><td>Antiferromagnetic model with Ising anisotropy (in the <em>Z</em> axis)</td>
+<td>staggered <em>Z-Z</em> susceptibility</td>
+<td>uniform <em>Z-Z</em> susceptibility</td>
+</tr>
+</tbody>
+</table>
+<p>一様磁化, スタッガード磁化についても同じ対応関係が成り立つ.</p>
+</div>
+<div class="section" id="id63">
+<h2>チュートリアル</h2>
+<p><a class="reference external" href="http://alps.comp-phys.org/mediawiki/index.php/ALPS_2_Tutorials:MC-02_Susceptibilities">ALPS Tutorials Page</a> に ALPS/looper のチュートリアルも用意されている.</p>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="id64">
+<h1>ライセンス</h1>
+<p>ALPS/looper ライブラリは, <a class="reference external" href="http://alps.comp-phys.org/software/applications/LICENSE.txt">ALPS アプリケーションライセンス</a> に従い, 公開・配布されている. ALPS/looper は非営利の研究活動にのみ使用することができる. ALPS/looper を用いた結果を発表・出版の場合には, その論文中に ALPS/looper ライブラリ, ALPS ライブラリを使用した旨を記載するとともに, 下記の URL および論文の引用をお願いする。</p>
+<ul class="simple">
+<li>reference<ul>
+<li><a class="reference external" href="http://alps.comp-phys.org/">http://alps.comp-phys.org/</a></li>
+<li><a class="reference external" href="http://wistaria.comp-phys.org/alps-looper/">http://wistaria.comp-phys.org/alps-looper/</a></li>
+</ul>
+</li>
+<li>publications<ul>
+<li>S. Todo and K. Kato, <em>Cluster Algorithms for General-S Quantum
+Spin Systems</em>, Phys. Rev. Lett., <strong>87</strong>, 047203 (2001).</li>
+<li>A.F. Albuquerque, F. Alet, P. Corboz, P. Dayal, A. Feiguin,
+L. Gamper, E. Gull, S G?rtler, A. Honecker, R. Igarashi,
+M. K?rner, A. Kozhevnikov, A. L?uchli, S.R. Manmana, M. Matsumoto,
+I.P. McCulloch, F. Michel, R.M. Noack, G. Pawlowski, L. Pollet,
+T. Pruschke, U. Schollw?ck, S. Todo, S. Trebst, M. Troyer,
+P. Werner, S. Wessel (ALPS collaboration), <em>The ALPS project
+release 1.3: open source software for strongly correlated
+systems</em>, <a class="reference external" href="http://dx.doi.org/10.1016/j.jmmm.2006.10.304">J. Mag. Mag. Mat. 310, 1187 (2007)</a>.</li>
+<li>B. Bauer, L. D. Carr, A. Feiguin, J. Freire, S. Fuchs, L. Gamper,
+J. Gukelberger, E. Gull, S. Guertler, A. Hehn, R. Igarashi,
+S.V. Isakov, D. Koop, P.N. Ma, P. Mates, H. Matsuo, O. Parcollet,
+G. Pawlowski, J.D. Picon, L. Pollet, E. Santos, V.W. Scarola,
+U. Schollwöck, C. Silva, B. Surer, S. Todo, S. Trebst, M. Troyer,
+M.L. Wall, P. Werner, S. Wessel, <em>The ALPS project release 2.0:
+Open source software for strongly correlated systems</em>, <a class="reference external" href="http://iopscience.iop.org/1742-5468/2011/05/P05001">Journal of
+Statistical Mechanics: Theory and Experiment, P05001 (2011)</a>.</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="id65">
+<h1>開発者</h1>
+<ul class="simple">
+<li>バージョン 1: 藤堂眞治</li>
+<li>バージョン 2: 藤堂眞治, 加藤清, 小池上繁</li>
+<li>バージョン 3: 藤堂眞治</li>
+<li>バージョン 4: 藤堂眞治, 松尾春彦, 設楽秀之</li>
+</ul>
+</div>
+<div class="section" id="id66">
+<h1>サポート</h1>
+<p>質問・リクエストなどは, 藤堂 &lt;<a class="reference external" href="mailto:wistaria&#64;comp-phys.org">wistaria&#64;comp-phys.org</a>&gt; まで.</p>
+</div>
+<div class="section" id="id67">
+<h1>謝辞</h1>
+<p>Matthias Troyer と Fabien Alet の両氏には多くのコメントをいただいた. ALPS/looper バージョン 4 の開発は, 文部科学省「最先端・高性能汎用スーパーコンピュータの開発プロジェクト 次世代ナノ統合シミュレーションソフトウェアの研究開発」からサポートを受けている.</p>
+</div>
+<div class="section" id="id68">
+<h1>参考文献</h1>
+<ul class="simple">
+<li>H.G. Evertz, <em>The loop algorithm</em>, Adv. in Physics, <strong>52</strong>, 1 (2003).</li>
+<li>S. Todo and K. Kato, <em>Cluster Algorithms for General-S Quantum
+Spin Systems</em>, Phys. Rev. Lett., <strong>87</strong>, 047203 (2001).</li>
+<li>S. Todo, <em>Parallel Quantum Monte Carlo Simulation of S=3
+Antiferromagnetic Heisenberg Chain</em>, Computer Simulation Studies
+in Condensed-Matter Physics XV, ed D.P. Landau, S.P. Lewis, and
+H.-B. Schuettler (Springer-Verlag, Berlin, 2003) pp. 89-94.</li>
+<li>F. Alet, P. Dayal, A. Grzesik, A. Honecker, M. Körner, A. Läuchli,
+S.R. Manmana, I.P. McCulloch, F. Michel, R.M. Noack, G. Schmid,
+U. Schollwöck, F. Stöckli, S. Todo, S. Trebst, M. Troyer, P. Werner,
+S. Wessel (ALPS collaboration), <em>The ALPS project: open source
+software for strongly correlated systems</em>,
+<a class="reference external" href="http://jpsj.ipap.jp/link?JPSJS/74S/30">J. Phys. Soc. Jpn. Suppl. 74, 30 (2005)</a>.</li>
+<li>A.F. Albuquerque, F. Alet, P. Corboz, P. Dayal, A. Feiguin,
+L. Gamper, E. Gull, S Gürtler, A. Honecker, R. Igarashi, M. Körner,
+A. Kozhevnikov, A. Läuchli, S.R. Manmana, M. Matsumoto,
+I.P. McCulloch, F. Michel, R.M. Noack, G. Pawlowski, L. Pollet,
+T. Pruschke, U. Schollwöck, S. Todo, S. Trebst, M. Troyer,
+P. Werner, S. Wessel (ALPS collaboration), <em>The ALPS project release
+1.3: open source software for strongly correlated systems</em>,
+<a class="reference external" href="http://dx.doi.org/10.1016/j.jmmm.2006.10.304">J. Mag. Mag. Mat. 310, 1187 (2007)</a>.</li>
+<li>B. Bauer, L. D. Carr, A. Feiguin, J. Freire, S. Fuchs, L. Gamper,
+J. Gukelberger, E. Gull, S. Guertler, A. Hehn, R. Igarashi,
+S.V. Isakov, D. Koop, P.N. Ma, P. Mates, H. Matsuo, O. Parcollet,
+G. Pawlowski, J.D. Picon, L. Pollet, E. Santos, V.W. Scarola,
+U. Schollwöck, C. Silva, B. Surer, S. Todo, S. Trebst, M. Troyer,
+M.L. Wall, P. Werner, S. Wessel, <em>The ALPS project release 2.0: Open
+source software for strongly correlated systems</em>, <a class="reference external" href="http://iopscience.iop.org/1742-5468/2011/05/P05001">Journal of
+Statistical Mechanics: Theory and Experiment, P05001 (2011)</a>.</li>
+</ul>
+<hr class="docutils" />
+<p>Copyright (c) 1997-2012 by Synge Todo &lt;<a class="reference external" href="mailto:wistaria&#64;comp-phys.org">wistaria&#64;comp-phys.org</a>&gt;</p>
+</div>
+</div>
+</body>
+</html>

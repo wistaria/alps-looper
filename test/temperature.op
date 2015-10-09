@@ -1,0 +1,85 @@
+initial temperature = 1
+final temperature   = 0.5
+annealing steps     = 15
+1 1
+2 0.92
+3 0.84
+4 0.76
+5 0.68
+6 0.6
+7 0.633333
+8 0.666667
+9 0.7
+10 0.733333
+11 0.766667
+12 0.8
+13 0.725
+14 0.65
+15 0.575
+16 0.5
+17 0.5
+18 0.5
+19 0.5
+20 0.5
+initial temperature = 0.5
+final temperature   = 0.5
+annealing steps     = 0
+1 0.5
+2 0.5
+3 0.5
+4 0.5
+5 0.5
+6 0.5
+7 0.5
+8 0.5
+9 0.5
+10 0.5
+11 0.5
+12 0.5
+13 0.5
+14 0.5
+15 0.5
+16 0.5
+17 0.5
+18 0.5
+19 0.5
+20 0.5
+initial temperature = 0.6
+final temperature   = 0.6
+annealing steps     = 0
+1 0.6
+2 0.6
+3 0.6
+4 0.6
+5 0.6
+6 0.6
+7 0.6
+8 0.6
+9 0.6
+10 0.6
+initial temperature = 0.333333
+final temperature   = 0.333333
+annealing steps     = 0
+1 0.333333
+2 0.333333
+3 0.333333
+4 0.333333
+5 0.333333
+6 0.333333
+7 0.333333
+8 0.333333
+9 0.333333
+10 0.333333
+initial temperature = 0.2
+final temperature   = 0.2
+annealing steps     = 0
+1 0.2
+2 0.2
+3 0.2
+4 0.2
+5 0.2
+6 0.2
+7 0.2
+8 0.2
+9 0.2
+10 0.2

@@ -1,0 +1,368 @@
+.. -*- mode: rst -*-
+
+ALPS/looper
+===========
+
+ALPS/looper は `ALPSプロジェクト`_ のアプリケーションの一つとして開発されている. ALPS/looper は Fortran 90 で書かれた量子モンテカルロ法のライブラリ `Looperライブラリ バージョン2`_ の後継として開発された. 
+
+ALPS/looper は, 経路積分あるいはSSE表示でマルチクラスタ量子モンテカルロアルゴリズムを行うプログラムである. 任意の格子状の任意のスピン量子数 *S* からなるスピン系を扱うことができる. サポートしている相互作用は, 以下の通りである. 
+
+* XXZ型の2体相互作用 (イジング, ハイゼンベルグ, XY)
+* XYZ型の2体相互作用 (要再コンパイル)
+* *S* > 1/2 における単イオン異方性 (D項)
+* 縦磁場
+* 横磁場
+
+ALPS/looper は, 量子クラスタアルゴリズムにおける「フリージンググラフ」を扱うことができるので, 容易軸 (イジング) 型の異方性をもつ模型も非常に効率良くシミュレーションを行うことができる. 
+
+バージョン 4 からは, MPI と OpenMP を用いたハイブリッド並列化されたコードを含んでいる. 並列版コードは, 京速コンピュータ「京」, T2K オープンスパコン, SGI Altix など最新のスーパーコンピュータの上でテストされている. 
+
+ALPS/looper は, `ALPS`_ の一部として配布されている. テストプログラムなどを含む ALPS/looper の完全版は http://wistaria.comp-phys.org/alps-looper/ から入手できる. 
+
+履歴
+-----------
+
+* 2012年3月1日: ALPS/looper バージョン 4.0a1 (アルファ版)
+* 2012年3月5日: ALPS/looper バージョン 4.0.0 公開
+
+------------------------------------
+
+インストール
+============
+
+以下のインストールに関する説明は, ALPS/looper 完全版についてのものである. 
+
+必要環境
+-------------
+
+* `Boost C++ ライブラリ <http://www.boost.org/>`__ -- バージョン 1.48.0 以降
+* `ALPS`_ -- バージョン 2.0 以降
+* `LAPACK ライブラリ <http://www.netlib.org/lapack/>`__
+  
+ダウンロード
+-------------
+  
+http://wistaria.comp-phys.org/archive/alps-looper/
+
+コンパイル
+---------------------------
+
+以下 ``$ALPS_HOME`` は `ALPS`_ がインストールされているディレクトリ, ``$LOOPER_SRC_DIR`` は ALPS/looper のソースコードが置いてあるディレクトリとする. ::
+
+  cmake -DCMAKE_INSTALL_PREFIX=$ALPS_HOME $LOOPER_SRC_DIR
+  make
+
+CMake には以下のオプションを指定できる.
+
+============================= ===================== ===============================================
+**オプション名**              **デフォルト値**      **説明**
+----------------------------- --------------------- -----------------------------------------------
+LOOPER_BUILD_TESTS            ON                    Build looper tests
+LOOPER_BUILD_EXTRAS           OFF                   Build in extras subdirectory
+LOOPER_ENABLE_DIAG            ON                    Enable exact diagonalization method
+LOOPER_ENABLE_ISING           ON                    Enable Swendsen-Wang algorithm for classical Ising model
+LOOPER_ENABLE_PI              ON                    Enable loop algorithm in path integral reprentation
+LOOPER_ENABLE_SSE             ON                    Enable loop algorithm in high-temperature expansion representation
+LOOPER_ENABLE_OPENMP          ON                    OpenMP (hybrid parallelization) support
+LOOPER_ENABLE_TIMER           OFF                   Perform time measurement of each section
+LOOPER_TIMER_TRACE            OFF                   Turn on debug trace output of timer
+LOOPER_TIMER_DETAILED         OFF                   Turn on detailed timer report
+============================= ===================== ===============================================
+
+注: OpenMP (とハイブリッド並列化) は, ALPS ライブラリが ALPS_ENABLE_OPENMP=ON とALPS_ENABLE_OPENMP_WORKER=ON でコンパイルされている場合にのみ有効となる. 
+
+テスト実行
+-------------
+
+::
+
+  ctest
+  
+------------------------------------
+
+シミュレーションの実行
+=======================
+
+コマンドラインオプション
+--------------------------
+
+============================== ================== ==================================================================
+**オプション**                 **デフォルト値**   **説明**
+------------------------------ ------------------ ------------------------------------------------------------------
+-h [ --help ]                                     produce help message
+-l [ --license ]                                  print license conditions
+--auto-evaluate                true               evaluate observables upon halting [default = true]
+--check-parameter                                 perform parameter checking
+--check-interval arg           100                time between internal status check [unit = millisec; default = 100ms]
+--checkpoint-interval arg      3600               time between checkpointing [unit = sec; default = 3600s]
+--evaluate                                        only perform evaluation
+--mpi                                             run in parallel using MPI
+--Nmin                                            [obsolete]
+--Nmax                                            [obsolete]
+--no-evaluate                                     prevent evaluating observables upon halting
+--report-interval arg          600                time between progress report of clones [unit = sec; default = 600s]
+-T [ --time-limit ] arg        unlimited          time limit for the simulation [unit = sec; defulat = no time limit]
+--Tmin                                            [obsolete]
+--Tmax                                            [obsolete]
+-p [ --threads-per-clone ] arg 1                  number of threads for each clone [default = 1]
+-r [ --total-threads ] arg     # of MPI processes total number of threads [integer or 'auto'; default = total number of processes]
+--input-file arg                                  input master XML files
+============================== ================== ==================================================================
+
+パラメータ
+------------------
+
+=================================  ===================================  =====================================================================================================
+**パラメータ名**                   **デフォルト値**                     **説明**
+---------------------------------  -----------------------------------  -----------------------------------------------------------------------------------------------------
+``NUM_CLONES``                     1                                    number of clones
+``LATTICE_LIBRARY``                ``$PREFIX/lib/xml/lattices.xml``     path to a file containing lattice descriptions
+``LATTICE``                        *none*                               name of the lattice
+``MODEL_LIBRARY``                  ``$PREFIX/lib/xml/models.xml``       path to a file containing model descriptions
+``MODEL``                          *none*                               name of the model
+``ALGORITHM``                      *none*                               type of algorithm (``"loop"``, ``"loop; path integral"``, ``"loop; sse"``, ``"ising"``, or ``"diagonalization"``); 
+
+``T``                              *none*                               temperature
+``T_START_#``                      *undefined*                          [optional] see `温度アニーリング`_.
+``T_DURATION_#``                   *undefined*                          [optional] see `温度アニーリング`_.
+
+``SWEEPS``                         65536                                Monte Carlo steps after thermalization
+``THERMALIZATION``                 8192                                 Monte Carlo steps for thermalization
+
+``USE_SITE_INDICES_AS_TYPES``      false                                if true, all sites will have distinct site types, which are identical to site indices (starting from 0).
+``USE_BOND_INDICES_AS_TYPES``      false                                if true, all bonds will have distinct bond types, which are identical to bond indices (starting from 0).
+---------------------------------  -----------------------------------  -----------------------------------------------------------------------------------------------------
+``PARTITION``                      *none*                               [parallel] list of number of processes (separated by *colons*) used in each stage of cluster unification (e.g. 2:3:3:2).  The product of all the factors should be equal to the total number of processes for each clone.
+``DUPLEX``                         true                                 [parallel] if true, bidirectional communication is enabled.
+---------------------------------  -----------------------------------  -----------------------------------------------------------------------------------------------------
+``MEASURE[Correlations]``          false				if true, correlation function will be calculated
+``MEASURE[Green Function]``        false                                if true, Green's function will be calculated
+``INITIAL_SITE``                   *undefined*                          initical site from which correlation function and Green's function are measured.  If not defined, correlation between all possible site pairs will be calculated
+``MEASURE[Local Susceptibility]``  false                                if true, local suscepbility and local magnetization will be calculated
+``MEASURE[Structure Factor]``      false                                if true, structure factor for all possible k-values will be calculated
+
+``DISABLE_IMPROVED_ESTIMATOR``     false				[optional] use normal (i.e. unimproved) estimator for measurements (will be set to true automatically in the presence of longitudinal magnetic field)
+``FORCE_SCATTER``                  0                                    [optional] minimum probability for forward scattering graph (will be set to 0.1 automatically for classically frustrated models in order to ensure the ergodicity
+
+``LOOPER_DEBUG[MODEL OUTPUT]``     *undefined*                          if defined, all the coupling constants will be printed out to *standard output* (``cout``) before calculation.  If the value is ``cerr``, the output will be made for *standard error* (``cerr``).
+=================================  ===================================  =====================================================================================================
+
+注: ``PARTITION`` が指定されない場合には, クローンあたりの MPI プロセス数は, 2, 3, 5, 7, 11, 13 で因数分解されなければならない. 
+
+上記に加えて, 格子や模型の指定に追加でパラメータが必要となる場合がある (例 ``L``, ``W``).
+
+温度アニーリング
+---------------------
+
+競合する相互作用をもつ模型などでは, 平衡化時間が非常に長くなる. そのような系では, 平衡化ステップにおいて, ゆっくりと温度を下げることが有効となる場合がある. そのような温度アニーリングのスケジュールは, パラメータ ``T_START_#`` と ``T_DURATION_#`` (``# = 0, 1, 2,...``) を使って指定することができる. パラメータ ``T_START_#``は ``#`` 番目のブロックの最初の温度を, ``T_DURATION_#`` は ``#`` 番目のブロックの長さ(モンテカルロステップ)を表わす. 
+
+.. image:: anneal.jpg
+
+上図の例の温度スケジュールを行うには, 以下のパラメータを指定すれば良い. ::
+
+  T_START_0 = 2.0;
+  T_DURATION_0 = 100;
+  T_START_1 = 1.5;
+  T_DURATION_1 = 400;
+  THERMALIZATION = 1000;
+  T = 1.2;
+
+なお, ``T_DURATION_#`` の和は ``THERMALIZATION`` と同じあるいはそれ以下でなければならない. 
+
+測定値
+------------
+
+``loop`` プログラムでは, 以下の物理量が測定される
+
+===================================================  ========================================================================================== 
+**物理量名**                                         **説明**
+---------------------------------------------------  ------------------------------------------------------------------------------------------
+Energy                                               total energy
+Energy Density                                       energy per spin
+Energy^2                                             square of total energy
+Specific Heat                                        specific heat
+
+Stiffness                                            stiffness constant
+
+Magnetization                                        total uniform magnetization
+Magnetization^2                                      square of total uniform magnetization
+Magnetization^4                                      4th power of total uniform magnetization
+Binder Ratio of Magnetization                        Binder ratio of uniform magnetization
+Magnetization Density                                uniform magnetization per spin
+Magnetization Density^2                              square of uniform magnetization per spin
+Magnetization Density^4                              4th power of uniform magnetization per spin
+Susceptibility                                       uniform susceptibility
+
+Staggered Magnetization                              total staggered magnetization [1]_
+Staggered Magnetization^2                            square of total staggered magnetization [1]_
+Staggered Magnetization^4                            4th power of total staggered magnetization [1]_
+Staggered Magnetization Density                      staggered magnetization per spin [1]_
+Staggered Magnetization Density^2                    square of staggered magnetization per spin [1]_
+Staggered Magnetization Density^4                    4th power of staggered magnetization per spin [1]_
+Staggered Susceptibility                             staggered susceptibility [1]_
+
+Generalized Magnetization                            total generalized magnetization [2]_
+Generalized Magnetization^2                          square of total generalized magnetization [2]_
+Generalized Magnetization^4                          4th power of total generalized magnetization [2]_
+Generalized Binder Ratio of Magnetization            Binder ratio of generalized magnetization [2]_
+Generalized Magnetization Density                    generalized magnetization per spin [2]_
+Generalized Magnetization Density^2                  square of generalized magnetization per spin [2]_
+Generalized Magnetization Density^4                  4th power of generalized magnetization per spin [2]_
+Generalized Susceptibility                           generalized susceptibility [2]_
+
+Generalized Staggered Magnetization                  total generalized staggered magnetization [1]_ [2]_
+Generalized Staggered Magnetization^2                square of total generalized staggered magnetization [1]_ [2]_
+Generalized Staggered Magnetization^4                4th power of total generalized staggered magnetization [1]_ [2]_
+Generalized Staggered Magnetization Density          generalized staggered magnetization per spin [1]_ [2]_
+Generalized Staggered Magnetization Density^2        square of generalized staggered magnetization per spin [1]_ [2]_
+Generalized Staggered Magnetization Density^4        4th power of generalized staggered magnetization per spin [1]_ [2]_
+Generalized Staggered Susceptibility                 generalized staggered susceptibility [1]_ [2]_
+
+Spin Correlations                                    correlation functions [3]_
+Staggered Spin Correlations                          staggered correlation functions [1]_ [3]_
+Generalized Spin Correlations                        generalized correlation functions [2]_ [3]_
+Generalized Staggered Spin Correlations              generalized staggered correlation function [1]_ [2]_ [3]_
+
+Green's Function                                     Green's function [2]_ [4]_
+
+Structure Factor                                     static structure factor [5]_
+
+Local Magnetization                                  local magnetization [6]_
+Local Susceptibility                                 local susceptibility (i.e., response of uniform magnetization against local magnetic field or that of local magnetization against uniform magnetic field) [6]_
+Staggered Local Susceptibility                       statggered local susceptibility (i.e., response of staggered magnetization against local magnetic field or that of local magnetization against staggered magnetic field) [1]_ [6]_
+Local Field Susceptibility                           local-field susceptibility (i.e., response of local magnetization against local magnetic field) [6]_
+
+===================================================  ========================================================================================== 
+
+.. [1] 二部格子の時のみ測定が行われる
+.. [2] ``improved estimator`` でのみ測定が行われる
+.. [3] パラメータ ``MEASURE[Correlations]`` を ``true`` に設定する
+.. [4] パラメータ ``MEASURE[Green Function]`` を ``true`` に設定する
+.. [5] パラメータ ``MEASURE[Structure Factor]`` を ``true`` に設定する
+.. [6] パラメータ ``MEASURE[Local Susceptiblity]`` を ``true`` に設定する
+
+``uniform generalized susceptibility`` は最も強い相関に対する応答関数である. それに対するスタッガードな応答関数が, ``staggered generalized susceptibility`` である. それぞれの模型における, 通常の帯磁率と一般化帯磁率の対応は以下の通りである. 
+
+===============================================================  =========================================  =========================================================
+**模型**                                                         **Generalized Susceptibility**             **Generalized Staggered Susceptibility**
+---------------------------------------------------------------  -----------------------------------------  ---------------------------------------------------------
+Ferromagnetic model with Ising anisotropy (in the *Z* axis)      uniform *Z-Z* susceptibility               staggered *Z-Z* susceptibility<br>
+Ferromagnetic model (Heisenberg point)                           uniform *Z-Z* (or *X-X*) susceptibility    staggered *Z-Z* (or *X-X*) susceptibility
+Ferromagnetic model with XY anisotropy (in the *XY* plane)       uniform *X-X* susceptibility               staggered *X-X* susceptibility
+Antiferromagnetic model with XY anisotropy (in the *XY* plane)   staggered *X-X* susceptibility             uniform *X-X* susceptibility
+Antiferromagnetic model (Heisenberg point)                       staggered *Z-Z* (or *X-X*) susceptibility  uniform *Z-Z* (or *X-X*) susceptibility
+Antiferromagnetic model with Ising anisotropy (in the *Z* axis)  staggered *Z-Z* susceptibility             uniform *Z-Z* susceptibility
+===============================================================  =========================================  =========================================================
+
+一様磁化, スタッガード磁化についても同じ対応関係が成り立つ. 
+  
+チュートリアル
+--------------
+
+`ALPS Tutorials Page <http://alps.comp-phys.org/mediawiki/index.php/ALPS_2_Tutorials:MC-02_Susceptibilities>`_ に ALPS/looper のチュートリアルも用意されている.
+
+------------------------------------
+
+ライセンス
+===========
+
+ALPS/looper ライブラリは, `ALPS アプリケーションライセンス <http://alps.comp-phys.org/software/applications/LICENSE.txt>`__ に従い, 公開・配布されている. ALPS/looper は非営利の研究活動にのみ使用することができる. ALPS/looper を用いた結果を発表・出版の場合には, その論文中に ALPS/looper ライブラリ, ALPS ライブラリを使用した旨を記載するとともに, 下記の URL および論文の引用をお願いする。
+
+* reference
+
+  - http://alps.comp-phys.org/ 
+  - http://wistaria.comp-phys.org/alps-looper/
+
+* publications
+
+  - S. Todo and K. Kato, *Cluster Algorithms for General-S Quantum
+    Spin Systems*, Phys. Rev. Lett., **87**, 047203 (2001).
+
+  - A.F. Albuquerque, F. Alet, P. Corboz, P. Dayal, A. Feiguin,
+    L. Gamper, E. Gull, S G?rtler, A. Honecker, R. Igarashi,
+    M. K?rner, A. Kozhevnikov, A. L?uchli, S.R. Manmana, M. Matsumoto,
+    I.P. McCulloch, F. Michel, R.M. Noack, G. Pawlowski, L. Pollet,
+    T. Pruschke, U. Schollw?ck, S. Todo, S. Trebst, M. Troyer,
+    P. Werner, S. Wessel (ALPS collaboration), *The ALPS project
+    release 1.3: open source software for strongly correlated
+    systems*, `J. Mag. Mag. Mat. 310, 1187 (2007)
+    <http://dx.doi.org/10.1016/j.jmmm.2006.10.304>`__.
+
+  - B. Bauer, L. D. Carr, A. Feiguin, J. Freire, S. Fuchs, L. Gamper,
+    J. Gukelberger, E. Gull, S. Guertler, A. Hehn, R. Igarashi,
+    S.V. Isakov, D. Koop, P.N. Ma, P. Mates, H. Matsuo, O. Parcollet,
+    G. Pawlowski, J.D. Picon, L. Pollet, E. Santos, V.W. Scarola,
+    U. Schollwöck, C. Silva, B. Surer, S. Todo, S. Trebst, M. Troyer,
+    M.L. Wall, P. Werner, S. Wessel, *The ALPS project release 2.0:
+    Open source software for strongly correlated systems*, `Journal of
+    Statistical Mechanics: Theory and Experiment, P05001 (2011)
+    <http://iopscience.iop.org/1742-5468/2011/05/P05001>`__.
+
+開発者
+==========
+
+* バージョン 1: 藤堂眞治
+* バージョン 2: 藤堂眞治, 加藤清, 小池上繁
+* バージョン 3: 藤堂眞治
+* バージョン 4: 藤堂眞治, 松尾春彦, 設楽秀之
+
+サポート
+===================================
+
+質問・リクエストなどは, 藤堂 <wistaria@comp-phys.org> まで.
+
+謝辞
+================
+
+Matthias Troyer と Fabien Alet の両氏には多くのコメントをいただいた. ALPS/looper バージョン 4 の開発は, 文部科学省「最先端・高性能汎用スーパーコンピュータの開発プロジェクト 次世代ナノ統合シミュレーションソフトウェアの研究開発」からサポートを受けている. 
+
+参考文献
+===========
+
+* H.G. Evertz, *The loop algorithm*, Adv. in Physics, **52**, 1 (2003).
+
+* S. Todo and K. Kato, *Cluster Algorithms for General-S Quantum
+  Spin Systems*, Phys. Rev. Lett., **87**, 047203 (2001).
+
+* S. Todo, *Parallel Quantum Monte Carlo Simulation of S=3
+  Antiferromagnetic Heisenberg Chain*, Computer Simulation Studies
+  in Condensed-Matter Physics XV, ed D.P. Landau, S.P. Lewis, and
+  H.-B. Schuettler (Springer-Verlag, Berlin, 2003) pp. 89-94.
+
+* F. Alet, P. Dayal, A. Grzesik, A. Honecker, M. Körner, A. Läuchli,
+  S.R. Manmana, I.P. McCulloch, F. Michel, R.M. Noack, G. Schmid,
+  U. Schollwöck, F. Stöckli, S. Todo, S. Trebst, M. Troyer, P. Werner,
+  S. Wessel (ALPS collaboration), *The ALPS project: open source
+  software for strongly correlated systems*,
+  `J. Phys. Soc. Jpn. Suppl. 74, 30 (2005)
+  <http://jpsj.ipap.jp/link?JPSJS/74S/30>`__.
+
+* A.F. Albuquerque, F. Alet, P. Corboz, P. Dayal, A. Feiguin,
+  L. Gamper, E. Gull, S Gürtler, A. Honecker, R. Igarashi, M. Körner,
+  A. Kozhevnikov, A. Läuchli, S.R. Manmana, M. Matsumoto,
+  I.P. McCulloch, F. Michel, R.M. Noack, G. Pawlowski, L. Pollet,
+  T. Pruschke, U. Schollwöck, S. Todo, S. Trebst, M. Troyer,
+  P. Werner, S. Wessel (ALPS collaboration), *The ALPS project release
+  1.3: open source software for strongly correlated systems*,
+  `J. Mag. Mag. Mat. 310, 1187 (2007)
+  <http://dx.doi.org/10.1016/j.jmmm.2006.10.304>`__.
+
+* B. Bauer, L. D. Carr, A. Feiguin, J. Freire, S. Fuchs, L. Gamper,
+  J. Gukelberger, E. Gull, S. Guertler, A. Hehn, R. Igarashi,
+  S.V. Isakov, D. Koop, P.N. Ma, P. Mates, H. Matsuo, O. Parcollet,
+  G. Pawlowski, J.D. Picon, L. Pollet, E. Santos, V.W. Scarola,
+  U. Schollwöck, C. Silva, B. Surer, S. Todo, S. Trebst, M. Troyer,
+  M.L. Wall, P. Werner, S. Wessel, *The ALPS project release 2.0: Open
+  source software for strongly correlated systems*, `Journal of
+  Statistical Mechanics: Theory and Experiment, P05001 (2011)
+  <http://iopscience.iop.org/1742-5468/2011/05/P05001>`__.
+
+-------------------------------------
+
+Copyright (c) 1997-2012 by Synge Todo <wistaria@comp-phys.org>
+
+.. _`ALPSプロジェクト`: http://alps.comp-phys.org/
+
+.. _`ALPS`: http://alps.comp-phys.org/
+
+.. _`Looperライブラリ バージョン2`: http://wistaria.comp-phys.org/looper/

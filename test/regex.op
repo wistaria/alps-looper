@@ -1,0 +1,23 @@
+str = "SSE QWL", ex = "(.*)", result = matched
+str = "SSE QWL", ex = "QWL", result = not matched
+str = "SSE QWL", ex = "(.*)QWL$", result = matched
+str = "SSE QWL", ex = "^(.*)QWL$", result = matched
+str = "SSE QWL", ex = "(.*)QWL(.*)", result = matched
+str = "SSE QWL A", ex = "(.*)QWL$", result = not matched
+str = "SSE QWL A", ex = "(.*)QWL(.*)$", result = matched
+str = "SSE QWL A", ex = "QWL", result = not matched
+str = "a.out.xml", ex = "out.xml$", fmt = "ox.bak", result = a.ox.bak
+str = "a.out.xmla", ex = "out.xml$", fmt = "ox.bak", result = a.out.xmla
+str = "a.out.xmla", ex = "out.xml", fmt = "ox.bak", result = a.ox.baka
+str = "a.outxxml", ex = "out.xml", fmt = "ox.bak", result = a.ox.bak
+str = "a.outxxml", ex = "out\.xml", fmt = "ox.bak", result = a.outxxml
+str = "a.out.xml", ex = "out\.xml", fmt = "ox.bak", result = a.ox.bak
+str = "a.outxxml", ex = "out[:punkt:]xml", fmt = "ox.bak", result = a.outxxml
+str = "a.out.xml", ex = "out[:punkt:]xml", fmt = "ox.bak", result = a.out.xml
+str = "a.out.xml", ex = "\.out\.xml$", fmt = "", result = a
+str = "Energy Density", ex = "[A-Z]", fmt = "\l$&", result = energy density
+str = "Free Energy Density", ex = "\s", fmt = "_", result = Free_Energy_Density
+str = "Free Energy Density", ex = "\sDensity$", fmt = "", result = Free Energy
+str = "Free Energy Density A", ex = "\sDensity$", fmt = "", result = Free Energy Density A
+str = "Free Energy Density", ex = "(\sDensity$)|([A-Z])|(\s)", fmt = "(?2\l$2)(?3_)", result = free_energy
+str = "Staggered Susceptibility", ex = "(\sDensity$)|([A-Z])|(\s)", fmt = "(?2\l$2)(?3_)", result = staggered_susceptibility

@@ -1,0 +1,23 @@
+STEPS = 20;
+T = 0.5;
+
+{
+T_START_0 = 1;
+T_DURATION_0 = 5;
+
+T_START_1 = 0.6;
+T_DURATION_1 = 6;
+
+T_START_2 = 0.8;
+T_DURATION_2 = 4;
+}
+
+{
+T_DURATION_0 = -1;
+}
+
+#clear;
+
+{ TEMPERATURE = 0.6; }
+{ BETA = 3; }
+{ INVERSE_TEMPERATURE = 5; }

@@ -1,0 +1,57 @@
+/*****************************************************************************
+*
+* ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
+*
+* Copyright (C) 1997-2011 by Synge Todo <wistaria@comp-phys.org>,
+*                            Haruhiko Matsuo <halm@looper.t.u-tokyo.ac.jp>
+*
+* This software is published under the ALPS Application License; you
+* can use, redistribute it and/or modify it under the terms of the
+* license, either version 1 or (at your option) any later version.
+* 
+* You should have received a copy of the ALPS Application License
+* along with this software; see the file LICENSE. If not, the license
+* is also available from http://alps.comp-phys.org/.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+* FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT 
+* SHALL THE COPYRIGHT HOLDERS OR ANYONE DISTRIBUTING THE SOFTWARE BE LIABLE 
+* FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE, 
+* ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+* DEALINGS IN THE SOFTWARE.
+*
+*****************************************************************************/
+
+#ifndef LOOPER_PRIME_FACTORIZATION_H
+#define LOOPER_PRIME_FACTORIZATION_H
+
+#include <vector>
+
+namespace looper {
+
+inline std::vector<int> prime_factorization(int n) {
+  int num_primes = 6;
+  int primes[] = { 2, 3, 5, 7, 11, 13 };
+  std::vector<int> factors;
+  if (n <= 1) {
+    factors.push_back(n);
+  } else {
+    for (int i = 0; i < num_primes; ++i) {
+      int p = primes[i];
+      while (n % p == 0) {
+        n = n / p;
+        factors.push_back(p);
+      }
+    }
+    while (n > 1) {
+      n = ((n - 1) / 2) + 1;
+      factors.insert(factors.begin(), 2);
+    }
+  }
+  return factors;
+}
+
+} // end namespace looper
+
+#endif // LOOPER_PRIME_FACTORIZATION_H

@@ -1,0 +1,92 @@
+2009-12-17  Synge Todo <wistaria@ap.t.u-tokyo.ac.jp>
+
+	* Added OpenMP version of loop alogirhtm (standalone/loop_omp.C)
+
+2009-09-09  Synge Todo <wistaria@ap.t.u-tokyo.ac.jp>
+
+	* Added Swendsen-Wang alogirhtm (standalone/sw.C)
+
+2009-03-24  Synge Todo <wistaria@ap.t.u-tokyo.ac.jp>
+
+	* [parallel-04] parallel.h にタイマーを挿入
+	
+2009-03-18  Synge Todo <wistaria@ap.t.u-tokyo.ac.jp>
+
+	* [parallel-04] Added MPI_Waitall for MPI_Isend.
+
+2009-03-15  Synge Todo <wistaria@ap.t.u-tokyo.ac.jp>
+
+	* [parallel-04] 隣接通信版(多次元一方向版/双方向版) 
+	- パラメタ DUPLEX を導入。1 で双方向版, 0 で一方向版として動作。
+	  デフォルトは 1 (双方向)。
+
+2009-03-09  Synge Todo <wistaria@ap.t.u-tokyo.ac.jp>
+
+	* [parallel-04] 隣接通信版(多次元一方向 refactoring 版)デバッグ完了
+	- paralle.h 中の //[1way] 部分をコメントアウトして //[2way] 部分を
+	  コメントインすることにより多次元双方向版として動作
+
+2009-03-06  Synge Todo <wistaria@ap.t.u-tokyo.ac.jp>
+
+	* [parallel-04] 隣接通信版(多次元一方向版) refactoring 開始
+
+2009-02-28  Synge Todo <wistaria@ap.t.u-tokyo.ac.jp>
+
+	* [parallel-03] 隣接通信版(多次元一方向版)デバッグ完了
+
+2009-02-27  Synge Todo <wistaria@ap.t.u-tokyo.ac.jp>
+
+	* [parallel-03] 隣接通信版(多次元一方向版)アップデート (バグ有)
+	- parallel.h テストプログラム test/parallel.C 追加
+
+2009-02-26  Synge Todo <wistaria@ap.t.u-tokyo.ac.jp>
+
+	* [parallel-03] 隣接通信版(多次元一方向版)を取り込み (バグ有)
+	- looper/parallel.h
+	
+2009-02-11  Synge Todo <wistaria@ap.t.u-tokyo.ac.jp>
+
+	* [parallel-02] Process Partition を指定するコードを追加
+	- パラメタファイル中で PARTITION = "3:2:2" のような形式で各次元の長さを指定する
+	- standalone 版では "-p 3:2:2" のような形式でコマンドラインオプションを用いて指定する
+	- parallel_cluster_unifier 中では、メンバ std::vector<unsignedint> extents_
+	  に各次元の長さが格納される
+	- デフォルト(指定なしの場合)は、一次元(長さ = プロセス数)
+	
+2009-02-10  Synge Todo <wistaria@ap.t.u-tokyo.ac.jp>
+
+	* fixed looper/parallel.h for odd number of processors
+
+	* update standalone version
+
+2009-02-10  Synge Todo <wistaria@ap.t.u-tokyo.ac.jp>
+
+	* [parallel-02] global cluster ID 版作成
+	- 新規作成: looper/global_cid.h - global cluster ID を estimates
+	  に格納するための measurement class
+	- 修正: extras/parallel/parallel_config.h - measurement_set に
+          global_cluster_id を追加
+	- 修正: looper/parallel.h - flip_t の修正, 
+	
+2009-02-01  Synge Todo <wistaria@ap.t.u-tokyo.ac.jp>
+
+	* [parallel-01] path_integral_mpi.C のバグを修正 (オリジナル版にも存在)
+
+	* オリジナル版ソースとの同期
+	- original reversion 3094, local revision 1096
+
+2009-01-31  Synge Todo <wistaria@ap.t.u-tokyo.ac.jp>
+
+	* [parallel-01] random permutation の並列化コード(バグ有)を取り込み
+	
+2009-01-31  Synge Todo <wistaria@ap.t.u-tokyo.ac.jp>
+	
+	* [parallel-00] FJ timer ルーチンを統合
+	- looper/timer.hpp looper/timer.ipp looper/parallel.h
+	  looper/extras/parallel/path_integral_mpi.C
+	
+2009-01-31  Synge Todo <wistaria@ap.t.u-tokyo.ac.jp>
+
+	* alps-looper のソースを https://alps.comp-phys.org/svn/alps1/trunk/wistaria/alps-looper
+	  から import
+	- original reversion 3092, local reversion 1073

@@ -1,0 +1,114 @@
+[input parameters]
+SEED = 23125;
+SWEEPS = 1024;
+MODEL = spin;
+J = 1;
+LATTICE = "simple cubic lattice";
+L = 4;
+ALGORITHM = "loop; path integral";
+MEASURE[Structure Factor] = 1;
+MEASURE[Correlation Length] = 1;
+Q0_OVER_TWO_PI = (1/2,1/2,1/2);
+DQ_OVER_TWO_PI = (1/L,0,0);
+T = 0.25;
+DIR_NAME = .;
+BASE_NAME = task1;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
+Warning: unknown evaluator: "loop; path integral".  The only evaluator "loop" will be used instead.
+[results]
+Correlation Length: 4.76043 +/- 0.0728
+Energy: -58.2939 +/- 0.238; tau = 0.517 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.166722
+    bin #2   : 512      entries: error = 0.198887
+    bin #3   : 256      entries: error = 0.224237
+    bin #4   : 128      entries: error = 0.237771
+Energy Density: -0.910843 +/- 0.00372; tau = 0.517 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00260503
+    bin #2   : 512      entries: error = 0.00310761
+    bin #3   : 256      entries: error = 0.0035037
+    bin #4   : 128      entries: error = 0.00371517
+Energy^2: 3400.02 +/- 27.7; tau = 0.523 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 19.3748
+    bin #2   : 512      entries: error = 23.0833
+    bin #3   : 256      entries: error = 25.997
+    bin #4   : 128      entries: error = 27.7198
+Inverse Temperature: 4 +/- 0
+Number of Clusters: 87.0332 +/- 0.302
+Number of Sites: 64 +/- 0
+Specific Heat: 0.472683 +/- 0.339 WARNING: ERRORS NOT CONVERGED!!!
+Spin Dynamic Structure Factor at (q,w) = (q0+dq,0): 0.285973 +/- 0.00578; tau = 0.164 WARNING: check error convergence
+    bin #1   : 1024     entries: error = 0.00502009
+    bin #2   : 512      entries: error = 0.00551858
+    bin #3   : 256      entries: error = 0.00569579
+    bin #4   : 128      entries: error = 0.00578373
+Spin Dynamic Structure Factor at (q,w) = (q0,0): 16.2811 +/- 0.263; tau = 0.143
+    bin #1   : 1024     entries: error = 0.231565
+    bin #2   : 512      entries: error = 0.255163
+    bin #3   : 256      entries: error = 0.264685
+    bin #4   : 128      entries: error = 0.262698
+Temperature: 0.25 +/- 0
+Volume: 64 +/- 0
+|dq|: 1.5708 +/- 0; tau = 0
+    bin #1   : 1024     entries: error = 0
+    bin #2   : 512      entries: error = 0
+    bin #3   : 256      entries: error = 0
+    bin #4   : 128      entries: error = 0
+[input parameters]
+SEED = 23125;
+SWEEPS = 1024;
+MODEL = spin;
+J = 1;
+LATTICE = "simple cubic lattice";
+L = 4;
+ALGORITHM = "loop; path integral";
+MEASURE[Structure Factor] = 1;
+MEASURE[Correlation Length] = 1;
+Q0_OVER_TWO_PI = (1/2,1/2,1/2);
+DQ_OVER_TWO_PI = (1/L,0,0);
+DISABLE_IMPROVED_ESTIMATOR = 1;
+T = 0.25;
+DIR_NAME = .;
+BASE_NAME = task2;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
+WARNING: improved estimator is disabled
+Warning: unknown evaluator: "loop; path integral".  The only evaluator "loop" will be used instead.
+[results]
+Correlation Length: 4.70838 +/- 0.154 WARNING: check error convergence
+Energy: -58.2939 +/- 0.238; tau = 0.517 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.166722
+    bin #2   : 512      entries: error = 0.198887
+    bin #3   : 256      entries: error = 0.224237
+    bin #4   : 128      entries: error = 0.237771
+Energy Density: -0.910843 +/- 0.00372; tau = 0.517 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00260503
+    bin #2   : 512      entries: error = 0.00310761
+    bin #3   : 256      entries: error = 0.0035037
+    bin #4   : 128      entries: error = 0.00371517
+Energy^2: 3400.02 +/- 27.7; tau = 0.523 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 19.3748
+    bin #2   : 512      entries: error = 23.0833
+    bin #3   : 256      entries: error = 25.997
+    bin #4   : 128      entries: error = 27.7198
+Inverse Temperature: 4 +/- 0
+Number of Clusters: 87.0332 +/- 0.302
+Number of Sites: 64 +/- 0
+Specific Heat: 0.472683 +/- 0.339 WARNING: ERRORS NOT CONVERGED!!!
+Spin Dynamic Structure Factor at (q,w) = (q0+dq,0): 0.298388 +/- 0.0132; tau = 0.224 WARNING: check error convergence
+    bin #1   : 1024     entries: error = 0.0109769
+    bin #2   : 512      entries: error = 0.012126
+    bin #3   : 256      entries: error = 0.0121549
+    bin #4   : 128      entries: error = 0.0132088
+Spin Dynamic Structure Factor at (q,w) = (q0,0): 16.6446 +/- 0.534; tau = 0.191 WARNING: check error convergence
+    bin #1   : 1024     entries: error = 0.454563
+    bin #2   : 512      entries: error = 0.507551
+    bin #3   : 256      entries: error = 0.527918
+    bin #4   : 128      entries: error = 0.534432
+Temperature: 0.25 +/- 0
+Volume: 64 +/- 0
+|dq|: 1.5708 +/- 0; tau = 0
+    bin #1   : 1024     entries: error = 0
+    bin #2   : 512      entries: error = 0
+    bin #3   : 256      entries: error = 0
+    bin #4   : 128      entries: error = 0

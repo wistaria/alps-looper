@@ -1,0 +1,132 @@
+/*****************************************************************************
+*
+* ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
+*
+* Copyright (C) 1997-2005 by Synge Todo <wistaria@comp-phys.org>
+*
+* This software is published under the ALPS Application License; you
+* can use, redistribute it and/or modify it under the terms of the
+* license, either version 1 or (at your option) any later version.
+* 
+* You should have received a copy of the ALPS Application License
+* along with this software; see the file LICENSE. If not, the license
+* is also available from http://alps.comp-phys.org/.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+* FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT 
+* SHALL THE COPYRIGHT HOLDERS OR ANYONE DISTRIBUTING THE SOFTWARE BE LIABLE 
+* FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE, 
+* ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+* DEALINGS IN THE SOFTWARE.
+*
+*****************************************************************************/
+
+#include <looper/lapack.h>
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/vector.hpp>
+#include <cmath>
+#include <boost/random.hpp>
+#include <cstdlib>
+#include <iostream>
+
+struct Options {
+  boost::uint32_t n;    // -n dimension of matrix
+  boost::uint32_t seed; // -r seed
+
+  Options(int argc, char *argv[]) :
+    // default options
+    n(128), seed(2837)
+  { parse(argc, argv); }
+
+  void usage(int status, std::ostream& os = std::cerr) const {
+    os << "[command line options]\n\n"
+       << "  -n int     dimension of matrix\n"
+       << "  -r int     seed for random number generator\n"
+       << "  -h         this help\n\n";
+    if (status) {
+      os << "Invalid command line option(s)\n";
+      std::exit(status);
+    } else {
+      std::exit(0);
+    }
+  }
+
+  void parse(int argc, char *argv[]) {
+    for (int i = 1; i < argc; ++i) {
+      switch (argv[i][0]) {
+      case '-' :
+        switch (argv[i][1]) {
+        case 'n' :
+          if (i + 1 == argc) usage(1);
+          n = std::atoi(argv[++i]);
+          break;
+        case 'r' :
+          if (i + 1 == argc) usage(1);
+          seed = std::atoi(argv[++i]);
+          break;
+        default :
+          usage(1);
+          break;
+        }
+        break;
+
+      default :
+        usage(1);
+        break;
+      }
+    }
+  }
+};
+
+
+int main(int argc, char ** argv)
+{
+  std::cout << "Diagonalization of random real symmetric matrix\n";
+  std::cerr << "[starting program: "
+            << to_simple_string(boost::posix_time::microsec_clock::local_time())
+            << "]\n";
+
+  Options opts(argc, argv);
+  std::cout << "n: dimension of matrix : " << opts.n << std::endl;
+  std::cout << "r: seed for RNG        : " << opts.seed << std::endl;
+
+  std::cout << "initialization... ";
+
+  // random number generator
+  boost::variate_generator<boost::mt19937, boost::uniform_real<> >
+    rng(boost::mt19937(opts.seed), boost::uniform_real<>(-.5, .5));
+  for (int i = 0; i < 1000; ++i) rng();
+
+  const int n = opts.n;
+  boost::numeric::ublas::vector<double> vec(n);
+  boost::numeric::ublas::matrix<double,
+    boost::numeric::ublas::column_major> mat(n, n);
+  for (int i = 0; i < n; ++i)
+    for (int j = i; j < n; ++j)
+      mat(i, j) = mat(j, i) = rng();
+  std::cout << "done\n";
+
+  boost::posix_time::ptime t0 =
+    boost::posix_time::microsec_clock::local_time();
+  std::cerr << "[starting diagonalization: " << to_simple_string(t0) << "]\n";
+
+  std::cout << "diagonalization... " << std::flush;
+  looper::diagonalize(mat, vec);
+  std::cout << "done\n";
+
+  boost::posix_time::ptime t1 =
+    boost::posix_time::microsec_clock::local_time();
+  std::cerr << "[finished diagonalization: " << to_simple_string(t1) << "]\n";
+  std::cerr << "[elapsed time: " << to_simple_string(t1 - t0) << "]\n";
+
+  std::cout << "selected eigenvalues:\n";
+  bool print_last = false;
+  for (int i = 0; i < n; i += std::max(n/10, 1)) {
+    std::cout << "    e(" << i << ")\t= " << vec(i) << std::endl;
+    if (i == n - 1) print_last = true;
+  }
+  if (!print_last)
+    std::cout << "    e(" << n-1 << ")\t= " << vec(n-1) << std::endl;
+}

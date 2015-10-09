@@ -1,0 +1,1514 @@
+[input parameters]
+SEED = 23125;
+SWEEPS = 1024;
+MODEL = spin;
+J = 1;
+T = 0.25;
+ALGORITHM = "loop; path integral";
+MEASURE[Local Susceptibility] = 1;
+MEASURE[Site Type Susceptibility] = 1;
+LATTICE = "4-site mixed";
+DIR_NAME = .;
+BASE_NAME = task1;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
+[results]
+Energy: -2.00415 +/- 0.0429; tau = 0.675 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0279584
+    bin #2   : 512      entries: error = 0.0341253
+    bin #3   : 256      entries: error = 0.0392085
+    bin #4   : 128      entries: error = 0.0428516
+Energy Density: -0.501038 +/- 0.0107; tau = 0.675 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00698961
+    bin #2   : 512      entries: error = 0.00853132
+    bin #3   : 256      entries: error = 0.00980212
+    bin #4   : 128      entries: error = 0.0107129
+Energy^2: 4.06445 +/- 0.173; tau = 0.6 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.116634
+    bin #2   : 512      entries: error = 0.139195
+    bin #3   : 256      entries: error = 0.161199
+    bin #4   : 128      entries: error = 0.173032
+Generalized Local Susceptibility
+Entry[0]: 1.18462 +/- 0.0358412; tau = 0.323812 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0279225
+    bin #2   : 512      entries: error = 0.0315779
+    bin #3   : 256      entries: error = 0.0353125
+    bin #4   : 128      entries: error = 0.0358412
+Entry[1]: 1.24347 +/- 0.0378456; tau = 0.396383 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0282653
+    bin #2   : 512      entries: error = 0.0327729
+    bin #3   : 256      entries: error = 0.036122
+    bin #4   : 128      entries: error = 0.0378456
+Entry[2]: 1.27137 +/- 0.0354403; tau = 0.308517 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.02787
+    bin #2   : 512      entries: error = 0.0317071
+    bin #3   : 256      entries: error = 0.0338752
+    bin #4   : 128      entries: error = 0.0354403
+Entry[3]: 1.2182 +/- 0.0333313; tau = 0.229047 WARNING: check error convergence
+    bin #1   : 1024     entries: error = 0.0276032
+    bin #2   : 512      entries: error = 0.0308246
+    bin #3   : 256      entries: error = 0.0333016
+    bin #4   : 128      entries: error = 0.0333313
+Generalized Site Type Susceptibility
+Entry[0]: 1.22799 +/- 0.0300503; tau = 0.269612 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0242213
+    bin #2   : 512      entries: error = 0.0274215
+    bin #3   : 256      entries: error = 0.0298101
+    bin #4   : 128      entries: error = 0.0300503
+Entry[1]: 1.23083 +/- 0.0303735; tau = 0.29146 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0241416
+    bin #2   : 512      entries: error = 0.0274211
+    bin #3   : 256      entries: error = 0.0300805
+    bin #4   : 128      entries: error = 0.0303735
+Inverse Temperature: 4 +/- 0
+Local Field Susceptibility
+Entry[0]: 0.405819 +/- 0.015368; tau = 0.421431 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0113206
+    bin #2   : 512      entries: error = 0.0128289
+    bin #3   : 256      entries: error = 0.0142729
+    bin #4   : 128      entries: error = 0.015368
+Entry[1]: 0.398815 +/- 0.0152133; tau = 0.436906 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0111137
+    bin #2   : 512      entries: error = 0.0127778
+    bin #3   : 256      entries: error = 0.0142961
+    bin #4   : 128      entries: error = 0.0152133
+Entry[2]: 0.406248 +/- 0.0151421; tau = 0.399593 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0112888
+    bin #2   : 512      entries: error = 0.0129245
+    bin #3   : 256      entries: error = 0.0146747
+    bin #4   : 128      entries: error = 0.0151421
+Entry[3]: 0.412555 +/- 0.0144096; tau = 0.327339 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.011202
+    bin #2   : 512      entries: error = 0.0125572
+    bin #3   : 256      entries: error = 0.0138069
+    bin #4   : 128      entries: error = 0.0144096
+Local Magnetization
+Entry[0]: 0.012021 +/- 0.00464267; tau = -0.064079
+    bin #1   : 2048     entries: error = 0.0049722
+    bin #2   : 1024     entries: error = 0.00496631
+    bin #3   : 512      entries: error = 0.00500362
+    bin #4   : 256      entries: error = 0.00478993
+    bin #5   : 128      entries: error = 0.00464267
+Entry[1]: -0.00715909 +/- 0.00470654; tau = -0.0449652
+    bin #1   : 2048     entries: error = 0.00493361
+    bin #2   : 1024     entries: error = 0.00493227
+    bin #3   : 512      entries: error = 0.00487291
+    bin #4   : 256      entries: error = 0.004912
+    bin #5   : 128      entries: error = 0.00470654
+Entry[2]: 0.00845469 +/- 0.00499205; tau = 0.00273979
+    bin #1   : 2048     entries: error = 0.00497843
+    bin #2   : 1024     entries: error = 0.00497613
+    bin #3   : 512      entries: error = 0.00510665
+    bin #4   : 256      entries: error = 0.00497005
+    bin #5   : 128      entries: error = 0.00499205
+Entry[3]: -0.0128283 +/- 0.00525905; tau = 0.0504109
+    bin #1   : 2048     entries: error = 0.00501244
+    bin #2   : 1024     entries: error = 0.00500563
+    bin #3   : 512      entries: error = 0.00500175
+    bin #4   : 256      entries: error = 0.00505141
+    bin #5   : 128      entries: error = 0.00525905
+Local Susceptibility
+Entry[0]: 0.0322266 +/- 0.00993026; tau = 0.623271 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00662527
+    bin #2   : 512      entries: error = 0.00763043
+    bin #3   : 256      entries: error = 0.00879676
+    bin #4   : 128      entries: error = 0.00993026
+Entry[1]: 0.0185547 +/- 0.0111915; tau = 0.79401 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0069567
+    bin #2   : 512      entries: error = 0.00819971
+    bin #3   : 256      entries: error = 0.00936884
+    bin #4   : 128      entries: error = 0.0111915
+Entry[2]: 0.0439453 +/- 0.0121399; tau = 0.806579 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00750988
+    bin #2   : 512      entries: error = 0.00912449
+    bin #3   : 256      entries: error = 0.0108611
+    bin #4   : 128      entries: error = 0.0121399
+Entry[3]: 0.0478516 +/- 0.0111079; tau = 0.681274 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00722671
+    bin #2   : 512      entries: error = 0.0086546
+    bin #3   : 256      entries: error = 0.010435
+    bin #4   : 128      entries: error = 0.0111079
+Number of Clusters: 8.04199 +/- 0.0877
+Number of Sites: 4 +/- 0
+Number of Sites of Each Type
+Entry[0]: 2 +/- 0; tau = 0
+    bin #1   : 1024     entries: error = 0
+    bin #2   : 512      entries: error = 0
+    bin #3   : 256      entries: error = 0
+    bin #4   : 128      entries: error = 0
+Entry[1]: 2 +/- 0; tau = 0
+    bin #1   : 1024     entries: error = 0
+    bin #2   : 512      entries: error = 0
+    bin #3   : 256      entries: error = 0
+    bin #4   : 128      entries: error = 0
+Site Type Field Susceptibility
+Entry[0]: 0.641175 +/- 0.0235307; tau = 0.295853 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0186511
+    bin #2   : 512      entries: error = 0.0206728
+    bin #3   : 256      entries: error = 0.0230284
+    bin #4   : 128      entries: error = 0.0235307
+Entry[1]: 0.646575 +/- 0.0245196; tau = 0.3476 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0188323
+    bin #2   : 512      entries: error = 0.0211301
+    bin #3   : 256      entries: error = 0.0236608
+    bin #4   : 128      entries: error = 0.0245196
+Site Type Magnetization
+Entry[0]: 0.0409514 +/- 0.0168401; tau = -0.0455956
+    bin #1   : 1024     entries: error = 0.0176648
+    bin #2   : 512      entries: error = 0.0178603
+    bin #3   : 256      entries: error = 0.0172216
+    bin #4   : 128      entries: error = 0.0168401
+Entry[1]: -0.0399748 +/- 0.0177673; tau = 0.00144909
+    bin #1   : 1024     entries: error = 0.0177416
+    bin #2   : 512      entries: error = 0.0177218
+    bin #3   : 256      entries: error = 0.0176655
+    bin #4   : 128      entries: error = 0.0177673
+Site Type Magnetization Density
+Entry[0]: 0.0204757 +/- 0.00842005; tau = -0.0455956
+    bin #1   : 1024     entries: error = 0.0088324
+    bin #2   : 512      entries: error = 0.00893013
+    bin #3   : 256      entries: error = 0.00861082
+    bin #4   : 128      entries: error = 0.00842005
+Entry[1]: -0.0199874 +/- 0.00888364; tau = 0.00144909
+    bin #1   : 1024     entries: error = 0.0088708
+    bin #2   : 512      entries: error = 0.00886089
+    bin #3   : 256      entries: error = 0.00883277
+    bin #4   : 128      entries: error = 0.00888364
+Site Type Susceptibility
+Entry[0]: 0.0380859 +/- 0.00728214; tau = 0.490498 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00517389
+    bin #2   : 512      entries: error = 0.00614888
+    bin #3   : 256      entries: error = 0.00709715
+    bin #4   : 128      entries: error = 0.00728214
+Entry[1]: 0.0332031 +/- 0.0079062; tau = 0.899515 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00472568
+    bin #2   : 512      entries: error = 0.00563873
+    bin #3   : 256      entries: error = 0.00663846
+    bin #4   : 128      entries: error = 0.0079062
+Specific Heat: 0.198675 +/- 0.183 WARNING: ERRORS NOT CONVERGED!!!
+Temperature: 0.25 +/- 0
+Volume: 4 +/- 0
+[input parameters]
+SEED = 23125;
+SWEEPS = 1024;
+MODEL = spin;
+J = 1;
+T = 0.25;
+ALGORITHM = "loop; path integral";
+MEASURE[Local Susceptibility] = 1;
+MEASURE[Site Type Susceptibility] = 1;
+LATTICE = "4-site mixed";
+local_S = 1;
+DIR_NAME = .;
+BASE_NAME = task2;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
+[results]
+Energy: -5.98608 +/- 0.0726; tau = 0.594 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0491013
+    bin #2   : 512      entries: error = 0.058626
+    bin #3   : 256      entries: error = 0.0663527
+    bin #4   : 128      entries: error = 0.0726354
+Energy Density: -1.49652 +/- 0.0182; tau = 0.594 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0122753
+    bin #2   : 512      entries: error = 0.0146565
+    bin #3   : 256      entries: error = 0.0165882
+    bin #4   : 128      entries: error = 0.0181588
+Energy^2: 35.8007 +/- 0.881; tau = 0.579 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.5999
+    bin #2   : 512      entries: error = 0.713092
+    bin #3   : 256      entries: error = 0.810001
+    bin #4   : 128      entries: error = 0.881093
+Generalized Local Susceptibility
+Entry[0]: 3.73195 +/- 0.108712; tau = 0.322162 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.084778
+    bin #2   : 512      entries: error = 0.0945917
+    bin #3   : 256      entries: error = 0.103887
+    bin #4   : 128      entries: error = 0.108712
+Entry[1]: 3.80809 +/- 0.107462; tau = 0.346972 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0825665
+    bin #2   : 512      entries: error = 0.0905479
+    bin #3   : 256      entries: error = 0.0996269
+    bin #4   : 128      entries: error = 0.107462
+Entry[2]: 3.92355 +/- 0.107145; tau = 0.283789 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0855769
+    bin #2   : 512      entries: error = 0.0939364
+    bin #3   : 256      entries: error = 0.10512
+    bin #4   : 128      entries: error = 0.107145
+Entry[3]: 3.83097 +/- 0.106184; tau = 0.253688 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0864866
+    bin #2   : 512      entries: error = 0.0963981
+    bin #3   : 256      entries: error = 0.103649
+    bin #4   : 128      entries: error = 0.106184
+Generalized Site Type Susceptibility
+Entry[0]: 3.82775 +/- 0.0934774; tau = 0.284743 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0746153
+    bin #2   : 512      entries: error = 0.0817938
+    bin #3   : 256      entries: error = 0.0893644
+    bin #4   : 128      entries: error = 0.0934774
+Entry[1]: 3.81953 +/- 0.0946299; tau = 0.299099 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0748537
+    bin #2   : 512      entries: error = 0.0822458
+    bin #3   : 256      entries: error = 0.0900086
+    bin #4   : 128      entries: error = 0.0946299
+Inverse Temperature: 4 +/- 0
+Local Field Susceptibility
+Entry[0]: 1.05796 +/- 0.0421145; tau = 0.30941 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0331003
+    bin #2   : 512      entries: error = 0.0364473
+    bin #3   : 256      entries: error = 0.0401757
+    bin #4   : 128      entries: error = 0.0421145
+Entry[1]: 1.07612 +/- 0.0460268; tau = 0.452241 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.033352
+    bin #2   : 512      entries: error = 0.0370969
+    bin #3   : 256      entries: error = 0.0396034
+    bin #4   : 128      entries: error = 0.0460268
+Entry[2]: 1.09042 +/- 0.0474263; tau = 0.45845 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0342546
+    bin #2   : 512      entries: error = 0.0379646
+    bin #3   : 256      entries: error = 0.0414265
+    bin #4   : 128      entries: error = 0.0474263
+Entry[3]: 1.04449 +/- 0.0432699; tau = 0.351573 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0331559
+    bin #2   : 512      entries: error = 0.0375218
+    bin #3   : 256      entries: error = 0.0409354
+    bin #4   : 128      entries: error = 0.0432699
+Local Magnetization
+Entry[0]: 0.00346259 +/- 0.00845206; tau = 0.0526659
+    bin #1   : 2048     entries: error = 0.00803926
+    bin #2   : 1024     entries: error = 0.00804086
+    bin #3   : 512      entries: error = 0.00785857
+    bin #4   : 256      entries: error = 0.00800464
+    bin #5   : 128      entries: error = 0.00845206
+Entry[1]: -0.00803983 +/- 0.00864338; tau = 0.0684359
+    bin #1   : 2048     entries: error = 0.0081064
+    bin #2   : 1024     entries: error = 0.00810643
+    bin #3   : 512      entries: error = 0.00802558
+    bin #4   : 256      entries: error = 0.00818104
+    bin #5   : 128      entries: error = 0.00864338
+Entry[2]: 0.00493546 +/- 0.0079602; tau = -0.0243405
+    bin #1   : 2048     entries: error = 0.00816133
+    bin #2   : 1024     entries: error = 0.00816259
+    bin #3   : 512      entries: error = 0.00768693
+    bin #4   : 256      entries: error = 0.00792178
+    bin #5   : 128      entries: error = 0.0079602
+Entry[3]: 0.00061834 +/- 0.00748446; tau = -0.061083
+    bin #1   : 2048     entries: error = 0.0079883
+    bin #2   : 1024     entries: error = 0.00799024
+    bin #3   : 512      entries: error = 0.00756865
+    bin #4   : 256      entries: error = 0.00770162
+    bin #5   : 128      entries: error = 0.00748446
+Local Susceptibility
+Entry[0]: 0.0576172 +/- 0.0122435; tau = 0.416338 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00904405
+    bin #2   : 512      entries: error = 0.0103594
+    bin #3   : 256      entries: error = 0.0112218
+    bin #4   : 128      entries: error = 0.0122435
+Entry[1]: 0.0380859 +/- 0.0162695; tau = 0.621376 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0108638
+    bin #2   : 512      entries: error = 0.0130492
+    bin #3   : 256      entries: error = 0.0150089
+    bin #4   : 128      entries: error = 0.0162695
+Entry[2]: 0.0273438 +/- 0.0140055; tau = 0.513883
+    bin #1   : 1024     entries: error = 0.00983532
+    bin #2   : 512      entries: error = 0.0120761
+    bin #3   : 256      entries: error = 0.0140826
+    bin #4   : 128      entries: error = 0.0140055
+Entry[3]: 0.0332031 +/- 0.0128255; tau = 0.3533
+    bin #1   : 1024     entries: error = 0.00981765
+    bin #2   : 512      entries: error = 0.0125908
+    bin #3   : 256      entries: error = 0.0136873
+    bin #4   : 128      entries: error = 0.0128255
+Number of Clusters: 16.1016 +/- 0.124
+Number of Sites: 4 +/- 0
+Number of Sites of Each Type
+Entry[0]: 2 +/- 0; tau = 0
+    bin #1   : 1024     entries: error = 0
+    bin #2   : 512      entries: error = 0
+    bin #3   : 256      entries: error = 0
+    bin #4   : 128      entries: error = 0
+Entry[1]: 2 +/- 0; tau = 0
+    bin #1   : 1024     entries: error = 0
+    bin #2   : 512      entries: error = 0
+    bin #3   : 256      entries: error = 0
+    bin #4   : 128      entries: error = 0
+Site Type Field Susceptibility
+Entry[0]: 1.91503 +/- 0.0792646; tau = 0.397036 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0591779
+    bin #2   : 512      entries: error = 0.0653411
+    bin #3   : 256      entries: error = 0.0709521
+    bin #4   : 128      entries: error = 0.0792646
+Entry[1]: 1.90849 +/- 0.0792687; tau = 0.389678 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0594251
+    bin #2   : 512      entries: error = 0.0655495
+    bin #3   : 256      entries: error = 0.0708979
+    bin #4   : 128      entries: error = 0.0792687
+Site Type Magnetization
+Entry[0]: 0.0167961 +/- 0.0311084; tau = 0.0166046
+    bin #1   : 1024     entries: error = 0.0306043
+    bin #2   : 512      entries: error = 0.0292818
+    bin #3   : 256      entries: error = 0.0299337
+    bin #4   : 128      entries: error = 0.0311084
+Entry[1]: -0.014843 +/- 0.0308785; tau = 0.0107092
+    bin #1   : 1024     entries: error = 0.030553
+    bin #2   : 512      entries: error = 0.0296069
+    bin #3   : 256      entries: error = 0.0303625
+    bin #4   : 128      entries: error = 0.0308785
+Site Type Magnetization Density
+Entry[0]: 0.00839805 +/- 0.0155542; tau = 0.0166046
+    bin #1   : 1024     entries: error = 0.0153022
+    bin #2   : 512      entries: error = 0.0146409
+    bin #3   : 256      entries: error = 0.0149668
+    bin #4   : 128      entries: error = 0.0155542
+Entry[1]: -0.00742149 +/- 0.0154392; tau = 0.0107092
+    bin #1   : 1024     entries: error = 0.0152765
+    bin #2   : 512      entries: error = 0.0148034
+    bin #3   : 256      entries: error = 0.0151813
+    bin #4   : 128      entries: error = 0.0154392
+Site Type Susceptibility
+Entry[0]: 0.0424805 +/- 0.0103791; tau = 0.403321 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0077219
+    bin #2   : 512      entries: error = 0.00904602
+    bin #3   : 256      entries: error = 0.0102374
+    bin #4   : 128      entries: error = 0.0103791
+Entry[1]: 0.0356445 +/- 0.0109376; tau = 0.618863 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00731173
+    bin #2   : 512      entries: error = 0.00925991
+    bin #3   : 256      entries: error = 0.0107036
+    bin #4   : 128      entries: error = 0.0109376
+Specific Heat: -0.109086 +/- 0.519 WARNING: ERRORS NOT CONVERGED!!!
+Temperature: 0.25 +/- 0
+Volume: 4 +/- 0
+[input parameters]
+SEED = 23125;
+SWEEPS = 1024;
+MODEL = spin;
+J = 1;
+T = 0.25;
+ALGORITHM = "loop; path integral";
+MEASURE[Local Susceptibility] = 1;
+MEASURE[Site Type Susceptibility] = 1;
+LATTICE = "chain lattice";
+L = 4;
+DIR_NAME = .;
+BASE_NAME = task3;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
+[results]
+Energy: -2.00415 +/- 0.0429; tau = 0.675 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0279584
+    bin #2   : 512      entries: error = 0.0341253
+    bin #3   : 256      entries: error = 0.0392085
+    bin #4   : 128      entries: error = 0.0428516
+Energy Density: -0.501038 +/- 0.0107; tau = 0.675 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00698961
+    bin #2   : 512      entries: error = 0.00853132
+    bin #3   : 256      entries: error = 0.00980212
+    bin #4   : 128      entries: error = 0.0107129
+Energy^2: 4.06445 +/- 0.173; tau = 0.6 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.116634
+    bin #2   : 512      entries: error = 0.139195
+    bin #3   : 256      entries: error = 0.161199
+    bin #4   : 128      entries: error = 0.173032
+Generalized Local Susceptibility
+Entry[0]: 1.18462 +/- 0.0358412; tau = 0.323812 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0279225
+    bin #2   : 512      entries: error = 0.0315779
+    bin #3   : 256      entries: error = 0.0353125
+    bin #4   : 128      entries: error = 0.0358412
+Entry[1]: 1.24347 +/- 0.0378456; tau = 0.396383 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0282653
+    bin #2   : 512      entries: error = 0.0327729
+    bin #3   : 256      entries: error = 0.036122
+    bin #4   : 128      entries: error = 0.0378456
+Entry[2]: 1.27137 +/- 0.0354403; tau = 0.308517 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.02787
+    bin #2   : 512      entries: error = 0.0317071
+    bin #3   : 256      entries: error = 0.0338752
+    bin #4   : 128      entries: error = 0.0354403
+Entry[3]: 1.2182 +/- 0.0333313; tau = 0.229047 WARNING: check error convergence
+    bin #1   : 1024     entries: error = 0.0276032
+    bin #2   : 512      entries: error = 0.0308246
+    bin #3   : 256      entries: error = 0.0333016
+    bin #4   : 128      entries: error = 0.0333313
+Generalized Site Type Susceptibility
+Entry[0]: 1.22941 +/- 0.0301076; tau = 0.278818 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0241236
+    bin #2   : 512      entries: error = 0.0273539
+    bin #3   : 256      entries: error = 0.0298678
+    bin #4   : 128      entries: error = 0.0301076
+Generalized Staggered Local Susceptibility
+Entry[0]: 0.0322266 +/- 0.00993026; tau = 0.623271 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00662527
+    bin #2   : 512      entries: error = 0.00763043
+    bin #3   : 256      entries: error = 0.00879676
+    bin #4   : 128      entries: error = 0.00993026
+Entry[1]: 0.0185547 +/- 0.0111915; tau = 0.79401 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0069567
+    bin #2   : 512      entries: error = 0.00819971
+    bin #3   : 256      entries: error = 0.00936884
+    bin #4   : 128      entries: error = 0.0111915
+Entry[2]: 0.0439453 +/- 0.0121399; tau = 0.806579 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00750988
+    bin #2   : 512      entries: error = 0.00912449
+    bin #3   : 256      entries: error = 0.0108611
+    bin #4   : 128      entries: error = 0.0121399
+Entry[3]: 0.0478516 +/- 0.0111079; tau = 0.681274 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00722671
+    bin #2   : 512      entries: error = 0.0086546
+    bin #3   : 256      entries: error = 0.010435
+    bin #4   : 128      entries: error = 0.0111079
+Generalized Staggered Site Type Susceptibility
+Entry[0]: 0.0356445 +/- 0.00656836; tau = 0.831961 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00402435
+    bin #2   : 512      entries: error = 0.00504857
+    bin #3   : 256      entries: error = 0.00599851
+    bin #4   : 128      entries: error = 0.00656836
+Inverse Temperature: 4 +/- 0
+Local Field Susceptibility
+Entry[0]: 0.405819 +/- 0.015368; tau = 0.421431 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0113206
+    bin #2   : 512      entries: error = 0.0128289
+    bin #3   : 256      entries: error = 0.0142729
+    bin #4   : 128      entries: error = 0.015368
+Entry[1]: 0.398815 +/- 0.0152133; tau = 0.436906 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0111137
+    bin #2   : 512      entries: error = 0.0127778
+    bin #3   : 256      entries: error = 0.0142961
+    bin #4   : 128      entries: error = 0.0152133
+Entry[2]: 0.406248 +/- 0.0151421; tau = 0.399593 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0112888
+    bin #2   : 512      entries: error = 0.0129245
+    bin #3   : 256      entries: error = 0.0146747
+    bin #4   : 128      entries: error = 0.0151421
+Entry[3]: 0.412555 +/- 0.0144096; tau = 0.327339 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.011202
+    bin #2   : 512      entries: error = 0.0125572
+    bin #3   : 256      entries: error = 0.0138069
+    bin #4   : 128      entries: error = 0.0144096
+Local Magnetization
+Entry[0]: 0.012021 +/- 0.00464267; tau = -0.064079
+    bin #1   : 2048     entries: error = 0.0049722
+    bin #2   : 1024     entries: error = 0.00496631
+    bin #3   : 512      entries: error = 0.00500362
+    bin #4   : 256      entries: error = 0.00478993
+    bin #5   : 128      entries: error = 0.00464267
+Entry[1]: -0.00715909 +/- 0.00470654; tau = -0.0449652
+    bin #1   : 2048     entries: error = 0.00493361
+    bin #2   : 1024     entries: error = 0.00493227
+    bin #3   : 512      entries: error = 0.00487291
+    bin #4   : 256      entries: error = 0.004912
+    bin #5   : 128      entries: error = 0.00470654
+Entry[2]: 0.00845469 +/- 0.00499205; tau = 0.00273979
+    bin #1   : 2048     entries: error = 0.00497843
+    bin #2   : 1024     entries: error = 0.00497613
+    bin #3   : 512      entries: error = 0.00510665
+    bin #4   : 256      entries: error = 0.00497005
+    bin #5   : 128      entries: error = 0.00499205
+Entry[3]: -0.0128283 +/- 0.00525905; tau = 0.0504109
+    bin #1   : 2048     entries: error = 0.00501244
+    bin #2   : 1024     entries: error = 0.00500563
+    bin #3   : 512      entries: error = 0.00500175
+    bin #4   : 256      entries: error = 0.00505141
+    bin #5   : 128      entries: error = 0.00525905
+Local Susceptibility
+Entry[0]: 0.0322266 +/- 0.00993026; tau = 0.623271 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00662527
+    bin #2   : 512      entries: error = 0.00763043
+    bin #3   : 256      entries: error = 0.00879676
+    bin #4   : 128      entries: error = 0.00993026
+Entry[1]: 0.0185547 +/- 0.0111915; tau = 0.79401 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0069567
+    bin #2   : 512      entries: error = 0.00819971
+    bin #3   : 256      entries: error = 0.00936884
+    bin #4   : 128      entries: error = 0.0111915
+Entry[2]: 0.0439453 +/- 0.0121399; tau = 0.806579 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00750988
+    bin #2   : 512      entries: error = 0.00912449
+    bin #3   : 256      entries: error = 0.0108611
+    bin #4   : 128      entries: error = 0.0121399
+Entry[3]: 0.0478516 +/- 0.0111079; tau = 0.681274 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00722671
+    bin #2   : 512      entries: error = 0.0086546
+    bin #3   : 256      entries: error = 0.010435
+    bin #4   : 128      entries: error = 0.0111079
+Number of Clusters: 8.04199 +/- 0.0877
+Number of Sites: 4 +/- 0
+Number of Sites of Each Type
+Entry[0]: 4 +/- 0; tau = 0
+    bin #1   : 1024     entries: error = 0
+    bin #2   : 512      entries: error = 0
+    bin #3   : 256      entries: error = 0
+    bin #4   : 128      entries: error = 0
+Site Type Field Susceptibility
+Entry[0]: 0.0400391 +/- 0.00999665; tau = 0.828596 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00613258
+    bin #2   : 512      entries: error = 0.00742998
+    bin #3   : 256      entries: error = 0.00888821
+    bin #4   : 128      entries: error = 0.00999665
+Site Type Magnetization
+Entry[0]: 0.000976562 +/- 0.0068656; tau = 0.101596
+    bin #1   : 1024     entries: error = 0.00625909
+    bin #2   : 512      entries: error = 0.00684583
+    bin #3   : 256      entries: error = 0.0068524
+    bin #4   : 128      entries: error = 0.0068656
+Site Type Magnetization Density
+Entry[0]: 0.000244141 +/- 0.0017164; tau = 0.101596
+    bin #1   : 1024     entries: error = 0.00156477
+    bin #2   : 512      entries: error = 0.00171146
+    bin #3   : 256      entries: error = 0.0017131
+    bin #4   : 128      entries: error = 0.0017164
+Site Type Susceptibility
+Entry[0]: 0.0356445 +/- 0.00656836; tau = 0.831961 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00402435
+    bin #2   : 512      entries: error = 0.00504857
+    bin #3   : 256      entries: error = 0.00599851
+    bin #4   : 128      entries: error = 0.00656836
+Specific Heat: 0.198675 +/- 0.183 WARNING: ERRORS NOT CONVERGED!!!
+Staggered Local Susceptibility
+Entry[0]: 1.18462 +/- 0.0358412; tau = 0.323812 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0279225
+    bin #2   : 512      entries: error = 0.0315779
+    bin #3   : 256      entries: error = 0.0353125
+    bin #4   : 128      entries: error = 0.0358412
+Entry[1]: 1.24347 +/- 0.0378456; tau = 0.396383 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0282653
+    bin #2   : 512      entries: error = 0.0327729
+    bin #3   : 256      entries: error = 0.036122
+    bin #4   : 128      entries: error = 0.0378456
+Entry[2]: 1.27137 +/- 0.0354403; tau = 0.308517 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.02787
+    bin #2   : 512      entries: error = 0.0317071
+    bin #3   : 256      entries: error = 0.0338752
+    bin #4   : 128      entries: error = 0.0354403
+Entry[3]: 1.2182 +/- 0.0333313; tau = 0.229047 WARNING: check error convergence
+    bin #1   : 1024     entries: error = 0.0276032
+    bin #2   : 512      entries: error = 0.0308246
+    bin #3   : 256      entries: error = 0.0333016
+    bin #4   : 128      entries: error = 0.0333313
+Staggered Site Type Field Susceptibility
+Entry[0]: 1.24771 +/- 0.04673; tau = 0.286324 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0372632
+    bin #2   : 512      entries: error = 0.0408754
+    bin #3   : 256      entries: error = 0.0454805
+    bin #4   : 128      entries: error = 0.04673
+Staggered Site Type Magnetization
+Entry[0]: 0.0809262 +/- 0.0339322; tau = -0.0259573
+    bin #1   : 1024     entries: error = 0.0348489
+    bin #2   : 512      entries: error = 0.0349175
+    bin #3   : 256      entries: error = 0.0342105
+    bin #4   : 128      entries: error = 0.0339322
+Staggered Site Type Magnetization Density
+Entry[0]: 0.0202316 +/- 0.00848305; tau = -0.0259573
+    bin #1   : 1024     entries: error = 0.00871221
+    bin #2   : 512      entries: error = 0.00872939
+    bin #3   : 256      entries: error = 0.00855262
+    bin #4   : 128      entries: error = 0.00848305
+Staggered Site Type Susceptibility
+Entry[0]: 1.22941 +/- 0.0301076; tau = 0.278818 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0241236
+    bin #2   : 512      entries: error = 0.0273539
+    bin #3   : 256      entries: error = 0.0298678
+    bin #4   : 128      entries: error = 0.0301076
+Temperature: 0.25 +/- 0
+Volume: 4 +/- 0
+[input parameters]
+SEED = 23125;
+SWEEPS = 1024;
+MODEL = spin;
+J = 1;
+T = 0.25;
+ALGORITHM = "loop; path integral";
+MEASURE[Local Susceptibility] = 1;
+MEASURE[Site Type Susceptibility] = 1;
+LATTICE = "chain lattice";
+L = 4;
+local_S = 1;
+DIR_NAME = .;
+BASE_NAME = task4;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
+[results]
+Energy: -5.98608 +/- 0.0726; tau = 0.594 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0491013
+    bin #2   : 512      entries: error = 0.058626
+    bin #3   : 256      entries: error = 0.0663527
+    bin #4   : 128      entries: error = 0.0726354
+Energy Density: -1.49652 +/- 0.0182; tau = 0.594 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0122753
+    bin #2   : 512      entries: error = 0.0146565
+    bin #3   : 256      entries: error = 0.0165882
+    bin #4   : 128      entries: error = 0.0181588
+Energy^2: 35.8007 +/- 0.881; tau = 0.579 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.5999
+    bin #2   : 512      entries: error = 0.713092
+    bin #3   : 256      entries: error = 0.810001
+    bin #4   : 128      entries: error = 0.881093
+Generalized Local Susceptibility
+Entry[0]: 3.73195 +/- 0.108712; tau = 0.322162 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.084778
+    bin #2   : 512      entries: error = 0.0945917
+    bin #3   : 256      entries: error = 0.103887
+    bin #4   : 128      entries: error = 0.108712
+Entry[1]: 3.80809 +/- 0.107462; tau = 0.346972 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0825665
+    bin #2   : 512      entries: error = 0.0905479
+    bin #3   : 256      entries: error = 0.0996269
+    bin #4   : 128      entries: error = 0.107462
+Entry[2]: 3.92355 +/- 0.107145; tau = 0.283789 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0855769
+    bin #2   : 512      entries: error = 0.0939364
+    bin #3   : 256      entries: error = 0.10512
+    bin #4   : 128      entries: error = 0.107145
+Entry[3]: 3.83097 +/- 0.106184; tau = 0.253688 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0864866
+    bin #2   : 512      entries: error = 0.0963981
+    bin #3   : 256      entries: error = 0.103649
+    bin #4   : 128      entries: error = 0.106184
+Generalized Site Type Susceptibility
+Entry[0]: 3.82364 +/- 0.0939371; tau = 0.291452 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0746638
+    bin #2   : 512      entries: error = 0.0819293
+    bin #3   : 256      entries: error = 0.0895721
+    bin #4   : 128      entries: error = 0.0939371
+Generalized Staggered Local Susceptibility
+Entry[0]: 0.0576172 +/- 0.0122435; tau = 0.416338 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00904405
+    bin #2   : 512      entries: error = 0.0103594
+    bin #3   : 256      entries: error = 0.0112218
+    bin #4   : 128      entries: error = 0.0122435
+Entry[1]: 0.0380859 +/- 0.0162695; tau = 0.621376 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0108638
+    bin #2   : 512      entries: error = 0.0130492
+    bin #3   : 256      entries: error = 0.0150089
+    bin #4   : 128      entries: error = 0.0162695
+Entry[2]: 0.0273438 +/- 0.0140055; tau = 0.513883
+    bin #1   : 1024     entries: error = 0.00983532
+    bin #2   : 512      entries: error = 0.0120761
+    bin #3   : 256      entries: error = 0.0140826
+    bin #4   : 128      entries: error = 0.0140055
+Entry[3]: 0.0332031 +/- 0.0128255; tau = 0.3533
+    bin #1   : 1024     entries: error = 0.00981765
+    bin #2   : 512      entries: error = 0.0125908
+    bin #3   : 256      entries: error = 0.0136873
+    bin #4   : 128      entries: error = 0.0128255
+Generalized Staggered Site Type Susceptibility
+Entry[0]: 0.0390625 +/- 0.00672457; tau = 0.783358 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00419735
+    bin #2   : 512      entries: error = 0.00530061
+    bin #3   : 256      entries: error = 0.00613313
+    bin #4   : 128      entries: error = 0.00672457
+Inverse Temperature: 4 +/- 0
+Local Field Susceptibility
+Entry[0]: 1.05796 +/- 0.0421145; tau = 0.30941 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0331003
+    bin #2   : 512      entries: error = 0.0364473
+    bin #3   : 256      entries: error = 0.0401757
+    bin #4   : 128      entries: error = 0.0421145
+Entry[1]: 1.07612 +/- 0.0460268; tau = 0.452241 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.033352
+    bin #2   : 512      entries: error = 0.0370969
+    bin #3   : 256      entries: error = 0.0396034
+    bin #4   : 128      entries: error = 0.0460268
+Entry[2]: 1.09042 +/- 0.0474263; tau = 0.45845 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0342546
+    bin #2   : 512      entries: error = 0.0379646
+    bin #3   : 256      entries: error = 0.0414265
+    bin #4   : 128      entries: error = 0.0474263
+Entry[3]: 1.04449 +/- 0.0432699; tau = 0.351573 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0331559
+    bin #2   : 512      entries: error = 0.0375218
+    bin #3   : 256      entries: error = 0.0409354
+    bin #4   : 128      entries: error = 0.0432699
+Local Magnetization
+Entry[0]: 0.00346259 +/- 0.00845206; tau = 0.0526659
+    bin #1   : 2048     entries: error = 0.00803926
+    bin #2   : 1024     entries: error = 0.00804086
+    bin #3   : 512      entries: error = 0.00785857
+    bin #4   : 256      entries: error = 0.00800464
+    bin #5   : 128      entries: error = 0.00845206
+Entry[1]: -0.00803983 +/- 0.00864338; tau = 0.0684359
+    bin #1   : 2048     entries: error = 0.0081064
+    bin #2   : 1024     entries: error = 0.00810643
+    bin #3   : 512      entries: error = 0.00802558
+    bin #4   : 256      entries: error = 0.00818104
+    bin #5   : 128      entries: error = 0.00864338
+Entry[2]: 0.00493546 +/- 0.0079602; tau = -0.0243405
+    bin #1   : 2048     entries: error = 0.00816133
+    bin #2   : 1024     entries: error = 0.00816259
+    bin #3   : 512      entries: error = 0.00768693
+    bin #4   : 256      entries: error = 0.00792178
+    bin #5   : 128      entries: error = 0.0079602
+Entry[3]: 0.00061834 +/- 0.00748446; tau = -0.061083
+    bin #1   : 2048     entries: error = 0.0079883
+    bin #2   : 1024     entries: error = 0.00799024
+    bin #3   : 512      entries: error = 0.00756865
+    bin #4   : 256      entries: error = 0.00770162
+    bin #5   : 128      entries: error = 0.00748446
+Local Susceptibility
+Entry[0]: 0.0576172 +/- 0.0122435; tau = 0.416338 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00904405
+    bin #2   : 512      entries: error = 0.0103594
+    bin #3   : 256      entries: error = 0.0112218
+    bin #4   : 128      entries: error = 0.0122435
+Entry[1]: 0.0380859 +/- 0.0162695; tau = 0.621376 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0108638
+    bin #2   : 512      entries: error = 0.0130492
+    bin #3   : 256      entries: error = 0.0150089
+    bin #4   : 128      entries: error = 0.0162695
+Entry[2]: 0.0273438 +/- 0.0140055; tau = 0.513883
+    bin #1   : 1024     entries: error = 0.00983532
+    bin #2   : 512      entries: error = 0.0120761
+    bin #3   : 256      entries: error = 0.0140826
+    bin #4   : 128      entries: error = 0.0140055
+Entry[3]: 0.0332031 +/- 0.0128255; tau = 0.3533
+    bin #1   : 1024     entries: error = 0.00981765
+    bin #2   : 512      entries: error = 0.0125908
+    bin #3   : 256      entries: error = 0.0136873
+    bin #4   : 128      entries: error = 0.0128255
+Number of Clusters: 16.1016 +/- 0.124
+Number of Sites: 4 +/- 0
+Number of Sites of Each Type
+Entry[0]: 4 +/- 0; tau = 0
+    bin #1   : 1024     entries: error = 0
+    bin #2   : 512      entries: error = 0
+    bin #3   : 256      entries: error = 0
+    bin #4   : 128      entries: error = 0
+Site Type Field Susceptibility
+Entry[0]: 0.0410156 +/- 0.0090016; tau = 0.552689 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00620376
+    bin #2   : 512      entries: error = 0.00748372
+    bin #3   : 256      entries: error = 0.00848417
+    bin #4   : 128      entries: error = 0.0090016
+Site Type Magnetization
+Entry[0]: 0.00195312 +/- 0.00635446; tau = 0.00311709
+    bin #1   : 1024     entries: error = 0.00633474
+    bin #2   : 512      entries: error = 0.00663252
+    bin #3   : 256      entries: error = 0.00663846
+    bin #4   : 128      entries: error = 0.00635446
+Site Type Magnetization Density
+Entry[0]: 0.000488281 +/- 0.00158861; tau = 0.00311709
+    bin #1   : 1024     entries: error = 0.00158369
+    bin #2   : 512      entries: error = 0.00165813
+    bin #3   : 256      entries: error = 0.00165961
+    bin #4   : 128      entries: error = 0.00158861
+Site Type Susceptibility
+Entry[0]: 0.0390625 +/- 0.00672457; tau = 0.783358 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00419735
+    bin #2   : 512      entries: error = 0.00530061
+    bin #3   : 256      entries: error = 0.00613313
+    bin #4   : 128      entries: error = 0.00672457
+Specific Heat: -0.109086 +/- 0.519 WARNING: ERRORS NOT CONVERGED!!!
+Staggered Local Susceptibility
+Entry[0]: 3.73195 +/- 0.108712; tau = 0.322162 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.084778
+    bin #2   : 512      entries: error = 0.0945917
+    bin #3   : 256      entries: error = 0.103887
+    bin #4   : 128      entries: error = 0.108712
+Entry[1]: 3.80809 +/- 0.107462; tau = 0.346972 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0825665
+    bin #2   : 512      entries: error = 0.0905479
+    bin #3   : 256      entries: error = 0.0996269
+    bin #4   : 128      entries: error = 0.107462
+Entry[2]: 3.92355 +/- 0.107145; tau = 0.283789 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0855769
+    bin #2   : 512      entries: error = 0.0939364
+    bin #3   : 256      entries: error = 0.10512
+    bin #4   : 128      entries: error = 0.107145
+Entry[3]: 3.83097 +/- 0.106184; tau = 0.253688 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0864866
+    bin #2   : 512      entries: error = 0.0963981
+    bin #3   : 256      entries: error = 0.103649
+    bin #4   : 128      entries: error = 0.106184
+Staggered Site Type Field Susceptibility
+Entry[0]: 3.7825 +/- 0.157583; tau = 0.380658 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.118738
+    bin #2   : 512      entries: error = 0.130576
+    bin #3   : 256      entries: error = 0.140909
+    bin #4   : 128      entries: error = 0.157583
+Staggered Site Type Magnetization
+Entry[0]: 0.0316391 +/- 0.0616607; tau = 0.0137762
+    bin #1   : 1024     entries: error = 0.0608284
+    bin #2   : 512      entries: error = 0.0585149
+    bin #3   : 256      entries: error = 0.0599312
+    bin #4   : 128      entries: error = 0.0616607
+Staggered Site Type Magnetization Density
+Entry[0]: 0.00790977 +/- 0.0154152; tau = 0.0137762
+    bin #1   : 1024     entries: error = 0.0152071
+    bin #2   : 512      entries: error = 0.0146287
+    bin #3   : 256      entries: error = 0.0149828
+    bin #4   : 128      entries: error = 0.0154152
+Staggered Site Type Susceptibility
+Entry[0]: 3.82364 +/- 0.0939371; tau = 0.291452 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0746638
+    bin #2   : 512      entries: error = 0.0819293
+    bin #3   : 256      entries: error = 0.0895721
+    bin #4   : 128      entries: error = 0.0939371
+Temperature: 0.25 +/- 0
+Volume: 4 +/- 0
+[input parameters]
+SEED = 23125;
+SWEEPS = 1024;
+MODEL = spin;
+J = 1;
+T = 0.25;
+ALGORITHM = "loop; path integral";
+MEASURE[Local Susceptibility] = 1;
+MEASURE[Site Type Susceptibility] = 1;
+LATTICE = "4-site mixed";
+L = 4;
+DISABLE_IMPROVED_ESTIMATOR = 1;
+DIR_NAME = .;
+BASE_NAME = task5;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
+[results]
+Energy: -2.00415 +/- 0.0429; tau = 0.675 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0279584
+    bin #2   : 512      entries: error = 0.0341253
+    bin #3   : 256      entries: error = 0.0392085
+    bin #4   : 128      entries: error = 0.0428516
+Energy Density: -0.501038 +/- 0.0107; tau = 0.675 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00698961
+    bin #2   : 512      entries: error = 0.00853132
+    bin #3   : 256      entries: error = 0.00980212
+    bin #4   : 128      entries: error = 0.0107129
+Energy^2: 4.06445 +/- 0.173; tau = 0.6 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.116634
+    bin #2   : 512      entries: error = 0.139195
+    bin #3   : 256      entries: error = 0.161199
+    bin #4   : 128      entries: error = 0.173032
+Inverse Temperature: 4 +/- 0
+Local Field Susceptibility
+Entry[0]: 0.405819 +/- 0.015368; tau = 0.421431 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0113206
+    bin #2   : 512      entries: error = 0.0128289
+    bin #3   : 256      entries: error = 0.0142729
+    bin #4   : 128      entries: error = 0.015368
+Entry[1]: 0.398815 +/- 0.0152133; tau = 0.436906 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0111137
+    bin #2   : 512      entries: error = 0.0127778
+    bin #3   : 256      entries: error = 0.0142961
+    bin #4   : 128      entries: error = 0.0152133
+Entry[2]: 0.406248 +/- 0.0151421; tau = 0.399593 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0112888
+    bin #2   : 512      entries: error = 0.0129245
+    bin #3   : 256      entries: error = 0.0146747
+    bin #4   : 128      entries: error = 0.0151421
+Entry[3]: 0.412555 +/- 0.0144096; tau = 0.327339 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.011202
+    bin #2   : 512      entries: error = 0.0125572
+    bin #3   : 256      entries: error = 0.0138069
+    bin #4   : 128      entries: error = 0.0144096
+Local Magnetization
+Entry[0]: 0.024042 +/- 0.0092876; tau = -0.0630437
+    bin #1   : 1024     entries: error = 0.00993504
+    bin #2   : 512      entries: error = 0.0100097
+    bin #3   : 256      entries: error = 0.0095822
+    bin #4   : 128      entries: error = 0.0092876
+Entry[1]: -0.0143182 +/- 0.00941539; tau = -0.044719
+    bin #1   : 1024     entries: error = 0.00986696
+    bin #2   : 512      entries: error = 0.0097482
+    bin #3   : 256      entries: error = 0.00982639
+    bin #4   : 128      entries: error = 0.00941539
+Entry[2]: 0.0169094 +/- 0.00998653; tau = 0.00320352
+    bin #1   : 1024     entries: error = 0.0099547
+    bin #2   : 512      entries: error = 0.0102158
+    bin #3   : 256      entries: error = 0.00994253
+    bin #4   : 128      entries: error = 0.00998653
+Entry[3]: -0.0256566 +/- 0.0105207; tau = 0.0519089
+    bin #1   : 1024     entries: error = 0.0100137
+    bin #2   : 512      entries: error = 0.0100059
+    bin #3   : 256      entries: error = 0.0101053
+    bin #4   : 128      entries: error = 0.0105207
+Local Susceptibility
+Entry[0]: 0.0392654 +/- 0.0147082; tau = 0.786345 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0091699
+    bin #2   : 512      entries: error = 0.0107273
+    bin #3   : 256      entries: error = 0.0128581
+    bin #4   : 128      entries: error = 0.0147082
+Entry[1]: 0.0309727 +/- 0.0126728; tau = 0.735111 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00806317
+    bin #2   : 512      entries: error = 0.00931256
+    bin #3   : 256      entries: error = 0.0107218
+    bin #4   : 128      entries: error = 0.0126728
+Entry[2]: 0.0354127 +/- 0.0175446; tau = 0.979837 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0101982
+    bin #2   : 512      entries: error = 0.0127483
+    bin #3   : 256      entries: error = 0.0149755
+    bin #4   : 128      entries: error = 0.0175446
+Entry[3]: 0.0545055 +/- 0.0173264; tau = 0.952177 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0101668
+    bin #2   : 512      entries: error = 0.0122608
+    bin #3   : 256      entries: error = 0.0150331
+    bin #4   : 128      entries: error = 0.0173264
+Number of Clusters: 8.04199 +/- 0.0877
+Number of Sites: 4 +/- 0
+Number of Sites of Each Type
+Entry[0]: 2 +/- 0; tau = 0
+    bin #1   : 1024     entries: error = 0
+    bin #2   : 512      entries: error = 0
+    bin #3   : 256      entries: error = 0
+    bin #4   : 128      entries: error = 0
+Entry[1]: 2 +/- 0; tau = 0
+    bin #1   : 1024     entries: error = 0
+    bin #2   : 512      entries: error = 0
+    bin #3   : 256      entries: error = 0
+    bin #4   : 128      entries: error = 0
+Site Type Field Susceptibility
+Entry[0]: 0.641175 +/- 0.0235307; tau = 0.295853 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0186511
+    bin #2   : 512      entries: error = 0.0206728
+    bin #3   : 256      entries: error = 0.0230284
+    bin #4   : 128      entries: error = 0.0235307
+Entry[1]: 0.646575 +/- 0.0245196; tau = 0.3476 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0188323
+    bin #2   : 512      entries: error = 0.0211301
+    bin #3   : 256      entries: error = 0.0236608
+    bin #4   : 128      entries: error = 0.0245196
+Site Type Magnetization
+Entry[0]: 0.0409514 +/- 0.0168401; tau = -0.0455956
+    bin #1   : 1024     entries: error = 0.0176648
+    bin #2   : 512      entries: error = 0.0178603
+    bin #3   : 256      entries: error = 0.0172216
+    bin #4   : 128      entries: error = 0.0168401
+Entry[1]: -0.0399748 +/- 0.0177673; tau = 0.00144909
+    bin #1   : 1024     entries: error = 0.0177416
+    bin #2   : 512      entries: error = 0.0177218
+    bin #3   : 256      entries: error = 0.0176655
+    bin #4   : 128      entries: error = 0.0177673
+Site Type Magnetization Density
+Entry[0]: 0.0204757 +/- 0.00842005; tau = -0.0455956
+    bin #1   : 1024     entries: error = 0.0088324
+    bin #2   : 512      entries: error = 0.00893013
+    bin #3   : 256      entries: error = 0.00861082
+    bin #4   : 128      entries: error = 0.00842005
+Entry[1]: -0.0199874 +/- 0.00888364; tau = 0.00144909
+    bin #1   : 1024     entries: error = 0.0088708
+    bin #2   : 512      entries: error = 0.00886089
+    bin #3   : 256      entries: error = 0.00883277
+    bin #4   : 128      entries: error = 0.00888364
+Site Type Susceptibility
+Entry[0]: 0.0373391 +/- 0.0105321; tau = 0.724117 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00673113
+    bin #2   : 512      entries: error = 0.00812926
+    bin #3   : 256      entries: error = 0.00962179
+    bin #4   : 128      entries: error = 0.0105321
+Entry[1]: 0.0427391 +/- 0.0126364; tau = 0.939787 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00744664
+    bin #2   : 512      entries: error = 0.00895191
+    bin #3   : 256      entries: error = 0.0105565
+    bin #4   : 128      entries: error = 0.0126364
+Specific Heat: 0.198675 +/- 0.183 WARNING: ERRORS NOT CONVERGED!!!
+Temperature: 0.25 +/- 0
+Volume: 4 +/- 0
+[input parameters]
+SEED = 23125;
+SWEEPS = 1024;
+MODEL = spin;
+J = 1;
+T = 0.25;
+ALGORITHM = "loop; path integral";
+MEASURE[Local Susceptibility] = 1;
+MEASURE[Site Type Susceptibility] = 1;
+LATTICE = "4-site mixed";
+L = 4;
+DISABLE_IMPROVED_ESTIMATOR = 1;
+local_S = 1;
+DIR_NAME = .;
+BASE_NAME = task6;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
+[results]
+Energy: -5.98608 +/- 0.0726; tau = 0.594 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0491013
+    bin #2   : 512      entries: error = 0.058626
+    bin #3   : 256      entries: error = 0.0663527
+    bin #4   : 128      entries: error = 0.0726354
+Energy Density: -1.49652 +/- 0.0182; tau = 0.594 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0122753
+    bin #2   : 512      entries: error = 0.0146565
+    bin #3   : 256      entries: error = 0.0165882
+    bin #4   : 128      entries: error = 0.0181588
+Energy^2: 35.8007 +/- 0.881; tau = 0.579 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.5999
+    bin #2   : 512      entries: error = 0.713092
+    bin #3   : 256      entries: error = 0.810001
+    bin #4   : 128      entries: error = 0.881093
+Inverse Temperature: 4 +/- 0
+Local Field Susceptibility
+Entry[0]: 1.05796 +/- 0.0421145; tau = 0.30941 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0331003
+    bin #2   : 512      entries: error = 0.0364473
+    bin #3   : 256      entries: error = 0.0401757
+    bin #4   : 128      entries: error = 0.0421145
+Entry[1]: 1.07612 +/- 0.0460268; tau = 0.452241 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.033352
+    bin #2   : 512      entries: error = 0.0370969
+    bin #3   : 256      entries: error = 0.0396034
+    bin #4   : 128      entries: error = 0.0460268
+Entry[2]: 1.09042 +/- 0.0474263; tau = 0.45845 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0342546
+    bin #2   : 512      entries: error = 0.0379646
+    bin #3   : 256      entries: error = 0.0414265
+    bin #4   : 128      entries: error = 0.0474263
+Entry[3]: 1.04449 +/- 0.0432699; tau = 0.351573 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0331559
+    bin #2   : 512      entries: error = 0.0375218
+    bin #3   : 256      entries: error = 0.0409354
+    bin #4   : 128      entries: error = 0.0432699
+Local Magnetization
+Entry[0]: 0.00692518 +/- 0.0169082; tau = 0.052446
+    bin #1   : 1024     entries: error = 0.0160857
+    bin #2   : 512      entries: error = 0.015721
+    bin #3   : 256      entries: error = 0.0160132
+    bin #4   : 128      entries: error = 0.0169082
+Entry[1]: -0.0160797 +/- 0.017291; tau = 0.0684315
+    bin #1   : 1024     entries: error = 0.0162168
+    bin #2   : 512      entries: error = 0.0160551
+    bin #3   : 256      entries: error = 0.0163661
+    bin #4   : 128      entries: error = 0.017291
+Entry[2]: 0.00987092 +/- 0.0159243; tau = -0.0244878
+    bin #1   : 1024     entries: error = 0.0163292
+    bin #2   : 512      entries: error = 0.0153776
+    bin #3   : 256      entries: error = 0.0158474
+    bin #4   : 128      entries: error = 0.0159243
+Entry[3]: 0.00123668 +/- 0.0149726; tau = -0.0612961
+    bin #1   : 1024     entries: error = 0.0159844
+    bin #2   : 512      entries: error = 0.015141
+    bin #3   : 256      entries: error = 0.015407
+    bin #4   : 128      entries: error = 0.0149726
+Local Susceptibility
+Entry[0]: 0.0449749 +/- 0.0121673; tau = 0.325866 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00946723
+    bin #2   : 512      entries: error = 0.0108313
+    bin #3   : 256      entries: error = 0.0109853
+    bin #4   : 128      entries: error = 0.0121673
+Entry[1]: 0.0397351 +/- 0.0171774; tau = 0.803075 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0106404
+    bin #2   : 512      entries: error = 0.0130856
+    bin #3   : 256      entries: error = 0.0162538
+    bin #4   : 128      entries: error = 0.0171774
+Entry[2]: 0.0435985 +/- 0.0140893; tau = 0.386664 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0105802
+    bin #2   : 512      entries: error = 0.0120846
+    bin #3   : 256      entries: error = 0.0127535
+    bin #4   : 128      entries: error = 0.0140893
+Entry[3]: 0.035754 +/- 0.0149291; tau = 0.404454
+    bin #1   : 1024     entries: error = 0.0111001
+    bin #2   : 512      entries: error = 0.0133243
+    bin #3   : 256      entries: error = 0.015241
+    bin #4   : 128      entries: error = 0.0149291
+Number of Clusters: 16.1016 +/- 0.124
+Number of Sites: 4 +/- 0
+Number of Sites of Each Type
+Entry[0]: 2 +/- 0; tau = 0
+    bin #1   : 1024     entries: error = 0
+    bin #2   : 512      entries: error = 0
+    bin #3   : 256      entries: error = 0
+    bin #4   : 128      entries: error = 0
+Entry[1]: 2 +/- 0; tau = 0
+    bin #1   : 1024     entries: error = 0
+    bin #2   : 512      entries: error = 0
+    bin #3   : 256      entries: error = 0
+    bin #4   : 128      entries: error = 0
+Site Type Field Susceptibility
+Entry[0]: 1.91503 +/- 0.0792646; tau = 0.397036 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0591779
+    bin #2   : 512      entries: error = 0.0653411
+    bin #3   : 256      entries: error = 0.0709521
+    bin #4   : 128      entries: error = 0.0792646
+Entry[1]: 1.90849 +/- 0.0792687; tau = 0.389678 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0594251
+    bin #2   : 512      entries: error = 0.0655495
+    bin #3   : 256      entries: error = 0.0708979
+    bin #4   : 128      entries: error = 0.0792687
+Site Type Magnetization
+Entry[0]: 0.0167961 +/- 0.0311084; tau = 0.0166046
+    bin #1   : 1024     entries: error = 0.0306043
+    bin #2   : 512      entries: error = 0.0292818
+    bin #3   : 256      entries: error = 0.0299337
+    bin #4   : 128      entries: error = 0.0311084
+Entry[1]: -0.014843 +/- 0.0308785; tau = 0.0107092
+    bin #1   : 1024     entries: error = 0.030553
+    bin #2   : 512      entries: error = 0.0296069
+    bin #3   : 256      entries: error = 0.0303625
+    bin #4   : 128      entries: error = 0.0308785
+Site Type Magnetization Density
+Entry[0]: 0.00839805 +/- 0.0155542; tau = 0.0166046
+    bin #1   : 1024     entries: error = 0.0153022
+    bin #2   : 512      entries: error = 0.0146409
+    bin #3   : 256      entries: error = 0.0149668
+    bin #4   : 128      entries: error = 0.0155542
+Entry[1]: -0.00742149 +/- 0.0154392; tau = 0.0107092
+    bin #1   : 1024     entries: error = 0.0152765
+    bin #2   : 512      entries: error = 0.0148034
+    bin #3   : 256      entries: error = 0.0151813
+    bin #4   : 128      entries: error = 0.0154392
+Site Type Susceptibility
+Entry[0]: 0.0442867 +/- 0.0120046; tau = 0.36319 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00913645
+    bin #2   : 512      entries: error = 0.0105314
+    bin #3   : 256      entries: error = 0.0109362
+    bin #4   : 128      entries: error = 0.0120046
+Entry[1]: 0.0377446 +/- 0.012564; tau = 0.60857
+    bin #1   : 1024     entries: error = 0.00843785
+    bin #2   : 512      entries: error = 0.0101591
+    bin #3   : 256      entries: error = 0.0127501
+    bin #4   : 128      entries: error = 0.012564
+Specific Heat: -0.109086 +/- 0.519 WARNING: ERRORS NOT CONVERGED!!!
+Temperature: 0.25 +/- 0
+Volume: 4 +/- 0
+[input parameters]
+SEED = 23125;
+SWEEPS = 1024;
+MODEL = spin;
+J = 1;
+T = 0.25;
+ALGORITHM = "loop; path integral";
+MEASURE[Local Susceptibility] = 1;
+MEASURE[Site Type Susceptibility] = 1;
+LATTICE = "chain lattice";
+L = 4;
+DISABLE_IMPROVED_ESTIMATOR = 1;
+DIR_NAME = .;
+BASE_NAME = task7;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
+[results]
+Energy: -2.00415 +/- 0.0429; tau = 0.675 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0279584
+    bin #2   : 512      entries: error = 0.0341253
+    bin #3   : 256      entries: error = 0.0392085
+    bin #4   : 128      entries: error = 0.0428516
+Energy Density: -0.501038 +/- 0.0107; tau = 0.675 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00698961
+    bin #2   : 512      entries: error = 0.00853132
+    bin #3   : 256      entries: error = 0.00980212
+    bin #4   : 128      entries: error = 0.0107129
+Energy^2: 4.06445 +/- 0.173; tau = 0.6 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.116634
+    bin #2   : 512      entries: error = 0.139195
+    bin #3   : 256      entries: error = 0.161199
+    bin #4   : 128      entries: error = 0.173032
+Inverse Temperature: 4 +/- 0
+Local Field Susceptibility
+Entry[0]: 0.405819 +/- 0.015368; tau = 0.421431 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0113206
+    bin #2   : 512      entries: error = 0.0128289
+    bin #3   : 256      entries: error = 0.0142729
+    bin #4   : 128      entries: error = 0.015368
+Entry[1]: 0.398815 +/- 0.0152133; tau = 0.436906 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0111137
+    bin #2   : 512      entries: error = 0.0127778
+    bin #3   : 256      entries: error = 0.0142961
+    bin #4   : 128      entries: error = 0.0152133
+Entry[2]: 0.406248 +/- 0.0151421; tau = 0.399593 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0112888
+    bin #2   : 512      entries: error = 0.0129245
+    bin #3   : 256      entries: error = 0.0146747
+    bin #4   : 128      entries: error = 0.0151421
+Entry[3]: 0.412555 +/- 0.0144096; tau = 0.327339 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.011202
+    bin #2   : 512      entries: error = 0.0125572
+    bin #3   : 256      entries: error = 0.0138069
+    bin #4   : 128      entries: error = 0.0144096
+Local Magnetization
+Entry[0]: 0.024042 +/- 0.0092876; tau = -0.0630437
+    bin #1   : 1024     entries: error = 0.00993504
+    bin #2   : 512      entries: error = 0.0100097
+    bin #3   : 256      entries: error = 0.0095822
+    bin #4   : 128      entries: error = 0.0092876
+Entry[1]: -0.0143182 +/- 0.00941539; tau = -0.044719
+    bin #1   : 1024     entries: error = 0.00986696
+    bin #2   : 512      entries: error = 0.0097482
+    bin #3   : 256      entries: error = 0.00982639
+    bin #4   : 128      entries: error = 0.00941539
+Entry[2]: 0.0169094 +/- 0.00998653; tau = 0.00320352
+    bin #1   : 1024     entries: error = 0.0099547
+    bin #2   : 512      entries: error = 0.0102158
+    bin #3   : 256      entries: error = 0.00994253
+    bin #4   : 128      entries: error = 0.00998653
+Entry[3]: -0.0256566 +/- 0.0105207; tau = 0.0519089
+    bin #1   : 1024     entries: error = 0.0100137
+    bin #2   : 512      entries: error = 0.0100059
+    bin #3   : 256      entries: error = 0.0101053
+    bin #4   : 128      entries: error = 0.0105207
+Local Susceptibility
+Entry[0]: 0.0392654 +/- 0.0147082; tau = 0.786345 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0091699
+    bin #2   : 512      entries: error = 0.0107273
+    bin #3   : 256      entries: error = 0.0128581
+    bin #4   : 128      entries: error = 0.0147082
+Entry[1]: 0.0309727 +/- 0.0126728; tau = 0.735111 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00806317
+    bin #2   : 512      entries: error = 0.00931256
+    bin #3   : 256      entries: error = 0.0107218
+    bin #4   : 128      entries: error = 0.0126728
+Entry[2]: 0.0354127 +/- 0.0175446; tau = 0.979837 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0101982
+    bin #2   : 512      entries: error = 0.0127483
+    bin #3   : 256      entries: error = 0.0149755
+    bin #4   : 128      entries: error = 0.0175446
+Entry[3]: 0.0545055 +/- 0.0173264; tau = 0.952177 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0101668
+    bin #2   : 512      entries: error = 0.0122608
+    bin #3   : 256      entries: error = 0.0150331
+    bin #4   : 128      entries: error = 0.0173264
+Number of Clusters: 8.04199 +/- 0.0877
+Number of Sites: 4 +/- 0
+Number of Sites of Each Type
+Entry[0]: 4 +/- 0; tau = 0
+    bin #1   : 1024     entries: error = 0
+    bin #2   : 512      entries: error = 0
+    bin #3   : 256      entries: error = 0
+    bin #4   : 128      entries: error = 0
+Site Type Field Susceptibility
+Entry[0]: 0.0400391 +/- 0.00999665; tau = 0.828596 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00613258
+    bin #2   : 512      entries: error = 0.00742998
+    bin #3   : 256      entries: error = 0.00888821
+    bin #4   : 128      entries: error = 0.00999665
+Site Type Magnetization
+Entry[0]: 0.000976562 +/- 0.0068656; tau = 0.101596
+    bin #1   : 1024     entries: error = 0.00625909
+    bin #2   : 512      entries: error = 0.00684583
+    bin #3   : 256      entries: error = 0.0068524
+    bin #4   : 128      entries: error = 0.0068656
+Site Type Magnetization Density
+Entry[0]: 0.000244141 +/- 0.0017164; tau = 0.101596
+    bin #1   : 1024     entries: error = 0.00156477
+    bin #2   : 512      entries: error = 0.00171146
+    bin #3   : 256      entries: error = 0.0017131
+    bin #4   : 128      entries: error = 0.0017164
+Site Type Susceptibility
+Entry[0]: 0.0400391 +/- 0.00999665; tau = 0.828596 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00613258
+    bin #2   : 512      entries: error = 0.00742998
+    bin #3   : 256      entries: error = 0.00888821
+    bin #4   : 128      entries: error = 0.00999665
+Specific Heat: 0.198675 +/- 0.183 WARNING: ERRORS NOT CONVERGED!!!
+Staggered Local Susceptibility
+Entry[0]: 1.24265 +/- 0.0502893; tau = 0.275837 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0403716
+    bin #2   : 512      entries: error = 0.0442834
+    bin #3   : 256      entries: error = 0.0483556
+    bin #4   : 128      entries: error = 0.0502893
+Entry[1]: 1.24844 +/- 0.0507972; tau = 0.319104 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0396876
+    bin #2   : 512      entries: error = 0.0438327
+    bin #3   : 256      entries: error = 0.0492878
+    bin #4   : 128      entries: error = 0.0507972
+Entry[2]: 1.24737 +/- 0.0508553; tau = 0.311596 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0399164
+    bin #2   : 512      entries: error = 0.043986
+    bin #3   : 256      entries: error = 0.0491417
+    bin #4   : 128      entries: error = 0.0508553
+Entry[3]: 1.25238 +/- 0.0507597; tau = 0.298134 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0401759
+    bin #2   : 512      entries: error = 0.044181
+    bin #3   : 256      entries: error = 0.0486369
+    bin #4   : 128      entries: error = 0.0507597
+Staggered Site Type Field Susceptibility
+Entry[0]: 1.24771 +/- 0.04673; tau = 0.286324 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0372632
+    bin #2   : 512      entries: error = 0.0408754
+    bin #3   : 256      entries: error = 0.0454805
+    bin #4   : 128      entries: error = 0.04673
+Staggered Site Type Magnetization
+Entry[0]: 0.0809262 +/- 0.0339322; tau = -0.0259573
+    bin #1   : 1024     entries: error = 0.0348489
+    bin #2   : 512      entries: error = 0.0349175
+    bin #3   : 256      entries: error = 0.0342105
+    bin #4   : 128      entries: error = 0.0339322
+Staggered Site Type Magnetization Density
+Entry[0]: 0.0202316 +/- 0.00848305; tau = -0.0259573
+    bin #1   : 1024     entries: error = 0.00871221
+    bin #2   : 512      entries: error = 0.00872939
+    bin #3   : 256      entries: error = 0.00855262
+    bin #4   : 128      entries: error = 0.00848305
+Staggered Site Type Susceptibility
+Entry[0]: 1.24771 +/- 0.04673; tau = 0.286324 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0372632
+    bin #2   : 512      entries: error = 0.0408754
+    bin #3   : 256      entries: error = 0.0454805
+    bin #4   : 128      entries: error = 0.04673
+Temperature: 0.25 +/- 0
+Volume: 4 +/- 0
+[input parameters]
+SEED = 23125;
+SWEEPS = 1024;
+MODEL = spin;
+J = 1;
+T = 0.25;
+ALGORITHM = "loop; path integral";
+MEASURE[Local Susceptibility] = 1;
+MEASURE[Site Type Susceptibility] = 1;
+LATTICE = "chain lattice";
+L = 4;
+DISABLE_IMPROVED_ESTIMATOR = 1;
+local_S = 1;
+DIR_NAME = .;
+BASE_NAME = task8;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
+[results]
+Energy: -5.98608 +/- 0.0726; tau = 0.594 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0491013
+    bin #2   : 512      entries: error = 0.058626
+    bin #3   : 256      entries: error = 0.0663527
+    bin #4   : 128      entries: error = 0.0726354
+Energy Density: -1.49652 +/- 0.0182; tau = 0.594 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0122753
+    bin #2   : 512      entries: error = 0.0146565
+    bin #3   : 256      entries: error = 0.0165882
+    bin #4   : 128      entries: error = 0.0181588
+Energy^2: 35.8007 +/- 0.881; tau = 0.579 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.5999
+    bin #2   : 512      entries: error = 0.713092
+    bin #3   : 256      entries: error = 0.810001
+    bin #4   : 128      entries: error = 0.881093
+Inverse Temperature: 4 +/- 0
+Local Field Susceptibility
+Entry[0]: 1.05796 +/- 0.0421145; tau = 0.30941 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0331003
+    bin #2   : 512      entries: error = 0.0364473
+    bin #3   : 256      entries: error = 0.0401757
+    bin #4   : 128      entries: error = 0.0421145
+Entry[1]: 1.07612 +/- 0.0460268; tau = 0.452241 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.033352
+    bin #2   : 512      entries: error = 0.0370969
+    bin #3   : 256      entries: error = 0.0396034
+    bin #4   : 128      entries: error = 0.0460268
+Entry[2]: 1.09042 +/- 0.0474263; tau = 0.45845 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0342546
+    bin #2   : 512      entries: error = 0.0379646
+    bin #3   : 256      entries: error = 0.0414265
+    bin #4   : 128      entries: error = 0.0474263
+Entry[3]: 1.04449 +/- 0.0432699; tau = 0.351573 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0331559
+    bin #2   : 512      entries: error = 0.0375218
+    bin #3   : 256      entries: error = 0.0409354
+    bin #4   : 128      entries: error = 0.0432699
+Local Magnetization
+Entry[0]: 0.00692518 +/- 0.0169082; tau = 0.052446
+    bin #1   : 1024     entries: error = 0.0160857
+    bin #2   : 512      entries: error = 0.015721
+    bin #3   : 256      entries: error = 0.0160132
+    bin #4   : 128      entries: error = 0.0169082
+Entry[1]: -0.0160797 +/- 0.017291; tau = 0.0684315
+    bin #1   : 1024     entries: error = 0.0162168
+    bin #2   : 512      entries: error = 0.0160551
+    bin #3   : 256      entries: error = 0.0163661
+    bin #4   : 128      entries: error = 0.017291
+Entry[2]: 0.00987092 +/- 0.0159243; tau = -0.0244878
+    bin #1   : 1024     entries: error = 0.0163292
+    bin #2   : 512      entries: error = 0.0153776
+    bin #3   : 256      entries: error = 0.0158474
+    bin #4   : 128      entries: error = 0.0159243
+Entry[3]: 0.00123668 +/- 0.0149726; tau = -0.0612961
+    bin #1   : 1024     entries: error = 0.0159844
+    bin #2   : 512      entries: error = 0.015141
+    bin #3   : 256      entries: error = 0.015407
+    bin #4   : 128      entries: error = 0.0149726
+Local Susceptibility
+Entry[0]: 0.0449749 +/- 0.0121673; tau = 0.325866 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00946723
+    bin #2   : 512      entries: error = 0.0108313
+    bin #3   : 256      entries: error = 0.0109853
+    bin #4   : 128      entries: error = 0.0121673
+Entry[1]: 0.0397351 +/- 0.0171774; tau = 0.803075 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0106404
+    bin #2   : 512      entries: error = 0.0130856
+    bin #3   : 256      entries: error = 0.0162538
+    bin #4   : 128      entries: error = 0.0171774
+Entry[2]: 0.0435985 +/- 0.0140893; tau = 0.386664 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.0105802
+    bin #2   : 512      entries: error = 0.0120846
+    bin #3   : 256      entries: error = 0.0127535
+    bin #4   : 128      entries: error = 0.0140893
+Entry[3]: 0.035754 +/- 0.0149291; tau = 0.404454
+    bin #1   : 1024     entries: error = 0.0111001
+    bin #2   : 512      entries: error = 0.0133243
+    bin #3   : 256      entries: error = 0.015241
+    bin #4   : 128      entries: error = 0.0149291
+Number of Clusters: 16.1016 +/- 0.124
+Number of Sites: 4 +/- 0
+Number of Sites of Each Type
+Entry[0]: 4 +/- 0; tau = 0
+    bin #1   : 1024     entries: error = 0
+    bin #2   : 512      entries: error = 0
+    bin #3   : 256      entries: error = 0
+    bin #4   : 128      entries: error = 0
+Site Type Field Susceptibility
+Entry[0]: 0.0410156 +/- 0.0090016; tau = 0.552689 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00620376
+    bin #2   : 512      entries: error = 0.00748372
+    bin #3   : 256      entries: error = 0.00848417
+    bin #4   : 128      entries: error = 0.0090016
+Site Type Magnetization
+Entry[0]: 0.00195312 +/- 0.00635446; tau = 0.00311709
+    bin #1   : 1024     entries: error = 0.00633474
+    bin #2   : 512      entries: error = 0.00663252
+    bin #3   : 256      entries: error = 0.00663846
+    bin #4   : 128      entries: error = 0.00635446
+Site Type Magnetization Density
+Entry[0]: 0.000488281 +/- 0.00158861; tau = 0.00311709
+    bin #1   : 1024     entries: error = 0.00158369
+    bin #2   : 512      entries: error = 0.00165813
+    bin #3   : 256      entries: error = 0.00165961
+    bin #4   : 128      entries: error = 0.00158861
+Site Type Susceptibility
+Entry[0]: 0.0410156 +/- 0.0090016; tau = 0.552689 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.00620376
+    bin #2   : 512      entries: error = 0.00748372
+    bin #3   : 256      entries: error = 0.00848417
+    bin #4   : 128      entries: error = 0.0090016
+Specific Heat: -0.109086 +/- 0.519 WARNING: ERRORS NOT CONVERGED!!!
+Staggered Local Susceptibility
+Entry[0]: 3.75262 +/- 0.158168; tau = 0.3312 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.122673
+    bin #2   : 512      entries: error = 0.134832
+    bin #3   : 256      entries: error = 0.146167
+    bin #4   : 128      entries: error = 0.158168
+Entry[1]: 3.80886 +/- 0.167648; tau = 0.423841 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.123334
+    bin #2   : 512      entries: error = 0.135331
+    bin #3   : 256      entries: error = 0.145438
+    bin #4   : 128      entries: error = 0.167648
+Entry[2]: 3.81893 +/- 0.169875; tau = 0.430384 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.124532
+    bin #2   : 512      entries: error = 0.13752
+    bin #3   : 256      entries: error = 0.149107
+    bin #4   : 128      entries: error = 0.169875
+Entry[3]: 3.7496 +/- 0.160373; tau = 0.342494 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.123547
+    bin #2   : 512      entries: error = 0.137234
+    bin #3   : 256      entries: error = 0.148353
+    bin #4   : 128      entries: error = 0.160373
+Staggered Site Type Field Susceptibility
+Entry[0]: 3.7825 +/- 0.157583; tau = 0.380658 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.118738
+    bin #2   : 512      entries: error = 0.130576
+    bin #3   : 256      entries: error = 0.140909
+    bin #4   : 128      entries: error = 0.157583
+Staggered Site Type Magnetization
+Entry[0]: 0.0316391 +/- 0.0616607; tau = 0.0137762
+    bin #1   : 1024     entries: error = 0.0608284
+    bin #2   : 512      entries: error = 0.0585149
+    bin #3   : 256      entries: error = 0.0599312
+    bin #4   : 128      entries: error = 0.0616607
+Staggered Site Type Magnetization Density
+Entry[0]: 0.00790977 +/- 0.0154152; tau = 0.0137762
+    bin #1   : 1024     entries: error = 0.0152071
+    bin #2   : 512      entries: error = 0.0146287
+    bin #3   : 256      entries: error = 0.0149828
+    bin #4   : 128      entries: error = 0.0154152
+Staggered Site Type Susceptibility
+Entry[0]: 3.7825 +/- 0.157583; tau = 0.380658 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 1024     entries: error = 0.118738
+    bin #2   : 512      entries: error = 0.130576
+    bin #3   : 256      entries: error = 0.140909
+    bin #4   : 128      entries: error = 0.157583
+Temperature: 0.25 +/- 0
+Volume: 4 +/- 0

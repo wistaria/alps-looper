@@ -1,0 +1,23 @@
+ALGORITHM = "loop; path integral"
+
+PARTITION = "2:4"
+
+SEED    = 23125
+SWEEPS  = 4096
+MODEL   = "spin"
+J = 1
+T = 0.25
+
+DQ_OVER_TWO_PI = "(1/L)"
+
+{
+  LATTICE = "chain lattice"
+  L = 4
+}
+
+{
+  LATTICE = "chain lattice"
+  L = 4
+  local_S = 1
+  T = 1/L
+}

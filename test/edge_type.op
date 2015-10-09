@@ -1,0 +1,62 @@
+add edge: 3 -- 14
+add edge: 2 -- 2
+add edge: 11 -- 1
+add edge: 7 -- 0
+add edge: 10 -- 2
+add edge: 12 -- 1
+add edge: 10 -- 11
+add edge: 8 -- 5
+add edge: 15 -- 9
+add edge: 11 -- 2
+add edge: 1 -- 8
+add edge: 9 -- 5
+add edge: 10 -- 5
+add edge: 9 -- 9
+add edge: 8 -- 7
+add edge: 14 -- 0
+add edge: 6 -- 2
+add edge: 3 -- 0
+add edge: 3 -- 14
+add edge: 12 -- 2
+add edge: 7 -- 10
+add edge: 14 -- 12
+add edge: 4 -- 15
+add edge: 6 -- 10
+add edge: 15 -- 5
+add edge: 8 -- 8
+add edge: 4 -- 6
+add edge: 1 -- 8
+add edge: 6 -- 15
+add edge: 6 -- 14
+add edge: 13 -- 1
+edge 0 (3 -- 14) is tree edge
+edge 1 (2 -- 2) is back edge
+edge 2 (11 -- 1) is tree edge
+edge 3 (7 -- 0) is tree edge
+edge 4 (10 -- 2) is tree edge
+edge 5 (12 -- 1) is tree edge
+edge 6 (10 -- 11) is tree edge
+edge 7 (8 -- 5) is tree edge
+edge 8 (15 -- 9) is tree edge
+edge 9 (11 -- 2) is back edge
+edge 10 (1 -- 8) is back edge
+edge 11 (9 -- 5) is tree edge
+edge 12 (10 -- 5) is back edge
+edge 13 (9 -- 9) is back edge
+edge 14 (8 -- 7) is tree edge
+edge 15 (14 -- 0) is back edge
+edge 16 (6 -- 2) is tree edge
+edge 17 (3 -- 0) is back edge
+edge 18 (3 -- 14) is back edge
+edge 19 (12 -- 2) is back edge
+edge 20 (7 -- 10) is back edge
+edge 21 (14 -- 12) is tree edge
+edge 22 (4 -- 15) is tree edge
+edge 23 (6 -- 10) is back edge
+edge 24 (15 -- 5) is back edge
+edge 25 (8 -- 8) is back edge
+edge 26 (4 -- 6) is tree edge
+edge 27 (1 -- 8) is back edge
+edge 28 (6 -- 15) is back edge
+edge 29 (6 -- 14) is back edge
+edge 30 (13 -- 1) is tree edge

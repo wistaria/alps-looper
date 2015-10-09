@@ -1,0 +1,173 @@
+[input parameters]
+ALGORITHM = "loop; path integral";
+SEED = 23125;
+SWEEPS = 4096;
+MODEL = spin;
+J = 1;
+T = 0.25;
+DQ_OVER_TWO_PI = (1/L);
+LATTICE = "chain lattice";
+L = 4;
+DIR_NAME = .;
+BASE_NAME = task1;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
+Info: parallel: duplex mode, number of processes = 2 [2]
+Warning: unknown evaluator: "loop; path integral".  The only evaluator "loop" will be used instead.
+[results 0]
+Correlation Length: 1.5816 +/- 0.0195
+Energy: -1.95721 +/- 0.0243; tau = 1.07 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 4096     entries: error = 0.0137292
+    bin #2   : 2048     entries: error = 0.0167675
+    bin #3   : 1024     entries: error = 0.0196523
+    bin #4   : 512      entries: error = 0.0221151
+    bin #5   : 256      entries: error = 0.0237902
+    bin #6   : 128      entries: error = 0.0243011
+Energy Density: -0.489304 +/- 0.00608; tau = 1.07 WARNING: ERRORS NOT CONVERGED!!!
+    bin #1   : 4096     entries: error = 0.0034323
+    bin #2   : 2048     entries: error = 0.00419187
+    bin #3   : 1024     entries: error = 0.00491308
+    bin #4   : 512      entries: error = 0.00552877
+    bin #5   : 256      entries: error = 0.00594756
+    bin #6   : 128      entries: error = 0.00607527
+Energy^2: 3.86307 +/- 0.0935; tau = 0.899
+    bin #1   : 4096     entries: error = 0.0559082
+    bin #2   : 2048     entries: error = 0.0668942
+    bin #3   : 1024     entries: error = 0.0772864
+    bin #4   : 512      entries: error = 0.0864219
+    bin #5   : 256      entries: error = 0.0935428
+    bin #6   : 128      entries: error = 0.0935131
+Generalized Gap: 1.0232 +/- 0.0135
+Generalized Gap (4th moment estimator): 1.02564 +/- 0.0153
+Generalized Spin Dynamic Structure Factor at (q,w) = (dq,0): 0.174146 +/- 0.00322; tau = 0.752 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.00203764
+    bin #2   : 2048     entries: error = 0.00237979
+    bin #3   : 1024     entries: error = 0.00270287
+    bin #4   : 512      entries: error = 0.00299538
+    bin #5   : 256      entries: error = 0.00321691
+    bin #6   : 128      entries: error = 0.00322474
+Generalized Susceptibility: 1.24926 +/- 0.0131; tau = 0.434
+    bin #1   : 4096     entries: error = 0.00957869
+    bin #2   : 2048     entries: error = 0.0109271
+    bin #3   : 1024     entries: error = 0.0120933
+    bin #4   : 512      entries: error = 0.0126889
+    bin #5   : 256      entries: error = 0.0131261
+    bin #6   : 128      entries: error = 0.0130892
+Generalized Susceptibility [w=2pi/beta]: 0.372235 +/- 0.00367; tau = 0.527 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.00255835
+    bin #2   : 2048     entries: error = 0.00294038
+    bin #3   : 1024     entries: error = 0.00321959
+    bin #4   : 512      entries: error = 0.00341884
+    bin #5   : 256      entries: error = 0.00353896
+    bin #6   : 128      entries: error = 0.0036664
+Generalized Susceptibility [w=4pi/beta]: 0.118731 +/- 0.00137; tau = 0.669 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.000896864
+    bin #2   : 2048     entries: error = 0.00104271
+    bin #3   : 1024     entries: error = 0.00119153
+    bin #4   : 512      entries: error = 0.00130914
+    bin #5   : 256      entries: error = 0.00133753
+    bin #6   : 128      entries: error = 0.00137141
+Inverse Generalized Gap: 0.977156 +/- 0.0128
+Inverse Generalized Gap (4th moment estimator): 0.974779 +/- 0.0146
+Inverse Temperature: 4 +/- 0
+Number of Clusters: 7.93091 +/- 0.0428
+Number of Sites: 4 +/- 0
+Specific Heat: 0.13188 +/- 0.089
+Temperature: 0.25 +/- 0
+Volume: 4 +/- 0
+|dq|: 1.5708 +/- 0; tau = 0
+    bin #1   : 4096     entries: error = 0
+    bin #2   : 2048     entries: error = 0
+    bin #3   : 1024     entries: error = 0
+    bin #4   : 512      entries: error = 0
+    bin #5   : 256      entries: error = 0
+    bin #6   : 128      entries: error = 0
+Warning: unknown evaluator: "loop; path integral".  The only evaluator "loop" will be used instead.
+[results 1]
+[input parameters]
+ALGORITHM = "loop; path integral";
+SEED = 23125;
+SWEEPS = 4096;
+MODEL = spin;
+J = 1;
+T = 1/L;
+DQ_OVER_TWO_PI = (1/L);
+LATTICE = "chain lattice";
+L = 4;
+local_S = 1;
+DIR_NAME = .;
+BASE_NAME = task2;
+WORKER_SEED = 23125;
+DISORDER_SEED = 23125;
+Info: parallel: duplex mode, number of processes = 2 [2]
+Warning: unknown evaluator: "loop; path integral".  The only evaluator "loop" will be used instead.
+[results 0]
+Correlation Length: 2.53986 +/- 0.0249 WARNING: check error convergence
+Energy: -5.89783 +/- 0.0382; tau = 0.759 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.0240842
+    bin #2   : 2048     entries: error = 0.0286391
+    bin #3   : 1024     entries: error = 0.0326484
+    bin #4   : 512      entries: error = 0.0364675
+    bin #5   : 256      entries: error = 0.0374603
+    bin #6   : 128      entries: error = 0.038224
+Energy Density: -1.47446 +/- 0.00956; tau = 0.759 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.00602105
+    bin #2   : 2048     entries: error = 0.00715979
+    bin #3   : 1024     entries: error = 0.00816211
+    bin #4   : 512      entries: error = 0.00911688
+    bin #5   : 256      entries: error = 0.00936508
+    bin #6   : 128      entries: error = 0.009556
+Energy^2: 34.6846 +/- 0.451; tau = 0.725 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.288238
+    bin #2   : 2048     entries: error = 0.340048
+    bin #3   : 1024     entries: error = 0.387702
+    bin #4   : 512      entries: error = 0.430446
+    bin #5   : 256      entries: error = 0.440298
+    bin #6   : 128      entries: error = 0.451144
+Generalized Gap: 0.998598 +/- 0.012 WARNING: check error convergence
+Generalized Gap (4th moment estimator): 0.9951 +/- 0.0139 WARNING: check error convergence
+Generalized Spin Dynamic Structure Factor at (q,w) = (dq,0): 0.225379 +/- 0.00275; tau = 0.515
+    bin #1   : 4096     entries: error = 0.00192746
+    bin #2   : 2048     entries: error = 0.00221018
+    bin #3   : 1024     entries: error = 0.00244412
+    bin #4   : 512      entries: error = 0.00257307
+    bin #5   : 256      entries: error = 0.00275227
+    bin #6   : 128      entries: error = 0.00274623
+Generalized Susceptibility: 3.81309 +/- 0.0415; tau = 0.469 WARNING: check error convergence
+    bin #1   : 4096     entries: error = 0.0298466
+    bin #2   : 2048     entries: error = 0.0340112
+    bin #3   : 1024     entries: error = 0.0371833
+    bin #4   : 512      entries: error = 0.0388005
+    bin #5   : 256      entries: error = 0.0400546
+    bin #6   : 128      entries: error = 0.0415496
+Generalized Susceptibility [w=2pi/beta]: 1.0977 +/- 0.00971; tau = 0.407
+    bin #1   : 4096     entries: error = 0.00721079
+    bin #2   : 2048     entries: error = 0.00807919
+    bin #3   : 1024     entries: error = 0.00881361
+    bin #4   : 512      entries: error = 0.00908217
+    bin #5   : 256      entries: error = 0.00900323
+    bin #6   : 128      entries: error = 0.0097145
+Generalized Susceptibility [w=4pi/beta]: 0.3547 +/- 0.00278; tau = 0.266
+    bin #1   : 4096     entries: error = 0.00224573
+    bin #2   : 2048     entries: error = 0.00249422
+    bin #3   : 1024     entries: error = 0.00271469
+    bin #4   : 512      entries: error = 0.00281184
+    bin #5   : 256      entries: error = 0.00274452
+    bin #6   : 128      entries: error = 0.00277993
+Inverse Generalized Gap: 1.00126 +/- 0.012 WARNING: check error convergence
+Inverse Generalized Gap (4th moment estimator): 1.00473 +/- 0.014 WARNING: check error convergence
+Inverse Temperature: 4 +/- 0
+Number of Clusters: 15.8564 +/- 0.0604
+Number of Sites: 4 +/- 0
+Specific Heat: -0.393092 +/- 0.269 WARNING: check error convergence
+Temperature: 0.25 +/- 0
+Volume: 4 +/- 0
+|dq|: 1.5708 +/- 0; tau = 0
+    bin #1   : 4096     entries: error = 0
+    bin #2   : 2048     entries: error = 0
+    bin #3   : 1024     entries: error = 0
+    bin #4   : 512      entries: error = 0
+    bin #5   : 256      entries: error = 0
+    bin #6   : 128      entries: error = 0
+Warning: unknown evaluator: "loop; path integral".  The only evaluator "loop" will be used instead.
+[results 1]

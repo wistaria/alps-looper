@@ -1,0 +1,149 @@
+set xlabel 'T'
+
+set ylabel 'Energy Density'
+plot \
+  "< choose ALGORITHM diagonalization kagome-1-plot-energy.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' kagome-1-plot-energy.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' kagome-1-plot-energy.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Specific Heat'
+plot \
+  "< choose ALGORITHM diagonalization kagome-1-plot-sheat.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' kagome-1-plot-sheat.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' kagome-1-plot-sheat.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Magnetization Density^2'
+plot \
+  "< choose ALGORITHM diagonalization kagome-1-plot-m2.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' kagome-1-plot-m2.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' kagome-1-plot-m2.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Susceptibility'
+plot \
+  "< choose ALGORITHM diagonalization kagome-1-plot-sus.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' kagome-1-plot-sus.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' kagome-1-plot-sus.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Energy Density'
+plot \
+  "< choose ALGORITHM diagonalization kagome-2-plot-energy.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' kagome-2-plot-energy.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' kagome-2-plot-energy.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Specific Heat'
+plot \
+  "< choose ALGORITHM diagonalization kagome-2-plot-sheat.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' kagome-2-plot-sheat.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' kagome-2-plot-sheat.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Magnetization Density^2'
+plot \
+  "< choose ALGORITHM diagonalization kagome-2-plot-m2.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' kagome-2-plot-m2.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' kagome-2-plot-m2.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Susceptibility'
+plot \
+  "< choose ALGORITHM diagonalization kagome-2-plot-sus.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' kagome-2-plot-sus.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' kagome-2-plot-sus.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Energy Density'
+plot \
+  "< choose ALGORITHM diagonalization kagome-3-plot-energy.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' kagome-3-plot-energy.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' kagome-3-plot-energy.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Specific Heat'
+plot \
+  "< choose ALGORITHM diagonalization kagome-3-plot-sheat.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' kagome-3-plot-sheat.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' kagome-3-plot-sheat.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Magnetization Density^2'
+plot \
+  "< choose ALGORITHM diagonalization kagome-3-plot-m2.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' kagome-3-plot-m2.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' kagome-3-plot-m2.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Susceptibility'
+plot \
+  "< choose ALGORITHM diagonalization kagome-3-plot-sus.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' kagome-3-plot-sus.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' kagome-3-plot-sus.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Sign'
+plot \
+  "< choose ALGORITHM 'loop; path integral' kagome-3-plot-sign.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' kagome-3-plot-sign.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Weight of Zero-Meron Sector'
+plot \
+  "< choose ALGORITHM 'loop; path integral' kagome-3-plot-zeromeron.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' kagome-3-plot-zeromeron.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Sign in Zero-Meron Sector'
+plot \
+  "< choose ALGORITHM 'loop; path integral' kagome-3-plot-signmeron.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' kagome-3-plot-signmeron.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Energy Density'
+plot \
+  "< choose ALGORITHM diagonalization kagome-4-plot-energy.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' kagome-4-plot-energy.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' kagome-4-plot-energy.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Specific Heat'
+plot \
+  "< choose ALGORITHM diagonalization kagome-4-plot-sheat.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' kagome-4-plot-sheat.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' kagome-4-plot-sheat.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Magnetization Density^2'
+plot \
+  "< choose ALGORITHM diagonalization kagome-4-plot-m2.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' kagome-4-plot-m2.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' kagome-4-plot-m2.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Susceptibility'
+plot \
+  "< choose ALGORITHM diagonalization kagome-4-plot-sus.dat" u 1:2 w lp, \
+  "< choose ALGORITHM 'loop; path integral' kagome-4-plot-sus.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' kagome-4-plot-sus.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Sign'
+plot \
+  "< choose ALGORITHM 'loop; path integral' kagome-4-plot-sign.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' kagome-4-plot-sign.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Weight of Zero-Meron Sector'
+plot \
+  "< choose ALGORITHM 'loop; path integral' kagome-4-plot-zeromeron.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' kagome-4-plot-zeromeron.dat" u 1:2:3 w e
+pause -1
+
+set ylabel 'Sign in Zero-Meron Sector'
+plot \
+  "< choose ALGORITHM 'loop; path integral' kagome-4-plot-signmeron.dat" u 1:2:3 w e, \
+  "< choose ALGORITHM 'loop; sse' kagome-4-plot-signmeron.dat" u 1:2:3 w e
+pause -1

@@ -1,0 +1,22 @@
+#!/bin/sh
+
+SOURCE_DIR=@CMAKE_CURRENT_SOURCE_DIR@
+
+set -x
+make -j gap4
+
+if test $? == 0; then
+  ./gap4 < $SOURCE_DIR/gap4.ip | diff $SOURCE_DIR/gap4.op -
+  mpirun -np 2 gap4 --mpi < $SOURCE_DIR/gap4.ip | diff $SOURCE_DIR/gap4.op-2 -
+  mpirun -np 3 gap4 --mpi < $SOURCE_DIR/gap4.ip | diff $SOURCE_DIR/gap4.op-3 -
+  mpirun -np 4 gap4 --mpi < $SOURCE_DIR/gap4.ip-4 | diff $SOURCE_DIR/gap4.op-4 -
+  mpirun -np 4 gap4 --mpi < $SOURCE_DIR/gap4.ip-22 | diff $SOURCE_DIR/gap4.op-4 -
+  mpirun -np 6 gap4 --mpi < $SOURCE_DIR/gap4.ip-6 | diff $SOURCE_DIR/gap4.op-6 -
+  mpirun -np 6 gap4 --mpi < $SOURCE_DIR/gap4.ip-23 | diff $SOURCE_DIR/gap4.op-6 -
+  mpirun -np 6 gap4 --mpi < $SOURCE_DIR/gap4.ip-32 | diff $SOURCE_DIR/gap4.op-6 -
+  mpirun -np 8 gap4 --mpi < $SOURCE_DIR/gap4.ip-8 | diff $SOURCE_DIR/gap4.op-8 -
+  mpirun -np 8 gap4 --mpi < $SOURCE_DIR/gap4.ip-24 | diff $SOURCE_DIR/gap4.op-8 -
+  mpirun -np 8 gap4 --mpi < $SOURCE_DIR/gap4.ip-42 | diff $SOURCE_DIR/gap4.op-8 -
+  mpirun -np 8 gap4 --mpi < $SOURCE_DIR/gap4.ip-42s | diff $SOURCE_DIR/gap4.op-8 -
+  mpirun -np 8 gap4 --mpi < $SOURCE_DIR/gap4.ip-222 | diff $SOURCE_DIR/gap4.op-8 -
+fi
