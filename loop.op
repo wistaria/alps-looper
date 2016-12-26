@@ -9,6 +9,7 @@ L = 4;
 ALGORITHM = diagonalization;
 DIR_NAME = .;
 BASE_NAME = task1;
+CLONE_ID = 1;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 start diagonalization... done
@@ -68,6 +69,7 @@ L = 4;
 ALGORITHM = "loop; path integral";
 DIR_NAME = .;
 BASE_NAME = task2;
+CLONE_ID = 1;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 Warning: unknown evaluator: "loop; path integral".  The only evaluator "loop" will be used instead.
@@ -317,6 +319,7 @@ L = 4;
 ALGORITHM = "loop; sse";
 DIR_NAME = .;
 BASE_NAME = task3;
+CLONE_ID = 1;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 Warning: unknown evaluator: "loop; sse".  The only evaluator "loop" will be used instead.
@@ -567,6 +570,7 @@ local_S = 1;
 ALGORITHM = diagonalization;
 DIR_NAME = .;
 BASE_NAME = task4;
+CLONE_ID = 1;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 start diagonalization... done
@@ -627,6 +631,7 @@ local_S = 1;
 ALGORITHM = "loop; path integral";
 DIR_NAME = .;
 BASE_NAME = task5;
+CLONE_ID = 1;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 Warning: unknown evaluator: "loop; path integral".  The only evaluator "loop" will be used instead.
@@ -877,6 +882,7 @@ local_S = 1;
 ALGORITHM = "loop; sse";
 DIR_NAME = .;
 BASE_NAME = task6;
+CLONE_ID = 1;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 Warning: unknown evaluator: "loop; sse".  The only evaluator "loop" will be used instead.
@@ -1128,6 +1134,7 @@ Gamma = 1;
 ALGORITHM = diagonalization;
 DIR_NAME = .;
 BASE_NAME = task7;
+CLONE_ID = 1;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 start diagonalization... done
@@ -1186,6 +1193,7 @@ Gamma = 1;
 ALGORITHM = "loop; path integral";
 DIR_NAME = .;
 BASE_NAME = task8;
+CLONE_ID = 1;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 Warning: unknown evaluator: "loop; path integral".  The only evaluator "loop" will be used instead.
@@ -1437,6 +1445,7 @@ Gamma = 1;
 ALGORITHM = "loop; sse";
 DIR_NAME = .;
 BASE_NAME = task9;
+CLONE_ID = 1;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 Warning: unknown evaluator: "loop; sse".  The only evaluator "loop" will be used instead.
@@ -1689,6 +1698,7 @@ ALGORITHM = diagonalization;
 h = 0.3;
 DIR_NAME = .;
 BASE_NAME = task10;
+CLONE_ID = 1;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 start diagonalization... done
@@ -1748,6 +1758,7 @@ ALGORITHM = "loop; path integral";
 h = 0.3;
 DIR_NAME = .;
 BASE_NAME = task11;
+CLONE_ID = 1;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 WARNING: model has a magnetic field
@@ -1931,6 +1942,7 @@ Jxy = 0;
 ALGORITHM = diagonalization;
 DIR_NAME = .;
 BASE_NAME = task12;
+CLONE_ID = 1;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 start diagonalization... done
@@ -1994,6 +2006,7 @@ Jxy = 0;
 ALGORITHM = "loop; path integral";
 DIR_NAME = .;
 BASE_NAME = task13;
+CLONE_ID = 1;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 Warning: unknown evaluator: "loop; path integral".  The only evaluator "loop" will be used instead.
@@ -2247,6 +2260,7 @@ Jxy = 0;
 ALGORITHM = "loop; sse";
 DIR_NAME = .;
 BASE_NAME = task14;
+CLONE_ID = 1;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 Warning: unknown evaluator: "loop; sse".  The only evaluator "loop" will be used instead.
@@ -2500,6 +2514,7 @@ Jxy = 0;
 ALGORITHM = ising;
 DIR_NAME = .;
 BASE_NAME = task15;
+CLONE_ID = 1;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 Warning: unknown evaluator: "ising".  The only evaluator "loop" will be used instead.
@@ -2754,6 +2769,7 @@ D = -0.2;
 ALGORITHM = diagonalization;
 DIR_NAME = .;
 BASE_NAME = task16;
+CLONE_ID = 1;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 start diagonalization... done
@@ -2818,6 +2834,7 @@ D = -0.2;
 ALGORITHM = "loop; path integral";
 DIR_NAME = .;
 BASE_NAME = task17;
+CLONE_ID = 1;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 Warning: unknown evaluator: "loop; path integral".  The only evaluator "loop" will be used instead.
@@ -3072,6 +3089,7 @@ D = -0.2;
 ALGORITHM = "loop; sse";
 DIR_NAME = .;
 BASE_NAME = task18;
+CLONE_ID = 1;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 Warning: unknown evaluator: "loop; sse".  The only evaluator "loop" will be used instead.
@@ -3326,6 +3344,7 @@ D = -0.2;
 ALGORITHM = ising;
 DIR_NAME = .;
 BASE_NAME = task19;
+CLONE_ID = 1;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 Warning: unknown evaluator: "ising".  The only evaluator "loop" will be used instead.
@@ -3588,6 +3607,7 @@ MEASURE_CORRELATIONS[Sz Correlations] = Sz:Sz;
 MEASURE_STRUCTURE_FACTOR[Sz Structure Factor] = Sz:Sz;
 DIR_NAME = .;
 BASE_NAME = task20;
+CLONE_ID = 1;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 Warning: unknown evaluator: "loop; path integral".  The only evaluator "loop" will be used instead.
@@ -4031,6 +4051,7 @@ MEASURE_CORRELATIONS[Sz Correlations] = Sz:Sz;
 MEASURE_STRUCTURE_FACTOR[Sz Structure Factor] = Sz:Sz;
 DIR_NAME = .;
 BASE_NAME = task21;
+CLONE_ID = 1;
 WORKER_SEED = 23125;
 DISORDER_SEED = 23125;
 Warning: unknown evaluator: "loop; path integral".  The only evaluator "loop" will be used instead.
