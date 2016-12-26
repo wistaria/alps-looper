@@ -250,7 +250,7 @@ void loop_worker::dispatch(alps::ObservableSet& obs, COLLECTOR& coll,
 
     operator_iterator oi = operators.end() - 1;
     looper::expand(fragments, fid+1);
-    fragments[fid+1] = cluster_fragment_t();
+    //// fragments[fid] = cluster_fragment_t();
     if (oi->is_bond()) {
       int b = oi->pos();
       int s0 = source(b, lattice.vg());

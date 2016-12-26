@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2011 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2016 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -147,6 +147,7 @@ struct custom_measurement : has_normal_estimator_tag {
         template<typename M>
         void commit(M& m, estimator_t const& emt, lattice_t const& lat, double, double sign,
           double, std::vector<int> const& spins) const {
+          estimator_t::coordinate_map_t const& coordinate = emt.coordinate;
           // average
           BOOST_FOREACH(s_elements_type const& elms, emt.average_elements) {
             double v = 0;
@@ -235,8 +236,11 @@ struct custom_measurement : has_normal_estimator_tag {
                 BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type const& vs,
                   sites(lat, rs))
                   st += (1 - spins[vs]);
-                v0 += elms.get<1>()[t][st] * mit.phase(emt.coordinate(rs));
-                v1 += elms.get<2>()[t][st] * mit.phase(emt.coordinate(rs));
+                double phase = alps::numeric::scalar_product(momentum(*mit, lat),
+                                                             coordinate[rs]);
+                std::complex<double> cphase(std::cos(phase), std::sin(phase));
+                v0 += boost::get<1>(elms)[t][st] * cphase;
+                v1 += boost::get<2>(elms)[t][st] * cphase;
               }
               sfac[k] = std::real(std::conj(v0) * v1);
             }

@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2011 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2016 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -237,6 +237,7 @@ struct correlation : public has_normal_estimator_tag {
           double, std::vector<int> const& spins) const {
           estimator_t::real_site_map_t const& real_site = emt.real_site;
           estimator_t::gauge_map_t const& gauge = emt.gauge;
+          estimator_t::coordinate_map_t const& coordinate = emt.coordinate;
           std::valarray<double>& ucorr = emt.ucorr;
           std::valarray<double>& scorr = emt.scorr;
           std::valarray<double>& sfac = emt.sfac;
@@ -283,7 +284,11 @@ struct correlation : public has_normal_estimator_tag {
             for (boost::tie(mit, mit_end) = momenta(lat); mit != mit_end; ++mit, ++k) {
               std::complex<double> val;
               BOOST_FOREACH(typename virtual_site_descriptor<lattice_t>::type s, sites(lat.vg()))
-                val += (0.5-spins[s])  * mit.phase(emt.coordinate[real_site[s]]);
+              {
+                double phase = alps::numeric::scalar_product(momentum(*mit, lat),
+                                                             coordinate[real_site[s]]);
+                val += (0.5-spins[s]) * std::complex<double>(std::cos(phase), std::sin(phase));
+              }
               sfac[k] = sign * power2(val) / lat.volume();
             }
             m["Spin Structure Factor"] << sfac;
