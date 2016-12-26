@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2010 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2016 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -494,6 +494,14 @@ std::pair<
 momenta(lattice_helper<RG> const& lat) {
   return lat.graph_helper().momenta();
 }
+
+template<typename RG>
+typename lattice_helper<RG>::graph_helper_type::vector_type
+momentum(typename lattice_helper<RG>::graph_helper_type::vector_type const& m,
+         lattice_helper<RG> const& lat) {
+  return lat.graph_helper().momentum(m);
+}
+
 
 } // end namespace looper
 
