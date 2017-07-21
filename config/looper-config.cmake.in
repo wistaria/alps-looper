@@ -1,0 +1,19 @@
+# looper-config.cmake - ALPS/looper CMake configuration file for external projects.
+
+# The ALPS/looper root directory
+set(LOOPER_ROOT_DIR "@CMAKE_INSTALL_PREFIX@")
+
+# The ALPS/looper include file directory
+set(LOOPER_INCLUDE_DIR "${LOOPER_ROOT_DIR}/include")
+
+# The ALPS/looper kernel source directory
+set(LOOPER_KERNEL_DIR "${LOOPER_ROOT_DIR}/share/looper/kernels")
+
+# The ALPS/looper version number
+SET(LOOPER_VERSION_MAJOR "@LOOPER_VERSION_MAJOR@")
+SET(LOOPER_VERSION_MINOR "@LOOPER_VERSION_MINOR@")
+SET(LOOPER_VERSION_BUILD "@LOOPER_VERSION_BUILD@")
+SET(LOOPER_VERSION "@LOOPER_VERSION@")
+
+# The location of the UseLooper.cmake file
+set(LOOPER_USE_FILE "${LOOPER_ROOT_DIR}/share/looper/UseLooper.cmake")

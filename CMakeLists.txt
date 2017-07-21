@@ -170,8 +170,18 @@ add_subdirectory(extras)
 
 install(DIRECTORY looper ${CMAKE_BINARY_DIR}/looper
         DESTINATION include
-        PATTERN "CVS" EXCLUDE
-        PATTERN ".svn" EXCLUDE
         PATTERN ".DS_Store" EXCLUDE
-        PATTERN "*.in" EXCLUDE
-        PATTERN "Makefile*" EXCLUDE)
+        PATTERN "*.in" EXCLUDE)
+
+######################################################################
+# kernels
+######################################################################
+
+install(FILES diag.C ising.C loop.C loop_custom.C path_integral.C path_integral_mpi.C qwl_evaluate.C sse.C sse_qwl.C DESTINATION share/looper/kernels)
+
+######################################################################
+# CMake configuration
+######################################################################
+
+configure_file(config/looper-config.cmake.in ${PROJECT_BINARY_DIR}/config/looper-config.cmake @ONLY)
+install(FILES ${PROJECT_BINARY_DIR}/config/looper-config.cmake DESTINATION share/looper)
