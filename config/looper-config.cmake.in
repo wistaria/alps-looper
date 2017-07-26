@@ -7,7 +7,7 @@ set(LOOPER_ROOT_DIR "@CMAKE_INSTALL_PREFIX@")
 set(LOOPER_INCLUDE_DIR "${LOOPER_ROOT_DIR}/include")
 
 # The ALPS/looper kernel source directory
-set(LOOPER_KERNEL_DIR "${LOOPER_ROOT_DIR}/share/looper/kernels")
+set(LOOPER_KERNEL_DIR "${LOOPER_ROOT_DIR}/share/looper/kernel")
 
 # The ALPS/looper version number
 SET(LOOPER_VERSION_MAJOR "@LOOPER_VERSION_MAJOR@")

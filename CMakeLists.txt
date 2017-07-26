@@ -177,7 +177,7 @@ install(DIRECTORY looper ${CMAKE_BINARY_DIR}/looper
 # kernels
 ######################################################################
 
-install(FILES diag.C ising.C loop.C loop_custom.C path_integral.C path_integral_mpi.C qwl_evaluate.C sse.C sse_qwl.C DESTINATION share/looper/kernels)
+install(FILES diag.C ising.C loop.C loop_custom.C loop_model.C path_integral.C path_integral_mpi.C qwl_evaluate.C sse.C sse_qwl.C DESTINATION share/looper/kernel)
 
 ######################################################################
 # CMake configuration
