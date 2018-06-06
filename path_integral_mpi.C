@@ -360,8 +360,8 @@ void loop_worker::init_observables(alps::Parameters const&, alps::ObservableSet&
         obs << alps::RealObservable("Sign in Zero-Meron Sector");
       }
     }
+    estimator.init_observables(obs, model.is_signed(), enable_improved_estimator);
   }
-  estimator.init_observables(obs, model.is_signed(), enable_improved_estimator);
 }
 
 void loop_worker::run(alps::ObservableSet& obs) {
