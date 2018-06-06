@@ -9,7 +9,7 @@ project(alps-looper NONE)
 # Version information
 ######################################################################
 
-set(LOOPER_VERSION 4.0.0)
+set(LOOPER_VERSION 4.1.0)
 message(STATUS "Looper version: ${LOOPER_VERSION}")
 
 configure_file(looper/version.h.in ${PROJECT_BINARY_DIR}/looper/version.h)
