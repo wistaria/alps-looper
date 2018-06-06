@@ -1,0 +1,8 @@
+sse_qwl.C export-ignore
+qwl_evaluate.C export-ignore
+check/ export-ignore
+extras/localsus/ export-ignore
+extras/simple/ export-ignore
+*.sh export-ignore
+standalone/ export-ignore
+v3.1/ export-ignore
