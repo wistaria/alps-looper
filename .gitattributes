@@ -1,8 +1,12 @@
 sse_qwl.C export-ignore
 qwl_evaluate.C export-ignore
 check/ export-ignore
+doc/inside-looper.key export-ignore
 extras/localsus/ export-ignore
+extras/qwl/ export-ignore
 extras/simple/ export-ignore
 *.sh export-ignore
-standalone/ export-ignore
+migration/ export-ignore
 v3.1/ export-ignore
+.gitignore export-ignore
+.gitattributes export-ignore

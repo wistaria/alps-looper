@@ -1,9 +1,18 @@
-#  Copyright Haruhiko Matsuo and Synsge Todo 2011.
+#  Copyright Haruhiko Matsuo and Synsge Todo 2011-2018.
 #  Distributed under the Boost Software License, Version 1.0.
 #      (See http://www.boost.org/LICENSE_1_0.txt)
 
-cmake_minimum_required(VERSION 2.8.0 FATAL_ERROR)
-project(alps-looper-parallel NONE)
+cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
+project(alps-looper NONE)
+
+######################################################################
+# Version information
+######################################################################
+
+set(LOOPER_VERSION 4.0.0)
+message(STATUS "Looper version: ${LOOPER_VERSION}")
+
+configure_file(looper/version.h.in ${PROJECT_BINARY_DIR}/looper/version.h)
 
 ######################################################################
 # options
@@ -67,31 +76,6 @@ option(LOOPER_USE_DETERMINISTIC_UNIFY "Use deterministic unify for debug" OFF)
 if(LOOPER_USE_DETERMINISTIC_UNIFY)
   add_definitions(-DLOOPER_USE_DETERMINISTIC_UNIFY)
 endif(LOOPER_USE_DETERMINISTIC_UNIFY)
-
-######################################################################
-# Version information
-######################################################################
-
-set(LOOPER_VERSION_MAJOR 4)
-set(LOOPER_VERSION_MINOR 0a1)
-set(LOOPER_VERSION_BUILD "")
-
-if(NOT LOOPER_VERSION_BUILD AND EXISTS ${PROJECT_SOURCE_DIR}/.svn) 
-  find_package(Subversion) 
-  if(Subversion_FOUND) 
-    Subversion_WC_INFO(${PROJECT_SOURCE_DIR} LOOPER) 
-    set(LOOPER_VERSION_BUILD "r${LOOPER_WC_REVISION}")
-  endif(Subversion_FOUND) 
-endif(NOT LOOPER_VERSION_BUILD AND EXISTS ${PROJECT_SOURCE_DIR}/.svn) 
-
-if(LOOPER_VERSION_BUILD)
-  set(LOOPER_VERSION "${LOOPER_VERSION_MAJOR}.${LOOPER_VERSION_MINOR}-${LOOPER_VERSION_BUILD}")
-else(LOOPER_VERSION_BUILD)
-  set(LOOPER_VERSION "${LOOPER_VERSION_MAJOR}.${LOOPER_VERSION_MINOR}")
-endif(LOOPER_VERSION_BUILD)
-message(STATUS "Looper version: ${LOOPER_VERSION}")
-
-configure_file(looper/version.h.in ${PROJECT_BINARY_DIR}/looper/version.h)
 
 ######################################################################
 # find ALPS Library
