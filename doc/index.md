@@ -1,6 +1,6 @@
 # ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 
-Copyright (C) 1997-2015 by Synge Todo <wistaria@comp-phys.org>
+Copyright (C) 1997-2018 by Synge Todo <wistaria@comp-phys.org>
 
 This software is published under the ALPS Application License; you can use,
 redistribute and/or modify this software under the terms of the license,
@@ -20,9 +20,14 @@ DEALINGS IN THE SOFTWARE.
 
 ## Overview
 
-The ALPS/looper package is one of the applications of the ALPS Project.  The ALPS/looper is the successor of the Looper Library version 2, which is the Fortran 90 library for quantum Monte Carlo method.
+The ALPS/looper package is one of the applications of the ALPS Project. 
+The ALPS/looper is the successor of the Looper Library version 2,
+which is the Fortran 90 library for quantum Monte Carlo method.
 
-The ALPS/looper application provides multi-cluster quantum Monte Carlo algorithms for generic spin systems in the path-integral or SSE representations.  it supports generic spin models with arbitrary spin size *S* on arbitrary lattices. The supported interactions are
+The ALPS/looper application provides multi-cluster quantum Monte Carlo
+algorithms for generic spin systems in the path-integral or SSE
+representations.  it supports generic spin models with arbitrary spin
+size *S* on arbitrary lattices. The supported interactions are
 
 * XXZ two-spin interaction (Ising, Heisenberg, XY)
 * XYZ two-spin interaction (requires recompilation)
@@ -33,33 +38,13 @@ The ALPS/looper application provides multi-cluster quantum Monte Carlo algorithm
 Since it supports so-called *freezing graphs*, models with easy-axis
 (Ising-like) anisotropy can also be simulated very efficiently.
 
-From version 4, it includes non-trivial hybrid parallelization by using MPI and OpenMP, which has been tested on several state-of-the-art supercomputers (The K computer, SGI Altix, etc).
+From version 4, it includes non-trivial hybrid parallelization by
+using MPI and OpenMP, which has been tested on several state-of-the-art
+supercomputers (K computer, SGI Altix, etc).
 
-A stripped version of the ALPS/looper is distributed as a part of ALPS.  The full version of ALPS/looper library (including test suites, etc) is available from [http://wistaria.github.io/alps-looper/](http://wistaria.github.io/alps-looper/).
-
-## History
-
-* Version 1
-   * 1997: written in FORTRAN 77, only works for S=1/2, bipartite lattice, Heisenberg and easy plane anisotropy
-* Version 2.0
-   * 1998/10/09 version 2.0: Fortran 90, large S support
-* Version 2.1
-   * 1998/10/14 version 2.1.0
-   * 1998/10/19 version 2.1.4
-* Version 2.2
-   * 1998/10/23 version 2.2.0:  Parallelization (MPI) support
-   * 2001/02/01 version 2.2.9
-* Version 2.3
-   * 2000/10/31 version 2.3: Freezing (easy-axis anisotropy) support
-* Version 2.9
-   * 2001/08/16 version 2.9.1: C++ version, non-bipartite lattice support
-   * 2001/10/26 version 2.9.6
-* Version 3.0
-   * 2004/06/11 version 3.0: Based on ALPS framework
-   * 2004/09/23 version 3.1: Negative sign support
-* Version 4
-   * March 1, 2012: Alpha version for ALPS/looper 4 (4.0a1)
-   * March 5, 2012: First release of ALPS/looper 4 (4.0.0)
+A stripped version of the ALPS/looper is distributed as a part of ALPS.
+The full version of ALPS/looper library (including test suites, etc) is
+available from [http://wistaria.github.io/alps-looper/](http://wistaria.github.io/alps-looper/).
 
 ## Installation
 
@@ -67,9 +52,7 @@ Note: This section applies only for the full version of ALPS/looper.
 
 ### Prerequisites
 
-* [Boost C++ Library](http://www.boost.org/) -- version 1.48.0 or higher
 * [ALPS](http://alps-comp-phys.org) -- version 2.0 or higher
-* [LAPACK Library](http://www.netlib.org/lapack/)
   
 ### Download
   
@@ -328,6 +311,9 @@ I wish to thank M. Troyer and F. Alet for many useful comments and suggestions. 
 
 * B. Bauer, L. D. Carr, A. Feiguin, J. Freire, S. Fuchs, L. Gamper, J. Gukelberger, E. Gull, S. Guertler, A. Hehn, R. Igarashi, S.V. Isakov, D. Koop, P.N. Ma, P. Mates, H. Matsuo, O. Parcollet, G. Pawlowski, J.D. Picon, L. Pollet, E. Santos, V.W. Scarola, U. Schollwöck, C. Silva, B. Surer, S. Todo, S. Trebst, M. Troyer, M.L. Wall, P. Werner, S. Wessel, *The ALPS project release 2.0: Open source software for strongly correlated systems*, [Journal of Statistical Mechanics: Theory and Experiment, P05001 (2011)](http://iopscience.iop.org/1742-5468/2011/05/P05001).
 
+* Synge Todo, <i>Loop Algorithm,</i> in [Strongly Correlated Systems: Numerical Methods (Springer Series in Solid-State Sciences)](http://www.springer.com/materials/book/978-3-642-35105-1), ed. A. Avella, F. Mancini, pp. 153-184 (Springer-Verlag, Berlin, 2013).
+
+
 -------------------------------------
 
-Copyright (c) 1997-2015 by Synge Todo <wistaria@comp-phys.org>
+Copyright (c) 1997-2018 by Synge Todo <wistaria@comp-phys.org>

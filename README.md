@@ -1,6 +1,6 @@
 # ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 
-Copyright (C) 1997-2015 by Synge Todo <wistaria@comp-phys.org>
+Copyright (C) 1997-2018 by Synge Todo <wistaria@comp-phys.org>
 
 This software is published under the ALPS Application License; you can use,
 redistribute and/or modify this software under the terms of the license,
@@ -22,7 +22,7 @@ DEALINGS IN THE SOFTWARE.
 
 ### Documentation
 
-See doc/index.html
+See [doc/index.md](doc/index.md)
 
 ### History
 
@@ -44,6 +44,10 @@ See doc/index.html
 * Version 3.0
    * 2004/06/11 version 3.0: Based on ALPS framework
    * 2004/09/23 version 3.1: Negative sign support
+* Version 4
+   * March 1, 2012: Alpha version for ALPS/looper 4 (4.0a1)
+   * March 5, 2012: First release of ALPS/looper 4 (4.0.0)
+   * June 7, 2018: version 4.1: ALPS 2.3 support
 
 ### Developers
 
