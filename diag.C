@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 2003-2012 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 2003-2018 by Synge Todo <wistaria@comp-phys.org>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -385,17 +385,22 @@ void diag_worker::run(alps::ObservableSet& obs) {
   double ene, ene2;
   boost::tie(ene, ene2) = static_average2(beta, gs_ene, evals);
   ene = ene / part;
-  ene2 = ene2 / part / looper::power2(volume);
+  ene2 = ene2 / part;
   double fe = gs_ene - std::log(part) / beta;
   m["Ground State Energy"] = gs_ene;
   m["Ground State Energy Density"] = gs_ene / volume;
+  m["Ground State Energy per Site"] = gs_ene / nsite;
   m["Energy"] = ene;
   m["Energy Density"] = ene / volume;
-  m["Specific Heat"] = looper::power2(beta) * volume * (ene2 - looper::power2(ene/volume));
+  m["Energy per Site"] = ene / nsite;
+  m["Specific Heat"] = looper::power2(beta) * (ene2 - looper::power2(ene)) / volume;
+  m["Specific Heat per Site"] = looper::power2(beta) * (ene2 - looper::power2(ene)) / nsite;
   m["Free Energy"] = fe;
   m["Free Energy Density"] = fe / volume;
+  m["Free Energy per Site"] = fe / nsite;
   m["Entropy"] = beta * (ene - fe);
   m["Entropy Density"] = beta * (ene - fe) / volume;
+  m["Entropy per Site"] = beta * (ene - fe) / nsite;
 
   // generate uniform/staggered Sz matrix
   diagonal_matrix_type uniform_sz(dim);
@@ -408,17 +413,23 @@ void diag_worker::run(alps::ObservableSet& obs) {
   umag = round<1>(umag);
   m["Magnetization"] = umag / part;
   m["Magnetization Density"] = umag / part / volume;
+  m["Magnetization per Site"] = umag / part / nsite;
   m["Magnetization^2"] = umag2 / part;
   m["Magnetization Density^2"] = umag2 / part / looper::power2(volume);
+  m["Magnetization per Site^2"] = umag2 / part / looper::power2(nsite);
   m["Magnetization^4"] = umag4 / part;
   m["Magnetization Density^4"] = umag4 / part / looper::power4(volume);
+  m["Magnetization per Site^4"] = umag4 / part / looper::power4(nsite);
   m["Susceptibility"] =
     dynamic_average2(beta, gs_ene, evals, hamiltonian, uniform_sz) / part / volume;
+  m["Susceptibility per Site"] =
+    dynamic_average2(beta, gs_ene, evals, hamiltonian, uniform_sz) / part / nsite;
   m["Binder Ratio of Magnetization"] = looper::power2(umag2 / part) / (umag4 / part);
   BOOST_FOREACH(double& elm, uniform_sz) { elm = std::abs(elm); }
   umag = static_average(beta, gs_ene, evals, hamiltonian, uniform_sz);
   m["|Magnetization|"] = umag / part;
   m["|Magnetization Density|"] = umag / part / volume;
+  m["|Magnetization per Site|"] = umag / part / nsite;
   if (this->graph_helper().is_bipartite()) {
     diagonal_matrix_type staggered_sz(dim);
     staggered_sz.clear();
@@ -438,17 +449,23 @@ void diag_worker::run(alps::ObservableSet& obs) {
     smag = round<1>(smag);
     m["Staggered Magnetization"] = smag / part;
     m["Staggered Magnetization Density"] = smag / part / volume;
+    m["Staggered Magnetization per Site"] = smag / part / nsite;
     m["Staggered Magnetization^2"] = smag2 / part;
     m["Staggered Magnetization Density^2"] = smag2 / part / looper::power2(volume);
+    m["Staggered Magnetization per Site^2"] = smag2 / part / looper::power2(nsite);
     m["Staggered Magnetization^4"] = smag4 / part;
     m["Staggered Magnetization Density^4"] = smag4 / part / looper::power4(volume);
+    m["Staggered Magnetization per Site^4"] = smag4 / part / looper::power4(nsite);
     m["Staggered Susceptibility"] =
       dynamic_average2(beta, gs_ene, evals, hamiltonian, staggered_sz) / part / volume;
+    m["Staggered Susceptibility per Site"] =
+      dynamic_average2(beta, gs_ene, evals, hamiltonian, staggered_sz) / part / nsite;
     m["Binder Ratio of Staggered Magnetization"] = looper::power2(smag2 / part) / (smag4 / part);
     BOOST_FOREACH(double& elm, staggered_sz) { elm = std::abs(elm); }
     smag = static_average(beta, gs_ene, evals, hamiltonian, staggered_sz);
     m["|Staggered Magnetization|"] = smag / part;
     m["|Staggered Magnetization Density|"] = smag / part / volume;
+    m["|Staggered Magnetization per Site|"] = smag / part / nsite;
 
     // local Sz
     diagonal_matrix_type local_sz(dim);

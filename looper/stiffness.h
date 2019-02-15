@@ -114,7 +114,7 @@ struct stiffness : public has_improved_estimator_tag, public has_normal_estimato
         double w2;
         void reset(estimator_t const& emt) { w2 = 0; }
         collector& operator+=(collector const& rhs) {
-          for (int i = 0; i < MAX_DIM; ++i) w2 += rhs.w2;
+          w2 += rhs.w2;
           return *this;
         }
         collector& operator+=(estimate const& rhs) {
