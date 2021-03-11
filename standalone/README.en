@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2009 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2021 by Synge Todo <wistaria@phys.s.u-tokyo.ac.jp>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -39,20 +39,12 @@ Monte Carlo method extracted from path_integral.C in ALPS/looper Library
   loop_mpi.op-X output of loop_mpi program (executed without options)
                 X (= 1,2,3,4) denotes the number of processes
 
-Prerequisites
-
-  Boost C++ Library (http://www.boost.org)
-    version 1.34.1 or 1.35.0
-    boost/foreach.hpp, boost/random.hpp, boost/timer.hpp,
-    boost/lexical_cast.hpp, boost/static_assert.hpp,
-    boost/throw_exception.hpp are used
-
 How to compile
 
   serial verion
-    c++ -I$(BOOST_SRCDIR) -O3 loop.C -o loop
+    c++ -O3 loop.C -o loop
   parallel version
-    mpic++ -I$(BOOST_SRCDIR) -O3 loop_mpi.C -o loop_mpi
+    mpic++ -O3 loop_mpi.C -o loop_mpi
 
 動作確認
 

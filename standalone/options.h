@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2021 by Synge Todo <wistaria@phys.s.u-tokyo.ac.jp>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -25,7 +25,6 @@
 // default & command line options
 
 #include <iostream>
-#include <boost/lexical_cast.hpp>
 
 struct options {
   unsigned int length;
@@ -44,13 +43,13 @@ struct options {
         switch (argv[i][1]) {
         case 'l' :
           if (++i == argc) { usage(print); return; }
-          length = boost::lexical_cast<unsigned int>(argv[i]); break;
+          length = atoi(argv[i]); break;
         case 't' :
           if (++i == argc) { usage(print); return; }
-          temperature = boost::lexical_cast<double>(argv[i]); break;
+          temperature = atof(argv[i]); break;
         case 'n' :
           if (++i == argc) { usage(print); return; }
-          sweeps = boost::lexical_cast<unsigned int>(argv[i]);
+          sweeps = atoi(argv[i]);
           therm = sweeps >> 3; break;
         case 'h' :
           usage(print, std::cout); return;

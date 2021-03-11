@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2008 by Synge Todo <wistaria@comp-phys.org>
+* Copyright (C) 1997-2021 by Synge Todo <wistaria@phys.s.u-tokyo.ac.jp>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
@@ -30,13 +30,11 @@
 #include "options.h"
 #include "parallel.h"
 
-#include <boost/foreach.hpp>
-#include <boost/random.hpp>
-#include <boost/timer.hpp>
-
-#include <algorithm> // for std::swap
-#include <cstdlib> // for std::exit
+#include <algorithm>
+#include <chrono>
+#include <cstdlib>
 #include <iostream>
+#include <random>
 #include <vector>
 
 int main(int argc, char* argv[]) {
@@ -58,11 +56,9 @@ int main(int argc, char* argv[]) {
   const double tau1 = 1. * (process_id+1) / num_processes;
 
   // random number generators
-  boost::mt19937 eng(29833u ^ (113 * process_id));
-  boost::variate_generator<boost::mt19937&, boost::uniform_real<> >
-    r_uniform(eng, boost::uniform_real<>());
-  boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> >
-    r_time(eng, boost::exponential_distribution<>(beta * nbonds / 2));
+  std::mt19937 eng(29833 ^ (113 * process_id));
+  std::uniform_real_distribution<> d_uniform;
+  std::exponential_distribution<> d_time(beta * nbonds / 2);
 
   // vector of operators
   std::vector<local_operator_t> operators, operators_p;
@@ -92,7 +88,7 @@ int main(int argc, char* argv[]) {
   //
 
   MPI_Barrier(MPI_COMM_WORLD);
-  boost::timer tm;
+  auto start = std::chrono::system_clock::now();
 
   for (unsigned int mcs = 0; mcs < therm + sweeps; ++mcs) {
 
@@ -108,18 +104,18 @@ int main(int argc, char* argv[]) {
     fragments.resize(0); fragments.resize(2 * nsites);
     for (int s = 0; s < nsites; ++s) current[s] = s;
 
-    double t = tau0 + r_time();
+    double t = tau0 + d_time(eng);
     for (std::vector<local_operator_t>::iterator opi = operators_p.begin();
          t < tau1 || opi != operators_p.end();) {
 
       // diagonal update
       if (opi == operators_p.end() || t < opi->time) {
-        const int b = static_cast<int>(nbonds * r_uniform());
+        const int b = static_cast<int>(nbonds * d_uniform(eng));
         if (spins_c[left(nbonds, b)] != spins_c[right(nbonds, b)]) {
           operators.push_back(local_operator_t(b, t));
-          t += r_time();
+          t += d_time(eng);
         } else {
-          t += r_time();
+          t += d_time(eng);
           continue;
         }
       } else {
@@ -156,7 +152,7 @@ int main(int argc, char* argv[]) {
     const int noc = nc;
     for (int s = 2 * nsites; s < fragments.size(); ++s)
       if (fragments[s].is_root()) fragments[s].set_id(nc++);
-    BOOST_FOREACH(fragment_t& f, fragments) f.set_id(cluster_id(fragments, f));
+    for (auto& f : fragments) f.set_id(cluster_id(fragments, f));
     to_flip.resize(nc);
     estimates.resize(0); estimates.resize(nc);
 
@@ -173,7 +169,7 @@ int main(int argc, char* argv[]) {
         estimates[id].length -= tau0;
       }
     }
-    BOOST_FOREACH(local_operator_t& op, operators) {
+    for (auto& op : operators) {
       const double t = op.time;
       estimates[fragments[op.lower_cluster].id()].length += 2 * t;
       estimates[fragments[op.upper_cluster].id()].length -= 2 * t;
@@ -191,13 +187,13 @@ int main(int argc, char* argv[]) {
     for (int c = noc; c < nc; ++c) coll += estimates[c];
 
     // global unification of open clusters
-    unifier.unify(coll, to_flip, fragments, estimates, r_uniform);
+    unifier.unify(coll, to_flip, fragments, estimates, eng, d_uniform);
 
     // determine whether clusters are flipped or not
-    for (int c = noc; c < nc; ++c) to_flip[c].set_flip(r_uniform() < 0.5);
+    for (int c = noc; c < nc; ++c) to_flip[c].set_flip(d_uniform(eng) < 0.5);
 
     // flip operators & spins
-    BOOST_FOREACH(local_operator_t& op, operators)
+    for (auto& op : operators)
       if (to_flip[fragments[op.lower_cluster].id()] ^
           to_flip[fragments[op.upper_cluster].id()]) op.flip();
     for (int s = 0; s < nsites; ++s)
@@ -217,10 +213,11 @@ int main(int argc, char* argv[]) {
   }
 
   MPI_Barrier(MPI_COMM_WORLD);
+  auto end = std::chrono::system_clock::now();
+  auto elapsed = 1e-9 * std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
   if (process_id == 0) {
-    std::cerr << "Speed = " << (therm + sweeps) / tm.elapsed()
-              << " MCS/sec\n";
+    std::cerr << "Speed = " << (therm + sweeps) / elapsed << " MCS/sec\n";
     std::cout << "Number of Clusters        = "
               << num_clusters.mean() << " +- " << num_clusters.error() << std::endl
               << "Energy Density            = "

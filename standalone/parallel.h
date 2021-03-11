@@ -2,7 +2,7 @@
 *
 * ALPS/looper: multi-cluster quantum Monte Carlo algorithms for spin systems
 *
-* Copyright (C) 1997-2009 by Synge Todo <wistaria@comp-phys.org>,
+* Copyright (C) 1997-2021 by Synge Todo <wistaria@phys.s.u-tokyo.ac.jp>,
 *                            Haruhiko Matsuo <halm@looper.t.u-tokyo.ac.jp>
 *
 * This software is published under the ALPS Application License; you
@@ -27,9 +27,6 @@
 #define LOOPER_PARALLEL_H
 
 #include "union_find.h"
-#include <boost/foreach.hpp>
-#include <boost/static_assert.hpp>
-#include <boost/throw_exception.hpp>
 #include <stdexcept>
 #include <mpi.h>
 
@@ -60,12 +57,10 @@ public:
 
     int info;
     if ((info = MPI_Comm_size(comm_, &num_processes_)) != 0) {
-      boost::throw_exception(std::runtime_error(("Error " +
-        boost::lexical_cast<std::string>(info) + " in MPI_Comm_size")));
+      throw std::runtime_error(("Error " + std::to_string(info) + " in MPI_Comm_size"));
     }
     if ((info = MPI_Comm_rank(comm, &process_id_)) != 0) {
-      boost::throw_exception(std::runtime_error(("Error " +
-        boost::lexical_cast<std::string>(info) + " in MPI_Comm_rank")));
+      throw std::runtime_error(("Error " + std::to_string(info) + " in MPI_Comm_rank"));
     }
     num_stages_ = 0;
     for (int t = (num_processes_ - 1); t > 0; t = (t >> 1)) ++num_stages_;
@@ -81,9 +76,9 @@ public:
     }
   }
 
-  template<typename FRAGMENT, typename RNG>
+  template<typename FRAGMENT, typename RNG, typename DIST>
   void unify(collector_t& coll, std::vector<flip_t>& flip, std::vector<FRAGMENT> const& fragments,
-    std::vector<estimate_t> const& estimates, RNG& r_uniform) {
+    std::vector<estimate_t> const& estimates, RNG& eng, DIST& d_uniform) {
 
     // initialize local tables
     const int noc_init = coll.num_open_clusters();
@@ -116,12 +111,12 @@ public:
           estimates_[cluster_id(links_, v)] += estimatesD_[linksD_[v].id()];
 
       // accumulate cluster properties
-      BOOST_FOREACH(estimate_t const& est, estimates_) coll += est;
+      for (auto& est : estimates_) coll += est;
       coll.inc_num_clusters(nc);
 
       // determine whether clusters are flipped or not
       flip_close_.resize(nc);
-      for (int c = 0; c < nc; ++c) flip_close_[c].set_flip(r_uniform() < 0.5);
+      for (int c = 0; c < nc; ++c) flip_close_[c].set_flip(d_uniform(eng) < 0.5);
       for (int v = 0; v < num_boundaries_; ++v)
         if (linksD_[v].is_root())
           flip[linksD_[v].id()].set_flip(flip_close_[cluster_id(links_, v)]);
@@ -179,7 +174,7 @@ public:
 
           // determine whether close clusters are flipped or not
           flip_close_.resize(nc);
-          for (int c = noc; c < nc; ++c) flip_close_[c].set_flip(r_uniform() < 0.5);
+          for (int c = noc; c < nc; ++c) flip_close_[c].set_flip(d_uniform(eng) < 0.5);
           estimates_.resize(nc);
           std::fill(estimates_.begin(), estimates_.end(), estimate_t());
           for (int v = 0; v < num_boundaries_; ++v) {
@@ -279,8 +274,9 @@ protected:
   }
 
 private:
-  BOOST_STATIC_ASSERT(sizeof(flip_t) == sizeof(int));
-  BOOST_STATIC_ASSERT(sizeof(looper::union_find::node_noweight) == sizeof(int));
+  static_assert(sizeof(flip_t) == sizeof(int), "size of flip_t should be same as int");
+  static_assert(sizeof(looper::union_find::node_noweight) == sizeof(int),
+                "size of node_weight should be same as int");
 
   MPI_Comm comm_;
   int num_processes_;
