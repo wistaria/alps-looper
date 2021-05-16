@@ -59,4 +59,4 @@ See [doc/index.md](doc/index.md)
 
 ### Contact
 
-* Synge Todo <wistaria@comp-phys.org>
+* Synge Todo <wistaria@phys.s.u-tokyo.ac.jp>
