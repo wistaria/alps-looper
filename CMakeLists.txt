@@ -81,7 +81,7 @@ endif(LOOPER_USE_DETERMINISTIC_UNIFY)
 # find ALPS Library
 ######################################################################
 
-find_package(ALPS REQUIRED PATHS ${ALPS_ROOT_DIR} $ENV{ALPS_HOME} NO_SYSTEM_ENVIRONMENT_PATH)
+find_package(ALPS REQUIRED PATHS ${ALPS_ROOT_DIR} $ENV{ALPS_HOME} $ENV{ALPS_ROOT} NO_SYSTEM_ENVIRONMENT_PATH)
 message(STATUS "Found ALPS: ${ALPS_ROOT_DIR} (revision: ${ALPS_VERSION})")
 include(${ALPS_USE_FILE})
 if(NOT LAPACK_FOUND)
@@ -90,6 +90,14 @@ endif(NOT LAPACK_FOUND)
 
 # enable C++ compilers
 enable_language(CXX)
+
+find_package(MPI)
+
+# Boost
+find_package(Boost REQUIRED COMPONENTS mpi system)
+if(Boost_FOUND)
+  include_directories(${Boost_INCLUDE_DIRS})
+endif(Boost_FOUND)
 
 ######################################################################
 # applications
@@ -119,7 +127,7 @@ if(LOOPER_ENABLE_SSE_QWL)
 endif(LOOPER_ENABLE_SSE_QWL)
 
 add_executable(loop ${LOOP_SRC})
-target_link_libraries(loop ${ALPS_LIBRARIES})
+target_link_libraries(loop alps Boost::mpi ${ALPS_EXTRA_LIBRARIES})
 install(TARGETS loop RUNTIME DESTINATION bin)
 
 ######################################################################

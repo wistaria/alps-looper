@@ -6,7 +6,7 @@ set(TESTS alternating_tensor bond_matrix compatibility edge_type
 
 foreach(name ${TESTS})
   add_executable(${name} ${name}.C)
-  target_link_libraries(${name} ${ALPS_LIBRARIES})
+  target_link_libraries(${name} alps Boost::mpi ${ALPS_EXTRA_LIBRARIES})
   add_alps_test(${name})
 endforeach(name)
 
@@ -21,6 +21,6 @@ endif(CMAKE_ASM)
 
 foreach(name ${TESTS})
   add_executable(${name} ${name}.C ${ATOMIC_SRC})
-  target_link_libraries(${name} ${ALPS_LIBRARIES})
+  target_link_libraries(${name} alps Boost::mpi ${ALPS_EXTRA_LIBRARIES})
   add_alps_test(${name})
 endforeach(name)

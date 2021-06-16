@@ -11,6 +11,6 @@ if(CMAKE_ASM_COMPILER)
   set(LOOP_SRC ${LOOP_SRC} ${PROJECT_SOURCE_DIR}/looper/atomic.s)
 endif(CMAKE_ASM_COMPILER)
 add_executable(gap ${LOOP_SRC})
-target_link_libraries(gap ${ALPS_LIBRARIES})
+target_link_libraries(gap alps Boost::mpi ${ALPS_EXTRA_LIBRARIES})
 
 add_alps_test(gap)
